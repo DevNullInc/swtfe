@@ -2943,7 +2943,7 @@ void set_pager_color( sh_int AType, CHAR_DATA *ch )
 
 
 /* source: EOD, by John Booth <???> */
-void ch_printf(CHAR_DATA *ch, char *fmt, ...)
+void ch_printf(CHAR_DATA *ch, const char *fmt, ...)
 {
     char buf[MAX_STRING_LENGTH*2];	/* better safe than sorry */
     va_list args;
@@ -2955,7 +2955,7 @@ void ch_printf(CHAR_DATA *ch, char *fmt, ...)
     send_to_char(buf, ch);
 }
 
-void pager_printf(CHAR_DATA *ch, char *fmt, ...)
+void pager_printf(CHAR_DATA *ch, const char *fmt, ...)
 {
     char buf[MAX_STRING_LENGTH*2];
     va_list args;

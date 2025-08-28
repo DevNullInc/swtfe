@@ -37,11 +37,11 @@ void send_control_page_to_char(CHAR_DATA * ch, char page);
 /*
  * Local functions.
  */
-void	talk_channel	args( ( CHAR_DATA *ch, char *argument,
+void	talk_channel	args( ( CHAR_DATA *ch, const char *argument,
 			    int channel, const char *verb ) );
 
 char *  scramble        args( ( const char *argument, int modifier ) );			    
-char *  drunk_speech    args( ( const char *argument, CHAR_DATA *ch ) ); 
+const char *  drunk_speech    args( ( const char *argument, CHAR_DATA *ch ) ); 
 
 void sound_to_room( ROOM_INDEX_DATA *room , char *argument )
 {
@@ -55,7 +55,7 @@ void sound_to_room( ROOM_INDEX_DATA *room , char *argument )
      
 }
 
-char * lang_string( CHAR_DATA *ch, CHAR_DATA *vch )
+const char * lang_string( CHAR_DATA *ch, CHAR_DATA *vch )
 {
   int lang;
   
@@ -258,12 +258,12 @@ char *scramble( const char *argument, int modifier )
 }
 
 /* I'll rewrite this later if its still needed.. -- Altrag */
-char *translate( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
+const char *translate( CHAR_DATA *ch, CHAR_DATA *victim, const char *argument )
 {
 	return "";
 }
 
-char *drunk_speech( const char *argument, CHAR_DATA *ch )
+const char *drunk_speech( const char *argument, CHAR_DATA *ch )
 {
   const char *arg = argument;
   static char buf[MAX_INPUT_LENGTH*2];
@@ -408,7 +408,7 @@ char *drunk_speech( const char *argument, CHAR_DATA *ch )
 /*
  * Generic channel function.
  */
-void talk_channel( CHAR_DATA *ch, char *argument, int channel, const char *verb )
+void talk_channel( CHAR_DATA *ch, const char *argument, int channel, const char *verb )
 {
     char buf[MAX_STRING_LENGTH];
     char buf2[MAX_STRING_LENGTH];
@@ -617,7 +617,7 @@ void talk_channel( CHAR_DATA *ch, char *argument, int channel, const char *verb 
 	&&   vch != ch
 	&&  !IS_SET(och->deaf, channel) )
 	{
-            char *sbuf = argument;
+            const char *sbuf = argument;
   	    ch_comlink = FALSE;
     
             if ( channel != CHANNEL_SHOUT && channel != CHANNEL_YELL && channel != CHANNEL_IMMTALK && channel != CHANNEL_OOC 
@@ -1080,7 +1080,7 @@ void do_say( CHAR_DATA *ch, char *argument )
     if ( IS_NPC( ch ) ) REMOVE_BIT( ch->act, ACT_SECRETIVE );
 	for ( vch = ch->in_room->first_person; vch; vch = vch->next_in_room )
 	{
-		char *sbuf = argument;
+		const char *sbuf = argument;
 		char sbuflang[MAX_STRING_LENGTH];
 
 		if ( vch == ch )
@@ -1141,7 +1141,7 @@ void do_tell( CHAR_DATA *ch, char *argument )
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_INPUT_LENGTH];
-    char *sbuf = argument;
+    const char *sbuf = argument;
     char sbuflang[MAX_INPUT_LENGTH];
     CHAR_DATA *victim;
     int position;
@@ -1368,7 +1368,7 @@ void do_tell( CHAR_DATA *ch, char *argument )
 void do_reply( CHAR_DATA *ch, char *argument )
 {
     char buf[MAX_STRING_LENGTH];
-    char *sbuf;
+    const char *sbuf;
     char sbuflang[MAX_STRING_LENGTH];
     CHAR_DATA *victim;
     int position;
@@ -1495,7 +1495,7 @@ void do_retell( CHAR_DATA *ch, char *argument )
 	int position;	
 	bool sameroom = FALSE;	
 	char buf[MAX_STRING_LENGTH];
-	char *sbuf;
+	const char *sbuf;
 	char sbuflang[MAX_STRING_LENGTH];
 	if( argument[0] == '\0' ) {
 		send_to_char("Retell what?\n\r",ch );		
@@ -2658,7 +2658,7 @@ int countlangs( int languages )
 	return numlangs;
 }
 
-char * const lang_names[] = { "common", "wookiee", "twilek", "rodian", "hutt",
+const char * const lang_names[] = { "common", "wookiee", "twilek", "rodian", "hutt",
 							 "mon calamari", "shistavanen", "ewok", "ithorian",
 							 "gotal", "devaronian", "barabel", "firrerreo",
 							 "bothan", "gamorrean", "togorian", "kubaz",

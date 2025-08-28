@@ -3893,7 +3893,7 @@ char *aoran( const char *str )
 /*
  * Append a string to a file.
  */
-void append_file( CHAR_DATA *ch, char *file, char *str )
+void append_file( CHAR_DATA *ch, const char *file, const char *str )
 {
     FILE *fp;
 
@@ -3919,7 +3919,7 @@ void append_file( CHAR_DATA *ch, char *file, char *str )
 /*
  * Append a string to a file.
  */
-void append_to_file( char *file, char *str )
+void append_to_file( const char *file, const char *str )
 {
     FILE *fp;
 
@@ -4028,7 +4028,7 @@ void boot_log( const char *str, ... )
 /*
  * Dump a text file to a player, a line at a time		-Thoric
  */
-void show_file( CHAR_DATA *ch, char *filename )
+void show_file( CHAR_DATA *ch, const char *filename )
 {
     FILE *fp;
     char buf[MAX_STRING_LENGTH];

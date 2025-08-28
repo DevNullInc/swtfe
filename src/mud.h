@@ -3710,7 +3710,7 @@ extern	char *	const	area_flags	[];
 extern  char *  const   cargo_names     [];
 extern  int     const   modflags	[MAXMODFLAG];
 extern	int	const	lang_array      [];
-extern	char *	const	lang_names      [];
+extern	const char *	const	lang_names      [];
 
 /*
  * Global variables.
@@ -4683,7 +4683,7 @@ char *	crypt		args( ( const char *key, const char *salt ) );
 int     closed          args( ( int d ) );
 int readd               args( ( int handle, char *buffer, int length ) );
 bool	write_to_descriptor	args( ( int desc, char *txt, int length ) );
-char *  lang_string( CHAR_DATA *ch, CHAR_DATA *vch );
+const char *  lang_string( CHAR_DATA *ch, CHAR_DATA *vch );
 void    sound_to_room( ROOM_INDEX_DATA *room , char *argument );
 bool	circle_follow	args( ( CHAR_DATA *ch, CHAR_DATA *victim ) );
 void	add_follower	args( ( CHAR_DATA *ch, CHAR_DATA *master ) );
@@ -4701,7 +4701,7 @@ bool    knows_language  args( ( CHAR_DATA *ch, int language,
 				CHAR_DATA *cch ) );
 bool    can_learn_lang  args( ( CHAR_DATA *ch, int language ) );
 int     countlangs      args( ( int languages ) );
-char *  translate       args( ( CHAR_DATA *ch, CHAR_DATA *victim,
+const char *  translate       args( ( CHAR_DATA *ch, CHAR_DATA *victim,
 				const char *argument ) );
 char *	obj_short	args( ( OBJ_DATA *obj ) );
 
@@ -4875,8 +4875,8 @@ void	send_to_pager	args( ( const char *txt, CHAR_DATA *ch ) );
 void	send_to_pager_color	args( ( const char *txt, CHAR_DATA *ch ) );
 void	set_char_color  args( ( sh_int AType, CHAR_DATA *ch ) );
 void	set_pager_color	args( ( sh_int AType, CHAR_DATA *ch ) );
-void	ch_printf	args( ( CHAR_DATA *ch, char *fmt, ... ) );
-void	pager_printf	args( (CHAR_DATA *ch, char *fmt, ...) );
+void	ch_printf	args( ( CHAR_DATA *ch, const char *fmt, ... ) );
+void	pager_printf	args( (CHAR_DATA *ch, const char *fmt, ...) );
 void	act		args( ( sh_int AType, const char *format, CHAR_DATA *ch, const void *arg1, const void *arg2, int type ) );
 
 /* reset.c */
@@ -4886,7 +4886,7 @@ RD  *	place_reset	args( ( AREA_DATA *tarea, char letter, int extra, int arg1, in
 void	reset_area	args( ( AREA_DATA * pArea ) );
 
 /* db.c */
-void	show_file	args( ( CHAR_DATA *ch, char *filename ) );
+void	show_file	args( ( CHAR_DATA *ch, const char *filename ) );
 char *	str_dup		args( ( char const *str ) );
 void	boot_db		args( ( void ) );
 void	area_update	args( ( void ) );
@@ -4925,8 +4925,8 @@ char *	capitalize	args( ( const char *str ) );
 char *	strlower	args( ( const char *str ) );
 char *	strupper	args( ( const char *str ) );
 char *  aoran		args( ( const char *str ) );
-void	append_file	args( ( CHAR_DATA *ch, char *file, char *str ) );
-void	append_to_file	args( ( char *file, char *str ) );
+void	append_file	args( ( CHAR_DATA *ch, const char *file, const char *str ) );
+void	append_to_file	args( ( const char *file, const char *str ) );
 void	bug		args( ( const char *str, ... ) );
 void	log_string_plus	args( ( const char *str, sh_int log_type, sh_int level ) );
 RID *	make_room	args( ( int vnum ) );
