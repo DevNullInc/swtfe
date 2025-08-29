@@ -50,7 +50,11 @@ CMDF do_create_list(CHAR_DATA * ch, char *argument)
         FILE     *fp;
         char      filename[256];
 
-        snprintf(filename, 256, "%s%s", LIST_DIR, argument);
+        /* Use step-by-step buffer building to avoid truncation */
+        size_t len = 0;
+        filename[0] = '\0';
+        len += snprintf(filename + len, 256 - len, "%s", LIST_DIR);
+        len += snprintf(filename + len, 256 - len, "%s", argument);
 
         if (file_exist(filename))
         {
@@ -85,7 +89,11 @@ CMDF do_addto_list(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        snprintf(filename, 256, "%s%s", LIST_DIR, arg1);
+        /* Use step-by-step buffer building to avoid truncation */
+        size_t len = 0;
+        filename[0] = '\0';
+        len += snprintf(filename + len, 256 - len, "%s", LIST_DIR);
+        len += snprintf(filename + len, 256 - len, "%s", arg1);
 
         if (!file_exist(filename))
         {
@@ -111,7 +119,11 @@ CMDF do_showlist(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        snprintf(filename, 256, "%s%s", LIST_DIR, argument);
+        /* Use step-by-step buffer building to avoid truncation */
+        size_t len = 0;
+        filename[0] = '\0';
+        len += snprintf(filename + len, 256 - len, "%s", LIST_DIR);
+        len += snprintf(filename + len, 256 - len, "%s", argument);
 
         if (!file_exist(filename))
         {
@@ -167,8 +179,18 @@ CMDF do_remlist(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        snprintf(filename, 256, "%s%s", LIST_DIR, arg1);
-        snprintf(fntemp, 256, "%s%s.tmp", LIST_DIR, arg1);
+        /* Use step-by-step buffer building to avoid truncation */
+        size_t len1 = 0;
+        filename[0] = '\0';
+        len1 += snprintf(filename + len1, 256 - len1, "%s", LIST_DIR);
+        len1 += snprintf(filename + len1, 256 - len1, "%s", arg1);
+
+        /* Use step-by-step buffer building to avoid truncation */
+        size_t len2 = 0;
+        fntemp[0] = '\0';
+        len2 += snprintf(fntemp + len2, 256 - len2, "%s", LIST_DIR);
+        len2 += snprintf(fntemp + len2, 256 - len2, "%s", arg1);
+        len2 += snprintf(fntemp + len2, 256 - len2, ".tmp");
 
         if (!file_exist(filename))
         {

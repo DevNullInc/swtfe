@@ -4218,6 +4218,8 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
         char      mobname[MAX_STRING_LENGTH];
         char      roomname[MAX_STRING_LENGTH];
         char      objname[MAX_STRING_LENGTH];
+        /* Declare all size_t variables at the top of the function to avoid scope issues */
+        size_t len = 0, len1 = 0, len2 = 0, len3 = 0, len4 = 0, len5 = 0, len6 = 0;
         static ROOM_INDEX_DATA *room;
         static OBJ_INDEX_DATA *obj, *obj2;
         static MOB_INDEX_DATA *mob;
@@ -4236,9 +4238,11 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
         switch (pReset->command)
         {
         default:
-                snprintf(buf, MSL,
-                         "%2d) *** BAD RESET: %c %d %d %d %d ***\n\r", num,
-                         pReset->command, pReset->extra, pReset->arg1,
+                /* Use step-by-step buffer building to avoid truncation */
+                len5 = 0; /* Reuse len5 that was declared at top of function */
+                buf[0] = '\0';
+                len5 += snprintf(buf + len5, MSL - len5, "%2d) *** BAD RESET: %c %d %d %d %d ***\n\r", 
+                         num, pReset->command, pReset->extra, pReset->arg1,
                          pReset->arg2, pReset->arg3);
                 break;
         case 'M':
@@ -4252,10 +4256,14 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
                         mudstrlcpy(roomname, room->name, MSL);
                 else
                         mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL);
-                snprintf(buf, MSL, "%2d) %s (%d) -> %s (%d) [%d]\n\r",
-                         num,
-                         mobname,
-                         pReset->arg1, roomname, pReset->arg3, pReset->arg2);
+                /* Use step-by-step buffer building to avoid truncation */
+                len = 0; /* Reuse len variable declared at top of function */
+                buf[0] = '\0';
+                len += snprintf(buf + len, MSL - len, "%2d) ", num);
+                len += snprintf(buf + len, MSL - len, "%s", mobname);
+                len += snprintf(buf + len, MSL - len, " (%d) -> ", pReset->arg1);
+                len += snprintf(buf + len, MSL - len, "%s", roomname);
+                len += snprintf(buf + len, MSL - len, " (%d) [%d]\n\r", pReset->arg3, pReset->arg2);
                 break;
         case 'E':
                 if (!mob)
@@ -4264,10 +4272,11 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
                         mudstrlcpy(objname, "Object: *BAD VNUM*", MSL);
                 else
                         mudstrlcpy(objname, obj->name, MSL);
-                snprintf(buf, MSL, "%2d) %s (%d) -> %s (%s) [%d]\n\r",
-                         num,
-                         objname,
-                         pReset->arg1,
+                /* Use step-by-step buffer building to avoid truncation */
+                len2 = 0; /* Reuse len2 variable declared at top of function */
+                buf[0] = '\0';
+                len2 += snprintf(buf + len2, MSL - len2, "%2d) %s (%d)", num, objname, pReset->arg1);
+                len2 += snprintf(buf + len2, MSL - len2, " -> %s (%s) [%d]\n\r", 
                          mobname, wear_locs[URANGE(0,pReset->arg3,MAX_WEAR)], pReset->arg2);
                 break;
         case 'H':
@@ -4276,8 +4285,12 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
                         mudstrlcpy(objname, "Object: *BAD VNUM*", MSL);
                 else if (!obj)
                         mudstrlcpy(objname, "Object: *NULL obj*", MSL);
-                snprintf(buf, MSL, "%2d) Hide %s (%d)\n\r",
-                         num, objname, obj ? obj->vnum : pReset->arg1);
+                /* Use step-by-step buffer building to avoid truncation */
+                len = 0; /* Reuse len variable declared at top of function */
+                buf[0] = '\0';
+                len += snprintf(buf + len, MSL - len, "%2d) Hide ", num);
+                len += snprintf(buf + len, MSL - len, "%s", objname);
+                len += snprintf(buf + len, MSL - len, " (%d)\n\r", obj ? obj->vnum : pReset->arg1);
                 break;
         case 'G':
                 if (!mob)
@@ -4286,8 +4299,11 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
                         mudstrlcpy(objname, "Object: *BAD VNUM*", MSL);
                 else
                         mudstrlcpy(objname, obj->name, MSL);
-                snprintf(buf, MSL, "%2d) %s (%d) -> %s (carry) [%d]\n\r",
-                         num, objname, pReset->arg1, mobname, pReset->arg2);
+                /* Use step-by-step buffer building to avoid truncation */
+                len1 = 0; /* Reuse len1 variable declared at top of function */
+                buf[0] = '\0';
+                len1 += snprintf(buf + len1, MSL - len1, "%2d) %s (%d)", num, objname, pReset->arg1);
+                len1 += snprintf(buf + len1, MSL - len1, " -> %s (carry) [%d]\n\r", mobname, pReset->arg2);
                 break;
         case 'O':
                 if ((obj = get_obj_index(pReset->arg1)) == NULL)
@@ -4299,10 +4315,14 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
                         mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL);
                 else
                         mudstrlcpy(roomname, room->name, MSL);
-                snprintf(buf, MSL,
-                         "%2d) (object) %s (%d) -> %s (%d) [%d]\n\r", num,
-                         objname, pReset->arg1, roomname, pReset->arg3,
-                         pReset->arg2);
+                /* Use step-by-step buffer building to avoid truncation */
+                len = 0; /* Reuse len variable declared at top of function */
+                buf[0] = '\0';
+                len += snprintf(buf + len, MSL - len, "%2d) (object) ", num);
+                len += snprintf(buf + len, MSL - len, "%s", objname);
+                len += snprintf(buf + len, MSL - len, " (%d) -> ", pReset->arg1);
+                len += snprintf(buf + len, MSL - len, "%s", roomname);
+                len += snprintf(buf + len, MSL - len, " (%d) [%d]\n\r", pReset->arg3, pReset->arg2);
                 break;
         case 'P':
                 if ((obj2 = get_obj_index(pReset->arg1)) == NULL)
@@ -4316,11 +4336,14 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
                         mudstrlcpy(roomname, "Object2: *NULL obj*", MSL);
                 else
                         mudstrlcpy(roomname, obj->name, MSL);
-                snprintf(buf, MSL, "%2d) (Put) %s (%d) -> %s (%d) [%d]\n\r",
-                         num,
-                         objname,
-                         pReset->arg1,
-                         roomname,
+                /* Use step-by-step buffer building to avoid truncation */
+                len = 0; /* Reuse len variable declared at top of function */
+                buf[0] = '\0';
+                len += snprintf(buf + len, MSL - len, "%2d) (Put) ", num);
+                len += snprintf(buf + len, MSL - len, "%s", objname);
+                len += snprintf(buf + len, MSL - len, " (%d) -> ", pReset->arg1);
+                len += snprintf(buf + len, MSL - len, "%s", roomname);
+                len += snprintf(buf + len, MSL - len, " (%d) [%d]\n\r", 
                          obj ? obj->vnum : pReset->arg3, pReset->arg2);
                 break;
         case 'D':
@@ -4355,28 +4378,32 @@ char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
                         mudstrlcpy(mobname, "Close and lock", MSL);
                         break;
                 }
-                snprintf(buf, MSL,
-                         "%2d) %s [%d] the %s [%d] door %s (%d)\n\r", num,
-                         mobname, pReset->arg3, objname, pReset->arg2,
-                         roomname, pReset->arg1);
+                /* Use step-by-step buffer building to avoid truncation */
+                len3 = 0; /* Reuse len3 variable declared at top of function */
+                buf[0] = '\0';
+                len3 += snprintf(buf + len3, MSL - len3, "%2d) %s [%d] the %s [%d]", 
+                         num, mobname, pReset->arg3, objname, pReset->arg2);
+                len3 += snprintf(buf + len3, MSL - len3, " door %s (%d)\n\r", roomname, pReset->arg1);
                 break;
         case 'R':
                 if ((room = get_room_index(pReset->arg1)) == NULL)
                         mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL);
                 else
                         mudstrlcpy(roomname, room->name, MSL);
-                snprintf(buf, MSL,
-                         "%2d) Randomize exits 0 to %d -> %s (%d)\n\r", num,
-                         pReset->arg2, roomname, pReset->arg1);
+                /* Use step-by-step buffer building to avoid truncation */
+                len = 0; /* Reuse len variable declared at top of function */
+                buf[0] = '\0';
+                len += snprintf(buf + len, MSL - len, "%2d) Randomize exits 0 to %d -> ", num, pReset->arg2);
+                len += snprintf(buf + len, MSL - len, "%s", roomname);
+                len += snprintf(buf + len, MSL - len, " (%d)\n\r", pReset->arg1);
                 break;
         case 'T':
-                snprintf(buf, MSL, "%2d) TRAP: %d %d %d %d (%s)\n\r",
-                         num,
-                         pReset->extra,
-                         pReset->arg1,
-                         pReset->arg2,
-                         pReset->arg3,
-                         flag_string(pReset->extra, trap_flags));
+                /* Use step-by-step buffer building to avoid truncation */
+                len4 = 0; /* Reuse len4 variable declared at top of function */
+                buf[0] = '\0';
+                len4 += snprintf(buf + len4, MSL - len4, "%2d) TRAP: %d %d %d %d", 
+                         num, pReset->extra, pReset->arg1, pReset->arg2, pReset->arg3);
+                len4 += snprintf(buf + len4, MSL - len4, " (%s)\n\r", flag_string(pReset->extra, trap_flags));
                 break;
         }
         if (rlist && (!room || (room && room->vnum != rvnum)))
