@@ -62,8 +62,9 @@ struct hashstr_data *string_hash[STR_HASH_SIZE];
  */
 char     *str_alloc(char *str)
 {
-        register int len, hash, psize;
-        register struct hashstr_data *ptr;
+        /* Removed 'register' keyword for C++17 compatibility */
+        int len, hash, psize;
+        struct hashstr_data *ptr;
 
         len = strlen(str);
         psize = sizeof(struct hashstr_data);
@@ -95,7 +96,8 @@ char     *str_alloc(char *str)
  */
 char     *quick_link(char *str)
 {
-        register struct hashstr_data *ptr;
+        /* Removed 'register' keyword for C++17 compatibility */
+        struct hashstr_data *ptr;
 
         ptr = (struct hashstr_data *) (str - sizeof(struct hashstr_data));
         if (ptr->links == 0)
@@ -116,8 +118,9 @@ char     *quick_link(char *str)
  */
 int str_free(char *str)
 {
-        register int len, hash;
-        register struct hashstr_data *ptr, *ptr2, *ptr2_next;
+        /* Removed 'register' keyword for C++17 compatibility */
+        int len, hash;
+        struct hashstr_data *ptr, *ptr2, *ptr2_next;
 
         len = strlen(str);
         hash = len % STR_HASH_SIZE;
@@ -181,7 +184,8 @@ void hash_dump(int hash)
         psize = sizeof(struct hashstr_data);
         for (c = 0, ptr = string_hash[hash]; ptr; ptr = ptr->next, c++)
         {
-                str = (char *) (((int) ptr) + psize);
+                /* Fixed pointer arithmetic to avoid precision loss */
+                str = (char *)ptr + psize;
                 fprintf(stderr, "Len:%4d Lnks:%5d Str: %s\n\r",
                         ptr->length, ptr->links, str);
         }
@@ -257,7 +261,8 @@ void show_high_hash(int top)
                 for (ptr = string_hash[x]; ptr; ptr = ptr->next)
                         if (ptr->links >= top)
                         {
-                                str = (char *) (((int) ptr) + psize);
+                                /* Fixed pointer arithmetic to avoid precision loss */
+                                str = (char *)ptr + psize;
                                 fprintf(stderr,
                                         "Links: %5d  String: >%s<\n\r",
                                         ptr->links, str);
@@ -288,8 +293,9 @@ int allocated_strings(void)
 */
 int in_hash_table(char *str)
 {
-        register int len, hash, psize;
-        register struct hashstr_data *ptr;
+        /* Removed 'register' keyword for C++17 compatibility */
+        int len, hash, psize;
+        struct hashstr_data *ptr;
 
         len = strlen(str);
         psize = sizeof(struct hashstr_data);
