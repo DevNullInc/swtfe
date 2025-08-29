@@ -1228,7 +1228,7 @@ void send_to_desc_color(const char *txt, DESCRIPTOR_DATA * d)
         if (!txt || !d->descriptor)
                 return;
 
-        while ((colstr = strpbrk(prevstr, "&^}")) != NULL)
+        while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&^}")) != NULL)
         {
                 if (colstr > prevstr)
                         write_to_buffer(d, prevstr, (colstr - prevstr));
@@ -1269,9 +1269,9 @@ void send_to_char_color(const char *txt, CHAR_DATA * ch)
         if (txt && ch->desc)
         {
 #ifdef OVERLANDCODE
-                while ((colstr = strpbrk(prevstr, "&{}")) != NULL)
+                while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&{}")) != NULL)
 #else
-                while ((colstr = strpbrk(prevstr, "&^}")) != NULL)
+                while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&^}")) != NULL)
 #endif
                 {
                         if (colstr > prevstr)
@@ -1322,9 +1322,9 @@ void send_to_pager_color(const char *txt, CHAR_DATA * ch)
                         return;
                 }
 #ifdef OVERLANDCODE
-                while ((colstr = strpbrk(prevstr, "&{}")) != NULL)
+                while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&{}")) != NULL)
 #else
-                while ((colstr = strpbrk(prevstr, "&^}")) != NULL)
+                while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&^}")) != NULL)
 #endif
                 {
                         if (colstr > prevstr)
