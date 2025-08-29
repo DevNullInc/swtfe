@@ -41,6 +41,7 @@
 
 #include <list>
 #include <algorithm>
+#include "grid.h"
 
 struct ROOMMATE_DATA
 {
@@ -53,8 +54,6 @@ struct ROOMMATE_DATA
 
 typedef std::list < ROOM_INDEX_DATA * > ROOM_LIST;
 typedef std::list < ROOMMATE_DATA * > ROOMMATE_LIST;
-
-class GRID; 
 struct HOME_DATA
 {
         HOME_DATA *next;
@@ -64,7 +63,7 @@ struct HOME_DATA
         char     *description;
         char     *owner;    /* Can be clan or a player, or 'public' */
         long int  price;
-        GRID      * grid;
+        GRID_WRAPPER * grid;
 
         ROOMMATE_LIST roommates;
         ROOM_LIST rooms;

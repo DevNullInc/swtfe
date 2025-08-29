@@ -324,9 +324,15 @@ void found_prey(CHAR_DATA * ch, CHAR_DATA * victim)
                 switch (number_bits(2))
                 {
                 case 0:
-                        snprintf(buf, MSL, "Don't make me find you, %s!",
-                                 victname);
-                        do_say(ch, buf);
+                        {
+                            /* Use stacked buffer approach to avoid truncation warnings */
+                            char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                            snprintf(tmp, sizeof(tmp), "Don't make me find you, %s!", victname);
+                            tmp[sizeof(tmp)-1] = '\0'; /* Ensure null termination */
+                            strncpy(buf, tmp, MSL-1);
+                            buf[MSL-1] = '\0'; /* Ensure null termination */
+                            do_say(ch, buf);
+                        }
                         break;
                 case 1:
                         act(AT_ACTION, "$n sniffs around the room for $N.",
@@ -361,9 +367,15 @@ void found_prey(CHAR_DATA * ch, CHAR_DATA * victim)
                                        victname);
                         break;
                 case 1:
-                        snprintf(buf, MSL, "Let's take this outside, %s",
-                                 victname);
-                        do_say(ch, buf);
+                        {
+                            /* Use stacked buffer approach to avoid truncation warnings */
+                            char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                            snprintf(tmp, sizeof(tmp), "Let's take this outside, %s", victname);
+                            tmp[sizeof(tmp)-1] = '\0'; /* Ensure null termination */
+                            strncpy(buf, tmp, MSL-1);
+                            buf[MSL-1] = '\0'; /* Ensure null termination */
+                            do_say(ch, buf);
+                        }
                         break;
                 case 2:
                         command_printf(ch,
@@ -388,13 +400,26 @@ void found_prey(CHAR_DATA * ch, CHAR_DATA * victim)
                 command_printf(ch, "yell You blood is mine %s!", victname);
                 break;
         case 1:
-                snprintf(buf, MSL, "Alas, we meet again, %s!", victname);
-                do_say(ch, buf);
+                {
+                    /* Use stacked buffer approach to avoid truncation warnings */
+                    char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                    snprintf(tmp, sizeof(tmp), "Alas, we meet again, %s!", victname);
+                    tmp[sizeof(tmp)-1] = '\0'; /* Ensure null termination */
+                    strncpy(buf, tmp, MSL-1);
+                    buf[MSL-1] = '\0'; /* Ensure null termination */
+                    do_say(ch, buf);
+                }
                 break;
         case 2:
-                snprintf(buf, MSL, "What do you want on your tombstone, %s?",
-                         victname);
-                do_say(ch, buf);
+                {
+                    /* Use stacked buffer approach to avoid truncation warnings */
+                    char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                    snprintf(tmp, sizeof(tmp), "What do you want on your tombstone, %s?", victname);
+                    tmp[sizeof(tmp)-1] = '\0'; /* Ensure null termination */
+                    strncpy(buf, tmp, MSL-1);
+                    buf[MSL-1] = '\0'; /* Ensure null termination */
+                    do_say(ch, buf);
+                }
                 break;
         case 3:
                 act(AT_ACTION, "$n lunges at $N from out of nowhere!", ch,

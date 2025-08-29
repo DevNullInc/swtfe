@@ -56,6 +56,7 @@
 #ifndef CMDF
 #define CMDF void
 #endif
+#include <algorithm>
 
 struct HOME_ROOM_TYPES {
 	char * type;
@@ -197,8 +198,8 @@ HOME_PLOT_TYPES home_plot_types[MAX_HOME_PLOT_TYPES] = {
 
 DECLARE_DO_FUN(do_addroom);
 
-GRID * home_grid_fread args((FILE * fp));
-void home_grid_fwrite args((GRID * grid, FILE * fp));
+GRID_WRAPPER * home_grid_fread args((FILE * fp));
+void home_grid_fwrite args((GRID_WRAPPER * grid, FILE * fp));
 void generate_description(ROOM_INDEX_DATA *room, int type);
 
 HOME_DATA *first_home;
@@ -1162,7 +1163,7 @@ CMDF do_roommate(CHAR_DATA * ch, char *argument)
                          * Now add a roommate 
                          */
                         roommate = new ROOMMATE_DATA();
-                        roommate->name = STRALLOC(capitalize(argument));
+                        roommate->name = STRALLOC(const_cast<char*>(capitalize(argument)));
 						home->add(roommate);
                 }
                 send_to_char("Done.", ch);
@@ -1427,7 +1428,7 @@ needs buzzed field into mud.h CMDF do_invite(CHAR_DATA * ch, char *argument)
 }
 #endif
 
-GRID * home_grid_fread( FILE * fp)
+GRID_WRAPPER * home_grid_fread( FILE * fp)
 {
 	int width = fread_number(fp);
 	int length = fread_number(fp);
@@ -1436,7 +1437,7 @@ GRID * home_grid_fread( FILE * fp)
 	const char *word;
 	bool      fMatch;
 
-	GRID * grid = new GRID(base,width,length,height);
+	GRID_WRAPPER * grid = grid_new(base, length, width, height);
 	for (;;)
 	{
 		word = feof(fp) ? "End" : fread_word(fp);
@@ -1463,7 +1464,7 @@ GRID * home_grid_fread( FILE * fp)
 					int column, row, height, roomvnum;
 					fgets(line, 100, fp);
 					sscanf(line, "%d %d %d - %d", &column, &row, &height, &roomvnum);
-					grid->set(column,row,height,get_room_index(roomvnum));
+					grid_set(grid, column, row, height, get_room_index(roomvnum));
 					fMatch = TRUE;
 					break;
 				}
@@ -1473,19 +1474,19 @@ GRID * home_grid_fread( FILE * fp)
 		if (!fMatch)
 			bug("Fread_installations: no match: %s", word);
 	}
-	delete grid;
+	grid_free(grid);
 	grid = NULL;
 	return NULL;
 }
 
 
-void home_grid_fwrite(GRID * grid, FILE * fp)
+void home_grid_fwrite(GRID_WRAPPER * grid, FILE * fp)
 {
-	fprintf(fp, "#GRID\n%d\n%d\n%d\n%d\n", grid->width(),grid->length(),grid->height(),grid->base());
-	for (int height = 0; height < grid->height(); height++) {
-		for (int row = 0; row < grid->width(); row++) {
-			for (int column = 0; column < grid->length(); column++) {
-				ROOM_INDEX_DATA * room = (ROOM_INDEX_DATA *) grid->get(column,row,height);
+	fprintf(fp, "#GRID\n%d\n%d\n%d\n%d\n", grid_get_width(grid), grid_get_length(grid), grid_get_height(grid), grid_get_base(grid));
+	for (int height = 0; height < grid_get_height(grid); height++) {
+		for (int row = 0; row < grid_get_width(grid); row++) {
+			for (int column = 0; column < grid_get_length(grid); column++) {
+				ROOM_INDEX_DATA * room = (ROOM_INDEX_DATA *) grid_get(grid, column, row, height);
 				if (!room) continue;
 				fprintf(fp, "Coord %d %d %d - %d\n", column,row,height,room->vnum);
 			}
@@ -1710,11 +1711,11 @@ CMDF do_realitor(CHAR_DATA * ch, char * argument)
 	 *
 	 * Plots can be used to build homes or installations
 	 */
-	home->grid = new GRID(0,home_plot_types[plot_type].cols,home_plot_types[plot_type].rows,home_plot_types[plot_type].height);
+	home->grid = grid_new(0, home_plot_types[plot_type].cols, home_plot_types[plot_type].rows, home_plot_types[plot_type].height);
 	if (home_plot_types[plot_type].height > 1) 
-		home->grid->set(0,0,1,ch->in_room);
+		grid_set(home->grid, 0, 0, 1, ch->in_room);
 	else
-		home->grid->set(0,0,0,ch->in_room);
+		grid_set(home->grid, 0, 0, 0, ch->in_room);
 	snprintf(buf, MSL, "%d.home", ch->in_room->vnum);
 	home->filename = STRALLOC(buf);
 	home->owner = STRALLOC(ch->name);
@@ -1885,12 +1886,12 @@ void HOME_DATA::add_room(CHAR_DATA * ch, char * argument)
 	}
 
 	col = row = height = 0;
-	pos = home->grid->find(ch->in_room,&col,&row,&height);
+	pos = grid_find_obj(home->grid, ch->in_room, &col, &row, &height);
 	if (pos == -1) {
 		send_to_char("This building is bugged. Please contact a coder.\n\r",ch);
 		return;
 	}
-	//home->grid->translate(pos,&col,&row,&height);
+	//grid_translate_pos(home->grid, pos, &col, &row, &height);
 
 	switch (ch->substate)
 	{
@@ -1922,7 +1923,7 @@ void HOME_DATA::add_room(CHAR_DATA * ch, char * argument)
 				return;
 			}
 
-			if (!home->grid->valid(col,row,height)) {
+			if (!grid_valid(home->grid, col, row, height)) {
 				send_to_char("Can't add on in that direction.\n\r",ch);
 				return;
 			}
@@ -2000,7 +2001,7 @@ void HOME_DATA::add_room(CHAR_DATA * ch, char * argument)
 		send_to_char("Which direction is that?\n\r", ch);
 		return;
 	}
-	if (!home->grid->valid(col,row,height)) {
+	if (!grid_valid(home->grid, col, row, height)) {
 		send_to_char("Can't add on in that direction.\n\r",ch);
 		return;
 	}
@@ -2029,7 +2030,7 @@ void HOME_DATA::add_room(CHAR_DATA * ch, char * argument)
 	}
 
 	/* Find the room if it exists */
-	newroom = (ROOM_INDEX_DATA *) home->grid->get(col,row,height);
+	newroom = (ROOM_INDEX_DATA *) grid_get(home->grid, col, row, height);
 	if (!newroom) {
 		vnum = find_pvnum_block(1,ch->in_room->area->filename);
 		if (vnum == -1)
@@ -2074,7 +2075,7 @@ void HOME_DATA::add_room(CHAR_DATA * ch, char * argument)
 		newroom->sector_type = SECT_INSIDE;
 		xSET_BIT(newroom->room_flags, ROOM_INDOORS);
 		xSET_BITS(newroom->room_flags, home_types[room_type].flags);
-		home->grid->set(col,row,height,newroom);
+		grid_set(home->grid, col, row, height, newroom);
 		home->add(newroom);
 
 		if (!newroom->name)

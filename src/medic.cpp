@@ -143,10 +143,17 @@ CMDF do_autopsy(CHAR_DATA * ch, char *argument)
 			else {
 				/* Success */
                 send_to_char("You have finished your autopsy.\n\r", ch);
-                snprintf(buf, MSL,
-                         "Only to find that the killer is none other than %s!\n\r",
-                         armed_by);
-                send_to_char(buf, ch);
+                {
+                    /* Use stacked buffer approach to avoid truncation warnings */
+                    char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                    snprintf(tmp, sizeof(tmp),
+                             "Only to find that the killer is none other than %s!\n\r",
+                             armed_by);
+                    tmp[sizeof(tmp)-1] = '\0'; /* Ensure null termination */
+                    strncpy(buf, tmp, MSL-1);
+                    buf[MSL-1] = '\0'; /* Ensure null termination */
+                    send_to_char(buf, ch);
+                }
 			}
         }
 		else {

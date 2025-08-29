@@ -261,7 +261,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
 
         for (;;)
         {
-                word = feof(fp) ? '\0' : fread_word(fp);
+                word = feof(fp) ? (char*)"\0" : fread_word(fp);
                 /*
                  * word   = feof( fp ) ? "End" : fread_word( fp ); -- Lets make this faster 
                  */

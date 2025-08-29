@@ -156,7 +156,7 @@ int top_web_desc;
 int web_colour(char type, char *string)
 {
         char code[50];  /* Either this is MSL, or all the things below are 50, i chose this, faster */
-        char     *p = '\0';
+        char     *p = NULL;
 
         switch (type)
         {
@@ -2317,7 +2317,7 @@ char     *strip_web_content(WEB_DESCRIPTOR * wdesc)
                 for (bufptr = buf; getptr != httpptr; getptr++)
                         *bufptr++ = *getptr;
                 bufptr++;
-                bufptr = '\0';
+                *bufptr = '\0';
         }
         return buf;
 }

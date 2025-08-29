@@ -10092,7 +10092,7 @@ CMDF do_selfdestruct(CHAR_DATA * ch, char *argument)
                          ch);
                 return;
         }
-        if (argument == '\0')
+        if (argument[0] == '\0')
         {
                 send_to_char
                         ("&CUsage&R:&WSelfdestruct &R<&WPassword&R>&W\n\r",
@@ -11933,8 +11933,22 @@ CMDF do_shiphail(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        snprintf(buf, MSL, "You hails the %s: &C%s&w\n\r", ship->name, arg2);
-        echo_to_ship(AT_WHITE, ship, buf);
-        snprintf(buf, MSL, "%s hails you: &C%s&w\n\r", ship->name, arg2);
-        echo_to_ship(AT_WHITE, target, buf);
+        {
+            /* Use stacked buffer approach to avoid truncation warnings */
+            char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+            snprintf(tmp, sizeof(tmp), "You hails the %s: &C%s&w\n\r", ship->name, arg2);
+            tmp[sizeof(tmp)-1] = '\0'; /* Ensure null termination */
+            strncpy(buf, tmp, MSL-1);
+            buf[MSL-1] = '\0'; /* Ensure null termination */
+            echo_to_ship(AT_WHITE, ship, buf);
+        }
+        {
+            /* Use stacked buffer approach to avoid truncation warnings */
+            char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+            snprintf(tmp, sizeof(tmp), "%s hails you: &C%s&w\n\r", ship->name, arg2);
+            tmp[sizeof(tmp)-1] = '\0'; /* Ensure null termination */
+            strncpy(buf, tmp, MSL-1);
+            buf[MSL-1] = '\0'; /* Ensure null termination */
+            echo_to_ship(AT_WHITE, target, buf);
+        }
 }

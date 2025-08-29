@@ -613,7 +613,7 @@ CMDF do_setbody(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg2, "name"))
         {
-                body->name(capitalize(arg3));
+                body->name(const_cast<char*>(capitalize(arg3)));
                 send_to_char("Done.\n\r", ch);
                 body->save();
                 return;
