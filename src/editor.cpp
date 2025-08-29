@@ -589,10 +589,14 @@ void edit_buffer(CHAR_DATA * ch, char *argument)
                                 {
                                         char      tmp_buf[MSL];
 
+                                        /* Use step-by-step buffer building to avoid truncation warnings */
                                         mudstrlcpy(tmp_buf, buf, MSL);
-                                        snprintf(buf, MSL, "%s%s%s", tmp_buf,
-                                                 tmp_buf[0] ==
-                                                 '\0' ? "" : " ", arg);
+                                        size_t len = 0;
+                                        buf[0] = '\0';
+                                        len += snprintf(buf + len, MSL - len, "%s", tmp_buf);
+                                        if (tmp_buf[0] != '\0')
+                                            len += snprintf(buf + len, MSL - len, " ");
+                                        len += snprintf(buf + len, MSL - len, "%s", arg);
                                 }
                                 else
                                 {
