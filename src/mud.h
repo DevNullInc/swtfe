@@ -5131,7 +5131,7 @@ OD *	get_obj_list	args( ( CHAR_DATA *ch, char *argument,
 			    OBJ_DATA *list ) );
 OD *	get_obj_list_rev args( ( CHAR_DATA *ch, char *argument,
 			    OBJ_DATA *list ) );
-OD *	get_obj_carry	args( ( CHAR_DATA *ch, char *argument ) );
+OD *	get_obj_carry	args( ( CHAR_DATA *ch, const char *argument ) );
 OD *	get_obj_wear	args( ( CHAR_DATA *ch, char *argument ) );
 OD *	get_obj_here	args( ( CHAR_DATA *ch, char *argument ) );
 OD *	get_obj_world	args( ( CHAR_DATA *ch, char *argument ) );
@@ -5195,8 +5195,8 @@ int count_users(OBJ_DATA *obj);
 bool	check_pos	args( ( CHAR_DATA *ch, sh_int position ) );
 void	interpret	args( ( CHAR_DATA *ch, char *argument ) );
 bool	is_number	args( ( char *arg ) );
-int	number_argument	args( ( char *argument, char *arg ) );
-char *	one_argument	args( ( char *argument, char *arg_first ) );
+int	number_argument	args( ( const char *argument, char *arg ) );
+char *	one_argument	args( ( const char *argument, char *arg_first ) );
 char *	one_argument2	args( ( char *argument, char *arg_first ) );
 ST *	find_social	args( ( char *command ) );
 CMDTYPE *find_command	args( ( char *command ) );

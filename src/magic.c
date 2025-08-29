@@ -970,7 +970,7 @@ void *locate_targets( CHAR_DATA *ch, char *arg, int sn,
 /*
  * The kludgy global is for spells who want more stuff from command line.
  */
-char *target_name;
+const char *target_name;
 
 
 /*
@@ -1180,7 +1180,7 @@ void do_cast( CHAR_DATA *ch, char *argument )
 	    for ( tmp = ch->in_room->first_person; tmp; tmp = tmp->next_in_room )
 		if (  tmp != ch
 		&&   (t = get_timerptr( tmp, TIMER_DO_FUN )) != NULL
-		&&    t->count >= 1 && t->do_fun == do_cast
+		&&    t->count >= 1 && t->do_fun == (DO_FUN *) do_cast
 		&&    tmp->tempnum == sn && tmp->dest_buf
 		&&   !str_cmp( (const char* ) tmp->dest_buf, staticbuf ) )
 		  ++cnt;
@@ -1189,7 +1189,7 @@ void do_cast( CHAR_DATA *ch, char *argument )
 		for ( tmp = ch->in_room->first_person; tmp; tmp = tmp->next_in_room )
 		    if (  tmp != ch
 		    &&   (t = get_timerptr( tmp, TIMER_DO_FUN )) != NULL
-		    &&    t->count >= 1 && t->do_fun == do_cast
+		    &&    t->count >= 1 && t->do_fun == (DO_FUN *) do_cast
 		    &&    tmp->tempnum == sn && tmp->dest_buf
 		    &&   !str_cmp( (const char* ) tmp->dest_buf, staticbuf ) )
 		{
@@ -2810,7 +2810,7 @@ ch_ret spell_invis( int sn, int level, CHAR_DATA *ch, void *vo )
 ch_ret spell_know_alignment( int sn, int level, CHAR_DATA *ch, void *vo )
 {
     CHAR_DATA *victim = (CHAR_DATA *) vo;
-    char *msg;
+    const char *msg;
     int ap;
     SKILLTYPE *skill = get_skilltype(sn);
 
@@ -3383,7 +3383,7 @@ ch_ret spell_fire_breath( int sn, int level, CHAR_DATA *ch, void *vo )
 	for ( obj_lose = victim->first_carrying; obj_lose;
 	      obj_lose = obj_next )
 	{
-	    char *msg;
+	    const char *msg;
 
 	    obj_next = obj_lose->next_content;
 	    if ( number_bits( 2 ) != 0 )
@@ -3441,7 +3441,7 @@ ch_ret spell_frost_breath( int sn, int level, CHAR_DATA *ch, void *vo )
 	for ( obj_lose = victim->first_carrying; obj_lose;
 	obj_lose = obj_next )
 	{
-	    char *msg;
+	    const char *msg;
 
 	    obj_next = obj_lose->next_content;
 	    if ( number_bits( 2 ) != 0 )

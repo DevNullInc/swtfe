@@ -637,24 +637,26 @@ bool is_number( char *arg )
 /*
  * Given a string like 14.foo, return 14 and 'foo'
  */
-int number_argument( char *argument, char *arg )
+int number_argument( const char *argument, char *arg )
 {
+    char temp[MAX_INPUT_LENGTH];
     char *pdot;
     int number;
 
-    for ( pdot = argument; *pdot != '\0'; pdot++ )
+    strcpy(temp, argument);
+    
+    for ( pdot = temp; *pdot != '\0'; pdot++ )
     {
 	if ( *pdot == '.' )
 	{
 	    *pdot = '\0';
-	    number = atoi( argument );
-	    *pdot = '.';
+	    number = atoi( temp );
 	    strcpy( arg, pdot+1 );
 	    return number;
 	}
     }
 
-    strcpy( arg, argument );
+    strcpy( arg, temp );
     return 1;
 }
 
