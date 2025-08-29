@@ -1,3 +1,0 @@
-comm.cpp:5071:55: warning: format ‘%d’ expects argument of type ‘int’, but argument 4 has type ‘long int’ [-Wformat=]
-comm.cpp:5322:24: warning: ISO C++17 does not allow ‘register’ storage class specifier [-Wregister]
-comm.cpp:5325:22: warning: ISO C++17 does not allow ‘register’ storage class specifier [-Wregister]
