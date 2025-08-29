@@ -44,7 +44,7 @@ struct hashstr_data
     unsigned short int	 length;	/* length of string */
 };
 
-char *		str_alloc( char *str );
+char *		str_alloc( const char *str );
 char *		quick_link( char *str );
 int		str_free( char *str );
 void		show_hash( int count );
@@ -57,7 +57,7 @@ struct hashstr_data *string_hash[STR_HASH_SIZE];
  * If found, increase link count, and return pointer,
  * otherwise add new string to hash table, and return pointer.
  */
-char *str_alloc( char *str )
+char *str_alloc( const char *str )
 {
    register int len, hash, psize;
    register struct hashstr_data *ptr;

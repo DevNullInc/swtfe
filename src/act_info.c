@@ -29,7 +29,7 @@
 
 ROOM_INDEX_DATA *generate_exit( ROOM_INDEX_DATA *in_room, EXIT_DATA **pexit );
 
-char *	const	where_name	[] =
+const char *	const	where_name	[] =
 {
     "<used as light>     ",
     "<worn on finger>    ",
@@ -75,7 +75,7 @@ sh_int str_similarity( const char *astr, const char *bstr );
 sh_int str_prefix_level( const char *astr, const char *bstr );
 void similar_help_files(CHAR_DATA *ch, char *argument);
 
-char * get_sex( CHAR_DATA *ch )
+const char * get_sex( CHAR_DATA *ch )
 {
 	switch( ch->sex )
 	{
@@ -163,7 +163,7 @@ char *format_obj_to_char( OBJ_DATA *obj, CHAR_DATA *ch, bool fShort )
 /*
  * Some increasingly freaky halucinated objects		-Thoric
  */
-char *halucinated_object( int ms, bool fShort )
+const char *halucinated_object( int ms, bool fShort )
 {
     int sms = URANGE( 1, (ms+10)/5, 20 );
 
@@ -1867,13 +1867,13 @@ void do_exits( CHAR_DATA *ch, char *argument )
     return;
 }
 
-char *	const	day_name	[] =
+const char *	const	day_name	[] =
 {
     "Palpatine", "Contraversy", "Protest", "Order", "Destruction",
     "Rebellion", "Strife"
 };
 
-char *	const	month_name	[] =
+const char *	const	month_name	[] =
 {
     "Winter", "The Rise of the Old Republic", "Peace", "Naboo's Struggle",
     "The Senator's Election", "the Spring", "The Rise of the New Order", "Trust", "Betrayal",
@@ -1885,7 +1885,7 @@ void do_time( CHAR_DATA *ch, char *argument )
 {
     extern char str_boot_time[];
     extern char reboot_time[];
-    char *suf;
+    const char *suf;
     int day;
 
     day     = time_info.day + 1;
@@ -1920,7 +1920,7 @@ void do_time( CHAR_DATA *ch, char *argument )
 
 void do_weather( CHAR_DATA *ch, char *argument )
 {
-    static char * const sky_look[4] =
+    static const char * const sky_look[4] =
     {
 	"cloudless",
 	"cloudy",
@@ -1949,21 +1949,28 @@ void do_weather( CHAR_DATA *ch, char *argument )
  * Moved into a separate function so it can be used for other things
  * ie: online help editing				-Thoric
  */
-HELP_DATA *get_help( CHAR_DATA *ch, char *argument )
+HELP_DATA *get_help( CHAR_DATA *ch, const char *argument )
 {
     char argall[MAX_INPUT_LENGTH];
     char argone[MAX_INPUT_LENGTH];
     char argnew[MAX_INPUT_LENGTH];
+    char arg_copy[MAX_INPUT_LENGTH];
     HELP_DATA *pHelp;
     int lev;
+    const char *arg_to_use = argument;
+    char *arg_ptr;
 
     if ( argument[0] == '\0' )
-	argument = "summary";
+	arg_to_use = "summary";
 
-    if ( isdigit(argument[0]) )
+    strcpy(arg_copy, arg_to_use);
+    arg_ptr = arg_copy;
+
+    if ( isdigit(arg_ptr[0]) )
     {
-	lev = number_argument( argument, argnew );
-	argument = argnew;
+	lev = number_argument( arg_ptr, argnew );
+	strcpy(arg_copy, argnew);
+	arg_ptr = arg_copy;
     }
     else
 	lev = -2;
@@ -1971,9 +1978,9 @@ HELP_DATA *get_help( CHAR_DATA *ch, char *argument )
      * Tricky argument handling so 'help a b' doesn't match a.
      */
     argall[0] = '\0';
-    while ( argument[0] != '\0' )
+    while ( arg_ptr[0] != '\0' )
     {
-	argument = one_argument( argument, argone );
+	arg_ptr = one_argument( arg_ptr, argone );
 	if ( argall[0] != '\0' )
 	    strcat( argall, " " );
 	strcat( argall, argone );
@@ -2008,7 +2015,7 @@ sh_int str_similarity( const char *astr, const char *bstr )
         if ( LOWER(*astr) == LOWER(*bstr) )
            matches++;
         
-        if (++bstr == '\0')
+        if (*++bstr == '\0')
            return matches;                
     }
     
@@ -2031,7 +2038,7 @@ sh_int str_prefix_level( const char *astr, const char *bstr )
         else
            return matches;
 
-        if (++bstr == '\0')
+        if (*++bstr == '\0')
         return matches;
     }
 

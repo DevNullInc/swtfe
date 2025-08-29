@@ -171,7 +171,7 @@ typedef struct  tracker_data    TRACKER_DATA;
 /*
  * Function types.
  */
-typedef	void	DO_FUN		args( ( CHAR_DATA *ch, char *argument ) );
+typedef	void	DO_FUN		args( ( CHAR_DATA *ch, const char *argument ) );
 typedef bool	SPEC_FUN	args( ( CHAR_DATA *ch ) );
 typedef ch_ret	SPELL_FUN	args( ( int sn, int level, CHAR_DATA *ch, void *vo ) );
 
@@ -3683,7 +3683,7 @@ extern	char *  const	        	ability_name	[MAX_ABILITY];
 extern	char *	const	skill_tname	[];
 extern	sh_int	const	movement_loss	[SECT_MAX];
 extern	char *	const	dir_name	[];
-extern	char *	const	where_name	[];
+extern	const char *	const	where_name	[];
 extern	const	sh_int	rev_dir		[];
 extern	const	int	trap_door	[];
 extern	char *	const	r_flags		[];
@@ -5294,7 +5294,7 @@ int max_level( CHAR_DATA *ch, int ability);
 bool    is_droid	args( ( CHAR_DATA *ch ) );
 
 /* hashstr.c */
-char *	str_alloc	args( ( char *str ) );
+char *	str_alloc	args( ( const char *str ) );
 char *	quick_link	args( ( char *str ) );
 int	str_free	args( ( char *str ) );
 void	show_hash	args( ( int count ) );
