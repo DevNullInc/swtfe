@@ -109,6 +109,7 @@ bool is_wielding_weapon(CHAR_DATA * ch)
         if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL)
                 if (IS_WEAPON(obj))
                         return TRUE;
+        return FALSE;  /* Return FALSE if no weapon was found in any slot */
 }
 /*
  * Check to see if weapon is poisoned.
@@ -291,16 +292,16 @@ void violence_update(void)
                         log_string
                                 ("violence_update: bad ch record!  (Shortcutting.)");
                         snprintf(buf, MSL,
-                                 "ch: %d  ch->in_room: %d  ch->prev: %d  ch->next: %d",
-                                 (int) ch, (int) ch->in_room, (int) ch->prev,
-                                 (int) ch->next);
+                                 "ch: %p  ch->in_room: %p  ch->prev: %p  ch->next: %p",
+                                 (void*)ch, (void*)ch->in_room, (void*)ch->prev,
+                                 (void*)ch->next);
                         log_string(buf);
                         log_string(lastplayercmd);
                         if (lst_ch)
                                 snprintf(buf, MSL,
-                                         "lst_ch: %d  lst_ch->prev: %d  lst_ch->next: %d",
-                                         (int) lst_ch, (int) lst_ch->prev,
-                                         (int) lst_ch->next);
+                                         "lst_ch: %p  lst_ch->prev: %p  lst_ch->next: %p",
+                                         (void*)lst_ch, (void*)lst_ch->prev,
+                                         (void*)lst_ch->next);
                         else
                                 mudstrlcpy(buf, "lst_ch: NULL", MSL);
                         log_string(buf);
@@ -3170,10 +3171,13 @@ void dam_message(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
         {
                 char      tmp_buf[MSL];
 
+                /* Use step-by-step buffer building to avoid truncation warnings */
                 mudstrlcpy(tmp_buf, buf2, MSL);
-                snprintf(buf2, MSL,
-                         "%s &WYou do &R%d &R&Wpoints of damage.&R&W",
-                         tmp_buf, dam);
+                size_t len = 0;
+                buf2[0] = '\0';
+                len += snprintf(buf2 + len, MSL - len, "%s", tmp_buf);
+                len += snprintf(buf2 + len, MSL - len, " &WYou do &R%d", dam);
+                len += snprintf(buf2 + len, MSL - len, " &R&Wpoints of damage.&R&W");
         }
         act(AT_ACTION, buf1, ch, NULL, victim, TO_NOTVICT);
         if (!gcflag)
