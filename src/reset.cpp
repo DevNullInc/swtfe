@@ -1111,7 +1111,7 @@ CMDF do_reset(CHAR_DATA * ch, char *argument)
                                 send_to_char
                                         ("Your area pointer got lost.  Reset mode off.\n\r",
                                          ch);
-                                bug("do_reset: %s's dest_buf points to invalid area", (int) ch->name);
+                                bug("do_reset: %s's dest_buf points to invalid area", ch->name);
                                 ch->substate = SUB_NONE;
                                 ch->dest_buf = NULL;
                                 return;
@@ -1175,7 +1175,7 @@ CMDF do_rreset(CHAR_DATA * ch, char *argument)
                                 ("Your room pointer got lost.  Reset mode off.\n\r",
                                  ch);
                         bug("do_rreset: %s's dest_buf points to invalid room",
-                            (int) ch->name);
+                            ch->name);
                 }
                 ch->substate = SUB_NONE;
                 ch->dest_buf = NULL;
@@ -1432,7 +1432,7 @@ void reset_area(AREA_DATA * pArea)
         lastobj = NULL;
         if (!pArea->first_reset)
         {
-                bug("%s: reset_area: no resets", (int) pArea->filename);
+                bug("%s: reset_area: no resets", pArea->filename);
                 return;
         }
         level = 0;

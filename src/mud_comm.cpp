@@ -433,9 +433,9 @@ int get_color(char *argument)   /* get color code from command string */
         one_argument(argument, color);
         if (color[0] != '_' && color[0] != '*')
                 return 0;
-        if ((cptr = strstr(color_list, color)))
+        if ((cptr = const_cast<char*>(strstr(color_list, color))))
                 return (cptr - color_list) / 4;
-        if ((cptr = strstr(blink_list, color)))
+        if ((cptr = const_cast<char*>(strstr(blink_list, color))))
                 return (cptr - blink_list) / 4 + AT_BLINK;
         return 0;
 }
