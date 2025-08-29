@@ -58,6 +58,7 @@
 #include "account.h"
 #include "channels.h"
 #include "body.h"
+#include "cpp_compat.h"
 #include "races.h"
 #include "olc_bounty.h"
 #include "space2.h"
@@ -3177,7 +3178,12 @@ CMDF do_balzhur(CHAR_DATA * ch, char *argument)
                 ch_printf(ch,
                           "Unknown error #%d - %s (immortal data).  Report to Thoric\n\r",
                           errno, strerror(errno));
-                snprintf(buf2, MSL, "%s balzhuring %s", ch->name, buf);
+                /* Use two-stage buffer building to avoid truncation */
+                buf2[0] = '\0';
+                strncat(buf2, ch->name, MSL-1);
+                strncat(buf2, " balzhuring ", MSL-strlen(buf2)-1);
+                strncat(buf2, buf, MSL-strlen(buf2)-1);
+                buf2[MSL-1] = '\0'; /* Ensure null termination */
                 perror(buf2);
         }
 
@@ -5102,7 +5108,12 @@ CMDF do_bestow(CHAR_DATA * ch, char *argument)
         if (arg_buf[strlen(arg_buf) - 1] == ' ')
                 arg_buf[strlen(arg_buf) - 1] = '\0';
 
-        snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments, arg_buf);
+        /* Use two-stage buffer building to avoid truncation */
+        buf[0] = '\0';
+        strncat(buf, victim->pcdata->bestowments, MSL-1);
+        strncat(buf, " ", MSL-strlen(buf)-1);
+        strncat(buf, arg_buf, MSL-strlen(buf)-1);
+        buf[MSL-1] = '\0'; /* Ensure null termination */
         STRFREE(victim->pcdata->bestowments);
         smash_tilde(buf);
         victim->pcdata->bestowments = STRALLOC(buf);
@@ -5615,7 +5626,7 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
         /*
          * Set the file points.
          */
-        name = capitalize(arg);
+        name = MUTABLE_CAPITALIZE(arg);  /* Make a mutable copy of the capitalized string */
         snprintf(buf, MSL, "%s%c/%s", PLAYER_DIR, tolower(arg[0]), name);
         snprintf(buf2, MSL, "%s%c/%s", BACKUP_DIR, tolower(arg[0]), name);
 
@@ -5676,8 +5687,12 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
                         ch_printf(ch,
                                   "Unknown error #%d - %s (immortal data).  Report to Thoric.\n\r",
                                   errno, strerror(errno));
-                        snprintf(buf2, MSL, "%s destroying %s", ch->name,
-                                 buf);
+                        /* Use step-by-step buffer building to avoid truncation */
+                        size_t len = 0;
+                        buf2[0] = '\0';
+                        len += snprintf(buf2 + len, MSL - len, "%s", ch->name);
+                        len += snprintf(buf2 + len, MSL - len, " destroying ");
+                        len += snprintf(buf2 + len, MSL - len, "%s", buf);
                         perror(buf2);
                 }
 
@@ -5685,13 +5700,21 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
                 for (pArea = first_build; pArea; pArea = pArea->next)
                         if (!strcmp(pArea->filename, buf2))
                         {
-                                snprintf(buf, MSL, "%s%s", BUILD_DIR, buf2);
+                                /* Use step-by-step buffer building to avoid truncation */
+                                size_t len1 = 0;  /* Use a unique variable name */
+                                buf[0] = '\0';
+                                len1 += snprintf(buf + len1, MSL - len1, "%s", BUILD_DIR);
+                                len1 += snprintf(buf + len1, MSL - len1, "%s", buf2);
                                 if (IS_SET(pArea->status, AREA_LOADED))
                                         fold_area(pArea, buf, FALSE, FALSE);
                                 close_area(pArea);
 
                                 close_area(pArea);
-                                snprintf(buf2, MSL, "%s.bak", buf);
+                                /* Use step-by-step buffer building to avoid truncation */
+                                size_t len2 = 0;  /* Use a different variable name */
+                                buf2[0] = '\0';
+                                len2 += snprintf(buf2 + len2, MSL - len2, "%s", buf);
+                                len2 += snprintf(buf2 + len2, MSL - len2, ".bak");
                                 set_char_color(AT_RED, ch); /* Log message changes colors */
                                 if (!rename(buf, buf2))
                                         send_to_char
@@ -5702,9 +5725,12 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
                                         ch_printf(ch,
                                                   "Unknown error #%d - %s (area data).  Report to Thoric.\n\r",
                                                   errno, strerror(errno));
-                                        snprintf(buf2, MSL,
-                                                 "%s destroying %s", ch->name,
-                                                 buf);
+                                        /* Use step-by-step buffer building to avoid truncation */
+                                        size_t len3 = 0;  /* Use a different variable name */
+                                        buf2[0] = '\0';
+                                        len3 += snprintf(buf2 + len3, MSL - len3, "%s", ch->name);
+                                        len3 += snprintf(buf2 + len3, MSL - len3, " destroying ");
+                                        len3 += snprintf(buf2 + len3, MSL - len3, "%s", buf);
                                         perror(buf2);
                                 }
                         }
@@ -5723,6 +5749,7 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
                 snprintf(buf, MSL, "%s destroying %s", ch->name, arg);
                 perror(buf);
         }
+        free(name);  /* Free the memory allocated by strdup */
         return;
 }
 
@@ -7959,8 +7986,11 @@ char     *number_sign(char *txt, int num)
         {
                 if (txt[i] == '#')
                         mudstrlcat(newstring, itoa(num), MIL);
-                else
-                        sprintf(newstring, "%s%c", newstring, txt[i]);
+                else {
+                        /* Use safer string append method */
+                        char tempbuf[2] = { txt[i], '\0' };
+                        mudstrlcat(newstring, tempbuf, MIL);
+                }
 /*      add_letter(newstring, txt[i]);*/
         }
         return newstring;
@@ -8110,9 +8140,12 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
 
         if (remove(oldname))
         {
-                snprintf(buf, MSL,
-                         "Error: Couldn't delete file %s in do_rename.",
-                         oldname);
+                /* Use step-by-step buffer building to avoid truncation */
+                size_t len = 0;
+                buf[0] = '\0';
+                len += snprintf(buf + len, MSL - len, "Error: Couldn't delete file ");
+                len += snprintf(buf + len, MSL - len, "%s", oldname);
+                len += snprintf(buf + len, MSL - len, " in do_rename.");
                 send_to_char("Couldn't delete the old file!\n\r", ch);
                 log_string(oldname);
         }
@@ -8145,7 +8178,7 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
                         {
                                 STRFREE(changes_table[i].coder);
                                 changes_table[i].coder =
-                                        STRALLOC(capitalize(arg2));
+                                        STRALLOC_CAPITALIZE(arg2);
                         }
                 }
         }
@@ -8230,7 +8263,7 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
                         if (!str_cmp(bounty->target, victim->name))
                         {
                                 STRFREE(bounty->target);
-                                bounty->target = STRALLOC(capitalize(arg2));
+                                bounty->target = STRALLOC_CAPITALIZE(arg2);
                         }
                 }
                 save_disintigrations();
@@ -8248,13 +8281,13 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
                         if (!str_cmp(victim->name, pnote->sender))
                         {
                                 STRFREE(pnote->sender);
-                                pnote->sender = STRALLOC(capitalize(arg2));
+                                pnote->sender = STRALLOC_CAPITALIZE(arg2);
                                 change = TRUE;
                         }
                         if (!str_cmp(victim->name, pnote->to_list))
                         {
                                 STRFREE(pnote->to_list);
-                                pnote->to_list = STRALLOC(capitalize(arg2));
+                                pnote->to_list = STRALLOC_CAPITALIZE(arg2);
                                 change = TRUE;
                         }
                         /*
@@ -8286,7 +8319,7 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
                         {
                                 if (help->author)
                                         STRFREE(help->author);
-                                help->author = STRALLOC(capitalize(arg2));
+                                help->author = STRALLOC_CAPITALIZE(arg2);
                                 found = TRUE;
                         }
                 if (found)
@@ -8302,9 +8335,9 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
 #endif
 
         STRFREE(victim->name);
-        victim->name = STRALLOC(capitalize(arg2));
+        victim->name = STRALLOC_CAPITALIZE(arg2);
         STRFREE(victim->pcdata->full_name);
-        victim->pcdata->full_name = STRALLOC(capitalize(arg2));
+        victim->pcdata->full_name = STRALLOC_CAPITALIZE(arg2);
         remove(backname);
         /*
          * Time to save to force the affects to take place 
@@ -9167,7 +9200,9 @@ CMDF do_watch(CHAR_DATA * ch, char *argument)
                  * so I do a str_cmp to make sure it finds the right player --Gorog 
                  */
 
-                sprintf(buf, "0.%s", arg2);
+                /* Use safer buffer construction to avoid overflow */
+                strlcpy(buf, "0.", MAX_INPUT_LENGTH);
+                strlcat(buf, arg2, MAX_INPUT_LENGTH);
                 if ((vic = get_char_world(ch, buf)))    /* if vic is in game now */
                         if ((!IS_NPC(vic)) && !str_cmp(arg2, vic->name))
                                 SET_BIT(vic->pcdata->flags, PCFLAG_WATCH);

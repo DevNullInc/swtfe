@@ -2508,7 +2508,8 @@ sh_int str_prefix_level(const char *astr, const char *bstr)
                 else
                         return matches;
 
-                if (++bstr == '\0')
+                ++bstr;
+                if (*bstr == '\0')
                         return matches;
         }
 
@@ -3206,22 +3207,33 @@ CMDF do_who(CHAR_DATA * ch, char *argument)
                 else
                         invis_str[0] = '\0';
 
-                snprintf(buf, MSL, "%s &W%s%s%s&W%s%s%s%s%s&w",
-                         race,
+                /* 
+                 * Build the string safely in multiple steps to avoid buffer overflow 
+                 */
+                char safe_buf[MAX_STRING_LENGTH];
+                int len = 0;
+                
+                /* Start with race and basic status info (limited to 100 chars) */
+                len += snprintf(safe_buf + len, MAX_STRING_LENGTH - len, "%.100s &W%.10s%.20s%.20s&W", 
+                         race, 
                          invis_str,
                          NOT_AUTHED(wch) ? "&BN&W " : "",
-                         IS_SET(wch->act, PLR_AFK) ? "[AFK] " : "",
-                         extra_title,
-                         clan_name,
-                         IS_SET(wch->pcdata->flags, PCFLAG_WORKING) ? "&Y [&RWORKING&Y]&W" :"&W",
+                         IS_SET(wch->act, PLR_AFK) ? "[AFK] " : "");
+                
+                /* Add titles and clan info (limited to 200 chars) */
+                len += snprintf(safe_buf + len, MAX_STRING_LENGTH - len, "%.200s%.200s", 
+                         extra_title, clan_name);
+                
+                /* Add status flags (limited space) */
+                len += snprintf(safe_buf + len, MAX_STRING_LENGTH - len, "%.50s%.50s%.50s&w",
+                         IS_SET(wch->pcdata->flags, PCFLAG_WORKING) ? "&Y [&RWORKING&Y]&W" : "&W",
                          IS_SET(wch->act, PLR_SILENCE) ? "&Y [&BS&zilenced&Y]&W" : "&W",
-                         wch->desc->connected == CON_EDITING ? "&Y [&cWRITING&Y]" : (wch->desc->
-                                                             connected ==
-                                                             CON_IAFORKED
-                                                             || wch->desc->
-                                                             connected ==
-                                                             CON_FORKED) ?
-                         "&Y [&cCOMPILING&Y]" : "");
+                         wch->desc->connected == CON_EDITING ? "&Y [&cWRITING&Y]" : 
+                         (wch->desc->connected == CON_IAFORKED || 
+                          wch->desc->connected == CON_FORKED) ? "&Y [&cCOMPILING&Y]" : "");
+                
+                /* Copy the safely built string to the main buffer */
+                snprintf(buf, MSL, "%s", safe_buf);
 
                 /*
                  * This is where the old code would display the found player to the ch.

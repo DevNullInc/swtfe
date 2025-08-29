@@ -522,7 +522,7 @@ void claim_disintigration(CHAR_DATA * ch, CHAR_DATA * victim)
                         set_char_color(AT_BLOOD, ch);
                         ch_printf(ch,
                                   "You receive %ld hunting experience for executing a wanted killer.\n\r",
-                                  exp);
+                                  experience);
                 }
                 else if (!IS_NPC(ch)
                          && (!ch->pcdata || !ch->pcdata->clan

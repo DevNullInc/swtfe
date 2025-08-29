@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "/workspaces/swtfe/src",
+    "command": "gcc -c -DMCCP -DMXP -DACCOUNT -DOLC_HOMES -DRESTORE -DOLC_SHUTTLE -export-dynamic -I/usr/include -I/usr/local/include -I. -o o/grid_c.o grid_c.c",
+    "file": "grid_c.c"
+  }
+]

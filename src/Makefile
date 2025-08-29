@@ -42,35 +42,35 @@ ifndef DEBUG
 OPT_FLAG = -pipe -Os
 endif
 
-C_FLAGS = $(DEFINES) $(IMCFLAGS) $(DBUGFLG) $(DEBUG) $(DLLEXP)
+C_FLAGS = $(DEFINES) $(IMCFLAGS) $(DBUGFLG) $(DEBUG) $(DLLEXP) -fpermissive -Wno-write-strings
 L_FLAGS = $(DYNLIB) $(MCCPLIB) $(CRYPT) -lm
 
 ifndef DEBUG
 W_FLAGS = -pedantic -W -Wall -Wformat-security -Winline -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-align -Wcast-qual -Wredundant-decls -Wformat-security
 endif
 
-C_FILES =   body.c account.c act_comm.c act_info.c act_move.c act_obj.c \
-            act_wiz.c alias.c arena.c autobuild.c ban.c bank.c \
-            boards.c bounty.c build.c changes.c channels.c clans.c cleanup.c color.c combat.c \
-            comm.c comments.c const.c db.c delivery.c designship.c dns.c editor.c \
-            fight.c finger.c handler.c hashstr.c homes.c hotboot.c immcomm.c \
-            implants.c installations.c interp.c magic.c makeobjs.c mccp.c \
-            medic.c misc.c msp.c mud_comm.c mud_prog.c mxp.c occupations.c olc_bounty.c\
-            olc-shuttle.c olc.c pfiles.c pilot.c player.c quest.c races.c raceskills.c \
-            renumber.c reset.c restore.c save.c shell.c shops.c \
-            skills.c smuggling.c space.c space2.c special.c starsystem.c swskills.c \
-            tables.c track.c update.c vendor.c wedding.c grid.c greet.c
+CPP_FILES = body.cpp account.cpp act_comm.cpp act_info.cpp act_move.cpp act_obj.cpp \
+            act_wiz.cpp alias.cpp arena.cpp autobuild.cpp ban.cpp bank.cpp \
+            boards.cpp bounty.cpp build.cpp changes.cpp channels.cpp clans.cpp cleanup.cpp color.cpp combat.cpp \
+            comm.cpp comments.cpp const.cpp db.cpp delivery.cpp designship.cpp dns.cpp editor.cpp \
+            fight.cpp finger.cpp grid_c.cpp handler.cpp hashstr.cpp homes.cpp hotboot.cpp immcomm.cpp \
+            implants.cpp installations.cpp interp.cpp magic.cpp makeobjs.cpp mccp.cpp \
+            medic.cpp misc.cpp msp.cpp mud_comm.cpp mud_prog.cpp mxp.cpp occupations.cpp olc_bounty.cpp\
+            olc-shuttle.cpp olc.cpp pfiles.cpp pilot.cpp player.cpp quest.cpp races.cpp raceskills.cpp \
+            renumber.cpp reset.cpp restore.cpp save.cpp shell.cpp shops.cpp  \
+            skills.cpp smuggling.cpp space.cpp space2.cpp special.cpp starsystem.cpp swskills.cpp \
+            tables.cpp track.cpp update.cpp vendor.cpp wedding.cpp grid.cpp greet.cpp
 
-O_FILES = $(patsubst %.c,o/%.o,$(C_FILES))
+O_FILES = $(patsubst %.cpp,o/%.o,$(CPP_FILES))
 
 H_FILES = $(wildcard *.h) 
 
 ifdef IMC
-   C_FILES :=  $(C_FILES) imc.c md5.c
+   CPP_FILES :=  $(CPP_FILES) imc.cpp md5.cpp
 endif
 
 ifdef WEB
-   C_FILES := $(C_FILES) web-server.c 
+   CPP_FILES := $(CPP_FILES) web-server.cpp 
 endif
 
 ifdef WIN
@@ -129,23 +129,24 @@ neat:
 	$(INDENT) $(INDENT_FLAGS) $(C_FILES) $(H_FILES)
 
 indentclean:
-	rm *.c~ *.h~
+	rm *.cpp~ *.h~
 
-o/%.o: %.c
+o/%.o: %.cpp mud.h
 	@echo -n "  Compiling $@...";
 	$(CC) -c $(C_FLAGS) $< -o $@
 	@echo "Done"
 
-.c.o: mud.h
-	@$(CC) -c $(C_FLAGS) $<
+# Modern pattern rule instead of old-style suffix rule
+%.o: %.cpp mud.h
+	@$(CC) -c $(C_FLAGS) $< -o $@
 	
-.depend:  $(C_FILES)
+.depend:  $(CPP_FILES)
 	@echo Making Depend
 	@rm -f .depend
 # For each source, let the compiler run the preprocessor with the -M and -MM
 # options, which causes it to output a dependency suitable for make.
-	@for source in $(C_FILES); do \
-		$(CC) $(DEFINES) $(INCLUDEDIR) $(C_FLAGS) -M -MM -MT o/`basename $$source .c`.o $$source >> .depend ; \
+	@for source in $(CPP_FILES); do \
+		$(CC) $(DEFINES) $(INCLUDEDIR) $(C_FLAGS) -M -MM -MT o/`basename $$source .cpp`.o $$source >> .depend ; \
 	done
 
 DEPENDEXISTS=$(shell if [ -e .depend ]; then echo -n "1"; fi )

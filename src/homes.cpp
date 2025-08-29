@@ -51,6 +51,7 @@
 #include "editor.h"
 #include "grid.h"
 #include "installations.h"
+#include "cpp_compat.h"
 
 #ifndef CMDF
 #define CMDF void
@@ -1333,11 +1334,12 @@ CMDF do_rap(CHAR_DATA * ch, char *argument)
                         send_to_char("Nobody Owns That Home!\n\r", ch);
                         return;
                 }
-                keyword = capitalize(dir_name[pexit->vdir]);
+                keyword = MUTABLE_CAPITALIZE(dir_name[pexit->vdir]);
                 act(AT_ACTION, "You use the intercom to the $d.", ch, NULL,
                     keyword, TO_CHAR);
                 act(AT_ACTION, "$n uses the intercom to the $d.", ch, NULL,
                     keyword, TO_ROOM);
+                free(keyword); /* Free allocated memory */
                 if ((to_room = pexit->to_room) != NULL
                     && (pexit_rev = pexit->rexit) != NULL
                     && pexit_rev->to_room == ch->in_room)

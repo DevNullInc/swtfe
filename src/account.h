@@ -48,7 +48,7 @@ typedef struct account_data ACCOUNT_DATA;
 extern ACCOUNT_DATA *first_account;
 extern ACCOUNT_DATA *last_account;
 
-#define ACCOUNT_DIR "../account/"
+#define ACCOUNT_DIR (char*)"../account/"
 
 #define  ACCOUNT_SOUND ACCOUNT_MSP
 #define  ACCOUNT_MSP BV00
@@ -73,7 +73,7 @@ struct account_data
 		char     *email;
 };
 
-ACCOUNT_DATA *load_account args((char *name));
+ACCOUNT_DATA *load_account args((const char *name));
 ACCOUNT_DATA *create_account args((void));
 void save_account args((ACCOUNT_DATA * account));
 bool add_to_account args((ACCOUNT_DATA * account, CHAR_DATA * ch));

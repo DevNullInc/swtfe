@@ -1,0 +1,3 @@
+act_wiz.cpp:5714:40: error: redeclaration of ‘size_t len’
+make[1]: *** [Makefile:136: o/act_wiz.o] Error 1
+make: *** [Makefile:86: all] Error 2

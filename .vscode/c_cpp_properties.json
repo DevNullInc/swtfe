@@ -1,0 +1,43 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/src/**",
+                "/usr/include/**",
+                "/usr/local/include/**"
+            ],
+            "defines": [
+                "MCCP",
+                "MXP",
+                "ACCOUNT",
+                "OLC_HOMES",
+                "RESTORE",
+                "OLC_SHUTTLE",
+                "__cplusplus",
+                "MAX_STRING_LENGTH=4096",
+                "MSL=MAX_STRING_LENGTH",
+                "MIL=256",
+                "_ALLOW_STR_CONST_TO_CHAR_PTR"
+            ],
+            "compilerPath": "/usr/bin/g++-13",
+            "cStandard": "c99",
+            "cppStandard": "c++98",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": ["-fpermissive", "-Wno-write-strings"]
+        },
+        {
+            "name": "shit",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}

@@ -58,30 +58,27 @@ int    grid_find (GRID_DATA * grid, void * obj, int * col, int * row, int * heig
 void   grid_translate (GRID_DATA * grid, int origpos, int * x, int * y, int * z);
 
 
-#ifdef __cplusplus
-class GRID {
-   protected:
-      GRID_DATA * grid;
-   public:
-      GRID(int base, int length, int width, int height) { 
-         this->grid = grid_create(base,length,width,height); 
-      }
-      ~GRID() { grid_destroy(this->grid); this->grid = NULL; }
+/* C-style interface for GRID */
+typedef struct {
+   GRID_DATA * grid;
+} GRID;
 
-      inline void set(int col, int row, int height, void*item) { grid_set_pos(grid,col,row,height,item); }
-      inline void * get(int col, int row, int height) { return grid_get_pos(grid,col,row,height); }
-	  inline int find(void * obj, int * col, int * row, int * height) { return grid_find(grid,obj,col,row,height); }
-	  inline bool valid(int x, int y, int z) { return grid_valid_coors(grid,x,y,z); }
-	  inline void translate(int pos, int * x, int * y, int * z) { grid_translate(grid,pos, x,y,z); }
+/* Functions to replace class methods */
+GRID* grid_new(int base, int length, int width, int height);
+void grid_free(GRID* g);
 
-	  inline int width(void) { return grid->width; }
-	  inline int length(void) { return grid->length; }
-	  inline int height(void) { return grid->height; }
-	  inline int base(void) { return grid->base; }
-	  
-	  inline void width(int width) { grid->width = width; }
-	  inline void length(int length) { grid->length = length; }
-	  inline void height(int height) { grid->height = height; }
-	  inline void base(int base) { grid->base = base; }
-};
-#endif
+void grid_set(GRID* g, int col, int row, int height, void* item);
+void* grid_get(GRID* g, int col, int row, int height);
+int grid_find_obj(GRID* g, void* obj, int* col, int* row, int* height);
+bool grid_valid(GRID* g, int x, int y, int z);
+void grid_translate_pos(GRID* g, int pos, int* x, int* y, int* z);
+
+int grid_get_width(GRID* g);
+int grid_get_length(GRID* g);
+int grid_get_height(GRID* g);
+int grid_get_base(GRID* g);
+
+void grid_set_width(GRID* g, int width);
+void grid_set_length(GRID* g, int length);
+void grid_set_height(GRID* g, int height);
+void grid_set_base(GRID* g, int base);

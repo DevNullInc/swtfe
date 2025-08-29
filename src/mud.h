@@ -49,6 +49,7 @@
 #include <sys/cdefs.h>
 #include <sys/time.h>
 #include <math.h>
+#include "cpp_compat.h"
 #ifdef MCCP
 #include <zlib.h>
 #endif
@@ -188,15 +189,9 @@ struct bank_account
 
 };
 
-#if !defined(__cplusplus)
 #define CMDF void
 #define SPELLF ch_ret
 #define SPECF bool
-#else
-#define CMDF extern "C" void
-#define SPELLF extern "C" ch_ret
-#define SPECF extern "C" bool
-#endif
 
 /*
  * Accommodate old non-Ansi compilers.
@@ -4124,7 +4119,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    bool str_prefix args((const char *astr, const char *bstr));
                    bool str_infix args((const char *astr, const char *bstr));
                    bool str_suffix args((const char *astr, const char *bstr));
-                   char *capitalize args((const char *str));
+                   const char *capitalize args((const char *str));
                    char *strlower args((const char *str));
                    char *strupper args((const char *str));
                    char *aoran args((const char *str));
