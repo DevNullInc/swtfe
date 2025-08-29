@@ -52,16 +52,16 @@
 #define MAX_NEST	100
 
 
-const	char	echo_off_str	[] = { IAC, WILL, TELOPT_ECHO, '\0' };
-const	char	echo_on_str	[] = { IAC, WONT, TELOPT_ECHO, '\0' };
-const	char 	go_ahead_str	[] = { IAC, GA, '\0' };
+const	char	echo_off_str	[] = { (char)IAC, (char)WILL, (char)TELOPT_ECHO, '\0' };
+const	char	echo_on_str	[] = { (char)IAC, (char)WONT, (char)TELOPT_ECHO, '\0' };
+const	char 	go_ahead_str	[] = { (char)IAC, (char)GA, '\0' };
 
 #ifdef MCCP
 #define TELOPT_COMPRESS 85
 #define TELOPT_COMPRESS2 86
-const   char    eor_on_str      [] = { IAC, WILL, TELOPT_EOR, '\0' };
-const   char    compress_on_str [] = { IAC, WILL, TELOPT_COMPRESS, '\0' };
-const   char    compress2_on_str [] = { IAC, WILL, TELOPT_COMPRESS2, '\0' };
+const   char    eor_on_str      [] = { (char)IAC, (char)WILL, (char)TELOPT_EOR, '\0' };
+const   char    compress_on_str [] = { (char)IAC, (char)WILL, (char)TELOPT_COMPRESS, '\0' };
+const   char    compress2_on_str [] = { (char)IAC, (char)WILL, (char)TELOPT_COMPRESS2, '\0' };
 
 bool    compressStart   args( ( DESCRIPTOR_DATA *d, unsigned char telopt ) );
 bool    compressEnd     args( ( DESCRIPTOR_DATA *d ) );
@@ -1426,7 +1426,7 @@ void write_to_buffer( DESCRIPTOR_DATA *d, const char *txt, int length )
 #ifdef MCCP
 #define COMPRESS_BUF_SIZE 1024
 
-bool write_to_descriptor( int desc, char *txt, int length )
+bool write_to_descriptor( int desc, const char *txt, int length )
 {
     DESCRIPTOR_DATA *d;
     int     iStart = 0;
@@ -1512,7 +1512,7 @@ bool write_to_descriptor( int desc, char *txt, int length )
  * If this gives errors on very long blocks (like 'ofind all'),
  *   try lowering the max block size.
  */
-bool write_to_descriptor( int desc, char *txt, int length )
+bool write_to_descriptor( int desc, const char *txt, int length )
 {
     int iStart;
     int nWrite;
@@ -2751,7 +2751,7 @@ void send_to_char( const char *txt, CHAR_DATA *ch )
 void send_to_char_color( const char *txt, CHAR_DATA *ch )
 {
   DESCRIPTOR_DATA *d;
-  char *colstr;
+  const char *colstr;
   const char *prevstr = txt;
   char colbuf[20];
   int ln;
@@ -2857,7 +2857,7 @@ void send_to_pager( const char *txt, CHAR_DATA *ch )
 void send_to_pager_color( const char *txt, CHAR_DATA *ch )
 {
   DESCRIPTOR_DATA *d;
-  char *colstr;
+  const char *colstr;
   const char *prevstr = txt;
   char colbuf[20];
   int ln;
@@ -2989,9 +2989,9 @@ char *obj_short( OBJ_DATA *obj )
 char *act_string(const char *format, CHAR_DATA *to, CHAR_DATA *ch,
 		 const void *arg1, const void *arg2)
 {
-  static char * const he_she  [] = { "it",  "he",  "she" };
-  static char * const him_her [] = { "it",  "him", "her" };
-  static char * const his_her [] = { "its", "his", "her" };
+  static const char * const he_she  [] = { "it",  "he",  "she" };
+  static const char * const him_her [] = { "it",  "him", "her" };
+  static const char * const his_her [] = { "its", "his", "her" };
   static char buf[MAX_STRING_LENGTH];
   char fname[MAX_INPUT_LENGTH];
   char *point = buf;

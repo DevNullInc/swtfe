@@ -1836,7 +1836,7 @@ CHAR_DATA *get_char_room( CHAR_DATA *ch, char *argument )
 /*
  * Find a char in the world.
  */
-CHAR_DATA *get_char_world( CHAR_DATA *ch, char *argument )
+CHAR_DATA *get_char_world( CHAR_DATA *ch, const char *argument )
 {
     char arg[MAX_INPUT_LENGTH];
     CHAR_DATA *wch;
@@ -2546,7 +2546,7 @@ char *item_type_name( OBJ_DATA *obj )
 /*
  * Return ascii name of an affect location.
  */
-char *affect_loc_name( int location )
+const char *affect_loc_name( int location )
 {
     switch ( location )
     {
@@ -2732,7 +2732,7 @@ ch_ret spring_trap( CHAR_DATA *ch, OBJ_DATA *obj )
       int dam;
       int typ;
       int lev;
-      char *txt;
+      const char *txt;
       char buf[MAX_STRING_LENGTH];
       ch_ret retcode;
 

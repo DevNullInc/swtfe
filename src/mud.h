@@ -3337,7 +3337,7 @@ do								\
 #ifdef HASHSTR
 #define STRALLOC(point)		str_alloc((point))
 #define QUICKLINK(point)	quick_link((point))
-#define QUICKMATCH(p1, p2)	(int) (p1) == (int) (p2)
+#define QUICKMATCH(p1, p2)	(p1) == (p2)
 #define STRFREE(point)						\
 do								\
 {								\
@@ -4682,7 +4682,7 @@ char *	crypt		args( ( const char *key, const char *salt ) );
 /* act_comm.c */
 int     closed          args( ( int d ) );
 int readd               args( ( int handle, char *buffer, int length ) );
-bool	write_to_descriptor	args( ( int desc, char *txt, int length ) );
+bool	write_to_descriptor	args( ( int desc, const char *txt, int length ) );
 const char *  lang_string( CHAR_DATA *ch, CHAR_DATA *vch );
 void    sound_to_room( ROOM_INDEX_DATA *room , char *argument );
 bool	circle_follow	args( ( CHAR_DATA *ch, CHAR_DATA *victim ) );
@@ -5125,7 +5125,7 @@ void	clean_mob	args( ( MOB_INDEX_DATA *mob ) );
 void	clean_resets	args( ( AREA_DATA *tarea ) );
 void	extract_char	args( ( CHAR_DATA *ch, bool fPull ) );
 CD *	get_char_room	args( ( CHAR_DATA *ch, char *argument ) );
-CD *	get_char_world	args( ( CHAR_DATA *ch, char *argument ) );
+CD *	get_char_world	args( ( CHAR_DATA *ch, const char *argument ) );
 OD *	get_obj_type	args( ( OBJ_INDEX_DATA *pObjIndexData ) );
 OD *	get_obj_list	args( ( CHAR_DATA *ch, char *argument,
 			    OBJ_DATA *list ) );
@@ -5143,7 +5143,7 @@ bool	can_see		args( ( CHAR_DATA *ch, CHAR_DATA *victim ) );
 bool	can_see_obj	args( ( CHAR_DATA *ch, OBJ_DATA *obj ) );
 bool	can_drop_obj	args( ( CHAR_DATA *ch, OBJ_DATA *obj ) );
 char *	item_type_name	args( ( OBJ_DATA *obj ) );
-char *	affect_loc_name	args( ( int location ) );
+const char *	affect_loc_name	args( ( int location ) );
 char *	affect_bit_name	args( ( int vector ) );
 char *	extra_bit_name	args( ( int extra_flags ) );
 char *	magic_bit_name	args( ( int magic_flags ) );
