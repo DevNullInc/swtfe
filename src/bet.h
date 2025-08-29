@@ -1,31 +1,43 @@
-/***************************************************************************
-*                           STAR WARS REALITY 1.0                          *
-*--------------------------------------------------------------------------*
-* Star Wars Reality 1.0						           *
-* copyright (c) 1997, 1998 by Sean Cooper                                  *
-* -------------------------------------------------------------------------*
-* Starwars and Starwars Names copyright(c) Lucasfilm Ltd.                  *
-*--------------------------------------------------------------------------*
-* SMAUG 1.0 (C) 1994, 1995, 1996 by Derek Snider                           *
-* SMAUG code team: Thoric, Altrag, Blodkai, Narn, Haus,                    *
-* Scryn, Rennard, Swordbearer, Gorog, Grishnakh and Tricops                *
-* ------------------------------------------------------------------------ *
-* Merc 2.1 Diku Mud improvments copyright (C) 1992, 1993 by Michael        *
-* Chastain, Michael Quan, and Mitchell Tse.                                *
-* Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,          *
-* Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.     *
-* ------------------------------------------------------------------------ *
-*			Auction bid parsing routines			   *
-****************************************************************************/
+/*****************************************************************************************
+ *                       DDDDD        A        RRRRRRR     K    K                        *
+ *                       D    D      A A       R      R    K   K                         *
+ *                       D     D    A   A      R      R    KK K                          *
+ *                       D     D   A     A     RRRRRRR     K K                           *
+ *                       D     D  AAAAAAAAA    R    R      K  K                          *
+ *                       D    D  A         A   R     R     K   K                         *
+ *                       DDDDD  A           A  R      R    K    K                        *
+ *                                                                                       *
+ *                                                                                       *
+ *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
+ * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
+ * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
+ * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
+ *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
+ *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
+ *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
+ *                                                                                       *
+ *****************************************************************************************
+ *                                                                                       *
+ * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
+ * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ *                                                                                       *
+ * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
+ * by Sean Cooper                                                                        *
+ *                                                                                       *
+ * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
+ *****************************************************************************************
+ * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
+ * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
+ *                                                                                       *
+ * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
+ *                                                                                       *
+ * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
+ * and Sebastian Hammer.                                                                 *
+ *****************************************************************************************
+ *                                SWR Auction Module                                     *
+ ****************************************************************************************/
+
 #include <ctype.h>
-
-
-/*
- * The following code was written by Erwin Andreasen for the automated
- * auction command.
- *
- * Completely cleaned up by Thoric
- */
 
 
 /*
@@ -59,40 +71,56 @@
   once.
 */
 
-int advatoi (char *s)
+int advatoi(char *s)
 {
-    int number = 0;	/* number to be returned */
-    int multiplier = 0;	/* multiplier used to get the extra digits right */
+        int       number = 0;   /* number to be returned */
+        int       multiplier = 0;   /* multiplier used to get the extra digits right */
 
-    /*
-     * as long as the current character is a digit add to current number
-     */
-    while ( isdigit(s[0]) )
-	number = (number * 10) + (*s++ - '0');
+        /*
+         * as long as the current character is a digit add to current number
+         */
+        while (isdigit(s[0]))
+                number = (number * 10) + (*s++ - '0');
 
-    switch (UPPER(s[0]))
-    {
-	case 'K'  : number *= (multiplier = 1000);	++s; break;
-	case 'M'  : number *= (multiplier = 1000000);	++s; break;
-	case '\0' : break;
-	default   : return 0; /* not k nor m nor NULL - return 0! */
-    }
+        switch (UPPER(s[0]))
+        {
+        case 'K':
+                number *= (multiplier = 1000);
+                ++s;
+                break;
+        case 'M':
+                number *= (multiplier = 1000000);
+                ++s;
+                break;
+        case '\0':
+                break;
+        default:
+                return 0;   /* not k nor m nor NULL - return 0! */
+        }
 
-    /* if any digits follow k/m, add those too */
-    while ( isdigit(s[0]) && (multiplier > 1))
-    {
-	/* the further we get to right, the less the digit 'worth' */
-	multiplier /= 10;
-	number = number + ((*s++ - '0') * multiplier);
-    }
+        /*
+         * if any digits follow k/m, add those too 
+         */
+        while (isdigit(s[0]) && (multiplier > 1))
+        {
+                /*
+                 * the further we get to right, the less the digit 'worth' 
+                 */
+                multiplier /= 10;
+                number = number + ((*s++ - '0') * multiplier);
+        }
 
-    /* return 0 if non-digit character was found, other than NULL */
-    if (s[0] != '\0' && !isdigit(s[0]))
-	return 0;
+        /*
+         * return 0 if non-digit character was found, other than NULL 
+         */
+        if (s[0] != '\0' && !isdigit(s[0]))
+                return 0;
 
-    /* anything left is likely extra digits (ie: 14k4443  -> 3 is extra) */
+        /*
+         * anything left is likely extra digits (ie: 14k4443  -> 3 is extra) 
+         */
 
-    return number;
+        return number;
 }
 
 
@@ -118,26 +146,30 @@ int advatoi (char *s)
   gives 10,000 etc.
 
 */
-int parsebet (const int currentbet, char *s)
+int parsebet(const int currentbet, char *s)
 {
-    /* check to make sure it's not blank */
-    if ( s[0] != '\0' )
-    {
-	/* if first char is a digit, use advatoi */
-	if ( isdigit(s[0]) )
-	    return (advatoi(s));
-	if ( s[0] == '+' )		/* add percent (default 25%) */
-	{
-	    if ( s[1] == '\0' )
-		return (currentbet * 125) / 100;
-	    return (currentbet * (100 + atoi(s+1))) / 100;
-	}
-	if ( s[0] == '*' || s[0] == 'x' ) /* multiply (default is by 2) */
-	{
-	    if (s[1] == '\0')
-		return (currentbet * 2);
-	    return (currentbet * atoi(s+1));
-	}
-    }
-    return 0;
+        /*
+         * check to make sure it's not blank 
+         */
+        if (s[0] != '\0')
+        {
+                /*
+                 * if first char is a digit, use advatoi 
+                 */
+                if (isdigit(s[0]))
+                        return (advatoi(s));
+                if (s[0] == '+')    /* add percent (default 25%) */
+                {
+                        if (s[1] == '\0')
+                                return (currentbet * 125) / 100;
+                        return (currentbet * (100 + atoi(s + 1))) / 100;
+                }
+                if (s[0] == '*' || s[0] == 'x') /* multiply (default is by 2) */
+                {
+                        if (s[1] == '\0')
+                                return (currentbet * 2);
+                        return (currentbet * atoi(s + 1));
+                }
+        }
+        return 0;
 }
