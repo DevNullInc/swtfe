@@ -5068,7 +5068,7 @@ void display_prompt(DESCRIPTOR_DATA * d)
                                         mudstrlcpy(pbuf, "neutral", MSL);
                                 break;
                         case 'b': /* Combat XP needed till next level */
-                                snprintf(pbuf, MSL, "%d", (exp_level(ch->skill_level[COMBAT_ABILITY] + 1) - ch->experience[COMBAT_ABILITY]));                                
+                                snprintf(pbuf, MSL, "%ld", (exp_level(ch->skill_level[COMBAT_ABILITY] + 1) - ch->experience[COMBAT_ABILITY]));                                
                                 break;
                         case 'C':
                                 if (ch->max_hit > 0)
@@ -5319,10 +5319,10 @@ void set_pager_input(DESCRIPTOR_DATA * d, char *argument)
 
 bool pager_output(DESCRIPTOR_DATA * d)
 {
-        register char *last;
+        char *last;
         CHAR_DATA *ch;
         int       pclines;
-        register int lines;
+        int lines;
         bool      ret;
 
         if (!d || !d->pagepoint || d->pagecmd == -1)
