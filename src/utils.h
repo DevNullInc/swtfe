@@ -132,7 +132,11 @@ do											\
 #ifdef HASHSTR
 #define STRALLOC(point)		str_alloc((point))
 #define QUICKLINK(point)	quick_link((point))
-#define QUICKMATCH(p1, p2)	((int) (p1) == (int) (p2))
+/* 
+ * Fixed to avoid unsafe char* to int cast that loses precision
+ * Original: #define QUICKMATCH(p1, p2)	((int) (p1) == (int) (p2))
+ */
+#define QUICKMATCH(p1, p2)	((void*) (p1) == (void*) (p2))
 #define STRFREE(point)                           \
 do                                               \
 {                                                \

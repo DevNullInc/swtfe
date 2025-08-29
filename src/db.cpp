@@ -4651,7 +4651,13 @@ void towizfile(char *line, bool Border)
                         filler++;
                 if (SNIP)
                         filler++;
-                snprintf(outline2, MSL, "&B||&z%s&B", outline);
+                /* Use step-by-step buffer building to avoid truncation warnings */
+                size_t len = 0;
+                outline2[0] = '\0';
+                len += snprintf(outline2 + len, MSL - len, "&B||&z");
+                len += snprintf(outline2 + len, MSL - len, "%s", outline);
+                len += snprintf(outline2 + len, MSL - len, "&B");
+                /* Add spaces for padding */
                 for (xx = 0; xx < filler; xx++)
                         mudstrlcat(outline2, " ", MSL);
                 mudstrlcat(outline2, "&B||", MSL);
@@ -4706,7 +4712,13 @@ void towwwwizfile(char *line, bool Border)
                         filler++;
                 if (SNIP)
                         filler++;
-                snprintf(outline2, MSL, "&B||&z%s&B", outline);
+                /* Use step-by-step buffer building to avoid truncation warnings */
+                size_t len2 = 0;
+                outline2[0] = '\0';
+                len2 += snprintf(outline2 + len2, MSL - len2, "&B||&z");
+                len2 += snprintf(outline2 + len2, MSL - len2, "%s", outline);
+                len2 += snprintf(outline2 + len2, MSL - len2, "&B");
+                /* Add spaces for padding */
                 for (xx = 0; xx < filler; xx++)
                         mudstrlcat(outline2, " ", MSL);
                 mudstrlcat(outline2, "&B||", MSL);
@@ -7507,9 +7519,9 @@ void command_printf(CHAR_DATA * ch, char *fmt, ...)
  */
 size_t mudstrlcpy(char *dst, const char *src, size_t siz)
 {
-        register char *d = dst;
-        register const char *s = src;
-        register size_t n = siz;
+        char *d = dst;
+        const char *s = src;
+        size_t n = siz;
 
         /*
          * Copy as many bytes as will fit 
@@ -7549,9 +7561,9 @@ size_t mudstrlcpy(char *dst, const char *src, size_t siz)
  */
 size_t mudstrlcat(char *dst, const char *src, size_t siz)
 {
-        register char *d = dst;
-        register const char *s = src;
-        register size_t n = siz;
+        char *d = dst;             /* Removing 'register' keyword for C++17 compatibility */
+        const char *s = src;       /* Removing 'register' keyword for C++17 compatibility */
+        size_t n = siz;            /* Removing 'register' keyword for C++17 compatibility */
         size_t    dlen;
 
         /*
