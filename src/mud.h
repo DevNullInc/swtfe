@@ -163,9 +163,18 @@ typedef std::list < CLAN_DATA * >CLAN_LIST;
 
 extern BODY_LIST bodies;
 
+/* Use extern "C" to prevent C++ name mangling for these function types */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void DO_FUN(CHAR_DATA * ch, char *argument);
 typedef bool SPEC_FUN(CHAR_DATA * ch);
 typedef ch_ret SPELL_FUN(int sn, int level, CHAR_DATA * ch, void *vo);
+
+#ifdef __cplusplus
+}
+#endif
 
 // Banking
 #define BANK_INTEREST	1.00028571428571
@@ -189,8 +198,13 @@ struct bank_account
 
 };
 
+#ifdef __cplusplus
+#define CMDF extern "C" void
+#define SPELLF extern "C" ch_ret
+#else
 #define CMDF void
 #define SPELLF ch_ret
+#endif
 #define SPECF bool
 
 /*

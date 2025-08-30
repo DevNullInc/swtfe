@@ -59,4 +59,37 @@ inline int safe_snprintf(char *buf, size_t size, const char *format, ...) {
 #define SAFE_BUFFER_CAT(dest_buf, dest_size, src_buf) strncat((dest_buf), (src_buf), (dest_size)-strlen(dest_buf)-1); (dest_buf)[(dest_size)-1] = '\0'
 #endif
 
+/* BSD string functions for systems that don't have them */
+#ifndef HAVE_STRLCPY
+inline size_t strlcpy(char *dst, const char *src, size_t size) {
+    size_t srclen = strlen(src);
+    if (size > 0) {
+        size_t len = srclen < (size - 1) ? srclen : (size - 1);
+        memcpy(dst, src, len);
+        dst[len] = '\0';
+    }
+    return srclen;
+}
+#endif
+
+#ifndef HAVE_STRLCAT
+inline size_t strlcat(char *dst, const char *src, size_t size) {
+    size_t dstlen = strlen(dst);
+    size_t srclen = strlen(src);
+    
+    if (dstlen >= size) {
+        return size + srclen;
+    }
+    
+    if (dstlen + srclen < size) {
+        memcpy(dst + dstlen, src, srclen + 1);
+    } else {
+        memcpy(dst + dstlen, src, size - dstlen - 1);
+        dst[size - 1] = '\0';
+    }
+    
+    return dstlen + srclen;
+}
+#endif
+
 #endif /* _CPP_COMPAT_H_ */
