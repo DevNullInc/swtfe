@@ -1,24 +1,23 @@
-/*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+/****************************************************************************************
+ * ████████╗██╗  ██╗███████╗    ███████╗██╗███╗   ██╗ █████╗ ██╗                        *
+ * ╚══██╔══╝██║  ██║██╔════╝    ██╔════╝██║████╗  ██║██╔══██╗██║                        *
+ *    ██║   ███████║█████╗      █████╗  ██║██╔██╗ ██║███████║██║                        *
+ *    ██║   ██╔══██║██╔══╝      ██╔══╝  ██║██║╚██╗██║██╔══██║██║                        *
+ *    ██║   ██║  ██║███████╗    ██║     ██║██║ ╚████║██║  ██║███████╗                   *
+ *    ╚═╝   ╚═╝  ╚═╝╚══════╝    ╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝                   *
  *                                                                                       *
+ * ███████╗██████╗ ██╗███████╗ ██████╗ ██████╗ ███████╗                                 *
+ * ██╔════╝██╔══██╗██║██╔════╝██╔═══██╗██╔══██╗██╔════╝                                 *
+ * █████╗  ██████╔╝██║███████╗██║   ██║██║  ██║█████╗                                   *
+ * ██╔══╝  ██╔═══╝ ██║╚════██║██║   ██║██║  ██║██╔══╝                                   *
+ * ███████╗██║     ██║███████║╚██████╔╝██████╔╝███████╗                                 *
+ * ╚══════╝╚═╝     ╚═╝╚══════╝ ╚═════╝ ╚═════╝ ╚══════╝                                 *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
+ *                       /dev/null Industries Presents                                  *
  *                                                                                       *
- *****************************************************************************************
+ ****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
+ * THE FINAL EPISODE Code additions and changes from the Star Wars Reality code copyright (c) *
  * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
