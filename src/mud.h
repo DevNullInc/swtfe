@@ -50,7 +50,10 @@
 #include <sys/cdefs.h>
 #include <sys/time.h>
 #include <math.h>
+
+/* Make sure cpp_compat.h exists and is properly included */
 #include "cpp_compat.h"
+
 #ifdef MCCP
 #include <zlib.h>
 #endif
