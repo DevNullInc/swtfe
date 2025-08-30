@@ -86,6 +86,63 @@ check_and_cleanup_port() {
 # Clean up the target port before starting
 check_and_cleanup_port "$port"
 
+# Add executable and dependency checks before starting the server
+check_server_executable() {
+    local exe="$1"
+    
+    echo "Performing pre-startup checks..."
+    
+    # Check if executable exists
+    if [[ ! -f "$exe" ]]; then
+        echo "ERROR: Server executable not found: $exe"
+        return 1
+    fi
+    
+    # Check if executable is executable
+    if [[ ! -x "$exe" ]]; then
+        echo "ERROR: Server executable is not executable: $exe"
+        echo "Try: chmod +x $exe"
+        return 1
+    fi
+    
+    # Check basic library dependencies
+    if command -v ldd >/dev/null 2>&1; then
+        echo "Checking library dependencies..."
+        if ! ldd "$exe" >/dev/null 2>&1; then
+            echo "WARNING: Library dependency check failed"
+            echo "This may indicate missing libraries or architecture mismatch"
+            echo "Run 'ldd $exe' to see specific issues"
+        else
+            local missing_libs=$(ldd "$exe" 2>&1 | grep "not found" || true)
+            if [[ -n "$missing_libs" ]]; then
+                echo "ERROR: Missing library dependencies:"
+                echo "$missing_libs"
+                echo ""
+                echo "Please install the missing libraries or recompile the server"
+                return 1
+            fi
+        fi
+    fi
+    
+    echo "Pre-startup checks completed."
+    return 0
+}
+
+# Run pre-startup checks
+if ! check_server_executable "$SRC_DIR/swr"; then
+    echo "Pre-startup checks failed. Cannot start server."
+    echo "Starting fallback server for maintenance..."
+    
+    fallback_pid=$(start_fallback_server $port)
+    if [[ $fallback_pid -gt 0 ]]; then
+        echo "Fallback server is running. Please fix the issues before restarting."
+        echo "Fallback server PID: $fallback_pid"
+        wait $fallback_pid
+    fi
+    
+    exit 1
+fi
+
 ulimit -c unlimited
 
 # The email address to send crash alerts to.
@@ -167,15 +224,35 @@ check_for_coredump() {
     local hotboot_attempts="${4:-0}"  # Track hotboot attempts
 
     wait $pid
+    local exit_code=$?
 
     # Look for core dumps in current directory (area) - they'll be moved to core directory
     local latest_core=$(ls -t core.* 2>/dev/null | head -n 1 || true)
 
-    # If no core dump, check if process exited abnormally
-    local exit_code=$?
-    if [[ -z "$latest_core" && $exit_code -ne 0 ]]; then
-        echo "Server exited with code $exit_code (no core dump generated)"
-        return $exit_code
+    # Check for immediate exit with error codes that indicate system issues
+    if [[ $exit_code -eq 127 ]]; then
+        echo "ERROR: Command not found or missing dependencies (exit code 127)"
+        echo "This usually indicates missing libraries or the executable is not found"
+        if [[ -f "$logfile" ]]; then
+            echo "Last few lines from log:"
+            tail -5 "$logfile" || true
+        fi
+        return 2  # Special code for system errors
+    elif [[ $exit_code -eq 126 ]]; then
+        echo "ERROR: Permission denied or executable format error (exit code 126)"
+        return 2  # Special code for system errors
+    elif [[ $exit_code -gt 0 && $exit_code -lt 125 ]]; then
+        echo "Server exited with error code $exit_code"
+        # Check if this was a very quick exit (less than 5 seconds might indicate config issues)
+        if [[ -f "$logfile" ]]; then
+            local log_size=$(stat -c%s "$logfile" 2>/dev/null || echo "0")
+            if [[ $log_size -lt 1000 ]]; then
+                echo "Server exited very quickly with minimal logging - likely a configuration error"
+                echo "Log contents:"
+                cat "$logfile" || true
+                return 2  # Treat as system error
+            fi
+        fi
     fi
 
     # Send alert and move core dump if detected
@@ -199,6 +276,11 @@ check_for_coredump() {
         fi
         
         return 1  # Indicate crash occurred
+    fi
+    
+    # If we reach here with non-zero exit code, it's an error exit without core dump
+    if [[ $exit_code -ne 0 ]]; then
+        return 1  # Treat as crash for recovery purposes
     fi
     
     return 0  # Normal exit
@@ -343,8 +425,37 @@ while true; do
     pid=$!
     echo "Main server started (PID: $pid)"
 
-    # Check for crash
-    if ! check_for_coredump $pid "$SRC_DIR/swr" "$logfile"; then
+    # Check for crash or system errors
+    crash_result=$(check_for_coredump $pid "$SRC_DIR/swr" "$logfile")
+    crash_code=$?
+    
+    if [[ $crash_code -eq 2 ]]; then
+        echo "FATAL: System error detected - cannot start server!"
+        echo "This appears to be a configuration or dependency issue."
+        echo "Please check:"
+        echo "  - Server executable exists and has correct permissions"
+        echo "  - All required libraries are available"
+        echo "  - System configuration is correct"
+        echo ""
+        echo "Common issues:"
+        echo "  - Missing glibc version (check: ldd $SRC_DIR/swr)"
+        echo "  - Wrong architecture (32-bit vs 64-bit)"
+        echo "  - Missing shared libraries"
+        echo ""
+        echo "Starting fallback server for maintenance..."
+        
+        # Start fallback server immediately for system errors
+        fallback_pid=$(start_fallback_server $port)
+        if [[ $fallback_pid -gt 0 ]]; then
+            echo "Fallback server is running. Please fix the system issues before restarting."
+            echo "Fallback server PID: $fallback_pid" 
+            wait $fallback_pid
+        fi
+        
+        echo "Exiting due to unrecoverable system error."
+        exit 1
+        
+    elif [[ $crash_code -eq 1 ]]; then
         echo "Server crashed! Beginning recovery process..."
         
         # Initialize hotboot attempt counter
@@ -405,6 +516,13 @@ while true; do
         fi
     else
         echo "Server exited normally."
+        echo "Note: If the server should stay running, this might indicate a configuration issue."
+        echo "Check the log file: $logfile"
+        
+        # For normal exits, break the loop instead of restarting immediately
+        # This prevents infinite restart loops when there are config issues
+        echo "Exiting startup script. Restart manually after checking configuration."
+        exit 0
     fi
 done
 # Note: we do not loop on crashes, to allow for debugging. The user can restart the script if desired.
