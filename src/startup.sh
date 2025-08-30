@@ -4,15 +4,97 @@
 set -euo pipefail
 
 port="${1:-4848}"
-cd "$(dirname "$0")/../area"
+
+# Get the script directory (src) and set up paths
+SCRIPT_DIR="$(dirname "$0")"
+SRC_DIR="$(cd "$SCRIPT_DIR" && pwd)"
+BASE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+AREA_DIR="$BASE_DIR/area"
+LOG_DIR="$BASE_DIR/log"
+CORE_DIR="$BASE_DIR/core"
+
+# Ensure log and core directories exist
+mkdir -p "$LOG_DIR"
+mkdir -p "$CORE_DIR"
+
+# Change to area directory for game data access, but remember paths
+cd "$AREA_DIR"
 
 echo "Working directory: $(pwd)"
+echo "SWR executable: $SRC_DIR/swr"
+echo "Log directory: $LOG_DIR"
+echo "Core dump directory: $CORE_DIR"
 echo "Starting server on port $port"
+
+# Check if port is already in use and handle conflicts
+check_and_cleanup_port() {
+    local target_port="$1"
+    
+    echo "Checking port $target_port availability..."
+    
+    # Find processes using the target port
+    local port_users=$(ss -tlnp | grep ":$target_port " | awk '{print $6}' | grep -o 'pid=[0-9]*' | cut -d'=' -f2 | sort -u)
+    
+    if [[ -n "$port_users" ]]; then
+        echo "Port $target_port is currently in use by the following processes:"
+        for pid in $port_users; do
+            if [[ -n "$pid" ]]; then
+                local process_info=$(ps -p "$pid" -o pid,ppid,cmd --no-headers 2>/dev/null || echo "$pid unknown unknown")
+                echo "  PID $process_info"
+            fi
+        done
+        
+        echo "Attempting to stop processes using port $target_port..."
+        for pid in $port_users; do
+            if [[ -n "$pid" ]]; then
+                local process_name=$(ps -p "$pid" -o comm --no-headers 2>/dev/null || echo "unknown")
+                echo "  Sending SIGTERM to PID $pid ($process_name)..."
+                kill -TERM "$pid" 2>/dev/null || true
+            fi
+        done
+        
+        # Wait a moment for graceful shutdown
+        sleep 3
+        
+        # Check if any processes are still running
+        local remaining=$(ss -tlnp | grep ":$target_port " | awk '{print $6}' | grep -o 'pid=[0-9]*' | cut -d'=' -f2 | sort -u)
+        if [[ -n "$remaining" ]]; then
+            echo "Some processes still using port $target_port, sending SIGKILL..."
+            for pid in $remaining; do
+                if [[ -n "$pid" ]]; then
+                    local process_name=$(ps -p "$pid" -o comm --no-headers 2>/dev/null || echo "unknown")
+                    echo "  Force killing PID $pid ($process_name)..."
+                    kill -KILL "$pid" 2>/dev/null || true
+                fi
+            done
+            sleep 1
+        fi
+        
+        # Final check
+        local final_check=$(ss -tlnp | grep ":$target_port " || true)
+        if [[ -n "$final_check" ]]; then
+            echo "Warning: Port $target_port may still be in use:"
+            echo "$final_check"
+        else
+            echo "Port $target_port is now available."
+        fi
+    else
+        echo "Port $target_port is available."
+    fi
+}
+
+# Clean up the target port before starting
+check_and_cleanup_port "$port"
 
 ulimit -c unlimited
 
 # The email address to send crash alerts to.
 ALERT_EMAIL="crashalert@renegadeinc.net"
+
+# Hotboot retry configuration
+MAX_HOTBOOT_ATTEMPTS=3
+HOTBOOT_DELAY=5  # seconds between hotboot attempts
+FALLBACK_SERVER="$SRC_DIR/fallback_server.py"
 
 # Define a function to send the email alert.
 send_crash_alert() {
@@ -21,7 +103,6 @@ send_crash_alert() {
     local logfile="$2"
     local exe="$3"
     local pid="$4"
-
 
     local subject="CRITICAL: MUD Crash — PID ${pid}"
 
@@ -83,37 +164,247 @@ check_for_coredump() {
     local pid="$1"
     local exe="$2"
     local logfile="$3"
+    local hotboot_attempts="${4:-0}"  # Track hotboot attempts
 
     wait $pid
 
-    # Core dump files are named "core.<exe>.<pid>"
+    # Look for core dumps in current directory (area) - they'll be moved to core directory
     local latest_core=$(ls -t core.* 2>/dev/null | head -n 1 || true)
 
-    # Send alert and exit if coredump detected
+    # If no core dump, check if process exited abnormally
+    local exit_code=$?
+    if [[ -z "$latest_core" && $exit_code -ne 0 ]]; then
+        echo "Server exited with code $exit_code (no core dump generated)"
+        return $exit_code
+    fi
+
+    # Send alert and move core dump if detected
     if [[ -n "$latest_core" ]]; then
-        send_crash_alert "$latest_core" "$logfile" "$exe" "$pid"
-        exit 1
+        # Create timestamped filename for the core dump
+        local timestamp=$(date +"%Y%m%d_%H%M%S")
+        local new_core_name="core.swr.${timestamp}.${pid}"
+        local new_core_path="$CORE_DIR/$new_core_name"
+        
+        # Move core dump to core directory with timestamped name
+        mv "$latest_core" "$new_core_path"
+        echo "Core dump moved to: $new_core_path"
+        
+        # Update the corefile path for the alert
+        send_crash_alert "$new_core_path" "$logfile" "$exe" "$pid"
+        
+        # Automatically run analysis if the script exists
+        if [[ -x "$CORE_DIR/analyze_core.sh" ]]; then
+            echo "Running automatic core dump analysis..."
+            "$CORE_DIR/analyze_core.sh" "$new_core_path" "$exe" || true
+        fi
+        
+        return 1  # Indicate crash occurred
+    fi
+    
+    return 0  # Normal exit
+}
+
+# Attempt hotboot recovery
+attempt_hotboot() {
+    local attempt_num="$1"
+    local logfile="$2"
+    
+    echo "Attempting hotboot recovery (attempt $attempt_num/$MAX_HOTBOOT_ATTEMPTS)..."
+    
+    # Check if hotboot file exists (created by previous crash)
+    local hotboot_file="$BASE_DIR/system/copyover.dat"
+    
+    if [[ ! -f "$hotboot_file" ]]; then
+        echo "No hotboot data file found - attempting normal restart instead"
+        return $(attempt_normal_restart "$attempt_num" "$logfile")
+    fi
+    
+    echo "Hotboot data file found, attempting recovery..."
+    
+    # Brief delay before starting
+    sleep "$HOTBOOT_DELAY"
+    
+    # Start server with hotboot recovery arguments
+    # The MUD expects: swr <port> hotboot <control_socket> <imc_socket>
+    # We'll use dummy values for sockets since we don't have the original ones
+    echo "Starting server with hotboot recovery..."
+    "$SRC_DIR/swr" $port hotboot -1 -1 >"$logfile" 2>&1 &
+    local pid=$!
+    
+    # Give the server a bit more time to start up with hotboot
+    sleep 15
+    
+    # Check if process is still running
+    if kill -0 "$pid" 2>/dev/null; then
+        echo "Hotboot attempt $attempt_num appears successful (PID: $pid)"
+        return $pid
+    else
+        echo "Hotboot attempt $attempt_num failed - trying normal restart"
+        # Remove the corrupt hotboot file
+        rm -f "$hotboot_file"
+        return $(attempt_normal_restart "$attempt_num" "$logfile")
+    fi
+}
+
+# Attempt normal server restart (fallback when hotboot fails)
+attempt_normal_restart() {
+    local attempt_num="$1"
+    local logfile="$2"
+    
+    echo "Attempting normal server restart (recovery attempt $attempt_num/$MAX_HOTBOOT_ATTEMPTS)..."
+    
+    # Brief delay before starting
+    sleep "$HOTBOOT_DELAY"
+    
+    # Start server normally
+    echo "Starting server normally..."
+    "$SRC_DIR/swr" $port >"$logfile" 2>&1 &
+    local pid=$!
+    
+    # Give the server time to start
+    sleep 10
+    
+    # Check if process is still running
+    if kill -0 "$pid" 2>/dev/null; then
+        echo "Normal restart attempt $attempt_num appears successful (PID: $pid)"
+        return $pid
+    else
+        echo "Normal restart attempt $attempt_num failed - process died immediately"
+        return 0
+    fi
+}
+
+# Start the fallback server
+start_fallback_server() {
+    local fallback_port="$1"
+    
+    echo "All hotboot attempts failed. Starting fallback server..."
+    echo "Fallback server will accept connections on port $fallback_port"
+    echo "Players will be notified that the server is down for maintenance."
+    
+    # First, ensure the port is clear for the fallback server
+    echo "Ensuring port $fallback_port is available for fallback server..."
+    check_and_cleanup_port "$fallback_port"
+    
+    # Check if Python is available for the fallback server
+    if command -v python3 >/dev/null 2>&1 && [[ -x "$FALLBACK_SERVER" ]]; then
+        echo "Starting Python-based fallback server on port $fallback_port..."
+        "$FALLBACK_SERVER" "$fallback_port" &
+        local fallback_pid=$!
+        echo "Fallback server started (PID: $fallback_pid)"
+        
+        # Wait a moment to ensure it started successfully
+        sleep 2
+        if kill -0 "$fallback_pid" 2>/dev/null; then
+            echo "Fallback server is running successfully."
+            
+            # Create a status file so admins know fallback is running
+            {
+                echo "Fallback server running on port $fallback_port (PID: $fallback_pid)"
+                echo "Started: $(date)"
+                echo "Main server failed after $MAX_HOTBOOT_ATTEMPTS hotboot attempts"
+                echo "Startup script PID: $$"
+                echo "Port cleanup performed: yes"
+            } > "$BASE_DIR/fallback.status"
+            
+            return $fallback_pid
+        else
+            echo "Error: Fallback server failed to start or died immediately."
+            return 0
+        fi
+    else
+        echo "Error: Python3 not available or fallback server script not found."
+        echo "Cannot start fallback server. Manual intervention required."
+        return 0
     fi
 }
 
 while true; do
     # find next log index
     i=1000
-    while [[ -f $i.log ]]; do
+    while [[ -f "$LOG_DIR/$i.log" ]]; do
         i=$((i + 1))
     done
 
-    logfile="$i.log"
+    logfile="$LOG_DIR/$i.log"
 
     if [[ -f shutdown.txt ]]; then
         rm shutdown.txt
         exit 0
     fi
 
-    # Launch server
-    ./swr $port >"$logfile" 2>&1 &
-    pid=$!
+    # Ensure port is available before starting main server
+    echo "Preparing to start main server..."
+    check_and_cleanup_port "$port"
 
-    check_for_coredump $pid ./swr "$logfile"
+    echo "Starting main server (attempt 1)..."
+    # Launch server from src directory but run in area directory for data access
+    "$SRC_DIR/swr" $port >"$logfile" 2>&1 &
+    pid=$!
+    echo "Main server started (PID: $pid)"
+
+    # Check for crash
+    if ! check_for_coredump $pid "$SRC_DIR/swr" "$logfile"; then
+        echo "Server crashed! Beginning recovery process..."
+        
+        # Initialize hotboot attempt counter
+        hotboot_attempts=0
+        recovery_successful=false
+        
+        # Try hotboot recovery up to MAX_HOTBOOT_ATTEMPTS times
+        while [[ $hotboot_attempts -lt $MAX_HOTBOOT_ATTEMPTS ]]; do
+            hotboot_attempts=$((hotboot_attempts + 1))
+            
+            # Find next log index for hotboot attempt
+            i=1000
+            while [[ -f "$LOG_DIR/$i.log" ]]; do
+                i=$((i + 1))
+            done
+            hotboot_logfile="$LOG_DIR/$i.log"
+            
+            # Attempt hotboot
+            hotboot_pid=$(attempt_hotboot $hotboot_attempts "$hotboot_logfile")
+            
+            if [[ $hotboot_pid -gt 0 ]]; then
+                echo "Hotboot successful! Monitoring server..."
+                # Check if the hotboot server stays alive
+                if check_for_coredump $hotboot_pid "$SRC_DIR/swr" "$hotboot_logfile"; then
+                    echo "Hotboot recovery successful - server running normally"
+                    recovery_successful=true
+                    break
+                else
+                    echo "Hotboot server crashed again (attempt $hotboot_attempts)"
+                fi
+            fi
+            
+            if [[ $hotboot_attempts -lt $MAX_HOTBOOT_ATTEMPTS ]]; then
+                echo "Waiting before next hotboot attempt..."
+                sleep $((HOTBOOT_DELAY * 2))  # Longer delay between attempts
+            fi
+        done
+        
+        # If all hotboot attempts failed, start fallback server
+        if [[ "$recovery_successful" == false ]]; then
+            echo "All recovery attempts failed!"
+            
+            # Start fallback server
+            fallback_pid=$(start_fallback_server $port)
+            
+            if [[ $fallback_pid -gt 0 ]]; then
+                echo "Fallback server is running. Manual intervention required to restore main server."
+                echo "Fallback server PID: $fallback_pid"
+                echo "To stop fallback: kill $fallback_pid"
+                echo "To restart main server: restart this script after fixing issues"
+                
+                # Wait for fallback server (it runs indefinitely)
+                wait $fallback_pid
+            fi
+            
+            echo "Fallback server stopped. Exiting startup script."
+            exit 1
+        fi
+    else
+        echo "Server exited normally."
+    fi
 done
 # Note: we do not loop on crashes, to allow for debugging. The user can restart the script if desired.
