@@ -224,10 +224,10 @@ int web_colour(char type, char *string)
                 mudstrlcpy(code, "<br>", 50);
                 break;
         case '{':
-                snprintf(code, 50, "%c", '{');
+                snprintf(code, MSL, "%c", '{');
                 break;
         case '-':
-                snprintf(code, 50, "%c", '~');
+                snprintf(code, MSL, "%c", '~');
                 break;
         }
         p = code;
@@ -407,7 +407,7 @@ void init_web(int port)
         struct sockaddr_in my_addr;
         char buf[MAX_STRING_LENGTH];
 
-        sprintf(buf, "Web features starting on port: %d", port);
+        snprintf(buf, MSL, "Web features starting on port: %d", port);
         log_string(buf);
 
         WEBSERVER_STATUS = TRUE;
@@ -983,24 +983,24 @@ bool check_help_net(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                 if (help->level >= hmax || help->level <= hmin)
                         continue;
 
-                sprintf(buf4, "/~delete_help/%s.htm ",
+                snprintf(buf4, MSL, "/~delete_help/%s.htm ",
                         convert_sp(strlower(help->keyword)));
                 one_argument(help->keyword, buf3);
-                sprintf(buf5, "/~delete_help/%s.htm ", strlower(buf3));
+                snprintf(buf5, MSL, "/~delete_help/%s.htm ", strlower(buf3));
 
                 if (help->level >= 100 || hmax > 100)
                 {
-                        sprintf(buf, "/~immhelp/%s.htm ",
+                        snprintf(buf, MSL, "/~immhelp/%s.htm ",
                                 convert_sp(strlower(help->keyword)));
                         one_argument(help->keyword, buf3);
-                        sprintf(buf2, "/~immhelp/%s.htm ", strlower(buf3));
+                        snprintf(buf2, MSL, "/~immhelp/%s.htm ", strlower(buf3));
                 }
                 else
                 {
-                        sprintf(buf, "/help/%s.htm ",
+                        snprintf(buf, MSL, "/help/%s.htm ",
                                 convert_sp(strlower(help->keyword)));
                         one_argument(help->keyword, buf3);
-                        sprintf(buf2, "/help/%s.htm ", strlower(buf3));
+                        snprintf(buf2, MSL, "/help/%s.htm ", strlower(buf3));
                 }
 
                 if (strstr(wdesc->request, buf)
@@ -1056,12 +1056,15 @@ bool check_help_net(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                         send_buf(wdesc->fd, "<br><br>\n", FALSE);
                         if (hmax > 100)
                         {
-                                sprintf(buf2, "/~delete_help/%s.htm ",
+                                snprintf(buf2, MSL, "/~delete_help/%s.htm ",
                                         convert_sp(strlower(help->keyword)));
-                                sprintf(buf,
-                                        "<br><a href=" "%s"
-                                        ">[Delete this helpfile]</a><br>\n",
-                                        buf2);
+                                {
+                                    /* Use stacked buffer approach to avoid overflow warnings */
+                                    char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                                    snprintf(tmp, sizeof(tmp), "<br><a href=" "%s" ">[Delete this helpfile]</a><br>\n", buf2);
+                                    strncpy(buf, tmp, MSL-1);
+                                    buf[MSL-1] = '\0'; /* Ensure null termination */
+                                }
                                 send_buf(wdesc->fd, buf, FALSE);
                         }
                         send_buf(wdesc->fd, "</font>\n", FALSE);
@@ -1200,12 +1203,12 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                         else
                                 send_buf(wdesc->fd, "</table>", FALSE);
                         if (inqt == 1)
-                                sprintf(buf,
+                                snprintf(buf, MSL,
                                         "<br></font><font size=" "4"
                                         ">'%c'</font><font size=" "2"
                                         "><br>\n", tmp);
                         if (inqt == 0)
-                                sprintf(buf,
+                                snprintf(buf, MSL,
                                         "<br></font><font size=" "4"
                                         ">%c</font><font size=" "2" "><br>\n",
                                         tmp);
@@ -1225,26 +1228,41 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                 send_buf(wdesc->fd, "<tr><td width=\"315\">", FALSE);
                 if (help->level >= 100)
                 {
-                        sprintf(buf2, "/~immhelp/%s.htm ",
+                        snprintf(buf2, MSL, "/~immhelp/%s.htm ",
                                 convert_sp(strlower(help->keyword)));
-                        sprintf(buf, "<a href=" "%s" ">%s *</a><br>\n", buf2,
-                                help->keyword);
+                        {
+                            /* Use stacked buffer approach to avoid overflow warnings */
+                            char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                            snprintf(tmp, sizeof(tmp), "<a href=" "%s" ">%s *</a><br>\n", buf2, help->keyword);
+                            strncpy(buf, tmp, MSL-1);
+                            buf[MSL-1] = '\0'; /* Ensure null termination */
+                        }
                 }
                 else
                 {
                         if (hmax > 100)
                         {
-                                sprintf(buf2, "/~immhelp/%s.htm ",
+                                snprintf(buf2, MSL, "/~immhelp/%s.htm ",
                                         convert_sp(strlower(help->keyword)));
-                                sprintf(buf, "<a href=" "%s" ">%s</a><br>\n",
-                                        buf2, help->keyword);
+                                {
+                                    /* Use stacked buffer approach to avoid overflow warnings */
+                                    char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                                    snprintf(tmp, sizeof(tmp), "<a href=" "%s" ">%s</a><br>\n", buf2, help->keyword);
+                                    strncpy(buf, tmp, MSL-1);
+                                    buf[MSL-1] = '\0'; /* Ensure null termination */
+                                }
                         }
                         else
                         {
-                                sprintf(buf2, "/help/%s.htm ",
+                                snprintf(buf2, MSL, "/help/%s.htm ",
                                         convert_sp(strlower(help->keyword)));
-                                sprintf(buf, "<a href=" "%s" ">%s</a><br>\n",
-                                        buf2, help->keyword);
+                                {
+                                    /* Use stacked buffer approach to avoid overflow warnings */
+                                    char tmp[MSL*2]; /* Temporary buffer large enough for the format operation */
+                                    snprintf(tmp, sizeof(tmp), "<a href=" "%s" ">%s</a><br>\n", buf2, help->keyword);
+                                    strncpy(buf, tmp, MSL-1);
+                                    buf[MSL-1] = '\0'; /* Ensure null termination */
+                                }
                         }
                 }
 
@@ -1265,7 +1283,7 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                         send_buf(wdesc->fd,
                                  "Links marked with a '*' means they are over level 100.<br>\n",
                                  FALSE);
-                sprintf(buf,
+                snprintf(buf, MSL,
                         "-There are [ %d ] help files currently on Dark Warriors-<br>\n",
                         cnt);
                 send_buf(wdesc->fd, buf, FALSE);
@@ -1275,7 +1293,7 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                          "-There are no help files on Dark Warriors right now-<br>\n",
                          FALSE);
 
-        sprintf(buf, "<br>This file last updated at %s Eastern Time.\n",
+        snprintf(buf, MSL, "<br>This file last updated at %s Eastern Time.\n",
                 ((char *) ctime(&current_time)));
         send_buf(wdesc->fd, buf, FALSE);
         send_buf(wdesc->fd, "</center></font>\n", FALSE);
@@ -1364,13 +1382,13 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
                                                     && skill_table[sn]->
                                                     races[0] != '\0')
                                                 {
-                                                        sprintf(buf3,
+                                                        snprintf(buf3, MSL,
                                                                 "/help/%s.htm ",
                                                                 convert_sp
                                                                 (strlower
                                                                  (help->
                                                                   keyword)));
-                                                        sprintf(buf2,
+                                                        snprintf(buf2, MSL,
                                                                 "<a href="
                                                                 "%s"
                                                                 ">&w%-18.18s</a> ",
@@ -1391,13 +1409,13 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
                                                 }
                                                 else
                                                 {
-                                                        sprintf(buf3,
+                                                        snprintf(buf3, MSL,
                                                                 "/help/%s.htm ",
                                                                 convert_sp
                                                                 (strlower
                                                                  (help->
                                                                   keyword)));
-                                                        sprintf(buf2,
+                                                        snprintf(buf2, MSL,
                                                                 "<a href="
                                                                 "%s"
                                                                 ">&w%-18.18s</a> ",
@@ -1516,10 +1534,10 @@ void handle_web_clan_request(WEB_DESCRIPTOR * wdesc)
 
 
                 send_buf(wdesc->fd, "&BO&zrganization: &W", 2);
-                sprintf(buf, "<a href=/clan/%s.htm>",
+                snprintf(buf, MSL, "<a href=/clan/%s.htm>",
                         convert_sp(strlower(clan->name)));
                 send_buf(wdesc->fd, buf, 2);
-                sprintf(buf, "%-37.37s", clan->name);
+                snprintf(buf, MSL, "%-37.37s", clan->name);
                 send_buf(wdesc->fd, buf, 2);
                 send_buf(wdesc->fd, "</a> ", 2);
                 snprintf(buf, MSL, "&BT&zype&B: &W%s", clan_type(clan));
@@ -1547,10 +1565,10 @@ void handle_web_clan_request(WEB_DESCRIPTOR * wdesc)
                         {
                                 send_buf(wdesc->fd,
                                          "    &BO&zrganization: &W", 2);
-                                sprintf(buf, "<a href=/clan/%s.htm>",
+                                snprintf(buf, MSL, "<a href=/clan/%s.htm>",
                                         convert_sp(strlower(subclan->name)));
                                 send_buf(wdesc->fd, buf, 2);
-                                sprintf(buf, "%-33.33s", subclan->name);
+                                snprintf(buf, MSL, "%-33.33s", subclan->name);
                                 send_buf(wdesc->fd, buf, 2);
                                 send_buf(wdesc->fd, "</a> ", 2);
                                 snprintf(buf, MSL, "&BM&zembers&B:&W %d",
@@ -1591,10 +1609,10 @@ void handle_web_race_request(WEB_DESCRIPTOR * wdesc)
         FOR_EACH_LIST(RACE_LIST, races, race)
         {
                 send_buf(wdesc->fd, "&BN&zame: &W", 2);
-                sprintf(buf, "<a href=/races/%s.htm>",
+                snprintf(buf, MSL, "<a href=/races/%s.htm>",
                         convert_sp(strlower(race->name())));
                 send_buf(wdesc->fd, buf, 2);
-                sprintf(buf, "%-37.37s", race->name());
+                snprintf(buf, MSL, "%-37.37s", race->name());
                 send_buf(wdesc->fd, buf, 2);
                 send_buf(wdesc->fd, "</a>", 2);
                 snprintf(buf, MSL, "&BR&zpp needed&B: &W%d\n<br>",
@@ -1625,10 +1643,10 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
         FOR_EACH_LIST(RACE_LIST, races, race)
         {
 
-                sprintf(buf3, "/races/%s.htm ",
+                snprintf(buf3, MSL, "/races/%s.htm ",
                         convert_sp(strlower(race->name())));
                 one_argument(race->name(), buf4);
-                sprintf(buf2, "/races/%s.htm ", strlower(buf4));
+                snprintf(buf2, MSL, "/races/%s.htm ", strlower(buf4));
 
                 if (strstr(wdesc->request, buf3)
                     || strstr(wdesc->request, buf2))
@@ -1638,7 +1656,7 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                                 snprintf(buf, MSL,
                                          "&BR&zace name:          &W");
                                 send_buf(wdesc->fd, buf, 2);
-                                sprintf(buf3, "<a href=/help/%s.htm>",
+                                snprintf(buf3, MSL, "<a href=/help/%s.htm>",
                                         convert_sp(strlower(help->keyword)));
                                 snprintf(buf, MSL, "%s%s</a>\n<br>", buf3,
                                          race->name());
@@ -1815,10 +1833,10 @@ bool check_clan_net(WEB_DESCRIPTOR * wdesc)
         for (clan = first_clan; clan; clan = clan->next)
         {
 
-                sprintf(buf3, "/clan/%s.htm ",
+                snprintf(buf3, MSL, "/clan/%s.htm ",
                         convert_sp(strlower(clan->name)));
                 one_argument(clan->name, buf4);
-                sprintf(buf2, "/clan/%s.htm ", strlower(buf4));
+                snprintf(buf2, MSL, "/clan/%s.htm ", strlower(buf4));
 
                 if (strstr(wdesc->request, buf3)
                     || strstr(wdesc->request, buf2))
@@ -1909,10 +1927,10 @@ void handle_web_planet_request(WEB_DESCRIPTOR * wdesc)
         for (planet = first_planet; planet; planet = planet->next)
         {
                 send_buf(wdesc->fd, "&BP&zlanet: &w", 2);
-                sprintf(buf, "<a href=/planet/%s.htm>",
+                snprintf(buf, MSL, "<a href=/planet/%s.htm>",
                         convert_sp(strlower(planet->name)));
                 send_buf(wdesc->fd, buf, 2);
-                sprintf(buf, "%-15.15s        ", planet->name);
+                snprintf(buf, MSL, "%-15.15s        ", planet->name);
                 send_buf(wdesc->fd, buf, 2);
                 send_buf(wdesc->fd, "</a> ", 2);
                 snprintf(buf, MSL, "&BG&zoverned &BB&zy: &w%s %s\n",
@@ -1983,7 +2001,7 @@ void handle_edithelp_message_request(WEB_DESCRIPTOR * wdesc)
         send_buf(wdesc->fd,
                  "<tr>\n<td>Level</td>\n<td><input type=\"text\" name=\"level\" value=\"",
                  2);
-        sprintf(buf, "%d", help->level);
+        snprintf(buf, MSL, "%d", help->level);
         send_buf(wdesc->fd, buf, 2);
         send_buf(wdesc->fd, "\" /></td>\n</tr>", 2);
         send_buf(wdesc->fd,
@@ -2083,10 +2101,10 @@ bool check_planet_net(WEB_DESCRIPTOR * wdesc)
         for (planet = first_planet; planet; planet = planet->next)
         {
 
-                sprintf(buf3, "/planet/%s.htm ",
+                snprintf(buf3, MSL, "/planet/%s.htm ",
                         convert_sp(strlower(planet->name)));
                 one_argument(planet->name, buf4);
-                sprintf(buf2, "/planet/%s.htm ", strlower(buf4));
+                snprintf(buf2, MSL, "/planet/%s.htm ", strlower(buf4));
 
                 if (strstr(wdesc->request, buf3)
                     || strstr(wdesc->request, buf2))
@@ -2213,7 +2231,7 @@ void web_header(WEB_DESCRIPTOR * wdesc, char *title)
 {
         char buf[MAX_STRING_LENGTH];
 
-        sprintf(buf, "<title>Dark Warriors - %s</title>\n", title);
+        snprintf(buf, MSL, "<title>Dark Warriors - %s</title>\n", title);
         send_buf(wdesc->fd, "<html>\n", FALSE);
         send_buf(wdesc->fd, "<head>\n", FALSE);
         send_buf(wdesc->fd, buf, FALSE);
@@ -2235,7 +2253,7 @@ void web_header(WEB_DESCRIPTOR * wdesc, char *title)
         send_buf(wdesc->fd,
                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                  FALSE);
-        sprintf(buf, "<h1><center>Dark Warrior %s</center></h1>\n", title);
+        snprintf(buf, MSL, "<h1><center>Dark Warrior %s</center></h1>\n", title);
         send_buf(wdesc->fd, buf, FALSE);
         send_buf(wdesc->fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 }
@@ -2266,7 +2284,7 @@ void print_ooc_history(WEB_DESCRIPTOR * wdesc)
                 return;
         }
 
-        sprintf(buf, "&B%c&z%s History\n\rB-----------\n\r", channel->name[0],
+        snprintf(buf, MSL, "&B%c&z%s History\n\rB-----------\n\r", channel->name[0],
                 channel->name + 1);
         send_buf(wdesc->fd, buf, 2);
         while (1)
