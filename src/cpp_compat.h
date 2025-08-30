@@ -2,7 +2,7 @@
 #define _CPP_COMPAT_H_
 
 /*
- * This header provides compatibility functions and defines for 
+ * This header provides compatibility functions and defines for
  * transitioning from C to C++ and handling string conversion issues.
  */
 #include <string.h>
