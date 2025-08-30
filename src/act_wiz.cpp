@@ -225,118 +225,158 @@ void output_help(CHAR_DATA * ch, struct wizhelp_s **first,
         send_to_pager("\n\r", ch);
 }
 
+
 CMDF do_wizhelp(CHAR_DATA * ch, char *argument)
 {
         CMDTYPE  *cmd;
         int       hash;
-        struct wizhelp_s *first_general, *last_general;
-        struct wizhelp_s *first_enforcer, *last_enforcer;
-        struct wizhelp_s *first_builder, *last_builder;
-        struct wizhelp_s *first_highbuilder, *last_highbuilder;
-        struct wizhelp_s *first_coder, *last_coder;
-        struct wizhelp_s *first_admin, *last_admin;
-        struct wizhelp_s *first_quest, *last_quest;
-        struct wizhelp_s *first_owner, *last_owner;
-        struct wizhelp_s *first_highenforcer, *last_highenforcer;
-        struct wizhelp_s *curr;
-
-        argument = NULL;
-
-        /*
-         * Initalizing them 
-         */
-        first_general = last_general = first_enforcer = last_enforcer =
-                first_builder = last_builder = first_highbuilder =
-                last_highbuilder = first_coder = last_coder = first_admin =
-                last_admin = first_owner = last_owner = first_quest =
-                last_quest = first_highenforcer = last_highenforcer = NULL;
+        char      oneword[MSL], lastmatch[MSL];
+        sh_int    matched = 0, checked = 0, totalmatched = 0;
+        char     *keyword;
+        bool      found = FALSE;
 
         if (IS_NPC(ch))
                 return;
 
+        if (!argument || argument[0] == '\0') {
+                // ...existing code for categorized listing...
+                struct wizhelp_s *first_general, *last_general;
+                struct wizhelp_s *first_enforcer, *last_enforcer;
+                struct wizhelp_s *first_builder, *last_builder;
+                struct wizhelp_s *first_highbuilder, *last_highbuilder;
+                struct wizhelp_s *first_coder, *last_coder;
+                struct wizhelp_s *first_admin, *last_admin;
+                struct wizhelp_s *first_quest, *last_quest;
+                struct wizhelp_s *first_owner, *last_owner;
+                struct wizhelp_s *first_highenforcer, *last_highenforcer;
+                struct wizhelp_s *curr;
+                first_general = last_general = first_enforcer = last_enforcer =
+                        first_builder = last_builder = first_highbuilder =
+                        last_highbuilder = first_coder = last_coder = first_admin =
+                        last_admin = first_owner = last_owner = first_quest =
+                        last_quest = first_highenforcer = last_highenforcer = NULL;
 
-        for (hash = 0; hash < 126; hash++)
-        {
-                for (cmd = command_hash[hash]; cmd; cmd = cmd->next)
-                {
+                for (hash = 0; hash < 126; hash++) {
+                        for (cmd = command_hash[hash]; cmd; cmd = cmd->next) {
+                                if (cmd->level < LEVEL_IMMORTAL)
+                                        continue;
+                                if (!check_command(ch, cmd))
+                                        continue;
+                                CREATE(curr, struct wizhelp_s, 1);
+                                curr->cmd = cmd;
+                                if (IS_SET(cmd->perm_flags, IMM_BUILDER))
+                                        LINK(curr, first_builder, last_builder, next, prev);
+                                else if (IS_SET(cmd->perm_flags, IMM_HIGHBUILDER))
+                                        LINK(curr, first_highbuilder, last_highbuilder, next, prev);
+                                else if (IS_SET(cmd->perm_flags, IMM_HIGHENFORCER))
+                                        LINK(curr, first_highenforcer, last_highenforcer, next, prev);
+                                else if (IS_SET(cmd->perm_flags, IMM_ENFORCER))
+                                        LINK(curr, first_enforcer, last_enforcer, next, prev);
+                                else if (IS_SET(cmd->perm_flags, IMM_QUEST))
+                                        LINK(curr, first_quest, last_quest, next, prev);
+                                else if (IS_SET(cmd->perm_flags, IMM_CODER))
+                                        LINK(curr, first_coder, last_coder, next, prev);
+                                else if (IS_SET(cmd->perm_flags, IMM_ADMIN))
+                                        LINK(curr, first_admin, last_admin, next, prev);
+                                else if (IS_SET(cmd->perm_flags, IMM_OWNER))
+                                        LINK(curr, first_owner, last_owner, next, prev);
+                                else
+                                        LINK(curr, first_general, last_general, next, prev);
+                        }
+                }
+                if (first_general) {
+                        send_to_pager("&B[&cGeneral&B]&W\n\r", ch);
+                        output_help(ch, &first_general, &last_general);
+                }
+                if (first_enforcer) {
+                        send_to_pager("&B[&cEnforcer&B]&W\n\r", ch);
+                        output_help(ch, &first_enforcer, &last_enforcer);
+                }
+                if (first_highenforcer) {
+                        send_to_pager("&B[&cHigh Enforcer&B]&W\n\r", ch);
+                        output_help(ch, &first_highenforcer, &last_enforcer);
+                }
+                if (first_builder) {
+                        send_to_pager("&B[&cBuilder&B]&W\n\r", ch);
+                        output_help(ch, &first_builder, &last_builder);
+                }
+                if (first_highbuilder) {
+                        send_to_pager("&B[&cHigh Builder&B]&W\n\r", ch);
+                        output_help(ch, &first_highbuilder, &last_highbuilder);
+                }
+                if (first_coder) {
+                        send_to_pager("&B[&cCoder&B]&W\n\r", ch);
+                        output_help(ch, &first_coder, &last_coder);
+                }
+                if (first_admin) {
+                        send_to_pager("&B[&cAdmin&B]&W\n\r", ch);
+                        output_help(ch, &first_admin, &last_admin);
+                }
+                if (first_quest) {
+                        send_to_pager("&B[&cQuest&B]&W\n\r", ch);
+                        output_help(ch, &first_quest, &last_quest);
+                }
+                if (first_owner) {
+                        send_to_pager("&B[&cOwner&B]&W\n\r", ch);
+                        output_help(ch, &first_owner, &last_owner);
+                }
+                return;
+        }
+
+        // Fuzzy search for immortal commands
+        mudstrlcpy(lastmatch, " ", MSL);
+        totalmatched = 0;
+        for (hash = 0; hash < 126; hash++) {
+                for (cmd = command_hash[hash]; cmd; cmd = cmd->next) {
                         if (cmd->level < LEVEL_IMMORTAL)
                                 continue;
                         if (!check_command(ch, cmd))
                                 continue;
-
-                        CREATE(curr, struct wizhelp_s, 1);
-
-                        curr->cmd = cmd;
-
-                        if (IS_SET(cmd->perm_flags, IMM_BUILDER))
-                                LINK(curr, first_builder, last_builder, next, prev);    /* add to first_builder */
-                        else if (IS_SET(cmd->perm_flags, IMM_HIGHBUILDER))
-                                LINK(curr, first_highbuilder, last_highbuilder, next, prev);    /* add to highbuilder */
-                        else if (IS_SET(cmd->perm_flags, IMM_HIGHENFORCER))
-                                LINK(curr, first_highenforcer, last_highenforcer, next, prev);  /* add to hight enforcer */
-                        else if (IS_SET(cmd->perm_flags, IMM_ENFORCER))
-                                LINK(curr, first_enforcer, last_enforcer, next, prev);  /* add to enforcer */
-                        else if (IS_SET(cmd->perm_flags, IMM_QUEST))
-                                LINK(curr, first_quest, last_quest, next, prev);    /* add to quest */
-                        else if (IS_SET(cmd->perm_flags, IMM_CODER))
-                                LINK(curr, first_coder, last_coder, next, prev);    /* add to coder */
-                        else if (IS_SET(cmd->perm_flags, IMM_ADMIN))
-                                LINK(curr, first_admin, last_admin, next, prev);    /* add to admin */
-                        else if (IS_SET(cmd->perm_flags, IMM_OWNER))
-                                LINK(curr, first_owner, last_owner, next, prev);    /* add to owner */
-                        else
-                                LINK(curr, first_general, last_general, next, prev);    /* add to general */
+                        keyword = cmd->name;
+                        matched = 0;
+                        checked = 0;
+                        for (checked = 0; checked <= 10; checked++) {
+                                if (!keyword[checked] || !argument[checked])
+                                        break;
+                                if (LOWER(keyword[checked]) == LOWER(argument[checked]))
+                                        matched++;
+                        }
+                        if ((matched > 1 && matched > (checked / 2)) || (matched > 0 && checked < 2)) {
+                                pager_printf(ch, "&G %-20s &D(Level: %d)\n\r", keyword, cmd->level);
+                                mudstrlcpy(lastmatch, keyword, MSL);
+                                totalmatched++;
+                        }
+                        if (!str_cmp(argument, keyword)) {
+                                // Exact match, show info
+                                pager_printf(ch, "&WImmortal Command: &G%s&D\n\r", keyword);
+                                pager_printf(ch, "&WLevel: &G%d&D\n\r", cmd->level);
+                                pager_printf(ch, "&WFunction: &G%s&D\n\r", cmd->fun_name ? cmd->fun_name : "(none)");
+                                found = TRUE;
+                        }
                 }
         }
-
-
-        if (first_general)
-        {
-                send_to_pager("&B[&cGeneral&B]&W\n\r", ch);
-                output_help(ch, &first_general, &last_general);
+        if (found)
+                return;
+        if (totalmatched == 0) {
+                send_to_pager("&C&GNo suggested immortal commands.\n\r", ch);
+                return;
         }
-        if (first_enforcer)
-        {
-                send_to_pager("&B[&cEnforcer&B]&W\n\r", ch);
-                output_help(ch, &first_enforcer, &last_enforcer);
+        if (totalmatched == 1 && lastmatch != NULL && lastmatch[0] != '\0') {
+                send_to_pager("&COpening only suggested immortal command.&D\n\r", ch);
+                // Show info for the single match
+                for (hash = 0; hash < 126; hash++) {
+                        for (cmd = command_hash[hash]; cmd; cmd = cmd->next) {
+                                if (cmd->level < LEVEL_IMMORTAL)
+                                        continue;
+                                if (!str_cmp(lastmatch, cmd->name)) {
+                                        pager_printf(ch, "&WImmortal Command: &G%s&D\n\r", cmd->name);
+                                        pager_printf(ch, "&WLevel: &G%d&D\n\r", cmd->level);
+                                        pager_printf(ch, "&WFunction: &G%s&D\n\r", cmd->fun_name ? cmd->fun_name : "(none)");
+                                        return;
+                                }
+                        }
+                }
         }
-        if (first_highenforcer)
-        {
-                send_to_pager("&B[&cHigh Enforcer&B]&W\n\r", ch);
-                output_help(ch, &first_highenforcer, &last_enforcer);
-        }
-        if (first_builder)
-        {
-                send_to_pager("&B[&cBuilder&B]&W\n\r", ch);
-                output_help(ch, &first_builder, &last_builder);
-        }
-        if (first_highbuilder)
-        {
-                send_to_pager("&B[&cHigh Builder&B]&W\n\r", ch);
-                output_help(ch, &first_highbuilder, &last_highbuilder);
-        }
-        if (first_coder)
-        {
-                send_to_pager("&B[&cCoder&B]&W\n\r", ch);
-                output_help(ch, &first_coder, &last_coder);
-        }
-        if (first_admin)
-        {
-                send_to_pager("&B[&cAdmin&B]&W\n\r", ch);
-                output_help(ch, &first_admin, &last_admin);
-        }
-        if (first_quest)
-        {
-                send_to_pager("&B[&cQuest&B]&W\n\r", ch);
-                output_help(ch, &first_quest, &last_quest);
-        }
-        if (first_owner)
-        {
-                send_to_pager("&B[&cOwner&B]&W\n\r", ch);
-                output_help(ch, &first_owner, &last_owner);
-        }
-
-        return;
 }
 
 
