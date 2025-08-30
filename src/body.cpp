@@ -36,12 +36,12 @@
  *****************************************************************************************
  *                                SWR OLC Channel module                                 *
  ****************************************************************************************/
-#include <algorithm>
-#include <list>
 #include "mud.h"
 #include "body.h"
 #include "space2.h"
 #include "installations.h"
+#include <algorithm>
+#include <list>
 
 BODY_LIST bodies;
 DOCK_DATA *first_dock;
