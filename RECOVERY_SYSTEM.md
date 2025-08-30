@@ -39,9 +39,14 @@ ALERT_EMAIL="crashalert@renegadeinc.net"  # Crash notification email
 ### Directory Structure
 ```
 /workspaces/swtfe/
+├── scripts/                # Portable management scripts (RECOMMENDED)
+│   ├── mudctl.sh          # Main server control script
+│   ├── check_system.sh    # System dependency checker
+│   └── README.md          # Scripts documentation
 ├── src/
 │   ├── startup.sh          # Main startup script with recovery
 │   ├── fallback_server.py  # Python fallback server
+│   ├── mudctl.sh          # Original script (legacy)
 │   └── swr                 # Main MUD executable
 ├── core/                   # Core dump management
 │   ├── analyze_core.sh     # GDB-based crash analysis
@@ -142,24 +147,32 @@ The `mudctl.sh` script provides comprehensive server management capabilities:
 - **Status Monitoring**: Real-time server and port status information
 - **Emergency Controls**: Force kill all processes when needed
 
+**New Portable Version**: Use `./scripts/mudctl.sh` for improved portability and features.
+**Legacy Version**: `./src/mudctl.sh` is the original version with hardcoded paths.
+
 ### Commands
 
 ```bash
-# Server status and monitoring
-./src/mudctl.sh status [port]           # Show detailed server status
-./src/mudctl.sh status 4848             # Check specific port
+# RECOMMENDED: Use portable scripts (work from any directory)
+./scripts/mudctl.sh status             # Show detailed server status
+./scripts/mudctl.sh start [port]       # Start main server (default: 4848)
+./scripts/mudctl.sh stop               # Stop server gracefully
+./scripts/mudctl.sh restart [port]     # Stop and restart server
+./scripts/mudctl.sh cleanup            # Clean up old logs and cores
+./scripts/mudctl.sh kill-all           # Emergency stop all processes
+./scripts/mudctl.sh fallback [port]    # Start fallback server manually
+./scripts/mudctl.sh logs [count]       # Show recent log entries
+./scripts/mudctl.sh tail               # Follow live logs
+./scripts/mudctl.sh check              # Run system dependency check
 
-# Server lifecycle management  
-./src/mudctl.sh start [port]            # Start main server
-./src/mudctl.sh stop [port]             # Stop processes on port
-./src/mudctl.sh restart [port]          # Stop and restart server
-
-# Port and process management
-./src/mudctl.sh cleanup [port]          # Clean up port conflicts
-./src/mudctl.sh kill-all                # Emergency stop all processes
-
-# Manual fallback control
-./src/mudctl.sh fallback [port]         # Start fallback server manually
+# LEGACY: Original commands (require running from src directory)
+./src/mudctl.sh status [port]          # Show detailed server status  
+./src/mudctl.sh start [port]           # Start main server
+./src/mudctl.sh stop [port]            # Stop processes on port
+./src/mudctl.sh restart [port]         # Stop and restart server
+./src/mudctl.sh cleanup [port]         # Clean up port conflicts
+./src/mudctl.sh kill-all               # Emergency stop all processes
+./src/mudctl.sh fallback [port]        # Start fallback server manually
 ```
 
 ### Port Conflict Resolution

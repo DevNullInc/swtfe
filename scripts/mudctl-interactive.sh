@@ -157,6 +157,27 @@ get_disk_usage() {
     fi
 }
 
+# Format status line with proper alignment
+format_status_line() {
+    local content="$1"
+    local box_width=78  # Total width minus border characters (2)
+    
+    # Strip ANSI codes to get actual content length
+    local clean_content=$(echo -e "$content" | sed 's/\x1b\[[0-9;]*m//g')
+    local content_length=${#clean_content}
+    
+    # Calculate padding needed
+    local padding=$((box_width - content_length))
+    
+    # Create padding string
+    local pad_string=""
+    for ((i=0; i<padding; i++)); do
+        pad_string+=" "
+    done
+    
+    echo -e "${BOLD}${BLUE}║${NC} $content$pad_string ${BLUE}║${NC}"
+}
+
 # Display header with live server status
 display_header() {
     local current_time=$(date '+%Y-%m-%d %H:%M:%S')
@@ -165,7 +186,7 @@ display_header() {
     echo -e "${BOLD}${BLUE}╔════════════════════════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${BOLD}${BLUE}║${WHITE}                        SWR MUD Server Interactive Controller                   ${BLUE}║${NC}"
     echo -e "${BOLD}${BLUE}║${WHITE}                                                                                ${BLUE}║${NC}"
-    echo -e "${BOLD}${BLUE}║${NC} ${DIM}Updated: $current_time${NC}                                        ${BLUE}║${NC}"
+    format_status_line "${DIM}Updated: $current_time${NC}"
     echo -e "${BOLD}${BLUE}╠════════════════════════════════════════════════════════════════════════════════╣${NC}"
     
     # Server Status Section
@@ -176,24 +197,24 @@ display_header() {
     if [[ -n "$server_procs" ]]; then
         local server_count=$(echo "$server_procs" | wc -l)
         local main_pid=$(echo "$server_procs" | grep "swr" | head -1 | awk '{print $2}' || echo "unknown")
-        echo -e "${BOLD}${BLUE}║${NC} ${GREEN}●${NC} ${BOLD}SERVER STATUS: ${GREEN}RUNNING${NC} ${DIM}(PID: $main_pid, Processes: $server_count)${NC}                    ${BLUE}║${NC}"
+        format_status_line "${GREEN}●${NC} ${BOLD}SERVER STATUS: ${GREEN}RUNNING${NC} ${DIM}(PID: $main_pid, Processes: $server_count)${NC}"
     else
-        echo -e "${BOLD}${BLUE}║${NC} ${RED}●${NC} ${BOLD}SERVER STATUS: ${RED}STOPPED${NC}                                                   ${BLUE}║${NC}"
+        format_status_line "${RED}●${NC} ${BOLD}SERVER STATUS: ${RED}STOPPED${NC}"
     fi
     
     if [[ -n "$fallback_procs" ]]; then
         local fallback_pid=$(echo "$fallback_procs" | head -1 | awk '{print $2}')
-        echo -e "${BOLD}${BLUE}║${NC} ${YELLOW}●${NC} ${BOLD}FALLBACK STATUS: ${YELLOW}ACTIVE${NC} ${DIM}(PID: $fallback_pid)${NC}                                      ${BLUE}║${NC}"
+        format_status_line "${YELLOW}●${NC} ${BOLD}FALLBACK STATUS: ${YELLOW}ACTIVE${NC} ${DIM}(PID: $fallback_pid)${NC}"
     else
-        echo -e "${BOLD}${BLUE}║${NC} ${DIM}○${NC} ${BOLD}FALLBACK STATUS: ${DIM}INACTIVE${NC}                                                ${BLUE}║${NC}"
+        format_status_line "${DIM}○${NC} ${BOLD}FALLBACK STATUS: ${DIM}INACTIVE${NC}"
     fi
     
     # Port Status
     if [[ -n "$port_usage" ]]; then
         local port_pid=$(echo "$port_usage" | grep -o 'pid=[0-9]*' | cut -d'=' -f2 | head -1 || echo "unknown")
-        echo -e "${BOLD}${BLUE}║${NC} ${GREEN}●${NC} ${BOLD}PORT $DEFAULT_PORT: ${GREEN}IN USE${NC} ${DIM}(PID: $port_pid)${NC}                                               ${BLUE}║${NC}"
+        format_status_line "${GREEN}●${NC} ${BOLD}PORT $DEFAULT_PORT: ${GREEN}IN USE${NC} ${DIM}(PID: $port_pid)${NC}"
     else
-        echo -e "${BOLD}${BLUE}║${NC} ${DIM}○${NC} ${BOLD}PORT $DEFAULT_PORT: ${DIM}AVAILABLE${NC}                                                      ${BLUE}║${NC}"
+        format_status_line "${DIM}○${NC} ${BOLD}PORT $DEFAULT_PORT: ${DIM}AVAILABLE${NC}"
     fi
     
     echo -e "${BOLD}${BLUE}╠════════════════════════════════════════════════════════════════════════════════╣${NC}"
@@ -209,9 +230,9 @@ display_header() {
     local memory_usage=$(get_memory_usage)
     local disk_usage=$(get_disk_usage)
     
-    echo -e "${BOLD}${BLUE}║${NC} ${CYAN}Latest Log:${NC} ${WHITE}$log_name${NC} ${DIM}($log_lines lines, $(numfmt --to=iec $log_size 2>/dev/null || echo ${log_size}b))${NC}                        ${BLUE}║${NC}"
-    echo -e "${BOLD}${BLUE}║${NC} ${CYAN}Core Dumps:${NC} ${WHITE}$core_count total${NC} ${DIM}(latest: $latest_core)${NC}                             ${BLUE}║${NC}"
-    echo -e "${BOLD}${BLUE}║${NC} ${CYAN}System Load:${NC} ${WHITE}$system_load${NC} ${DIM}| Memory: $memory_usage | Disk: $disk_usage${NC}               ${BLUE}║${NC}"
+    format_status_line "${CYAN}Latest Log:${NC} ${WHITE}$log_name${NC} ${DIM}($log_lines lines, $(numfmt --to=iec $log_size 2>/dev/null || echo ${log_size}b))${NC}"
+    format_status_line "${CYAN}Core Dumps:${NC} ${WHITE}$core_count total${NC} ${DIM}(latest: $latest_core)${NC}"
+    format_status_line "${CYAN}System Load:${NC} ${WHITE}$system_load${NC} ${DIM}| Memory: $memory_usage | Disk: $disk_usage${NC}"
     echo -e "${BOLD}${BLUE}╚════════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
