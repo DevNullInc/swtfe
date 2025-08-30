@@ -1,1 +1,70 @@
+# Runtime and generated files
 log/1000.log
+
+# Runtime data directories - ignore contents but keep directory structure
+account/*
+!account/.gitkeep
+player/*
+!player/.gitkeep
+planets/*
+!planets/.gitkeep
+space/*
+!space/.gitkeep
+shuttle/*
+!shuttle/.gitkeep
+protoships/*
+!protoships/.gitkeep
+log/*
+!log/.gitkeep
+mail/*
+!mail/.gitkeep
+installations/*
+!installations/.gitkeep
+list/*
+!list/.gitkeep
+imc/*
+!imc/.gitkeep
+illness/*
+!illness/.gitkeep
+homes/*
+!homes/.gitkeep
+gods/*
+!gods/.gitkeep
+dock/*
+!dock/.gitkeep
+clans/*
+!clans/.gitkeep
+body/*
+!body/.gitkeep
+boards/*
+!boards/.gitkeep
+banks/*
+!banks/.gitkeep
+backup/*
+!backup/.gitkeep
+area/*
+!area/.gitkeep
+
+# Build artifacts
+src/o/
+src/swr
+src/resolver
+src/*.log
+src/.depend
+
+# Temporary and system files
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Core dumps and crash files
+core.*
+*.core
+
+# Log files (catch-all for any log files)
+*.log
+!*.log.template
