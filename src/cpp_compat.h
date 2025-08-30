@@ -48,7 +48,7 @@ inline int safe_snprintf(char *buf, size_t size, const char *format, ...) {
         (dest_buf)[(dest_size)-1] = '\0'; \
     } while(0)
 
-#else /* __cplusplus */
+#else
 /* In C mode, these are no-ops */
 #define STRING_LITERAL(s) (s)
 #define safe_strdup(str) strdup(str)
