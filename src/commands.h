@@ -60,6 +60,7 @@ DECLARE_DO_FUN(do_help);
 DECLARE_DO_FUN(do_leaveship);
 DECLARE_DO_FUN(do_loadarea);
 DECLARE_DO_FUN(do_look);
+DECLARE_DO_FUN(do_ls);
 DECLARE_DO_FUN(do_memory);
 DECLARE_DO_FUN(do_openhatch);
 DECLARE_DO_FUN(do_quit);

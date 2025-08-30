@@ -13,7 +13,7 @@ $
 #FLAGS
 0 1
 
-#ECONOMY 0 23653025
+#ECONOMY 0 23633025
 
 #MOBILES
 #1
@@ -1707,7 +1707,6 @@ S
 
 
 #SPECIALS
-M  1 spec_bountyhunter
 C  21 The Order of the Sith~
 S
 

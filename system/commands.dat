@@ -2119,6 +2119,16 @@ PermFlags		 0
 End
 
 #COMMAND
+Name        ls~
+Code        do_ls
+Position    5
+Level       0
+Flags       0
+Log         0
+PermFlags		 0
+End
+
+#COMMAND
 Name        languages~
 Code        do_languages
 Position    5

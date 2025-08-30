@@ -2667,7 +2667,7 @@ void do_help(CHAR_DATA * ch, char *argument)
         set_pager_color(AT_HELP, ch);
 
         if (!argument || argument[0] == '\0')
-                argument = "summary";
+                argument = "help";
 
         if (!(pHelp = get_help(ch, argument)))
         {
@@ -4260,6 +4260,12 @@ CMDF do_password(CHAR_DATA * ch, char *argument)
         if (IS_SET(sysdata.save_flags, SV_PASSCHG))
                 save_char_obj(ch);
         send_to_char("Ok.\n\r", ch);
+        return;
+}
+
+CMDF do_ls(CHAR_DATA * ch, char *argument)
+{
+        send_to_char("This isn't your terminal dumbass.\n\r", ch);
         return;
 }
 

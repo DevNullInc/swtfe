@@ -15,7 +15,7 @@ $
 #FLAGS
 1 3
 
-#ECONOMY 0 497551792
+#ECONOMY 0 497551072
 
 #MOBILES
 #10340
@@ -1910,8 +1910,6 @@ S
 
 
 #SPECIALS
-M  10350 spec_auth
-M  10355 spec_newbie_pilot
 S
 
 
