@@ -24,55 +24,79 @@
 
 #include <string>
 #include <vector>
-#include <random>
-#include <sstream>
-#include <iomanip>
 #include <cstring>
+#include <cstdint>
+#include <cstdlib>
+#include <ctime>
+#include <cerrno>
+#include <cstdio>
+#include <unistd.h>
+#include <fcntl.h>
+#include <vector>
+#include <argon2.h>
 #include "password.h"
 #include "mud.h"
 
-// For development purposes, we'll use a simple implementation that mimics Argon2
-// In production, you should use the actual Argon2 library
-
-// This is a placeholder implementation - in a real system, you'd use the actual Argon2 library
 std::string hash_password(const char* password, const char* salt_in)
 {
-    // Generate a random salt if not provided
-    std::string salt = (salt_in != NULL) ? salt_in : generate_salt();
-    
-    // In a real implementation, you would use the Argon2 library here
-    // For now, we'll use a placeholder prefix that indicates this is an Argon2 hash
-    std::string hash = "$argon2id$v=19$m=65536,t=3,p=4$";
-    hash += salt;
-    hash += "$";
-    
-    // For development, we'll use a simple hash derived from crypt but prefixed differently
-    // In production, replace this with actual Argon2 hashing
-    std::string temp_hash = crypt(password, salt.c_str());
-    hash += temp_hash.substr(salt.length());  // Skip the salt part from crypt's output
-    
-    return hash;
+    // Argon2id default parameters (tweak as needed)
+    const uint32_t t_cost = 3;        // iterations
+    const uint32_t m_cost = 1 << 16;  // memory in KiB (64 MiB)
+    const uint32_t parallelism = 1;   // lanes
+    const size_t salt_len_default = 16; // 128-bit salt
+    const size_t hash_len = 32;       // 256-bit hash
+
+    // Prepare salt bytes (if provided, use those bytes; else create random bytes)
+    std::vector<uint8_t> salt_bytes;
+    if (salt_in && *salt_in) {
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(salt_in);
+        salt_bytes.assign(p, p + strlen(salt_in));
+    } else {
+        salt_bytes.resize(salt_len_default);
+        int fd = ::open("/dev/urandom", O_RDONLY);
+        if (fd >= 0) {
+            ssize_t rd = ::read(fd, salt_bytes.data(), salt_bytes.size());
+            ::close(fd);
+            if (rd != (ssize_t)salt_bytes.size()) {
+                for (size_t i = 0; i < salt_bytes.size(); ++i)
+                    salt_bytes[i] = static_cast<uint8_t>(rand() & 0xFF);
+            }
+        } else {
+            for (size_t i = 0; i < salt_bytes.size(); ++i)
+                salt_bytes[i] = static_cast<uint8_t>(rand() & 0xFF);
+        }
+    }
+
+    // Compute required encoded length and allocate string buffer
+    size_t encoded_len = argon2_encodedlen(t_cost, m_cost, parallelism,
+                                           salt_bytes.size(), hash_len, Argon2_id);
+    std::string encoded;
+    encoded.resize(encoded_len);
+
+    int rc = argon2id_hash_encoded(t_cost, m_cost, parallelism,
+                                   password ? password : "",
+                                   password ? strlen(password) : 0,
+                                   salt_bytes.data(), salt_bytes.size(),
+                                   hash_len,
+                                   &encoded[0], encoded_len);
+    if (rc != ARGON2_OK) {
+        bug("argon2id_hash_encoded failed: %s", argon2_error_message(rc));
+        return std::string();
+    }
+
+    // Resize to actual length (encoded is NUL-terminated C string)
+    encoded.resize(strlen(encoded.c_str()));
+    return encoded;
 }
 
 bool verify_password(const char* password, const char* stored_hash)
 {
     // Check if this is an Argon2 hash
     if (strncmp(stored_hash, "$argon2id$", 10) == 0) {
-        // Extract the salt from the stored hash
-        char* salt_start = strchr((char*)stored_hash + 10, '$');
-        if (!salt_start) return false;
-        
-        salt_start++; // Move past the $
-        char* salt_end = strchr(salt_start, '$');
-        if (!salt_end) return false;
-        
-        std::string salt(salt_start, salt_end - salt_start);
-        
-        // Hash the provided password with the same salt
-        std::string new_hash = hash_password(password, salt.c_str());
-        
-        // Compare the hashes
-        return (strcmp(new_hash.c_str(), stored_hash) == 0);
+        int rc = argon2id_verify(stored_hash,
+                                 password ? password : "",
+                                 password ? strlen(password) : 0);
+        return rc == ARGON2_OK;
     } else {
         // Legacy verification using crypt
         return (strcmp(crypt(password, stored_hash), stored_hash) == 0);
@@ -81,26 +105,22 @@ bool verify_password(const char* password, const char* stored_hash)
 
 std::string generate_salt()
 {
-    const char charset[] = 
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz"
-        "./";
-    
-    const int charset_size = sizeof(charset) - 1;
-    const int salt_length = 16;  // Reasonable salt length
-    
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(0, charset_size - 1);
-    
+    // Produce 16 random bytes; argon2id_hash_encoded will take raw salt and encode it
+    const size_t salt_len = 16;
     std::string salt;
-    salt.reserve(salt_length);
-    
-    for (int i = 0; i < salt_length; i++) {
-        salt += charset[dist(gen)];
+    salt.resize(salt_len);
+    int fd = ::open("/dev/urandom", O_RDONLY);
+    if (fd >= 0) {
+        ssize_t rd = ::read(fd, &salt[0], salt_len);
+        ::close(fd);
+        if (rd != (ssize_t)salt_len) {
+            for (size_t i = 0; i < salt_len; ++i)
+                salt[i] = static_cast<char>(rand() & 0xFF);
+        }
+    } else {
+        for (size_t i = 0; i < salt_len; ++i)
+            salt[i] = static_cast<char>(rand() & 0xFF);
     }
-    
     return salt;
 }
 

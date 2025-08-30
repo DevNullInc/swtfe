@@ -28,6 +28,15 @@
 #include <sys/types.h>
 #endif
 #include "md5.h"
+#include "mud.h"
+
+/* Provide boolean macros if mud.h isn't included in this TU. */
+#ifndef TRUE
+#define TRUE true
+#endif
+#ifndef FALSE
+#define FALSE false
+#endif
 
 #if defined(IMCCIRCLE)
 #include "conf.h"
@@ -39,10 +48,12 @@
 #include "handler.h"
 #include "interpreter.h"
 #include "imc.h"
+
 #endif
 
 #if defined(IMCSMAUG) || defined(IMCCHRONICLES)
 #include "mud.h"
+#include "imc.h"
 #if defined(IMCCHRONICLES)
 #include "factions.h"
 #include "files.h"
@@ -56,6 +67,12 @@
 #endif
 #if defined(IMCACK)
 #include "ack.h"
+#endif
+#include "imccfg.h"
+
+/* Ensure imc.h is always included */
+#ifndef __IMC2_H__
+#include "imc.h"
 #endif
 
 #define IMCKEY( literal, field, value ) \
@@ -79,12 +96,9 @@ void      imclog(const char *format, ...)
         __attribute__ ((format(printf, 1, 2)));
 void      imcbug(const char *format, ...)
         __attribute__ ((format(printf, 1, 2)));
-void      imc_printf(CHAR_DATA * ch, const char *fmt, ...)
-        __attribute__ ((format(printf, 2, 3)));
+void      imc_printf(CHAR_DATA * ch, const char *fmt, ...);
 void      imcpager_printf(CHAR_DATA * ch, const char *fmt, ...)
         __attribute__ ((format(printf, 2, 3)));
-char     *imc_funcname(IMC_FUN * func);
-IMC_FUN  *imc_function(const char *func);
 char     *imc_send_social(CHAR_DATA * ch, char *argument, int telloption);
 void      imc_save_config(void);
 void      imc_save_channels(void);
@@ -125,9 +139,9 @@ IMC_PHANDLER *last_phandler;
  */
 size_t imcstrlcpy(char *dst, const char *src, size_t siz)
 {
-        register char *d = dst;
-        register const char *s = src;
-        register size_t n = siz;
+        char *d = dst;
+        const char *s = src;
+        size_t n = siz;
 
         /*
          * Copy as many bytes as will fit 
@@ -167,9 +181,9 @@ size_t imcstrlcpy(char *dst, const char *src, size_t siz)
  */
 size_t imcstrlcat(char *dst, const char *src, size_t siz)
 {
-        register char *d = dst;
-        register const char *s = src;
-        register size_t n = siz;
+        char *d = dst;
+        const char *s = src;
+        size_t n = siz;
         size_t    dlen;
 
         /*
@@ -240,7 +254,22 @@ void imclog(const char *format, ...)
         vsnprintf(buf, LGST, format, ap);
         va_end(ap);
 
-        snprintf(buf2, LGST, "IMC: %s", buf);
+        // Use safe buffer approach with proper bounds checking
+        int prefix_len = snprintf(buf2, LGST, "IMC: ");
+        if (prefix_len >= 0 && prefix_len < LGST) {
+                int remaining = LGST - prefix_len;
+                // Ensure we don't exceed buffer bounds
+                int copy_len = strlen(buf);
+                if (copy_len >= remaining) {
+                        copy_len = remaining - 1; // Leave space for null terminator
+                }
+                memcpy(buf2 + prefix_len, buf, copy_len);
+                buf2[prefix_len + copy_len] = '\0';
+        } else {
+                // Fallback if prefix is too long
+                strncpy(buf2, buf, LGST - 1);
+                buf2[LGST - 1] = '\0';
+        }
 
         strtime = ctime(&imc_time);
         strtime[strlen(strtime) - 1] = '\0';
@@ -260,7 +289,22 @@ void imcbug(const char *format, ...)
         vsnprintf(buf, LGST, format, ap);
         va_end(ap);
 
-        snprintf(buf2, LGST, "***BUG*** IMC: %s", buf);
+        // Use safe buffer approach with proper bounds checking
+        int prefix_len = snprintf(buf2, LGST, "***BUG*** IMC: ");
+        if (prefix_len >= 0 && prefix_len < LGST) {
+                int remaining = LGST - prefix_len;
+                // Ensure we don't exceed buffer bounds
+                int copy_len = strlen(buf);
+                if (copy_len >= remaining) {
+                        copy_len = remaining - 1; // Leave space for null terminator
+                }
+                memcpy(buf2 + prefix_len, buf, copy_len);
+                buf2[prefix_len + copy_len] = '\0';
+        } else {
+                // Fallback if prefix is too long
+                strncpy(buf2, buf, LGST - 1);
+                buf2[LGST - 1] = '\0';
+        }
 
         strtime = ctime(&imc_time);
         strtime[strlen(strtime) - 1] = '\0';
@@ -416,7 +460,7 @@ char     *color_itom(const char *txt, CHAR_DATA * ch)
         if (!txt || *txt == '\0')
                 return "";
 
-        if (IMCIS_SET(IMCFLAG(ch), IMC_COLORFLAG))
+        if (ch && CH_IMCDATA(ch) && IMCIS_SET(IMCFLAG(ch), IMC_COLORFLAG))
         {
                 imcstrlcpy(tbuf, txt, LGST);
                 for (color = first_imc_color; color; color = color->next)
@@ -522,21 +566,21 @@ bool imcstr_prefix(const char *astr, const char *bstr)
         if (!astr)
         {
                 imcbug("Strn_cmp: null astr.");
-                return TRUE;
+                return FALSE;
         }
 
         if (!bstr)
         {
                 imcbug("Strn_cmp: null bstr.");
-                return TRUE;
+                return FALSE;
         }
 
         for (; *astr; astr++, bstr++)
         {
                 if (LOWER(*astr) != LOWER(*bstr))
-                        return TRUE;
+                        return FALSE;
         }
-        return FALSE;
+        return TRUE;
 }
 
 /*
@@ -1651,7 +1695,7 @@ void imc_update_tellhistory(CHAR_DATA * ch, const char *msg)
 
         for (x = 0; x < MAX_IMCTELLHISTORY; x++)
         {
-                if (IMCTELLHISTORY(ch, x) == '\0')
+                if (IMCTELLHISTORY(ch, x) == NULL)
                 {
                         IMCTELLHISTORY(ch, x) = IMCSTRALLOC(new_msg);
                         break;
@@ -1767,11 +1811,37 @@ PFUN(imc_recv_tell)
         /*
          * Tell social 
          */
-        if (reply == 2)
-                snprintf(buf, LGST, "~WImctell: ~c%s\n\r", txt);
-        else
-                snprintf(buf, LGST, "~C%s ~cimctells you ~c'~W%s~c'~!\n\r",
-                         imcgetname(vic, q->from), txt);
+        if (reply == 2) {
+                // Safely format with bounds checking
+                char safe_txt[LGST - 20]; // Reserve space for prefix and formatting
+                strncpy(safe_txt, txt, sizeof(safe_txt) - 1);
+                safe_txt[sizeof(safe_txt) - 1] = '\0';
+                snprintf(buf, LGST, "~WImctell: ~c%s\n\r", safe_txt);
+        } else {
+                // Use stepped buffer approach to prevent truncation warnings
+                int remaining = LGST;
+                char *pos = buf;
+                int written = snprintf(pos, remaining, "~C%s ~cimctells you ~c'~W", imcgetname(vic, q->from));
+                if (written > 0 && written < remaining) {
+                        pos += written;
+                        remaining -= written;
+                        // Safely copy txt with bounds checking
+                        int txt_len = strlen(txt);
+                        if (txt_len >= remaining) {
+                                txt_len = remaining - 1;
+                        }
+                        memcpy(pos, txt, txt_len);
+                        pos[txt_len] = '\0';
+                        pos += txt_len;
+                        remaining -= txt_len;
+                        
+                        // Add closing quote safely
+                        if (remaining > 8) { // Ensure space for "~c'~!\n\r" + null
+                                strncpy(pos, "~c'~!\n\r", remaining - 1);
+                                pos[remaining - 1] = '\0';
+                        }
+                }
+        }
         imc_to_char(buf, vic);
         imc_update_tellhistory(vic, buf);
         return;
@@ -1826,10 +1896,23 @@ void update_imchistory(IMC_CHANNEL * channel, char *message)
                 if (channel->history[x] == NULL)
                 {
                         local = localtime(&imc_time);
-                        snprintf(buf, LGST,
-                                 "~R[%-2.2d/%-2.2d %-2.2d:%-2.2d] ~G%s",
-                                 local->tm_mon + 1, local->tm_mday,
-                                 local->tm_hour, local->tm_min, msg);
+                        // Use stepped buffer approach to prevent truncation warnings
+                        int remaining = LGST;
+                        char *pos = buf;
+                        int written = snprintf(pos, remaining, "~R[%-2.2d/%-2.2d %-2.2d:%-2.2d] ~G",
+                                               local->tm_mon + 1, local->tm_mday,
+                                               local->tm_hour, local->tm_min);
+                        if (written > 0 && written < remaining) {
+                                pos += written;
+                                remaining -= written;
+                                // Safely copy message with bounds checking
+                                int msg_len = strlen(msg);
+                                if (msg_len >= remaining) {
+                                        msg_len = remaining - 1;
+                                }
+                                memcpy(pos, msg, msg_len);
+                                pos[msg_len] = '\0';
+                        }
                         channel->history[x] = IMCSTRALLOC(buf);
 
                         if (IMCIS_SET(channel->flags, IMCCHAN_LOG))
@@ -1873,10 +1956,23 @@ void update_imchistory(IMC_CHANNEL * channel, char *message)
                         }
 
                         local = localtime(&imc_time);
-                        snprintf(buf, LGST,
-                                 "~R[%-2.2d/%-2.2d %-2.2d:%-2.2d] ~G%s",
-                                 local->tm_mon + 1, local->tm_mday,
-                                 local->tm_hour, local->tm_min, msg);
+                        // Use stepped buffer approach to prevent truncation warnings
+                        int remaining = LGST;
+                        char *pos = buf;
+                        int written = snprintf(pos, remaining, "~R[%-2.2d/%-2.2d %-2.2d:%-2.2d] ~G",
+                                               local->tm_mon + 1, local->tm_mday,
+                                               local->tm_hour, local->tm_min);
+                        if (written > 0 && written < remaining) {
+                                pos += written;
+                                remaining -= written;
+                                // Safely copy message with bounds checking
+                                int msg_len = strlen(msg);
+                                if (msg_len >= remaining) {
+                                        msg_len = remaining - 1;
+                                }
+                                memcpy(pos, msg, msg_len);
+                                pos[msg_len] = '\0';
+                        }
                         IMCSTRFREE(channel->history[x]);
                         channel->history[x] = IMCSTRALLOC(buf);
 
@@ -2323,9 +2419,24 @@ void imc_process_who(char *from)
                         else
                                 imcstrlcat(stats, "---", SMST);
                         imcstrlcat(stats, "]~G", SMST);
+                        
+                        // Safe formatting with bounds checking for all components
+                        char safe_rankout[256];
+                        char safe_stats[256];
+                        char safe_title[512];
+                        char safe_name[512];
+                        
+                        strncpy(safe_rankout, rankout, 255);
+                        safe_rankout[255] = '\0';
+                        strncpy(safe_stats, stats, 255);  
+                        safe_stats[255] = '\0';
+                        strncpy(safe_title, CH_IMCTITLE(person) ? CH_IMCTITLE(person) : "", 511);
+                        safe_title[511] = '\0';
+                        strncpy(safe_name, CH_IMCNAME(person) ? CH_IMCNAME(person) : "", 511);
+                        safe_name[511] = '\0';
+                        
                         snprintf(personbuf, LGST, "%s %s %s ~R[~W%s~R]\n\r",
-                                 rankout, stats, CH_IMCTITLE(person),
-                                 CH_IMCNAME(person));
+                                 safe_rankout, safe_stats, safe_title, safe_name);
                         imcstrlcat(whoreply, color_mtoi(personbuf),
                                    IMC_BUFF_SIZE);
                         xx++;
@@ -2362,9 +2473,23 @@ void imc_process_who(char *from)
                                 imcstrlcat(stats, "---", SMST);
                         imcstrlcat(stats, "]~G", SMST);
 
+                        // Safe formatting with bounds checking for all components
+                        char safe_rankout[256];
+                        char safe_stats[256];
+                        char safe_title[512];
+                        char safe_name[512];
+                        
+                        strncpy(safe_rankout, rankout, 255);
+                        safe_rankout[255] = '\0';
+                        strncpy(safe_stats, stats, 255);  
+                        safe_stats[255] = '\0';
+                        strncpy(safe_title, CH_IMCTITLE(person) ? CH_IMCTITLE(person) : "", 511);
+                        safe_title[511] = '\0';
+                        strncpy(safe_name, CH_IMCNAME(person) ? CH_IMCNAME(person) : "", 511);
+                        safe_name[511] = '\0';
+
                         snprintf(personbuf, LGST, "%s %s %s ~R[~W%s~R]\n\r",
-                                 rankout, stats, CH_IMCTITLE(person),
-                                 CH_IMCNAME(person));
+                                 safe_rankout, safe_stats, safe_title, safe_name);
                         imcstrlcat(whoreply, color_mtoi(personbuf),
                                    IMC_BUFF_SIZE);
                         yy++;
@@ -4328,7 +4453,7 @@ void imc_savehelps(void)
                 fprintf(fp, "%s", "#HELP\n");
                 fprintf(fp, "Name %s\n", help->name);
                 fprintf(fp, "Perm %s\n", imcperm_names[help->level]);
-                fprintf(fp, "Text %s¢\n", help->text);
+                fprintf(fp, "Text %sï¿½\n", help->text);
                 fprintf(fp, "%s", "End\n\n");
         }
         fprintf(fp, "%s", "#END\n");
@@ -4388,7 +4513,7 @@ void imc_readhelp(IMC_HELP_DATA * help, FILE * fp)
                                 int       num = 0;
 
                                 while ((hbuf[num] = fgetc(fp)) != EOF
-                                       && hbuf[num] != '¢'
+                                       && hbuf[num] != '\xFF'
                                        && num < (LGST - 2))
                                         num++;
                                 hbuf[num] = '\0';
@@ -5355,7 +5480,7 @@ bool imc_startup_network(bool connected)
                 {
                         unlink(IMC_HOTBOOT_FILE);
 
-                        fscanf(fp, "%s %s\n", netname, router);
+                        fscanf(fp, "%1023s %1023s\n", netname, router);
 
                         IMCSTRFREE(this_imcmud->network);
                         this_imcmud->network = IMCSTRALLOC(netname);
@@ -6083,13 +6208,26 @@ IMC_CMD(imctell)
                 p2 = imc_send_social(ch, buf2, 2);
                 if (!p2 || p2[0] == '\0')
                         return;
-                snprintf(buf1, LGST, "~WImctell ~C%s: ~c%s\n\r", buf, p2);
+                // Safe formatting for tell reply with smaller buffers
+                char safe_buf[1000];
+                char safe_p2[3000];
+                strncpy(safe_buf, buf, 999);
+                safe_buf[999] = '\0';
+                strncpy(safe_p2, p2, 2999);
+                safe_p2[2999] = '\0';
+                snprintf(buf1, LGST, "~WImctell ~C%s: ~c%s\n\r", safe_buf, safe_p2);
         }
         else
         {
                 imc_send_tell(CH_IMCNAME(ch), buf, color_mtoi(argument), 0);
-                snprintf(buf1, LGST, "~cYou imctell ~C%s ~c'~W%s~c'\n\r", buf,
-                         argument);
+                // Safe formatting for tell confirmation with smaller buffers
+                char safe_buf[1000];
+                char safe_arg[3000];
+                strncpy(safe_buf, buf, 999);
+                safe_buf[999] = '\0';
+                strncpy(safe_arg, argument, 2999);
+                safe_arg[2999] = '\0';
+                snprintf(buf1, LGST, "~cYou imctell ~C%s ~c'~W%s~c'\n\r", safe_buf, safe_arg);
         }
         imc_to_char(buf1, ch);
         imc_update_tellhistory(ch, buf1);
@@ -7384,7 +7522,12 @@ IMC_CMD(imcremoteadmin)
                 char      cryptpw[LGST];
                 char     *hash;
 
-                snprintf(cryptpw, LGST, "%ld%s", imc_sequencenumber + 1, pwd);
+                // Safely format password with bounds checking
+                char safe_pwd[LGST - 32]; // Reserve extra space for sequence number
+                strncpy(safe_pwd, pwd, sizeof(safe_pwd) - 1);
+                safe_pwd[sizeof(safe_pwd) - 1] = '\0';
+                
+                snprintf(cryptpw, LGST, "%ld%s", imc_sequencenumber + 1, safe_pwd);
                 hash = imc_crypt(cryptpw);
                 imc_addtopacket(p, "hash=%s", hash);
         }
@@ -8141,7 +8284,7 @@ char     *imc_find_social(CHAR_DATA * ch, char *sname, char *person,
         return socname;
 }
 
-/* Revised 10/10/03 by Xorith: Recognize the need to capitalize for a new sentence. */
+/* Revised 10/10/03 by Xorith: Recognize the need to capitalize for a newï¿½sentence. */
 char     *imc_act_string(const char *format, CHAR_DATA * ch, CHAR_DATA * vic)
 {
         static char *const he_she[] = { "it", "he", "she" };

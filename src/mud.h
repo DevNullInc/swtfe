@@ -157,6 +157,10 @@ typedef struct extended_bitvector EXT_BV;
 typedef struct log_data LOG_DATA;
 typedef struct web_descriptor WEB_DESCRIPTOR;
 
+#ifdef IMC
+typedef struct imcchar_data IMC_CHARDATA;
+#endif
+
 typedef std::list < BODY_DATA * >BODY_LIST;
 typedef std::list < AREA_DATA * >AREA_LIST;
 typedef std::list < CLAN_DATA * >CLAN_LIST;

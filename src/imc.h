@@ -37,6 +37,10 @@
 /* Make sure you set the macros in the imccfg.h file properly or things get ugly from here. */
 #include "imccfg.h"
 
+/* Forward declarations to avoid circular dependencies */
+struct char_data;
+struct FBFILE;
+
 #define IMC_BUFF_SIZE 16384
 
 /* Connection states stuff */
@@ -412,6 +416,8 @@ void      imc_freechardata(CHAR_DATA * ch);
 void      imc_loop(void);
 IMC_CHANNEL *imc_findchannel(char *name);   /* Externalized for comm.c spamguard checks */
 void      imc_register_packet_handler(char *name, PACKET_FUN * func);
+char     *imc_funcname(IMC_FUN * func);
+IMC_FUN  *imc_function(const char *func);
 
 #if defined(_DISKIO_H_)
 void      imc_load_pfile(CHAR_DATA * ch, char *tag, int num, char *line);

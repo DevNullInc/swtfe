@@ -1,8 +1,6 @@
 # Lets just hope this doesn't get evaluated every time..
 CC 	= g++
 
-
-
 #UnComment this line if your getting errors about deflate and such
 MCCPLIB = -lz
 
@@ -23,8 +21,8 @@ endif
 WEB = -DWEB
 
 #IMC2 - Comment out to disable IMC2 support
-#IMC = 1
-#IMCFLAGS = -DIMC -DIMCSMAUG
+IMC = 1
+IMCFLAGS = -DIMC -DIMCSMAUG
 
 #Shouldn't need to touch this...
 DLLEXP = -export-dynamic
@@ -43,7 +41,7 @@ OPT_FLAG = -pipe -Os
 endif
 
 C_FLAGS = $(DEFINES) $(IMCFLAGS) $(DBUGFLG) $(DEBUG) $(DLLEXP) -fpermissive -Wno-write-strings
-L_FLAGS = $(DYNLIB) $(MCCPLIB) $(CRYPT) -lm
+L_FLAGS = $(DYNLIB) $(MCCPLIB) $(CRYPT) -largon2 -lm
 
 ifndef DEBUG
 W_FLAGS = -pedantic -W -Wall -Wformat-security -Winline -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-align -Wcast-qual -Wredundant-decls -Wformat-security

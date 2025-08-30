@@ -239,7 +239,7 @@ sh_int    days = 0;
 /****
  *
  * FIXME -- Should use account->email instead of each char thing
- * thta way we only need to set an email once.
+ * thata way we only need to set an email once.
  *
  * Should load up the pfile properly
  * then when we save, set a flag / extra line in pfile that says they've been warned

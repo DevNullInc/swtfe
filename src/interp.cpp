@@ -284,7 +284,7 @@ void interpret(CHAR_DATA * ch, char *argument)
         /*
          * Log and snoop.
          */
-        snprintf(lastplayercmd, MSL, "** %s: %s", ch->name, logline);
+                snprintf(lastplayercmd, MSL, "** %s: %s", ch->name, logline);
 
         if (found && cmd->log == LOG_NEVER)
                 mudstrlcpy(logline, "XXXXXXXX XXXXXXXX XXXXXXXX", MIL);
