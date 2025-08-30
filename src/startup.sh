@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# Startup script for the SWR server - https://github.com/SWTFE/SWTFE
 # Fail hard on script errors, but allow diagnostics to be best-effort
 set -euo pipefail
 
