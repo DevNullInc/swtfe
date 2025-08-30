@@ -401,21 +401,22 @@ start_fallback_server() {
     fi
 }
 
-while true; do
-    # find next log index
-    i=1000
-    while [[ -f "$LOG_DIR/$i.log" ]]; do
-        i=$((i + 1))
-    done
-
-    logfile="$LOG_DIR/$i.log"
-
-    if [[ -f shutdown.txt ]]; then
-        rm shutdown.txt
-        exit 0
-    fi
-
+# Main server startup function
+start_main_server() {
     # Ensure port is available before starting main server
+    echo "Performing pre-startup checks..."
+    check_and_cleanup_port "$port"
+
+    echo "Checking library dependencies..."
+    # Run dependency check if available
+    if [[ -f "$BASE_DIR/scripts/check_system.sh" ]]; then
+        if ! "$BASE_DIR/scripts/check_system.sh" >/dev/null 2>&1; then
+            echo "Warning: System dependency check found issues"
+            echo "Continuing with startup, but server may fail..."
+        fi
+    fi
+    echo "Pre-startup checks completed."
+
     echo "Preparing to start main server..."
     check_and_cleanup_port "$port"
 
@@ -425,104 +426,241 @@ while true; do
     pid=$!
     echo "Main server started (PID: $pid)"
 
-    # Check for crash or system errors
-    crash_result=$(check_for_coredump $pid "$SRC_DIR/swr" "$logfile")
-    crash_code=$?
+    # Give the server time to initialize (check every few seconds for up to 30 seconds)
+    local startup_timeout=30
+    local check_interval=3
+    local elapsed=0
+    local server_running=false
     
-    if [[ $crash_code -eq 2 ]]; then
-        echo "FATAL: System error detected - cannot start server!"
-        echo "This appears to be a configuration or dependency issue."
-        echo "Please check:"
-        echo "  - Server executable exists and has correct permissions"
-        echo "  - All required libraries are available"
-        echo "  - System configuration is correct"
-        echo ""
-        echo "Common issues:"
-        echo "  - Missing glibc version (check: ldd $SRC_DIR/swr)"
-        echo "  - Wrong architecture (32-bit vs 64-bit)"
-        echo "  - Missing shared libraries"
-        echo ""
-        echo "Starting fallback server for maintenance..."
+    echo "Monitoring server startup..."
+    while [[ $elapsed -lt $startup_timeout ]]; do
+        if kill -0 "$pid" 2>/dev/null; then
+            # Server is still running, check if it's listening on the port
+            if ss -tuln 2>/dev/null | grep -q ":$port " || netstat -tuln 2>/dev/null | grep -q ":$port "; then
+                echo "Server successfully started and listening on port $port"
+                server_running=true
+                break
+            fi
+            echo "Server running, waiting for port to become active..."
+        else
+            # Server process has died, check for crash
+            echo "Server process died during startup"
+            break
+        fi
         
-        # Start fallback server immediately for system errors
-        fallback_pid=$(start_fallback_server $port)
+        sleep $check_interval
+        elapsed=$((elapsed + check_interval))
+    done
+    
+    if [[ "$server_running" == true ]]; then
+        echo "Server startup successful! Server is running normally."
+        echo "Server PID: $pid"
+        echo "Port: $port"
+        echo "Log file: $logfile"
+        exit 0
+    fi
+    
+    # If we get here, the server didn't start properly
+    echo "Server failed to start properly within $startup_timeout seconds"
+    
+    # Check what happened - did it crash or just fail to bind to port?
+    if kill -0 "$pid" 2>/dev/null; then
+        echo "Server process is still running but not responding on port $port"
+        echo "This might indicate a configuration issue or port binding problem"
+        kill "$pid" 2>/dev/null || true
+        wait "$pid" 2>/dev/null || true
+        exit 1
+    fi
+
+    # Server process died - check for crash or system errors
+    wait "$pid" 2>/dev/null || true
+    local exit_code=$?
+    
+    # Check for core dump and system errors
+    local latest_core=$(ls -t core.* 2>/dev/null | head -n 1 || true)
+    
+    # Handle system errors first
+    if [[ $exit_code -eq 127 ]]; then
+        echo "ERROR: Command not found or missing dependencies (exit code 127)"
+        echo "This usually indicates missing libraries or the executable is not found"
+        if [[ -f "$logfile" ]]; then
+            echo "Last few lines from log:"
+            tail -5 "$logfile" || true
+        fi
+        start_fallback_for_system_error
+        exit 1
+    elif [[ $exit_code -eq 126 ]]; then
+        echo "ERROR: Permission denied or executable format error (exit code 126)"
+        start_fallback_for_system_error
+        exit 1
+    elif [[ $exit_code -gt 0 && $exit_code -lt 125 ]]; then
+        echo "Server exited with error code $exit_code"
+        # Check if this was a very quick exit (less than 5 seconds might indicate config issues)
+        if [[ -f "$logfile" ]]; then
+            local log_size=$(stat -c%s "$logfile" 2>/dev/null || echo "0")
+            if [[ $log_size -lt 1000 ]]; then
+                echo "Server exited very quickly with minimal logging - likely a configuration error"
+                echo "Log contents:"
+                cat "$logfile" || true
+                start_fallback_for_system_error
+                exit 1
+            fi
+        fi
+    fi
+
+    # Handle core dump
+    if [[ -n "$latest_core" ]]; then
+        # Create timestamped filename for the core dump
+        local timestamp=$(date +"%Y%m%d_%H%M%S")
+        local new_core_name="core.swr.${timestamp}.${pid}"
+        local new_core_path="$CORE_DIR/$new_core_name"
+        
+        # Move core dump to core directory with timestamped name
+        mv "$latest_core" "$new_core_path"
+        echo "Core dump moved to: $new_core_path"
+        
+        # Send alert and run analysis
+        send_crash_alert "$new_core_path" "$logfile" "$SRC_DIR/swr" "$pid"
+        
+        if [[ -x "$CORE_DIR/analyze_core.sh" ]]; then
+            echo "Running automatic core dump analysis..."
+            "$CORE_DIR/analyze_core.sh" "$new_core_path" "$SRC_DIR/swr" || true
+        fi
+        
+        echo "Server crashed! Beginning recovery process..."
+        start_recovery_process
+        exit 1
+    fi
+    
+    # If we reach here, server exited without core dump
+    if [[ $exit_code -ne 0 ]]; then
+        echo "Server exited with error (no core dump)"
+        start_recovery_process
+        exit 1
+    else
+        echo "Server exited normally (unusual for a MUD server)"
+        echo "Check the log file: $logfile"
+        exit 0
+    fi
+}
+
+# Helper function for system error fallback
+start_fallback_for_system_error() {
+    echo "FATAL: System error detected - cannot start server!"
+    echo "This appears to be a configuration or dependency issue."
+    echo "Please check:"
+    echo "  - Server executable exists and has correct permissions"
+    echo "  - All required libraries are available"
+    echo "  - System configuration is correct"
+    echo ""
+    echo "Common issues:"
+    echo "  - Missing glibc version (check: ldd $SRC_DIR/swr)"
+    echo "  - Wrong architecture (32-bit vs 64-bit)"
+    echo "  - Missing shared libraries"
+    echo ""
+    echo "Starting fallback server for maintenance..."
+    
+    local fallback_pid=$(start_fallback_server $port)
+    if [[ $fallback_pid -gt 0 ]]; then
+        echo "Fallback server is running. Please fix the system issues before restarting."
+        echo "Fallback server PID: $fallback_pid" 
+        wait $fallback_pid
+    fi
+}
+
+# Helper function for crash recovery
+start_recovery_process() {
+    # Initialize hotboot attempt counter
+    local hotboot_attempts=0
+    local recovery_successful=false
+    
+    # Try hotboot recovery up to MAX_HOTBOOT_ATTEMPTS times
+    while [[ $hotboot_attempts -lt $MAX_HOTBOOT_ATTEMPTS ]]; do
+        hotboot_attempts=$((hotboot_attempts + 1))
+        
+        # Find next log index for hotboot attempt
+        local i=1000
+        while [[ -f "$LOG_DIR/$i.log" ]]; do
+            i=$((i + 1))
+        done
+        local hotboot_logfile="$LOG_DIR/$i.log"
+        
+        # Attempt hotboot
+        local hotboot_pid=$(attempt_hotboot $hotboot_attempts "$hotboot_logfile")
+        
+        if [[ $hotboot_pid -gt 0 ]]; then
+            echo "Hotboot successful! Monitoring server..."
+            # Check if the hotboot server stays alive for reasonable time
+            sleep 15
+            if kill -0 "$hotboot_pid" 2>/dev/null; then
+                echo "Hotboot recovery successful - server running normally"
+                recovery_successful=true
+                break
+            else
+                echo "Hotboot server crashed again (attempt $hotboot_attempts)"
+            fi
+        fi
+        
+        if [[ $hotboot_attempts -lt $MAX_HOTBOOT_ATTEMPTS ]]; then
+            echo "Waiting before next hotboot attempt..."
+            sleep $((HOTBOOT_DELAY * 2))  # Longer delay between attempts
+        fi
+    done
+    
+    # If all hotboot attempts failed, start fallback server
+    if [[ "$recovery_successful" == false ]]; then
+        echo "All recovery attempts failed!"
+        
+        # Start fallback server
+        local fallback_pid=$(start_fallback_server $port)
+        
         if [[ $fallback_pid -gt 0 ]]; then
-            echo "Fallback server is running. Please fix the system issues before restarting."
-            echo "Fallback server PID: $fallback_pid" 
+            echo "Fallback server is running. Manual intervention required to restore main server."
+            echo "Fallback server PID: $fallback_pid"
+            echo "To stop fallback: kill $fallback_pid"
+            echo "To restart main server: restart this script after fixing issues"
+            
+            # Wait for fallback server (it runs indefinitely)
             wait $fallback_pid
         fi
         
-        echo "Exiting due to unrecoverable system error."
-        exit 1
-        
-    elif [[ $crash_code -eq 1 ]]; then
-        echo "Server crashed! Beginning recovery process..."
-        
-        # Initialize hotboot attempt counter
-        hotboot_attempts=0
-        recovery_successful=false
-        
-        # Try hotboot recovery up to MAX_HOTBOOT_ATTEMPTS times
-        while [[ $hotboot_attempts -lt $MAX_HOTBOOT_ATTEMPTS ]]; do
-            hotboot_attempts=$((hotboot_attempts + 1))
-            
-            # Find next log index for hotboot attempt
-            i=1000
-            while [[ -f "$LOG_DIR/$i.log" ]]; do
-                i=$((i + 1))
-            done
-            hotboot_logfile="$LOG_DIR/$i.log"
-            
-            # Attempt hotboot
-            hotboot_pid=$(attempt_hotboot $hotboot_attempts "$hotboot_logfile")
-            
-            if [[ $hotboot_pid -gt 0 ]]; then
-                echo "Hotboot successful! Monitoring server..."
-                # Check if the hotboot server stays alive
-                if check_for_coredump $hotboot_pid "$SRC_DIR/swr" "$hotboot_logfile"; then
-                    echo "Hotboot recovery successful - server running normally"
-                    recovery_successful=true
-                    break
-                else
-                    echo "Hotboot server crashed again (attempt $hotboot_attempts)"
-                fi
-            fi
-            
-            if [[ $hotboot_attempts -lt $MAX_HOTBOOT_ATTEMPTS ]]; then
-                echo "Waiting before next hotboot attempt..."
-                sleep $((HOTBOOT_DELAY * 2))  # Longer delay between attempts
-            fi
-        done
-        
-        # If all hotboot attempts failed, start fallback server
-        if [[ "$recovery_successful" == false ]]; then
-            echo "All recovery attempts failed!"
-            
-            # Start fallback server
-            fallback_pid=$(start_fallback_server $port)
-            
-            if [[ $fallback_pid -gt 0 ]]; then
-                echo "Fallback server is running. Manual intervention required to restore main server."
-                echo "Fallback server PID: $fallback_pid"
-                echo "To stop fallback: kill $fallback_pid"
-                echo "To restart main server: restart this script after fixing issues"
-                
-                # Wait for fallback server (it runs indefinitely)
-                wait $fallback_pid
-            fi
-            
-            echo "Fallback server stopped. Exiting startup script."
-            exit 1
-        fi
-    else
-        echo "Server exited normally."
-        echo "Note: If the server should stay running, this might indicate a configuration issue."
-        echo "Check the log file: $logfile"
-        
-        # For normal exits, break the loop instead of restarting immediately
-        # This prevents infinite restart loops when there are config issues
-        echo "Exiting startup script. Restart manually after checking configuration."
-        exit 0
+        echo "Fallback server stopped. Exiting startup script."
     fi
+}
+
+# Main execution starts here
+# Validate arguments
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 <port>"
+    exit 1
+fi
+
+port="$1"
+
+# Validate port number
+if ! [[ "$port" =~ ^[0-9]+$ ]] || [[ "$port" -lt 1024 ]] || [[ "$port" -gt 65535 ]]; then
+    echo "Error: Port must be a number between 1024 and 65535"
+    exit 1
+fi
+
+# Find next available log file
+i=1000
+while [[ -f "$LOG_DIR/$i.log" ]]; do
+    i=$((i + 1))
 done
-# Note: we do not loop on crashes, to allow for debugging. The user can restart the script if desired.
+logfile="$LOG_DIR/$i.log"
+
+echo "Working directory: $AREA_DIR"
+echo "SWR executable: $SRC_DIR/swr"
+echo "Log directory: $LOG_DIR"
+echo "Core dump directory: $CORE_DIR"
+echo "Starting server on port $port"
+
+# Ensure we're in the area directory
+cd "$AREA_DIR" || {
+    echo "Error: Cannot change to area directory: $AREA_DIR"
+    exit 1
+}
+
+# Start the server
+start_main_server

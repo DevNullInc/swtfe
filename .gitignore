@@ -1,0 +1,32 @@
+# Log files
+log/*.log
+log/runtime.log
+log/quickstart.log
+log/starter.out
+log/shutdown/
+
+# Core dumps
+core.*
+*.core
+
+# Build artifacts
+src/build.log
+src/test.cpp
+src/*.o
+src/swr
+
+# Runtime data
+system/usage.txt
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# IDE/Editor files
+.vscode/settings.json
+.vscode/c_cpp_properties.json
+
+# Development files
+headerexample.txt
+test_*.sh
