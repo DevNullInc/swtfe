@@ -8923,7 +8923,8 @@ CMDF do_watch(CHAR_DATA * ch, char *argument)
                 send_to_pager("Saved.\n\r", ch);
                 return;
         }
-/*
+
+ /*
  * Clear watch file
  */
         if (!str_cmp(arg, "clear"))
