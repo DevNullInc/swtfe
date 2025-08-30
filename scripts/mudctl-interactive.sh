@@ -246,7 +246,7 @@ display_menu() {
     echo -e "  ${GREEN}3)${NC} ${BOLD}restart${NC} [port]   - Restart the server"
     echo -e "  ${GREEN}4)${NC} ${BOLD}status${NC}           - Show detailed server status"
     echo -e "  ${GREEN}5)${NC} ${BOLD}logs${NC} [count]     - Show recent log entries (default: 20)"
-    echo -e "  ${GREEN}6)${NC} ${BOLD}tail${NC}             - Follow live logs (Ctrl+C to return)"
+    echo -e "  ${GREEN}6)${NC} ${BOLD}tail${NC}             - Follow live logs (Press 'q' to return)"
     echo -e "  ${GREEN}7)${NC} ${BOLD}fallback${NC} [port]  - Start fallback server"
     echo -e "  ${GREEN}8)${NC} ${BOLD}cleanup${NC}          - Clean up old files"
     echo -e "  ${GREEN}9)${NC} ${BOLD}kill-all${NC}         - Force kill all processes"
@@ -289,7 +289,7 @@ display_help() {
     echo -e "${BOLD}Monitoring Commands:${NC}"
     echo "  status        - Detailed process and port information"
     echo "  logs [count]  - Shows recent log entries (default 20 lines)"
-    echo "  tail          - Follows live log output (Ctrl+C to return to menu)"
+    echo "  tail          - Follows live log output (Press 'q' + Enter to return to menu)"
     echo ""
     echo -e "${BOLD}Maintenance Commands:${NC}"
     echo "  fallback      - Starts the maintenance/fallback server"
@@ -387,7 +387,7 @@ process_input() {
             execute_command "logs" "${lines:-20}"
             ;;
         "6")
-            echo -e "${YELLOW}Starting log tail... Press Ctrl+C to return to menu${NC}"
+            echo -e "${YELLOW}Starting log tail... Press 'q' + Enter to return to menu${NC}"
             sleep 2
             execute_command "tail"
             ;;

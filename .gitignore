@@ -42,8 +42,12 @@ banks/*
 !banks/.gitkeep
 backup/*
 !backup/.gitkeep
-area/*
-!area/.gitkeep
+hotboot/*
+!hotboot/.gitkeep
+corpses/*
+!corpses/.gitkeep
+vendor/*
+!vendor/.gitkeep
 
 # Build artifacts
 src/o/

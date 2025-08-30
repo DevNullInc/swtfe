@@ -483,9 +483,29 @@ tail_logs() {
         return 1
     fi
     
-    log_message "Following $(basename "$latest_log") (Ctrl+C to stop)"
+    log_message "Following $(basename "$latest_log") (Press 'q' + Enter to quit)"
     echo ""
-    tail -f "$latest_log"
+    
+    # Start tail in background
+    tail -f "$latest_log" &
+    tail_pid=$!
+    
+    # Monitor for user input to quit
+    while true; do
+        read -t 1 -n 1 input 2>/dev/null
+        if [[ "$input" == "q" ]]; then
+            echo -e "\n${YELLOW}Log tail stopped. Returning to menu...${NC}"
+            break
+        fi
+        # Check if tail process is still running
+        if ! kill -0 $tail_pid 2>/dev/null; then
+            break
+        fi
+    done
+    
+    # Clean up tail process and suppress exit code
+    kill $tail_pid 2>/dev/null || true
+    wait $tail_pid 2>/dev/null || true
 }
 
 run_system_check() {
