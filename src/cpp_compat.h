@@ -48,7 +48,7 @@ inline int safe_snprintf(char *buf, size_t size, const char *format, ...) {
         (dest_buf)[(dest_size)-1] = '\0'; \
     } while(0)
 
-#else
+#else /* __cplusplus */
 /* In C mode, these are no-ops */
 #define STRING_LITERAL(s) (s)
 #define safe_strdup(str) strdup(str)
@@ -61,7 +61,11 @@ inline int safe_snprintf(char *buf, size_t size, const char *format, ...) {
 
 /* BSD string functions for systems that don't have them */
 #ifndef HAVE_STRLCPY
+#ifdef __cplusplus
 inline size_t strlcpy(char *dst, const char *src, size_t size) {
+#else
+static size_t strlcpy(char *dst, const char *src, size_t size) {
+#endif
     size_t srclen = strlen(src);
     if (size > 0) {
         size_t len = srclen < (size - 1) ? srclen : (size - 1);
@@ -73,7 +77,11 @@ inline size_t strlcpy(char *dst, const char *src, size_t size) {
 #endif
 
 #ifndef HAVE_STRLCAT
+#ifdef __cplusplus
 inline size_t strlcat(char *dst, const char *src, size_t size) {
+#else
+static size_t strlcat(char *dst, const char *src, size_t size) {
+#endif
     size_t dstlen = strlen(dst);
     size_t srclen = strlen(src);
     
