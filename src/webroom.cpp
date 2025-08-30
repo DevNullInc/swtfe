@@ -45,7 +45,6 @@
 #include <string.h>
 #include <time.h>
 #include "mud.h"
-#include "act_html.h"
 
 void room_to_html args((ROOM_INDEX_DATA * room, bool complete));
 extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
