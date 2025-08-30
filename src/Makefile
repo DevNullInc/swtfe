@@ -25,7 +25,7 @@ IMC = 1
 IMCFLAGS = -DIMC -DIMCSMAUG
 
 #Shouldn't need to touch this...
-DLLEXP = -export-dynamic
+DLLEXP = -export-dynamic -rdynamic
 
 INDENT  = indent
 INDENT_FLAGS = -ts4 -nut -bap -bli0 -di10 -l78 -lp -nbc -i8 -sc -cdb -c1 -cd1 -nbfda -npcs -bad -hnl -nce -npsl -bl
