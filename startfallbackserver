@@ -1,0 +1,38 @@
+#!/bin/bash
+#################################################################################################
+# SWR Standalone Fallback Server Starter
+# Manually starts the fallback server for maintenance or testing purposes
+#################################################################################################
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SRC_DIR="$SCRIPT_DIR/src"
+FALLBACK_SERVER="$SRC_DIR/fallback_server.py"
+
+# Default port
+PORT=4848
+
+# Parse arguments
+if [[ $# -eq 1 ]]; then
+    PORT="$1"
+elif [[ $# -gt 1 ]]; then
+    echo "Usage: $0 [port]"
+    echo "Manually start the fallback server (default port: 4848)"
+    exit 1
+fi
+
+echo "Starting SWR Fallback Server manually..."
+echo "Port: $PORT"
+echo "This will display a maintenance message to connecting players."
+echo "Press Ctrl+C to stop"
+echo ""
+
+# Check if fallback server exists
+if [[ ! -f "$FALLBACK_SERVER" ]]; then
+    echo "Error: Fallback server not found at $FALLBACK_SERVER"
+    exit 1
+fi
+
+# Start the fallback server
+cd "$SRC_DIR"
+exec python3 fallback_server.py "$PORT"
