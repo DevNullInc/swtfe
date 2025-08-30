@@ -44,6 +44,7 @@ show_help() {
     echo "  logs [count]    Show recent log entries (default: 20 lines)"
     echo "  tail            Follow the latest log file"
     echo "  check           Run system dependency check"
+    echo "  setup           Setup account directories and permissions"
     echo "  interactive     Launch interactive menu interface"
     echo "  advanced        Launch advanced interface with live log streaming"
     echo "  help            Show this help message"
@@ -498,6 +499,30 @@ run_system_check() {
     fi
 }
 
+run_setup() {
+    local setup_script="$SCRIPT_DIR/setup_account_dirs.sh"
+    
+    if [[ -f "$setup_script" ]]; then
+        log_message "Setting up account directories and permissions..."
+        "$setup_script"
+    else
+        error_message "Setup script not found: $setup_script"
+        echo "Creating account directories manually..."
+        
+        # Create account directories manually if script is missing
+        local account_dir="$BASE_DIR/account"
+        mkdir -p "$account_dir"
+        
+        for letter in {a..z}; do
+            mkdir -p "$account_dir/$letter"
+            chmod 755 "$account_dir/$letter" 2>/dev/null || true
+        done
+        
+        chmod 755 "$account_dir" 2>/dev/null || true
+        success_message "Account directories created successfully"
+    fi
+}
+
 launch_interactive_mode() {
     local interactive_script="$SCRIPT_DIR/mudctl-interactive.sh"
     
@@ -572,6 +597,9 @@ main() {
             ;;
         "check")
             run_system_check
+            ;;
+        "setup")
+            run_setup
             ;;
         "interactive")
             launch_interactive_mode
