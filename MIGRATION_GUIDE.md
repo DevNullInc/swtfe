@@ -7,6 +7,7 @@ The SWR server management scripts have been reorganized for better portability a
 ## What's New
 
 ### 📁 New `scripts/` Directory
+
 - **Location**: `/workspaces/swtfe/scripts/`
 - **Purpose**: Contains portable, environment-independent management scripts
 - **Benefits**: Works from any directory, no hardcoded paths
@@ -14,6 +15,7 @@ The SWR server management scripts have been reorganized for better portability a
 ### 🔧 Improved Scripts
 
 #### `scripts/mudctl.sh` - Enhanced Server Controller
+
 - **Portable**: Automatically detects paths relative to script location
 - **New Features**:
   - `logs [count]` - View recent log entries
@@ -25,13 +27,14 @@ The SWR server management scripts have been reorganized for better portability a
 - **Better Error Handling**: More informative error messages
 
 #### `scripts/mudctl-interactive.sh` - Interactive Menu Interface
+
 - **Real-time Monitoring**: Live server status and system information display
 - **Menu-driven Interface**: Easy navigation with numbered/lettered commands
 - **Auto-refresh Mode**: Toggleable continuous monitoring
 - **Visual Indicators**: Color-coded status for quick assessment
 - **Non-blocking**: Monitor server while keeping interface accessible#### `scripts/check_system.sh` - System Compatibility Checker  
 - **Portable**: Works from any directory
-- **Enhanced Analysis**: 
+- **Enhanced Analysis**:
   - GLIBC version compatibility checking
   - Detailed library dependency analysis
   - Colored output with clear status indicators
@@ -40,6 +43,7 @@ The SWR server management scripts have been reorganized for better portability a
 ### 🚀 Migration Guide
 
 #### Recommended Usage (New)
+
 ```bash
 # From anywhere:
 /path/to/swtfe/scripts/mudctl.sh start
@@ -52,6 +56,7 @@ The SWR server management scripts have been reorganized for better portability a
 ```
 
 #### Legacy Usage (Still Works)
+
 ```bash
 # Old way (requires being in src directory):
 cd src && ./mudctl.sh start
@@ -61,12 +66,14 @@ cd src && ./startup.sh
 ## Quick Start
 
 ### 1. Check System Compatibility
+
 ```bash
 cd /workspaces/swtfe
 ./scripts/check_system.sh
 ```
 
 ### 2. Start the Server
+
 ```bash
 # Start normally:
 ./scripts/mudctl.sh start
@@ -76,6 +83,7 @@ cd /workspaces/swtfe
 ```
 
 ### 3. Monitor the Server
+
 ```bash
 # Check status:
 ./scripts/mudctl.sh status
@@ -91,6 +99,7 @@ cd /workspaces/swtfe
 ```
 
 ### 4. Stop the Server
+
 ```bash
 # Graceful stop:
 ./scripts/mudctl.sh stop
@@ -102,9 +111,11 @@ cd /workspaces/swtfe
 ## Troubleshooting
 
 ### GLIBC Version Issues
+
 If you see errors like "version `GLIBC_2.38' not found":
 
 1. **Check compatibility**:
+
    ```bash
    ./scripts/check_system.sh
    ```
@@ -117,32 +128,39 @@ If you see errors like "version `GLIBC_2.38' not found":
    - Use a pre-compiled binary for your OS version
 
 ### Port Conflicts
+
 If the server won't start due to port conflicts:
 
 1. **Check what's using the port**:
+
    ```bash
    ./scripts/mudctl.sh status
    ```
 
 2. **Kill conflicting processes**:
+
    ```bash
    ./scripts/mudctl.sh kill-all
    ```
 
 3. **Try a different port**:
+
    ```bash
    ./scripts/mudctl.sh start 4949
    ```
 
 ### Permission Issues
+
 If you get "Permission denied" errors:
 
 1. **Check executable permissions**:
+
    ```bash
    ls -la src/swr
    ```
 
 2. **Fix permissions**:
+
    ```bash
    chmod +x src/swr
    chmod +x scripts/*.sh
@@ -151,7 +169,8 @@ If you get "Permission denied" errors:
 ## File Locations
 
 ### New Organization
-```
+
+```txt
 swtfe/
 ├── scripts/              # New portable scripts (RECOMMENDED)
 │   ├── mudctl.sh         # Main server controller
@@ -167,6 +186,7 @@ swtfe/
 ```
 
 ### Key Benefits
+
 - **No hardcoded paths**: Scripts work regardless of installation location
 - **Better organization**: Management scripts separated from source code
 - **Improved features**: More commands and better error handling
@@ -175,6 +195,7 @@ swtfe/
 ## Examples
 
 ### Daily Operations
+
 ```bash
 # Morning check:
 ./scripts/mudctl.sh status
@@ -190,6 +211,7 @@ swtfe/
 ```
 
 ### Maintenance
+
 ```bash
 # Start fallback server during maintenance:
 ./scripts/mudctl.sh fallback
@@ -201,6 +223,7 @@ swtfe/
 ```
 
 ### Emergency Recovery
+
 ```bash
 # If server is stuck:
 ./scripts/mudctl.sh kill-all
@@ -222,16 +245,19 @@ swtfe/
 ## Migration Timeline
 
 ### Phase 1 (Current)
+
 - ✅ New portable scripts available in `scripts/` directory
 - ✅ Enhanced features and better error handling
 - ✅ Documentation updated
 
 ### Phase 2 (Recommended)
+
 - 🔄 Update your procedures to use `./scripts/mudctl.sh`
 - 🔄 Test the new scripts with your workflow
 - 🔄 Update any automation to use new paths
 
 ### Phase 3 (Future)
+
 - ⏳ Consider removing old `src/mudctl.sh` once comfortable with new version
 - ⏳ Update any external scripts or documentation
 

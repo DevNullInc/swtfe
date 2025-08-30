@@ -7,10 +7,12 @@ Your request for a **menu-driven CLI with server feedback above the menu for liv
 ## 🚀 **What Was Created**
 
 ### `mudctl-interactive.sh` - Interactive Dashboard
+
 A comprehensive interactive interface that provides:
 
 #### **Live Status Display (Top Section)**
-```
+
+```txt
 ╔════════════════════════════════════════════════════════════════════════════════╗
 ║                        SWR MUD Server Interactive Controller                   ║
 ║                                                                                ║
@@ -27,7 +29,8 @@ A comprehensive interactive interface that provides:
 ```
 
 #### **Interactive Menu (Bottom Section)**
-```
+
+```txt
 Available Commands:
   1) start [port]     - Start the server (default: 4848)
   2) stop             - Stop the server gracefully
@@ -52,6 +55,7 @@ Enter command:
 ## ✨ **Key Features Implemented**
 
 ### **1. Live Server Monitoring**
+
 - ✅ **Real-time status display** - Server running/stopped state
 - ✅ **Process information** - PIDs, process counts, resource usage
 - ✅ **Port monitoring** - Shows what's using which ports
@@ -60,12 +64,14 @@ Enter command:
 - ✅ **Core dump tracking** - Count and latest crash dump info
 
 ### **2. Auto-Refresh Monitor Mode**
+
 - ✅ **Toggle with 'm'** - Enable/disable automatic refresh
 - ✅ **Configurable interval** - Updates every 2 seconds by default
 - ✅ **Non-blocking** - Can execute commands while monitoring
 - ✅ **Visual indicators** - Shows when monitor mode is active
 
 ### **3. Menu-Driven Interface**
+
 - ✅ **Number/letter commands** - Easy navigation (1-9, c,m,r,h,q)
 - ✅ **Parameter prompts** - Asks for ports, line counts, etc.
 - ✅ **Color-coded output** - Green/red/yellow status indicators
@@ -73,6 +79,7 @@ Enter command:
 - ✅ **Graceful exit** - Proper terminal cleanup on exit
 
 ### **4. Integration with Existing Tools**
+
 - ✅ **Uses regular mudctl.sh** - All commands execute through existing script
 - ✅ **Portable paths** - Works from any directory
 - ✅ **Environment checking** - Validates all required files exist
@@ -81,6 +88,7 @@ Enter command:
 ## 🎮 **How to Use**
 
 ### **Launch Interactive Interface**
+
 ```bash
 # Method 1: Direct execution
 ./scripts/mudctl-interactive.sh
@@ -90,6 +98,7 @@ Enter command:
 ```
 
 ### **Navigation**
+
 - **Type numbers 1-9** for main commands (start, stop, logs, etc.)
 - **Type letters** for special functions:
   - `c` - System check
@@ -99,12 +108,14 @@ Enter command:
   - `q` - Quit
 
 ### **Monitor Mode**
+
 - **Press 'm'** to enable auto-refresh every 2 seconds
 - **Server status updates automatically** while you can still enter commands
 - **Press 'm' again** to disable and return to manual mode
 - **Press any key during auto-refresh** to interrupt and enter a command
 
 ### **Example Workflow**
+
 1. Launch interface: `./scripts/mudctl.sh interactive`
 2. Enable monitor mode: Press `m`
 3. Watch live server status updates automatically
@@ -117,17 +128,20 @@ Enter command:
 ## 🎨 **Visual Features**
 
 ### **Color Coding**
+
 - 🟢 **Green** - Services running, operations successful
 - 🔴 **Red** - Services stopped, errors
 - 🟡 **Yellow** - Warnings, fallback active
 - ⚪ **Gray** - Inactive services, informational
 
 ### **Status Indicators**
+
 - `●` - Active/running
 - `○` - Inactive/stopped
 - `⚠` - Warning state
 
 ### **Live Data Display**
+
 - **Timestamps** - Shows last update time
 - **Resource usage** - Real-time system metrics
 - **Process info** - PIDs and process counts
@@ -136,17 +150,20 @@ Enter command:
 ## 🔧 **Technical Implementation**
 
 ### **Non-blocking Design**
+
 - Uses `read -t` for timeout-based input
 - Doesn't freeze during auto-refresh
 - Responds immediately to user input
 
 ### **Terminal Management**
+
 - Proper cursor hiding/showing
 - Screen clearing and positioning
 - Graceful cleanup on exit
 - Works with standard terminals
 
 ### **Error Resilience**
+
 - Handles missing files gracefully
 - Provides helpful error messages
 - Validates environment before starting
@@ -161,18 +178,21 @@ Enter command:
 ## 🎯 **Benefits Achieved**
 
 ### **For Daily Operations**
+
 - **Quick status at a glance** - No need to run multiple commands
 - **Live monitoring** - See server state changes in real-time
 - **Easy command access** - Menu-driven instead of remembering commands
 - **Reduced typing** - Number keys instead of full command names
 
 ### **For Troubleshooting**
+
 - **Continuous monitoring** - Watch server behavior during issues
 - **Immediate response** - See effects of commands immediately
 - **System overview** - All key metrics in one place
 - **Easy log access** - Quick log viewing and following
 
 ### **For Server Management**
+
 - **Professional interface** - Clean, organized display
 - **Multi-tasking** - Monitor while performing other tasks
 - **Visual feedback** - Clear indication of server state

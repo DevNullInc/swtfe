@@ -5,9 +5,11 @@ This directory contains portable server management and utility scripts for the S
 ## Scripts Overview
 
 ### `mudctl.sh` - Main Server Control Script
+
 The primary script for managing the SWR server. Works from any directory by automatically detecting paths.
 
 **Usage:**
+
 ```bash
 ## Available Scripts
 
@@ -56,6 +58,7 @@ Sophisticated monitoring interface with live log streaming and split-screen disp
 
 **Interface Layout:**
 ```
+
 ┌─────────────────────────────────────────────┐
 │              Log Display (40%)              │
 │                                             │
@@ -64,13 +67,13 @@ Sophisticated monitoring interface with live log streaming and split-screen disp
 │              Menu Area (60%)                │
 │                                             │
 └─────────────────────────────────────────────┘
-```
 
 ### 4. check_system.sh - System Dependency Checker
+
 Validates system requirements and dependencies for the SWR MUD server.
-```
 
 **Commands:**
+
 - `status` - Show server status and process information
 - `start [port]` - Start the server (default port: 4848)
 - `stop` - Stop the server gracefully
@@ -86,6 +89,7 @@ Validates system requirements and dependencies for the SWR MUD server.
 - `help` - Show help message
 
 **Examples:**
+
 ```bash
 # Start server on default port
 ./scripts/mudctl.sh start
@@ -110,14 +114,17 @@ Validates system requirements and dependencies for the SWR MUD server.
 ```
 
 ### `mudctl-interactive.sh` - Interactive Menu Interface
+
 An enhanced interactive version of the server controller that provides a menu-driven interface with live monitoring.
 
 **Usage:**
+
 ```bash
 ./scripts/mudctl-interactive.sh
 ```
 
 **Features:**
+
 - **Live Status Display**: Real-time server status, process information, and system metrics
 - **Auto-refresh Mode**: Toggleable monitor mode that updates the display automatically
 - **Menu-driven Commands**: Number/letter-based command selection for easy navigation
@@ -126,6 +133,7 @@ An enhanced interactive version of the server controller that provides a menu-dr
 - **Non-blocking Operation**: Monitor server while keeping the interface accessible
 
 **Interface Elements:**
+
 - Server status (running/stopped) with PID information
 - Fallback server status and management
 - Port usage monitoring
@@ -135,20 +143,24 @@ An enhanced interactive version of the server controller that provides a menu-dr
 - Interactive command menu with help system
 
 **Navigation:**
+
 - Enter command numbers (1-9) or letters (c,m,r,h,q)
 - Toggle auto-refresh with 'm' for continuous monitoring
 - Use 'r' to manually refresh the display
 - Press 'q' or Ctrl+C to exit
 
 ### `check_system.sh` - System Dependency Checker
+
 Comprehensive system check to verify the server can run on the current system.
 
 **Usage:**
+
 ```bash
 ./scripts/check_system.sh
 ```
 
 **Features:**
+
 - Checks for server executable and permissions
 - Verifies library dependencies with `ldd`
 - Analyzes GLIBC version compatibility
@@ -161,7 +173,7 @@ Comprehensive system check to verify the server can run on the current system.
 
 These scripts work with the following assumed directory structure:
 
-```
+```txt
 swtfe/
 ├── scripts/          # Management scripts (this directory)
 │   ├── mudctl.sh     # Main server control
@@ -188,6 +200,7 @@ All scripts automatically detect their location and calculate relative paths:
 - **Core Directory**: `../core/` (crash dumps)
 
 This makes the scripts portable - they work regardless of:
+
 - Where the SWR directory is located on the filesystem
 - What the parent directory is named
 - Whether you run them with relative or absolute paths
@@ -206,6 +219,7 @@ The old scripts can be removed once you verify the new ones work correctly.
 ## Usage Examples
 
 ### Starting the Server
+
 ```bash
 # From any directory:
 /path/to/swtfe/scripts/mudctl.sh start
@@ -218,6 +232,7 @@ The old scripts can be removed once you verify the new ones work correctly.
 ```
 
 ### Checking System Compatibility
+
 ```bash
 # Before first run, check if your system can run the server:
 ./scripts/check_system.sh
@@ -227,6 +242,7 @@ The old scripts can be removed once you verify the new ones work correctly.
 ```
 
 ### Daily Operations
+
 ```bash
 # Check if server is running:
 ./scripts/mudctl.sh status
@@ -242,6 +258,7 @@ The old scripts can be removed once you verify the new ones work correctly.
 ```
 
 ### Troubleshooting
+
 ```bash
 # Force kill everything and clean up:
 ./scripts/mudctl.sh kill-all
@@ -281,24 +298,28 @@ These scripts include comprehensive error handling:
 - **GDB**: Optional, for core dump analysis
 - **ldd**: Optional, for dependency checking
 
-## Troubleshooting
+## Troubleshooting Errors
 
 ### "Command not found" errors
+
 - Make sure scripts are executable: `chmod +x scripts/*.sh`
 - Use absolute paths if relative paths don't work
 - Check that bash is available: `which bash`
 
 ### GLIBC version errors
+
 - The server was compiled on a newer system
 - Either recompile the server on your system, or upgrade your OS
 - Use `./scripts/check_system.sh` for detailed version analysis
 
 ### Permission denied
+
 - Check file permissions: `ls -la src/swr`
 - Fix with: `chmod +x src/swr`
 - Ensure you have execute permissions on the directory
 
 ### Port conflicts
+
 - Use `./scripts/mudctl.sh status` to see what's using the port
 - Use `./scripts/mudctl.sh kill-all` to clean up stuck processes
 - Try a different port: `./scripts/mudctl.sh start 4949`
@@ -306,6 +327,7 @@ These scripts include comprehensive error handling:
 ## Advanced Usage
 
 ### Custom Port Management
+
 ```bash
 # Start on different port
 ./scripts/mudctl.sh start 5000
@@ -315,6 +337,7 @@ ss -tlnp | grep :5000
 ```
 
 ### Log Analysis
+
 ```bash
 # Search for specific errors
 ./scripts/mudctl.sh logs 1000 | grep "ERROR"
@@ -324,6 +347,7 @@ ss -tlnp | grep :5000
 ```
 
 ### Maintenance Mode
+
 ```bash
 # Start fallback server while fixing main server
 ./scripts/mudctl.sh fallback

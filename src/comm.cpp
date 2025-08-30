@@ -2072,12 +2072,12 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 close_socket(d, TRUE);
                 return;
         
-#ifdef ACCOUNT
         case CON_GET_ACCOUNT:
                 d->account = NULL;
+                // If no input yet, show a plain Username prompt for Mudlet compatibility
                 if (argument[0] == '\0')
                 {
-                        close_socket(d, FALSE);
+                        write_to_buffer(d, "Username: ", 0);
                         return;
                 }
 
@@ -2837,13 +2837,12 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 }
                 break;
 
-#endif
-        case CON_GET_NAME:
-                if (argument[0] == '\0')
-                {
-                        close_socket(d, FALSE);
-                        return;
-                }
+case CON_GET_NAME:
+        if (argument[0] == '\0')
+        {
+                close_socket(d, FALSE);
+                return;
+        }
 
                 argument[0] = UPPER(argument[0]);
                 if (!check_parse_name(argument))

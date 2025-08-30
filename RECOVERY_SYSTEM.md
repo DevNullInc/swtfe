@@ -1,5 +1,6 @@
 # SWR MUD Server Recovery System
-# /dev/null Industries
+
+## /dev/null Industries
 
 ## Overview
 
@@ -14,7 +15,7 @@ A comprehensive crash recovery and fallback system for the Star Wars Reality MUD
 
 ## System Architecture
 
-```
+```txt
 Main Server Crash
         ↓
    Core Dump Analysis
@@ -31,6 +32,7 @@ Main Server Crash
 ## Configuration
 
 ### Key Settings (in startup.sh)
+
 ```bash
 MAX_HOTBOOT_ATTEMPTS=3      # Number of hotboot recovery attempts
 HOTBOOT_DELAY=5             # Seconds between attempts
@@ -38,7 +40,8 @@ ALERT_EMAIL="crashalert@renegadeinc.net"  # Crash notification email
 ```
 
 ### Directory Structure
-```
+
+```txt
 /workspaces/swtfe/
 ├── scripts/                # Portable management scripts (RECOMMENDED)
 │   ├── mudctl.sh          # Main server control script
@@ -61,12 +64,14 @@ ALERT_EMAIL="crashalert@renegadeinc.net"  # Crash notification email
 ## Recovery Process
 
 ### Phase 1: Crash Detection
+
 - Monitor server process for abnormal termination
 - Detect and collect core dumps automatically
 - Move core dumps to timestamped storage in `/core/`
 - Generate comprehensive crash reports with GDB analysis
 
 ### Phase 2: Hotboot Recovery
+
 The system attempts up to 3 hotboot recoveries:
 
 1. **Check for Hotboot Data**: Verify `system/copyover.dat` exists
@@ -76,6 +81,7 @@ The system attempts up to 3 hotboot recoveries:
 5. **Repeat**: Up to MAX_HOTBOOT_ATTEMPTS total attempts
 
 ### Phase 3: Fallback Server
+
 If all recovery attempts fail:
 
 1. **Start Fallback**: Launch Python maintenance server on same port
@@ -86,13 +92,16 @@ If all recovery attempts fail:
 ## Hotboot Recovery Details
 
 ### How Hotboot Works
+
 The MUD's built-in hotboot system:
+
 - Saves all player connections and game state to `system/copyover.dat`
 - Performs `execl()` to restart the process with special arguments
 - Restores connections and game state on restart
 - Provides seamless experience for connected players
 
 ### Startup Arguments
+
 ```bash
 # Normal startup
 ./swr <port>
@@ -102,6 +111,7 @@ The MUD's built-in hotboot system:
 ```
 
 ### Recovery Strategy
+
 1. **Check Data Validity**: Ensure hotboot file exists and is recent
 2. **Use Dummy Sockets**: Pass -1 for socket arguments (they're reconstructed)
 3. **Extended Monitoring**: Give hotboot 15 seconds to stabilize
@@ -110,13 +120,15 @@ The MUD's built-in hotboot system:
 ## Fallback Server Features
 
 ### Connection Handling
+
 - **Multi-threaded**: Handle up to 10 concurrent connections
 - **Timeout Management**: 30-second connection limit
 - **Resource Protection**: Automatic cleanup of connections
 - **Color Output**: ANSI-colored status messages
 
 ### Player Experience
-```
+
+```txt
 ═══════════════════════════════════════════════════════════════════════════════
                     Star Wars Reality MUD - Server Status
 ═══════════════════════════════════════════════════════════════════════════════
@@ -140,7 +152,8 @@ Connection will close in 30 seconds...
 
 ## Management Utility (mudctl.sh)
 
-### Overview
+### Mud Control Overview
+
 The `mudctl.sh` script provides comprehensive server management capabilities:
 
 - **Port Management**: Detect and resolve port conflicts automatically
@@ -177,6 +190,7 @@ The `mudctl.sh` script provides comprehensive server management capabilities:
 ```
 
 ### Port Conflict Resolution
+
 The system automatically handles port conflicts by:
 
 1. **Detection**: Scan for processes using the target port
@@ -188,6 +202,7 @@ The system automatically handles port conflicts by:
 ## Usage Examples
 
 ### Normal Server Startup
+
 ```bash
 cd /workspaces/swtfe/src
 ./startup.sh          # Default port 4848
@@ -195,6 +210,7 @@ cd /workspaces/swtfe/src
 ```
 
 ### Manual Fallback Testing
+
 ```bash
 # Start fallback server on test port
 python3 src/fallback_server.py 4849
@@ -204,6 +220,7 @@ telnet localhost 4849
 ```
 
 ### Core Dump Management
+
 ```bash
 # View current status
 ./core/status.sh
@@ -222,6 +239,7 @@ telnet localhost 4849
 ```
 
 ### System Monitoring
+
 ```bash
 # Check if main server is running
 pgrep -f "swr.*4848"
@@ -239,6 +257,7 @@ cat fallback.status 2>/dev/null || echo "No fallback active"
 ## Administrative Tasks
 
 ### After a Crash
+
 1. **Review Logs**: Check latest log file for crash details
 2. **Analyze Core**: Use `./core/analyze_core.sh` for detailed analysis
 3. **Check Recovery**: Verify if hotboot succeeded or fallback activated
@@ -246,6 +265,7 @@ cat fallback.status 2>/dev/null || echo "No fallback active"
 5. **Monitor**: Watch for recurring crashes
 
 ### Manual Recovery
+
 ```bash
 # Stop fallback server if running
 pkill -f fallback_server
@@ -261,6 +281,7 @@ rm -f system/copyover.dat
 ```
 
 ### Maintenance
+
 ```bash
 # Regular core dump cleanup (suggested cron job)
 ./core/cleanup_cores.sh --days 14
@@ -276,27 +297,32 @@ find log -name "*.log" -mtime +30 -delete
 
 ### Common Issues
 
-**Hotboot Always Fails**
+#### Hotboot Always Fails
+
 - Check if `system/copyover.dat` exists and is valid
 - Verify MUD was compiled with hotboot support
 - Review server logs for hotboot-specific errors
 
-**Fallback Won't Start**
+#### Fallback Won't Start
+
 - Ensure Python3 is installed: `python3 --version`
 - Check port availability: `ss -tlnp | grep :4848`
 - Verify script permissions: `ls -la src/fallback_server.py`
 
-**Core Dumps Not Generated**
+#### Core Dumps Not Generated
+
 - Check ulimit settings: `ulimit -c` (should be "unlimited")
 - Verify core dump location: `cat /proc/sys/kernel/core_pattern`
 - Ensure disk space available in `/core/` directory
 
-**Recovery Loop**
+### Recovery Loop
+
 - Check for corrupted hotboot data: `rm -f system/copyover.dat`
 - Review crash patterns in multiple log files
 - Consider increasing HOTBOOT_DELAY for slower systems
 
 ### Debug Mode
+
 ```bash
 # Run startup script with debug output
 set -x

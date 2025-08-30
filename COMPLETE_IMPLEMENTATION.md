@@ -7,12 +7,14 @@ We have successfully implemented a comprehensive server management suite for the
 ## 🚀 **What's Been Delivered**
 
 ### 1. Core Recovery System
+
 - **Core dump management** with automated analysis and cleanup
 - **Hotboot recovery logic** with 3-attempt retry mechanism
 - **Fallback server** with professional telnet interface
 - **Port conflict resolution** with automatic cleanup
 
 ### 2. Portable Script Organization
+
 - **Complete script reorganization** resolving hardcoded path issues
 - **Dynamic path detection** using dirname-based resolution
 - **Backwards compatibility** maintained for existing installations
@@ -21,12 +23,14 @@ We have successfully implemented a comprehensive server management suite for the
 ### 3. Interactive Management Interfaces
 
 #### Basic Interactive Mode (`mudctl-interactive.sh`)
+
 - Menu-driven interface with live status monitoring
 - Auto-refresh capabilities with configurable intervals
 - Color-coded status indicators for quick assessment
 - Non-blocking interface design for continuous operation
 
 #### Advanced Monitoring Mode (`mudctl-advanced.sh`)
+
 - **FIFO-based real-time log streaming** with named pipes
 - **Split-screen display** showing main + fallback logs side-by-side
 - **Error highlighting** with color-coded critical error detection
@@ -35,9 +39,11 @@ We have successfully implemented a comprehensive server management suite for the
 - **Professional log analysis** with pattern-based error detection
 
 ### 4. Comprehensive Management Tool (`mudctl.sh`)
+
 Unified command-line interface with full server lifecycle management:
 
 **Core Commands:**
+
 - `status` - Comprehensive server and process status
 - `start/stop/restart` - Server lifecycle management with port options
 - `kill/kill-all` - Force termination with process cleanup
@@ -46,12 +52,14 @@ Unified command-line interface with full server lifecycle management:
 - `check` - System dependency validation
 
 **Interactive Modes:**
+
 - `interactive` - Launch basic interactive menu interface
 - `advanced` - Launch advanced interface with live log streaming
 
 ## 🔧 **Technical Features**
 
 ### Advanced Monitoring Capabilities
+
 - **Real-time log streaming** using FIFO pipes for non-blocking data flow
 - **Split-screen terminal management** with dynamic layout control
 - **Error pattern detection** with grep-based color highlighting
@@ -59,12 +67,14 @@ Unified command-line interface with full server lifecycle management:
 - **Resource cleanup** with automatic FIFO and process cleanup on exit
 
 ### Robust Error Handling
+
 - **GLIBC compatibility checking** to prevent deployment issues
 - **Proper exit code detection** distinguishing crashes from normal exits
 - **Signal handling** for graceful shutdown and resource cleanup
 - **Process tracking** with PID management and orphan prevention
 
 ### Professional Interface Design
+
 - **ANSI color support** with consistent color schemes
 - **Terminal control** with cursor positioning and screen management
 - **Dynamic screen adaptation** with resize detection
@@ -72,7 +82,7 @@ Unified command-line interface with full server lifecycle management:
 
 ## 📁 **File Organization**
 
-```
+```txt
 /workspaces/swtfe/
 ├── scripts/                    # Portable script collection
 │   ├── mudctl.sh              # Main server controller
@@ -97,6 +107,7 @@ Unified command-line interface with full server lifecycle management:
 ## 🎮 **How to Use**
 
 ### Quick Start
+
 ```bash
 # Basic server management
 cd /workspaces/swtfe/scripts
@@ -109,6 +120,7 @@ cd /workspaces/swtfe/scripts
 ```
 
 ### Advanced Features
+
 ```bash
 # Live log monitoring with error highlighting
 ./mudctl.sh advanced
@@ -136,6 +148,7 @@ cd /workspaces/swtfe/scripts
 ## 🔮 **Advanced Technical Implementation**
 
 ### FIFO Pipe Architecture
+
 ```bash
 # Named pipes for real-time log streaming
 MAIN_FIFO="/tmp/mudctl_main_$$"
@@ -146,6 +159,7 @@ tail -n 100 -F "$LOGFILE" | grep --color=always -E "(ERROR|CRITICAL|FATAL)" > "$
 ```
 
 ### Dynamic Terminal Management
+
 ```bash
 # Calculate optimal screen layout
 TERM_HEIGHT=$(tput lines)
@@ -160,6 +174,7 @@ tput cup 0 0            # Log area
 ## ✅ **Production Ready**
 
 The complete suite is production-ready with:
+
 - **Full error handling** and graceful failure recovery
 - **Resource cleanup** preventing memory/process leaks  
 - **Signal handling** for proper shutdown procedures
