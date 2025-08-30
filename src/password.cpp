@@ -1,24 +1,28 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Modern password hashing using Argon2 for improved security                           *
+ * Modern password hashing using Argon2 for improved security - /dev/null Industries     *
+ * Argon2 - https://argon2-cffi.readthedocs.io/en/stable/                                *
  *                                                                                       *
  *****************************************************************************************/
 
