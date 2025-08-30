@@ -313,7 +313,7 @@ void web_broadcast(char *argument)
 {
         char buf[MAX_STRING_LENGTH];
 
-        snprintf(buf, MSL, "&B[&zWeb Broadcast&B] &w%s&R&W", argument);
+        snprintf(buf, MSL * 2, "&B[&zWeb Broadcast&B] &w%s&R&W", argument);
         echo_to_all(AT_GOSSIP, buf, ECHOTAR_ALL);
 }
 
@@ -407,7 +407,7 @@ void init_web(int port)
         struct sockaddr_in my_addr;
         char buf[MAX_STRING_LENGTH];
 
-        snprintf(buf, MSL, "Web features starting on port: %d", port);
+        snprintf(buf, MSL * 2, "Web features starting on port: %d", port);
         log_string(buf);
 
         WEBSERVER_STATUS = TRUE;
@@ -860,7 +860,7 @@ void handle_web_wizlist_request(WEB_DESCRIPTOR * wdesc)
 /*
  * Modified version of Show File, used in here --GW
  */
-        snprintf(buf, MSL, "%swizlist.html", HTML_MUDINFO_WRITE_DIR);
+        snprintf(buf, MSL * 2, "%swizlist.html", HTML_MUDINFO_WRITE_DIR);
         if ((fp = fopen(buf, "r")) != NULL)
         {
                 send_buf(wdesc->fd, "<CENTER>", FALSE);
@@ -990,17 +990,17 @@ bool check_help_net(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
 
                 if (help->level >= 100 || hmax > 100)
                 {
-                        snprintf(buf, MSL, "/~immhelp/%s.htm ",
+                        snprintf(buf, MSL * 2, "/~immhelp/%s.htm ",
                                 convert_sp(strlower(help->keyword)));
                         one_argument(help->keyword, buf3);
-                        snprintf(buf2, MSL, "/~immhelp/%s.htm ", strlower(buf3));
+                        snprintf(buf2, MSL * 2, "/~immhelp/%s.htm ", strlower(buf3));
                 }
                 else
                 {
-                        snprintf(buf, MSL, "/help/%s.htm ",
+                        snprintf(buf, MSL * 2, "/help/%s.htm ",
                                 convert_sp(strlower(help->keyword)));
                         one_argument(help->keyword, buf3);
-                        snprintf(buf2, MSL, "/help/%s.htm ", strlower(buf3));
+                        snprintf(buf2, MSL * 2, "/help/%s.htm ", strlower(buf3));
                 }
 
                 if (strstr(wdesc->request, buf)
@@ -1056,7 +1056,7 @@ bool check_help_net(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                         send_buf(wdesc->fd, "<br><br>\n", FALSE);
                         if (hmax > 100)
                         {
-                                snprintf(buf2, MSL, "/~delete_help/%s.htm ",
+                                snprintf(buf2, MSL * 2, "/~delete_help/%s.htm ",
                                         convert_sp(strlower(help->keyword)));
                                 {
                                     /* Use stacked buffer approach to avoid overflow warnings */
@@ -1203,12 +1203,12 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                         else
                                 send_buf(wdesc->fd, "</table>", FALSE);
                         if (inqt == 1)
-                                snprintf(buf, MSL,
+                                snprintf(buf, MSL * 2,
                                         "<br></font><font size=" "4"
                                         ">'%c'</font><font size=" "2"
                                         "><br>\n", tmp);
                         if (inqt == 0)
-                                snprintf(buf, MSL,
+                                snprintf(buf, MSL * 2,
                                         "<br></font><font size=" "4"
                                         ">%c</font><font size=" "2" "><br>\n",
                                         tmp);
@@ -1228,7 +1228,7 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                 send_buf(wdesc->fd, "<tr><td width=\"315\">", FALSE);
                 if (help->level >= 100)
                 {
-                        snprintf(buf2, MSL, "/~immhelp/%s.htm ",
+                        snprintf(buf2, MSL * 2, "/~immhelp/%s.htm ",
                                 convert_sp(strlower(help->keyword)));
                         {
                             /* Use stacked buffer approach to avoid overflow warnings */
@@ -1242,7 +1242,7 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                 {
                         if (hmax > 100)
                         {
-                                snprintf(buf2, MSL, "/~immhelp/%s.htm ",
+                                snprintf(buf2, MSL * 2, "/~immhelp/%s.htm ",
                                         convert_sp(strlower(help->keyword)));
                                 {
                                     /* Use stacked buffer approach to avoid overflow warnings */
@@ -1254,7 +1254,7 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                         }
                         else
                         {
-                                snprintf(buf2, MSL, "/help/%s.htm ",
+                                snprintf(buf2, MSL * 2, "/help/%s.htm ",
                                         convert_sp(strlower(help->keyword)));
                                 {
                                     /* Use stacked buffer approach to avoid overflow warnings */
@@ -1283,7 +1283,7 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                         send_buf(wdesc->fd,
                                  "Links marked with a '*' means they are over level 100.<br>\n",
                                  FALSE);
-                snprintf(buf, MSL,
+                snprintf(buf, MSL * 2,
                         "-There are [ %d ] help files currently on Dark Warriors-<br>\n",
                         cnt);
                 send_buf(wdesc->fd, buf, FALSE);
@@ -1293,7 +1293,7 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
                          "-There are no help files on Dark Warriors right now-<br>\n",
                          FALSE);
 
-        snprintf(buf, MSL, "<br>This file last updated at %s Eastern Time.\n",
+        snprintf(buf, MSL * 2, "<br>This file last updated at %s Eastern Time.\n",
                 ((char *) ctime(&current_time)));
         send_buf(wdesc->fd, buf, FALSE);
         send_buf(wdesc->fd, "</center></font>\n", FALSE);
@@ -1350,10 +1350,10 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
                         ability++;
 
                 if (ability >= 0)
-                        snprintf(buf, MSL, "\n\r&B[&z%s&B]\n\r",
+                        snprintf(buf, MSL * 2, "\n\r&B[&z%s&B]\n\r",
                                  capitalize(ability_name[ability]));
                 else
-                        snprintf(buf, MSL, "%s",
+                        snprintf(buf, MSL * 2, "%s",
                                  "\n\r&B[&zGeneral Skills&B]\n\r");
 
                 send_buf(wdesc->fd, buf, 2);
@@ -1388,14 +1388,14 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
                                                                 (strlower
                                                                  (help->
                                                                   keyword)));
-                                                        snprintf(buf2, MSL,
+                                                        snprintf(buf2, MSL * 2,
                                                                 "<a href="
                                                                 "%s"
                                                                 ">&w%-18.18s</a> ",
                                                                 buf3,
                                                                 skill_table
                                                                 [sn]->name);
-                                                        snprintf(buf, MSL,
+                                                        snprintf(buf, MSL * 2,
                                                                  "&B(&w%3d&B)[&zR&B]&B[&z%s&B]",
                                                                  i,
                                                                  get_web_help
@@ -1415,14 +1415,14 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
                                                                 (strlower
                                                                  (help->
                                                                   keyword)));
-                                                        snprintf(buf2, MSL,
+                                                        snprintf(buf2, MSL * 2,
                                                                 "<a href="
                                                                 "%s"
                                                                 ">&w%-18.18s</a> ",
                                                                 buf3,
                                                                 skill_table
                                                                 [sn]->name);
-                                                        snprintf(buf, MSL,
+                                                        snprintf(buf, MSL * 2,
                                                                  "&B(&w%3d&B)[&z &B]&B[&z%s&B]",
                                                                  i,
                                                                  get_web_help
@@ -1441,7 +1441,7 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
                                                     && skill_table[sn]->
                                                     races[0] != '\0')
                                                 {
-                                                        snprintf(buf, MSL,
+                                                        snprintf(buf, MSL * 2,
                                                                  "&B(&w%3d&B)[&zR&B]&B[&z%s&B]&w%-18.18s ",
                                                                  i,
                                                                  get_web_help
@@ -1456,7 +1456,7 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
                                                 }
                                                 else
                                                 {
-                                                        snprintf(buf, MSL,
+                                                        snprintf(buf, MSL * 2,
                                                                  "&B(&w%3d&B)[&z &B]&B[&z%s&B]&w%-18.18s ",
                                                                  i,
                                                                  get_web_help
@@ -1534,20 +1534,20 @@ void handle_web_clan_request(WEB_DESCRIPTOR * wdesc)
 
 
                 send_buf(wdesc->fd, "&BO&zrganization: &W", 2);
-                snprintf(buf, MSL, "<a href=/clan/%s.htm>",
+                snprintf(buf, MSL * 2, "<a href=/clan/%s.htm>",
                         convert_sp(strlower(clan->name)));
                 send_buf(wdesc->fd, buf, 2);
-                snprintf(buf, MSL, "%-37.37s", clan->name);
+                snprintf(buf, MSL * 2, "%-37.37s", clan->name);
                 send_buf(wdesc->fd, buf, 2);
                 send_buf(wdesc->fd, "</a> ", 2);
-                snprintf(buf, MSL, "&BT&zype&B: &W%s", clan_type(clan));
+                snprintf(buf, MSL * 2, "&BT&zype&B: &W%s", clan_type(clan));
                 send_buf(wdesc->fd, buf, 2);
                 send_buf(wdesc->fd, "<br>", 0);
-                snprintf(buf, MSL, "  &BE&znlisting?&B: &W%-3s&B         ",
+                snprintf(buf, MSL * 2, "  &BE&znlisting?&B: &W%-3s&B         ",
                          clan->enliston == 1 ? "Yes" : clan->enliston ==
                          0 ? "No" : "Unknown");
                 send_buf(wdesc->fd, buf, 2);
-                snprintf(buf, MSL,
+                snprintf(buf, MSL * 2,
                          "  &BM&zembers&B: &W%-4d&B           &BM&zin. &BA&zlign&B: &W%-5d&B",
                          clan->members, clan->alignment);
                 send_buf(wdesc->fd, buf, 2);
@@ -1556,7 +1556,7 @@ void handle_web_clan_request(WEB_DESCRIPTOR * wdesc)
                 {
                         CLAN_DATA *subclan;
 
-                        snprintf(buf, MSL, "  &BS&zub clans&B:");
+                        snprintf(buf, MSL * 2, "  &BS&zub clans&B:");
                         send_buf(wdesc->fd, buf, 2);
                         send_buf(wdesc->fd, "<br>", 0);
 
@@ -1565,13 +1565,13 @@ void handle_web_clan_request(WEB_DESCRIPTOR * wdesc)
                         {
                                 send_buf(wdesc->fd,
                                          "    &BO&zrganization: &W", 2);
-                                snprintf(buf, MSL, "<a href=/clan/%s.htm>",
+                                snprintf(buf, MSL * 2, "<a href=/clan/%s.htm>",
                                         convert_sp(strlower(subclan->name)));
                                 send_buf(wdesc->fd, buf, 2);
-                                snprintf(buf, MSL, "%-33.33s", subclan->name);
+                                snprintf(buf, MSL * 2, "%-33.33s", subclan->name);
                                 send_buf(wdesc->fd, buf, 2);
                                 send_buf(wdesc->fd, "</a> ", 2);
-                                snprintf(buf, MSL, "&BM&zembers&B:&W %d",
+                                snprintf(buf, MSL * 2, "&BM&zembers&B:&W %d",
                                          subclan->members);
                                 send_buf(wdesc->fd, buf, 2);
                                 send_buf(wdesc->fd, "<br>", 0);
@@ -1609,13 +1609,13 @@ void handle_web_race_request(WEB_DESCRIPTOR * wdesc)
         FOR_EACH_LIST(RACE_LIST, races, race)
         {
                 send_buf(wdesc->fd, "&BN&zame: &W", 2);
-                snprintf(buf, MSL, "<a href=/races/%s.htm>",
+                snprintf(buf, MSL * 2, "<a href=/races/%s.htm>",
                         convert_sp(strlower(race->name())));
                 send_buf(wdesc->fd, buf, 2);
-                snprintf(buf, MSL, "%-37.37s", race->name());
+                snprintf(buf, MSL * 2, "%-37.37s", race->name());
                 send_buf(wdesc->fd, buf, 2);
                 send_buf(wdesc->fd, "</a>", 2);
-                snprintf(buf, MSL, "&BR&zpp needed&B: &W%d\n<br>",
+                snprintf(buf, MSL * 2, "&BR&zpp needed&B: &W%d\n<br>",
                          race->rpneeded());
                 send_buf(wdesc->fd, buf, 2);
         }
@@ -1646,72 +1646,72 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                 snprintf(buf3, MSL, "/races/%s.htm ",
                         convert_sp(strlower(race->name())));
                 one_argument(race->name(), buf4);
-                snprintf(buf2, MSL, "/races/%s.htm ", strlower(buf4));
+                snprintf(buf2, MSL * 2, "/races/%s.htm ", strlower(buf4));
 
                 if (strstr(wdesc->request, buf3)
                     || strstr(wdesc->request, buf2))
                 {
                         if ((help = get_web_help(race->name())) != NULL)
                         {
-                                snprintf(buf, MSL,
+                                snprintf(buf, MSL * 2,
                                          "&BR&zace name:          &W");
                                 send_buf(wdesc->fd, buf, 2);
                                 snprintf(buf3, MSL, "<a href=/help/%s.htm>",
                                         convert_sp(strlower(help->keyword)));
-                                snprintf(buf, MSL, "%s%s</a>\n<br>", buf3,
+                                snprintf(buf, MSL * 2, "%s%s</a>\n<br>", buf3,
                                          race->name());
                                 send_buf(wdesc->fd, buf, 2);
                         }
                         else
                         {
-                                snprintf(buf, MSL,
+                                snprintf(buf, MSL * 2,
                                          "&BR&zace name:          &W%s\n<br>",
                                          race->name());
                                 send_buf(wdesc->fd, buf, 2);
                         }
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "&BL&zanguage spoken:    &W%s\n<br>",
                                  capitalize(race->language()->name));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL, "&BR&zacial statistics<br>\n");
+                        snprintf(buf, MSL * 2, "&BR&zacial statistics<br>\n");
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BS&ztrength:           &W%+d<br>\n",
                                  race->attr_modifier(ATTR_STRENGTH));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BW&zisdom:             &W%+d<br>\n",
                                  race->attr_modifier(ATTR_WISDOM));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BI&zntelligence:       &W%+d<br>\n",
                                  race->attr_modifier(ATTR_INTELLIGENCE));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BD&zexterity:          &W%+d<br>\n",
                                  race->attr_modifier(ATTR_WISDOM));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BC&zonstitution:       &W%+d<br>\n",
                                  race->attr_modifier(ATTR_CONSTITUTION));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BC&zharisma:           &W%+d<br>\n",
                                  race->attr_modifier(ATTR_CHARISMA));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BF&zorce:              &W%+d<br>\n",
                                  race->attr_modifier(ATTR_FORCE));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BL&zuck:               &W%+d<br>\n",
                                  race->attr_modifier(ATTR_LUCK));
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BH&zit point modifier: &W%+d<br>\n",
                                  race->hit());
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BE&zndurance modifier: &W%+d<br>\n",
                                  race->endurance());
                         send_buf(wdesc->fd, buf, 2);
@@ -1720,28 +1720,28 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                             && room->area && room->area->planet
                             && room->area->planet->name)
                         {
-                                snprintf(buf, MSL,
+                                snprintf(buf, MSL * 2,
                                          "    &BH&zome planet:        &W%s<br>\n",
                                          room->area->planet->name);
                                 send_buf(wdesc->fd, buf, 2);
                         }
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BD&zeath age:          &W%+d<br>\n",
                                  race->death_age());
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BS&ztart age:          &W%+d<br>\n",
                                  race->start_age());
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BR&zPP needed:         &W%+d<br>\n",
                                  race->rpneeded());
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BB&zonus languages:    &W%+d<br>\n",
                                  race->lang_bonus());
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "    &BR&zacial affects:     &W%s<br>\n",
                                  affect_bit_name(race->affected()));
                         send_buf(wdesc->fd, buf, 2);
@@ -1749,7 +1749,7 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                         {
                                 int iClass = 0;
 
-                                snprintf(buf, MSL,
+                                snprintf(buf, MSL * 2,
                                          "&BR&zestricted classes\n<br>");
                                 send_buf(wdesc->fd, buf, 2);
                                 for (iClass = 0; iClass < MAX_ABILITY;
@@ -1759,7 +1759,7 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                                             (race->class_restriction(),
                                              1 << iClass))
                                         {
-                                                snprintf(buf, MSL,
+                                                snprintf(buf, MSL * 2,
                                                          "    &w%-10s\n<br>",
                                                          ability_name
                                                          [iClass]);
@@ -1769,12 +1769,12 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
 
                         }
 
-                        snprintf(buf, MSL, "&BC&zlass modifiers\n<br>");
+                        snprintf(buf, MSL * 2, "&BC&zlass modifiers\n<br>");
                         send_buf(wdesc->fd, buf, 2);
 
                         for (iclass = 0; iclass < MAX_ABILITY; iclass++)
                         {
-                                snprintf(buf, MSL,
+                                snprintf(buf, MSL * 2,
                                          "    &B%c&z%-17s  &w%+2d\n<br>",
                                          toupper(ability_name[iclass][0]),
                                          ability_name[iclass] + 1,
@@ -1782,12 +1782,12 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                                 send_buf(wdesc->fd, buf, 2);
                         }
 
-                        snprintf(buf, MSL, "&BB&zody parts\n<br>");
+                        snprintf(buf, MSL * 2, "&BB&zody parts\n<br>");
                         send_buf(wdesc->fd, buf, 2);
 
                         if (xIS_EMPTY(race->body_parts()))
                         {
-                                snprintf(buf, MSL, "    &BN&zone<br>\n");
+                                snprintf(buf, MSL * 2, "    &BN&zone<br>\n");
                                 send_buf(wdesc->fd, buf, 2);
                         }
                         else
@@ -1800,7 +1800,7 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                                 argument = one_argument(argument, buf2);
                                 while (buf2 && buf2[0] != '\0')
                                 {
-                                        snprintf(buf, MSL,
+                                        snprintf(buf, MSL * 2,
                                                  "    &B%c&z%s<br>\n",
                                                  toupper(buf2[0]), buf2 + 1);
                                         send_buf(wdesc->fd, buf, 2);
@@ -1836,26 +1836,26 @@ bool check_clan_net(WEB_DESCRIPTOR * wdesc)
                 snprintf(buf3, MSL, "/clan/%s.htm ",
                         convert_sp(strlower(clan->name)));
                 one_argument(clan->name, buf4);
-                snprintf(buf2, MSL, "/clan/%s.htm ", strlower(buf4));
+                snprintf(buf2, MSL * 2, "/clan/%s.htm ", strlower(buf4));
 
                 if (strstr(wdesc->request, buf3)
                     || strstr(wdesc->request, buf2))
                 {
-                        snprintf(buf, MSL, "&BO&zrganization: &W%s\n",
+                        snprintf(buf, MSL * 2, "&BO&zrganization: &W%s\n",
                                  clan->name);
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL, "  &BM&zotto: &W%s\n",
+                        snprintf(buf, MSL * 2, "  &BM&zotto: &W%s\n",
                                  clan->motto);
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL, "  &BD&zescription: &W%s\n",
+                        snprintf(buf, MSL * 2, "  &BD&zescription: &W%s\n",
                                  clan->description);
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL, "  &BE&znlisting?: &W%-3s&B\n",
+                        snprintf(buf, MSL * 2, "  &BE&znlisting?: &W%-3s&B\n",
                                  clan->enliston ==
                                  1 ? "Yes" : clan->enliston ==
                                  0 ? "No" : "Unknown");
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "  &BM&zembers: &W%-4d&B\n  &BM&zin. &BA&zlign: &W%-5d\n",
                                  clan->members, clan->alignment);
                         send_buf(wdesc->fd, buf, 2);
@@ -1927,21 +1927,21 @@ void handle_web_planet_request(WEB_DESCRIPTOR * wdesc)
         for (planet = first_planet; planet; planet = planet->next)
         {
                 send_buf(wdesc->fd, "&BP&zlanet: &w", 2);
-                snprintf(buf, MSL, "<a href=/planet/%s.htm>",
+                snprintf(buf, MSL * 2, "<a href=/planet/%s.htm>",
                         convert_sp(strlower(planet->name)));
                 send_buf(wdesc->fd, buf, 2);
-                snprintf(buf, MSL, "%-15.15s        ", planet->name);
+                snprintf(buf, MSL * 2, "%-15.15s        ", planet->name);
                 send_buf(wdesc->fd, buf, 2);
                 send_buf(wdesc->fd, "</a> ", 2);
-                snprintf(buf, MSL, "&BG&zoverned &BB&zy: &w%s %s\n",
+                snprintf(buf, MSL * 2, "&BG&zoverned &BB&zy: &w%s %s\n",
                          planet->governed_by ? planet->governed_by->name : "",
                          IS_SET(planet->flags,
                                 PLANET_NOCAPTURE) ? "&B(&zpermanent&B)" : "");
                 send_buf(wdesc->fd, buf, 2);
-                snprintf(buf, MSL, "&BV&zalue: &w%-10ld&z/&w%-10ld   ",
+                snprintf(buf, MSL * 2, "&BV&zalue: &w%-10ld&z/&w%-10ld   ",
                          get_taxes(planet), planet->base_value);
                 send_buf(wdesc->fd, buf, 2);
-                snprintf(buf, MSL,
+                snprintf(buf, MSL * 2,
                          "&BP&zopulation: &w%-5d    &BP&zop &BS&zupport: &w%.1d\n",
                          planet->population, planet->pop_support);
                 send_buf(wdesc->fd, buf, 2);
@@ -2001,7 +2001,7 @@ void handle_edithelp_message_request(WEB_DESCRIPTOR * wdesc)
         send_buf(wdesc->fd,
                  "<tr>\n<td>Level</td>\n<td><input type=\"text\" name=\"level\" value=\"",
                  2);
-        snprintf(buf, MSL, "%d", help->level);
+        snprintf(buf, MSL * 2, "%d", help->level);
         send_buf(wdesc->fd, buf, 2);
         send_buf(wdesc->fd, "\" /></td>\n</tr>", 2);
         send_buf(wdesc->fd,
@@ -2104,12 +2104,12 @@ bool check_planet_net(WEB_DESCRIPTOR * wdesc)
                 snprintf(buf3, MSL, "/planet/%s.htm ",
                         convert_sp(strlower(planet->name)));
                 one_argument(planet->name, buf4);
-                snprintf(buf2, MSL, "/planet/%s.htm ", strlower(buf4));
+                snprintf(buf2, MSL * 2, "/planet/%s.htm ", strlower(buf4));
 
                 if (strstr(wdesc->request, buf3)
                     || strstr(wdesc->request, buf2))
                 {
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "&BP&zlanet: &w%-15s        &BG&zoverned &BB&zy: &w%s %s\n",
                                  planet->name,
                                  planet->governed_by ? planet->governed_by->
@@ -2117,20 +2117,20 @@ bool check_planet_net(WEB_DESCRIPTOR * wdesc)
                                                    PLANET_NOCAPTURE) ?
                                  "&B(&zpermanent&B)" : "");
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "&BV&zalue: &w%-10ld&z/&w%-10ld   ",
                                  get_taxes(planet), planet->base_value);
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "&BP&zopulation: &w%-5d    &BP&zop &BS&zupport: &w%.1d\n",
                                  planet->population, planet->pop_support);
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "&BA&zttacking &BB&zatallions: &w%-5d    &BD&zefending &BB&zatallions: &w%.1d\n",
                                  planet->attbattalions,
                                  planet->defbattalions);
                         send_buf(wdesc->fd, buf, 2);
-                        snprintf(buf, MSL,
+                        snprintf(buf, MSL * 2,
                                  "&BP&zlanetary &BS&zhields: &w%-8d    &BT&zurbolasers: &w%.1d &BI&zon &BC&zannons: &w%.1d\n",
                                  planetary_installations(planet,
                                                          BATTERY_INSTALLATION),
@@ -2231,7 +2231,7 @@ void web_header(WEB_DESCRIPTOR * wdesc, char *title)
 {
         char buf[MAX_STRING_LENGTH];
 
-        snprintf(buf, MSL, "<title>Dark Warriors - %s</title>\n", title);
+        snprintf(buf, MSL * 2, "<title>Dark Warriors - %s</title>\n", title);
         send_buf(wdesc->fd, "<html>\n", FALSE);
         send_buf(wdesc->fd, "<head>\n", FALSE);
         send_buf(wdesc->fd, buf, FALSE);
@@ -2253,7 +2253,7 @@ void web_header(WEB_DESCRIPTOR * wdesc, char *title)
         send_buf(wdesc->fd,
                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                  FALSE);
-        snprintf(buf, MSL, "<h1><center>Dark Warrior %s</center></h1>\n", title);
+        snprintf(buf, MSL * 2, "<h1><center>Dark Warrior %s</center></h1>\n", title);
         send_buf(wdesc->fd, buf, FALSE);
         send_buf(wdesc->fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 }
@@ -2284,7 +2284,7 @@ void print_ooc_history(WEB_DESCRIPTOR * wdesc)
                 return;
         }
 
-        snprintf(buf, MSL, "&B%c&z%s History\n\rB-----------\n\r", channel->name[0],
+        snprintf(buf, MSL * 2, "&B%c&z%s History\n\rB-----------\n\r", channel->name[0],
                 channel->name + 1);
         send_buf(wdesc->fd, buf, 2);
         while (1)
@@ -2296,7 +2296,7 @@ void print_ooc_history(WEB_DESCRIPTOR * wdesc)
                 buf[0] = '\0';
 
                 snprintf(buf1, MSL, "%s", channel->log[pos].message);
-                snprintf(buf, MSL,
+                snprintf(buf, MSL * 2,
                          "&B[&W%2d&B][&W%.24s&B]&D %s %s&W: &W%s&w\n\r",
                          count,
                          ctime(&channel->log[pos].time),
