@@ -60,6 +60,7 @@
 #include "body.h"
 #include "cpp_compat.h"
 #include "races.h"
+#include "password.h"
 #include "olc_bounty.h"
 #include "space2.h"
 #include "installations.h"
@@ -5318,8 +5319,9 @@ CMDF do_form_password(CHAR_DATA * ch, char *argument)
 
         argument = one_argument(argument, arg);
 
-        ch_printf(ch, "Those two arguments encrypted would result in: %s",
-                  crypt(arg, argument));
+        std::string new_hash = hash_password(arg);
+        ch_printf(ch, "Password '%s' with Argon2 would result in: %s",
+                  arg, new_hash.c_str());
         return;
 }
 

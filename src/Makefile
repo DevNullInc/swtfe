@@ -56,7 +56,7 @@ CPP_FILES = body.cpp account.cpp act_comm.cpp act_info.cpp act_move.cpp act_obj.
             fight.cpp finger.cpp grid_c.cpp handler.cpp hashstr.cpp homes.cpp hotboot.cpp immcomm.cpp \
             implants.cpp installations.cpp interp.cpp magic.cpp makeobjs.cpp mccp.cpp \
             medic.cpp misc.cpp msp.cpp mud_comm.cpp mud_prog.cpp mxp.cpp occupations.cpp olc_bounty.cpp\
-            olc-shuttle.cpp olc.cpp pfiles.cpp pilot.cpp player.cpp quest.cpp races.cpp raceskills.cpp \
+            olc-shuttle.cpp olc.cpp password.cpp pfiles.cpp pilot.cpp player.cpp quest.cpp races.cpp raceskills.cpp \
             renumber.cpp reset.cpp restore.cpp save.cpp shell.cpp shops.cpp  \
             skills.cpp smuggling.cpp space.cpp space2.cpp special.cpp starsystem.cpp swskills.cpp \
             tables.cpp track.cpp update.cpp vendor.cpp wedding.cpp grid.cpp greet.cpp

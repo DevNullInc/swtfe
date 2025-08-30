@@ -60,6 +60,7 @@
 #include "body.h"
 #include "races.h"
 #include "greet.h"
+#include "password.h"
 
 char     *trim(const char *str);
 void      show_visible_affects_to_char(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -4214,7 +4215,7 @@ CMDF do_password(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (strcmp(crypt(arg1, ch->pcdata->pwd), ch->pcdata->pwd))
+        if (!verify_password(arg1, ch->pcdata->pwd))
         {
                 WAIT_STATE(ch, 40);
                 send_to_char("Wrong password.  Wait 10 seconds.\n\r", ch);
@@ -4239,8 +4240,7 @@ CMDF do_password(CHAR_DATA * ch, char *argument)
         /*
          * No tilde allowed because of player file format.
          */
-        pwdnew = crypt(arg2, ch->name);
-        for (p = pwdnew; *p != '\0'; p++)
+        for (p = arg2; *p != '\0'; p++)
         {
                 if (*p == '~')
                 {
@@ -4250,9 +4250,12 @@ CMDF do_password(CHAR_DATA * ch, char *argument)
                         return;
                 }
         }
+        
+        // Generate a strong Argon2 hash
+        std::string new_hash = hash_password(arg2);
 
         DISPOSE(ch->pcdata->pwd);
-        ch->pcdata->pwd = str_dup(pwdnew);
+        ch->pcdata->pwd = str_dup(new_hash.c_str());
         if (IS_SET(sysdata.save_flags, SV_PASSCHG))
                 save_char_obj(ch);
         send_to_char("Ok.\n\r", ch);

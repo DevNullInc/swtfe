@@ -66,6 +66,10 @@
 #include "channels.h"
 #include "races.h"
 #include "greet.h"
+#include "password.h"
+
+// Function to check if password needs upgrading to Argon2
+bool should_upgrade_hash(const char *hash);
 
 #define TELOPTS
 #define TELCMDS
@@ -2065,6 +2069,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 bug("Nanny: bad d->connected %d.", d->connected);
                 close_socket(d, TRUE);
                 return;
+        
 #ifdef ACCOUNT
         case CON_GET_ACCOUNT:
                 d->account = NULL;
@@ -2184,9 +2189,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
         case CON_GET_OLD_ACCOUNT_PASSWORD:
                 write_to_buffer(d, "\n\r", 2);
 
-                if (strcmp
-                    (crypt(argument, d->account->password),
-                     d->account->password))
+                if (!verify_password(argument, d->account->password))
                 {
                         send_to_desc_color("&BW&zrong password.\n\r", d);
                         /*
@@ -2194,6 +2197,15 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                          */
                         close_socket(d, FALSE);
                         return;
+                }
+                
+                // Check if password needs upgrading to Argon2
+                if (should_upgrade_hash(d->account->password)) {
+                    // Upgrade the hash to Argon2
+                    if (d->account->password)
+                        STRFREE(d->account->password);
+                    d->account->password = STRALLOC((char *)hash_password(argument).c_str());
+                    save_account(d->account);
                 }
                 send_to_desc_color
                         ("\n\r&BP&zlease choose one of the following\n\r", d);
@@ -2230,6 +2242,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 break;
 
         case CON_GET_NEW_ACCOUNT_PASSWORD:
+        {
                 write_to_buffer(d, "\n\r", 2);
 
                 if (strlen(argument) < 5)
@@ -2240,8 +2253,8 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         return;
                 }
 
-                pwdnew = crypt(argument, d->account->name);
-                for (p = pwdnew; *p != '\0'; p++)
+                // Check for characters that might cause problems
+                for (p = argument; *p != '\0'; p++)
                 {
                         if (*p == '~')
                         {
@@ -2252,21 +2265,23 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         }
                 }
 
+                // Generate a strong Argon2 hash
+                std::string new_hash = hash_password(argument);
+                
                 if (d->account->password)
                         STRFREE(d->account->password);
-                d->account->password = STRALLOC(pwdnew);
+                d->account->password = STRALLOC((char *)new_hash.c_str());
                 send_to_desc_color
                         ("\n\r&BP&zlease retype the password to confirm: ",
                          d);
                 d->connected = CON_CONFIRM_NEW_ACCOUNT_PASSWORD;
                 break;
+        }
 
         case CON_CONFIRM_NEW_ACCOUNT_PASSWORD:
                 write_to_buffer(d, "\n\r", 2);
 
-                if (strcmp
-                    (crypt(argument, d->account->password),
-                     d->account->password))
+                if (!verify_password(argument, d->account->password))
                 {
                         send_to_desc_color
                                 ("&BP&zasswords don't match.\n\rRetype password: ",
@@ -2288,6 +2303,10 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
 					break;
 				}
 
+                send_to_desc_color("\n\r&BW&zelcome to your account!\n\r", d);
+                send_to_desc_color("\n\r&BSelect a character to play, choose '&wNew&B' to create a new character,\n\r", d);
+                send_to_desc_color("&Bor select '&wLink&B' to add an existing character to your account.\n\r", d);
+                send_to_desc_color("&BYou can also type '&wPassword&B' to change your account password.\n\r\n\r", d);
                 show_account_characters(d);
                 send_to_desc_color("\n\r&BY&zour selection: ", d);
                 d->connected = CON_GET_ALT;
@@ -2303,9 +2322,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         d->connected = CON_GET_ALT;
                         return;
                 }
-                if (!strcmp
-                    (crypt(argument, d->account->password),
-                     d->account->password))
+                if (verify_password(argument, d->account->password))
                 {
                         send_to_desc_color
                                 ("\n\r&BE&znter new password (or press enter to abort):&w ",
@@ -2334,8 +2351,8 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         d->connected = CON_GET_ALT;
                         return;
                 }
-                pwdnew = crypt(argument, d->account->name);
-                for (p = pwdnew; *p != '\0'; p++)
+                // Check for characters that might cause problems
+                for (p = argument; *p != '\0'; p++)
                 {
                         if (*p == '~')
                         {
@@ -2362,13 +2379,18 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 }
                 else
                 {
-                        d->account->password = STRALLOC(pwdnew);
+                        // Generate a strong Argon2 hash
+                        std::string new_hash = hash_password(argument);
+                        
+                        d->account->password = STRALLOC((char *)new_hash.c_str());
                         d->connected = CON_GET_ACC_CONFIRMPASS;
                         send_to_desc_color
                                 ("\n\r&BP&zlease confirm password (or press enter to abort):&w ",
                                  d);
                         return;
                 }
+                break;
+
         case CON_GET_ACC_CONFIRMPASS:
                 if (argument[0] == '\0')
                 {
@@ -2379,9 +2401,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         d->connected = CON_GET_ACC_NEWPASS;
                         return;
                 }
-                if (strcmp
-                    (crypt(argument, d->account->password),
-                     d->account->password))
+                if (!verify_password(argument, d->account->password))
                 {
                         send_to_desc_color("\n\r&BP&zasswords don't match.",
                                            d);
@@ -2468,7 +2488,10 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                          "Make sure to pick a name appropriate to the character you are going\n\r"
                                          "to role play, and be sure that it suits our theme.\n\r"
                                          "If the name you select is not acceptable, you will be asked to choose\n\r"
-                                         "another one.\n\r\n\rPlease choose a name for your character: ",
+                                         "another one.\n\r"
+                                         "Your new character will automatically use your account password and\n\r"
+                                         "be linked to your account.\n\r"
+                                         "\n\rPlease choose a name for your character: ",
                                          d);
                                 d->newstate++;
                                 d->connected = CON_GET_NAME;
@@ -2485,7 +2508,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 else if (!str_cmp(argument, "link"))
                 {
                         /*
-                         * send_to_desc_color( "\n\r&BW&zhat is your characters name to link to this account?\n\r&BT&zype &w\"&Bn&zew&w\"&z for a new character (or hit enter to abort):&w ", d );
+                         * Streamlined character linking process
                          */
                         send_to_desc_color
                                 ("\n\r&BN&zame of character to link (or hit enter to abort):&w ",
@@ -2771,7 +2794,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         d->connected = CON_GET_ALT;
                         return;
                 }
-                if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd))
+                if (!verify_password(argument, ch->pcdata->pwd))
                 {
                         send_to_desc_color("&BW&zrong password.\n\r", d);
                         /*
@@ -2986,9 +3009,10 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 }
                 break;
         case CON_GET_OLD_PASSWORD:
+        {
                 write_to_buffer(d, "\n\r", 2);
 
-                if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd))
+                if (!verify_password(argument, ch->pcdata->pwd))
                 {
                         send_to_desc_color("&BW&zrong password.\n\r", d);
                         /*
@@ -2997,6 +3021,13 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         d->character->desc = NULL;
                         close_socket(d, FALSE);
                         return;
+                }
+                
+                // Check if password needs upgrading to Argon2
+                if (should_upgrade_hash(ch->pcdata->pwd)) {
+                    // Upgrade the hash to Argon2
+                    DISPOSE(ch->pcdata->pwd);
+                    ch->pcdata->pwd = str_dup((char *)hash_password(argument).c_str());
                 }
 
                 write_to_buffer(d, (char *) echo_on_str, 0);
@@ -3038,12 +3069,49 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 {
                 case 'y':
                 case 'Y':
+#ifdef ACCOUNT
+                        /* If we have an account, auto-use the account's password */
+                        if (d->account && d->account->password) {
+                            /* Use the account's password for the character */
+                            DISPOSE(ch->pcdata->pwd);
+                            ch->pcdata->pwd = str_dup(d->account->password);
+                            
+                            /* Link character to account automatically */
+                            if (!add_to_account(d->account, ch)) {
+                                send_to_desc_color(
+                                    "&BThere was an error linking your character to your account.\n\r", d);
+                                d->character->desc = NULL;
+                                free_char(d->character);
+                                d->character = NULL;
+                                d->connected = CON_GET_NAME;
+                                return;
+                            }
+                            
+                            /* Skip directly to sex selection */
+                            write_to_buffer(d, (char *) echo_on_str, 0);
+                            send_to_desc_color(
+                                "\n\r&BYour character has been automatically linked to your account.\n\r", d);
+                            send_to_desc_color(
+                                "&BWhat is your sex &B(&wM&z/&wF&z/&wN&B)&z? ", d);
+                            d->connected = CON_GET_NEW_SEX;
+                        } else {
+                            /* Regular password prompt for non-account creation */
+                            snprintf(buf, MSL,
+                                     "\n\r&BM&zake sure to use a password that won't be easily guessed by someone else."
+                                     "\n\r&BP&zick a good password for %s: %s",
+                                     ch->name, echo_off_str);
+                            send_to_desc_color(buf, d);
+                            d->connected = CON_GET_NEW_PASSWORD;
+                        }
+#else
+                        /* Regular password prompt when account system is disabled */
                         snprintf(buf, MSL,
                                  "\n\r&BM&zake sure to use a password that won't be easily guessed by someone else."
                                  "\n\r&BP&zick a good password for %s: %s",
                                  ch->name, echo_off_str);
                         send_to_desc_color(buf, d);
                         d->connected = CON_GET_NEW_PASSWORD;
+#endif
                         break;
                 case 'n':
                 case 'N':
@@ -3064,6 +3132,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 break;
 
         case CON_GET_NEW_PASSWORD:
+        {
                 write_to_buffer(d, "\n\r", 2);
 
                 if (strlen(argument) < 5)
@@ -3074,8 +3143,8 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         return;
                 }
 
-                pwdnew = crypt(argument, ch->name);
-                for (p = pwdnew; *p != '\0'; p++)
+                // Check for characters that might cause problems
+                for (p = argument; *p != '\0'; p++)
                         if (*p == '~')
                         {
                                 send_to_desc_color
@@ -3084,18 +3153,22 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                 return;
                         }
 
+                // Generate a strong Argon2 hash
+                std::string new_hash = hash_password(argument);
+                
                 DISPOSE(ch->pcdata->pwd);
-                ch->pcdata->pwd = str_dup(pwdnew);
+                ch->pcdata->pwd = str_dup(new_hash.c_str());
                 send_to_desc_color
                         ("\n\r&BP&zlease retype the password to confirm: ",
                          d);
                 d->connected = CON_CONFIRM_NEW_PASSWORD;
                 break;
+        }
 
         case CON_CONFIRM_NEW_PASSWORD:
                 write_to_buffer(d, "\n\r", 2);
 
-                if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd))
+                if (!verify_password(argument, ch->pcdata->pwd))
                 {
                         send_to_desc_color
                                 ("&BP&zasswords don't match.\n\rRetype password: ",
@@ -3254,6 +3327,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 send_to_desc_color("&BC&zhoice&z:&w ", d);
                 d->connected = CON_GET_NEW_CLASS;
                 break;
+        }
 
         case CON_GET_NEW_CLASS:
                 argument = one_argument(argument, arg);
@@ -4563,7 +4637,7 @@ char     *act_string(const char *format, CHAR_DATA * to, CHAR_DATA * ch,
         OBJ_DATA *obj2 = (OBJ_DATA *) arg2;
         SHIP_DATA *ship = NULL;
 
-        if (str == NULL or * str == '\0')
+        if (str == NULL || *str == '\0')
                 return "";
 
         while (*str != '\0')
@@ -4869,7 +4943,7 @@ void act(sh_int AType, const char *format, CHAR_DATA * ch, void *arg1,
 
 CMDF do_name(CHAR_DATA * ch, char *argument)
 {
-        char      fname[1024];
+        char fname[1024];
         struct stat fst;
         CHAR_DATA *tmp;
 
@@ -5056,7 +5130,7 @@ void display_prompt(DESCRIPTOR_DATA * d)
                         case '%':
                                 *pbuf++ = '%';
                                 *pbuf = '\0';
-                                break;
+                              break;
                         case 'a':
                                 if (ch->top_level >= 10)
                                         pstat = ch->alignment;

@@ -2,9 +2,9 @@
 Name         Coruscant~
 Filename     coruscant.body~
 Type         1
-Xpos         39220
-Ypos         -25740
-Zpos         -15600
+Xpos         37740
+Ypos         -26780
+Zpos         -17680
 Xmove        37
 Ymove        -13
 Zmove        26
@@ -12,7 +12,7 @@ Centerx      0
 Centery      0
 Centerz      0
 Gravity      75
-Orbitcount   122
+Orbitcount   126
 Starsystem   Coruscant System~
 Planet   Coruscant~
 End

@@ -2,9 +2,9 @@
 Name         Gornus~
 Filename     gornus.body~
 Type         2
-Xpos         43460
-Ypos         -75240
-Zpos         -10200
+Xpos         41820
+Ypos         -78280
+Zpos         -11560
 Xmove        41
 Ymove        -38
 Zmove        17
@@ -12,7 +12,7 @@ Centerx      0
 Centery      0
 Centerz      0
 Gravity      50
-Orbitcount   122
+Orbitcount   126
 Starsystem   Coruscant System~
 Planet   Gornus~
 End

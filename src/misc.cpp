@@ -46,6 +46,7 @@
 #include "editor.h"
 #include "account.h"
 #include "races.h"
+#include "password.h"
 
 
 extern int top_exit;
@@ -3301,7 +3302,7 @@ CMDF do_suicide(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd))
+        if (!verify_password(argument, ch->pcdata->pwd))
         {
                 send_to_char("Sorry wrong password.\n\r", ch);
                 snprintf(logbuf, MSL,

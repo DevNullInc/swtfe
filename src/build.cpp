@@ -53,6 +53,7 @@
 #include "olc_bounty.h"
 #include "installations.h"
 #include "space2.h"
+#include "password.h"
 
 extern int top_affect;
 extern int top_reset;
@@ -1625,8 +1626,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 /*
                  * No tilde allowed because of player file format.
                  */
-                pwdnew = crypt(arg3, ch->name);
-                for (p = pwdnew; *p != '\0'; p++)
+                for (p = arg3; *p != '\0'; p++)
                 {
                         if (*p == '~')
                         {
@@ -1636,9 +1636,12 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                 return;
                         }
                 }
+                
+                // Generate a strong Argon2 hash
+                std::string new_hash = hash_password(arg3);
 
                 DISPOSE(victim->pcdata->pwd);
-                victim->pcdata->pwd = str_dup(pwdnew);
+                victim->pcdata->pwd = str_dup(new_hash.c_str());
                 if (IS_SET(sysdata.save_flags, SV_PASSCHG))
                         save_char_obj(victim);
                 send_to_char("Ok.\n\r", ch);

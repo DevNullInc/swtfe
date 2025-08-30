@@ -1,5 +1,0 @@
-compiler: gcc
-language: c
-install: true
-script: cd src && make
-
