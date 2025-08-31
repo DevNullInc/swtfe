@@ -37,17 +37,18 @@
  *****************************************************************************************
  *                                SWR OLC Channel module                                 *
  ****************************************************************************************/
-#ifndef GREET_H
-#define GREET_H
+#ifndef _GREET_H_
+#define _GREET_H_
 
 #include <map>
+#include <cstring>
 
 struct map_char_ltstr
 {
-        bool operator()(char* s1, char* s2) const
-        {
-                return strcmp(s1, s2) < 0;
-        }
+                bool operator()(char* s1, char* s2) const
+                {
+                                return strcmp(s1, s2) < 0;
+                }
 };
 
 
@@ -57,26 +58,26 @@ void add_greet_to_char(CHAR_DATA * ch, CHAR_DATA * victim, char * name);
 
 class GREET_INFO
 {
-        public: // for now
-	// last seen date
-        int last_seen;
-	// last heard data
-        int last_heard;
-	// remembered name
-        char * remembered_name;
-	// name / digusised name
-        char * key;
-	// real char name
-        char * char_name;
+                public: // for now
+        // last seen date
+                int last_seen;
+        // last heard data
+                int last_heard;
+        // remembered name
+                char * remembered_name;
+        // name / digusised name
+                char * key;
+        // real char name
+                char * char_name;
 };
 
 typedef std::map<char*, GREET_INFO *,map_char_ltstr> GREET_MAP;
 
 struct temp_greet_ptr {
-        GREET_MAP greet_info;
+                GREET_MAP greet_info;
 };
 
 void fwrite_greet(CHAR_DATA * ch, FILE * fp);
 void fread_greet(CHAR_DATA * ch, FILE * fp);
 
-#endif // GREET_H
+#endif /* _GREET_H_ */

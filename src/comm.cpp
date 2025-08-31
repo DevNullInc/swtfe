@@ -1,5 +1,4 @@
 #include <stdint.h>
-
 // GCMP (Generic Client Mud Protocol) support
 #ifndef TELOPT_GCMP
 #define TELOPT_GCMP 201
@@ -3695,10 +3694,9 @@ case CON_GET_NAME:
                 }
                 else if (ch->pcdata->statedit == 5)
                 {
-                        if ((i + ch->perm_con) > 20 || (i + ch->perm_con) < 1
-                            || (i + ch->perm_con +
-                                ch->race->attr_modifier(ATTR_CONSTITUTION)) <
-                            3)
+                        if ((i + ch->perm_con) > 20
+                            || (i + ch->perm_con) < 1
+                            || (i + ch->perm_con + ch->race->attr_modifier(ATTR_CONSTITUTION)) < 3)
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",

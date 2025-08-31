@@ -49,15 +49,40 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <string>
 #include "mud.h"
 #include "editor.h"
 #include "bounty.h"
 #include "account.h"
 #include "races.h"
+/* Telnet protocol constants for GMCP */
+#ifndef IAC
+#define IAC 255
+#endif
+#ifndef SB
+#define SB 250
+#endif
+// Standard library includes for STL and C string usage
+#include <vector>
+#include <string>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
-/*
- * Externs
- */
+// *VNUM garbage
+struct VnumCount
+{
+        int         vnum;
+        int         qty;
+        const char *name;
+};
+
+// For GMCP inventory JSON
+struct VnumCountEntry {
+        int vnum;
+        int qty;
+        std::string name;
+};
 void birth_date args((CHAR_DATA * ch));
 
 /*
@@ -1388,81 +1413,100 @@ int count_obj_in_inventory(CHAR_DATA * ch, int vnum)
     return count;
 }
 
-CMDF do_inventory(CHAR_DATA * ch, char *argument)
+CMDF do_inventory(CHAR_DATA *ch, char *argument)
 {
-    argument = NULL;    /* Squelch Warning */
-    set_char_color(AT_RED, ch);
-    send_to_char("You are carrying:\n\r", ch);
-    show_list_to_char(ch->first_carrying, ch, TRUE, TRUE);
+        OBJ_DATA *obj;
 
+        // 1) Show plain-text inventory
+        (void)argument;  // Squelch warning
+        set_char_color(AT_RED, ch);
+        send_to_char("You are carrying:\n\r", ch);
+        show_list_to_char(ch->first_carrying, ch, TRUE, TRUE);
+
+        // 2) Send GMCP JSON if connected
         if (ch->desc)
         {
-        /* Telnet constants for GMCP */
-        #define IAC 255
-        #define SB 250
-        #define SE 240
+                // 2a) Count each unique vnum + name
 
-        /* Build JSON for inventory items */
-        char buf[MAX_STRING_LENGTH];
-        char items[MAX_STRING_LENGTH];
-        OBJ_DATA *obj;
-        bool first = TRUE;
+// Inventory GMCP payload: collect counts of items by vnum/name
+                std::vector<VnumCountEntry> vcounts;
 
-        strlcpy(items, "[", sizeof(items));
-        for (obj = ch->first_carrying; obj; obj = obj->next_content)
-        {
-            if (!first)
-                strlcat(items, ",", sizeof(items));
-            first = FALSE;
-            char item_buf[256];
-            snprintf(item_buf, sizeof(item_buf),
-                     "{\"vnum\":%d,\"name\":\"%s\",\"qty\":%d}",
-                     obj->pIndexData->vnum,
-                     obj->short_descr,
-                     count_obj_in_inventory(ch, obj->pIndexData->vnum));
-            strlcat(items, item_buf, sizeof(items));
+                                for (obj = ch->first_carrying; obj; obj = obj->next_content)
+                                {
+                                        const char *name = obj->short_descr ? obj->short_descr : "";
+                                        int vnum = obj->pIndexData->vnum;
+                                        bool found = false;
+                                        for (size_t j = 0; j < vcounts.size(); ++j)
+                                        {
+                                                if (vcounts[j].vnum == vnum && vcounts[j].name == name)
+                                                {
+                                                        vcounts[j].qty++;
+                                                        found = true;
+                                                        break;
+                                                }
+                                        }
+                                        if (!found)
+                                        {
+                                                VnumCountEntry entry;
+                                                entry.vnum = vnum;
+                                                entry.qty = 1;
+                                                entry.name = name;
+                                                vcounts.push_back(entry);
+                                        }
+                                }
+
+                // 2b) Build JSON array
+
+                                // C++98-compatible JSON escape and string build
+                                std::string items = "[";
+                                char numbuf[32];
+                                for (size_t i = 0; i < vcounts.size(); ++i)
+                                {
+                                        if (i > 0)
+                                                items += ",";
+                                        // Escape name
+                                        std::string escname;
+                                        for (size_t k = 0; k < vcounts[i].name.length(); ++k)
+                                        {
+                                                char c = vcounts[i].name[k];
+                                                if (c == '\\' || c == '"')
+                                                        escname += '\\';
+                                                escname += c;
+                                        }
+                                        snprintf(numbuf, sizeof(numbuf), "%d", vcounts[i].vnum);
+                                        items += "{\"vnum\":";
+                                        items += numbuf;
+                                        items += ",\"name\":\"";
+                                        items += escname;
+                                        items += "\",\"qty\":";
+                                        snprintf(numbuf, sizeof(numbuf), "%d", vcounts[i].qty);
+                                        items += numbuf;
+                                        items += "}";
+                                }
+                                items += "]";
+
+                // 2c) Send Telnet/GMCP framing + payload
+
+                // Ensure protocol macros are defined
+#ifndef IAC
+#define IAC 255
+#endif
+#ifndef SB
+#define SB 250
+#endif
+#ifndef SE
+#define SE 240
+#endif
+                unsigned char prefix[] = { (unsigned char)IAC, (unsigned char)SB, (unsigned char)201 };
+                unsigned char suffix[] = { (unsigned char)IAC, (unsigned char)SE };
+
+                write_to_buffer(ch->desc, (char*)prefix, sizeof(prefix));
+                write_to_buffer(ch->desc, "GMCP Core.Character.Inventory ", strlen("GMCP Core.Character.Inventory "));
+                write_to_buffer(ch->desc, items.c_str(), (int)items.length());
+                write_to_buffer(ch->desc, (char*)suffix, sizeof(suffix));
         }
-        strlcat(items, "]", sizeof(items));
 
-        /* Send GMCP event with payload in chunks to avoid truncation */
-        {
-            /* Build small binary prefix and suffix and send them with explicit lengths */
-            char gmcp_prefix[3];
-            char gmcp_suffix[2];
-            size_t items_len;
-            size_t pos = 0;
-            const size_t CHUNK = 512; /* safe chunk size */
-
-            gmcp_prefix[0] = (char)IAC;
-            gmcp_prefix[1] = (char)SB;
-            gmcp_prefix[2] = (char)201; /* TELOPT_GMCP */
-
-            gmcp_suffix[0] = (char)IAC;
-            gmcp_suffix[1] = (char)SE;
-
-            items_len = strlen(items);
-
-            /* Send prefix: IAC SB TELOPT_GMCP and the GMCP message name/space */
-            /* Write the textual part of the prefix (GMCP name and space) first */
-            write_to_buffer(ch->desc, gmcp_prefix, sizeof(gmcp_prefix));
-            write_to_buffer(ch->desc, "GMCP Core.Character.Inventory ", 29);
-
-            /* Send items payload in safe-sized chunks */
-            while (pos < items_len)
-            {
-                size_t tocopy = items_len - pos;
-                if (tocopy > CHUNK)
-                    tocopy = CHUNK;
-                /* write_to_buffer interprets the length parameter if non-zero */
-                write_to_buffer(ch->desc, items + pos, (int)tocopy);
-                pos += tocopy;
-            }
-
-            /* Send suffix: IAC SE */
-            write_to_buffer(ch->desc, gmcp_suffix, sizeof(gmcp_suffix));
-        }
-    }
-    return;
+        return;
 }
 
 
@@ -1472,7 +1516,6 @@ CMDF do_equipment(CHAR_DATA * ch, char *argument)
         int       iWear, dam;
         bool      found;
         char      buf[MAX_STRING_LENGTH];
-
         argument = NULL;    /* Squelch Warning */
         set_char_color(AT_RED, ch);
         send_to_char("&BYou are using:\n\r", ch);
