@@ -58,6 +58,7 @@ CPP_FILES = body.cpp account.cpp act_comm.cpp act_info.cpp act_move.cpp act_obj.
             renumber.cpp reset.cpp restore.cpp save.cpp shell.cpp shops.cpp  \
             skills.cpp smuggling.cpp space.cpp space2.cpp special.cpp starsystem.cpp swskills.cpp \
             tables.cpp track.cpp update.cpp vendor.cpp wedding.cpp grid.cpp greet.cpp
+			imccustom.cpp \
 
 O_FILES = $(patsubst %.cpp,o/%.o,$(CPP_FILES))
 
