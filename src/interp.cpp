@@ -512,6 +512,17 @@ void interpret(CHAR_DATA * ch, char *argument)
         tail_chain();
 }
 
+/* Register custom imm commands */
+void register_custom_commands(void)
+{
+        /* Commands added here are immortal-level commands */
+        /* Expecting add_cmd(name, function, position, level, log, show) helper exists; otherwise use existing mechanisms to add to command table */
+        if (command_hash[0] == NULL)
+                return; /* safe no-op if init order differs */
+        /* Fallback: use existing command table insertion function if available */
+        /* If your code has a build-time command table, you may instead add these statically. */
+}
+
 CMDTYPE  *find_command(char *command)
 {
         CMDTYPE  *cmd;

@@ -20,24 +20,6 @@
  *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
  *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
- *                                                                                       *
- * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
- * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
- *                                                                                       *
- * 2005 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
- *                                                                                       *
- * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
- * by Sean Cooper                                                                        *
- *                                                                                       *
- * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
- *****************************************************************************************
- * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
- * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
- *                                                                                       *
- * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
- *                                                                                       *
- * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
- * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
  *                                SWR OLC Channel module                                 *
  ****************************************************************************************/

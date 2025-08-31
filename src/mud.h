@@ -2478,6 +2478,7 @@ struct char_data
         sh_int emotional_state; /* simplified */
         int retran;
         int regoto;
+        int gpoint; /* personal goto point */
         sh_int mobinvis;    /* Mobinvis level SB */
         sh_int backup_wait; /* reinforcements */
         int backup_mob; /* reinforcements */
@@ -3642,6 +3643,14 @@ extern CMDTYPE *command_hash[126];
 
 extern SKILLTYPE *skill_table[MAX_SKILL];
 extern SOCIALTYPE *social_index[27];
+/* Optional double-xp globals (safe defaults if feature not used) */
+extern bool double_exp;
+extern int global_exp_ticks;
+extern sh_int display_ticks;
+
+/* Optional command prototypes */
+CMDF do_doublexp(CHAR_DATA *ch, char *argument);
+CMDF do_gpoint(CHAR_DATA *ch, char *argument);
 extern ch_ret global_retcode;
 extern SKILLTYPE *herb_table[MAX_HERB];
 

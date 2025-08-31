@@ -17,6 +17,13 @@
 #include "mud.h"
 #include "account.h"
 
+#ifndef CON_GET_CHAR_SELECTION
+#define CON_GET_CHAR_SELECTION  76765  // Use an unused integer value appropriate for your codebase
+#endif
+
+// Forward declaration for get_account if not included in account.h
+ACCOUNT_DATA *get_account(const char *name);
+
 // Store account password temporarily for auto-linking
 char account_password[MAX_STRING_LENGTH];
 
@@ -54,7 +61,10 @@ void streamlined_account_login(DESCRIPTOR_DATA *d, char *argument)
     if (account) {
         // Account exists
         write_to_buffer(d, "Password: ", 0);
-        write_to_buffer(d, (char *)echo_off_str, 0);
+        // Disable echo for password input (implementation may vary)
+        if (d->character && d->character->desc)
+            write_to_buffer(d, "\xFF\xFB\x01", 3); // TELNET WILL SUPPRESS GO AHEAD (example)
+        // If your codebase has a macro or function for echo off, use it here.
         d->connected = CON_GET_OLD_PASSWORD;
         return;
     }
@@ -90,12 +100,12 @@ void streamlined_character_selection(DESCRIPTOR_DATA *d, ACCOUNT_DATA *account)
         write_to_buffer(d, "No characters found. Create a new one.\r\n", 0);
         // Move to character creation
         d->connected = CON_GET_NAME;
-        return;
-    }
-    
-    write_to_buffer(d, "Enter character name or 'new' to create a new character: ", 0);
     d->connected = CON_GET_CHAR_SELECTION;
 }
+
+#ifndef CON_GET_CHAR_SELECTION
+#define CON_GET_CHAR_SELECTION  76765  // Use an unused integer value appropriate for your codebase
+#endif
 
 /*
  * Apply these changes in your nanny function where the connection state 

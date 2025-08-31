@@ -173,6 +173,15 @@ extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];  /* db.c */
 extern int port;    /* Port number to be used       */
 HELP_DATA *get_help(CHAR_DATA * ch, char *argument);
 
+/* Double XP globals, controlled by imm-level commands only */
+extern bool double_exp;
+extern int global_exp_ticks;
+extern sh_int display_ticks;
+
+/* Command prototypes */
+CMDF do_doublexp(CHAR_DATA *ch, char *argument);
+CMDF do_gpoint(CHAR_DATA *ch, char *argument);
+
 
 int get_saveflag(char *name)
 {
