@@ -66,6 +66,8 @@
 #include "greet.h"
 #include "password.h"
 
+void send_gcmp_event(DESCRIPTOR_DATA *desc, const char *event, const char *json);
+
 char     *trim(const char *str);
 void      show_visible_affects_to_char(CHAR_DATA * victim, CHAR_DATA * ch);
 char     *halucinated_object(int ms, bool fShort);
@@ -1106,6 +1108,22 @@ CMDF do_look(CHAR_DATA * ch, char *argument)
                 show_list_to_char(ch->in_room->first_content, ch, FALSE,
                                   FALSE);
                 show_char_to_char(ch->in_room->first_person, ch);
+                if (ch->desc)
+                {
+                        /* Send detailed Room.Info for web navigation */
+                        char room_buf[1024];
+                        char desc_buf[512];
+                        mudstrlcpy(desc_buf, ch->in_room->description, sizeof(desc_buf));
+                        char *clean_desc = smash_color(desc_buf);
+                        snprintf(room_buf, sizeof(room_buf),
+                                 "{\"num\":%d,\"name\":\"%s\",\"desc\":\"%s\"}",
+                                 ch->in_room->vnum, ch->in_room->name, clean_desc);
+                        send_gcmp_event(ch->desc, "Core.Room.Info", room_buf);
+
+                        /* Send Area.Weather GMCP/GCMP event */
+                        /* If area weather support is added, send Area.Weather GMCP/GCMP event here. */
+                        /* Currently, area_data has no weather member, so this block is disabled. */
+                }
 
                 if (str_cmp(arg1, "auto"))
                         if ((ship =

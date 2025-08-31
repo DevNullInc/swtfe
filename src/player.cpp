@@ -1372,13 +1372,97 @@ CMDF do_affected(CHAR_DATA * ch, char *argument)
         return;
 }
 
+/*
+ * Count the number of objects of a specific vnum in character's inventory
+ */
+int count_obj_in_inventory(CHAR_DATA * ch, int vnum)
+{
+    OBJ_DATA *obj;
+    int count = 0;
+
+    for (obj = ch->first_carrying; obj; obj = obj->next_content)
+    {
+        if (obj->pIndexData->vnum == vnum)
+            count++;
+    }
+    return count;
+}
+
 CMDF do_inventory(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;    /* Squelch Warning */
-        set_char_color(AT_RED, ch);
-        send_to_char("You are carrying:\n\r", ch);
-        show_list_to_char(ch->first_carrying, ch, TRUE, TRUE);
-        return;
+    argument = NULL;    /* Squelch Warning */
+    set_char_color(AT_RED, ch);
+    send_to_char("You are carrying:\n\r", ch);
+    show_list_to_char(ch->first_carrying, ch, TRUE, TRUE);
+
+        if (ch->desc)
+        {
+        /* Telnet constants for GMCP */
+        #define IAC 255
+        #define SB 250
+        #define SE 240
+
+        /* Build JSON for inventory items */
+        char buf[MAX_STRING_LENGTH];
+        char items[MAX_STRING_LENGTH];
+        OBJ_DATA *obj;
+        bool first = TRUE;
+
+        strlcpy(items, "[", sizeof(items));
+        for (obj = ch->first_carrying; obj; obj = obj->next_content)
+        {
+            if (!first)
+                strlcat(items, ",", sizeof(items));
+            first = FALSE;
+            char item_buf[256];
+            snprintf(item_buf, sizeof(item_buf),
+                     "{\"vnum\":%d,\"name\":\"%s\",\"qty\":%d}",
+                     obj->pIndexData->vnum,
+                     obj->short_descr,
+                     count_obj_in_inventory(ch, obj->pIndexData->vnum));
+            strlcat(items, item_buf, sizeof(items));
+        }
+        strlcat(items, "]", sizeof(items));
+
+        /* Send GMCP event with payload in chunks to avoid truncation */
+        {
+            /* Build small binary prefix and suffix and send them with explicit lengths */
+            char gmcp_prefix[3];
+            char gmcp_suffix[2];
+            size_t items_len;
+            size_t pos = 0;
+            const size_t CHUNK = 512; /* safe chunk size */
+
+            gmcp_prefix[0] = (char)IAC;
+            gmcp_prefix[1] = (char)SB;
+            gmcp_prefix[2] = (char)201; /* TELOPT_GMCP */
+
+            gmcp_suffix[0] = (char)IAC;
+            gmcp_suffix[1] = (char)SE;
+
+            items_len = strlen(items);
+
+            /* Send prefix: IAC SB TELOPT_GMCP and the GMCP message name/space */
+            /* Write the textual part of the prefix (GMCP name and space) first */
+            write_to_buffer(ch->desc, gmcp_prefix, sizeof(gmcp_prefix));
+            write_to_buffer(ch->desc, "GMCP Core.Character.Inventory ", 29);
+
+            /* Send items payload in safe-sized chunks */
+            while (pos < items_len)
+            {
+                size_t tocopy = items_len - pos;
+                if (tocopy > CHUNK)
+                    tocopy = CHUNK;
+                /* write_to_buffer interprets the length parameter if non-zero */
+                write_to_buffer(ch->desc, items + pos, (int)tocopy);
+                pos += tocopy;
+            }
+
+            /* Send suffix: IAC SE */
+            write_to_buffer(ch->desc, gmcp_suffix, sizeof(gmcp_suffix));
+        }
+    }
+    return;
 }
 
 

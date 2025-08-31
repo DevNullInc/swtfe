@@ -74,6 +74,11 @@ typedef int obj_ret;
 #endif
 
 /*
+ * GMCP (Generic MUD Communication Protocol)
+ */
+#define TELOPT_GCMP 201
+
+/*
  * Short scalar types.
  * Diavolo reports AIX compiler has bugs with short types.
  */

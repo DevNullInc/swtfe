@@ -37,6 +37,9 @@
  *****************************************************************************************
  *                                SWR OLC Channel module                                 *
  ****************************************************************************************/
+#ifndef GREET_H
+#define GREET_H
+
 #include <map>
 
 struct map_char_ltstr
@@ -75,3 +78,5 @@ struct temp_greet_ptr {
 
 void fwrite_greet(CHAR_DATA * ch, FILE * fp);
 void fread_greet(CHAR_DATA * ch, FILE * fp);
+
+#endif // GREET_H
