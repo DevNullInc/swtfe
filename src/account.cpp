@@ -1,25 +1,28 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -34,11 +37,9 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- * This module allows users to attach different characters to a single account and share *
- * simple things such as aliases, role playing points, etc                               *
- *****************************************************************************************
- *                $Id: account.c 1330 2005-12-05 03:23:24Z halkeye $                *
+ *                               Account management                                      *
  *****************************************************************************************/
+
 
 #include <string.h>
 #include <ctype.h>
@@ -50,20 +51,24 @@
 #include "alias.h"
 #include "boards.h"
 
+#ifndef CMDF
+#define CMDF void
+#endif
+
 ACCOUNT_DATA *first_account = NULL;
 ACCOUNT_DATA *last_account = NULL;
 
 
-sh_int check_playing args((DESCRIPTOR_DATA * d, char *name, bool kick));
-bool check_reconnect args((DESCRIPTOR_DATA * d, char *name, bool fConn));
-void      fwrite_comments(ACCOUNT_DATA * account, FILE * fp);
-void      fread_comment(ACCOUNT_DATA * account, FILE * fp);
+sh_int check_playing(DESCRIPTOR_DATA * d, char *name, bool kick);
+bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn);
+void fwrite_comments(ACCOUNT_DATA * account, FILE * fp);
+void fread_comment(ACCOUNT_DATA * account, FILE * fp);
 
 /*
  * Local functions.
  */
-void fread_account args((ACCOUNT_DATA * account, FILE * fp));
-ACCOUNT_DATA *get_account args((const char *name));
+void fread_account(ACCOUNT_DATA * account, FILE * fp);
+ACCOUNT_DATA *get_account(const char *name);
 
 ACCOUNT_DATA *create_account()
 {
@@ -466,40 +471,40 @@ void fread_account(ACCOUNT_DATA * account, FILE * fp)
         }
 }
 
-bool add_to_account(ACCOUNT_DATA * account, CHAR_DATA * ch)
+bool add_to_account(ACCOUNT_DATA * acct, CHAR_DATA * chdata)
 {
         int       count;
 
-        if (!account || !ch)
+        if (!acct || !chdata)
         {
                 bug("add_to_account: null ch or account!", 0);
                 return FALSE;
         }
         for (count = 0; count < MAX_CHARACTERS; count++)
         {
-                if (account->character[count] == NULL)
+                if (acct->character[count] == NULL)
                         continue;
                 /*
                  * Prevent Duplicates anywhere in the list, but already in the list, so it was successful 
                  */
-                if (!str_cmp(account->character[count], ch->name))
+                if (!str_cmp(acct->character[count], chdata->name))
                         return TRUE;
         }
         for (count = 0; count < MAX_CHARACTERS; count++)
         {
-                if (account->character[count] == NULL)
+                if (acct->character[count] == NULL)
                         break;
         }
         if (count >= MAX_CHARACTERS)
                 return FALSE;
 
-        account->character[count] = STRALLOC(ch->name);
-        if (ch->pcdata && ch->pcdata->rp)
+        acct->character[count] = STRALLOC(chdata->name);
+        if (chdata->pcdata && chdata->pcdata->rp)
         {
-                account->rppoints += ch->pcdata->rp;
-                ch->pcdata->rp = 0;
+                acct->rppoints += chdata->pcdata->rp;
+                chdata->pcdata->rp = 0;
         }
-/*      save_char_obj(ch); */
+/*      save_char_obj(chdata); */
 
         return TRUE;
 }

@@ -21,8 +21,8 @@
  *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -42,6 +42,10 @@
 
 #ifndef _ACCOUNT_H_
 #define _ACCOUNT_H_
+/* Ensure core project types/macros are available when this header is included
+ * directly so the header is self-contained for tools (IDE/intellisense) and
+ * translation units that may not include `mud.h` beforehand. */
+#include "mud.h"
 
 typedef struct account_data ACCOUNT_DATA;
 
