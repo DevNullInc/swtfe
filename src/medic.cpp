@@ -35,7 +35,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: medic.c 1330 2005-12-05 03:23:24Z halkeye $                *
+ * Medical system handling player health, injuries, healing, and medical interactions in the game. *
  ****************************************************************************************/
 
 #include <string.h>

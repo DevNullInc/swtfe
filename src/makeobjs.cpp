@@ -35,7 +35,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: makeobjs.c 1330 2005-12-05 03:23:24Z halkeye $                *
+ * Object creation and management system for generating and handling game items. *
  ****************************************************************************************/
 #include <sys/types.h>
 #include <stdio.h>

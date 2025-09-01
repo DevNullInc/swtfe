@@ -36,7 +36,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: implants.c 1330 2005-12-05 03:23:24Z halkeye $                *
+ * Cybernetic implant system for player enhancements and character modifications. *
  ****************************************************************************************/
 #include <string.h>
 #include "mud.h"

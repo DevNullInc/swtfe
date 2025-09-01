@@ -37,7 +37,7 @@
  * This module is for the creation of aliases to keep commonly string of commands (or    *
  * emotes or whatever) setup to a single new command.                                    *
  *****************************************************************************************
- *                $Id: alias.c 1330 2005-12-05 03:23:24Z halkeye $                *
+ *         Command alias system for creating shortcuts and custom player commands.       *
  *****************************************************************************************/
 
 #include <ctype.h>

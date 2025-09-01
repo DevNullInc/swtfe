@@ -48,7 +48,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: space.c 1356 2006-06-03 19:11:12Z halkeye $                       *
+ * Space travel and ship management system for exploring the galaxy and handling space combat. *
  ****************************************************************************************/
 
 #include <math.h>

@@ -34,10 +34,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- * This module is for our own setup of an ooc and ic arena system. Betting and non deaths*
- * are included.                                                                         *
- *****************************************************************************************
- *                $Id: arena.c 1330 2005-12-05 03:23:24Z halkeye $                  *
+ * Arena system for player versus player combat with betting mechanics.                 *
  *****************************************************************************************/
 
 #include <string.h>

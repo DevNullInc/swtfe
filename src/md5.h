@@ -22,7 +22,7 @@
   ghost@aladdin.com
 
  */
-/* $Id: md5.h 1330 2005-12-05 03:23:24Z halkeye $ */
+/* MD5 hashing utility header for data integrity and security functions. */
 /*
   Independent implementation of MD5 (RFC 1321).
 

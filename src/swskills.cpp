@@ -36,7 +36,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: swskills.c 1330 2005-12-05 03:23:24Z halkeye $                *
+ * Star Wars skill system for character abilities, progression, and combat mechanics. *
  ****************************************************************************************/
 
 #include <math.h>

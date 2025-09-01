@@ -35,7 +35,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: mud_comm.c 1343 2005-12-10 21:06:07Z halkeye $                *
+ * Communication system for player interactions, channels, messaging, and social commands in the game. *
  ****************************************************************************************/
 #include <sys/types.h>
 #include <stdio.h>

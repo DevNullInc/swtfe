@@ -22,7 +22,7 @@
   ghost@aladdin.com
 
  */
-/* $Id: md5.c 1330 2005-12-05 03:23:24Z halkeye $ */
+/* MD5 hashing implementation for secure data processing and integrity checks. */
 /*
   Independent implementation of MD5 (RFC 1321).
 

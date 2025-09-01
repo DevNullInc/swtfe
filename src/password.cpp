@@ -23,6 +23,7 @@
  *                                                                                       *
  * Modern password hashing using Argon2 for improved security - /dev/null Industries     *
  * Argon2 - https://argon2-cffi.readthedocs.io/en/stable/                                *
+ *  Commented fully for better understanding on how this works.                          *
  *                                                                                       *
  *****************************************************************************************/
 
@@ -40,6 +41,30 @@
 #include <argon2.h>
 #include "password.h"
 #include "mud.h"
+
+/*
+ * Security Notes:
+ * This implementation uses Argon2id for password hashing, which provides significantly
+ * better security than traditional crypt() functions. Key advantages include:
+ *
+ * 1. Memory-hard algorithm: Argon2 requires substantial memory usage, making it resistant
+ *    to hardware-accelerated attacks using GPUs or ASICs.
+ *
+ * 2. Configurable parameters: Time cost (iterations), memory cost, and parallelism can be
+ *    tuned to balance security with performance based on system capabilities.
+ *
+ * 3. Resistance to rainbow tables: Unique salts and the algorithm's complexity make
+ *    precomputed attacks impractical.
+ *
+ * 4. Future-proof: Argon2 was selected as the winner of the Password Hashing Competition
+ *    and is designed to remain secure against emerging threats.
+ *
+ * 5. Migration support: Legacy crypt() hashes are automatically verified and can be
+ *    upgraded to Argon2 during password changes for backward compatibility.
+ *
+ * Unlike basic crypt() which uses simple hashing algorithms vulnerable to brute-force
+ * and dictionary attacks, Argon2 provides robust protection against modern attack vectors.
+ */
 
 std::string hash_password(const char* password, const char* salt_in)
 {

@@ -36,7 +36,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: act_comm.c 1344 2005-12-10 21:25:53Z halkeye $                *
+ * Action and communication commands for player interactions and social gameplay. *
  ****************************************************************************************/
 
 #include <sys/types.h>

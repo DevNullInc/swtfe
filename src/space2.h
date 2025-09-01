@@ -34,7 +34,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: space2.h 1330 2005-12-05 03:23:24Z halkeye $                *
+ * Space system header for ship and travel definitions and data structures. *
  ****************************************************************************************/
 
 class     BODY_DATA;

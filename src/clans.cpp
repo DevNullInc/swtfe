@@ -46,7 +46,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *             $Id: clans.c 1330 2005-12-05 03:23:24Z halkeye $                  *
+ * Clan and faction management for player groups, alliances, and organizational gameplay. *
  ****************************************************************************************/
 #include <sys/types.h>
 #include <ctype.h>

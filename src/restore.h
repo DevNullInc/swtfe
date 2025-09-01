@@ -39,7 +39,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: restore.h 1330 2005-12-05 03:23:24Z halkeye $                *
+ * Player restoration and recovery system header for game state management. *
  *****************************************************************************************
  *                                 Restores V1.0 header information			             *
  *****************************************************************************************/

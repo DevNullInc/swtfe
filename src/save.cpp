@@ -36,7 +36,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: save.c 1339 2005-12-07 06:09:32Z halkeye $                *
+ * Player and game data saving and loading mechanisms for persistent world state. *
  ****************************************************************************************/
 
 #include <sys/types.h>
