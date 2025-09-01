@@ -20,9 +20,9 @@
  *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
  *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
- *                  /dev/null Industries - Stygian Renegade 2025                         *
- * ***************************************************************************************
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ *                                                                                       *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -37,7 +37,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                                 SWR HTML Header file                                  *
+ *                                 SWTFE Database Module                                 *
  ****************************************************************************************/
 #include <sys/types.h>
 #include <ctype.h>

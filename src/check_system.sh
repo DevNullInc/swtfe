@@ -1,7 +1,58 @@
 #!/bin/bash
-
+#*****************************************************************************************
+# *                      .___________. __    __   _______                                 *
+# *                      |           ||  |  |  | |   ____|                                *
+# *                      `---|  |----`|  |__|  | |  |__                                   *
+# *                          |  |     |   __   | |   __|                                  *
+# *                          |  |     |  |  |  | |  |____                                 *
+# *                          |__|     |__|  |__| |_______|                                *
+# *                                                                                       *
+# *                _______  __  .__   __.      ___       __                               *
+# *               |   ____||  | |  \ |  |     /   \     |  |                              *
+# *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+# *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+# *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+# *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
+# *                                                                                       *
+# *      _______ .______    __       _______.  ______    _______   _______                *
+# *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+# *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+# *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+# *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+# *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
+# *****************************************************************************************
+# *                                                                                       *
+# * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+# * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
+# *                                                                                       *
+# * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
+# * by Sean Cooper                                                                        *
+# *                                                                                       *
+# * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
+# *****************************************************************************************
+# * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
+# * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
+# *                                                                                       *
+# * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
+# *                                                                                       *
+# * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
+# * and Sebastian Hammer.                                                                 *
+# *****************************************************************************************
 # System Dependency Check Script for SWR Server
 # This script checks if the server can run on the current system
+#
+# Usage:
+#   ./check_system.sh
+#
+# Prerequisites:
+#   - The SWR server executable (swr) should be present in the same directory as this script.
+#   - The script should be run on a Unix-like system (Linux).
+#   - The following commands should be available: ldd, timeout, chmod, grep, sed.
+#
+# This script will:
+#   - Check for the presence and permissions of the server executable.
+#   - Verify required shared libraries are available.
+#   - Attempt a basic execution test of the server.
 
 # Get the script directory and set up paths dynamically
 SCRIPT_DIR="$(dirname "$0")"

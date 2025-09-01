@@ -39,20 +39,8 @@
  *****************************************************************************************
  *                                SWR OLC Changes module                                 *
  ****************************************************************************************/
-/***************************************************************************
- *  Shadow Wars: the Revenge of Kalos                                      *
- ---------------------------------------------------------------------------
- *  You are allowd to change and modify this code, you may NOT take out    *
- *  the helpfile 'CREATORS', and you must leave in the Greeting,           *
- *  Shadow Wars: the Revenge of Kalos created by Xkilla and Sillviant      *
- *  (c)2001 Xkilla 'Ryan Waliany' (ryan@scv.net)                           *
- *  Sillviant 'Matt Burnett' (sillviant@charter.net)                       *
- ---------------------------------------------------------------------------
- *  Changes snippet by: Xkilla. This is a snippet, you may modify it, but  *
- *  you must leave in Xkilla's credit.                                     *
- ***************************************************************************/
 
-#define CHANGES_SNIPPET
+ #define CHANGES_SNIPPET
 
 #define CHANGES_FILE	SYSTEM_DIR "changes.dat"
 typedef struct changes_data CHANGE_DATA;

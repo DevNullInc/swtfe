@@ -36,6 +36,8 @@
  *                                                                                       *
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
+ *****************************************************************************************
+ *                             SWTFE Constants Module                                    *
  *****************************************************************************************/
 #include <sys/types.h>
 #include <stdio.h>

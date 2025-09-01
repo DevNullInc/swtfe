@@ -37,7 +37,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                                SWR Hotboot module                                     *
+ *                                SWR Editor module                                      *
  *****************************************************************************************
  * Advanced in-game text editor for players and immortals to create & edit game content. *
  ****************************************************************************************/

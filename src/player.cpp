@@ -62,6 +62,9 @@
 #ifndef SB
 #define SB 250
 #endif
+#ifndef SE
+#define SE 240
+#endif
 // Standard library includes for STL and C string usage
 #include <vector>
 #include <string>
@@ -1413,6 +1416,48 @@ int count_obj_in_inventory(CHAR_DATA * ch, int vnum)
     return count;
 }
 
+/*
+ * Helper to send a GMCP event over the descriptor, framing with Telnet IAC SB ... IAC SE
+ * and doubling any IAC bytes inside the payload.
+ */
+static void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *data)
+{
+    if (!d || !event)
+        return;
+
+    std::string sb;
+    size_t event_len = strlen(event);
+    size_t data_len = data ? strlen(data) : 0;
+
+    sb.reserve(6 + event_len + (data_len ? (1 + data_len) : 0));
+
+    sb.push_back((char)IAC);
+    sb.push_back((char)SB);
+
+    /* Many MUD implementations put the literal "GMCP" after SB */
+    sb += "GMCP ";
+    sb += event;
+
+    if (data && data_len > 0)
+    {
+        sb.push_back(' ');
+        /* escape any IAC bytes inside the data by doubling them */
+        for (size_t i = 0; i < data_len; ++i)
+        {
+            unsigned char c = static_cast<unsigned char>(data[i]);
+            if (c == IAC)
+                sb.push_back((char)IAC);
+            sb.push_back((char)c);
+        }
+    }
+
+    sb.push_back((char)IAC);
+    sb.push_back((char)SE);
+
+    /* write_to_descriptor expects an int length and a modifiable buffer pointer */
+    write_to_descriptor(d->descriptor, const_cast<char*>(sb.c_str()), (int)sb.size());
+}
+
 CMDF do_inventory(CHAR_DATA *ch, char *argument)
 {
         OBJ_DATA *obj;
@@ -1497,13 +1542,10 @@ CMDF do_inventory(CHAR_DATA *ch, char *argument)
 #ifndef SE
 #define SE 240
 #endif
-                unsigned char prefix[] = { (unsigned char)IAC, (unsigned char)SB, (unsigned char)201 };
-                unsigned char suffix[] = { (unsigned char)IAC, (unsigned char)SE };
-
-                write_to_buffer(ch->desc, (char*)prefix, sizeof(prefix));
-                write_to_buffer(ch->desc, "GMCP Core.Character.Inventory ", strlen("GMCP Core.Character.Inventory "));
-                write_to_buffer(ch->desc, items.c_str(), (int)items.length());
-                write_to_buffer(ch->desc, (char*)suffix, sizeof(suffix));
+                /* Use centralized helper to send GMCP events with proper framing
+                 * and IAC escaping. send_gmcp_event will send: IAC SB GMCP <event> <data> IAC SE
+                 */
+                send_gmcp_event(ch->desc, "Core.Character.Inventory", items.c_str());
         }
 
         return;

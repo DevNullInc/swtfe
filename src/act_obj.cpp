@@ -37,7 +37,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                                SWR OLC Channel module                                 *
+ *                                Object scripting module                                *
  ****************************************************************************************/
 #include <sys/types.h>
 #include <stdio.h>

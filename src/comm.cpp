@@ -1,8 +1,3 @@
-#include <stdint.h>
-// GCMP (Generic Client Mud Protocol) support
-#ifndef TELOPT_GCMP
-#define TELOPT_GCMP 201
-#endif
 /*****************************************************************************************
  *                      .___________. __    __   _______                                 *
  *                      |           ||  |  |  | |   ____|                                *
@@ -44,7 +39,11 @@
  *****************************************************************************************
  *                               SWR Communication Module                                *
  ****************************************************************************************/
-
+#include <stdint.h>
+// GMCP (Generic Mud Communication Protocol) support
+#ifndef TELOPT_GMCP
+#define TELOPT_GMCP 201
+#endif
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
@@ -99,24 +98,57 @@ bool should_upgrade_hash(const char *hash);
 // Function to check if password needs upgrading to Argon2
 bool should_upgrade_hash(const char *hash);
 
-void send_gcmp_event(DESCRIPTOR_DATA *d, const char *event, const char *data) {
-        unsigned char gcmp_buf[256];
-        int len = 0;
-        gcmp_buf[len++] = IAC;
-        gcmp_buf[len++] = SB;
-        gcmp_buf[len++] = TELOPT_GCMP;
-        // Event name
-        for (const char *p = event; *p && len < 240; ++p)
-                gcmp_buf[len++] = (unsigned char)*p;
-        gcmp_buf[len++] = 0x00; // Null terminator for event
-        // Data (optional)
-        if (data && *data) {
-                for (const char *p = data; *p && len < 250; ++p)
-                        gcmp_buf[len++] = (unsigned char)*p;
+/* Helper to copy a C string into gmcp_buf while escaping IAC (0xFF) bytes.
+ * gmcp_buf: destination buffer
+ * len: pointer to current length (will be updated)
+ * bufsize: size of destination buffer
+ * p: source C string
+ */
+static void copy_and_escape_to_buf(unsigned char *gmcp_buf, int *len, size_t bufsize, const char *p)
+{
+    if (!p)
+        return;
+
+    /* leave room for potential escapes and final IAC SE */
+    while (*p && *len < (int)bufsize - 4) {
+        unsigned char uc = (unsigned char)*p++;
+        if (uc == IAC) {
+            /* Escape 0xFF by doubling */
+            if (*len < (int)bufsize) gmcp_buf[(*len)++] = IAC;
+            if (*len < (int)bufsize) gmcp_buf[(*len)++] = IAC;
+        } else {
+            gmcp_buf[(*len)++] = uc;
         }
-        gcmp_buf[len++] = IAC;
-        gcmp_buf[len++] = SE;
-        write_to_buffer(d, (const char *)gcmp_buf, len);
+    }
+}
+
+void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *data) {
+        /*
+         * Build a GMCP subnegotiation payload according to the common GMCP
+         * convention: "Event.Name <json>". We must frame with IAC SB TELOPT_GMCP
+         * ... IAC SE and escape any embedded IAC bytes by doubling 0xFF.
+         */
+        unsigned char gmcp_buf[1024];
+        int len = 0;
+        /* Start subnegotiation */
+        gmcp_buf[len++] = IAC;
+        gmcp_buf[len++] = SB;
+        gmcp_buf[len++] = TELOPT_GMCP;
+
+        /* Event name */
+        copy_and_escape_to_buf(gmcp_buf, &len, sizeof(gmcp_buf), event);
+
+        /* If we have data, insert a single space separator then copy data */
+        if (data && *data) {
+                if (len < (int)sizeof(gmcp_buf) - 4) gmcp_buf[len++] = ' ';
+                copy_and_escape_to_buf(gmcp_buf, &len, sizeof(gmcp_buf), data);
+        }
+
+        /* End subnegotiation */
+        if (len < (int)sizeof(gmcp_buf) - 2) gmcp_buf[len++] = IAC;
+        if (len < (int)sizeof(gmcp_buf) - 1) gmcp_buf[len++] = SE;
+
+        write_to_buffer(d, (const char *)gmcp_buf, len);
 }
 #ifdef __cplusplus
 extern "C" {
@@ -1206,20 +1238,20 @@ void new_descriptor(int new_desc)
          */
 
         write_to_buffer(dnew, (char *) will_mxp_str, 0);
-        send_gcmp_event(dnew, "Core.Client.MXP", "WILL");
+        send_gmcp_event(dnew, "Core.Client.MXP", "WILL");
 
         /*
          * Mud Sound Protocol 
          */
 
         write_to_buffer(dnew, (char *) will_msp_str, 0);
-        send_gcmp_event(dnew, "Core.Client.MSP", "WILL");
+        send_gmcp_event(dnew, "Core.Client.MSP", "WILL");
 
         /*
          * GMCP (Generic MUD Communication Protocol)
          */
         write_to_buffer(dnew, (char *) will_gmcp_str, 0);
-        send_gcmp_event(dnew, "Core.Client.GMCP", "{\"version\":\"1.0\"}");
+        send_gmcp_event(dnew, "Core.Client.GMCP", "{\"version\":\"1.0\"}");
 
         /*
          * Send the greeting.
@@ -2133,7 +2165,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 // If no input yet, show GCMP LOGIN event and Username prompt for Mudlet compatibility
                 if (argument[0] == '\0')
                 {
-                        send_gcmp_event(d, "Core.Character.Login", NULL);
+                        send_gmcp_event(d, "Core.Character.Login", NULL);
                         write_to_buffer(d, "Username: ", 0);
                         return;
                 }
@@ -2219,7 +2251,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         /*
                          * Old player 
                          */
-                        send_gcmp_event(d, "Core.Character.Password", NULL);
+                        send_gmcp_event(d, "Core.Character.Password", NULL);
                         send_to_desc_color("&BA&zccount &BP&zassword: ", d);
                         send_to_desc_color((char *) echo_off_str, d);
                         if (d->mxp_detected)
@@ -2279,7 +2311,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 {
                 case 'y':
                 case 'Y':
-                        send_gcmp_event(d, "Core.Character.NewPassword", NULL);
+                        send_gmcp_event(d, "Core.Character.NewPassword", NULL);
                         snprintf(buf, MSL,
                                  "\n\r&BM&zake sure to use a password that won't be easily guessed by someone else.\n\r&BP&zick a good password for the account: %s",
                                  echo_off_str);
@@ -2385,7 +2417,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 }
                 if (verify_password(argument, d->account->password))
                 {
-                        send_gcmp_event(d, "Core.Character.ChangePassword", NULL);
+                        send_gmcp_event(d, "Core.Character.ChangePassword", NULL);
                         send_to_desc_color
                                 ("\n\r&BE&znter new password (or press enter to abort):&w ",
                                  d);
@@ -5441,7 +5473,7 @@ void display_prompt(DESCRIPTOR_DATA * d)
                 send_to_char(MXPTAG("/Prompt"), ch);
         if (d)
         {
-                send_gcmp_event(d, "Core.Character.Prompt", NULL);
+                send_gmcp_event(d, "Core.Character.Prompt", NULL);
                 /* Send Char.Status for web dashboard integration */
                 char status_buf[512];
                 snprintf(status_buf, sizeof(status_buf),
@@ -5449,7 +5481,7 @@ void display_prompt(DESCRIPTOR_DATA * d)
                          ch->name, ch->top_level, ch->hit, ch->max_hit, 
                          ch->endurance, ch->max_endurance,
                          position_name(ch->position));
-                send_gcmp_event(d, "Core.Character.Status", status_buf);
+                send_gmcp_event(d, "Core.Character.Status", status_buf);
         }
         return;
 }

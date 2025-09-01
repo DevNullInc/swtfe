@@ -40,7 +40,7 @@
  *                            Ban module by Shaddai                                      *
  *****************************************************************************************
  * This module was originally for SMAUG coded by Shaddai, but has since been modified for* 
- * Dark Warriors and SWR.                                                                *
+ * SWTFE                .                                                                *
  *****************************************************************************************
  * Player banning and access control system for administrators to manage game security.  *
  ****************************************************************************************/

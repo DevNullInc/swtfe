@@ -20,9 +20,26 @@
  *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
  *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
+ *                                                                                       *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
+ *                                                                                       *
+ * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
+ * by Sean Cooper                                                                        *
+ *                                                                                       *
+ * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
  *****************************************************************************************
- *                                SWR OLC Channel module                                 *
- ****************************************************************************************/
+ * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
+ * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
+ *                                                                                       *
+ * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
+ *                                                                                       *
+ * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
+ * and Sebastian Hammer.                                                                 *
+ *****************************************************************************************
+ *                            Information handling                                       *
+ *****************************************************************************************/
+
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -48,7 +65,7 @@
 #include "greet.h"
 #include "password.h"
 
-void send_gcmp_event(DESCRIPTOR_DATA *desc, const char *event, const char *json);
+void send_gmcp_event(DESCRIPTOR_DATA *desc, const char *event, const char *json);
 
 char     *trim(const char *str);
 void      show_visible_affects_to_char(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -1100,7 +1117,7 @@ CMDF do_look(CHAR_DATA * ch, char *argument)
                         snprintf(room_buf, sizeof(room_buf),
                                  "{\"num\":%d,\"name\":\"%s\",\"desc\":\"%s\"}",
                                  ch->in_room->vnum, ch->in_room->name, clean_desc);
-                        send_gcmp_event(ch->desc, "Core.Room.Info", room_buf);
+                        send_gmcp_event(ch->desc, "Core.Room.Info", room_buf);
 
                         /* Send Area.Weather GMCP/GCMP event */
                         /* If area weather support is added, send Area.Weather GMCP/GCMP event here. */

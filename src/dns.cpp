@@ -1,31 +1,41 @@
 /*****************************************************************************************
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
- *  ________  __  __  ________       ______  ______  __   __  ________  __              *
- * /_______/\/_/\/_/\/______/\     /_____/\/_____/\/_/\ /_/\/______/\/_/\             *
- * \__.::._\/\:\ \:\ \::::_\/     \::::_\/\:::_ \ \:\ \\ \ \::::_\/_\:\ \            *
- *   /::\ \  \:\ \:\ \:\/___/\     \:\/___/\:(_) ) )\:\ \\ \ \:\/___/\\:\ \           *
- *  _\::\ \__\:\ \:\ \::___\/      \:::_ \ \: __ `\ \:\_/.:\ \::___\/_\:\ \____       *
- * /__\::\__/\\:\_\:\ \:\____/\      \:\ \ \ \ \ `\ \ \ ..::/ /\:\____/\\:\/___/\      *
- * \________\/ \_____\/ \_____\/       \__\/ \_\  \__\/ \___/_/ \_____\/ \_____\/      *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *                       ______  ______  ______  ______  ______  _____   ______        *
- *                      /_____/\/_____/\/_____/\/_____/\/_____/\/___/\/_____/\       *
- *                      \::::_\/\:::_ \ \:\ \ \ \::::_\/\::::_\/\::\ \\:::_ \ \      *
- *                       \:\/___/\:(_) )\\ \:\ \\ \:\/___/\:\/___/\::\/_\\:(_) ) )     *
- *                        \:::_ \ \: __ `\ \:\ \\ \::___\/ \::___\/ \::\ \\: __ `\ \   *
- *                         \:\ \ \ \ \ `\ \ \:\_\\ \:\____/\ \:\____/\ \::\ \ \ `\ \ \  *
- *                          \__\/ \_\  \__\/\_____\\_____\/ \_____\/ \__\/ \_\  \__\/ *
- *                                                                                       *
- *                               T H E   F I N A L   E P I S O D E                       *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
  *                                                                                       *
  * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
+ *****************************************************************************************
+ * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
+ * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
+ *                                                                                       *
+ * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
+ *                                                                                       *
+ * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
+ * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
  *                           ^     +----- |  / ^     ^ |     | +-\                       *
  *                          / \    |      | /  |\   /| |     | |  \                      *
@@ -37,14 +47,6 @@
  * AFKMud Copyright 1997-2003 by Roger Libiez (Samson), Levi Beckerson (Whir),           *
  * Michael Ward (Tarl), Erik Wolfe (Dwip), Cameron Carroll (Cam), Cyberfox, Karangi,     *
  * Rathian, Raine, and Adjani. All Rights Reserved.                                      *
- *                                                                                       *
- * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
- * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
- *                                                                                       *
- * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
- *                                                                                       *
- * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
- * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
  *                          SWR Hotboot module                                           *
  ****************************************************************************************/
