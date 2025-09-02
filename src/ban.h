@@ -38,79 +38,139 @@
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
  * This module was originally for SMAUG coded by Shaddai, but has since been modified for* 
- * Dark Warriors and SWR.                                                                *
+ * SWTFE with enhanced time handling and security features.                               *
  *****************************************************************************************
- *                $Id: ban.h 1330 2005-12-05 03:23:24Z halkeye $                  *
+ *                            Ban System Header                                          *
  ****************************************************************************************/
 
-#ifndef _BAN_H_
-#define _BAN_H_
+#ifndef __BAN_H__
+#define __BAN_H__
 
+#include <time.h>
+
+// ============================================================================
+// Forward Declarations
+// ============================================================================
 typedef struct ban_data BAN_DATA;
 typedef struct reserve_data RESERVE_DATA;
 
-extern RESERVE_DATA *first_reserved;
-extern RESERVE_DATA *last_reserved;
+// ============================================================================
+// Configuration Constants
+// ============================================================================
 
-#define RESERVED_LIST	"reserved.lst"  /* List of reserved names   */
-
-/*
- * Yeesh.. remind us of the old MERC ban structure? :)
- */
-struct reserve_data
-{
-        RESERVE_DATA *next;
-        RESERVE_DATA *prev;
-        char     *name;
-};
-
-/*
- * Ban Types --- Shaddai
- */
+// Ban types
 #define BAN_SITE        1
 #define BAN_CLASS       2
 #define BAN_RACE        3
 #define BAN_WARN        -1
 
+// Ban levels
+#define BAN_NEWBIE      1
+#define BAN_MORTAL      50
+#define BAN_ALL         999
+
+// Time constants (in seconds for consistency)
+#define SECONDS_PER_DAY     86400
+#define SECONDS_PER_HOUR    3600
+#define SECONDS_PER_MINUTE  60
+
+// Ban duration limits (in days)
+#define MIN_BAN_DURATION    1
+#define MAX_BAN_DURATION    1000
+#define PERMANENT_BAN       -1
+
+// File constants
+#define RESERVED_LIST       "reserved.lst"
+
+// ============================================================================
+// Data Structures
+// ============================================================================
+
 /*
- * Site ban structure.
+ * Enhanced ban structure with proper time handling
  */
 struct ban_data
 {
-        BAN_DATA *next;
-        BAN_DATA *prev;
-        char     *name; /* Name of site/class/race banned */
-        char     *user; /* Name of user from site */
-        char     *note; /* Why it was banned */
-        char     *ban_by;   /* Who banned this site */
-        char     *ban_time; /* Time it was banned */
-        int       flag; /* Class or Race number */
-        int       unban_date;   /* When ban expires */
-        sh_int    duration; /* How long it is banned for */
-        sh_int    level;    /* Level that is banned */
-        bool      warn; /* Echo on warn channel */
-        bool      prefix;   /* Use of *site */
-        bool      suffix;   /* Use of site* */
+    BAN_DATA* next;                 // Linked list pointers
+    BAN_DATA* prev;
+    
+    // Ban target information
+    char* name;                     // Name of site/class/race banned
+    char* user;                     // Name of user from site (for site bans)
+    int flag;                       // Class or Race number
+    
+    // Ban configuration
+    int level;                      // Level that is banned
+    bool warn;                      // Echo on warn channel
+    bool prefix;                    // Use of *site wildcard
+    bool suffix;                    // Use of site* wildcard
+    
+    // Time management (using time_t for consistency)
+    time_t ban_time;                // When ban was created (FIXED: was char*)
+    time_t unban_date;              // When ban expires (FIXED: was int)
+    int duration_days;              // Original duration in days (FIXED: was sh_int)
+    
+    // Administrative information
+    char* ban_by;                   // Who banned this site
+    char* note;                     // Why it was banned
 };
 
-extern BAN_DATA *first_ban;
-extern BAN_DATA *last_ban;
-extern BAN_DATA *first_ban_class;
-extern BAN_DATA *last_ban_class;
-extern BAN_DATA *first_ban_race;
-extern BAN_DATA *last_ban_race;
+/*
+ * Reserved name structure
+ */
+struct reserve_data
+{
+    RESERVE_DATA* next;
+    RESERVE_DATA* prev;
+    char* name;
+};
 
-/* ban.c */
-int       add_ban
-args((CHAR_DATA * ch, char *arg1, char *arg2, int time, int type));
-void show_bans args((CHAR_DATA * ch, int type));
-void save_banlist args((void));
-void load_banlist args((void));
-bool check_total_bans args((DESCRIPTOR_DATA * d));
-bool check_bans args((CHAR_DATA * ch, int type));
+// ============================================================================
+// Global Variables
+// ============================================================================
+extern BAN_DATA* first_ban;
+extern BAN_DATA* last_ban;
+extern BAN_DATA* first_ban_class;
+extern BAN_DATA* last_ban_class;
+extern BAN_DATA* first_ban_race;
+extern BAN_DATA* last_ban_race;
 
-/* reserve */
-void sort_reserved args((RESERVE_DATA * pRes));
-bool is_reserved_name args((char *name));
-void load_reserved args((void));
-#endif
+extern RESERVE_DATA* first_reserved;
+extern RESERVE_DATA* last_reserved;
+
+// ============================================================================
+// Function Declarations
+// ============================================================================
+
+// Core ban management
+void load_banlist(void);
+void save_banlist(void);
+bool check_total_bans(DESCRIPTOR_DATA* d);
+bool check_bans(CHAR_DATA* ch, int type);
+
+// Ban operations
+int add_ban(CHAR_DATA* ch, char* arg1, char* arg2, int time, int type);
+void show_bans(CHAR_DATA* ch, int type);
+bool check_expire(BAN_DATA* ban);
+void dispose_ban(BAN_DATA* ban, int type);
+void free_ban(BAN_DATA* ban);
+
+// Time utilities
+time_t calculate_unban_time(int duration_days);
+bool is_ban_expired(const BAN_DATA* ban);
+char* format_ban_time_remaining(const BAN_DATA* ban);
+char* format_ban_creation_time(const BAN_DATA* ban);
+
+// Reserved names
+void load_reserved(void);
+void save_reserved(void);
+bool is_reserved_name(char* name);
+void sort_reserved(RESERVE_DATA* pRes);
+
+// Command functions
+CMDF do_ban(CHAR_DATA* ch, char* argument);
+CMDF do_allow(CHAR_DATA* ch, char* argument);
+CMDF do_warn(CHAR_DATA* ch, char* argument);
+CMDF do_reserve(CHAR_DATA* ch, char* argument);
+
+#endif /* __BAN_H__ */

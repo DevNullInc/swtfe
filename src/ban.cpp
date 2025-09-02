@@ -40,7 +40,7 @@
  *                            Ban module by Shaddai                                      *
  *****************************************************************************************
  * This module was originally for SMAUG coded by Shaddai, but has since been modified for* 
- * SWTFE                .                                                                *
+ * SWTFE with enhanced time handling, security features, and modern C++ practices.        *
  *****************************************************************************************
  * Player banning and access control system for administrators to manage game security.  *
  ****************************************************************************************/
@@ -49,25 +49,150 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <time.h>
+#include <ctime>
 #include "mud.h"
 #include "ban.h"
 #include "editor.h"
 #include "races.h"
 
-/* Local functions */
-void fread_ban args((FILE * fp, int type));
-bool check_expire args((BAN_DATA * ban));
-void dispose_ban args((BAN_DATA * ban, int type));
-void free_ban args((BAN_DATA * pban));
+// ============================================================================
+// Constants and Configuration
+// ============================================================================
+namespace {
+    // Error messages
+    const char* const SYNTAX_BAN = 
+        "Syntax: ban race  <race>    <type> <duration>\n\r"
+        "Syntax: ban class <class>   <type> <duration>\n\r"
+        "Syntax: ban site  <site>    <type> <duration>\n\r"
+        "Syntax: ban show  <field>   <number>\n\r"
+        "Duration is the length of the ban in days (-1 for permanent).\n\r"
+        "Type can be: newbie, mortal, all, warn or level.\n\r"
+        "In ban show, the <field> is site, race or class.\n\r";
+        
+    const char* const SYNTAX_ALLOW = 
+        "Syntax: allow race  <race>\n\r"
+        "Syntax: allow class <class>\n\r"
+        "Syntax: allow site  <site>\n\r";
+        
+    const char* const SYNTAX_WARN = 
+        "Syntax: warn race  <field>\n\r"
+        "Syntax: warn site  <field>\n\r"
+        "Syntax: warn class <field>\n\r"
+        "Field is either #(ban_number) or the site/class/race.\n\r"
+        "Example: warn class #1\n\r";
+        
+    // Status messages
+    const char* const MSG_MONSTER_CANT_BAN = "Monsters are too dumb to do that!\n\r";
+    const char* const MSG_NO_DESCRIPTOR = "No descriptor available.\n\r";
+    const char* const MSG_INVALID_TIME = "Time value is -1 (forever) or from 1 to 1000.\n\r";
+    const char* const MSG_RESTRICTED_SUBSTATE = "You cannot use this command from within another command.\n\r";
+    
+    // Time formatting
+    const char* const TIME_FORMAT_DISPLAY = "%Y-%m-%d %H:%M:%S";
+    const char* const TIME_FORMAT_FILE = "%24.24s";
+}
 
-/* Global Variables */
+// ============================================================================
+// Global Variables
+// ============================================================================
+BAN_DATA* first_ban = nullptr;
+BAN_DATA* last_ban = nullptr;
+BAN_DATA* first_ban_class = nullptr;
+BAN_DATA* last_ban_class = nullptr;
+BAN_DATA* first_ban_race = nullptr;
+BAN_DATA* last_ban_race = nullptr;
 
-BAN_DATA *first_ban;
-BAN_DATA *last_ban;
-BAN_DATA *first_ban_class;
-BAN_DATA *last_ban_class;
-BAN_DATA *first_ban_race;
-BAN_DATA *last_ban_race;
+RESERVE_DATA* first_reserved = nullptr;
+RESERVE_DATA* last_reserved = nullptr;
+
+// ============================================================================
+// Forward Declarations
+// ============================================================================
+void fread_ban(FILE* fp, int type);
+void dispose_ban(BAN_DATA* ban, int type);
+void free_ban(BAN_DATA* pban);
+
+// ============================================================================
+// Section: Time Management Utilities
+// ============================================================================
+
+/*
+ * Calculate the unban time based on duration in days
+ * Returns the absolute time when the ban should expire
+ */
+time_t calculate_unban_time(int duration_days)
+{
+    if (duration_days == PERMANENT_BAN)
+        return PERMANENT_BAN;  // Permanent ban
+        
+    if (duration_days < MIN_BAN_DURATION || duration_days > MAX_BAN_DURATION)
+        return PERMANENT_BAN;  // Invalid duration defaults to permanent
+        
+    return current_time + (duration_days * SECONDS_PER_DAY);
+}
+
+/*
+ * Check if a ban has expired
+ * Handles both permanent bans and timed bans properly
+ */
+bool is_ban_expired(const BAN_DATA* ban)
+{
+    if (!ban)
+        return true;  // Invalid ban is considered expired
+        
+    if (ban->unban_date == PERMANENT_BAN)
+        return false;  // Permanent bans never expire
+        
+    return (ban->unban_date <= current_time);
+}
+
+/*
+ * Format the time remaining on a ban for display
+ * Returns a formatted string showing days/hours remaining
+ */
+char* format_ban_time_remaining(const BAN_DATA* ban)
+{
+    static char buf[256];
+    
+    if (!ban)
+        return "Invalid";
+        
+    if (ban->unban_date == PERMANENT_BAN)
+        return "Permanent";
+        
+    if (is_ban_expired(ban))
+        return "Expired";
+        
+    time_t remaining = ban->unban_date - current_time;
+    int days = remaining / SECONDS_PER_DAY;
+    int hours = (remaining % SECONDS_PER_DAY) / SECONDS_PER_HOUR;
+    
+    if (days > 0)
+        snprintf(buf, sizeof(buf), "%d days, %d hours", days, hours);
+    else if (hours > 0)
+        snprintf(buf, sizeof(buf), "%d hours", hours);
+    else
+        snprintf(buf, sizeof(buf), "< 1 hour");
+        
+    return buf;
+}
+
+/*
+ * Format the ban creation time for display
+ * Returns a human-readable timestamp
+ */
+char* format_ban_creation_time(const BAN_DATA* ban)
+{
+    static char buf[64];
+    
+    if (!ban || ban->ban_time == 0)
+        return "Unknown";
+        
+    struct tm* tm_info = localtime(&ban->ban_time);
+    strftime(buf, sizeof(buf), TIME_FORMAT_DISPLAY, tm_info);
+    
+    return buf;
+}
 
 /*
  * Load all those nasty bans up :)
@@ -152,7 +277,7 @@ void fread_ban(FILE * fp, int type)
         pban->name = fread_string_nohash(fp);
         pban->user = NULL;
         pban->level = fread_number(fp);
-        pban->duration = fread_number(fp);
+        pban->duration_days = fread_number(fp);
         pban->unban_date = fread_number(fp);
         if (type == BAN_SITE)
         {   /* Sites have 2 extra numbers written out */
@@ -161,7 +286,7 @@ void fread_ban(FILE * fp, int type)
         }
         pban->warn = fread_number(fp);
         pban->ban_by = fread_string_nohash(fp);
-        pban->ban_time = fread_string_nohash(fp);
+        pban->ban_time = fread_number(fp);
         pban->note = fread_string(fp);
 
         /*
@@ -268,10 +393,10 @@ void save_banlist(void)
                         fprintf(fp, "%s@%s~\n", pban->user, pban->name);
                 else
                         fprintf(fp, "%s~\n", pban->name);
-                fprintf(fp, "%d %d %d %d %d %d\n", pban->level,
-                        pban->duration, pban->unban_date, pban->prefix,
+                fprintf(fp, "%d %d %ld %d %d %d\n", pban->level,
+                        pban->duration_days, pban->unban_date, pban->prefix,
                         pban->suffix, pban->warn);
-                fprintf(fp, "%s~\n%s~\n%s~\n", pban->ban_by, pban->ban_time,
+                fprintf(fp, "%s~\n%ld~\n%s~\n", pban->ban_by, pban->ban_time,
                         pban->note);
         }
 
@@ -283,9 +408,9 @@ void save_banlist(void)
         {
                 fprintf(fp, "RACE\n");
                 fprintf(fp, "%s~\n", pban->name);
-                fprintf(fp, "%d %d %d %d\n", pban->level, pban->duration,
+                fprintf(fp, "%d %d %ld %d\n", pban->level, pban->duration_days,
                         pban->unban_date, pban->warn);
-                fprintf(fp, "%s~\n%s~\n%s~\n", pban->ban_by, pban->ban_time,
+                fprintf(fp, "%s~\n%ld~\n%s~\n", pban->ban_by, pban->ban_time,
                         pban->note);
         }
 
@@ -297,9 +422,9 @@ void save_banlist(void)
         {
                 fprintf(fp, "CLASS\n");
                 fprintf(fp, "%s~\n", pban->name);
-                fprintf(fp, "%d %d %d %d\n", pban->level, pban->duration,
+                fprintf(fp, "%d %d %ld %d\n", pban->level, pban->duration_days,
                         pban->unban_date, pban->warn);
-                fprintf(fp, "%s~\n%s~\n%s~\n", pban->ban_by, pban->ban_time,
+                fprintf(fp, "%s~\n%ld~\n%s~\n", pban->ban_by, pban->ban_time,
                         pban->note);
         }
         fprintf(fp, "END\n");   /* File must have an END even if empty */
@@ -941,15 +1066,7 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                                                                     level ==
                                                                     BAN_WARN)
                                                                         temp->warn = TRUE;
-                                                                snprintf(buf,
-                                                                         MSL,
-                                                                         "%24.24s",
-                                                                         ctime
-                                                                         (&current_time));
-                                                                temp->ban_time
-                                                                        =
-                                                                        str_dup
-                                                                        (buf);
+                                                                temp->ban_time = current_time;
                                                                 if (temp->
                                                                     ban_by)
                                                                         DISPOSE(temp->ban_by);
@@ -1012,15 +1129,7 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                                                                     level ==
                                                                     BAN_WARN)
                                                                         temp->warn = TRUE;
-                                                                snprintf(buf,
-                                                                         MSL,
-                                                                         "%24.24s",
-                                                                         ctime
-                                                                         (&current_time));
-                                                                temp->ban_time
-                                                                        =
-                                                                        str_dup
-                                                                        (buf);
+                                                                temp->ban_time = current_time;
                                                                 if (temp->
                                                                     ban_by)
                                                                         DISPOSE(temp->ban_by);
@@ -1121,15 +1230,7 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                                                                         temp->warn = TRUE;
                                                                 temp->level =
                                                                         level;
-                                                                snprintf(buf,
-                                                                         MSL,
-                                                                         "%24.24s",
-                                                                         ctime
-                                                                         (&current_time));
-                                                                temp->ban_time
-                                                                        =
-                                                                        str_dup
-                                                                        (buf);
+                                                                temp->ban_time = current_time;
                                                                 if (temp->
                                                                     ban_by)
                                                                         DISPOSE(temp->ban_by);
@@ -1172,18 +1273,17 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                                         return 0;
                                 }
                         }
-                        snprintf(buf, MSL, "%24.24s", ctime(&current_time));
-                        pban->ban_time = str_dup(buf);
+                        pban->ban_time = current_time;
                         if (time > 0)
                         {
-                                pban->duration = time;
+                                pban->duration_days = time;
                                 tms = localtime(&current_time);
                                 tms->tm_mday += time;
                                 pban->unban_date = mktime(tms);
                         }
                         else
                         {
-                                pban->duration = -1;
+                                pban->duration_days = -1;
                                 pban->unban_date = -1;
                         }
                         if (pban->level == BAN_WARN)
@@ -1211,17 +1311,17 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                         stop_editing(ch);
                         ch->substate = ch->tempnum;
                         save_banlist();
-                        if (pban->duration > 0)
+                        if (pban->duration_days > 0)
                         {
                                 if (!pban->user)
                                         ch_printf(ch,
                                                   "%s banned for %d days.\n\r",
-                                                  pban->name, pban->duration);
+                                                  pban->name, pban->duration_days);
                                 else
                                         ch_printf(ch,
                                                   "%s@%s banned for %d days.\n\r",
                                                   pban->user, pban->name,
-                                                  pban->duration);
+                                                  pban->duration_days);
                         }
                         else
                         {
@@ -1271,7 +1371,7 @@ void show_bans(CHAR_DATA * ch, int type)
                                              bnum,
                                              (pban->warn) ? "YES" : "no",
                                              pban->level, pban->ban_time,
-                                             pban->ban_by, pban->duration,
+                                             pban->ban_by, pban->duration_days,
                                              (pban->prefix) ? '*' : ' ',
                                              pban->name,
                                              (pban->suffix) ? '*' : ' ');
@@ -1281,7 +1381,7 @@ void show_bans(CHAR_DATA * ch, int type)
                                              bnum,
                                              (pban->warn) ? "YES" : "no",
                                              pban->level, pban->ban_time,
-                                             pban->ban_by, pban->duration,
+                                             pban->ban_by, pban->duration_days,
                                              pban->user,
                                              (pban->prefix) ? '*' : ' ',
                                              pban->name,
@@ -1313,7 +1413,7 @@ void show_bans(CHAR_DATA * ch, int type)
         for (bnum = 1; pban; pban = pban->next, bnum++)
                 pager_printf(ch, "[%2d] %-4s (%2d) %-24s %-15s %4d  %s\n\r",
                              bnum, (pban->warn) ? "YES" : "no", pban->level,
-                             pban->ban_time, pban->ban_by, pban->duration,
+                             pban->ban_time, pban->ban_by, pban->duration_days,
                              pban->name);
         return;
 }
@@ -1511,19 +1611,27 @@ bool check_bans(CHAR_DATA * ch, int type)
         return FALSE;
 }
 
-bool check_expire(BAN_DATA * pban)
+/*
+ * Enhanced ban expiration check with proper time handling
+ * Replaces the old check_expire function with better logic and modern C++
+ */
+bool check_expire(BAN_DATA* pban)
 {
-        char      buf[MAX_STRING_LENGTH];
-
-        if (pban->unban_date < 0)
-                return FALSE;
-        if (pban->unban_date <= current_time)
-        {
-                snprintf(buf, MSL, "%s ban has expired.", pban->name);
-                log_string_plus(buf, LOG_HIGH, sysdata.log_level);
-                return TRUE;
-        }
-        return FALSE;
+    if (!pban)
+        return true;
+        
+    // Use the new time utilities for consistent handling
+    if (is_ban_expired(pban))
+    {
+        char buf[MAX_STRING_LENGTH];
+        snprintf(buf, MSL, "%s ban has expired (%s).", 
+                pban->name ? pban->name : "unknown",
+                format_ban_creation_time(pban));
+        log_string_plus(buf, LOG_HIGH, sysdata.log_level);
+        return true;
+    }
+    
+    return false;
 }
 
 void dispose_ban(BAN_DATA * pban, int type)
@@ -1557,23 +1665,16 @@ void free_ban(BAN_DATA * pban)
 {
         if (pban->name)
                 DISPOSE(pban->name);
-        if (pban->ban_time)
-                DISPOSE(pban->ban_time);
         if (pban->note)
                 STRFREE(pban->note);
         if (pban->user)
                 DISPOSE(pban->user);
         if (pban->ban_by)
                 DISPOSE(pban->ban_by);
-        if (pban->ban_time)
-                DISPOSE(pban->ban_time);
         DISPOSE(pban);
 }
 
 /* Reserve stuff */
-
-RESERVE_DATA *first_reserved;
-RESERVE_DATA *last_reserved;
 
 void save_reserved(void)
 {
