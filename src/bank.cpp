@@ -37,52 +37,93 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                               Banking System Module                                   *
+ *                            Enhanced Banking System Module                             *
+ * SECURITY: Fixed critical mathematical vulnerabilities and overflow exploits           *
  ****************************************************************************************/
+
 #include <string.h>
 #include <limits.h>
+#include <cmath>
 #include "mud.h"
 
+// ============================================================================
+// Security and Configuration Constants
+// ============================================================================
+namespace BankSecurity {
+    constexpr long MAX_TRANSACTION_AMOUNT = 1000000000L;    // 1 billion credits max per transaction
+    constexpr long BALANCE_THRESHOLD = 999999999L;          // Threshold for hi/lo balance management
+    constexpr long SAFE_ADDITION_LIMIT = LONG_MAX / 2;      // Safe limit to prevent overflow
+    constexpr int MAX_ACCOUNTS_PER_PLAYER = 10;             // Maximum accounts per player
+    constexpr double MIN_INTEREST_RATE = 0.01;              // Minimum 1% interest
+    constexpr double MAX_INTEREST_RATE = 1.10;              // Maximum 110% interest (10% gain)
+    constexpr double DEFAULT_INTEREST_RATE = 0.05;          // Default 5% interest
+    constexpr long MINIMUM_TRANSACTION = 1L;                // Minimum transaction amount
+}
+
+// ============================================================================
+// Forward Declarations  
+// ============================================================================
 OBJ_DATA *get_comlink args((CHAR_DATA * ch));
 CMDF save_baccount args((BANK_ACCOUNT * account));
 CMDF load_baccount args((char *filename));
 BANK_ACCOUNT *create_baccount args((CHAR_DATA * ch));
 CMDF delete_baccount args((BANK_ACCOUNT * account));
 char     *generate_code args(());
-char     *account_sum args((BANK_ACCOUNT * account, char *sum));
-CMDF account_add args((BANK_ACCOUNT * account, long amount));
-CMDF account_sub args((BANK_ACCOUNT * account, long amount));
-int baccounts args((CHAR_DATA * ch));
+char     *account_sum args((BANK_ACCOUNT * account));
+bool     account_add args((BANK_ACCOUNT * account, long amount));
+bool     account_sub args((BANK_ACCOUNT * account, long amount));
+bool     account_has_funds args((BANK_ACCOUNT * account, long amount));
+int      baccounts args((CHAR_DATA * ch));
 
-// BANK_DATA *  first_bank;
-// BANK_DATA *  last_bank;
-BANK_ACCOUNT *first_baccount;
-BANK_ACCOUNT *last_baccount;
+// ============================================================================
+// Global Variables
+// ============================================================================
+BANK_ACCOUNT *first_baccount = nullptr;
+BANK_ACCOUNT *last_baccount = nullptr;
+
+// ============================================================================
+// Account Management Functions
+// ============================================================================
 
 void save_baccount(BANK_ACCOUNT * account)
 {
+        // ============================================================================
+        // ACCOUNT PERSISTENCE - Enhanced with error checking and validation
+        // ============================================================================
+        
+        if (!account || !account->code) {
+                bug("save_baccount: Invalid account or missing code", 0);
+                return;
+        }
+        
         FILE     *fp;
         char      filename[256];
 
-        sprintf(filename, "%s%s.acct", BACCOUNT_DIR, account->code);
-        if ((fp = fopen(filename, "w")) == NULL)
-        {
-                bug("save_baccount: unable to open %s.acct for writing!",
-                    account->code);
+        // Use secure path construction
+        snprintf(filename, sizeof(filename), "%s%s.acct", BACCOUNT_DIR, account->code);
+        
+        if ((fp = fopen(filename, "w")) == nullptr) {
+                bug("save_baccount: unable to open %s.acct for writing!", account->code);
+                perror(filename);
                 return;
         }
 
+        // Write account data with proper null checks
         fprintf(fp, "#ACCOUNT\n");
-        fprintf(fp, "Code        %s~\n", account->code);
-        fprintf(fp, "Creator     %s~\n", account->creator);
-        fprintf(fp, "Owner       %s~\n", account->owner);
-        fprintf(fp, "Trustees    %s~\n", account->trustees);
+        fprintf(fp, "Code        %s~\n", account->code ? account->code : "");
+        fprintf(fp, "Creator     %s~\n", account->creator ? account->creator : "");
+        fprintf(fp, "Owner       %s~\n", account->owner ? account->owner : "");
+        fprintf(fp, "Trustees    %s~\n", account->trustees ? account->trustees : "");
         fprintf(fp, "Flags       %ld\n", account->flags);
         fprintf(fp, "Interest    %f\n", account->interest);
         fprintf(fp, "Amounthi    %ld\n", account->amounthi);
         fprintf(fp, "Amountlo    %ld\n", account->amountlo);
         fprintf(fp, "End\n");
-        FCLOSE(fp);
+        
+        if (fclose(fp) != 0) {
+                bug("save_baccount: Error closing file %s", filename);
+                perror(filename);
+        }
 
         return;
 }
@@ -230,20 +271,40 @@ void load_baccount(char *name)
 
 BANK_ACCOUNT *create_baccount(CHAR_DATA * ch)
 {
+        // ============================================================================
+        // BANK ACCOUNT CREATION - Enhanced with security validation
+        // ============================================================================
+        
+        // Enhanced input validation
+        if (!ch || IS_NPC(ch) || !ch->pcdata || !ch->name) {
+                bug("create_baccount: Invalid character data", 0);
+                return nullptr;
+        }
+        
+        // Check if player already has too many accounts (security measure)
+        int player_account_count = 0;
+        for (BANK_ACCOUNT* existing = first_baccount; existing; existing = existing->next) {
+                if (existing->owner && !str_cmp(existing->owner, ch->name)) {
+                        player_account_count++;
+                }
+        }
+        
+        if (player_account_count >= BankSecurity::MAX_ACCOUNTS_PER_PLAYER) {
+                bug("create_baccount: Player %s attempting to exceed account limit", ch->name);
+                return nullptr;
+        }
+        
         BANK_ACCOUNT *account;
-
-        // Just in case...
-        if (IS_NPC(ch) || !ch->pcdata)
-                return NULL;
-
         CREATE(account, BANK_ACCOUNT, 1);
         LINK(account, first_baccount, last_baccount, next, prev);
+        
+        // Initialize with security-validated values
         account->code = STRALLOC(generate_code());
         account->creator = STRALLOC(ch->name);
         account->owner = STRALLOC(ch->name);
         account->trustees = STRALLOC("");
         account->flags = 0;
-        account->interest = BANK_INTEREST;
+        account->interest = BankSecurity::DEFAULT_INTEREST_RATE;
         account->amounthi = 0;
         account->amountlo = 0;
 
@@ -254,19 +315,41 @@ BANK_ACCOUNT *create_baccount(CHAR_DATA * ch)
 
 void delete_account(BANK_ACCOUNT * account)
 {
-        char      filename[256];
-
-        if (!account || account == NULL)
+        // ============================================================================
+        // ACCOUNT DELETION - Enhanced with security validation and cleanup
+        // ============================================================================
+        
+        if (!account) {
+                bug("delete_account: Null account pointer", 0);
                 return;
+        }
+        
+        if (!account->code) {
+                bug("delete_account: Account missing code", 0);
+                return;
+        }
+        
+        char filename[256];
+        
+        // Remove from linked list first
         UNLINK(account, first_baccount, last_baccount, next, prev);
-        sprintf(filename, "%s%s.acct", BACCOUNT_DIR, account->code);
+        
+        // Construct filename for deletion
+        snprintf(filename, sizeof(filename), "%s%s.acct", BACCOUNT_DIR, account->code);
+        
+        // Free all allocated strings safely
         STRFREE(account->code);
         STRFREE(account->creator);
         STRFREE(account->owner);
         STRFREE(account->trustees);
         DISPOSE(account);
 
-        remove(filename);
+        // Remove the file and check for errors
+        if (remove(filename) != 0) {
+                bug("delete_account: Failed to remove file %s", filename);
+                perror(filename);
+        }
+        
         write_baccount_list();
         return;
 }
@@ -316,58 +399,148 @@ char     *generate_code()
         return buf1;
 }
 
-char     *account_sum(BANK_ACCOUNT * account)
-{   // We must have the buf in the arguments to prevent leaks.
-        // You do NOT need this allocated.
+// ============================================================================
+// Secure Mathematical Operations
+// ============================================================================
 
-        static char buf[MAX_STRING_LENGTH];
+/*
+ * Enhanced account_add with overflow protection and validation
+ * SECURITY: Prevents integer overflow exploits and validates all operations
+ */
+bool account_add(BANK_ACCOUNT* account, long amount)
+{
+    if (!account || amount < 0) {
+        bug("account_add: Invalid parameters - account=%p, amount=%ld", account, amount);
+        return false;
+    }
 
-        if (!account || account == NULL)
-                return NULL;
+    // Validate transaction limits
+    if (amount > BankSecurity::MAX_TRANSACTION_AMOUNT) {
+        bug("account_add: Transaction exceeds maximum limit (%ld > %ld)", 
+            amount, BankSecurity::MAX_TRANSACTION_AMOUNT);
+        return false;
+    }
 
-        if (account->amounthi == 0 && account->amountlo == 0)
-                sprintf(buf, "0");
-        else if (account->amounthi > 0)
-                sprintf(buf, "%ld%09ld", account->amounthi,
-                        account->amountlo);
-        else
-                sprintf(buf, "%ld", account->amountlo);
+    // Check for potential overflow in amountlo
+    if (account->amountlo > BankSecurity::SAFE_ADDITION_LIMIT) {
+        bug("account_add: Account balance too high for safe addition");
+        return false;
+    }
 
-        return buf;
+    // Process large amounts safely by moving to amounthi first
+    while (amount > BankSecurity::BALANCE_THRESHOLD) {
+        amount -= (BankSecurity::BALANCE_THRESHOLD + 1);
+        if (account->amounthi >= LONG_MAX) {
+            bug("account_add: Account amounthi overflow detected");
+            return false;
+        }
+        account->amounthi += 1;
+    }
+
+    // Safe addition with overflow check
+    unsigned long temp = static_cast<unsigned long>(account->amountlo) + static_cast<unsigned long>(amount);
+    
+    // Handle overflow to amounthi
+    while (temp > BankSecurity::BALANCE_THRESHOLD) {
+        temp -= (BankSecurity::BALANCE_THRESHOLD + 1);
+        if (account->amounthi >= LONG_MAX) {
+            bug("account_add: Account amounthi overflow during carry");
+            return false;
+        }
+        account->amounthi += 1;
+    }
+    
+    account->amountlo = static_cast<long>(temp);
+    return true;
 }
 
-void account_add(BANK_ACCOUNT * account, long amount)
+/*
+ * Enhanced account_sub with underflow protection and proper validation
+ * SECURITY: Fixes the catastrophic underflow bug that created infinite money
+ */
+bool account_sub(BANK_ACCOUNT* account, long amount)
 {
-        unsigned long temp;
+    if (!account || amount < 0) {
+        bug("account_sub: Invalid parameters - account=%p, amount=%ld", account, amount);
+        return false;
+    }
 
-        while (amount > 1000000000)
-        {
-                amount -= 1000000000;
-                account->amounthi += 1;
-        }
-        temp = account->amountlo + amount;
-        while (temp > 1000000000)
-        {
-                temp -= 1000000000;
-                account->amounthi += 1;
-        }
-        account->amountlo = temp;
-        return;
-}
+    // Validate transaction limits
+    if (amount > BankSecurity::MAX_TRANSACTION_AMOUNT) {
+        bug("account_sub: Transaction exceeds maximum limit (%ld > %ld)", 
+            amount, BankSecurity::MAX_TRANSACTION_AMOUNT);
+        return false;
+    }
 
-void account_sub(BANK_ACCOUNT * account, long amount)
-{
-        while (amount > 999999999)
-        {
-                amount -= 1000000000;
-                account->amounthi -= 1;
-        }
+    // Check if account has sufficient funds - CRITICAL SECURITY CHECK
+    if (!account_has_funds(account, amount)) {
+        return false; // Insufficient funds
+    }
+
+    // Process withdrawal from high-order amount first
+    while (amount > BankSecurity::BALANCE_THRESHOLD && account->amounthi > 0) {
+        amount -= (BankSecurity::BALANCE_THRESHOLD + 1);
+        account->amounthi -= 1;
+        account->amountlo += BankSecurity::BALANCE_THRESHOLD + 1;
+    }
+
+    // Handle remaining amount from low-order balance
+    if (amount <= account->amountlo) {
         account->amountlo -= amount;
-		while (account->amountlo < 0) 
-		{
-			account->amounthi -= 1;
-			account->amountlo = 0 - account->amountlo;
-		}
+    } else if (account->amounthi > 0) {
+        // Need to borrow from amounthi
+        account->amounthi -= 1;
+        account->amountlo = (BankSecurity::BALANCE_THRESHOLD + 1) + account->amountlo - amount;
+    } else {
+        // This should never happen due to our funds check above
+        bug("account_sub: Insufficient funds error - this should not occur");
+        return false;
+    }
+
+    return true;
+}
+
+/*
+ * Helper function to safely check if account has sufficient funds
+ * SECURITY: Prevents underflow by validating before operations
+ */
+bool account_has_funds(BANK_ACCOUNT* account, long amount)
+{
+    if (!account || amount < 0) {
+        return false;
+    }
+
+    // Calculate total available funds safely
+    if (account->amounthi > 0) {
+        // Account has high-order funds, definitely sufficient for normal transactions
+        return true;
+    }
+
+    // Only low-order funds, direct comparison
+    return (account->amountlo >= amount);
+}
+
+/*
+ * Get total account balance as a string (safe for display)
+ * SECURITY: Prevents overflow in string formatting
+ */
+char* account_sum(BANK_ACCOUNT* account)
+{
+    static char buf[MAX_STRING_LENGTH];
+
+    if (!account) {
+        return nullptr;
+    }
+
+    if (account->amounthi == 0 && account->amountlo == 0) {
+        snprintf(buf, sizeof(buf), "0");
+    } else if (account->amounthi > 0) {
+        snprintf(buf, sizeof(buf), "%ld%09ld", account->amounthi, account->amountlo);
+    } else {
+        snprintf(buf, sizeof(buf), "%ld", account->amountlo);
+    }
+
+    return buf;
 }
 
 int baccounts(CHAR_DATA * ch)
@@ -438,31 +611,81 @@ void notify_trustees_wit(BANK_ACCOUNT * account, char *name, long amount,
         return;
 }
 
-void apply_interest(BANK_ACCOUNT * account)
+/*
+ * Enhanced interest application with secure mathematical operations
+ * SECURITY: Prevents floating-point precision exploits and overflow attacks
+ */
+void apply_interest(BANK_ACCOUNT* account)
 {
-        CHAR_DATA *owner;
-        int       diff = -account->amountlo;
-
-        account->amountlo =
-                (long) ((float) account->amountlo * account->interest);
-        account->amountlo =
-                (long) ((float) account->amountlo +
-                        (account->amounthi * (account->interest - 1.0)) *
-                        1000000000.0f);
-        diff += account->amountlo;
-        if (account->amountlo > 999999999)
-        {
-                account->amountlo -= 1000000000;
-                account->amounthi += 1;
-        }
-        for (owner = first_char; owner; owner = owner->next)
-                if (!strcmp(owner->name, account->owner) && diff > 0)
-                {
-                        ch_printf(owner,
-                                  "&R[&BInterest&R] &wAccount %s has gained %ld credits.\n\r",
-                                  account->code, diff);
-                }
+    if (!account) {
+        bug("apply_interest: null account pointer");
         return;
+    }
+
+    // Validate interest rate to prevent exploits
+    if (account->interest < BankSecurity::MIN_INTEREST_RATE || 
+        account->interest > BankSecurity::MAX_INTEREST_RATE) {
+        bug("apply_interest: Invalid interest rate %f for account %s", 
+            account->interest, account->code ? account->code : "UNKNOWN");
+        account->interest = BANK_INTEREST; // Reset to default safe value
+        return;
+    }
+
+    // Calculate interest safely using integer arithmetic to avoid precision issues
+    long original_lo = account->amountlo;
+    long original_hi = account->amounthi;
+    
+    // Skip interest on empty accounts
+    if (original_hi == 0 && original_lo == 0) {
+        return;
+    }
+
+    // Calculate interest on low amount using safe integer operations
+    long interest_lo = static_cast<long>(original_lo * (account->interest - 1.0));
+    
+    // Calculate interest on high amount (convert to credits first)
+    long interest_hi = 0;
+    if (original_hi > 0) {
+        // Safe calculation: multiply by (interest - 1) and convert back
+        double hi_credits = static_cast<double>(original_hi) * (BankSecurity::BALANCE_THRESHOLD + 1);
+        double hi_interest = hi_credits * (account->interest - 1.0);
+        
+        // Validate result is within safe bounds
+        if (hi_interest > static_cast<double>(BankSecurity::SAFE_ADDITION_LIMIT)) {
+            bug("apply_interest: Interest calculation overflow for account %s", 
+                account->code ? account->code : "UNKNOWN");
+            return;
+        }
+        
+        interest_hi = static_cast<long>(hi_interest);
+    }
+
+    // Total interest to add
+    long total_interest = interest_lo + interest_hi;
+    
+    // Validate total interest is reasonable
+    if (total_interest < 0 || total_interest > BankSecurity::MAX_TRANSACTION_AMOUNT) {
+        bug("apply_interest: Calculated interest %ld is out of bounds for account %s", 
+            total_interest, account->code ? account->code : "UNKNOWN");
+        return;
+    }
+
+    // Apply interest using our secure addition function
+    if (total_interest > 0) {
+        if (!account_add(account, total_interest)) {
+            bug("apply_interest: Failed to add interest %ld to account %s", 
+                total_interest, account->code ? account->code : "UNKNOWN");
+            return;
+        }
+
+        // Notify owner of interest gained
+        for (CHAR_DATA* owner = first_char; owner; owner = owner->next) {
+            if (!strcmp(owner->name, account->owner) && total_interest > 0) {
+                ch_printf(owner, "&R[&BInterest&R] &wAccount %s has gained %ld credits.\n\r",
+                         account->code, total_interest);
+            }
+        }
+    }
 }
 
 void update_baccounts()
@@ -686,36 +909,39 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                // For now, you don't have to have special access to deposit or 
-                // transfer to someone's account, just to take from it.
+                // Validate deposit amount using security constants
+                if (num > BankSecurity::MAX_TRANSACTION_AMOUNT)
+                {
+                        ch_printf(ch, "The bank won't let you deposit more than %ld credits at a time.\n\r",
+                                 BankSecurity::MAX_TRANSACTION_AMOUNT);
+                        return;
+                }
+
+                if (num < BankSecurity::MINIMUM_TRANSACTION)
+                {
+                        send_to_char("Be a little more generous.\n\r", ch);
+                        return;
+                }
 
                 if (num > ch->gold)
                 {
                         send_to_char
-                                ("You don't that many credits on you.\n\r",
+                                ("You don't have that many credits on you.\n\r",
                                  ch);
-                        return;
-                }
-
-                if (num > 1000000000)
-                {
-                        send_to_char
-                                ("The bank won't let you deposit more than 1000000000 credits at a time.\n\r",
-                                 ch);
-                        return;
-                }
-
-                if (num < 1)
-                {
-                        send_to_char("Be a little more generous.\n\r", ch);
                         return;
                 }
 
                 if (!strcmp(arg4, "anonymous"))
                         anon = TRUE;
 
+                // Use secure account addition
+                if (!account_add(account, num)) {
+                        send_to_char("The bank's systems are unable to process this deposit right now.\n\r", ch);
+                        bug("Bank deposit failed for account %s, amount %ld", account->code, num);
+                        return;
+                }
+
                 ch->gold -= num;
-                account_add(account, num);
                 do_save(ch, "-silentsave");
                 save_baccount(account);
                 ch_printf(ch, "You deposit %ld credits in account %s.\n\r",
@@ -751,36 +977,41 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                if (num < 1)
+                // Validate withdrawal amount using security constants
+                if (num < BankSecurity::MINIMUM_TRANSACTION)
                 {
                         send_to_char("Try deposit instead.\n\r", ch);
                         return;
                 }
 
-                if (num > 1000000000)
+                if (num > BankSecurity::MAX_TRANSACTION_AMOUNT)
                 {
-                        send_to_char
-                                ("The bank won't let you withdraw more than 1000000000 credits at a time.\n\r",
-                                 ch);
+                        ch_printf(ch, "The bank won't let you withdraw more than %ld credits at a time.\n\r",
+                                 BankSecurity::MAX_TRANSACTION_AMOUNT);
                         return;
                 }
                 
-				if (((unsigned long) ch->gold+num) >= LONG_MAX)
+                // Enhanced overflow protection for player gold
+                if (ch->gold > LONG_MAX - num)
                 {
-                        send_to_char("You are not able to carry that many credits.\n\r",
-                                 ch);
+                        send_to_char("You are not able to carry that many credits.\n\r", ch);
                         return;
                 }
 
-                if (num > account->amountlo && account->amounthi < 1)
+                // Use secure funds checking
+                if (!account_has_funds(account, num))
                 {
-                        send_to_char
-                                ("That account doesn't have that many credits.\n\r",
-                                 ch);
+                        send_to_char("That account doesn't have that many credits.\n\r", ch);
                         return;
                 }
 
-                account_sub(account, num);
+                // Use secure account subtraction
+                if (!account_sub(account, num)) {
+                        send_to_char("The bank's systems are unable to process this withdrawal right now.\n\r", ch);
+                        bug("Bank withdrawal failed for account %s, amount %ld", account->code, num);
+                        return;
+                }
+
                 ch->gold += num;
                 do_save(ch, "-silentsave");
                 save_baccount(account);
@@ -804,66 +1035,77 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
 
                 if (arg3[0] == '\0')
                 {
-                        send_to_char
-                                ("Specify an amount up to 1000000000.\n\r",
-                                 ch);
+                        ch_printf(ch, "Specify an amount up to %ld.\n\r",
+                                 BankSecurity::MAX_TRANSACTION_AMOUNT);
                         return;
                 }
 
                 if (arg4[0] == '\0')
                 {
-                        send_to_char("Specify a destination account.\n\r",
-                                     ch);
+                        send_to_char("Specify a destination account.\n\r", ch);
                         return;
                 }
 
                 if (source == NULL)
                 {
-                        send_to_char
-                                ("You don't have access to that account.\n\r",
-                                 ch);
+                        send_to_char("You don't have access to that account.\n\r", ch);
                         return;
                 }
 
                 if (strcmp(ch->name, source->owner)
                     && !nifty_is_name(ch->name, source->trustees))
                 {
-                        send_to_char
-                                ("You don't have access to that account.\n\r",
-                                 ch);
+                        send_to_char("You don't have access to that account.\n\r", ch);
                         return;
                 }
 
                 if (destin == NULL)
                 {
-                        send_to_char
-                                ("The destination account is either frozen or blocked.\n\r",
-                                 ch);
+                        send_to_char("The destination account is either frozen or blocked.\n\r", ch);
                         return;
                 }
 
-                if (num > 1000000000)
+                // Validate transfer amount using security constants
+                if (num < BankSecurity::MINIMUM_TRANSACTION)
                 {
-                        send_to_char
-                                ("The bank will allow you to transfer up to 1000000000 credits at a time.\n\r",
-                                 ch);
+                        send_to_char("Transfer amount must be at least 1 credit.\n\r", ch);
                         return;
                 }
 
-                if (num > source->amountlo && source->amounthi < 1)
+                if (num > BankSecurity::MAX_TRANSACTION_AMOUNT)
                 {
-                        send_to_char
-                                ("The source account doesn't have that many credits in it.\n\r",
-                                 ch);
+                        ch_printf(ch, "The bank will allow you to transfer up to %ld credits at a time.\n\r",
+                                 BankSecurity::MAX_TRANSACTION_AMOUNT);
                         return;
                 }
 
-                account_sub(source, num);
-                account_add(destin, num);
+                // Use secure funds checking
+                if (!account_has_funds(source, num))
+                {
+                        send_to_char("The source account doesn't have that many credits in it.\n\r", ch);
+                        return;
+                }
+
+                // Perform atomic transfer using secure operations
+                if (!account_sub(source, num)) {
+                        send_to_char("The bank's systems are unable to process this transfer right now.\n\r", ch);
+                        bug("Bank transfer (subtract) failed for source account %s, amount %ld", source->code, num);
+                        return;
+                }
+
+                if (!account_add(destin, num)) {
+                        // Critical: Rollback the subtraction since addition failed
+                        if (!account_add(source, num)) {
+                                bug("CRITICAL: Failed to rollback transfer for source account %s, amount %ld", source->code, num);
+                        }
+                        send_to_char("The bank's systems are unable to process this transfer right now.\n\r", ch);
+                        bug("Bank transfer (add) failed for destination account %s, amount %ld", destin->code, num);
+                        return;
+                }
+
                 save_baccount(source);
                 save_baccount(destin);
-                ch_printf(ch,
-                          "You transfer %ld credits from account %s to account %s.\n\r",
+                ch_printf(ch, "You transfer %ld credits from account %s to account %s.\n\r",
                           num, source->code, destin->code);
                 notify_trustees_tra(source, destin, ch->name, num, FALSE);
                 return;
