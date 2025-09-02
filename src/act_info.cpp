@@ -40,6 +40,9 @@
  *                            Information handling                                       *
  *****************************************************************************************/
 
+// =============================================================================
+// SYSTEM INCLUDES
+// =============================================================================
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -50,6 +53,10 @@
 #if defined(__CYGWIN__)
 #include <crypt.h>
 #endif
+
+// =============================================================================
+// LOCAL INCLUDES
+// =============================================================================
 #include "mud.h"
 #include "mxp.h"
 #include "msp.h"
@@ -65,16 +72,58 @@
 #include "greet.h"
 #include "password.h"
 
-void send_gmcp_event(DESCRIPTOR_DATA *desc, const char *event, const char *json);
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+namespace {
+    constexpr int    MENTAL_STABILITY_THRESHOLD = 40;
+    constexpr int    DRUNK_DIVISOR = 12;
+    constexpr int    MAX_HALLUCINATION_LEVEL = 20;
+    constexpr int    MIN_HALLUCINATION_RANGE = 6;
+    constexpr int    AGE_SUFFIX_THRESHOLD_LOW = 4;
+    constexpr int    AGE_SUFFIX_THRESHOLD_HIGH = 20;
+    constexpr int    MIN_PASSWORD_LENGTH = 5;
+    constexpr int    PAGER_MIN_LINES = 5;
+    constexpr int    SOCIAL_COLUMNS = 6;
+    constexpr int    COMMAND_COLUMNS = 4;
+    constexpr int    SKILL_LIST_COLUMNS = 3;
+    constexpr size_t REVISION_OFFSET = 11;
+    constexpr size_t REVISION_END_OFFSET = 2;
+}
 
-char     *trim(const char *str);
-void      show_visible_affects_to_char(CHAR_DATA * victim, CHAR_DATA * ch);
-char     *halucinated_object(int ms, bool fShort);
-ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit);
-HELP_DATA *get_help(CHAR_DATA * ch, char *argument);
-char     *help_fix(char *text);
-int       get_comfreq(CHAR_DATA * ch);
+// Define practice restrictions outside namespace to avoid const issues
+#define CANT_PRAC "Tongue"
+
+// =============================================================================
+// EXTERNAL FUNCTION DECLARATIONS
+// =============================================================================
+void send_gmcp_event(DESCRIPTOR_DATA* desc, const char* event, const char* json);
 extern int top_help;
+extern int top_area;
+
+// =============================================================================
+// LOCAL FUNCTION PROTOTYPES
+// =============================================================================
+char* trim(const char* str);
+void show_visible_affects_to_char(CHAR_DATA* victim, CHAR_DATA* ch);
+char* halucinated_object(int ms, bool fShort);
+ROOM_INDEX_DATA* generate_exit(ROOM_INDEX_DATA* in_room, EXIT_DATA** pexit);
+HELP_DATA* get_help(CHAR_DATA* ch, char* argument);
+char* help_fix(char* text);
+int get_comfreq(CHAR_DATA* ch);
+void show_char_to_char_0(CHAR_DATA* victim, CHAR_DATA* ch);
+void show_char_to_char_1(CHAR_DATA* victim, CHAR_DATA* ch);
+void show_char_to_char(CHAR_DATA* list, CHAR_DATA* ch);
+void show_ships_to_char(SHIP_DATA* ship, CHAR_DATA* ch);
+bool check_blind(CHAR_DATA* ch);
+void show_condition(CHAR_DATA* ch, CHAR_DATA* victim);
+sh_int str_similarity(const char* astr, const char* bstr);
+sh_int str_prefix_level(const char* astr, const char* bstr);
+void similar_help_files(CHAR_DATA* ch, char* argument);
+
+// =============================================================================
+// GLOBAL DATA
+// =============================================================================
 
 char     *const where_name[] = {
         "<used as light>     ",
@@ -104,25 +153,14 @@ char     *const where_name[] = {
         "<right holster>     "
 };
 
+// =============================================================================
+// OBJECT FORMATTING FUNCTIONS
+// =============================================================================
 
 /*
- * Local functions.
+ * Format an object for display to a character
  */
-void show_char_to_char_0 args((CHAR_DATA * victim, CHAR_DATA * ch));
-void show_char_to_char_1 args((CHAR_DATA * victim, CHAR_DATA * ch));
-void show_char_to_char args((CHAR_DATA * list, CHAR_DATA * ch));
-void show_ships_to_char args((SHIP_DATA * ship, CHAR_DATA * ch));
-bool check_blind args((CHAR_DATA * ch));
-void show_condition args((CHAR_DATA * ch, CHAR_DATA * victim));
-
-/*Similar Helpfile Snippet Declarations*/
-sh_int    str_similarity(const char *astr, const char *bstr);
-sh_int    str_prefix_level(const char *astr, const char *bstr);
-void      similar_help_files(CHAR_DATA * ch, char *argument);
-
-
-
-char     *format_obj_to_char(OBJ_DATA * obj, CHAR_DATA * ch, bool fShort)
+char* format_obj_to_char(OBJ_DATA* obj, CHAR_DATA* ch, bool fShort)
 {
         static char buf[MAX_STRING_LENGTH];
 
@@ -159,17 +197,19 @@ char     *format_obj_to_char(OBJ_DATA * obj, CHAR_DATA * ch, bool fShort)
         return buf;
 }
 
+// =============================================================================
+// HALLUCINATION SYSTEM
+// =============================================================================
 
 /*
- * Some increasingly freaky halucinated objects		-Thoric
+ * Some increasingly freaky halucinated objects - Thoric
  */
-char     *halucinated_object(int ms, bool fShort)
+char* halucinated_object(int ms, bool fShort)
 {
         int       sms = URANGE(1, (ms + 10) / 5, 20);
 
         if (fShort)
-                switch (number_range(6 - URANGE(1, sms / 2, 5), sms))
-                {
+                switch (number_range(MIN_HALLUCINATION_RANGE - URANGE(1, sms / 2, 5), sms)) {
                 case 1:
                         return "a sword";
                 case 2:
@@ -213,8 +253,7 @@ char     *halucinated_object(int ms, bool fShort)
                 default:
                         return "-error";
                 }
-        switch (number_range(6 - URANGE(1, sms / 2, 5), sms))
-        {
+        switch (number_range(MIN_HALLUCINATION_RANGE - URANGE(1, sms / 2, 5), sms)) {
         case 1:
                 return "A nice looking sword catches your eye.";
         case 2:
@@ -261,13 +300,15 @@ char     *halucinated_object(int ms, bool fShort)
         return "Whoa!!!";
 }
 
+// =============================================================================
+// OBJECT LISTING FUNCTIONS
+// =============================================================================
 
 /*
  * Show a list to a character.
  * Can coalesce duplicated items.
  */
-void show_list_to_char(OBJ_DATA * list, CHAR_DATA * ch, bool fShort,
-                       bool fShowNothing)
+void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort, bool fShowNothing)
 {
         char    **prgpstrShow;
         int      *prgnShow;
@@ -313,8 +354,7 @@ void show_list_to_char(OBJ_DATA * list, CHAR_DATA * ch, bool fShort,
         /*
          * If not mentally stable...
          */
-        if (abs(ms) > 40)
-        {
+        if (abs(ms) > MENTAL_STABILITY_THRESHOLD) {
                 offcount = URANGE(-(count), (count * ms) / 100, count * 2);
                 if (offcount < 0)
                         offcount += number_range(0, abs(offcount));
@@ -473,11 +513,14 @@ void show_list_to_char(OBJ_DATA * list, CHAR_DATA * ch, bool fShort,
         return;
 }
 
+// =============================================================================
+// CHARACTER DISPLAY FUNCTIONS
+// =============================================================================
 
 /*
- * Show fancy descriptions for certain spell affects		-Thoric
+ * Show fancy descriptions for certain spell affects - Thoric
  */
-void show_visible_affects_to_char(CHAR_DATA * victim, CHAR_DATA * ch)
+void show_visible_affects_to_char(CHAR_DATA* victim, CHAR_DATA* ch)
 {
         char      buf[MAX_STRING_LENGTH];
 
@@ -557,7 +600,10 @@ void show_visible_affects_to_char(CHAR_DATA * victim, CHAR_DATA * ch)
         }
 }
 
-void show_char_to_char_0(CHAR_DATA * victim, CHAR_DATA * ch)
+/*
+ * Display a character to another character (brief view)
+ */
+void show_char_to_char_0(CHAR_DATA* victim, CHAR_DATA* ch)
 {
         char      buf[MAX_STRING_LENGTH];
         char      buf1[MAX_STRING_LENGTH];
@@ -973,7 +1019,14 @@ int get_door(char *arg)
         return door;
 }
 
-CMDF do_look(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// INFORMATION COMMANDS
+// =============================================================================
+
+/*
+ * Look command - examine the environment and objects
+ */
+CMDF do_look(CHAR_DATA* ch, char* argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         char      arg1[MAX_INPUT_LENGTH];
@@ -2377,7 +2430,7 @@ CMDF do_time(CHAR_DATA * ch, char *argument)
         argument = NULL;
         day = time_info.day + 1;
 
-        if (day > 4 && day < 20)
+        if (day > AGE_SUFFIX_THRESHOLD_LOW && day < AGE_SUFFIX_THRESHOLD_HIGH)
                 suf = "th";
         else if (day % 10 == 1)
                 suf = "st";
@@ -2672,12 +2725,15 @@ CMDF do_help(CHAR_DATA * ch, char *argument)
         send_to_pager("\n\r", ch);
         return;
 }*/
-/*
- * Now this is cleaner
- */
 
-/* Updated do_help command provided by Remcon of The Lands of Pabulum 03/20/2004 */
-void do_help(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// HELP SYSTEM COMMANDS
+// =============================================================================
+
+/*
+ * Help command - Updated version provided by Remcon of The Lands of Pabulum 03/20/2004
+ */
+void do_help(CHAR_DATA* ch, char* argument)
 {
         HELP_DATA *pHelp;
         char     *keyword;
@@ -3017,18 +3073,16 @@ CMDF do_hlist(CHAR_DATA * ch, char *argument)
                 send_to_char("None found.\n\r", ch);
 }
 
+// =============================================================================
+// PLAYER INFORMATION COMMANDS
+// =============================================================================
 
 /* 
- * New do_who with WHO REQUEST, clan, race and homepage support.  -Thoric
- *
- * Latest version of do_who eliminates redundant code by using linked lists.
- * Shows imms separately, indicates guest and retired immortals.
- * Narn, Oct/96
- * completely removing race and clan, what the hells with that.... - Greven
- *
- * This Homepage Support doesn't actually do anything.. Should we enable it? - Gavin
+ * New do_who with WHO REQUEST, clan, race and homepage support. -Thoric
+ * Latest version eliminates redundant code by using linked lists.
+ * Shows imms separately, indicates guest and retired immortals. -Narn, Oct/96
  */
-CMDF do_who(CHAR_DATA * ch, char *argument)
+CMDF do_who(CHAR_DATA* ch, char* argument)
 {
         char      buf[MAX_STRING_LENGTH];
         char      invis_str[MAX_INPUT_LENGTH];
@@ -3676,16 +3730,14 @@ CMDF do_consider(CHAR_DATA * ch, char *argument)
         return;
 }
 
-
+// =============================================================================
+// SKILL AND TRAINING COMMANDS
+// =============================================================================
 
 /*
- * Place any skill types you don't want them to be able to practice
- * normally in this list.  Separate each with a space.
- * (Uses an is_name check). -- Altrag
+ * Practice command - practice skills
  */
-#define CANT_PRAC "Tongue"
-
-CMDF do_practice(CHAR_DATA * ch, char *argument)
+CMDF do_practice(CHAR_DATA* ch, char* argument)
 {
         char      buf[MAX_STRING_LENGTH];
         char      arg[MAX_STRING_LENGTH];
@@ -3904,7 +3956,7 @@ CMDF do_practice(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                if (is_name(skill_tname[skill_table[sn]->type], CANT_PRAC))
+                if (is_name(skill_tname[skill_table[sn]->type], (char*)CANT_PRAC))
                 {
                         act(AT_TELL,
                             "$n tells you 'I do not know how to teach that.'",
@@ -4059,7 +4111,7 @@ CMDF do_teach(CHAR_DATA * ch, char *argument)
                         }
 
                         if (is_name
-                            (skill_tname[skill_table[sn]->type], CANT_PRAC))
+                            (skill_tname[skill_table[sn]->type], (char*)CANT_PRAC))
                         {
                                 act(AT_TELL,
                                     "You are unable to teach that skill.",
@@ -4174,9 +4226,14 @@ CMDF do_wimpy(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// =============================================================================
+// USER ACCOUNT COMMANDS
+// =============================================================================
 
-
-CMDF do_password(CHAR_DATA * ch, char *argument)
+/*
+ * Password command - change player password
+ */
+CMDF do_password(CHAR_DATA* ch, char* argument)
 {
         char      arg1[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
@@ -4243,8 +4300,7 @@ CMDF do_password(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (strlen(arg2) < 5)
-        {
+        if (strlen(arg2) < MIN_PASSWORD_LENGTH) {
                 send_to_char
                         ("New password must be at least five characters long.\n\r",
                          ch);
@@ -4289,9 +4345,14 @@ CMDF do_ls(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// =============================================================================
+// LIST AND REFERENCE COMMANDS
+// =============================================================================
 
-
-CMDF do_socials(CHAR_DATA * ch, char *argument)
+/*
+ * Socials command - list available social commands
+ */
+CMDF do_socials(CHAR_DATA* ch, char* argument)
 {
         int       iHash;
         int       col = 0;
@@ -4307,12 +4368,12 @@ CMDF do_socials(CHAR_DATA * ch, char *argument)
                         if (social->minarousal == 0)
                         {
                                 pager_printf(ch, "%-12s", social->name);
-                                if (++col % 6 == 0)
+                                if (++col % SOCIAL_COLUMNS == 0)
                                         send_to_pager("\n\r", ch);
                         }
                 }
 
-        if (col % 6 != 0)
+        if (col % SOCIAL_COLUMNS != 0)
                 send_to_pager("\n\r", ch);
         return;
 }
@@ -4343,10 +4404,10 @@ CMDF do_commands(CHAR_DATA * ch, char *argument)
                                                                       command->
                                                                       name) ?
                                              "H" : " ", command->name);
-                                if (++col % 4 == 0)
+                                if (++col % COMMAND_COLUMNS == 0)
                                         send_to_pager("\n\r", ch);
                         }
-        if (col % 4 != 0)
+        if (col % COMMAND_COLUMNS != 0)
                 send_to_pager("\n\r", ch);
 
         return;
@@ -4740,10 +4801,14 @@ CMDF do_credits(CHAR_DATA * ch, char *argument)
         do_help(ch, "credits");
 }
 
+// =============================================================================
+// WORLD INFORMATION COMMANDS
+// =============================================================================
 
-extern int top_area;
-
-CMDF do_areas(CHAR_DATA * ch, char *argument)
+/*
+ * Areas command - list game areas
+ */
+CMDF do_areas(CHAR_DATA* ch, char* argument)
 {
         AREA_DATA *pArea;
 
@@ -5087,7 +5152,7 @@ CMDF do_pager(CHAR_DATA * ch, char *argument)
                 return;
         }
         ch->pcdata->pagerlen = atoi(arg);
-        if (ch->pcdata->pagerlen < 5)
+        if (ch->pcdata->pagerlen < PAGER_MIN_LINES)
                 ch->pcdata->pagerlen = 5;
         ch_printf(ch, "Page pausing set to %d lines.\n\r",
                   ch->pcdata->pagerlen);

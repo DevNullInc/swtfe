@@ -40,92 +40,122 @@
  * Action and communication commands for player interactions and social gameplay. *
  ****************************************************************************************/
 
+// =============================================================================
+// SYSTEM INCLUDES
+// =============================================================================
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
+// =============================================================================
+// LOCAL INCLUDES
+// =============================================================================
 #include "mud.h"
 #include "mxp.h"
 #include "msp.h"
 #include "account.h"
 #include "races.h"
-/*
- *  Externals
- */
-void      send_obj_page_to_char(CHAR_DATA * ch, OBJ_INDEX_DATA * idx,
-                                char page);
-void      send_room_page_to_char(CHAR_DATA * ch, ROOM_INDEX_DATA * idx,
-                                 char page);
-void      send_page_to_char(CHAR_DATA * ch, MOB_INDEX_DATA * idx, char page);
-void      send_control_page_to_char(CHAR_DATA * ch, char page);
-extern bool is_ignoring(CHAR_DATA * ch, CHAR_DATA * victim);
+
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+namespace {
+    constexpr int    DEFAULT_COMCHAN = 0;
+    constexpr int    NPC_COMFREQ = -1;
+    constexpr size_t LOG_BUFFER_SIZE = MAX_STRING_LENGTH;
+    constexpr size_t SOCIAL_NAME_SIZE = 256;
+    constexpr size_t SOCIAL_DESC_SIZE = 512;
+    constexpr size_t COMMUNICATION_BUFFER = MAX_INPUT_LENGTH;
+    constexpr int    MIN_SPLIT_MEMBERS = 2;
+    constexpr int    MAX_FOLLOW_DISTANCE = 3;
+    constexpr int    MIN_LANGUAGE_SKILL = 60;
+    constexpr int    MAX_LANGUAGE_SKILL = 99;
+    constexpr int    AROUSAL_BASE = 70;
+    constexpr double AROUSAL_MULTIPLIER = 0.5;
+    constexpr double RANDOM_PERCENT = 0.1;
+}
+
+// =============================================================================
+// EXTERNAL FUNCTION DECLARATIONS
+// =============================================================================
+void send_obj_page_to_char(CHAR_DATA* ch, OBJ_INDEX_DATA* idx, char page);
+void send_room_page_to_char(CHAR_DATA* ch, ROOM_INDEX_DATA* idx, char page);
+void send_page_to_char(CHAR_DATA* ch, MOB_INDEX_DATA* idx, char page);
+void send_control_page_to_char(CHAR_DATA* ch, char page);
+extern bool is_ignoring(CHAR_DATA* ch, CHAR_DATA* victim);
+
+// =============================================================================
+// LOCAL FUNCTION PROTOTYPES
+// =============================================================================
+void talk_channel(CHAR_DATA* ch, char* argument, int channel, const char* verb);
+char* scramble(const char* argument, LANGUAGE_DATA* language);
+char* drunk_speech(const char* argument, CHAR_DATA* ch);
+
+// =============================================================================
+// COMMUNICATION HELPER FUNCTIONS
+// =============================================================================
 
 /*
- * Local functions.
+ * Check if character has a communication device
  */
-void talk_channel args((CHAR_DATA * ch, char *argument,
-                        int channel, const char *verb));
-
-char     *scramble args((const char *argument, LANGUAGE_DATA * language));
-char     *drunk_speech args((const char *argument, CHAR_DATA * ch));
-
-/*
- * Generic channel function.
- */
-bool has_comlink(CHAR_DATA * ch)
+bool has_comlink(CHAR_DATA* ch)
 {
-        OBJ_DATA *obj;
+    OBJ_DATA* obj;
 
-        if (IS_IMMORTAL(ch) || IS_NPC(ch))
-                return TRUE;
+    if (IS_IMMORTAL(ch) || IS_NPC(ch))
+        return TRUE;
+
 #ifdef CYBER
-        if (ch->pcdata->cyber & CYBER_COMM)
-                return TRUE;
+    if (ch->pcdata->cyber & CYBER_COMM)
+        return TRUE;
 #endif
-        if (ch->race && !str_cmp(ch->race->name(), "droid"))
-                return TRUE;
 
-        for (obj = ch->last_carrying; obj; obj = obj->prev_content)
-        {
-                if (obj->pIndexData->item_type == ITEM_COMLINK)
-                        return TRUE;
-        }
-        return FALSE;
+    if (ch->race && !str_cmp(ch->race->name(), "droid"))
+        return TRUE;
+
+    for (obj = ch->last_carrying; obj; obj = obj->prev_content) {
+        if (obj->pIndexData->item_type == ITEM_COMLINK)
+            return TRUE;
+    }
+    return FALSE;
 }
 
 /*
- * Get the com freq for a player.
+ * Get the communication frequency for a player
  */
-int get_comfreq(CHAR_DATA * ch)
+int get_comfreq(CHAR_DATA* ch)
 {
-        if (IS_NPC(ch))
-                return -1;
+    if (IS_NPC(ch))
+        return NPC_COMFREQ;
 
-        if (!has_comlink(ch))
-                return 0;
-        else if (ch->pcdata->comchan)
-                return ch->pcdata->comchan;
-        else
-                return 0;
-        return 0;
-}
-
-OBJ_DATA *get_comlink(CHAR_DATA * ch)
-{
-        OBJ_DATA *obj;
-
-        for (obj = ch->last_carrying; obj; obj = obj->prev_content)
-                if (obj->item_type == ITEM_COMLINK)
-                        return obj;
-        return NULL;
+    if (!has_comlink(ch))
+        return DEFAULT_COMCHAN;
+    
+    return ch->pcdata->comchan ? ch->pcdata->comchan : DEFAULT_COMCHAN;
 }
 
 /*
- * Gocial added by Atrox
+ * Get the comlink object from character's inventory
  */
+OBJ_DATA* get_comlink(CHAR_DATA* ch)
+{
+    for (OBJ_DATA* obj = ch->last_carrying; obj; obj = obj->prev_content) {
+        if (obj->item_type == ITEM_COMLINK)
+            return obj;
+    }
+    return nullptr;
+}
 
-CMDF do_xsocial(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// SOCIAL SYSTEM FUNCTIONS
+// =============================================================================
+
+/*
+ * Extended social command added by Atrox
+ */
+CMDF do_xsocial(CHAR_DATA* ch, char* argument)
 {
         char      arg[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH];
         CHAR_DATA *victim;
@@ -288,38 +318,32 @@ CMDF do_xsocial(CHAR_DATA * ch, char *argument)
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
                 snprintf(buf, MSL, "%s", social->char_auto);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
-                ch->pcdata->arousal += (sh_int) (social->arousal * .5);
+                ch->pcdata->arousal += (sh_int) (social->arousal * AROUSAL_MULTIPLIER);
                 /*
                  * FIXME - 
                  * * Gavin - Uh... all 3 of these victim->sex lines had ; at the end.
                  * * ie, if (victim->sex == 0);
                  * * which if thats the case, could be alot easier to write another way.
                  */
-                if (victim->sex == SEX_NEUTRAL)
-                {
+                if (victim->sex == SEX_NEUTRAL) {
                         if (victim->pcdata->arousal >=
-                            (70 +
+                            (AROUSAL_BASE +
                              (2 * (get_curr_con(victim)) +
-                              (0.1 * number_percent()))))
-                        {
+                              (RANDOM_PERCENT * number_percent())))) {
                         }
                 }
-                if (victim->sex == SEX_MALE)
-                {
+                if (victim->sex == SEX_MALE) {
                         if (victim->pcdata->arousal >=
-                            (70 +
+                            (AROUSAL_BASE +
                              (3 * (get_curr_con(victim)) +
-                              (0.1 * number_percent()))))
-                        {
+                              (RANDOM_PERCENT * number_percent())))) {
                         }
                 }
-                if (victim->sex == SEX_FEMALE)
-                {
+                if (victim->sex == SEX_FEMALE) {
                         if (victim->pcdata->arousal >=
-                            (70 +
+                            (AROUSAL_BASE +
                              (1 * (get_curr_con(victim)) +
-                              (0.1 * number_percent()))))
-                        {
+                              (RANDOM_PERCENT * number_percent())))) {
                         }
                 }
                 return;
@@ -365,7 +389,14 @@ CMDF do_xsocial(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_beep(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// COMMUNICATION COMMANDS
+// =============================================================================
+
+/*
+ * Beep command - send a communication signal to another player
+ */
+CMDF do_beep(CHAR_DATA* ch, char* argument)
 {
         CHAR_DATA *victim;
         char      arg[MAX_STRING_LENGTH];
@@ -919,7 +950,14 @@ CMDF do_whisper(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_tell(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// TELL SYSTEM COMMANDS
+// =============================================================================
+
+/*
+ * Tell command - send a private message to another player
+ */
+CMDF do_tell(CHAR_DATA* ch, char* argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         CHAR_DATA *victim;
@@ -1482,7 +1520,14 @@ CMDF do_oreply(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_emote(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// EMOTE AND ROLEPLAY COMMANDS
+// =============================================================================
+
+/*
+ * Emote command - express character actions and emotions
+ */
+CMDF do_emote(CHAR_DATA* ch, char* argument)
 {
         char      buf[MAX_STRING_LENGTH];
         int       actflags;
@@ -1530,7 +1575,14 @@ CMDF do_emote(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_bug(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// REPORTING COMMANDS (BUG/IDEA/TYPO)
+// =============================================================================
+
+/*
+ * Bug report command
+ */
+CMDF do_bug(CHAR_DATA* ch, char* argument)
 {
         set_char_color(AT_PLAIN, ch);
         if (argument[0] == '\0')
@@ -1664,7 +1716,14 @@ CMDF do_qui(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_quit(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// SESSION COMMANDS (QUIT/SAVE/ANSI)
+// =============================================================================
+
+/*
+ * Quit command - leave the game
+ */
+CMDF do_quit(CHAR_DATA* ch, char* argument)
 {
 
         char      buf[MAX_INPUT_LENGTH];
@@ -1882,7 +1941,14 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 
-CMDF do_follow(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// GROUP AND PARTY COMMANDS
+// =============================================================================
+
+/*
+ * Follow command - follow another character
+ */
+CMDF do_follow(CHAR_DATA* ch, char* argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         CHAR_DATA *victim;
@@ -2352,7 +2418,10 @@ CMDF do_split(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_gtell(CHAR_DATA * ch, char *argument)
+/*
+ * Group tell command - send message to all group members
+ */
+CMDF do_gtell(CHAR_DATA* ch, char* argument)
 {
         CHAR_DATA *gch;
 
@@ -2434,11 +2503,15 @@ void talk_auction(char *argument)
         }
 }
 
+// =============================================================================
+// LANGUAGE SYSTEM FUNCTIONS
+// =============================================================================
+
 /*
  * Language support functions. -- Altrag
  * 07/01/96
  */
-bool knows_language(CHAR_DATA * ch, LANGUAGE_DATA * lang, CHAR_DATA * cch)
+bool knows_language(CHAR_DATA* ch, LANGUAGE_DATA* lang, CHAR_DATA* cch)
 {
         sh_int    sn;
 
@@ -2481,7 +2554,7 @@ bool knows_language(CHAR_DATA * ch, LANGUAGE_DATA * lang, CHAR_DATA * cch)
                         return TRUE;
 
                 if ((sn = skill_lookup(lang->name)) != -1
-                    && ch->pcdata->learned[sn] >= 60)
+                    && ch->pcdata->learned[sn] >= MIN_LANGUAGE_SKILL)
                         return TRUE;
         }
         return FALSE;
@@ -2501,7 +2574,7 @@ bool can_learn_lang(CHAR_DATA * ch, LANGUAGE_DATA * lang)
                         bug("Can_learn_lang: valid language without sn: %s",
                             lang->name);
                 }
-                if (ch->pcdata->learned[sn] >= 99)
+                if (ch->pcdata->learned[sn] >= MAX_LANGUAGE_SKILL)
                         return FALSE;
         }
 
@@ -2519,7 +2592,10 @@ char     *const lang_names[] =
         "falleen", "givin", "clan", ""
 };
 
-CMDF do_speak(CHAR_DATA * ch, char *argument)
+/*
+ * Speak command - change the language being spoken
+ */
+CMDF do_speak(CHAR_DATA* ch, char* argument)
 {
         LANGUAGE_DATA *language;
         char      arg[MAX_INPUT_LENGTH];
@@ -2644,7 +2720,7 @@ CMDF do_languages(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 if (ch->race->language() == language ||
-                    ch->pcdata->learned[sn] >= 99)
+                    ch->pcdata->learned[sn] >= MAX_LANGUAGE_SKILL)
                 {
                         act(AT_PLAIN, "You are already fluent in $t.", ch,
                             language->name, NULL, TO_CHAR);
@@ -3115,7 +3191,14 @@ CMDF do_say_to_char(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_say(CHAR_DATA * ch, char *argument)
+// =============================================================================
+// SPEECH COMMANDS
+// =============================================================================
+
+/*
+ * Say command - speak to everyone in the room
+ */
+CMDF do_say(CHAR_DATA* ch, char* argument)
 {
         CHAR_DATA *vch;
         char      _last_char;

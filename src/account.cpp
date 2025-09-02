@@ -40,35 +40,44 @@
  *                               Account management                                      *
  *****************************************************************************************/
 
-
+// System includes
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+// Project includes
 #include "mud.h"
 #include "account.h"
 #include "alias.h"
 #include "boards.h"
 
+// Constants
+#define ACCOUNT_FILENAME_SIZE 255
+
 #ifndef CMDF
 #define CMDF void
 #endif
 
+// Global variables
 ACCOUNT_DATA *first_account = NULL;
 ACCOUNT_DATA *last_account = NULL;
 
+// Function prototypes
 
+
+// Function prototypes
 sh_int check_playing(DESCRIPTOR_DATA * d, char *name, bool kick);
 bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn);
 void fwrite_comments(ACCOUNT_DATA * account, FILE * fp);
 void fread_comment(ACCOUNT_DATA * account, FILE * fp);
-
-/*
- * Local functions.
- */
 void fread_account(ACCOUNT_DATA * account, FILE * fp);
 ACCOUNT_DATA *get_account(const char *name);
+
+// =============================================================================
+// Account Creation and Management
+// =============================================================================
 
 ACCOUNT_DATA *create_account()
 {
@@ -133,6 +142,10 @@ void free_account(ACCOUNT_DATA * account)
         DISPOSE(account);
         account = NULL;
 }
+
+// =============================================================================
+// Account Commands
+// =============================================================================
 
 CMDF do_showalts(CHAR_DATA * ch, char *argument)
 {
@@ -247,7 +260,7 @@ void save_account(ACCOUNT_DATA * account)
                 return;
         }
 
-        snprintf(accountsave, 255, "%s%c/%s.account", ACCOUNT_DIR,
+        snprintf(accountsave, MIL, "%s%c/%s.account", ACCOUNT_DIR,
                  tolower(account->name[0]), capitalize(account->name));
 
         if ((fp = fopen(accountsave, "w")) == NULL)
@@ -324,7 +337,7 @@ ACCOUNT_DATA *load_account(const char *name)
         }
 
         /* The capitalize function returns a static buffer, no need to modify input */
-        snprintf(accountsave, 255, "%s%c/%s.account", ACCOUNT_DIR,
+        snprintf(accountsave, MIL, "%s%c/%s.account", ACCOUNT_DIR,
                  tolower(name[0]), capitalize(name));
 
         if ((fp = fopen(accountsave, "r")) != NULL)
@@ -396,6 +409,10 @@ ACCOUNT_DATA *load_account(const char *name)
         }
         return account;
 }
+
+// =============================================================================
+// Account File I/O Functions
+// =============================================================================
 
 void fread_account(ACCOUNT_DATA * account, FILE * fp)
 {

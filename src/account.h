@@ -42,21 +42,42 @@
 
 #ifndef _ACCOUNT_H_
 #define _ACCOUNT_H_
+
 /* Ensure core project types/macros are available when this header is included
  * directly so the header is self-contained for tools (IDE/intellisense) and
  * translation units that may not include `mud.h` beforehand. */
 #include "mud.h"
 
+// =============================================================================
+// Account System Constants
+// =============================================================================
+
+#define ACCOUNT_DIR (char*)"../account/"
+
+#define ACCOUNT_SOUND ACCOUNT_MSP
+#define ACCOUNT_MSP   BV00
+#define ACCOUNT_MXP   BV01
+
+// =============================================================================
+// Forward Declarations
+// =============================================================================
+
 typedef struct account_data ACCOUNT_DATA;
+
+// =============================================================================
+// Global Variables
+// =============================================================================
 
 extern ACCOUNT_DATA *first_account;
 extern ACCOUNT_DATA *last_account;
 
-#define ACCOUNT_DIR (char*)"../account/"
+// =============================================================================
+// Account Data Structure
+// =============================================================================
 
-#define  ACCOUNT_SOUND ACCOUNT_MSP
-#define  ACCOUNT_MSP BV00
-#define  ACCOUNT_MXP BV01
+// =============================================================================
+// Account Data Structure
+// =============================================================================
 
 struct account_data
 {
@@ -73,9 +94,12 @@ struct account_data
         int       inuse;    /* To prevent deleting one that is active */
         int       flags;
         struct note_data *comments;
-        
-		char     *email;
+        char     *email;
 };
+
+// =============================================================================
+// Function Prototypes
+// =============================================================================
 
 ACCOUNT_DATA *load_account args((const char *name));
 ACCOUNT_DATA *create_account args((void));

@@ -39,20 +39,61 @@
  *****************************************************************************************
  *                            Movement and Actions Module                                *
  ****************************************************************************************/
+// ============================================================================
+// System Headers
+// ============================================================================
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+
+// ============================================================================
+// Local Headers
+// ============================================================================
 #include "mud.h"
 #include "msp.h"
 
+// ============================================================================
+// Constants and Configuration
+// ============================================================================
+namespace {
+    // Virtual room constants
+    constexpr int VROOM_HASH_SIZE = 64;
+    
+    // Text formatting constants
+    constexpr int MAX_WORD_LENGTH = 255;
+    constexpr int WORDWRAP_WIDTH = 78;
+    
+    // Movement and endurance thresholds
+    constexpr int MIN_BASH_ENDURANCE = 15;
+    constexpr int MIN_STRUGGLE_ENDURANCE = 100;
+    constexpr int MIN_SUBDUE_ENDURANCE = 80;
+    constexpr int FALL_DAMAGE_THRESHOLD = 80;
+    constexpr double ENCUMBRANCE_THRESHOLD = 0.95;
+    
+    // Wait state timers
+    constexpr int BIND_WAIT_STATE = 2;
+    constexpr int RELEASE_WAIT_STATE = 4;
+    constexpr int STRUGGLE_WAIT_MIN = 2;
+    constexpr int STRUGGLE_WAIT_MAX = 7;
+    
+    // Auto-description limits
+    constexpr int MAX_ROOM_DESCRIPTIONS = 8;
+}
+
+// ============================================================================
+// Function Prototypes
+// ============================================================================
 char     *grab_word(char *argument, char *arg_first);
 void      decorate_room(ROOM_INDEX_DATA * room);
 ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit);
 void      toggle_bexit_flag(EXIT_DATA * pexit, int flag);
 void      remove_bexit_flag(EXIT_DATA * pexit, int flag);
 
+// ============================================================================
+// Movement and Direction Data
+// ============================================================================
 const sh_int movement_loss[SECT_MAX] = {
         1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6, 5, 7, 4
 };
@@ -67,14 +108,11 @@ const int trap_door[] = {
         TRAP_NE, TRAP_NW, TRAP_SE, TRAP_SW
 };
 
-
 const sh_int rev_dir[] = {
         2, 3, 0, 1, 5, 4, 9, 8, 7, 6, 10
 };
 
-
-ROOM_INDEX_DATA *vroom_hash[64];
-
+ROOM_INDEX_DATA *vroom_hash[VROOM_HASH_SIZE];
 
 /*
  * Local functions.
@@ -82,6 +120,9 @@ ROOM_INDEX_DATA *vroom_hash[64];
 bool has_key args((CHAR_DATA * ch, int key));
 
 
+// ============================================================================
+// Sector and Room Description Data
+// ============================================================================
 char     *const sect_names[SECT_MAX][2] = {
         {"In a room", "inside"}, {"A City Street", "cities"},
         {"In a field", "fields"}, {"In a forest", "forests"},
@@ -92,7 +133,6 @@ char     *const sect_names[SECT_MAX][2] = {
         {"ocean floor", "ocean floor"}, {"underground", "underground"},
         {"On a Starship", "starship"}
 };
-
 
 const int sent_total[SECT_MAX] = {
         4, 24, 4, 4, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1
@@ -188,6 +228,10 @@ char     *const room_sents[SECT_MAX][25] = {
 
 };
 
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
 int wherehome(CHAR_DATA * ch)
 {
 
@@ -216,7 +260,7 @@ char     *grab_word(char *argument, char *arg_first)
         if (*argument == '\'' || *argument == '"')
                 cEnd = *argument++;
 
-        while (*argument != '\0' || ++count >= 255)
+        while (*argument != '\0' || ++count >= MAX_WORD_LENGTH)
         {
                 if (*argument == cEnd)
                 {
@@ -324,7 +368,7 @@ void decorate_room(ROOM_INDEX_DATA * room)
 
         room->name = STRALLOC(sect_names[sector][0]);
         buf[0] = '\0';
-        nRand = number_range(1, UMIN(8, sent_total[sector]));
+        nRand = number_range(1, UMIN(MAX_ROOM_DESCRIPTIONS, sent_total[sector]));
 
         for (iRand = 0; iRand < nRand; iRand++)
                 previous[iRand] = -1;
@@ -358,10 +402,13 @@ void decorate_room(ROOM_INDEX_DATA * room)
                         mudstrlcat(buf, buf2, MSL);
                 }
         }
-        snprintf(buf2, MSL, "%s\n\r", wordwrap(buf, 78));
+        snprintf(buf2, MSL, "%s\n\r", wordwrap(buf, WORDWRAP_WIDTH));
         room->description = STRALLOC(buf2);
 }
 
+// ============================================================================
+// Room Description and Auto-Generation Functions
+// ============================================================================
 
 CMDF do_autodescription(CHAR_DATA * ch, char *argument)
 {
@@ -370,7 +417,7 @@ CMDF do_autodescription(CHAR_DATA * ch, char *argument)
         char      arg[MAX_STRING_LENGTH];
         int       nRand;
         int       iRand, len;
-        int       previous[8];
+        int       previous[MAX_ROOM_DESCRIPTIONS];
         int       sector;
         ROOM_INDEX_DATA *room;
 
@@ -391,7 +438,7 @@ CMDF do_autodescription(CHAR_DATA * ch, char *argument)
 
 
         buf[0] = '\0';
-        nRand = number_range(1, UMIN(8, sent_total[sector]));
+        nRand = number_range(1, UMIN(MAX_ROOM_DESCRIPTIONS, sent_total[sector]));
 
         for (iRand = 0; iRand < nRand; iRand++)
                 previous[iRand] = -1;
@@ -425,10 +472,13 @@ CMDF do_autodescription(CHAR_DATA * ch, char *argument)
                         mudstrlcat(buf, buf2, MSL);
                 }
         }
-        snprintf(buf2, MSL, "%s\n\r", wordwrap(buf, 78));
+        snprintf(buf2, MSL, "%s\n\r", wordwrap(buf, WORDWRAP_WIDTH));
         room->description = STRALLOC(buf2);
 }
 
+// ============================================================================
+// Virtual Room Management Functions
+// ============================================================================
 
 /*
  * Remove any unused virtual rooms				-Thoric
@@ -438,7 +488,7 @@ void clear_vrooms()
         int       hash;
         ROOM_INDEX_DATA *room, *room_next, *prev;
 
-        for (hash = 0; hash < 64; hash++)
+        for (hash = 0; hash < VROOM_HASH_SIZE; hash++)
         {
                 while (vroom_hash[hash]
                        && !vroom_hash[hash]->first_person
@@ -527,6 +577,9 @@ EXIT_DATA *get_exit_num(ROOM_INDEX_DATA * room, sh_int count)
         return NULL;
 }
 
+// ============================================================================
+// Exit and Movement Helper Functions
+// ============================================================================
 
 /*
  * Modify movement due to encumbrance				-Thoric
@@ -539,7 +592,7 @@ sh_int encumbrance(CHAR_DATA * ch, sh_int endurance)
         cur = ch->carry_weight;
         if (cur >= max)
                 return endurance * 7;
-        else if (cur >= max * 0.95)
+        else if (cur >= max * ENCUMBRANCE_THRESHOLD)
                 return endurance * 6;
         else if (cur >= max * 0.90)
                 return endurance * 5;
@@ -567,9 +620,10 @@ bool will_fall(CHAR_DATA * ch, int fall)
             && (!IS_AFFECTED(ch, AFF_FLYING)
                 || (ch->mount && !IS_AFFECTED(ch->mount, AFF_FLYING))))
         {
-                if (fall > 80)
+                if (fall > FALL_DAMAGE_THRESHOLD)
                 {
-                        bug("Falling (in a loop?) more than 80 rooms: vnum %d", ch->in_room->vnum);
+                        bug("Falling (in a loop?) more than %d rooms: vnum %d", 
+                            FALL_DAMAGE_THRESHOLD, ch->in_room->vnum);
                         char_from_room(ch);
                         char_to_room(ch, get_room_index(wherehome(ch)));
                         fall = 0;
@@ -670,6 +724,10 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
         *pexit = xit;
         return room;
 }
+
+// ============================================================================
+// Core Movement Functions
+// ============================================================================
 
 ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
 {
@@ -1372,6 +1430,9 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
         return retcode;
 }
 
+// ============================================================================
+// Directional Movement Commands
+// ============================================================================
 
 CMDF do_north(CHAR_DATA * ch, char *argument)
 {
@@ -1521,6 +1582,9 @@ EXIT_DATA *find_door(CHAR_DATA * ch, char *arg, bool quiet)
         return pexit;
 }
 
+// ============================================================================
+// Door and Exit Manipulation Functions  
+// ============================================================================
 
 void toggle_bexit_flag(EXIT_DATA * pexit, int flag)
 {
@@ -2032,7 +2096,7 @@ CMDF do_bashdoor(CHAR_DATA * ch, char *argument)
                         percent_chance = 90;
 
                 if (!IS_SET(pexit->exit_info, EX_BASHPROOF)
-                    && ch->endurance >= 15
+                    && ch->endurance >= MIN_BASH_ENDURANCE
                     && number_percent() <
                     (percent_chance + 4 * (get_curr_str(ch) - 19)))
                 {
@@ -2097,6 +2161,9 @@ CMDF do_bashdoor(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// ============================================================================
+// Character Position and Stance Commands
+// ============================================================================
 
 CMDF do_stand(CHAR_DATA * ch, char *argument)
 {
@@ -2744,6 +2811,10 @@ CMDF do_run(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// ============================================================================
+// Character Binding and Holding System
+// ============================================================================
+
 CMDF do_struggle_binding(CHAR_DATA * ch)
 {
         OBJ_DATA *obj = NULL;
@@ -2760,7 +2831,7 @@ CMDF do_struggle_binding(CHAR_DATA * ch)
                 bug("%s is do_struggle_binding with no binding!", ch->name);
                 return;
         }
-        if (ch->endurance < 100)
+        if (ch->endurance < MIN_STRUGGLE_ENDURANCE)
         {
                 send_to_char("You're too tired to struggle more.", ch);
                 return;
@@ -2860,7 +2931,7 @@ CMDF do_hold_person(CHAR_DATA * ch, char *argument)
         victim->position = POS_STANDING;
         victim->master = ch;
         victim->leader = ch;
-        WAIT_STATE(ch, number_range(2, 7));
+        WAIT_STATE(ch, number_range(STRUGGLE_WAIT_MIN, STRUGGLE_WAIT_MAX));
         return;
 }
 
@@ -2892,7 +2963,7 @@ CMDF do_struggle(CHAR_DATA * ch)
         else
                 holder = ch->heldby;
 
-        if (ch->endurance < 100)
+        if (ch->endurance < MIN_STRUGGLE_ENDURANCE)
         {
                 send_to_char("You are too tired to struggle more.\n\r", ch);
                 return;
@@ -3062,7 +3133,7 @@ CMDF do_subdue(CHAR_DATA * ch, char *argument)
                     victim, TO_CHAR);
                 return;
         }
-        if (victim->endurance < 80)
+        if (victim->endurance < MIN_SUBDUE_ENDURANCE)
         {
                 act(AT_ACTION, "$N looks pretty subdued already.", ch, NULL,
                     victim, TO_CHAR);
@@ -3118,14 +3189,14 @@ CMDF do_bind(CHAR_DATA * ch, char *argument)
                              ch);
                 return;
         }
-        if (!victim->held && IS_AWAKE(victim) && victim->endurance > 100)
+        if (!victim->held && IS_AWAKE(victim) && victim->endurance > MIN_STRUGGLE_ENDURANCE)
         {
                 act(AT_ACTION,
                     "Well, $N seems a little too lively to be bound.", ch,
                     NULL, victim, TO_CHAR);
                 return;
         }
-        if (victim->held == TRUE && victim->endurance > 100)
+        if (victim->held == TRUE && victim->endurance > MIN_STRUGGLE_ENDURANCE)
         {
                 act(AT_ACTION, "Try subduing $M first.", ch, NULL, victim,
                     TO_CHAR);
@@ -3209,8 +3280,8 @@ CMDF do_release(CHAR_DATA * ch, char *argument)
                 victim->master = NULL;
                 victim->heldby = NULL;
                 victim->leader = NULL;
-                WAIT_STATE(ch, 2);
-                WAIT_STATE(victim, 4);
+                WAIT_STATE(ch, BIND_WAIT_STATE);
+                WAIT_STATE(victim, RELEASE_WAIT_STATE);
         }
         return;
 }
