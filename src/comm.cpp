@@ -39,27 +39,55 @@
  *****************************************************************************************
  *                               SWR Communication Module                                *
  ****************************************************************************************/
+
+// System includes - C library
 #include <stdint.h>
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#if defined(__CYGWIN__)
+#include <crypt.h>
+#else
+#include <crypt.h>
+#endif
+
+// System includes - POSIX/Unix
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+// Network includes
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/in_systm.h>
+#include <netinet/ip.h>
+#include <arpa/inet.h>
+#include <arpa/telnet.h>
+#include <netdb.h>
+
 // GMCP (Generic Mud Communication Protocol) support
 #ifndef TELOPT_GMCP
 #define TELOPT_GMCP 201
 #endif
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <ctype.h>
-#include <errno.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <crypt.h>
-#if defined(__CYGWIN__)
-#include <crypt.h>
-#endif
+
+#define TELOPTS
+#define TELCMDS
+
+// Communication constants
+#define GMCP_BUFFER_SIZE    1024
+#define HOSTNAME_SIZE       64
+#define SOCKET_LINGER_TIME  1000
+#define DEFAULT_PORT        4000
+#define MIN_PORT            1024
+
+// Project includes
 #include "mud.h"
 #include "changes.h"
 #include "mxp.h"
@@ -74,29 +102,20 @@
 #include "greet.h"
 #include "password.h"
 
-// Function to check if password needs upgrading to Argon2
+// Forward declarations
 bool should_upgrade_hash(const char *hash);
 
-#define TELOPTS
-#define TELCMDS
-/*
- * Socket and TCP/IP stuff.
- */
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>
-#include <arpa/inet.h>
-#include <arpa/telnet.h>
-#include <netdb.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+const char* position_name(int position);
+#ifdef __cplusplus
+}
+#endif
 
-#include "races.h"
-#include "greet.h"
-#include "password.h"
-
-// Function to check if password needs upgrading to Argon2
-bool should_upgrade_hash(const char *hash);
+// =============================================================================
+// GMCP (Generic MUD Communication Protocol) Support
+// =============================================================================
 
 /* Helper to copy a C string into gmcp_buf while escaping IAC (0xFF) bytes.
  * gmcp_buf: destination buffer
@@ -128,7 +147,7 @@ void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *data) {
          * convention: "Event.Name <json>". We must frame with IAC SB TELOPT_GMCP
          * ... IAC SE and escape any embedded IAC bytes by doubling 0xFF.
          */
-        unsigned char gmcp_buf[1024];
+        unsigned char gmcp_buf[GMCP_BUFFER_SIZE];
         int len = 0;
         /* Start subnegotiation */
         gmcp_buf[len++] = IAC;
@@ -150,71 +169,114 @@ void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *data) {
 
         write_to_buffer(d, (const char *)gmcp_buf, len);
 }
-#ifdef __cplusplus
-extern "C" {
-#endif
-const char* position_name(int position);
-#ifdef __cplusplus
-}
-#endif
-#define IS		'\x00'
-#define TERMINAL_TYPE	'\x18'
+
+// =============================================================================
+// Telnet Protocol Constants and Definitions
+// =============================================================================
+
+// =============================================================================
+// Telnet Protocol Constants and Definitions
+// =============================================================================
+
+#define IS              '\x00'
+#define TERMINAL_TYPE   '\x18'
 #define SEND            '\x01'
-const unsigned char wont_eor_str[] = { IAC, WONT, EOR, '\0' };
 
-// Telnet Go Ahead command sequence
-const unsigned char go_ahead_str[] = { IAC, GA, '\0' };
-
-const unsigned char do_termtype_str[] = { IAC, DO, TERMINAL_TYPE, '\0' };
+// Terminal type negotiation
+const unsigned char do_termtype_str[]   = { IAC, DO, TERMINAL_TYPE, '\0' };
 const unsigned char dont_termtype_str[] = { IAC, DONT, TERMINAL_TYPE, '\0' };
 const unsigned char term_call_back_str[] = { IAC, SB, TERMINAL_TYPE, IS };
-const unsigned char req_termtype_str[] =
-        { IAC, SB, TERMINAL_TYPE, SEND, IAC, SE, '\0' };
-/* Terminal detection stuff end */
+const unsigned char req_termtype_str[]  = { IAC, SB, TERMINAL_TYPE, SEND, IAC, SE, '\0' };
 
-// Telnet command to turn local echo off
-const unsigned char echo_off_str[] = { IAC, WILL, TELOPT_ECHO, '\0' };
-// Telnet command to turn local echo on
-const unsigned char echo_on_str[] = { IAC, WONT, TELOPT_ECHO, '\0' };
+// Echo control
+const unsigned char echo_off_str[]      = { IAC, WILL, TELOPT_ECHO, '\0' };
+const unsigned char echo_on_str[]       = { IAC, WONT, TELOPT_ECHO, '\0' };
 
-// Telnet command to negotiate GMCP (Generic Mud Communication Protocol)
-#ifndef TELOPT_GMCP
-#define TELOPT_GMCP 201
-#endif
-const unsigned char will_gmcp_str[] = { IAC, WILL, TELOPT_GMCP, '\0' };
+// End of Record and Go Ahead
+const unsigned char wont_eor_str[]      = { IAC, WONT, EOR, '\0' };
+const unsigned char go_ahead_str[]      = { IAC, GA, '\0' };
+
+// GMCP (Generic Mud Communication Protocol)
+const unsigned char will_gmcp_str[]     = { IAC, WILL, TELOPT_GMCP, '\0' };
 
 #ifdef MCCP
-const unsigned char will_compress_str[] =
-        { IAC, WILL, TELOPT_COMPRESS, '\0' };
-const unsigned char will_compress2_str[] =
-        { IAC, WILL, TELOPT_COMPRESS2, '\0' };
-
-const unsigned char do_compress1_str[] = { IAC, DO, TELOPT_COMPRESS, '\0' };
-const unsigned char dont_compress1_str[] =
-        { IAC, DONT, TELOPT_COMPRESS, '\0' };
-const unsigned char do_compress2_str[] = { IAC, DO, TELOPT_COMPRESS2, '\0' };
-const unsigned char dont_compress2_str[] =
-        { IAC, DONT, TELOPT_COMPRESS2, '\0' };
-
-const unsigned char send_compress2_str[] =
-        { IAC, SB, TELOPT_COMPRESS2, IAC, SE, '\0' };
+// MCCP (Mud Client Compression Protocol)
+const unsigned char will_compress_str[]  = { IAC, WILL, TELOPT_COMPRESS, '\0' };
+const unsigned char will_compress2_str[] = { IAC, WILL, TELOPT_COMPRESS2, '\0' };
+const unsigned char do_compress1_str[]   = { IAC, DO, TELOPT_COMPRESS, '\0' };
+const unsigned char dont_compress1_str[] = { IAC, DONT, TELOPT_COMPRESS, '\0' };
+const unsigned char do_compress2_str[]   = { IAC, DO, TELOPT_COMPRESS2, '\0' };
+const unsigned char dont_compress2_str[] = { IAC, DONT, TELOPT_COMPRESS2, '\0' };
+const unsigned char send_compress2_str[] = { IAC, SB, TELOPT_COMPRESS2, IAC, SE, '\0' };
 #endif
+
+// =============================================================================
+// Global Constants
+// =============================================================================
 
 const char *gotmail = "[MAIL]";
 
+// =============================================================================
+// Function Prototypes
+// =============================================================================
+
+// System functions
 void save_sysdata args((SYSTEM_DATA sys));
 void shutdown_mud args((char *reason));
+void memory_cleanup args((void));
+int main args((int argc, char **argv));
+
+// Character and help functions
 extern bool is_ignoring(CHAR_DATA * ch, CHAR_DATA * victim);
 HELP_DATA *get_help(CHAR_DATA * ch, char *argument);
-bool      char_exists(char *player);
-void memory_cleanup args((void));
+bool char_exists(char *player);
+void show_condition(CHAR_DATA * ch, CHAR_DATA * victim);
+void mail_count args((CHAR_DATA * ch));
 
-/*  from act_info?  */
-void      show_condition(CHAR_DATA * ch, CHAR_DATA * victim);
+// Network and descriptor functions
+void game_loop args((void));
+int init_socket args((int init_port));
+void new_descriptor args((int new_desc));
+bool read_from_descriptor args((DESCRIPTOR_DATA * d));
+bool write_to_descriptor args((int desc, char *txt, int length));
+#if MCCP
+bool write_to_descriptor_old args((int desc, char *txt, int length));
+#endif
 
-/*
- * Global variables.
- */
+// Connection and parsing functions
+bool check_parse_name args((char *name));
+bool check_reconnect args((DESCRIPTOR_DATA * d, char *name, bool fConn));
+sh_int check_playing args((DESCRIPTOR_DATA * d, char *name, bool kick));
+bool check_multi args((DESCRIPTOR_DATA * d, char *name));
+void nanny args((DESCRIPTOR_DATA * d, char *argument));
+
+// Buffer and I/O functions
+bool flush_buffer args((DESCRIPTOR_DATA * d, bool fPrompt));
+void read_from_buffer args((DESCRIPTOR_DATA * d));
+void stop_idling args((CHAR_DATA * ch));
+void free_desc args((DESCRIPTOR_DATA * d));
+void display_prompt args((DESCRIPTOR_DATA * d));
+int make_color_sequence args((const char *col, char *buf, DESCRIPTOR_DATA * d));
+void set_pager_input args((DESCRIPTOR_DATA * d, char *argument));
+bool pager_output args((DESCRIPTOR_DATA * d));
+void show_stat_options args((DESCRIPTOR_DATA * d, CHAR_DATA * ch));
+
+// Utility functions
+char *current_date args((void));
+sh_int client_speed args((sh_int speed));
+
+// Signal handlers
+static void SigTerm(int signum);
+static void SegVio(int signum);
+static void caught_alarm(void);
+
+// External references
+extern int maxChanges;
+extern CHANGE_DATA *changes_table;
+
+// =============================================================================
+// Global Variables
+// =============================================================================
 DESCRIPTOR_DATA *first_descriptor = NULL;   /* First descriptor     */
 DESCRIPTOR_DATA *last_descriptor = NULL;    /* Last descriptor      */
 DESCRIPTOR_DATA *d_next = NULL; /* Next descriptor in loop  */
@@ -238,52 +300,6 @@ fd_set    out_set;  /* Set of desc's for writing    */
 fd_set    exc_set;  /* Set of desc's with errors    */
 int       maxdesc;
 bool      crashover;    /* Perform Crashover?      */
-
-
-/*
- * OS-dependent local functions.
- */
-void game_loop args((void));
-int init_socket args((int init_port));
-void new_descriptor args((int new_desc));
-bool read_from_descriptor args((DESCRIPTOR_DATA * d));
-bool write_to_descriptor args((int desc, char *txt, int length));
-void show_stat_options args((DESCRIPTOR_DATA * d, CHAR_DATA * ch));
-
-#if MCCP
-bool write_to_descriptor_old args((int desc, char *txt, int length));
-#endif
-extern int maxChanges;
-extern CHANGE_DATA *changes_table;
-char     *current_date args((void));
-
-/*
- * Other local functions (OS-independent).
- */
-bool check_parse_name args((char *name));
-bool check_reconnect args((DESCRIPTOR_DATA * d, char *name, bool fConn));
-sh_int check_playing args((DESCRIPTOR_DATA * d, char *name, bool kick));
-bool check_multi args((DESCRIPTOR_DATA * d, char *name));
-int main  args((int argc, char **argv));
-void nanny args((DESCRIPTOR_DATA * d, char *argument));
-bool flush_buffer args((DESCRIPTOR_DATA * d, bool fPrompt));
-void read_from_buffer args((DESCRIPTOR_DATA * d));
-void stop_idling args((CHAR_DATA * ch));
-void free_desc args((DESCRIPTOR_DATA * d));
-void display_prompt args((DESCRIPTOR_DATA * d));
-int make_color_sequence args((const char *col, char *buf,
-                              DESCRIPTOR_DATA * d));
-void set_pager_input args((DESCRIPTOR_DATA * d, char *argument));
-bool pager_output args((DESCRIPTOR_DATA * d));
-
-sh_int client_speed args((sh_int speed));
-
-
-
-
-void mail_count args((CHAR_DATA * ch));
-
-
 
 int main(int argc, char **argv)
 {
@@ -362,7 +378,7 @@ int main(int argc, char **argv)
         /*
          * Get the port number.
          */
-        port = 4000;
+        port = DEFAULT_PORT;
         if (argc > 1)
         {
                 if (!is_number(argv[1]))
@@ -370,9 +386,9 @@ int main(int argc, char **argv)
                         fprintf(stderr, "Usage: %s [port #]\n", argv[0]);
                         exit(1);
                 }
-                else if ((port = atoi(argv[1])) <= 1024)
+                else if ((port = atoi(argv[1])) <= MIN_PORT)
                 {
-                        fprintf(stderr, "Port number must be above 1024.\n");
+                        fprintf(stderr, "Port number must be above %d.\n", MIN_PORT);
                         exit(1);
                 }
                 if (argv[2] && argv[2][0])
@@ -433,7 +449,7 @@ int main(int argc, char **argv)
 #ifdef WEB
         if (sysdata.web)
         {
-                sprintf(log_buf, "Booting webserver on port %d.", port + 2);
+                snprintf(log_buf, MSL, "Booting webserver on port %d.", port + 2);
                 log_string(log_buf);
                 init_web(port + 2);
         }
@@ -462,7 +478,7 @@ int main(int argc, char **argv)
 #ifdef WEB
         if (sysdata.web)
         {
-                sprintf(log_buf, "Shutting down webserver on port %d.",
+                snprintf(log_buf, MSL, "Shutting down webserver on port %d.",
                         port + 2);
                 log_string(log_buf);
                 shutdown_web();
@@ -479,7 +495,7 @@ int main(int argc, char **argv)
 
 int init_socket(int init_port)
 {
-        char      hostname[64];
+        char      hostname[HOSTNAME_SIZE];
         struct sockaddr_in sa;
         struct hostent *hp;
         struct servent *sp;
@@ -508,7 +524,7 @@ int init_socket(int init_port)
                 struct linger ld;
 
                 ld.l_onoff = 1;
-                ld.l_linger = 1000;
+                ld.l_linger = SOCKET_LINGER_TIME;
 
                 if (setsockopt(fd, SOL_SOCKET, SO_DONTLINGER,
                                (void *) &ld, sizeof(ld)) < 0)
@@ -543,7 +559,6 @@ int init_socket(int init_port)
         return fd;
 }
 
-static void SigTerm(int signum);
 static void SegVio(int signum)
 {
         pid_t     p;
@@ -734,7 +749,7 @@ bool chk_watch(sh_int player_level, char *player_name, char *player_site)
 
 /*
     char buf[MAX_INPUT_LENGTH];
-    sprintf( buf, "che_watch entry: plev=%d pname=%s psite=%s",
+    snprintf( buf, MSL, "che_watch entry: plev=%d pname=%s psite=%s",
                   player_level, player_name, player_site);
     log_string(buf);
 */
