@@ -40,6 +40,9 @@
  *                  Administration commands and abilities                                *
  ****************************************************************************************/
 
+// ============================================================================
+// System Headers
+// ============================================================================
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -54,6 +57,10 @@
 #if defined(__CYGWIN__)
 #include <crypt.h>
 #endif
+
+// ============================================================================
+// Local Headers
+// ============================================================================
 #include "mud.h"
 #include "changes.h"
 #include "boards.h"
@@ -68,7 +75,65 @@
 #include "space2.h"
 #include "installations.h"
 
-#define RESTORE_INTERVAL 21600
+// ============================================================================
+// Constants and Configuration
+// ============================================================================
+namespace {
+    // System timing constants
+    constexpr int RESTORE_INTERVAL = 21600; // 6 hours in seconds
+    constexpr int REBOOT_TIME_BUFFER = 50;  // Buffer size for reboot time string
+    
+    // Display formatting constants
+    constexpr int COLUMNS_PER_ROW = 5;       // Items per row in displays
+    constexpr int STATS_COLUMNS = 3;         // Columns for stats display
+    
+    // Authentication constants  
+    constexpr int AUTH_STATE_DENIED = 2;     // Denied authorization state
+    constexpr int AUTH_STATE_ACCEPTED = 3;   // Accepted authorization state
+    constexpr int CONNECTION_STATE_PLAYING = 2; // Playing connection state
+    
+    // Search and matching constants
+    constexpr int MAX_SEARCH_ITERATIONS = 10;    // Maximum search attempts
+    constexpr int MIN_SEARCH_ITERATIONS = 2;     // Minimum for early match
+    constexpr int SEARCH_THRESHOLD_DIVISOR = 2;  // Divisor for match threshold
+    
+    // Flag system constants - NOTE: Limited to 32 bits in legacy system
+    constexpr int MAX_FLAGS_PER_SET = 32;        // 32-bit limitation
+    constexpr int FLAG_BITS = 32;                // Bits per flag set
+    
+    // Future expansion consideration: Could use std::bitset<64> or similar
+    // for expanding beyond 32-bit flag limitations
+    
+    // Display and messaging constants
+    constexpr int PAGE_SIZE = 20;               // Lines per page for paging output
+    constexpr int TRUST_CHECK_INTERVAL = 300;   // Trust validation interval
+    
+    // String formatting constants
+    constexpr const char* OK_RESPONSE = "Ok.\n\r";
+    constexpr const char* USAGE_RANK = "Usage: rank <string>.\n\r   or: rank none.\n\r";
+    constexpr const char* INVALID_TARGET = "They aren't here.\n\r";
+    constexpr const char* NO_NPC_TARGET = "Not on NPC's.\n\r";
+    constexpr const char* INSUFFICIENT_TRUST = "You cannot do that.\n\r";
+    constexpr const char* PEACE_MESSAGE = "$n booms, 'PEACE!'";
+    constexpr const char* RESTORE_ALL_MESSAGE = "Restoring all characters...";
+    constexpr const char* FORCE_QUERY = "Force whom to do what?\n\r";
+    constexpr const char* FREEZE_QUERY = "Freeze whom?\n\r";
+    constexpr const char* SNOOP_QUERY = "Snoop whom?\n\r";
+    constexpr const char* TRANSFER_QUERY = "Transfer whom (and where)?\n\r";
+    constexpr const char* ADVANCE_SYNTAX = "Syntax: advance <char> <ability> <level>.\n\r";
+}
+
+// ============================================================================
+// Flag System Arrays - Legacy 32-bit System
+// ============================================================================
+// NOTE: These arrays are limited to 32 entries due to legacy 32-bit flag system
+// Future enhancement: Consider expanding to 64-bit or bitset implementation
+
+// ============================================================================
+// Flag System Arrays - Legacy 32-bit System
+// ============================================================================
+// NOTE: These arrays are limited to 32 entries due to legacy 32-bit flag system
+// Future enhancement: Consider expanding to 64-bit or bitset implementation
 
 extern bool WEBSERVER_STATUS;
 
@@ -96,11 +161,17 @@ char     *const god_flags[] = {
         "r30", "r31"
 };
 
+// ============================================================================
+// Flag System Functions - Legacy 32-bit Implementation
+// ============================================================================
+// NOTE: These functions are limited to 32 flags due to legacy bit field design
+// Future consideration: Expand to support more than 32 flags per category
+
 int get_commandflag(char *flag)
 {
         int       x;
 
-        for (x = 0; x < 32; x++)
+        for (x = 0; x < MAX_FLAGS_PER_SET; x++)
                 if (!str_cmp(flag, command_flags[x]))
                         return x;
         return -1;
@@ -110,11 +181,15 @@ int get_godflags(char *flag)
 {
         int       x;
 
-        for (x = 0; x < 32; x++)
+        for (x = 0; x < MAX_FLAGS_PER_SET; x++)
                 if (!str_cmp(flag, god_flags[x]))
                         return x;
         return -1;
 }
+
+// ============================================================================
+// Connection and Authentication System
+// ============================================================================
 
 char     *const connection_state[] = {
         "Get Name", "Get Password",
@@ -166,7 +241,7 @@ const char *name_expand(CHAR_DATA * ch);
  * Global variables.
  */
 
-char      reboot_time[50];
+char      reboot_time[REBOOT_TIME_BUFFER];
 time_t    new_boot_time_t;
 extern struct tm new_boot_struct;
 extern OBJ_INDEX_DATA *obj_index_hash[MAX_KEY_HASH];
@@ -226,11 +301,11 @@ void output_help(CHAR_DATA * ch, struct wizhelp_s **first,
                         pager_printf(ch, "&C %-17s&W", curr->cmd->name);
                 else
                         pager_printf(ch, "&R %-17s&W", curr->cmd->name);
-                if (++col % 5 == 0)
+                if (++col % COLUMNS_PER_ROW == 0)
                         send_to_pager("\n\r", ch);
                 DISPOSE(curr);
         }
-        if (col % 5 != 0)
+        if (col % COLUMNS_PER_ROW != 0)
                 send_to_pager("\n\r", ch);
 
         send_to_pager("\n\r", ch);
@@ -453,6 +528,10 @@ CMDF do_restrict(CHAR_DATA * ch, char *argument)
 /* 
  * Check if the name prefix uniquely identifies a char descriptor
  */
+// ============================================================================
+// Section: Authorization System Functions
+// ============================================================================
+
 CHAR_DATA *get_waiting_desc(CHAR_DATA * ch, char *name)
 {
         DESCRIPTOR_DATA *d;
@@ -523,7 +602,7 @@ CMDF do_authorize(CHAR_DATA * ch, char *argument)
         if (arg2[0] == '\0' || !str_cmp(arg2, "accept")
             || !str_cmp(arg2, "yes"))
         {
-                victim->pcdata->auth_state = 3;
+                victim->pcdata->auth_state = AUTH_STATE_ACCEPTED;
                 REMOVE_BIT(victim->pcdata->flags, PCFLAG_UNAUTHED);
                 if (victim->pcdata->authed_by)
                         STRFREE(victim->pcdata->authed_by);
@@ -564,7 +643,7 @@ CMDF do_authorize(CHAR_DATA * ch, char *argument)
                           victim->name);
                 ch_printf(ch, "You requested %s change names.\n\r",
                           victim->name);
-                victim->pcdata->auth_state = 2;
+                victim->pcdata->auth_state = AUTH_STATE_DENIED;
                 return;
         }
 
@@ -575,6 +654,10 @@ CMDF do_authorize(CHAR_DATA * ch, char *argument)
         }
 }
 
+// ============================================================================
+// Section: Character Customization Functions
+// ============================================================================
+
 CMDF do_bamfin(CHAR_DATA * ch, char *argument)
 {
         if (!IS_NPC(ch))
@@ -582,7 +665,7 @@ CMDF do_bamfin(CHAR_DATA * ch, char *argument)
                 smash_tilde(argument);
                 STRFREE(ch->pcdata->bamfin);
                 ch->pcdata->bamfin = STRALLOC(argument);
-                send_to_char("Ok.\n\r", ch);
+                send_to_char(OK_RESPONSE, ch);
         }
         return;
 }
@@ -596,7 +679,7 @@ CMDF do_bamfout(CHAR_DATA * ch, char *argument)
                 smash_tilde(argument);
                 STRFREE(ch->pcdata->bamfout);
                 ch->pcdata->bamfout = STRALLOC(argument);
-                send_to_char("Ok.\n\r", ch);
+                send_to_char(OK_RESPONSE, ch);
         }
         return;
 }
@@ -608,8 +691,7 @@ CMDF do_rank(CHAR_DATA * ch, char *argument)
 
         if (!argument || argument[0] == '\0')
         {
-                send_to_char("Usage: rank <string>.\n\r", ch);
-                send_to_char("   or: rank none.\n\r", ch);
+                send_to_char(USAGE_RANK, ch);
                 return;
         }
 
@@ -619,11 +701,15 @@ CMDF do_rank(CHAR_DATA * ch, char *argument)
                 ch->pcdata->rank = STRALLOC("");
         else
                 ch->pcdata->rank = STRALLOC(argument);
-        send_to_char("Ok.\n\r", ch);
+        send_to_char(OK_RESPONSE, ch);
 
         return;
 }
 
+
+// ============================================================================
+// Section: MUD Statistics and Information Functions
+// ============================================================================
 
 /*
  *       New MUD Statistics for LOTJ ;)
@@ -923,6 +1009,10 @@ CMDF do_deny(CHAR_DATA * ch, char *argument)
 
 
 
+// ============================================================================
+// Section: Connection Management Functions
+// ============================================================================
+
 CMDF do_disconnect(CHAR_DATA * ch, char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
@@ -938,7 +1028,7 @@ CMDF do_disconnect(CHAR_DATA * ch, char *argument)
 
         if ((victim = get_char_world(ch, arg)) == NULL)
         {
-                send_to_char("They aren't here.\n\r", ch);
+                send_to_char(INVALID_TARGET, ch);
                 return;
         }
 
@@ -960,7 +1050,7 @@ CMDF do_disconnect(CHAR_DATA * ch, char *argument)
                 if (d == victim->desc)
                 {
                         close_socket(d, FALSE);
-                        send_to_char("Ok.\n\r", ch);
+                        send_to_char(OK_RESPONSE, ch);
                         return;
                 }
         }
@@ -1152,6 +1242,10 @@ void echo_to_clan(sh_int AT_COLOR, char *argument, CLAN_DATA * clan)
         return;
 }
 
+// ============================================================================
+// Section: Communication and Broadcasting Functions
+// ============================================================================
+
 CMDF do_echo(CHAR_DATA * ch, char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
@@ -1269,7 +1363,9 @@ ROOM_INDEX_DATA *find_location(CHAR_DATA * ch, char *arg)
         return NULL;
 }
 
-
+// ============================================================================
+// Section: Transportation and Movement Functions  
+// ============================================================================
 
 CMDF do_transfer(CHAR_DATA * ch, char *argument)
 {
@@ -2638,6 +2734,9 @@ CMDF do_shutdown(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// ============================================================================
+// Section: Monitoring and Surveillance Functions
+// ============================================================================
 
 CMDF do_snoop(CHAR_DATA * ch, char *argument)
 {
@@ -3274,6 +3373,10 @@ Thoric.\n\r",
         return;
 }
 
+// ============================================================================
+// Section: Character Advancement and Level Management Functions
+// ============================================================================
+
 CMDF do_advance(CHAR_DATA * ch, char *argument)
 {
         char      arg1[MAX_INPUT_LENGTH];
@@ -3624,6 +3727,9 @@ CMDF do_trust(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// ============================================================================
+// Section: Character Restoration and Recovery Functions
+// ============================================================================
 
 #ifndef RESTORE
 CMDF do_restore(CHAR_DATA * ch, char *argument)
@@ -3758,6 +3864,10 @@ CMDF do_restoretime(CHAR_DATA * ch, char *argument)
                   hour, minute);
         return;
 }
+
+// ============================================================================
+// Section: Disciplinary and Player Management Functions
+// ============================================================================
 
 CMDF do_freeze(CHAR_DATA * ch, char *argument)
 {
@@ -4157,15 +4267,16 @@ CMDF do_unsilence(CHAR_DATA * ch, char *argument)
         return;
 }
 
-
-
+// ============================================================================
+// Section: Environment Control and Combat Management Functions
+// ============================================================================
 
 CMDF do_peace(CHAR_DATA * ch, char *argument)
 {
         CHAR_DATA *rch;
 
         argument = NULL;
-        act(AT_IMMORT, "$n booms, 'PEACE!'", ch, NULL, NULL, TO_ROOM);
+        act(AT_IMMORT, PEACE_MESSAGE, ch, NULL, NULL, TO_ROOM);
         for (rch = ch->in_room->first_person; rch; rch = rch->next_in_room)
         {
                 if (rch->fighting)
@@ -4182,7 +4293,7 @@ CMDF do_peace(CHAR_DATA * ch, char *argument)
                 stop_fearing(rch);
         }
 
-        send_to_char("Ok.\n\r", ch);
+        send_to_char(OK_RESPONSE, ch);
         return;
 }
 
@@ -4287,6 +4398,9 @@ CMDF do_users(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// ============================================================================
+// Section: Character Manipulation and Control Functions
+// ============================================================================
 
 /*
  * Thanks to Grodyn for pointing out bugs in this function.
