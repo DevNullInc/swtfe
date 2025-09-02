@@ -39,26 +39,56 @@
  *****************************************************************************************
  *                                Object scripting module                                *
  ****************************************************************************************/
+// ============================================================================
+// System Headers
+// ============================================================================
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
+// ============================================================================
+// Local Headers  
+// ============================================================================
 #include "mud.h"
 #include "bet.h"
 #include "races.h"
 #include "olc_bounty.h"
 
+// ============================================================================
+// Constants and Configuration
+// ============================================================================
+namespace {
+    // Object resistance and durability constants
+    constexpr int MAGIC_ITEM_RESISTANCE_BONUS = 12;
+    constexpr int BLESSED_ITEM_RESISTANCE_BONUS = 5;
+    constexpr int INVENTORY_ITEM_RESISTANCE_BONUS = 20;
+    constexpr int LEVEL_RESISTANCE_DIVISOR = 10;
+    constexpr int MIN_RESISTANCE = 10;
+    constexpr int MAX_RESISTANCE = 99;
+    
+    // Bury and dig constants
+    constexpr int MIN_BURY_WEIGHT = 5;
+    constexpr int BURY_WEIGHT_DIVISOR = 10;
+    constexpr int BURY_MOVE_MULTIPLIER = 50;
+    constexpr int SHOVEL_MULTIPLIER = 1;
+    constexpr int NO_SHOVEL_MULTIPLIER = 5;
+    constexpr int MIN_BURY_MOVE = 2;
+    constexpr int MAX_BURY_MOVE = 1000;
+    constexpr int MIN_BURY_WAIT = 10;
+    constexpr int MAX_BURY_WAIT = 100;
+    constexpr int BURY_WAIT_DIVISOR = 2;
+    
+    // String parsing constants
+    constexpr int PREFIX_LENGTH = 4; // Length of "all." prefix
+}
 
-
-/*
- * External functions
- */
-
-/*void    show_list_to_char  args( ( OBJ_DATA *list, CHAR_DATA *ch,
-				bool fShort, bool fShowNothing ) );*/
-/*
- * Local functions.
- */
+// ============================================================================
+// Function Prototypes
+// ============================================================================
+// ============================================================================
+// Function Prototypes
+// ============================================================================
 void get_obj args((CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * container));
 bool remove_obj args((CHAR_DATA * ch, int iWear, bool fReplace));
 void      wear_obj
@@ -66,6 +96,10 @@ args((CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, sh_int wear_bit));
 bool      could_dual(CHAR_DATA * ch);
 bool      can_dual(CHAR_DATA * ch);
 bool      can_layer(CHAR_DATA * ch, OBJ_DATA * obj, sh_int wear_loc);
+
+// ============================================================================
+// Object Resistance and Durability Functions
+// ============================================================================
 
 /*
  * how resistant an object is to damage				-Thoric
@@ -80,22 +114,22 @@ sh_int get_obj_resistance(OBJ_DATA * obj)
          * magical items are more resistant 
          */
         if (IS_OBJ_STAT(obj, ITEM_MAGIC))
-                resist += number_fuzzy(12);
+                resist += number_fuzzy(MAGIC_ITEM_RESISTANCE_BONUS);
         /*
          * blessed objects should have a little bonus 
          */
         if (IS_OBJ_STAT(obj, ITEM_BLESS))
-                resist += number_fuzzy(5);
+                resist += number_fuzzy(BLESSED_ITEM_RESISTANCE_BONUS);
         /*
          * lets make store inventory pretty tough 
          */
         if (IS_OBJ_STAT(obj, ITEM_INVENTORY))
-                resist += 20;
+                resist += INVENTORY_ITEM_RESISTANCE_BONUS;
 
         /*
          * okay... let's add some bonus/penalty for item level... 
          */
-        resist += (obj->level / 10);
+        resist += (obj->level / LEVEL_RESISTANCE_DIVISOR);
 
         /*
          * and lasty... take armor or weapon's condition into consideration 
@@ -103,9 +137,12 @@ sh_int get_obj_resistance(OBJ_DATA * obj)
         if (obj->item_type == ITEM_ARMOR || obj->item_type == ITEM_WEAPON)
                 resist += (obj->value[0]);
 
-        return URANGE(10, resist, 99);
+        return URANGE(MIN_RESISTANCE, resist, MAX_RESISTANCE);
 }
 
+// ============================================================================
+// Object Transfer and Manipulation Functions
+// ============================================================================
 
 void get_obj(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * container)
 {
@@ -203,6 +240,9 @@ void get_obj(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * container)
         return;
 }
 
+// ============================================================================
+// Object Retrieval Commands
+// ============================================================================
 
 CMDF do_get(CHAR_DATA * ch, char *argument)
 {
@@ -294,7 +334,7 @@ CMDF do_get(CHAR_DATA * ch, char *argument)
                         if (number > 1)
                                 chk = arg1;
                         else
-                                chk = &arg1[4];
+                                chk = &arg1[PREFIX_LENGTH];
                         /*
                          * 'get all' or 'get all.obj' 
                          */
@@ -445,7 +485,7 @@ CMDF do_get(CHAR_DATA * ch, char *argument)
                         if (number > 1)
                                 chk = arg1;
                         else
-                                chk = &arg1[4];
+                                chk = &arg1[PREFIX_LENGTH];
                         found = FALSE;
                         for (obj = container->first_content; obj;
                              obj = obj_next)
@@ -500,7 +540,9 @@ CMDF do_get(CHAR_DATA * ch, char *argument)
         return;
 }
 
-
+// ============================================================================
+// Object Storage Commands
+// ============================================================================
 
 CMDF do_put(CHAR_DATA * ch, char *argument)
 {
@@ -667,7 +709,7 @@ CMDF do_put(CHAR_DATA * ch, char *argument)
                 if (number > 1)
                         chk = arg1;
                 else
-                        chk = &arg1[4];
+                        chk = &arg1[PREFIX_LENGTH];
 
                 separate_obj(container);
                 /*
@@ -734,6 +776,9 @@ CMDF do_put(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// ============================================================================
+// Object Dropping and Disposal Commands
+// ============================================================================
 
 CMDF do_drop(CHAR_DATA * ch, char *argument)
 {
@@ -877,7 +922,7 @@ CMDF do_drop(CHAR_DATA * ch, char *argument)
                 if (number > 1)
                         chk = arg;
                 else
-                        chk = &arg[4];
+                        chk = &arg[PREFIX_LENGTH];
                 /*
                  * 'drop all' or 'drop all.obj' 
                  */
@@ -949,7 +994,9 @@ CMDF do_drop(CHAR_DATA * ch, char *argument)
         return;
 }
 
-
+// ============================================================================
+// Object Transfer Between Characters
+// ============================================================================
 
 CMDF do_give(CHAR_DATA * ch, char *argument)
 {
@@ -1170,7 +1217,9 @@ obj_ret damage_obj(OBJ_DATA * obj)
         return objcode;
 }
 
-
+// ============================================================================
+// Equipment and Wearing System Functions
+// ============================================================================
 
 /*
  * Remove an object.
@@ -2212,6 +2261,9 @@ CMDF do_remove(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// ============================================================================
+// Object Burial and Recovery Commands
+// ============================================================================
 
 CMDF do_bury(CHAR_DATA * ch, char *argument)
 {
@@ -2272,7 +2324,7 @@ CMDF do_bury(CHAR_DATA * ch, char *argument)
                 }
         }
 
-        if (obj->weight > (UMAX(5, (can_carry_w(ch) / 10))) && !shovel)
+        if (obj->weight > (UMAX(MIN_BURY_WEIGHT, (can_carry_w(ch) / BURY_WEIGHT_DIVISOR))) && !shovel)
         {
                 send_to_char
                         ("You'd need a shovel to bury something that big.\n\r",
@@ -2280,9 +2332,9 @@ CMDF do_bury(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        move = (obj->weight * 50 * (shovel ? 1 : 5)) / UMAX(1,
+        move = (obj->weight * BURY_MOVE_MULTIPLIER * (shovel ? SHOVEL_MULTIPLIER : NO_SHOVEL_MULTIPLIER)) / UMAX(1,
                                                             can_carry_w(ch));
-        move = URANGE(2, move, 1000);
+        move = URANGE(MIN_BURY_MOVE, move, MAX_BURY_MOVE);
         if (move > ch->endurance)
         {
                 send_to_char
@@ -2295,9 +2347,13 @@ CMDF do_bury(CHAR_DATA * ch, char *argument)
         act(AT_ACTION, "You solemnly bury $p...", ch, obj, NULL, TO_CHAR);
         act(AT_ACTION, "$n solemnly buries $p...", ch, obj, NULL, TO_ROOM);
         SET_BIT(obj->extra_flags, ITEM_BURRIED);
-        WAIT_STATE(ch, URANGE(10, move / 2, 100));
+        WAIT_STATE(ch, URANGE(MIN_BURY_WAIT, move / BURY_WAIT_DIVISOR, MAX_BURY_WAIT));
         return;
 }
+
+// ============================================================================
+// Magic Item Commands
+// ============================================================================
 
 CMDF do_zap(CHAR_DATA * ch, char *argument)
 {
@@ -2395,6 +2451,10 @@ CMDF do_zap(CHAR_DATA * ch, char *argument)
 
         return;
 }
+
+// ============================================================================
+// Clan Storage System
+// ============================================================================
 
 /*
  * Save items in a clan storage room			-Scryn & Thoric
@@ -3007,6 +3067,10 @@ CMDF do_setcode(CHAR_DATA * ch, char *argument)
                 return;
         }
 }
+
+// ============================================================================
+// Object Memory Management
+// ============================================================================
 
 void free_object(OBJ_DATA * obj)
 {
