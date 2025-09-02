@@ -24,11 +24,6 @@
 # *                                                                                       *
 # * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
 # * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
-# *                                                                                       *
-# * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
-# * by Sean Cooper                                                                        *
-# *                                                                                       *
-# * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
 # *****************************************************************************************
 # *                     Fallback server for when shit crashes                             *
 # *****************************************************************************************
