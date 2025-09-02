@@ -48,7 +48,7 @@ W_FLAGS = -pedantic -W -Wall -Wformat-security -Winline -Wstrict-prototypes -Wsh
 endif
 
 CPP_FILES = body.cpp account.cpp act_comm.cpp act_info.cpp act_move.cpp act_obj.cpp \
-            act_wiz.cpp alias.cpp arena.cpp autobuild.cpp ban.cpp bank.cpp \
+            act_wiz.cpp alias.cpp arena.cpp autobuild.cpp ban.cpp bank.cpp bet.cpp \
             boards.cpp bounty.cpp build.cpp changes.cpp channels.cpp clans.cpp cleanup.cpp color.cpp combat.cpp \
             comm.cpp comments.cpp const.cpp db.cpp delivery.cpp designship.cpp dns.cpp editor.cpp \
             fight.cpp finger.cpp grid_c.cpp handler.cpp hashstr.cpp homes.cpp hotboot.cpp immcomm.cpp \
