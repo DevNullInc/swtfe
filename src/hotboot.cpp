@@ -51,6 +51,7 @@
  *                          SWR Hotboot module                                           *
  ****************************************************************************************/
 
+// System includes
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -58,6 +59,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <dlfcn.h>
+
+// Project includes
 #include "mud.h"
 #include "changes.h"
 #include "homes.h"
@@ -66,23 +69,35 @@
 #include "channels.h"
 #include "space2.h"
 
-#define MAX_NEST	100
+// Constants
+#define MAX_NEST          100
+#define FILENAME_SIZE     256
+#define DIRNAME_SIZE      100
+#define BUFFER_SIZE       100
+
+// Global variables
 static OBJ_DATA *rgObjNest[MAX_NEST];
+
+// External references
 extern int port;    /* Port number to be used       */
 extern int control, control2, conclient, conjava;
+extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
+
+// Function prototypes
 bool flush_buffer args((DESCRIPTOR_DATA * d, bool fPrompt));
 void save_sysdata args((SYSTEM_DATA sys));
-void      hotboot(bool debug, bool save);
-
+void hotboot(bool debug, bool save);
+bool is_area_inprogress args((void));
+void init_descriptor args((DESCRIPTOR_DATA * dnew, int desc));
+bool write_to_descriptor(int desc, char *txt, int length);
 
 #ifdef MCCP
-bool      write_to_descriptor_old(int desc, char *txt, int length);
+bool write_to_descriptor_old(int desc, char *txt, int length);
 #endif
-bool      write_to_descriptor(int desc, char *txt, int length);
-void init_descriptor args((DESCRIPTOR_DATA * dnew, int desc));
 
-extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
-bool is_area_inprogress args((void));
+// =============================================================================
+// Ship Save/Load Functions
+// =============================================================================
 
 /*
  * Save the world's ship files
@@ -168,6 +183,10 @@ void write_ship(FILE * fp, SHIP_DATA * ship)
         fprintf(fp, "%s", "EndShip\n\n");
         return;
 }
+
+// =============================================================================
+// Channel History Save/Load Functions
+// =============================================================================
 
 void load_oochistory(void)
 {
@@ -277,15 +296,15 @@ SHIP_DATA *load_ship(FILE * fp)
                 {
                         bug("load_ship: No ship data for filename %s", name);
                         DISPOSE(name);
-                        return NULL;
-
+                        
+                        // Skip to end of ship data
                         for (;;)
                         {
                                 word = feof(fp) ? "EndShip" : fread_word(fp);
                                 if (!str_cmp(word, "EndShip"))
                                         break;
                         }
-
+                        return NULL;
                 }
 
                 DISPOSE(name);
@@ -441,6 +460,10 @@ SHIP_DATA *load_ship(FILE * fp)
         return NULL;
 }
 
+// =============================================================================
+// Mobile Save/Load Functions
+// =============================================================================
+
 void save_mobile(FILE * fp, CHAR_DATA * mob)
 {
         AFFECT_DATA *paf;
@@ -520,6 +543,10 @@ void save_mobile(FILE * fp, CHAR_DATA * mob)
         return;
 }
 
+// =============================================================================
+// World State Save/Load Functions
+// =============================================================================
+
 void save_world(CHAR_DATA * ch)
 {
         FILE     *mobfp;
@@ -527,7 +554,7 @@ void save_world(CHAR_DATA * ch)
         FILE     *objfp;
         int       mobfile = 0;
         int       shipfile = 0;
-        char      filename[256];
+        char      filename[FILENAME_SIZE];
         CHAR_DATA *rch;
         ROOM_INDEX_DATA *pRoomIndex;
         int       iHash;
@@ -535,7 +562,7 @@ void save_world(CHAR_DATA * ch)
         ch = NULL;
         log_string("Preserving world state....");
 
-        snprintf(filename, 256, "%s%s", SYSTEM_DIR, MOB_FILE);
+        snprintf(filename, FILENAME_SIZE, "%s%s", SYSTEM_DIR, MOB_FILE);
         if ((mobfp = fopen(filename, "w")) == NULL)
         {
                 bug("%s", "save_world: fopen mob file");
@@ -544,7 +571,7 @@ void save_world(CHAR_DATA * ch)
         else
                 mobfile++;
 
-        snprintf(filename, 256, "%s%s", SYSTEM_DIR, SHIP_FILE);
+        snprintf(filename, FILENAME_SIZE, "%s%s", SYSTEM_DIR, SHIP_FILE);
         if ((shipfp = fopen(filename, "w")) == NULL)
         {
                 bug("%s", "save_world: fopen ship file");
@@ -568,7 +595,7 @@ void save_world(CHAR_DATA * ch)
                                     || xIS_SET(pRoomIndex->room_flags, ROOM_PLR_HOME))
                                         continue;
 
-                                snprintf(filename, 256, "%s%d", HOTBOOT_DIR,
+                                snprintf(filename, FILENAME_SIZE, "%s%d", HOTBOOT_DIR,
                                          pRoomIndex->vnum);
                                 if ((objfp = fopen(filename, "w")) == NULL)
                                 {
@@ -821,15 +848,19 @@ CHAR_DATA *load_mobile(FILE * fp)
         return NULL;
 }
 
+// =============================================================================
+// Object File Handling
+// =============================================================================
+
 void read_obj_file(char *dirname, char *filename)
 {
         ROOM_INDEX_DATA *room;
         FILE     *fp;
-        char      fname[256];
+        char      fname[FILENAME_SIZE];
         int       vnum;
 
         vnum = atoi(filename);
-        snprintf(fname, 256, "%s%s", dirname, filename);
+        snprintf(fname, FILENAME_SIZE, "%s%s", dirname, filename);
         if ((room = get_room_index(vnum)) == NULL)
         {
                 bug("read_obj_file: ARGH! Missing room index for %d!", vnum);
@@ -915,10 +946,10 @@ void load_obj_files(void)
 {
         DIR      *dp;
         struct dirent *dentry;
-        char      directory_name[100];
+        char      directory_name[DIRNAME_SIZE];
 
         boot_log("World state: loading objs");
-        snprintf(directory_name, 100, "%s", HOTBOOT_DIR);
+        snprintf(directory_name, DIRNAME_SIZE, "%s", HOTBOOT_DIR);
         dp = opendir(directory_name);
         dentry = readdir(dp);
         while (dentry)
@@ -943,8 +974,8 @@ void load_world(CHAR_DATA * ch)
 {
         FILE     *mobfp;
         FILE     *shipfp;
-        char      file1[256];
-        char      file2[256];
+        char      file1[FILENAME_SIZE];
+        char      file2[FILENAME_SIZE];
         char     *word;
         int       done = 0;
         bool      mobfile = FALSE;
@@ -952,7 +983,7 @@ void load_world(CHAR_DATA * ch)
 
         ch = NULL;
 
-        snprintf(file1, 256, "%s%s", SYSTEM_DIR, MOB_FILE);
+        snprintf(file1, FILENAME_SIZE, "%s%s", SYSTEM_DIR, MOB_FILE);
         if ((mobfp = fopen(file1, "r")) == NULL)
         {
                 bug("%s", "load_world: fopen mob file");
@@ -961,7 +992,7 @@ void load_world(CHAR_DATA * ch)
         else
                 mobfile = TRUE;
 
-        snprintf(file2, 256, "%s%s", SYSTEM_DIR, SHIP_FILE);
+        snprintf(file2, FILENAME_SIZE, "%s%s", SYSTEM_DIR, SHIP_FILE);
         if ((shipfp = fopen(file2, "r")) == NULL)
         {
                 bug("%s", "load_world: fopen ship file");
@@ -1025,6 +1056,10 @@ void load_world(CHAR_DATA * ch)
         boot_log("World_state:  Done");
         return;
 }
+
+// =============================================================================
+// Hotboot Command Functions
+// =============================================================================
 
 /*  Warm reboot stuff, gotta make sure to thank Erwin for this :) */
 CMDF do_hotboot(CHAR_DATA * ch, char *argument)
@@ -1127,6 +1162,9 @@ CMDF do_hotboot(CHAR_DATA * ch, char *argument)
         return;
 }
 
+// =============================================================================
+// Hotboot Core Functions
+// =============================================================================
 
 void crash_hotboot(void)
 {
@@ -1143,7 +1181,7 @@ void hotboot(bool debug, bool save)
 {
         FILE     *fp;
         DESCRIPTOR_DATA *d, *de_next;
-        char      buf[100], buf2[100], buf3[100];
+        char      buf[BUFFER_SIZE], buf2[BUFFER_SIZE], buf3[BUFFER_SIZE];
         AREA_DATA *tarea;
         SHIP_DATA *ship;
         PLANET_DATA *planet;
@@ -1324,15 +1362,15 @@ void hotboot(bool debug, bool save)
 #ifdef IMC
         imc_hotboot();
 #endif
-        snprintf(buf, 100, "%d", port);
-        snprintf(buf2, 100, "%d", control);
+        snprintf(buf, BUFFER_SIZE, "%d", port);
+        snprintf(buf2, BUFFER_SIZE, "%d", control);
 #ifdef IMC
         if (this_imcmud)
-                snprintf(buf3, 100, "%d", this_imcmud->desc);
+                snprintf(buf3, BUFFER_SIZE, "%d", this_imcmud->desc);
         else
-                strncpy(buf3, "-1", 100);
+                strncpy(buf3, "-1", BUFFER_SIZE);
 #else
-        strncpy(buf3, "-1", 100);
+        strncpy(buf3, "-1", BUFFER_SIZE);
 #endif
 
         /*
@@ -1365,6 +1403,10 @@ void hotboot(bool debug, bool save)
         }
         bug("%s", "Hotboot execution failed!!");
 }
+
+// =============================================================================
+// Hotboot Recovery Functions
+// =============================================================================
 
 /* Recover from a hotboot - load players*/
 void hotboot_recover()
