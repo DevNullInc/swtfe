@@ -114,7 +114,7 @@ namespace {
     constexpr const char* INVALID_TARGET = "They aren't here.\n\r";
     constexpr const char* NO_NPC_TARGET = "Not on NPC's.\n\r";
     constexpr const char* INSUFFICIENT_TRUST = "You cannot do that.\n\r";
-    constexpr const char* PEACE_MESSAGE = "$n booms, 'PEACE!'";
+    constexpr const char* PEACE_MESSAGE = "$n booms, 'Now all y'all quit your shit and behave damnit!'";
     constexpr const char* RESTORE_ALL_MESSAGE = "Restoring all characters...";
     constexpr const char* FORCE_QUERY = "Force whom to do what?\n\r";
     constexpr const char* FREEZE_QUERY = "Freeze whom?\n\r";

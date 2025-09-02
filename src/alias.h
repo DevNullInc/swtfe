@@ -40,8 +40,15 @@
  * This module is for the creation of aliases to keep commonly string of commands (or    *
  * emotes or whatever) setup to a single new command.                                    *
  *****************************************************************************************
- * Command alias system header for player shortcuts and custom commands. *
+ *         Command alias system header for player shortcuts and custom commands.         *
  *****************************************************************************************/
+
+#ifndef ALIAS_H
+#define ALIAS_H
+
+// ============================================================================
+// Data Structures
+// ============================================================================
 
 typedef struct alias_data ALIAS_DATA;
 
@@ -49,14 +56,25 @@ struct alias_data
 {
         ALIAS_DATA *next;
         ALIAS_DATA *prev;
-        char     *name;
-        char     *cmd;
+        char *name;        // The alias name/command
+        char *cmd;         // The command sequence to execute
 };
 
-ALIAS_DATA *get_alias args((CHAR_DATA * ch, char *argument));
-void free_alias args((ACCOUNT_DATA * acct, ALIAS_DATA * alias));
-void free_aliases args((ACCOUNT_DATA * acct));
-bool check_alias args((CHAR_DATA * ch, char *command, char *argument));
-bool check_aliases args((DESCRIPTOR_DATA * d));
-void fread_alias args((ACCOUNT_DATA * acct, FILE * fp));
-void fwrite_alias args((ACCOUNT_DATA * acct, FILE * fp));
+// ============================================================================
+// Function Declarations
+// ============================================================================
+
+// Alias lookup and management
+ALIAS_DATA *get_alias args((CHAR_DATA *ch, char *argument));
+void free_alias args((ACCOUNT_DATA *acct, ALIAS_DATA *alias));
+void free_aliases args((ACCOUNT_DATA *acct));
+
+// Alias execution and processing  
+bool check_alias args((CHAR_DATA *ch, char *command, char *argument));
+bool check_aliases args((DESCRIPTOR_DATA *d));
+
+// File I/O operations
+void fread_alias args((ACCOUNT_DATA *acct, FILE *fp));
+void fwrite_alias args((ACCOUNT_DATA *acct, FILE *fp));
+
+#endif // ALIAS_H
