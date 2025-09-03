@@ -37,7 +37,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                                SWR corpse/body module                                 *
+ *                                SWR Astral body module                                 *
  ****************************************************************************************/
 #include "mud.h"
 #include "body.h"
@@ -52,10 +52,11 @@ DOCK_DATA *last_dock;
 
 BODY_DATA *get_body(char *name, BODY_TYPES type)
 {
-        BODY_DATA *body = NULL;
+        BODY_DATA *body = nullptr;
+        BODY_LIST::iterator it;
 
         if (!name)
-                return NULL;
+                return nullptr;
 
         FOR_EACH_LIST(BODY_LIST, bodies, body)
         {
@@ -68,7 +69,7 @@ BODY_DATA *get_body(char *name, BODY_TYPES type)
 
         }
 
-        return NULL;
+        return nullptr;
 }
 
 BODY_DATA *get_body(char *name)
@@ -153,10 +154,13 @@ CMDF do_testbody(CHAR_DATA * ch, char *argument)
                 send_to_char("The pointer returned NULL", ch);
 }
 
-BODY_DATA::BODY_DATA()
+BODY_DATA::BODY_DATA() : _filename{}, _gravity{0}, _name{}, _type{0}, 
+                         _xpos{0}, _ypos{0}, _zpos{0}, _orbitcount{0},
+                         _xmove{0}, _ymove{0}, _zmove{0},
+                         _centerx{0}, _centery{0}, _centerz{0},
+                         _planet{nullptr}, _starsystem{nullptr}
 {
-        this->_starsystem = NULL;
-        this->_planet = NULL;
+        // Modern initialization with member initializer list
 }
 
 BODY_DATA::~BODY_DATA()
@@ -165,15 +169,15 @@ BODY_DATA::~BODY_DATA()
         AREA_DATA *tarea;
         DOCK_DATA *dock, *next_dock;
 
-        this->starsystem(NULL);
+        this->starsystem(nullptr);
 
-        for (planet = first_planet; planet != NULL; planet = planet->next)
+        for (planet = first_planet; planet != nullptr; planet = planet->next)
                 if (planet->body == this)
-                        planet->body = NULL;
+                        planet->body = nullptr;
 
         for (tarea = first_area; tarea; tarea = tarea->next)
                 if (tarea->body == this)
-                        tarea->body = NULL;
+                        tarea->body = nullptr;
 
         this->_areas.clear();
 
@@ -184,10 +188,7 @@ BODY_DATA::~BODY_DATA()
                         free_dock(dock);
 		}
 
-        if (this->_filename)
-                STRFREE(this->_filename);
-        if (this->_name)
-                STRFREE(this->_name);
+        // std::string members automatically handle their own memory cleanup
 }
 
 char     *BODY_DATA::get_direction(SHIP_DATA * ship)
@@ -337,8 +338,8 @@ BODY_DATA *BODY_DATA::load(FILE * fp)
                 case 'E':
                         if (!str_cmp(word, "End"))
                         {
-                                if (!this->_name)
-                                        this->_name = STRALLOC("");
+                                if (this->_name.empty())
+                                        this->_name = "";
                                 while (this->_xmove > -10
                                        && this->_xmove < 10)
                                         this->_xmove = number_range(-50, 50);
@@ -353,7 +354,12 @@ BODY_DATA *BODY_DATA::load(FILE * fp)
                         break;
 
                 case 'F':
-                        KEY("Filename", this->_filename, fread_string(fp));
+                        // Modern string loading with proper memory management
+                        {
+                                char* temp_str = fread_string(fp);
+                                this->_filename = temp_str ? temp_str : "";
+                                if (temp_str) STRFREE(temp_str);
+                        }
                         break;
 
                 case 'G':
@@ -361,7 +367,12 @@ BODY_DATA *BODY_DATA::load(FILE * fp)
                         break;
 
                 case 'N':
-                        KEY("Name", this->_name, fread_string(fp));
+                        // Modern string loading with proper memory management
+                        {
+                                char* temp_str = fread_string(fp);
+                                this->_name = temp_str ? temp_str : "";
+                                if (temp_str) STRFREE(temp_str);
+                        }
                         break;
 
                 case 'O':
@@ -495,14 +506,14 @@ void BODY_DATA::save()
                 return;
         }
 
-        if (!this->_filename || this->_filename[0] == '\0')
+        if (this->_filename.empty())
         {
                 snprintf(buf, MSL, "save_body: %s has no filename",
-                         this->_name);
+                         this->_name.c_str());
                 bug(buf, 0);
                 return;
         }
-        snprintf(filename, 256, "%s%s", BODY_DIR, this->_filename);
+        snprintf(filename, 256, "%s%s", BODY_DIR, this->_filename.c_str());
 
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) == NULL)
@@ -516,8 +527,8 @@ void BODY_DATA::save()
                 DOCK_DATA *dock = NULL;
 
                 fprintf(fp, "#BODY\n");
-                fprintf(fp, "Name         %s~\n", this->_name);
-                fprintf(fp, "Filename     %s~\n", this->_filename);
+                fprintf(fp, "Name         %s~\n", this->_name.c_str());
+                fprintf(fp, "Filename     %s~\n", this->_filename.c_str());
                 fprintf(fp, "Type         %d\n", this->_type);
                 fprintf(fp, "Xpos         %d\n", this->_xpos);
                 fprintf(fp, "Ypos         %d\n", this->_ypos);

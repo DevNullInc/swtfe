@@ -49,7 +49,6 @@
 // Local Includes  
 // ============================================================================
 #include "mud.h"
-#include "bet.h"
 
 // ============================================================================
 // Design Notes and Original Concept
@@ -520,10 +519,11 @@ CMDF do_bet(CHAR_DATA * ch, char *argument)
         argument = one_argument(argument, arg);
         if (argument[0] == '\0' || arg[0] == '\0')
         {
-                send_to_char("&RSyntax: &Gbet &C<&cwinner&C> &C<&camt&C>&w\n\r", ch);
-                send_to_char("&cAmount formats: &W1000 &c(exact), &W5k &c(thousands), &W2m &c(millions)\n\r", ch);
-                send_to_char("&cRelative bets: &W+25 &c(add 25%), &Wx2 &c(double bet)&w\n\r", ch);
-                ch_printf(ch, "&RBets are being accepted for the next &C%d&R rounds&w\n\r",
+                send_to_char
+                        ("&RSyntax: &Gbet &C<&cwinner&C> &C<&camt&C>&w\n\r",
+                         ch);
+                ch_printf(ch,
+                          "&RBets are being accepted for the next &C%d&R rounds",
                           arena->time_to_battle);
                 return;
         }
@@ -543,39 +543,18 @@ CMDF do_bet(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        // ============================================================================
-        // ADVANCED BET PROCESSING - Enhanced with sophisticated parsing
-        // ============================================================================
-        
-        // Find existing bet for relative calculations
-        BET_DATA *existing_bet = nullptr;
-        for (BET_DATA *bet = arena->first_better; bet; bet = bet->next) {
-                if (bet->better == ch) {
-                        existing_bet = bet;
-                        break;
-                }
-        }
-        
-        int current_bet = existing_bet ? existing_bet->amount : 0;
-        
-        // Use advanced bet parsing (supports 14k, 23m, +25%, x2, etc.)
-        amount = parsebet(current_bet, argument);
-        
-        if (amount <= 0) {
-                send_to_char("&RInvalid bet amount. Try: 1000, 5k, 10m, +50%, x2&w\n\r", ch);
+        amount = atoi(argument);
+        amount = UMAX(0, amount);
+
+        if (amount == 0)
+        {
+                send_to_char("Nice try.", ch);
                 return;
         }
-        
-        // Security: Prevent massive bets that could cause overflow
-        if (amount > 1000000000) { // 1 billion credit limit
-                send_to_char("&RBet amount too large. Maximum bet is 1 billion credits.&w\n\r", ch);
-                return;
-        }
-        
-        // Check if player has enough funds
-        if (ch->gold < amount) {
-                ch_printf(ch, "&RYou need %d credits but only have %d credits.&w\n\r", 
-                         amount, ch->gold);
+
+        if ((ch->gold - amount) < 0)
+        {
+                send_to_char("You don't have enough money for that.", ch);
                 return;
         }
 
@@ -586,13 +565,8 @@ CMDF do_bet(CHAR_DATA * ch, char *argument)
         }
 
         add_bet(ch, amount, victim);
-        ch_printf(ch, "&GYou place a &C%d&G credit bet on &W%s&G.&w\n\r", amount,
+        ch_printf(ch, "You place a %d credit bet on %s.\n\r", amount,
                   victim->pcdata->full_name);
-        
-        // Show helpful betting tips for new users
-        if (amount < 1000) {
-                send_to_char("&cTip: You can use 'k' and 'm' for thousands/millions (e.g., '5k', '2m')&w\n\r", ch);
-        }
         return;
 }
 

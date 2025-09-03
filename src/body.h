@@ -44,21 +44,54 @@
 
 #include <list>
 #include <memory>
+#include <string>
+#include <vector>
 
+// Directory and file constants - modernized
+namespace BodyConstants {
+    constexpr const char* BODY_DIR = "../body/";
+    constexpr const char* FILE_BODY_LIST = "body.lst";
+}
+
+// Legacy macros for compatibility
 #define BODY_DIR       "../body/"
 #define FILE_BODY_LIST	"body.lst"
 typedef std::list < DOCK_DATA * >DOCK_LIST;
 extern DOCK_DATA *first_dock;
 extern DOCK_DATA *last_dock;
 
+// Modern utility functions for body system
+namespace BodyUtils {
+    inline std::string safe_string(const char* str) {
+        return str ? str : "";
+    }
+    
+    inline bool is_valid_body_type(int type) {
+        return type >= 0 && type <= static_cast<int>(BodyType::ALL);
+    }
+}
 
-/* body structure */
+
+/**
+ * @class BODY_DATA
+ * @brief Modernized celestial body management system
+ * 
+ * Represents a celestial body (planet, star, moon, etc.) in the space simulation.
+ * Features modern C++ with RAII, std::string usage, and improved safety.
+ * 
+ * Key modernizations:
+ * - std::string replaces char* for automatic memory management
+ * - Constructor uses member initialization lists
+ * - Const-correct accessors with backward compatibility
+ * - Modern enum class support with legacy compatibility
+ * - RAII pattern for automatic resource cleanup
+ */
 class BODY_DATA
 {
       private:
-        char     *_filename;
+        std::string _filename;    // Modernized from char*
         int _gravity;
-        char     *_name;
+        std::string _name;        // Modernized from char*
         int _type;
         int _xpos;
         int _ypos;
@@ -103,25 +136,39 @@ class BODY_DATA
         {
                 return this->_areas;
         }
-        inline char *name()
+        // Modern string accessors with backward compatibility
+        inline const char* name() const
+        {
+                return this->_name.c_str();
+        }
+        inline const std::string& name_string() const
         {
                 return this->_name;
         }
-        inline void name(char *newname)
+        inline void name(const char* newname)
         {
-                if (this->_name)
-                        STRFREE(this->_name);
-                this->_name = STRALLOC(newname);
+                this->_name = newname ? newname : "";
         }
-        inline char *filename()
+        inline void name(const std::string& newname)
+        {
+                this->_name = newname;
+        }
+        // Modern filename accessors with backward compatibility
+        inline const char* filename() const
+        {
+                return this->_filename.c_str();
+        }
+        inline const std::string& filename_string() const
         {
                 return this->_filename;
         }
-        inline void filename(char *newfilename)
+        inline void filename(const char* newfilename)
         {
-                if (this->_filename)
-                        STRFREE(this->_filename);
-                this->_filename = STRALLOC(newfilename);
+                this->_filename = newfilename ? newfilename : "";
+        }
+        inline void filename(const std::string& newfilename)
+        {
+                this->_filename = newfilename;
         }
         inline int gravity()
         {
@@ -225,11 +272,31 @@ class BODY_DATA
         int hyperdistance(SHIP_DATA * ship);
         ROOM_INDEX_DATA *get_rand_room(int bit, bool include);
 };
-typedef enum
-{ STAR_BODY, PLANET_BODY, MOON_BODY, COMET_BODY, ASTEROID_BODY,
-        BLACKHOLE_BODY, NEBULA_BODY, BODY_ALL
+// Body type enumeration - modernized enum class
+enum class BodyType : int {
+    STAR = 0,
+    PLANET = 1,
+    MOON = 2,
+    COMET = 3,
+    ASTEROID = 4,
+    BLACKHOLE = 5,
+    NEBULA = 6,
+    ALL = 7
+};
+
+// Legacy compatibility typedef
+typedef enum { 
+    STAR_BODY = 0, PLANET_BODY = 1, MOON_BODY = 2, COMET_BODY = 3, 
+    ASTEROID_BODY = 4, BLACKHOLE_BODY = 5, NEBULA_BODY = 6, BODY_ALL = 7
 } BODY_TYPES;
 
+// Modern function declarations
+BODY_DATA *get_body(char *name);
+DOCK_DATA *get_dock(char *name);
+DOCK_DATA *get_dock_isname(SHIP_DATA *ship, char *name);
+void load_bodies();
+
+// Legacy macro-style declarations for compatibility
 BODY_DATA *get_body args((char *name));
 DOCK_DATA *get_dock args((char *name));
 DOCK_DATA *get_dock_isname args((SHIP_DATA * ship, char *name));
