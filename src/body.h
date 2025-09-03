@@ -60,6 +60,24 @@ typedef std::list < DOCK_DATA * >DOCK_LIST;
 extern DOCK_DATA *first_dock;
 extern DOCK_DATA *last_dock;
 
+// Body type enumeration - modernized enum class
+enum class BodyType : int {
+    STAR = 0,
+    PLANET = 1,
+    MOON = 2,
+    COMET = 3,
+    ASTEROID = 4,
+    BLACKHOLE = 5,
+    NEBULA = 6,
+    ALL = 7
+};
+
+// Legacy compatibility typedef
+typedef enum { 
+    STAR_BODY = 0, PLANET_BODY = 1, MOON_BODY = 2, COMET_BODY = 3, 
+    ASTEROID_BODY = 4, BLACKHOLE_BODY = 5, NEBULA_BODY = 6, BODY_ALL = 7
+} BODY_TYPES;
+
 // Modern utility functions for body system
 namespace BodyUtils {
     inline std::string safe_string(const char* str) {
@@ -272,23 +290,6 @@ class BODY_DATA
         int hyperdistance(SHIP_DATA * ship);
         ROOM_INDEX_DATA *get_rand_room(int bit, bool include);
 };
-// Body type enumeration - modernized enum class
-enum class BodyType : int {
-    STAR = 0,
-    PLANET = 1,
-    MOON = 2,
-    COMET = 3,
-    ASTEROID = 4,
-    BLACKHOLE = 5,
-    NEBULA = 6,
-    ALL = 7
-};
-
-// Legacy compatibility typedef
-typedef enum { 
-    STAR_BODY = 0, PLANET_BODY = 1, MOON_BODY = 2, COMET_BODY = 3, 
-    ASTEROID_BODY = 4, BLACKHOLE_BODY = 5, NEBULA_BODY = 6, BODY_ALL = 7
-} BODY_TYPES;
 
 // Modern function declarations
 BODY_DATA *get_body(char *name);
