@@ -58,6 +58,14 @@
 #include "space2.h"
 #include "password.h"
 
+// Modern C++ includes for incremental modernization
+#include <string>
+#include <vector>
+#include <memory>
+#include <limits>
+#include <sstream>
+#include <stdexcept>
+
 extern int top_affect;
 extern int top_reset;
 extern int top_ed;
@@ -70,9 +78,54 @@ char     *strip_cr(char *str);
 void toggle_bexit_flag args((EXIT_DATA * pexit, int flag));
 void fix_exits args((void));
 
+// ============================================================================
+// Modern C++ Build Utilities (Incremental Modernization)
+// ============================================================================
+namespace BuildUtils {
+    // Safe numeric conversion functions
+    inline bool safe_atoi(const std::string& str, int& result) {
+        if (str.empty()) return false;
+        try {
+            size_t pos;
+            long val = std::stol(str, &pos);
+            if (pos != str.length()) return false; // Extra characters
+            if (val < std::numeric_limits<int>::min() || val > std::numeric_limits<int>::max()) {
+                return false; // Overflow
+            }
+            result = static_cast<int>(val);
+            return true;
+        } catch (...) {
+            return false;
+        }
+    }
+    
+    inline int safe_atoi_with_default(const char* str, int default_value = 0) {
+        if (!str) return default_value;
+        int result;
+        return safe_atoi(std::string(str), result) ? result : default_value;
+    }
+    
+    // Safe VNUM operations
+    inline bool is_valid_vnum(int vnum) {
+        return vnum >= 1 && vnum <= 200000; // Reasonable bounds for room/obj/mob vnums
+    }
+    
+    // String safety utilities
+    inline std::string safe_argument(const char* arg) {
+        if (!arg) return "";
+        std::string result(arg);
+        // Truncate to prevent buffer overflows in legacy code
+        if (result.length() > 1000) {
+            result.resize(1000);
+        }
+        return result;
+    }
+    
+} // namespace BuildUtils
+
 /* planet constants for vip and wanted flags */
 
-char     *const planet_flags[] = {
+const char *const planet_flags[] = {
         "coruscant", "kashyyyk", "ryloth", "rodia", "nal hutta",
         "mon calamari", "honoghr", "gamorr", "tatooine", "adari",
 		"byss", "endor", "roche", "af'el", "trandosha", "chad", 
@@ -81,19 +134,19 @@ char     *const planet_flags[] = {
 		"p31"
 };
 
-char     *const weapon_table[13] = {
+const char *const weapon_table[13] = {
         "none",
         "vibro-axe", "vibro-blade", "lightsaber", "whip", "knife",
         "blaster", "w7", "bludgeon", "bowcaster", "w10",
         "force pike", "w12"
 };
 
-char     *const spice_table[] = {
+const char *const spice_table[] = {
         "glitterstim", "carsanum", "ryll", "andris", "s4", "s5", "s6", "s7",
         "s8", "s9"
 };
 
-char     *const cargo_names[CONTRABAND_MAX] = {
+const char *const cargo_names[CONTRABAND_MAX] = {
         "none", "Ore", "Produce", "Meat", "Metal", "Minerals", "Components",
         "Fuel_cells", "Tabanna", "Cultured", "Processed", "Duracrete",
         "Durasteel",
@@ -744,8 +797,12 @@ CMDF do_goto(CHAR_DATA * ch, char *argument)
 
         if ((location = find_location(ch, arg)) == NULL)
         {
-                vnum = atoi(arg);
-                if (vnum < 0 || get_room_index(vnum))
+                if (!BuildUtils::safe_atoi(arg, vnum) || !BuildUtils::is_valid_vnum(vnum))
+                {
+                        send_to_char("Invalid room number. Please enter a valid VNUM (1-200000).\n\r", ch);
+                        return;
+                }
+                if (get_room_index(vnum))
                 {
                         send_to_char("You cannot find that...\n\r", ch);
                         return;
@@ -800,7 +857,11 @@ CMDF do_goto(CHAR_DATA * ch, char *argument)
 
         if (get_trust(ch) < LEVEL_IMMORTAL)
         {
-                vnum = atoi(arg);
+                if (!BuildUtils::safe_atoi(arg, vnum) || !BuildUtils::is_valid_vnum(vnum))
+                {
+                        send_to_char("Invalid room number. Please enter a valid VNUM (1-200000).\n\r", ch);
+                        return;
+                }
 
                 if (!ch->pcdata || !(pArea = ch->pcdata->area))
                 {
@@ -1051,10 +1112,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         }
 
 
-        value = is_number(arg3) ? atoi(arg3) : -1;
-
-        if (atoi(arg3) < -1 && value == -1)
-                value = atoi(arg3);
+        value = BuildUtils::safe_atoi_with_default(arg3, -1);
 
         if (!str_cmp(arg2, "str"))
         {
@@ -1318,10 +1376,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
                 argument = one_argument(argument, arg3);
 
-                value = is_number(arg3) ? atoi(arg3) : -1;
-
-                if (atoi(arg3) < -1 && value == -1)
-                        value = atoi(arg3);
+                value = BuildUtils::safe_atoi_with_default(arg3, -1);
 
                 if (!can_mmodify(ch, victim))
                         return;
@@ -1338,7 +1393,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                number = atoi(argument);
+                number = BuildUtils::safe_atoi_with_default(argument, -2);
                 if (number < -1 || number > 3)
                 {
                         send_to_char("Value range between 0 and 3\n\r", ch);
@@ -2992,16 +3047,16 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 }
                 if (!IS_NPC(victim))
                 {
-                        if (((atoi(argument)) > ILLNESS_MAX)
-                            || ((atoi(argument)) < 0) || (!argument)
-                            || (!is_number(argument)))
+                        int illness_value;
+                        if (!BuildUtils::safe_atoi(argument, illness_value) ||
+                            illness_value > ILLNESS_MAX || illness_value < 0)
                         {
                                 send_to_char
                                         ("Value is outside of illness range.\n\r",
                                          ch);
                                 return;
                         }
-                        victim->pcdata->illness = (atoi(argument));
+                        victim->pcdata->illness = illness_value;
                         send_to_char("Illness Set.\n\r", ch);
                         return;
                 }
@@ -3250,7 +3305,11 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                 ch->dest_buf = NULL;
 
         separate_obj(obj);
-        value = atoi(arg3);
+        if (!BuildUtils::safe_atoi(arg3, value))
+        {
+                send_to_char("Invalid numeric value. Please enter a valid number.\n\r", ch);
+                return;
+        }
 
         if (!str_cmp(arg2, "value0") || !str_cmp(arg2, "v0"))
         {
@@ -3608,7 +3667,11 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                 else
                 {
                         argument = one_argument(argument, arg3);
-                        value = atoi(arg3);
+                        if (!BuildUtils::safe_atoi(arg3, value))
+                        {
+                                send_to_char("Invalid numeric value for affect modifier.\n\r", ch);
+                                return;
+                        }
                 }
                 CREATE(paf, AFFECT_DATA, 1);
                 paf->type = -1;
@@ -3640,12 +3703,13 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                loc = atoi(argument);
-                if (loc < 1)
+                int temp_loc;
+                if (!BuildUtils::safe_atoi(argument, temp_loc) || temp_loc < 1)
                 {
-                        send_to_char("Invalid number.\n\r", ch);
+                        send_to_char("Invalid affect number.\n\r", ch);
                         return;
                 }
+                loc = temp_loc;
 
                 count = 0;
 
@@ -4083,12 +4147,11 @@ CMDF do_rset(CHAR_DATA * ch, char *argument)
         if (!can_rmodify(ch, location))
                 return;
 
-        if (!is_number(arg3))
+        if (!BuildUtils::safe_atoi(arg3, value))
         {
                 send_to_char("Value must be numeric.\n\r", ch);
                 return;
         }
-        value = atoi(arg3);
 
         /*
          * Set something.
@@ -4523,7 +4586,13 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         send_to_char("Usage: redit tunnel <value>\n\r", ch);
                         return;
                 }
-                location->tunnel = URANGE(0, atoi(argument), 1000);
+                int tunnel_value = BuildUtils::safe_atoi_with_default(argument, -1);
+                if (tunnel_value < 0)
+                {
+                        send_to_char("Invalid tunnel value. Please enter a number (0-1000).\n\r", ch);
+                        return;
+                }
+                location->tunnel = URANGE(0, tunnel_value, 1000);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -4640,15 +4709,15 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
                         return;
                 }
-                location->sector_type = atoi(argument);
-                if (location->sector_type < 0
-                    || location->sector_type >= SECT_MAX)
+                int sector_value;
+                if (!BuildUtils::safe_atoi(argument, sector_value) || 
+                    sector_value < 0 || sector_value >= SECT_MAX)
                 {
-                        location->sector_type = 1;
-                        send_to_char("Out of range\n\r.", ch);
+                        send_to_char("Invalid sector type. Please enter a valid sector number (0-14).\n\r", ch);
+                        return;
                 }
-                else
-                        send_to_char("Done.\n\r", ch);
+                location->sector_type = sector_value;
+                send_to_char("Done.\n\r", ch);
                 return;
         }
 
@@ -4665,7 +4734,11 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                 }
                 if (arg2[0] == '#')
                 {
-                        edir = atoi(arg2 + 1);
+                        if (!BuildUtils::safe_atoi(arg2 + 1, edir) || edir < 0 || edir >= MAX_DIR)
+                        {
+                                send_to_char("Invalid exit direction number.\n\r", ch);
+                                return;
+                        }
                         xit = get_exit_num(location, edir);
                 }
                 else
@@ -4673,7 +4746,11 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         edir = get_dir(arg2);
                         xit = get_exit(location, edir);
                 }
-                value = atoi(arg3);
+                if (!BuildUtils::safe_atoi(arg3, value) || !BuildUtils::is_valid_vnum(value))
+                {
+                        send_to_char("Invalid key VNUM. Please enter a valid VNUM (1-200000).\n\r", ch);
+                        return;
+                }
                 if (!xit)
                 {
                         send_to_char

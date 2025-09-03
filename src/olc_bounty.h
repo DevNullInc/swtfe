@@ -50,7 +50,7 @@ enum
         BOUNTY_ALIVE, BOUNTY_DEAD, MAX_BOUNTY_TYPES
 };
 
-char     *const olc_bounty_types[] = {
+const char *const olc_bounty_types[] = {
         "Alive", "Dead", "MAX_TYPE"
 };
 
