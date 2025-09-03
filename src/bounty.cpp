@@ -51,6 +51,107 @@
 #include "bounty.h"
 #include "olc_bounty.h"
 
+// ============================================================================
+// Modern C++ Bounty Utilities Implementation
+// ============================================================================
+namespace BountyUtils {
+    
+    std::string legacy_to_string(const char* legacy_str) {
+        if (!legacy_str) return "";
+        return std::string(legacy_str);
+    }
+    
+    const char* string_to_legacy(const std::string& modern_str) {
+        // Note: This returns a temporary pointer. In full modernization,
+        // we'd use a different approach, but for incremental compatibility
+        // this works with existing STRALLOC patterns
+        static thread_local std::string temp_storage;
+        temp_storage = modern_str;
+        return temp_storage.c_str();
+    }
+    
+    bool is_bounty_target_safe(const char* target) {
+        if (!target) return false;
+        size_t len = strlen(target);
+        if (len == 0 || len >= 256) return false; // Prevent buffer overflows
+        
+        // Basic security check: no control characters
+        for (size_t i = 0; i < len; ++i) {
+            if (target[i] < 32 && target[i] != '\n' && target[i] != '\r' && target[i] != '\t') {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    long sanitize_bounty_amount(long amount) {
+        // Prevent integer overflow and negative amounts
+        if (amount < 0) return 0;
+        if (amount > 2000000000L) return 2000000000L;
+        return amount;
+    }
+    
+    std::string get_safe_bounty_target(BOUNTY_DATA* bounty) {
+        if (!bounty || !bounty->target) return "<unknown>";
+        if (!is_bounty_target_safe(bounty->target)) return "<invalid>";
+        return legacy_to_string(bounty->target);
+    }
+    
+    BOUNTY_DATA* create_secure_bounty(const std::string& target, long amount, 
+                                     int type, const std::string& source) {
+        // Input validation
+        if (!is_target_valid(target)) return nullptr;
+        amount = sanitize_bounty_amount(amount);
+        if (amount <= 0) return nullptr;
+        
+        // Create legacy structure using secure methods
+        BOUNTY_DATA* bounty = nullptr;
+        CREATE(bounty, BOUNTY_DATA, 1);
+        if (!bounty) return nullptr;
+        
+        // Use STRALLOC for memory management (legacy-compatible)
+        bounty->target = STRALLOC(const_cast<char*>(target.c_str()));
+        bounty->amount = amount;
+        bounty->type = type;
+        
+        if (!source.empty()) {
+            bounty->source = STRALLOC(const_cast<char*>(source.c_str()));
+        } else {
+            bounty->source = STRALLOC(const_cast<char*>(""));
+        }
+        
+        bounty->next = nullptr;
+        bounty->prev = nullptr;
+        
+        return bounty;
+    }
+    
+    void display_bounty_info_secure(CHAR_DATA* ch, BOUNTY_DATA* bounty) {
+        if (!ch || !bounty) return;
+        
+        // Use modern string safety functions
+        std::string safe_target = get_safe_bounty_target(bounty);
+        long safe_amount = sanitize_bounty_amount(bounty->amount);
+        
+        // Use legacy output functions with modern safety
+        set_char_color(AT_WHITE, ch);
+        ch_printf(ch, "Bounty Target: %s\n\r", safe_target.c_str());
+        ch_printf(ch, "Amount: %ld credits\n\r", safe_amount);
+        ch_printf(ch, "Type: %s\n\r", 
+                 (bounty->type == BOUNTY_POLICE) ? "Police" : "Player");
+        
+        if (bounty->source && strlen(bounty->source) > 0) {
+            std::string safe_source = legacy_to_string(bounty->source);
+            ch_printf(ch, "Source: %s\n\r", safe_source.c_str());
+        }
+    }
+    
+} // namespace BountyUtils
+
+// ============================================================================
+// Legacy Implementation (Unchanged)
+// ============================================================================
+
 
 BOUNTY_DATA *first_bounty;
 BOUNTY_DATA *last_bounty;

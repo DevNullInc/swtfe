@@ -93,6 +93,8 @@ inline int safe_snprintf(char *buf, size_t size, const char *format, ...) {
 #endif
 
 #ifndef HAVE_STRLCPY
+// Check if strlcpy is already defined in system headers
+#if !defined(__GLIBC__) || __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 38)
 #ifdef __cplusplus
 inline size_t strlcpy(char *dst, const char *src, size_t size) {
 #else
@@ -106,9 +108,13 @@ static size_t strlcpy(char *dst, const char *src, size_t size) {
     }
     return srclen;
 }
-#endif
+#endif // glibc version check
+#endif // HAVE_STRLCPY
 
 #ifndef HAVE_STRLCAT
+#ifndef HAVE_STRLCAT
+// Check if strlcat is already defined in system headers
+#if !defined(__GLIBC__) || __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 38)
 #ifdef __cplusplus
 inline size_t strlcat(char *dst, const char *src, size_t size) {
 #else
@@ -130,6 +136,8 @@ static size_t strlcat(char *dst, const char *src, size_t size) {
     
     return dstlen + srclen;
 }
+#endif // glibc version check
+#endif // HAVE_STRLCAT
 #endif
 
 #endif

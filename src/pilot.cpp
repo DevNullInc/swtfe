@@ -58,7 +58,7 @@ BODY_DATA *get_body_here(SPACE_DATA * star, char *name)
                 return body;
 
         FOR_EACH_LIST(BODY_LIST, star->bodies, body)
-                if (nifty_is_name_prefix(name, body->name()))
+                if (nifty_is_name_prefix(name, const_cast<char*>(body->name())))
                 return body;
         return NULL;
 }

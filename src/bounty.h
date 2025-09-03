@@ -40,6 +40,11 @@
  *                                SWR Bounty module                                      *
  ****************************************************************************************/
 
+// Modern C++ includes for incremental modernization 
+#include <string>
+#include <vector>
+#include <memory>
+
 typedef struct bounty_data BOUNTY_DATA;
 typedef struct wanted_data WANTED_DATA;
 
@@ -88,3 +93,38 @@ void add_wanted args((CHAR_DATA * ch, PLANET_DATA * planet));
 bool is_wanted args((CHAR_DATA * ch, PLANET_DATA * pl));
 void fwrite_wanted args((CHAR_DATA * ch, FILE * fp));
 void fread_wanted args((CHAR_DATA * ch, FILE * fp));
+
+// ============================================================================
+// Modern C++ Bounty Utilities (Incremental Modernization)
+// ============================================================================
+namespace BountyUtils {
+    // Modern wrapper functions that delegate to legacy implementation
+    // These provide type-safe, secure alternatives to legacy functions
+    
+    // String-safe bounty target checking
+    inline bool is_target_valid(const std::string& target) {
+        return !target.empty() && target.length() < 256; // Prevent buffer overflows
+    }
+    
+    // Safe amount validation
+    inline bool is_amount_valid(long amount) {
+        return amount > 0 && amount <= 2000000000L; // Reasonable upper limit
+    }
+    
+    // Modern string conversion helpers
+    std::string legacy_to_string(const char* legacy_str);
+    const char* string_to_legacy(const std::string& modern_str);
+    
+    // Modern bounty safety functions
+    bool is_bounty_target_safe(const char* target);
+    long sanitize_bounty_amount(long amount);
+    std::string get_safe_bounty_target(BOUNTY_DATA* bounty);
+    
+    // Modern bounty creation (secure wrapper around legacy system)
+    BOUNTY_DATA* create_secure_bounty(const std::string& target, long amount, 
+                                     int type, const std::string& source = "");
+    
+    // Example function showing modern/legacy interoperability
+    void display_bounty_info_secure(CHAR_DATA* ch, BOUNTY_DATA* bounty);
+    
+} // namespace BountyUtils
