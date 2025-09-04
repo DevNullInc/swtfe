@@ -129,16 +129,16 @@ CMDF do_testbody(CHAR_DATA * ch, char *argument)
 {
         char arg1[MAX_INPUT_LENGTH];
         char arg2[MAX_INPUT_LENGTH];
-        int value, flag;
-        BODY_DATA *body = NULL;
-        ROOM_INDEX_DATA *room = NULL;
+        int value;
+        BODY_DATA *body = nullptr;
+        ROOM_INDEX_DATA *room = nullptr;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
         value = atoi(argument);
 
         body = get_body(arg1);
-        flag = get_rflag(arg2);
+        // Note: arg2/flag processing removed as it was unused
 
         if (!body)
         {
@@ -148,7 +148,7 @@ CMDF do_testbody(CHAR_DATA * ch, char *argument)
 
         room = body->get_rand_room(ROOM_INDOORS, value);
         if (room)
-                ch_printf(ch, "Room name: %s\n\rRoom VNUM: %d\n\r",
+                ch_printf(ch, const_cast<char*>("Room name: %s\n\rRoom VNUM: %d\n\r"),
                           room->name, room->vnum);
         if (!room)
                 send_to_char("The pointer returned NULL", ch);
@@ -196,25 +196,25 @@ char     *BODY_DATA::get_direction(SHIP_DATA * ship)
         static char buf[11];
 
         buf[0] = ' ';
-        if (this->xpos() > ship->vx)
+        if (static_cast<float>(this->xpos()) > ship->vx)
                 buf[1] = 'E';
-        else if (this->xpos() < ship->vx)
+        else if (static_cast<float>(this->xpos()) < ship->vx)
                 buf[1] = 'W';
         else
                 buf[1] = ' ';
         buf[2] = ' ';
         buf[3] = ' ';
-        if (this->ypos() > ship->vy)
+        if (static_cast<float>(this->ypos()) > ship->vy)
                 buf[4] = 'N';
-        else if (this->ypos() < ship->vy)
+        else if (static_cast<float>(this->ypos()) < ship->vy)
                 buf[4] = 'S';
         else
                 buf[4] = ' ';
         buf[5] = ' ';
         buf[6] = ' ';
-        if (this->zpos() > ship->vz)
+        if (static_cast<float>(this->zpos()) > ship->vz)
                 buf[7] = 'U';
-        else if (this->zpos() < ship->vz)
+        else if (static_cast<float>(this->zpos()) < ship->vz)
                 buf[7] = 'D';
         else
                 buf[7] = ' ';
@@ -225,24 +225,24 @@ char     *BODY_DATA::get_direction(SHIP_DATA * ship)
 
 int BODY_DATA::distance(SHIP_DATA * ship)
 {
-        return (int) sqrt(pow(((int) (ship->vx - this->xpos())), 2) +
-                          pow(((int) (ship->vy - this->ypos())),
-                              2) + pow(((int) (ship->vz - this->zpos())), 2));
+        return static_cast<int>(sqrt(pow(static_cast<int>(ship->vx - static_cast<float>(this->xpos())), 2) +
+                          pow(static_cast<int>(ship->vy - static_cast<float>(this->ypos())),
+                              2) + pow(static_cast<int>(ship->vz - static_cast<float>(this->zpos())), 2)));
 }
 
 int BODY_DATA::distance(BODY_DATA * pbody)
 {
-        return (int) sqrt(pow(((int) (pbody->xpos() - this->xpos())), 2) +
-                          pow(((int) (pbody->ypos() - this->ypos())),
-                              2) + pow(((int) (pbody->zpos() - this->zpos())),
-                                       2));
+        return static_cast<int>(sqrt(pow(static_cast<int>(pbody->xpos() - this->xpos()), 2) +
+                          pow(static_cast<int>(pbody->ypos() - this->ypos()),
+                              2) + pow(static_cast<int>(pbody->zpos() - this->zpos()),
+                                       2)));
 }
 
 int BODY_DATA::hyperdistance(SHIP_DATA * ship)
 {
-        return (int) sqrt(pow(((int) (ship->jx - this->xpos())), 2) +
-                          pow(((int) (ship->jy - this->ypos())),
-                              2) + pow(((int) (ship->jz - this->zpos())), 2));
+        return static_cast<int>(sqrt(pow(static_cast<int>(ship->jx - static_cast<float>(this->xpos())), 2) +
+                          pow(static_cast<int>(ship->jy - static_cast<float>(this->ypos())),
+                              2) + pow(static_cast<int>(ship->jz - static_cast<float>(this->zpos())), 2)));
 }
 
 
@@ -396,6 +396,7 @@ BODY_DATA *BODY_DATA::load(FILE * fp)
                                 fMatch = TRUE;
                                 break;
                         }
+                        break;  // Add missing break for non-matching 'S' case
 
                 case 'T':
                         KEY("Type", this->_type, fread_number(fp));
@@ -471,7 +472,13 @@ bool load_body_file(char *bodyfile)
                         {
                                 DOCK_DATA *dock;
 
-                                CREATE(dock, DOCK_DATA, 1);
+                                // Modern C++ replacement for CREATE macro
+                                dock = static_cast<DOCK_DATA*>(CALLOC(1, sizeof(DOCK_DATA)));
+                                if (!dock) {
+                                        perror("malloc failure");
+                                        fprintf(stderr, "Malloc failure @ %s:%d\n", __FILE__, __LINE__);
+                                        abort();
+                                }
                                 fread_dock(dock, fp);
                                 dock->body = body;
                                 LINK(dock, first_dock, last_dock, next, prev);
@@ -500,11 +507,8 @@ void BODY_DATA::save()
         char filename[256];
         char buf[MAX_STRING_LENGTH];
 
-        if (!this)
-        {
-                bug("save_body: null body pointer!", 0);
-                return;
-        }
+        // Note: 'this' can never be null in a member function in C++
+        // Removed the unnecessary null check
 
         if (this->_filename.empty())
         {
@@ -606,7 +610,7 @@ void load_bodies()
                 if (filename[0] == '$')
                         break;
 
-                if (!load_body_file((char *) filename))
+                if (!load_body_file(const_cast<char*>(filename)))
                         bug("Cannot load body file: %s", filename);
         }
         FCLOSE(fpList);
@@ -617,7 +621,7 @@ void load_bodies()
         return;
 }
 
-char     *BODY_DATA::type_name()
+const char *BODY_DATA::type_name() const
 {
         switch (this->type())
         {

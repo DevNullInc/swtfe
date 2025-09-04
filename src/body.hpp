@@ -195,7 +195,7 @@ class BODY_DATA
         inline void gravity(int a)
         {
                 this->_gravity = a;
-        } inline int type()
+        } inline int type() const
         {
                 return this->_type;
         }
@@ -284,7 +284,7 @@ class BODY_DATA
         void add_dock(DOCK_DATA *);
         void remove_dock(DOCK_DATA *);
         char     *get_direction(SHIP_DATA * ship);
-        char     *type_name();
+        const char *type_name() const;
         int distance(SHIP_DATA * ship);
         int distance(BODY_DATA * pbody);
         int hyperdistance(SHIP_DATA * ship);
