@@ -4551,8 +4551,8 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    SK * get_skilltype args((int sn));
 /* save.c */
 /* object saving defines for fread/write_obj. -- Altrag */
-#define OS_CARRY	(sh_int) 0
-#define OS_CORPSE	(sh_int) 1
+#define OS_CARRY	static_cast<sh_int>(0)
+#define OS_CORPSE	static_cast<sh_int>(1)
                    void save_char_obj args((CHAR_DATA * ch));
                    void save_clone args((CHAR_DATA * ch));
                    bool load_char_obj

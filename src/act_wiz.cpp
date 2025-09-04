@@ -137,7 +137,7 @@ namespace {
 
 extern bool WEBSERVER_STATUS;
 
-char     *const save_flag[] =
+const char *const save_flag[] =
         { "death", "kill", "passwd", "drop", "put", "give", "auto", "zap",
         "auction", "get", "receive", "idle", "backup", "who", "score", "list",
         "n",
@@ -145,7 +145,7 @@ char     *const save_flag[] =
         "r28", "r29", "r30", "r31"
 };
 
-char     *const command_flags[] = {
+const char *const command_flags[] = {
         "admin", "builder", "highbuilder", "enforcer", "quest", "coder",
         "all", "owner", "highenforcer", "r9", "r10",
         "r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19", "r20",
@@ -153,7 +153,7 @@ char     *const command_flags[] = {
         "r30", "r31"
 };
 
-char     *const god_flags[] = {
+const char *const god_flags[] = {
         "admin", "builder", "highbuilder", "enforcer", "quest", "coder",
         "all", "owner", "highenforcer", "r9", "r10",
         "r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19", "r20",
@@ -191,7 +191,7 @@ int get_godflags(char *flag)
 // Connection and Authentication System
 // ============================================================================
 
-char     *const connection_state[] = {
+const char *const connection_state[] = {
         "Get Name", "Get Password",
         "Conf Name", "Get New Pass", "Conf New Pass",
 		"Get Act Email", 
@@ -266,7 +266,7 @@ int get_saveflag(char *name)
 
         for (x = 0; x < sizeof(save_flag) / sizeof(save_flag[0]); x++)
                 if (!str_cmp(name, save_flag[x]))
-                        return x;
+                        return static_cast<int>(x);
         return -1;
 }
 
@@ -316,7 +316,7 @@ CMDF do_wizhelp(CHAR_DATA * ch, char *argument)
 {
         CMDTYPE  *cmd;
         int       hash;
-        char      oneword[MSL], lastmatch[MSL];
+        char      lastmatch[MSL];
         sh_int    matched = 0, checked = 0, totalmatched = 0;
         char     *keyword;
         bool      found = FALSE;
@@ -447,7 +447,7 @@ CMDF do_wizhelp(CHAR_DATA * ch, char *argument)
                 send_to_pager("&C&GNo suggested immortal commands.\n\r", ch);
                 return;
         }
-        if (totalmatched == 1 && lastmatch != NULL && lastmatch[0] != '\0') {
+        if (totalmatched == 1 && lastmatch[0] != '\0') {
                 send_to_pager("&COpening only suggested immortal command.&D\n\r", ch);
                 // Show info for the single match
                 for (hash = 0; hash < 126; hash++) {
@@ -488,7 +488,7 @@ CMDF do_restrict(CHAR_DATA * ch, char *argument)
         if (arg2[0] == '\0')
                 level = get_trust(ch);
         else
-                level = atoi(arg2);
+                level = static_cast<sh_int>(atoi(arg2));
 
         level = UMAX(UMIN(get_trust(ch), level), 0);
 
@@ -698,7 +698,7 @@ CMDF do_rank(CHAR_DATA * ch, char *argument)
         smash_tilde(argument);
         STRFREE(ch->pcdata->rank);
         if (!str_cmp(argument, "none"))
-                ch->pcdata->rank = STRALLOC("");
+                ch->pcdata->rank = STRALLOC(const_cast<char*>(""));
         else
                 ch->pcdata->rank = STRALLOC(argument);
         send_to_char(OK_RESPONSE, ch);
@@ -724,7 +724,7 @@ CMDF do_mudstat(CHAR_DATA * ch, char *argument)
 
         argument = one_argument(argument, arg);
 
-        if (arg[0] == '\0' || arg == NULL)
+        if (arg[0] == '\0')
         {
                 send_to_char("&RSyntax: MUDSTAT <Statistic>\n\r", ch);
                 send_to_char
@@ -826,7 +826,7 @@ CMDF do_mudstat(CHAR_DATA * ch, char *argument)
         else
         {
                 send_to_char("&RInvalid Statistic, Try again!\n\r", ch);
-                do_mudstat(ch, "");
+                do_mudstat(ch, const_cast<char*>(""));
         }
 
         return;
@@ -1265,7 +1265,7 @@ CMDF do_echo(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if ((color = get_color(argument)))
+        if ((color = static_cast<sh_int>(get_color(argument))))
                 argument = one_argument(argument, arg);
         parg = argument;
         argument = one_argument(argument, arg);
@@ -1278,7 +1278,7 @@ CMDF do_echo(CHAR_DATA * ch, char *argument)
                 target = ECHOTAR_ALL;
                 argument = parg;
         }
-        if (!color && (color = get_color(argument)))
+        if (!color && (color = static_cast<sh_int>(get_color(argument))))
                 argument = one_argument(argument, arg);
         if (!color)
                 color = AT_IMMORT;
@@ -1288,7 +1288,7 @@ CMDF do_echo(CHAR_DATA * ch, char *argument)
                 ch_printf(ch, "I don't think %s would like that!\n\r", arg);
                 return;
         }
-        echo_to_all(color, convert_newline(argument), target);
+        echo_to_all(color, convert_newline(argument), static_cast<sh_int>(target));
 }
 
 void echo_to_room(sh_int AT_COLOR, ROOM_INDEX_DATA * room, char *argument)
@@ -1336,7 +1336,7 @@ CMDF do_recho(CHAR_DATA * ch, char *argument)
                 ch_printf(ch, "I don't think %s would like that!\n\r", arg);
                 return;
         }
-        if ((color = get_color(argument)))
+        if ((color = static_cast<sh_int>(get_color(argument))))
         {
                 argument = one_argument(argument, arg);
                 echo_to_room(color, ch->in_room, argument);
@@ -1488,27 +1488,26 @@ CMDF do_retran(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_regoto(CHAR_DATA * ch, char *argument)
+CMDF do_regoto(CHAR_DATA * ch, [[maybe_unused]] char *argument)
 {
         char      buf[MAX_STRING_LENGTH];
-
-        argument = NULL;
 
         snprintf(buf, MSL, "%d", ch->regoto);
         do_goto(ch, buf);
         return;
 }
 
-CMDF do_at(CHAR_DATA * ch, char *argument)
+CMDF do_at(CHAR_DATA * ch, const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         ROOM_INDEX_DATA *location;
         ROOM_INDEX_DATA *original;
         CHAR_DATA *wch;
 
-        argument = one_argument(argument, arg);
+        char *mutable_argument = const_cast<char*>(argument);
+        mutable_argument = one_argument(mutable_argument, arg);
 
-        if (arg[0] == '\0' || argument[0] == '\0')
+        if (arg[0] == '\0' || mutable_argument[0] == '\0')
         {
                 send_to_char("At where what?\n\r", ch);
                 return;
@@ -1538,7 +1537,7 @@ CMDF do_at(CHAR_DATA * ch, char *argument)
         original = ch->in_room;
         char_from_room(ch);
         char_to_room(ch, location);
-        interpret(ch, argument);
+        interpret(ch, mutable_argument);
 
         /*
          * See if 'ch' still exists before continuing!
@@ -1627,7 +1626,7 @@ CMDF do_rstat(CHAR_DATA * ch, char *argument)
         CHAR_DATA *rch;
         EXIT_DATA *pexit;
         int       cnt;
-        static char *dir_text[] =
+        static const char *const dir_text[] =
                 { "n", "e", "s", "w", "u", "d", "ne", "nw", "se", "sw", "?" };
 
         one_argument(argument, arg);
@@ -2027,7 +2026,7 @@ CMDF do_oldmstat(CHAR_DATA * ch, char *argument)
                 ch_printf(ch, "Pcflags: %s\n\r",
                           flag_string(victim->pcdata->flags, pc_flags));
                 ch_printf(ch, "God flags: %s\n\r",
-                          flag_string(victim->pcdata->godflags, god_flags));
+                          flag_string(victim->pcdata->godflags, const_cast<char* const*>(god_flags)));
                 /*
                  * Wanted information 
                  */
@@ -2627,7 +2626,7 @@ CMDF do_owhere(CHAR_DATA * ch, char *argument)
 
 CMDF do_reboo(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         send_to_char("If you want to REBOOT, spell it out.\n\r", ch);
         return;
 }
@@ -2686,7 +2685,7 @@ CMDF do_reboot(CHAR_DATA * ch, char *argument)
 
 CMDF do_shutdow(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         send_to_char("If you want to SHUTDOWN, spell it out.\n\r", ch);
         return;
 }
@@ -2868,9 +2867,8 @@ CMDF do_switch(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_return(CHAR_DATA * ch, char *argument)
+CMDF do_return(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         if (!ch->desc)
                 return;
 
@@ -3454,17 +3452,17 @@ CMDF do_advance(CHAR_DATA * ch, char *argument)
                                         else
                                                 victim->max_endurance = 500;
                                         if (ability == FORCE_ABILITY)
-                                                victim->max_endurance +=
+                                                victim->max_endurance = static_cast<sh_int>(victim->max_endurance +
                                                         victim->
                                                         skill_level
                                                         [HUNTING_ABILITY] *
-                                                        victim->perm_dex;
+                                                        victim->perm_dex);
                                         if (ability == HUNTING_ABILITY)
-                                                victim->max_endurance +=
+                                                victim->max_endurance = static_cast<sh_int>(victim->max_endurance +
                                                         victim->
                                                         skill_level
                                                         [HUNTING_ABILITY] *
-                                                        20;
+                                                        20);
                                 }
                                 victim->experience[ability] = 0;
                                 victim->skill_level[ability] = 1;
@@ -3482,7 +3480,7 @@ CMDF do_advance(CHAR_DATA * ch, char *argument)
                              iLevel < level; iLevel++)
                         {
                                 victim->experience[ability] =
-                                        exp_level(iLevel + 1);
+                                        exp_level(static_cast<sh_int>(iLevel + 1));
                                 gain_exp_new(victim, 0, ability, FALSE);
                         }
                 }
@@ -3503,7 +3501,7 @@ CMDF do_advance(CHAR_DATA * ch, char *argument)
                 if (ability == -1)
                 {
                         send_to_char("No Such Ability.\n\r", ch);
-                        do_advance(ch, "");
+                        do_advance(ch, const_cast<char*>(""));
                         return;
                 }
 
@@ -3554,14 +3552,14 @@ CMDF do_advance(CHAR_DATA * ch, char *argument)
                                         victim->max_endurance = 500;
                                 if (ability == FORCE_ABILITY)
                                         victim->max_endurance +=
-                                                victim->
+                                                static_cast<sh_int>(victim->
                                                 skill_level[HUNTING_ABILITY] *
-                                                victim->perm_dex;
+                                                victim->perm_dex);
                                 if (ability == HUNTING_ABILITY)
                                         victim->max_endurance +=
-                                                victim->
+                                                static_cast<sh_int>(victim->
                                                 skill_level[HUNTING_ABILITY] *
-                                                20;
+                                                20);
                         }
                         victim->experience[ability] = 0;
                         victim->skill_level[ability] = 1;
@@ -3577,7 +3575,7 @@ CMDF do_advance(CHAR_DATA * ch, char *argument)
                 for (iLevel = victim->skill_level[ability]; iLevel < level;
                      iLevel++)
                 {
-                        victim->experience[ability] = exp_level(iLevel + 1);
+                        victim->experience[ability] = exp_level(static_cast<sh_int>(iLevel + 1));
                         gain_exp_new(victim, 0, ability, FALSE);
                 }
                 return;
@@ -3591,8 +3589,8 @@ CMDF do_immortalize(CHAR_DATA * ch, char *argument)
         CHAR_DATA *victim;
         CHANNEL_DATA *channel;
         int       sn;
-        int       level, ability;
-        int       iLevel, iAbility;
+        int       ability;
+        int       iLevel;
 
         argument = one_argument(argument, arg);
         argument = one_argument(argument, arg2);
@@ -3644,7 +3642,7 @@ CMDF do_immortalize(CHAR_DATA * ch, char *argument)
                 extract_obj(victim->first_carrying);
 
         if (arg2[0] != '\0')
-                victim->top_level = atoi(arg2);
+                victim->top_level = static_cast<sh_int>(atoi(arg2));
 
         else
                 victim->top_level = LEVEL_IMMORTAL;
@@ -3655,7 +3653,7 @@ CMDF do_immortalize(CHAR_DATA * ch, char *argument)
                 for (iLevel = victim->skill_level[ability]; iLevel < 200;
                      iLevel++)
                 {
-                        victim->experience[ability] = exp_level(iLevel + 1);
+                        victim->experience[ability] = exp_level(static_cast<sh_int>(iLevel + 1));
                         gain_exp_new(victim, 0, ability, FALSE);
                 }
         }
@@ -3722,7 +3720,7 @@ CMDF do_trust(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        victim->trust = level;
+        victim->trust = static_cast<sh_int>(level);
         send_to_char("Ok.\n\r", ch);
         return;
 }
@@ -3828,12 +3826,10 @@ CMDF do_restore(CHAR_DATA * ch, char *argument)
         }
 }
 #endif
-CMDF do_restoretime(CHAR_DATA * ch, char *argument)
+CMDF do_restoretime(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         long int  time_passed;
         int       hour, minute;
-
-        argument = NULL;
         if (!last_restore_all_time)
                 ch_printf(ch,
                           "There has been no restore all since reboot\n\r");
@@ -4275,7 +4271,7 @@ CMDF do_peace(CHAR_DATA * ch, char *argument)
 {
         CHAR_DATA *rch;
 
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         act(AT_IMMORT, PEACE_MESSAGE, ch, NULL, NULL, TO_ROOM);
         for (rch = ch->in_room->first_person; rch; rch = rch->next_in_room)
         {
@@ -4300,7 +4296,7 @@ CMDF do_peace(CHAR_DATA * ch, char *argument)
 extern bool wizlock;
 CMDF do_wizlock(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         wizlock = !wizlock;
 
         if (wizlock)
@@ -4314,7 +4310,7 @@ CMDF do_wizlock(CHAR_DATA * ch, char *argument)
 
 CMDF do_noresolve(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         sysdata.NO_NAME_RESOLVING = !sysdata.NO_NAME_RESOLVING;
 
         if (sysdata.NO_NAME_RESOLVING)
@@ -4486,14 +4482,14 @@ CMDF do_invis(CHAR_DATA * ch, char *argument)
          */
 
         argument = one_argument(argument, arg);
-        if (arg && arg[0] != '\0')
+        if (arg[0] != '\0')
         {
                 if (!is_number(arg))
                 {
                         send_to_char("Usage: invis | invis <level>\n\r", ch);
                         return;
                 }
-                level = atoi(arg);
+                level = static_cast<sh_int>(atoi(arg));
                 if (level < 2 || level > get_trust(ch))
                 {
                         send_to_char("Invalid level.\n\r", ch);
@@ -4548,7 +4544,7 @@ CMDF do_invis(CHAR_DATA * ch, char *argument)
 
 CMDF do_holylight(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         if (IS_NPC(ch))
                 return;
 
@@ -4569,7 +4565,7 @@ CMDF do_holylight(CHAR_DATA * ch, char *argument)
 
 CMDF do_passdoor(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         if (IS_NPC(ch))
                 return;
 
@@ -4589,7 +4585,7 @@ CMDF do_passdoor(CHAR_DATA * ch, char *argument)
 
 CMDF do_flying(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         if (IS_NPC(ch))
                 return;
 
@@ -4837,7 +4833,7 @@ CMDF do_cmdtable(CHAR_DATA * ch, char *argument)
         int       hash, cnt;
         CMDTYPE  *cmd;
 
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
 
         set_pager_color(AT_PLAIN, ch);
         send_to_pager("Commands and Number of Uses This Run\n\r", ch);
@@ -4864,7 +4860,6 @@ CMDF do_loadup(CHAR_DATA * ch, char *argument)
         char      fname[1024];
         char      name[256];
         struct stat fst;
-        bool      loaded;
         DESCRIPTOR_DATA *d;
         int       old_room_vnum;
         char      buf[MAX_STRING_LENGTH];
@@ -4890,7 +4885,7 @@ CMDF do_loadup(CHAR_DATA * ch, char *argument)
                 d->outsize = 2000;
                 CREATE(d->outbuf, char, d->outsize);
 
-                loaded = load_char_obj(d, name, FALSE, FALSE);
+                load_char_obj(d, name, FALSE, FALSE);
                 add_char(d->character);
                 old_room_vnum = d->character->in_room->vnum;
                 char_to_room(d->character, ch->in_room);
@@ -5042,7 +5037,7 @@ CMDF do_newbieset(CHAR_DATA * ch, char *argument)
 void extract_area_names(char *inp, char *out)
 {
         char      buf[MAX_INPUT_LENGTH], *pbuf = buf;
-        int       len;
+        size_t    len;
 
         *out = '\0';
         while (inp && *inp)
@@ -5066,7 +5061,7 @@ void extract_area_names(char *inp, char *out)
 void remove_area_names(char *inp, char *out)
 {
         char      buf[MAX_INPUT_LENGTH], *pbuf = buf;
-        int       len;
+        size_t    len;
 
         *out = '\0';
         while (inp && *inp)
@@ -5086,7 +5081,7 @@ CMDF do_bestowarea(CHAR_DATA * ch, char *argument)
         char      arg[MAX_INPUT_LENGTH];
         char      buf[MAX_STRING_LENGTH];
         CHAR_DATA *victim;
-        int       arg_len;
+        size_t    arg_len;
 
         argument = one_argument(argument, arg);
 
@@ -5127,7 +5122,7 @@ CMDF do_bestowarea(CHAR_DATA * ch, char *argument)
         }
 
         if (!victim->pcdata->bestowments)
-                victim->pcdata->bestowments = STRALLOC("");
+                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
 
         if (!*argument || !str_cmp(argument, "list"))
         {
@@ -5197,7 +5192,7 @@ CMDF do_bestow(CHAR_DATA * ch, char *argument)
         }
 
         if (!victim->pcdata->bestowments)
-                victim->pcdata->bestowments = STRALLOC("");
+                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
 
         if (argument[0] == '\0' || !str_cmp(argument, "show list"))
         {
@@ -5209,7 +5204,7 @@ CMDF do_bestow(CHAR_DATA * ch, char *argument)
         if (!str_cmp(argument, "none"))
         {
                 STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC("");
+                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
                 ch_printf(ch, "Bestowments removed from %s.\n\r",
                           victim->name);
                 ch_printf(victim,
@@ -5221,7 +5216,7 @@ CMDF do_bestow(CHAR_DATA * ch, char *argument)
         arg_buf[0] = '\0';
         argument = one_argument(argument, arg);
 
-        while (arg && arg[0] != '\0')
+        while (arg[0] != '\0')
         {
                 char     *cmd_buf, cmd_tmp[MAX_INPUT_LENGTH];
                 bool      cFound = FALSE;
@@ -5242,7 +5237,7 @@ CMDF do_bestow(CHAR_DATA * ch, char *argument)
 
                 cmd_buf = victim->pcdata->bestowments;
                 cmd_buf = one_argument(cmd_buf, cmd_tmp);
-                while (cmd_tmp && cmd_tmp[0] != '\0')
+                while (cmd_tmp[0] != '\0')
                 {
                         if (!str_cmp(cmd_tmp, arg))
                         {
@@ -5496,7 +5491,7 @@ CMDF do_form_password(CHAR_DATA * ch, char *argument)
  */
 CMDF do_destro(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         set_char_color(AT_RED, ch);
         send_to_char("If you want to destroy a character, spell it out!\n\r",
                      ch);
@@ -5858,9 +5853,9 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
                         /* Use step-by-step buffer building to avoid truncation */
                         size_t len = 0;
                         buf2[0] = '\0';
-                        len += snprintf(buf2 + len, MSL - len, "%s", ch->name);
-                        len += snprintf(buf2 + len, MSL - len, " destroying ");
-                        len += snprintf(buf2 + len, MSL - len, "%s", buf);
+                        len += static_cast<size_t>(snprintf(buf2 + len, MSL - len, "%s", ch->name));
+                        len += static_cast<size_t>(snprintf(buf2 + len, MSL - len, " destroying "));
+                        len += static_cast<size_t>(snprintf(buf2 + len, MSL - len, "%s", buf));
                         perror(buf2);
                 }
 
@@ -5871,8 +5866,8 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
                                 /* Use step-by-step buffer building to avoid truncation */
                                 size_t len1 = 0;  /* Use a unique variable name */
                                 buf[0] = '\0';
-                                len1 += snprintf(buf + len1, MSL - len1, "%s", BUILD_DIR);
-                                len1 += snprintf(buf + len1, MSL - len1, "%s", buf2);
+                                len1 += static_cast<size_t>(snprintf(buf + len1, MSL - len1, "%s", BUILD_DIR));
+                                len1 += static_cast<size_t>(snprintf(buf + len1, MSL - len1, "%s", buf2));
                                 if (IS_SET(pArea->status, AREA_LOADED))
                                         fold_area(pArea, buf, FALSE, FALSE);
                                 close_area(pArea);
@@ -5881,8 +5876,8 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
                                 /* Use step-by-step buffer building to avoid truncation */
                                 size_t len2 = 0;  /* Use a different variable name */
                                 buf2[0] = '\0';
-                                len2 += snprintf(buf2 + len2, MSL - len2, "%s", buf);
-                                len2 += snprintf(buf2 + len2, MSL - len2, ".bak");
+                                len2 += static_cast<size_t>(snprintf(buf2 + len2, MSL - len2, "%s", buf));
+                                len2 += static_cast<size_t>(snprintf(buf2 + len2, MSL - len2, ".bak"));
                                 set_char_color(AT_RED, ch); /* Log message changes colors */
                                 if (!rename(buf, buf2))
                                         send_to_char
@@ -5896,9 +5891,9 @@ CMDF do_destroy(CHAR_DATA * ch, char *argument)
                                         /* Use step-by-step buffer building to avoid truncation */
                                         size_t len3 = 0;  /* Use a different variable name */
                                         buf2[0] = '\0';
-                                        len3 += snprintf(buf2 + len3, MSL - len3, "%s", ch->name);
-                                        len3 += snprintf(buf2 + len3, MSL - len3, " destroying ");
-                                        len3 += snprintf(buf2 + len3, MSL - len3, "%s", buf);
+                                        len3 += static_cast<size_t>(snprintf(buf2 + len3, MSL - len3, "%s", ch->name));
+                                        len3 += static_cast<size_t>(snprintf(buf2 + len3, MSL - len3, " destroying "));
+                                        len3 += static_cast<size_t>(snprintf(buf2 + len3, MSL - len3, "%s", buf));
                                         perror(buf2);
                                 }
                         }
@@ -6255,7 +6250,7 @@ CMDF do_cset(CHAR_DATA * ch, char *argument)
                 ch_printf(ch, "  Greet System: &w%s&z.\n\r",
                           true_false[sysdata.GREET]);
                 ch_printf(ch, "  Save flags: &w%s&z\n\r\n\r&W",
-                          flag_string(sysdata.save_flags, save_flag));
+                          flag_string(sysdata.save_flags, const_cast<char* const*>(save_flag)));
                 return;
         }
 
@@ -6343,7 +6338,7 @@ CMDF do_cset(CHAR_DATA * ch, char *argument)
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
                                               (NUMITEMS(save_flag),
-                                               save_flag), 78), ch);
+                                               const_cast<char* const*>(save_flag)), 78), ch);
                         send_to_char("\n\r", ch);
                         return;
                 }
@@ -6577,7 +6572,7 @@ CMDF do_cset(CHAR_DATA * ch, char *argument)
                                 LOG_DATA *new_log;
                                 sh_int    i;
 
-                                CREATE(new_log, LOG_DATA, level);
+                                CREATE(new_log, LOG_DATA, static_cast<size_t>(level));
                                 /*
                                  * if the old one was smaller, its ok to start at 0 and copy 
                                  */
@@ -6672,14 +6667,14 @@ void get_reboot_string(void)
 
 CMDF do_orange(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         send_to_char("Function under construction.\n\r", ch);
         return;
 }
 
 CMDF do_mrange(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         send_to_char("Function under construction.\n\r", ch);
         return;
 }
@@ -6723,7 +6718,7 @@ CMDF do_hell(CHAR_DATA * ch, char *argument)
                 send_to_char("Hell them for how long?\n\r", ch);
                 return;
         }
-        amt_of_time = atoi(arg);
+        amt_of_time = static_cast<sh_int>(atoi(arg));
         if (amt_of_time <= 0)
         {
                 send_to_char("You cannot hell for zero or negative time.\n\r",
@@ -7229,14 +7224,14 @@ CMDF do_sedit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "arousal"))
         {
-                social->arousal = atoi(argument);
+                social->arousal = static_cast<sh_int>(atoi(argument));
                 send_to_char("Done.\n\r", ch);
                 return;
         }
 
         if (!str_cmp(arg2, "minarousal"))
         {
-                social->minarousal = atoi(argument);
+                social->minarousal = static_cast<sh_int>(atoi(argument));
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -7304,7 +7299,7 @@ CMDF do_sedit(CHAR_DATA * ch, char *argument)
         /*
          * display usage message 
          */
-        do_sedit(ch, "");
+        do_sedit(ch, const_cast<char*>(""));
 }
 
 /*
@@ -7407,15 +7402,16 @@ void add_command(CMDTYPE * command)
 /*
  * Command editor/displayer/save/delete				-Thoric
  */
-CMDF do_cedit(CHAR_DATA * ch, char *argument)
+CMDF do_cedit(CHAR_DATA * ch, const char *argument)
 {
         CMDTYPE  *command;
         char      arg1[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
 
-        smash_tilde(argument);
-        argument = one_argument(argument, arg1);
-        argument = one_argument(argument, arg2);
+        char *mutable_argument = const_cast<char*>(argument);
+        smash_tilde(mutable_argument);
+        mutable_argument = one_argument(mutable_argument, arg1);
+        mutable_argument = one_argument(mutable_argument, arg2);
 
         set_char_color(AT_IMMORT, ch);
 
@@ -7459,15 +7455,15 @@ CMDF do_cedit(CHAR_DATA * ch, char *argument)
                 CREATE(command, CMDTYPE, 1);
                 command->name = str_dup(arg1);
                 command->level = get_trust(ch);
-                if (*argument)
-                        one_argument(argument, arg2);
+                if (*mutable_argument)
+                        one_argument(mutable_argument, arg2);
                 else
                         snprintf(arg2, MSL, "do_%s", arg1);
                 command->do_fun = skill_function(arg2);
                 command->fun_name = str_dup(arg2);
                 add_command(command);
                 send_to_char("Command added.\n\r", ch);
-                if (command->do_fun == skill_notfound)
+                if (command->do_fun == reinterpret_cast<DO_FUN*>(skill_notfound))
                         ch_printf(ch,
                                   "Code %s not found.  Set to no code.\n\r",
                                   arg2);
@@ -7494,7 +7490,7 @@ CMDF do_cedit(CHAR_DATA * ch, char *argument)
 						  command->name, command->level, npc_position[command->position],
                           log_flag[command->log], command->fun_name, true_false[!!IS_SET(command->flags, CMD_OOC)],
                           true_false[!!IS_SET(command->flags, CMD_HELD)], true_false[!!IS_SET(command->flags, CMD_FULLNAME)],
-						  flag_string(command->perm_flags, command_flags));
+						  flag_string(command->perm_flags, const_cast<char* const*>(command_flags)));
                 if (command->userec.num_uses)
                         send_timer(&command->userec, ch);
                 return;
@@ -7618,9 +7614,9 @@ CMDF do_cedit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "code"))
         {
-                DO_FUN   *fun = skill_function(argument);
+                DO_FUN   *fun = skill_function(const_cast<char*>(argument));
 
-                if (fun == skill_notfound)
+                if (fun == reinterpret_cast<DO_FUN*>(skill_notfound))
                 {
                         send_to_char("Code not found.\n\r", ch);
                         return;
@@ -7639,7 +7635,7 @@ CMDF do_cedit(CHAR_DATA * ch, char *argument)
                         send_to_char("Level out of range.\n\r", ch);
                         return;
                 }
-                command->level = level;
+                command->level = static_cast<sh_int>(level);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -7653,7 +7649,7 @@ CMDF do_cedit(CHAR_DATA * ch, char *argument)
                         send_to_char("Log out of range.\n\r", ch);
                         return;
                 }
-                command->log = ilog;
+                command->log = static_cast<sh_int>(ilog);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -7667,7 +7663,7 @@ CMDF do_cedit(CHAR_DATA * ch, char *argument)
                         send_to_char("Position out of range.\n\r", ch);
                         return;
                 }
-                command->position = position;
+                command->position = static_cast<sh_int>(position);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -7742,10 +7738,10 @@ CMDF do_cedit(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                while (argument[0] != '\0')
+                while (mutable_argument[0] != '\0')
                 {
-                        argument = one_argument(argument, arg3);
-                        tempnum = get_commandflag(arg3);
+                        mutable_argument = one_argument(mutable_argument, arg3);
+                        tempnum = static_cast<sh_int>(get_commandflag(arg3));
 
                         if (tempnum < 0 || tempnum > 31)
                         {
@@ -7775,7 +7771,7 @@ CMDF do_cedit(CHAR_DATA * ch, char *argument)
         {
                 bool      relocate;
 
-                one_argument(argument, arg1);
+                one_argument(const_cast<char*>(argument), arg1);
                 if (arg1[0] == '\0')
                 {
                         send_to_char("Cannot clear name field!\n\r", ch);
@@ -7868,12 +7864,14 @@ CMDF do_reward(CHAR_DATA * ch, char *argument)
                 return;
         }
 	*/
+#ifdef ACCOUNT
         if (victim->pcdata->account)
         {
                 victim->pcdata->account->rppoints += increase;
                 victim->pcdata->account->rpcurrent += increase;
         }
         else
+#endif
                 victim->pcdata->rp += increase;
 
         if (str_cmp(argument, "silent"))
@@ -7881,8 +7879,10 @@ CMDF do_reward(CHAR_DATA * ch, char *argument)
                         ("You've been rewarded by the gods for your role-playing skill!\n\r",
                          victim);
         snprintf(buf, MSL,"[AUTO COMMENT] I gave %s a reward of %d points\n\r",victim->name, increase);
-		comment_add_comment(ch,victim->pcdata->account, "Been rewarded for role-playing", buf);
+#ifdef ACCOUNT
+		comment_add_comment(ch,victim->pcdata->account, const_cast<char*>("Been rewarded for role-playing"), buf);
         save_account(victim->pcdata->account);
+#endif
         send_to_char("Done.\n\r", ch);
 
 }
@@ -7907,7 +7907,7 @@ CMDF do_punish(CHAR_DATA * ch, char *argument)
 
 
 #ifndef ACCOUNT
-        victim->pcdata->rp = victim->pcdata->rp--;
+        victim->pcdata->rp--;
 #else
         if (victim->pcdata->account)
         {
@@ -7920,7 +7920,9 @@ CMDF do_punish(CHAR_DATA * ch, char *argument)
         send_to_char
                 ("You've been punished by the gods for your poor role-playing skill!\n\r",
                  victim);
+#ifdef ACCOUNT
         save_account(victim->pcdata->account);
+#endif
         send_to_char("Done.\n\r", ch);
 }
 
@@ -8069,8 +8071,8 @@ CMDF do_compute(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                a = atoi(arg1);
-                b = atoi(arg3);
+                a = static_cast<float>(atoi(arg1));
+                b = static_cast<float>(atoi(arg3));
         }
 
         if (!str_cmp(arg2, "+") || !str_cmp(arg2, "-") || !str_cmp(arg2, "\\")
@@ -8147,7 +8149,7 @@ char     *number_sign(char *txt, int num)
         int       i;
 
         if (!txt)
-                return "";
+                return const_cast<char*>("");
 
         newstring[0] = '\0';
         for (i = 0; txt[i] != '\0'; i++)
@@ -8170,7 +8172,7 @@ CMDF do_fdcheck(CHAR_DATA * ch, char *argument)
         struct stat fs;
         int       i, j = 0;
 
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         send_to_char("FD's in use:\n\r", ch);
         for (i = 0; i < 256; ++i)
                 if (!fstat(i, &fs))
@@ -8187,7 +8189,7 @@ CMDF do_fdcheck(CHAR_DATA * ch, char *argument)
 
 CMDF do_numsize(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         ch_printf(ch, "Size of bool:               %d\n\r", sizeof(bool));
         ch_printf(ch, "Size of sh_int:             %d\n\r", sizeof(sh_int));
         ch_printf(ch, "Size of int:                %d\n\r", sizeof(int));
@@ -8311,9 +8313,9 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
                 /* Use step-by-step buffer building to avoid truncation */
                 size_t len = 0;
                 buf[0] = '\0';
-                len += snprintf(buf + len, MSL - len, "Error: Couldn't delete file ");
-                len += snprintf(buf + len, MSL - len, "%s", oldname);
-                len += snprintf(buf + len, MSL - len, " in do_rename.");
+                len += static_cast<size_t>(snprintf(buf + len, MSL - len, "Error: Couldn't delete file "));
+                len += static_cast<size_t>(snprintf(buf + len, MSL - len, "%s", oldname));
+                len += static_cast<size_t>(snprintf(buf + len, MSL - len, " in do_rename."));
                 send_to_char("Couldn't delete the old file!\n\r", ch);
                 log_string(oldname);
         }
@@ -8546,7 +8548,7 @@ CMDF do_sexes(CHAR_DATA * ch, char *argument)
         CHAR_DATA *victim;
         char      buf[MAX_STRING_LENGTH];
 
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
 
         for (d = first_descriptor; d; d = d->next)
         {
@@ -8744,7 +8746,6 @@ CMDF do_gfighting(CHAR_DATA * ch, char *argument)
         DESCRIPTOR_DATA *d;
         char      arg1[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
-        bool      found = FALSE;
         int       low = 1, high = 105, count = 0;
 
         argument = one_argument(argument, arg1);
@@ -8779,7 +8780,6 @@ CMDF do_gfighting(CHAR_DATA * ch, char *argument)
                     && victim->fighting && victim->top_level >= low
                     && victim->top_level <= high)
                 {
-                        found = TRUE;
                         pager_printf(ch,
                                      "&w%-12.12s &C|%2d &wvs &C%2d| &w%-16.16s [%5d]  &c%-20.20s [%5d]\n\r",
                                      victim->name, victim->top_level,
@@ -8803,7 +8803,7 @@ CMDF do_bones(CHAR_DATA * ch, char *argument)
 {
         CHAR_DATA *vch;
 
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         send_to_pager("&BB&zone status of players:\n\r", ch);
         set_pager_color(AT_WHITE, ch);
         for (vch = first_char; vch; vch = vch->next)
@@ -8908,7 +8908,7 @@ CMDF do_updatepships(CHAR_DATA * ch, char *argument)
         char      buf[MSL];
         SHIP_DATA *ship;
 
-        argument = NULL;
+        (void)argument;  // Silence unused parameter warning
         for (ship = first_ship; ship; ship = ship->next)
         {
                 if (!ship->owner || ship->owner[0] == '\0')
@@ -8926,11 +8926,11 @@ CMDF do_updatepships(CHAR_DATA * ch, char *argument)
                                   "Player %s doesn't exist for ship %s, wiping owners\n\r",
                                   ship->owner, ship->name);
                         STRFREE(ship->owner);
-                        ship->owner = STRALLOC("");
+                        ship->owner = STRALLOC(const_cast<char*>(""));
                         STRFREE(ship->pilot);
-                        ship->pilot = STRALLOC("");
+                        ship->pilot = STRALLOC(const_cast<char*>(""));
                         STRFREE(ship->copilot);
-                        ship->copilot = STRALLOC("");
+                        ship->copilot = STRALLOC(const_cast<char*>(""));
                         save_ship(ship);
                 }
         }
@@ -9014,8 +9014,8 @@ void do_pwipe(CHAR_DATA * ch, char *argument)
         char      directory_name[100], buf[MSL];
         sh_int    alpha_loop;
 
-        ch = NULL;
-        argument = NULL;
+        (void)ch;        // Silence unused parameter warning
+        (void)argument;  // Silence unused parameter warning
         nice(20);
         for (alpha_loop = 0; alpha_loop <= 25; alpha_loop++)
         {
@@ -9407,7 +9407,6 @@ CMDF do_watch(CHAR_DATA * ch, char *argument)
                 WATCH_DATA *pinsert;
                 CHAR_DATA *vic;
                 DESCRIPTOR_DATA *d;
-                char      buf[MAX_INPUT_LENGTH];
 
                 if (first_watch)    /* check for dups */
                         for (pw = first_watch; pw; pw = pw->next)
@@ -9684,7 +9683,7 @@ CMDF do_makebuilder(CHAR_DATA * ch, char *argument)
         if (argument[0] == '\0')
                 level = LEVEL_BUILDER;
         else
-                level = atoi(argument);
+                level = static_cast<sh_int>(atoi(argument));
 
         if (level > get_trust(ch) || level <= LEVEL_IMMORTAL)
                 level = get_trust(ch);
@@ -9717,8 +9716,12 @@ CMDF do_makebuilder(CHAR_DATA * ch, char *argument)
    CMDF do_list_teachers(CHAR_DATA * ch, char *argument)
    {
        CHAR_DATA *wch;
-       int lc=0,alt = 0;
+       size_t lc = 0;
+       int alt = 0;
 	   char buff[MSL];
+       
+       (void)argument;  // Silence unused parameter warning
+       
        for (wch = first_char; wch; wch = wch->next)
        {
 		   lc = 8;
@@ -9802,11 +9805,11 @@ CMDF do_qpreward(CHAR_DATA * ch, char *argument)
         }
 
 
-        victim->pcdata->quest_curr += increase;
+        victim->pcdata->quest_curr += static_cast<sh_int>(increase);
 
         send_to_char("You've been rewarded by the gods for your role-playing skill!\n\r", victim);
         snprintf(buf, MSL,"[AUTO COMMENT] I gave %s a reward of %d quest points\n\r",victim->name, increase);
-		comment_add_comment(ch,victim->pcdata->account, "Been rewarded", buf);
+		comment_add_comment(ch,victim->pcdata->account, const_cast<char*>("Been rewarded"), buf);
         save_account(victim->pcdata->account);
         send_to_char("Done.\n\r", ch);
 
@@ -9816,8 +9819,6 @@ CMDF do_qpreward(CHAR_DATA * ch, char *argument)
 CMDF do_stripaffects(CHAR_DATA * ch, char *argument)
 {
         char      name[MAX_STRING_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-		int       increase;
         CHAR_DATA *victim;
 
         argument = one_argument(argument, name);

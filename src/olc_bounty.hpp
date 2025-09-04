@@ -78,7 +78,7 @@ class     OLC_BOUNTY_DATA
                         return FALSE;
                 }
 
-                this->_type = i;
+                this->_type = static_cast<sh_int>(i);
                 return TRUE;
         }
 

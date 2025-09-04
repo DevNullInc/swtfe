@@ -108,36 +108,36 @@ sh_int get_obj_resistance(OBJ_DATA * obj)
 {
         sh_int    resist;
 
-        resist = number_fuzzy(MAX_ITEM_IMPACT);
+        resist = static_cast<sh_int>(number_fuzzy(MAX_ITEM_IMPACT));
 
         /*
          * magical items are more resistant 
          */
         if (IS_OBJ_STAT(obj, ITEM_MAGIC))
-                resist += number_fuzzy(MAGIC_ITEM_RESISTANCE_BONUS);
+                resist = static_cast<sh_int>(resist + number_fuzzy(MAGIC_ITEM_RESISTANCE_BONUS));
         /*
          * blessed objects should have a little bonus 
          */
         if (IS_OBJ_STAT(obj, ITEM_BLESS))
-                resist += number_fuzzy(BLESSED_ITEM_RESISTANCE_BONUS);
+                resist = static_cast<sh_int>(resist + number_fuzzy(BLESSED_ITEM_RESISTANCE_BONUS));
         /*
          * lets make store inventory pretty tough 
          */
         if (IS_OBJ_STAT(obj, ITEM_INVENTORY))
-                resist += INVENTORY_ITEM_RESISTANCE_BONUS;
+                resist = static_cast<sh_int>(resist + INVENTORY_ITEM_RESISTANCE_BONUS);
 
         /*
          * okay... let's add some bonus/penalty for item level... 
          */
-        resist += (obj->level / LEVEL_RESISTANCE_DIVISOR);
+        resist = static_cast<sh_int>(resist + (obj->level / LEVEL_RESISTANCE_DIVISOR));
 
         /*
          * and lasty... take armor or weapon's condition into consideration 
          */
         if (obj->item_type == ITEM_ARMOR || obj->item_type == ITEM_WEAPON)
-                resist += (obj->value[0]);
+                resist = static_cast<sh_int>(resist + obj->value[0]);
 
-        return URANGE(MIN_RESISTANCE, resist, MAX_RESISTANCE);
+        return static_cast<sh_int>(URANGE(MIN_RESISTANCE, resist, MAX_RESISTANCE));
 }
 
 // ============================================================================
@@ -244,20 +244,22 @@ void get_obj(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * container)
 // Object Retrieval Commands
 // ============================================================================
 
-CMDF do_get(CHAR_DATA * ch, char *argument)
+CMDF do_get(CHAR_DATA * ch, const char *argument)
 {
         char      arg1[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
+        char      mutable_argument[MAX_INPUT_LENGTH];
         OBJ_DATA *obj;
         OBJ_DATA *obj_next;
         OBJ_DATA *container;
         sh_int    number;
         bool      found;
 
-        argument = one_argument(argument, arg1);
+        strcpy(mutable_argument, argument);
+        char *arg_ptr = one_argument(mutable_argument, arg1);
         if (is_number(arg1))
         {
-                number = atoi(arg1);
+                number = static_cast<sh_int>(atoi(arg1));
                 if (number < 1)
                 {
                         send_to_char("That was easy...\n\r", ch);
@@ -268,16 +270,21 @@ CMDF do_get(CHAR_DATA * ch, char *argument)
                         send_to_char("You can't carry that many.\n\r", ch);
                         return;
                 }
-                argument = one_argument(argument, arg1);
+                arg_ptr = one_argument(mutable_argument, arg1);
+                strcpy(mutable_argument, arg_ptr);
         }
         else
                 number = 0;
-        argument = one_argument(argument, arg2);
+        arg_ptr = one_argument(mutable_argument, arg2);
+        strcpy(mutable_argument, arg_ptr);
         /*
          * munch optional words 
          */
-        if (!str_cmp(arg2, "from") && argument[0] != '\0')
-                argument = one_argument(argument, arg2);
+        if (!str_cmp(arg2, "from") && mutable_argument[0] != '\0')
+        {
+                arg_ptr = one_argument(mutable_argument, arg2);
+                strcpy(mutable_argument, arg_ptr);
+        }
 
         /*
          * Get type. 
@@ -1194,17 +1201,19 @@ obj_ret damage_obj(OBJ_DATA * obj)
                 break;
         case ITEM_ARMOR:
                 if (ch && obj->value[0] >= 1)
-                        ch->armor += apply_ac(obj, obj->wear_loc);
-                if (--obj->value[0] <= 0)
+                        ch->armor = static_cast<sh_int>(ch->armor + apply_ac(obj, obj->wear_loc));
+                obj->value[0] = static_cast<sh_int>(obj->value[0] - 1);
+                if (obj->value[0] <= 0)
                 {
                         make_scraps(obj);
                         objcode = rOBJ_SCRAPPED;
                 }
                 else if (ch && obj->value[0] >= 1)
-                        ch->armor -= apply_ac(obj, obj->wear_loc);
+                        ch->armor = static_cast<sh_int>(ch->armor - apply_ac(obj, obj->wear_loc));
                 break;
         case ITEM_WEAPON:
-                if (--obj->value[0] <= 0)
+                obj->value[0] = static_cast<sh_int>(obj->value[0] - 1);
+                if (obj->value[0] <= 0)
                 {
                         make_scraps(obj);
                         objcode = rOBJ_SCRAPPED;
@@ -2205,9 +2214,9 @@ CMDF do_wear(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 if (arg2[0] != '\0')
-                        wear_bit = get_wflag(arg2);
+                        wear_bit = static_cast<sh_int>(get_wflag(arg2));
                 else
-                        wear_bit = -1;
+                        wear_bit = static_cast<sh_int>(-1);
                 wear_obj(ch, obj, TRUE, wear_bit);
         }
 
@@ -2216,13 +2225,13 @@ CMDF do_wear(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_remove(CHAR_DATA * ch, char *argument)
+CMDF do_remove(CHAR_DATA * ch, const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         OBJ_DATA *obj, *obj_next;
 
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
 
         if (arg[0] == '\0')
         {
@@ -2332,9 +2341,9 @@ CMDF do_bury(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        move = (obj->weight * BURY_MOVE_MULTIPLIER * (shovel ? SHOVEL_MULTIPLIER : NO_SHOVEL_MULTIPLIER)) / UMAX(1,
-                                                            can_carry_w(ch));
-        move = URANGE(MIN_BURY_MOVE, move, MAX_BURY_MOVE);
+        move = static_cast<sh_int>((obj->weight * BURY_MOVE_MULTIPLIER * (shovel ? SHOVEL_MULTIPLIER : NO_SHOVEL_MULTIPLIER)) / UMAX(1,
+                                                            can_carry_w(ch)));
+        move = static_cast<sh_int>(URANGE(MIN_BURY_MOVE, move, MAX_BURY_MOVE));
         if (move > ch->endurance)
         {
                 send_to_char
@@ -2500,14 +2509,16 @@ void save_clan_storeroom(CHAR_DATA * ch, CLAN_DATA * clan)
 }
 
 /* put an item on auction, or see the stats on the current item or bet */
-CMDF do_auction(CHAR_DATA * ch, char *argument)
+CMDF do_auction(CHAR_DATA * ch, const char *argument)
 {
         OBJ_DATA *obj;
         char      arg1[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
         char      buf[MAX_STRING_LENGTH];
+        char      mutable_argument[MAX_INPUT_LENGTH];
 
-        argument = one_argument(argument, arg1);
+        strcpy(mutable_argument, argument);
+        one_argument(mutable_argument, arg1);
 
         if (IS_NPC(ch)) /* NPC can be extracted at any time and thus can't auction! */
                 return;
@@ -2668,7 +2679,7 @@ CMDF do_auction(CHAR_DATA * ch, char *argument)
                                 return;
                         }
 
-                        newbet = parsebet(auction->bet, argument);
+                        newbet = parsebet(auction->bet, const_cast<char*>(argument));
 /*	    ch_printf( ch, "Bid: %d\n\r",newbet);	*/
 
                         if (newbet < auction->starting)
@@ -2763,7 +2774,8 @@ CMDF do_auction(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        argument = one_argument(argument, arg2);
+        strcpy(mutable_argument, argument);
+        one_argument(mutable_argument, arg2);
 
         if (arg2[0] == '\0')
         {
@@ -3043,7 +3055,7 @@ CMDF do_setcode(CHAR_DATA * ch, char *argument)
         argument = one_argument(argument, arg2);
         if (arg2[0] == '\0' || argument[0] == '\0')
         {
-                do_setcode(ch, "");
+                do_setcode(ch, const_cast<char*>(""));
                 return;
         }
         if (obj->value[3] != atoi(arg2))

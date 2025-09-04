@@ -206,7 +206,7 @@ CMDF do_alias(CHAR_DATA *ch, char *argument)
                         STRFREE(alias->cmd);
                 alias->cmd = copy_buffer(ch);
                 stop_editing(ch);
-                ch->substate = ch->tempnum;
+                ch->substate = static_cast<sh_int>(ch->tempnum);
                 return;
         }
 
@@ -242,7 +242,7 @@ CMDF do_alias(CHAR_DATA *ch, char *argument)
 
         if (cmd[0] == '\0' || arg[0] == '\0')
         {
-                do_alias(ch, "");
+                do_alias(ch, const_cast<char*>(""));
                 return;
         }
 
@@ -260,7 +260,7 @@ CMDF do_alias(CHAR_DATA *ch, char *argument)
                 }
                 CREATE(alias, ALIAS_DATA, 1);
                 alias->name = STRALLOC(cmd);
-                alias->cmd = STRALLOC("");
+                alias->cmd = STRALLOC(const_cast<char*>(""));
                 LINK(alias, ch->pcdata->account->first_alias,
                      ch->pcdata->account->last_alias, next, prev);
                 send_to_char(ALIAS_CREATED_MSG, ch);
@@ -308,7 +308,7 @@ CMDF do_alias(CHAR_DATA *ch, char *argument)
         else
         {
                 send_to_char(INVALID_COMMAND_MSG, ch);
-                do_alias(ch, "");
+                do_alias(ch, const_cast<char*>(""));
                 return;
         }
 }
@@ -382,7 +382,7 @@ bool check_aliases(DESCRIPTOR_DATA *d)
 {
         char arg[MSL];
         char *rem = nullptr;
-        int len = 0;
+        size_t len = 0;
         CHAR_DATA *ch;
 
         if (!d || !d->character)
@@ -472,7 +472,7 @@ void fread_alias(ACCOUNT_DATA *account, FILE *fp)
                                 else
                                 {
                                         if (!alias->cmd)
-                                                alias->cmd = STRALLOC("");
+                                                alias->cmd = STRALLOC(const_cast<char*>(""));
                                         LINK(alias, account->first_alias,
                                              account->last_alias, next, prev);
                                 }
