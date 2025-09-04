@@ -106,7 +106,7 @@ extern int top_area;
 // =============================================================================
 char* trim(const char* str);
 void show_visible_affects_to_char(CHAR_DATA* victim, CHAR_DATA* ch);
-char* halucinated_object(int ms, bool fShort);
+const char* halucinated_object(int ms, bool fShort);
 ROOM_INDEX_DATA* generate_exit(ROOM_INDEX_DATA* in_room, EXIT_DATA** pexit);
 HELP_DATA* get_help(CHAR_DATA* ch, char* argument);
 char* help_fix(char* text);
@@ -125,7 +125,7 @@ void similar_help_files(CHAR_DATA* ch, char* argument);
 // GLOBAL DATA
 // =============================================================================
 
-char     *const where_name[] = {
+const char* const where_name[] = {
         "<used as light>     ",
         "<worn on finger>    ",
         "<worn on finger>    ",
@@ -204,7 +204,7 @@ char* format_obj_to_char(OBJ_DATA* obj, CHAR_DATA* ch, bool fShort)
 /*
  * Some increasingly freaky halucinated objects - Thoric
  */
-char* halucinated_object(int ms, bool fShort)
+const char* halucinated_object(int ms, bool fShort)
 {
         int       sms = URANGE(1, (ms + 10) / 5, 20);
 
@@ -375,9 +375,9 @@ void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort, bool fShowNot
                 return;
         }
 
-        CREATE(prgpstrShow, char *, count + ((offcount > 0) ? offcount : 0));
-        CREATE(prgnShow, int, count + ((offcount > 0) ? offcount : 0));
-        CREATE(pitShow, int, count + ((offcount > 0) ? offcount : 0));
+        CREATE(prgpstrShow, char *, static_cast<size_t>(count + ((offcount > 0) ? offcount : 0)));
+        CREATE(prgnShow, int, static_cast<size_t>(count + ((offcount > 0) ? offcount : 0)));
+        CREATE(pitShow, int, static_cast<size_t>(count + ((offcount > 0) ? offcount : 0)));
 
         nShow = 0;
         tmp = (offcount > 0) ? offcount : 0;
@@ -507,9 +507,9 @@ void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort, bool fShowNot
         /*
          * Clean up.
          */
-        DISPOSE(prgpstrShow);
-        DISPOSE(prgnShow);
-        DISPOSE(pitShow);
+        free(prgpstrShow);
+        free(prgnShow);
+        free(pitShow);
         return;
 }
 
@@ -1319,7 +1319,7 @@ CMDF do_look(CHAR_DATA* ch, char* argument)
                     NULL, TO_CHAR);
                 act(AT_PLAIN, "$n lifts $p and looks beneath it:", ch, obj,
                     NULL, TO_ROOM);
-                obj->count = count;
+                obj->count = static_cast<sh_int>(count);
                 if (IS_OBJ_STAT(obj, ITEM_COVERING))
                         show_list_to_char(obj->first_content, ch, TRUE, TRUE);
                 else
@@ -1417,7 +1417,7 @@ CMDF do_look(CHAR_DATA* ch, char* argument)
                         count = obj->count;
                         obj->count = 1;
                         act(AT_PLAIN, "$p contains:", ch, obj, NULL, TO_CHAR);
-                        obj->count = count;
+                        obj->count = static_cast<sh_int>(count);
                         show_list_to_char(obj->first_content, ch, TRUE, TRUE);
                         if (doexaprog)
                                 oprog_examine_trigger(ch, obj);
@@ -1433,7 +1433,7 @@ CMDF do_look(CHAR_DATA* ch, char* argument)
                 return;
         }
 
-        door = get_door(arg1);
+        door = static_cast<sh_int>(get_door(arg1));
         if ((pexit = find_door(ch, arg1, TRUE)) != NULL)
         {
                 if (pexit->keyword)

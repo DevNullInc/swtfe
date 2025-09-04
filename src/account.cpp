@@ -190,27 +190,24 @@ CMDF do_showalts(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (account == NULL)
-                return;
-
-		ch_printf(ch, (char*)"Account Name: %s\n\r", account->name);
-		ch_printf(ch, (char*)"RP Points:    %d\n\r", account->rppoints);
-		ch_printf(ch, (char*)"RP Current:   %d\n\r", account->rpcurrent);
-		ch_printf(ch, (char*)"Quest Points: %d\n\r", account->qpoints);
-		send_to_char((char*)"----------------------------------------------\n\r",ch);
+        ch_printf(ch, "Account Name: %s\n\r", account->name);
+        ch_printf(ch, "RP Points:    %d\n\r", account->rppoints);
+        ch_printf(ch, "RP Current:   %d\n\r", account->rpcurrent);
+        ch_printf(ch, "Quest Points: %d\n\r", account->qpoints);
+        send_to_char("----------------------------------------------\n\r",ch);
 
         for (count = 0; count < MAX_CHARACTERS; count++)
         {
                 if (account->character[count] == NULL)
                         continue;
-                ch_printf(ch, (char*)"&w%-2d&B] &z%-66s&z\n\r", count,
+                ch_printf(ch, "&w%-2d&B] &z%-66s&z\n\r", count,
                           capitalize(account->character[count]));
         }
 
         if (count == 0)
         {
                 send_to_char
-                        ((char*)"&BT&zhat account has no &Rcharacters&z linked to it.",
+                        ("&BT&zhat account has no &Rcharacters&z linked to it.",
                          ch);
                 return;
         }
@@ -329,7 +326,7 @@ ACCOUNT_DATA *load_account(const char *name)
 {
         ACCOUNT_DATA *account;
         char      accountsave[MIL];
-        bool      found;
+        [[maybe_unused]] bool found;
         FILE     *fp;
 
         found = FALSE;
@@ -588,23 +585,23 @@ CMDF do_showaccounts(CHAR_DATA * ch, char *argument)
         if (victim && !IS_NPC(victim))
         {
                 account = victim->pcdata->account;
-                ch_printf(ch, (char*)"Account Name: %s\n\r", account->name);
-                ch_printf(ch, (char*)"RP Points:    %d\n\r", account->rppoints);
-                ch_printf(ch, (char*)"RP Current:   %d\n\r", account->rpcurrent);
-                ch_printf(ch, (char*)"Quest Points: %d\n\r", account->qpoints);
+                ch_printf(ch, "Account Name: %s\n\r", account->name);
+                ch_printf(ch, "RP Points:    %d\n\r", account->rppoints);
+                ch_printf(ch, "RP Current:   %d\n\r", account->rpcurrent);
+                ch_printf(ch, "Quest Points: %d\n\r", account->qpoints);
                 return;
         }
         else
         {
-                send_to_pager((char*)"All Chracters online:\n\r", ch);
+                send_to_pager("All Chracters online:\n\r", ch);
                 for (account = first_account; account;
                      account = account->next)
                 {
-                        pager_printf(ch, (char*)"%s: Count %d\n\r", account->name,
+                        pager_printf(ch, "%s: Count %d\n\r", account->name,
                                      account->inuse);
                 }
         }
-        send_to_char((char*)"&Bs&zhowalts <&wchar&B|&waccount&z>\n\r", ch);
+        send_to_char("&Bs&zhowalts <&wchar&B|&waccount&z>\n\r", ch);
         return;
 }
 
@@ -627,16 +624,16 @@ CMDF do_switchchar(CHAR_DATA * ch, char *argument)
         {
                 set_pager_color(AT_PLAIN, ch);
                 send_to_pager
-                        ((char*)"&RSyntax: &Gswitchchar &C<&ccharacter name&C>&w\n\r\n\r",
+                        ("&RSyntax: &Gswitchchar &C<&ccharacter name&C>&w\n\r\n\r",
                          ch);
-                send_to_pager((char*)"Your choices are:\n\r", ch);
+                send_to_pager("Your choices are:\n\r", ch);
                 for (count = 0; count < MAX_CHARACTERS; count++)
                 {
                         if (d->account->character[count] == NULL)
                                 continue;
                         if (!str_cmp(ch->name, d->account->character[count]))
                                 continue;
-                        pager_printf(ch, (char*)"\t&G%s\n\r",
+                        pager_printf(ch, "\t&G%s\n\r",
                                      d->account->character[count]);
                 }
                 return;
@@ -645,7 +642,7 @@ CMDF do_switchchar(CHAR_DATA * ch, char *argument)
         if (ch->position == POS_FIGHTING)
         {
                 set_char_color(AT_RED, ch);
-                send_to_char((char*)"No way! You are fighting.\n\r", ch);
+                send_to_char("No way! You are fighting.\n\r", ch);
                 return;
         }
 

@@ -3585,7 +3585,7 @@ extern char *const ability_name[MAX_ABILITY];
 extern char *const skill_tname[];
 extern sh_int const movement_loss[SECT_MAX];
 extern char *const dir_name[];
-extern char *const where_name[];
+extern const char* const where_name[];
 extern const sh_int rev_dir[];
 extern const int trap_door[];
 extern char *const r_flags[];

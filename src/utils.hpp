@@ -91,7 +91,7 @@ do                                                              \
 #define CREATE(result, type, number)					\
 do											\
 {											\
-    if (!((result) = (type *) CALLOC ((number), sizeof(type))))	\
+    if (!((result) = static_cast<type*>(CALLOC ((number), sizeof(type)))))	\
     {											\
 	perror("malloc failure");						\
 	fprintf(stderr, "Malloc failure @ %s:%d\n", __FILE__, __LINE__ ); \
@@ -104,11 +104,11 @@ do                                             \
 {                                              \
    if( (point) )                               \
    {                                           \
-      if( in_hash_table( (char*)(point) ) )    \
+      if( in_hash_table( static_cast<char*>(static_cast<void*>(point)) ) )    \
       {                                        \
          bug( "DISPOSE called on STRALLOC pointer: %s, line %d\n", __FILE__, __LINE__ ); \
          log_string( "Attempting to correct." ); \
-         if( str_free( (char*)(point) ) == -1 ) \
+         if( str_free( static_cast<char*>(static_cast<void*>(point)) ) == -1 ) \
             bug( "STRFREEing bad pointer: %s, line %d\n", __FILE__, __LINE__ ); \
       }                                        \
       else                                     \

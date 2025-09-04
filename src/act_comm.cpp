@@ -786,7 +786,7 @@ void to_channel(const char *argument, int channel, const char *verb,
         return;
 }
 
-CMDF do_shout(CHAR_DATA * ch, char *argument)
+CMDF do_shout(CHAR_DATA * ch, const char *argument)
 {
         ROOM_INDEX_DATA *room;
         EXIT_DATA *pexit = NULL;
@@ -1526,7 +1526,7 @@ CMDF do_oreply(CHAR_DATA * ch, char *argument)
 /*
  * Emote command - express character actions and emotions
  */
-CMDF do_emote(CHAR_DATA* ch, char* argument)
+CMDF do_emote(CHAR_DATA* ch, const char* argument)
 {
         char      buf[MAX_STRING_LENGTH];
         int       actflags;
@@ -1547,7 +1547,7 @@ CMDF do_emote(CHAR_DATA* ch, char* argument)
         actflags = ch->act;
         if (IS_NPC(ch))
                 REMOVE_BIT(ch->act, ACT_SECRETIVE);
-        for (plast = argument; *plast != '\0'; plast++);
+        for (plast = const_cast<char*>(argument); *plast != '\0'; plast++);
 
         mudstrlcpy(buf, argument, MSL);
         if (isalpha(plast[-1]))
@@ -1728,7 +1728,7 @@ CMDF do_qui(CHAR_DATA * ch, [[maybe_unused]] char *argument)
 /*
  * Quit command - leave the game
  */
-CMDF do_quit(CHAR_DATA* ch, [[maybe_unused]] char* argument)
+CMDF do_quit(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
 {
 
         char      buf[MAX_INPUT_LENGTH];
@@ -1855,7 +1855,7 @@ CMDF do_ansi(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_save(CHAR_DATA * ch, char *argument)
+CMDF do_save(CHAR_DATA * ch, const char *argument)
 {
         bool      silent = FALSE;
 
@@ -2333,7 +2333,7 @@ CMDF do_group(CHAR_DATA * ch, char *argument)
 /*
  * 'Split' originally by Gnort, God of Chaos.
  */
-CMDF do_split(CHAR_DATA * ch, char *argument)
+CMDF do_split(CHAR_DATA * ch, const char *argument)
 {
         char      buf[MAX_STRING_LENGTH];
         char      arg[MAX_INPUT_LENGTH];
@@ -2343,7 +2343,7 @@ CMDF do_split(CHAR_DATA * ch, char *argument)
         int       share;
         int       extra;
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
 
         if (arg[0] == '\0')
         {
@@ -3196,7 +3196,7 @@ CMDF do_say_to_char(CHAR_DATA * ch, char *argument)
 /*
  * Say command - speak to everyone in the room
  */
-CMDF do_say(CHAR_DATA* ch, char* argument)
+CMDF do_say(CHAR_DATA* ch, const char* argument)
 {
         CHAR_DATA *vch;
         char      _last_char;
@@ -3247,7 +3247,7 @@ CMDF do_say(CHAR_DATA* ch, char* argument)
         }
         for (vch = ch->in_room->first_person; vch; vch = vch->next_in_room)
         {
-                char     *sbuf = argument;
+                const char *sbuf = argument;
 
                 if (vch == ch)
                         continue;
@@ -3293,12 +3293,12 @@ CMDF do_say(CHAR_DATA* ch, char* argument)
                          IS_NPC(ch) ? ch->short_descr : ch->name, argument);
                 append_to_file(LOG_FILE, buf);
         }
-        mprog_speech_trigger(argument, ch);
+        mprog_speech_trigger(const_cast<char*>(argument), ch);
         if (char_died(ch))
                 return;
-        oprog_speech_trigger(argument, ch);
+        oprog_speech_trigger(const_cast<char*>(argument), ch);
         if (char_died(ch))
                 return;
-        rprog_speech_trigger(argument, ch);
+        rprog_speech_trigger(const_cast<char*>(argument), ch);
         return;
 }
