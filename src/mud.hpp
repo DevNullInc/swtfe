@@ -3584,7 +3584,7 @@ extern char *const ability_name[MAX_ABILITY];
 
 extern char *const skill_tname[];
 extern sh_int const movement_loss[SECT_MAX];
-extern char *const dir_name[];
+extern const char *const dir_name[];
 extern const char* const where_name[];
 extern const sh_int rev_dir[];
 extern const int trap_door[];
@@ -3940,8 +3940,8 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    sh_int encumbrance args((CHAR_DATA * ch, sh_int move));
                    bool will_fall args((CHAR_DATA * ch, int fall));
                    int wherehome args((CHAR_DATA * ch));
-                   CMDF do_hold_person args((CHAR_DATA * ch, char *argument));
-                   CMDF do_release args((CHAR_DATA * ch, char *argument));
+                   CMDF do_hold_person args((CHAR_DATA * ch, const char *argument));
+                   CMDF do_release args((CHAR_DATA * ch, const char *argument));
                    char *wordwrap args((char *txt, sh_int wrap));
 /* act_obj.c */
                    obj_ret damage_obj args((OBJ_DATA * obj));

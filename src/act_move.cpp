@@ -98,7 +98,7 @@ const sh_int movement_loss[SECT_MAX] = {
         1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6, 5, 7, 4
 };
 
-char     *const dir_name[] = {
+const char *const dir_name[] = {
         "north", "east", "south", "west", "up", "down",
         "northeast", "northwest", "southeast", "southwest", "somewhere"
 };
@@ -117,13 +117,13 @@ ROOM_INDEX_DATA *vroom_hash[VROOM_HASH_SIZE];
 /*
  * Local functions.
  */
-bool has_key args((CHAR_DATA * ch, int key));
+bool has_key(CHAR_DATA * ch, int key);
 
 
 // ============================================================================
 // Sector and Room Description Data
 // ============================================================================
-char     *const sect_names[SECT_MAX][2] = {
+const char *const sect_names[SECT_MAX][2] = {
         {"In a room", "inside"}, {"A City Street", "cities"},
         {"In a field", "fields"}, {"In a forest", "forests"},
         {"hill", "hills"}, {"On a mountain", "mountains"},
@@ -138,7 +138,7 @@ const int sent_total[SECT_MAX] = {
         4, 24, 4, 4, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1
 };
 
-char     *const room_sents[SECT_MAX][25] = {
+const char *const room_sents[SECT_MAX][25] = {
         {
          "The room walls are made of durasteel and duraplast.",
          "You can smell the fumes of ships and vehicles wafting in from outside.",
@@ -260,7 +260,7 @@ char     *grab_word(char *argument, char *arg_first)
         if (*argument == '\'' || *argument == '"')
                 cEnd = *argument++;
 
-        while (*argument != '\0' || ++count >= MAX_WORD_LENGTH)
+        while (*argument != '\0' && ++count < MAX_WORD_LENGTH)
         {
                 if (*argument == cEnd)
                 {
@@ -320,8 +320,8 @@ char     *wordwrap(char *txt, sh_int wrap)
                 while (*ptr)
                 {
                         ptr = grab_word(ptr, temp);
-                        ln = strlen(line);
-                        x = strlen(temp);
+                        ln = static_cast<int>(strlen(line));
+                        x = static_cast<int>(strlen(temp));
                         if ((ln + x + 1) < wrap)
                         {
                                 if (line[ln - 1] == '.')
@@ -366,7 +366,7 @@ void decorate_room(ROOM_INDEX_DATA * room)
         if (room->description)
                 STRFREE(room->description);
 
-        room->name = STRALLOC(sect_names[sector][0]);
+        room->name = STRALLOC(const_cast<char*>(sect_names[sector][0]));
         buf[0] = '\0';
         nRand = number_range(1, UMIN(MAX_ROOM_DESCRIPTIONS, sent_total[sector]));
 
@@ -390,7 +390,7 @@ void decorate_room(ROOM_INDEX_DATA * room)
 
                         previous[iRand] = x;
 
-                        len = strlen(buf);
+                        len = static_cast<int>(strlen(buf));
                         snprintf(buf2, MSL, "%s", room_sents[sector][x]);
                         if (len > 5 && buf[len - 1] == '.')
                         {
@@ -410,7 +410,7 @@ void decorate_room(ROOM_INDEX_DATA * room)
 // Room Description and Auto-Generation Functions
 // ============================================================================
 
-CMDF do_autodescription(CHAR_DATA * ch, char *argument)
+CMDF do_autodescription(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         char      buf[MAX_STRING_LENGTH];
         char      buf2[MAX_STRING_LENGTH];
@@ -421,7 +421,7 @@ CMDF do_autodescription(CHAR_DATA * ch, char *argument)
         int       sector;
         ROOM_INDEX_DATA *room;
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
 
         if (arg[0] == '\0')
                 room = ch->in_room;
@@ -460,7 +460,7 @@ CMDF do_autodescription(CHAR_DATA * ch, char *argument)
 
                         previous[iRand] = x;
 
-                        len = strlen(buf);
+                        len = static_cast<int>(strlen(buf));
                         snprintf(buf2, MSL, "%s", room_sents[sector][x]);
                         if (len > 5 && buf[len - 1] == '.')
                         {
@@ -488,7 +488,7 @@ void clear_vrooms()
         int       hash;
         ROOM_INDEX_DATA *room, *room_next, *prev;
 
-        for (hash = 0; hash < VROOM_HASH_SIZE; hash++)
+        for (hash = static_cast<sh_int>(0); hash < VROOM_HASH_SIZE; hash++)
         {
                 while (vroom_hash[hash]
                        && !vroom_hash[hash]->first_person
@@ -591,17 +591,17 @@ sh_int encumbrance(CHAR_DATA * ch, sh_int endurance)
         max = can_carry_w(ch);
         cur = ch->carry_weight;
         if (cur >= max)
-                return endurance * 7;
+                return static_cast<sh_int>(endurance * 7);
         else if (cur >= max * ENCUMBRANCE_THRESHOLD)
-                return endurance * 6;
+                return static_cast<sh_int>(endurance * 6);
         else if (cur >= max * 0.90)
-                return endurance * 5;
+                return static_cast<sh_int>(endurance * 5);
         else if (cur >= max * 0.85)
-                return endurance * 4;
+                return static_cast<sh_int>(endurance * 4);
         else if (cur >= max * 0.80)
-                return endurance * 3;
+                return static_cast<sh_int>(endurance * 3);
         else if (cur >= max * 0.75)
-                return endurance * 2;
+                return static_cast<sh_int>(endurance * 2);
         else
                 return endurance;
 }
@@ -644,7 +644,7 @@ bool will_fall(CHAR_DATA * ch, int fall)
 ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
 {
         EXIT_DATA *xit, *bxit;
-        EXIT_DATA *orig_exit = (EXIT_DATA *) * pexit;
+        EXIT_DATA *orig_exit = static_cast<EXIT_DATA *>(*pexit);
         ROOM_INDEX_DATA *room, *backroom;
         int       brvnum;
         int       serial;
@@ -677,7 +677,7 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
                 serial = (UMAX(r1, r2) << 16) | UMIN(r1, r2);
                 distance = orig_exit->distance - 1;
         }
-        hash = serial % 64;
+        hash = static_cast<sh_int>(serial % 64);
 
         for (room = vroom_hash[hash]; room; room = room->next)
                 if (!found)
@@ -692,30 +692,30 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
                         vroom_hash[hash] = room;
                         ++top_vroom;
                 }
-        if (!found || (xit = get_exit(room, vdir)) == NULL)
+        if (!found || (xit = get_exit(room, static_cast<sh_int>(vdir))) == NULL)
         {
-                xit = make_exit(room, orig_exit->to_room, vdir);
-                xit->keyword = STRALLOC("");
-                xit->description = STRALLOC("");
+                xit = make_exit(room, orig_exit->to_room, static_cast<sh_int>(vdir));
+                xit->keyword = STRALLOC(const_cast<char*>(""));
+                xit->description = STRALLOC(const_cast<char*>(""));
                 xit->key = -1;
-                xit->distance = distance;
+                xit->distance = static_cast<sh_int>(distance);
         }
         if (!found)
         {
                 bxit = make_exit(room, backroom, rev_dir[vdir]);
-                bxit->keyword = STRALLOC("");
-                bxit->description = STRALLOC("");
+                bxit->keyword = STRALLOC(const_cast<char*>(""));
+                bxit->description = STRALLOC(const_cast<char*>(""));
                 bxit->key = -1;
                 {
                         EXIT_DATA *tmp;
                         int       fulldist = 0;
 
-                        if ((tmp = get_exit(backroom, vdir)) != NULL)
+                        if ((tmp = get_exit(backroom, static_cast<sh_int>(vdir))) != NULL)
                         {
                                 fulldist = tmp->distance;
                         }
 
-                        bxit->distance = fulldist - distance;
+                        bxit->distance = static_cast<sh_int>(fulldist - distance);
                 }
         }
         /*
@@ -749,8 +749,8 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
 
         if (drunk && !fall)
         {
-                door = number_door();
-                pexit = get_exit(ch->in_room, door);
+                door = static_cast<sh_int>(number_door());
+                pexit = get_exit(ch->in_room, static_cast<sh_int>(door));
         }
 
 #ifdef DEBUG
@@ -951,9 +951,9 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
                                         {
                                                 found = TRUE;
                                                 if (drunk)
-                                                        txt = "paddles unevenly";
+                                                        txt = const_cast<char*>("paddles unevenly");
                                                 else
-                                                        txt = "paddles";
+                                                        txt = const_cast<char*>("paddles");
                                                 break;
                                         }
                                 }
@@ -1035,7 +1035,7 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
                                 found = TRUE;
                                 learn_from_success(ch, gsn_climb);
                                 WAIT_STATE(ch, skill_table[gsn_climb]->beats);
-                                txt = "climbs";
+                                txt = const_cast<char*>("climbs");
                         }
 
                         if (!found)
@@ -1133,9 +1133,9 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
 
                 WAIT_STATE(ch, 1);
                 if (ch->mount)
-                        ch->mount->endurance -= endurance;
+                        ch->mount->endurance -= static_cast<sh_int>(endurance);
                 else
-                        ch->endurance -= endurance;
+                        ch->endurance -= static_cast<sh_int>(endurance);
         }
 
         /*
@@ -1170,46 +1170,46 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
             && (IS_NPC(ch) || !IS_SET(ch->act, PLR_WIZINVIS)))
         {
                 if (fall)
-                        txt = "falls";
+                        txt = const_cast<char*>("falls");
                 else if (!txt)
                 {
                         if (ch->mount)
                         {
                                 if (IS_AFFECTED(ch->mount, AFF_FLOATING))
-                                        txt = "floats";
+                                        txt = const_cast<char*>("floats");
                                 else if (IS_AFFECTED(ch->mount, AFF_FLYING))
-                                        txt = "flys";
+                                        txt = const_cast<char*>("flys");
                                 else
-                                        txt = "rides";
+                                        txt = const_cast<char*>("rides");
                         }
                         else
                         {
                                 if (IS_AFFECTED(ch, AFF_FLOATING))
                                 {
                                         if (drunk)
-                                                txt = "floats unsteadily";
+                                                txt = const_cast<char*>("floats unsteadily");
                                         else
-                                                txt = "floats";
+                                                txt = const_cast<char*>("floats");
                                 }
                                 else if (IS_AFFECTED(ch, AFF_FLYING))
                                 {
                                         if (drunk)
-                                                txt = "flys shakily";
+                                                txt = const_cast<char*>("flys shakily");
                                         else
-                                                txt = "flys";
+                                                txt = const_cast<char*>("flys");
                                 }
                                 else if (ch->position == POS_SHOVE)
-                                        txt = "is shoved";
+                                        txt = const_cast<char*>("is shoved");
                                 else if (ch->position == POS_DRAG)
-                                        txt = "is dragged";
+                                        txt = const_cast<char*>("is dragged");
                                 else
                                 {
                                         if (drunk)
-                                                txt = "stumbles drunkenly";
+                                                txt = const_cast<char*>("stumbles drunkenly");
                                         else if (running)
-                                                txt = "runs";
+                                                txt = const_cast<char*>("runs");
                                         else
-                                                txt = "leaves";
+                                                txt = const_cast<char*>("leaves");
                                 }
                         }
                 }
@@ -1222,7 +1222,7 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
                 else
                 {
                         snprintf(buf, MSL, "$n %s $T.", txt);
-                        act(AT_ACTION, buf, ch, NULL, dir_name[door],
+                        act(AT_ACTION, buf, ch, NULL, const_cast<void*>(static_cast<const void*>(dir_name[door])),
                             TO_ROOM);
                 }
         }
@@ -1256,80 +1256,80 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
             && (IS_NPC(ch) || !IS_SET(ch->act, PLR_WIZINVIS)))
         {
                 if (fall)
-                        txt = "falls";
+                        txt = const_cast<char*>("falls");
                 else if (ch->mount)
                 {
                         if (IS_AFFECTED(ch->mount, AFF_FLOATING))
-                                txt = "floats in";
+                                txt = const_cast<char*>("floats in");
                         else if (IS_AFFECTED(ch->mount, AFF_FLYING))
-                                txt = "flys in";
+                                txt = const_cast<char*>("flys in");
                         else
-                                txt = "rides in";
+                                txt = const_cast<char*>("rides in");
                 }
                 else
                 {
                         if (IS_AFFECTED(ch, AFF_FLOATING))
                         {
                                 if (drunk)
-                                        txt = "floats in unsteadily";
+                                        txt = const_cast<char*>("floats in unsteadily");
                                 else
-                                        txt = "floats in";
+                                        txt = const_cast<char*>("floats in");
                         }
                         else if (IS_AFFECTED(ch, AFF_FLYING))
                         {
                                 if (drunk)
-                                        txt = "flys in shakily";
+                                        txt = const_cast<char*>("flys in shakily");
                                 else
-                                        txt = "flys in";
+                                        txt = const_cast<char*>("flys in");
                         }
                         else if (ch->position == POS_SHOVE)
-                                txt = "is shoved in";
+                                txt = const_cast<char*>("is shoved in");
                         else if (ch->position == POS_DRAG)
-                                txt = "is dragged in";
+                                txt = const_cast<char*>("is dragged in");
                         else
                         {
                                 if (drunk)
-                                        txt = "stumbles drunkenly in";
+                                        txt = const_cast<char*>("stumbles drunkenly in");
                                 else if (running)
-                                        txt = "runs in";
+                                        txt = const_cast<char*>("runs in");
                                 else
-                                        txt = "arrives";
+                                        txt = const_cast<char*>("arrives");
                         }
                 }
                 switch (door)
                 {
                 default:
-                        dtxt = "somewhere";
+                        dtxt = const_cast<char*>("somewhere");
                         break;
                 case 0:
-                        dtxt = "the south";
+                        dtxt = const_cast<char*>("the south");
                         break;
                 case 1:
-                        dtxt = "the west";
+                        dtxt = const_cast<char*>("the west");
                         break;
                 case 2:
-                        dtxt = "the north";
+                        dtxt = const_cast<char*>("the north");
                         break;
                 case 3:
-                        dtxt = "the east";
+                        dtxt = const_cast<char*>("the east");
                         break;
                 case 4:
-                        dtxt = "below";
+                        dtxt = const_cast<char*>("below");
                         break;
                 case 5:
-                        dtxt = "above";
+                        dtxt = const_cast<char*>("above");
                         break;
                 case 6:
-                        dtxt = "the south-west";
+                        dtxt = const_cast<char*>("the south-west");
                         break;
                 case 7:
-                        dtxt = "the south-east";
+                        dtxt = const_cast<char*>("the south-east");
                         break;
                 case 8:
-                        dtxt = "the north-west";
+                        dtxt = const_cast<char*>("the north-west");
                         break;
                 case 9:
-                        dtxt = "the north-east";
+                        dtxt = const_cast<char*>("the north-east");
                         break;
                 }
                 if (ch->mount)
@@ -1434,84 +1434,74 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
 // Directional Movement Commands
 // ============================================================================
 
-CMDF do_north(CHAR_DATA * ch, char *argument)
+CMDF do_north(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_NORTH), 0, FALSE);
         return;
 }
 
 
-CMDF do_east(CHAR_DATA * ch, char *argument)
+CMDF do_east(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_EAST), 0, FALSE);
         return;
 }
 
 
-CMDF do_south(CHAR_DATA * ch, char *argument)
+CMDF do_south(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_SOUTH), 0, FALSE);
         return;
 }
 
 
-CMDF do_west(CHAR_DATA * ch, char *argument)
+CMDF do_west(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_WEST), 0, FALSE);
         return;
 }
 
 
-CMDF do_up(CHAR_DATA * ch, char *argument)
+CMDF do_up(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_UP), 0, FALSE);
         return;
 }
 
 
-CMDF do_down(CHAR_DATA * ch, char *argument)
+CMDF do_down(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_DOWN), 0, FALSE);
         return;
 }
 
-CMDF do_northeast(CHAR_DATA * ch, char *argument)
+CMDF do_northeast(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_NORTHEAST), 0, FALSE);
         return;
 }
 
-CMDF do_northwest(CHAR_DATA * ch, char *argument)
+CMDF do_northwest(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_NORTHWEST), 0, FALSE);
         return;
 }
 
-CMDF do_southeast(CHAR_DATA * ch, char *argument)
+CMDF do_southeast(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_SOUTHEAST), 0, FALSE);
         return;
 }
 
-CMDF do_southwest(CHAR_DATA * ch, char *argument)
+CMDF do_southwest(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        argument = NULL;
         move_char(ch, get_exit(ch->in_room, DIR_SOUTHWEST), 0, FALSE);
         return;
 }
 
 
 
-EXIT_DATA *find_door(CHAR_DATA * ch, char *arg, bool quiet)
+EXIT_DATA *find_door(CHAR_DATA * ch, const char *arg, bool quiet)
 {
         EXIT_DATA *pexit;
         int       door;
@@ -1547,19 +1537,19 @@ EXIT_DATA *find_door(CHAR_DATA * ch, char *arg, bool quiet)
                 {
                         if ((quiet || IS_SET(pexit->exit_info, EX_ISDOOR))
                             && pexit->keyword
-                            && nifty_is_name(arg, pexit->keyword))
+                            && nifty_is_name(const_cast<char*>(arg), pexit->keyword))
                                 return pexit;
                 }
                 if (!quiet)
-                        act(AT_PLAIN, "You see no $T here.", ch, NULL, arg,
+                        act(AT_PLAIN, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)),
                             TO_CHAR);
                 return NULL;
         }
 
-        if ((pexit = get_exit(ch->in_room, door)) == NULL)
+        if ((pexit = get_exit(ch->in_room, static_cast<sh_int>(door))) == NULL)
         {
                 if (!quiet)
-                        act(AT_PLAIN, "You see no $T here.", ch, NULL, arg,
+                        act(AT_PLAIN, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)),
                             TO_CHAR);
                 return NULL;
         }
@@ -1569,7 +1559,7 @@ EXIT_DATA *find_door(CHAR_DATA * ch, char *arg, bool quiet)
 
         if (IS_SET(pexit->exit_info, EX_SECRET))
         {
-                act(AT_PLAIN, "You see no $T here.", ch, NULL, arg, TO_CHAR);
+                act(AT_PLAIN, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)), TO_CHAR);
                 return NULL;
         }
 
@@ -1613,14 +1603,14 @@ void remove_bexit_flag(EXIT_DATA * pexit, int flag)
                 REMOVE_BIT(pexit_rev->exit_info, flag);
 }
 
-CMDF do_open(CHAR_DATA * ch, char *argument)
+CMDF do_open(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         OBJ_DATA *obj;
         EXIT_DATA *pexit;
         int       door;
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
 
         if (arg[0] == '\0')
         {
@@ -1668,13 +1658,13 @@ CMDF do_open(CHAR_DATA * ch, char *argument)
                                         act(AT_ACTION, "The $d opens.", rch,
                                             NULL, pexit_rev->keyword,
                                             TO_CHAR);
-                                sound_to_room(pexit->to_room, "door");
+                                sound_to_room(pexit->to_room, const_cast<char*>("door"));
                         }
                         remove_bexit_flag(pexit, EX_CLOSED);
                         if ((door = pexit->vdir) >= 0 && door < 10)
                                 check_room_for_traps(ch, trap_door[door]);
 
-                        sound_to_room(ch->in_room, "door");
+                        sound_to_room(ch->in_room, const_cast<char*>("door"));
                         return;
                 }
         }
@@ -1731,14 +1721,14 @@ CMDF do_open(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_close(CHAR_DATA * ch, char *argument)
+CMDF do_close(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         OBJ_DATA *obj;
         EXIT_DATA *pexit;
         int       door;
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
 
         if (arg[0] == '\0')
         {
@@ -1843,13 +1833,13 @@ bool has_key(CHAR_DATA * ch, int key)
 }
 
 
-CMDF do_lock(CHAR_DATA * ch, char *argument)
+CMDF do_lock(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         OBJ_DATA *obj;
         EXIT_DATA *pexit;
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
 
         if (arg[0] == '\0')
         {
@@ -1943,13 +1933,13 @@ CMDF do_lock(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_unlock(CHAR_DATA * ch, char *argument)
+CMDF do_unlock(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         OBJ_DATA *obj;
         EXIT_DATA *pexit;
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
 
         if (arg[0] == '\0')
         {
@@ -2041,9 +2031,9 @@ CMDF do_unlock(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_bashdoor(CHAR_DATA * ch, char *argument)
+CMDF do_bashdoor(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        CHAR_DATA *gch;
+        [[maybe_unused]] CHAR_DATA *gch;
         EXIT_DATA *pexit;
         char      arg[MAX_INPUT_LENGTH];
 
@@ -2055,7 +2045,7 @@ CMDF do_bashdoor(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
 
         if (arg[0] == '\0')
         {
@@ -2086,7 +2076,7 @@ CMDF do_bashdoor(CHAR_DATA * ch, char *argument)
                 WAIT_STATE(ch, skill_table[gsn_bashdoor]->beats);
 
                 if (IS_SET(pexit->exit_info, EX_SECRET))
-                        keyword = "wall";
+                        keyword = const_cast<char*>("wall");
                 else
                         keyword = pexit->keyword;
                 if (!IS_NPC(ch))
@@ -2165,7 +2155,7 @@ CMDF do_bashdoor(CHAR_DATA * ch, char *argument)
 // Character Position and Stance Commands
 // ============================================================================
 
-CMDF do_stand(CHAR_DATA * ch, char *argument)
+CMDF do_stand(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         argument = NULL;
         switch (ch->position)
@@ -2212,7 +2202,7 @@ CMDF do_stand(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_sit(CHAR_DATA * ch, char *argument)
+CMDF do_sit(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         OBJ_DATA *obj = NULL;
 
@@ -2229,7 +2219,7 @@ CMDF do_sit(CHAR_DATA * ch, char *argument)
          */
         if (argument[0] != '\0')
         {
-                obj = get_obj_list(ch, argument, ch->in_room->first_content);
+                obj = get_obj_list(ch, const_cast<char*>(argument), ch->in_room->first_content);
                 if (obj == NULL)
                 {
                         send_to_char("You don't see that here.\n\r", ch);
@@ -2356,7 +2346,7 @@ CMDF do_sit(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_rest(CHAR_DATA * ch, char *argument)
+CMDF do_rest(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         OBJ_DATA *obj = NULL;
 
@@ -2365,7 +2355,7 @@ CMDF do_rest(CHAR_DATA * ch, char *argument)
          */
         if (argument[0] != '\0')
         {
-                obj = get_obj_list(ch, argument, ch->in_room->first_content);
+                obj = get_obj_list(ch, const_cast<char*>(argument), ch->in_room->first_content);
                 if (obj == NULL)
                 {
                         send_to_char("You don't see that here.\n\r", ch);
@@ -2512,7 +2502,7 @@ CMDF do_rest(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_sleep(CHAR_DATA * ch, char *argument)
+CMDF do_sleep(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         OBJ_DATA *obj = NULL;
 
@@ -2538,7 +2528,7 @@ CMDF do_sleep(CHAR_DATA * ch, char *argument)
                         if (argument[0] == '\0')
                                 obj = ch->on;
                         else
-                                obj = get_obj_list(ch, argument,
+                                obj = get_obj_list(ch, const_cast<char*>(argument),
                                                    ch->in_room->
                                                    first_content);
 
@@ -2605,12 +2595,12 @@ CMDF do_sleep(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_wake(CHAR_DATA * ch, char *argument)
+CMDF do_wake(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         CHAR_DATA *victim;
 
-        one_argument(argument, arg);
+        one_argument(const_cast<char*>(argument), arg);
         if (arg[0] == '\0')
         {
                 do_stand(ch, argument);
@@ -2653,12 +2643,10 @@ CMDF do_wake(CHAR_DATA * ch, char *argument)
 /*
  * "Climb" in a certain direction.				-Thoric
  */
-CMDF do_climb(CHAR_DATA * ch, char *argument)
+CMDF do_climb(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         EXIT_DATA *pexit;
-        bool      found;
 
-        found = FALSE;
         if (argument[0] == '\0')
         {
                 for (pexit = ch->in_room->first_exit; pexit;
@@ -2685,12 +2673,10 @@ CMDF do_climb(CHAR_DATA * ch, char *argument)
 /*
  * "enter" something (moves through an exit)			-Thoric
  */
-CMDF do_enter(CHAR_DATA * ch, char *argument)
+CMDF do_enter(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         EXIT_DATA *pexit;
-        bool      found;
 
-        found = FALSE;
         if (argument[0] == '\0')
         {
                 for (pexit = ch->in_room->first_exit; pexit;
@@ -2717,12 +2703,10 @@ CMDF do_enter(CHAR_DATA * ch, char *argument)
 /*
  * Leave through an exit.					-Thoric
  */
-CMDF do_leave(CHAR_DATA * ch, char *argument)
+CMDF do_leave(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         EXIT_DATA *pexit;
-        bool      found;
 
-        found = FALSE;
         if (argument[0] == '\0')
         {
                 for (pexit = ch->in_room->first_exit; pexit;
@@ -2752,7 +2736,7 @@ CMDF do_leave(CHAR_DATA * ch, char *argument)
  * Added Overland support to the command. Samson 4-4-01
  */
 /* Supressed display of rooms/terrain until you stop to prevent buffer overflows - Samson 4-16-01 */
-CMDF do_run(CHAR_DATA * ch, char *argument)
+CMDF do_run(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         ROOM_INDEX_DATA *from_room;
         EXIT_DATA *pexit;
@@ -2782,7 +2766,7 @@ CMDF do_run(CHAR_DATA * ch, char *argument)
                         send_to_char
                                 ("You are too exhausted to run anymore.\n\r",
                                  ch);
-                        ch->endurance = 0;
+                        ch->endurance = static_cast<sh_int>(0);
                         break;
                 }
                 if (move_char(ch, pexit, 0, TRUE) == rSTOP)
@@ -2791,7 +2775,7 @@ CMDF do_run(CHAR_DATA * ch, char *argument)
                 /*
                  * Double movement item for running 
                  */
-                ch->endurance -= diff;
+                ch->endurance -= static_cast<sh_int>(diff);
         }
 
         if (ch->in_room == from_room)
@@ -2846,11 +2830,11 @@ CMDF do_struggle_binding(CHAR_DATA * ch)
                         chance = 0;
                 chance = URANGE(1, chance - obj->value[1], 100);
                 obj->value[2] = URANGE(1, obj->value[2] - chance, 99);
-                ch->endurance =
+                ch->endurance = static_cast<sh_int>(
                         URANGE(0, ch->endurance - number_range(150, 500),
-                               ch->max_endurance);
+                               ch->max_endurance));
                 if (ch->endurance < 0)
-                        ch->endurance = 0;  /* Added in to fix strange bug */
+                        ch->endurance = static_cast<sh_int>(0);  /* Added in to fix strange bug */
                 if (obj->value[2] == 0)
                 {
                         act(AT_ACTION,
@@ -2875,7 +2859,7 @@ CMDF do_struggle_binding(CHAR_DATA * ch)
                 }
         }
 }
-CMDF do_hold_person(CHAR_DATA * ch, char *argument)
+CMDF do_hold_person(CHAR_DATA * ch, const char *argument)
 {
         char      buf[MAX_STRING_LENGTH];
         CHAR_DATA *victim = NULL;
@@ -2891,7 +2875,7 @@ CMDF do_hold_person(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if ((victim = get_char_room(ch, argument)) == NULL)
+        if ((victim = get_char_room(ch, const_cast<char*>(argument))) == NULL)
         {
                 sprintf(buf, "You can't find %s.\n\r", argument);
                 send_to_char(buf, ch);
@@ -2931,7 +2915,7 @@ CMDF do_hold_person(CHAR_DATA * ch, char *argument)
         victim->position = POS_STANDING;
         victim->master = ch;
         victim->leader = ch;
-        WAIT_STATE(ch, number_range(STRUGGLE_WAIT_MIN, STRUGGLE_WAIT_MAX));
+        WAIT_STATE(ch, static_cast<sh_int>(number_range(STRUGGLE_WAIT_MIN, STRUGGLE_WAIT_MAX)));
         return;
 }
 
@@ -2984,7 +2968,7 @@ CMDF do_struggle(CHAR_DATA * ch)
                 ch->held = FALSE;
                 holder->holding = NULL;
                 ch->master = NULL;
-                WAIT_STATE(holder, number_range(2, 7));
+                WAIT_STATE(holder, static_cast<sh_int>(number_range(2, 7)));
                 return;
         }
         else
@@ -3003,11 +2987,11 @@ CMDF do_struggle(CHAR_DATA * ch)
                         act(AT_ACTION,
                             "$n struggles against $N's grip on $m, but $N holds strong.",
                             ch, NULL, holder, TO_NOTVICT);
-                        ch->endurance =
+                        ch->endurance = static_cast<sh_int>(
                                 URANGE(0,
                                        ch->endurance - number_range(120, 700),
-                                       ch->max_endurance);
-                        WAIT_STATE(ch, number_range(5, 12));
+                                       ch->max_endurance));
+                        WAIT_STATE(ch, static_cast<sh_int>(number_range(5, 12)));
                         return;
                 }
                 else
@@ -3026,12 +3010,12 @@ CMDF do_struggle(CHAR_DATA * ch)
                         holder->holding = NULL;
                         ch->master = NULL;
                         ch->leader = NULL;
-                        WAIT_STATE(holder, number_range(2, 7));
+                        WAIT_STATE(holder, static_cast<sh_int>(number_range(2, 7)));
                         return;
                 }
         }
 }
-CMDF do_unbind(CHAR_DATA * ch, char *argument)
+CMDF do_unbind(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         CHAR_DATA *victim = NULL;
         OBJ_DATA *obj = NULL;
@@ -3045,7 +3029,8 @@ CMDF do_unbind(CHAR_DATA * ch, char *argument)
                 send_to_char("Usage: unbind <target> <binding code>\n\r", ch);
                 return;
         }
-        argument = one_argument(argument, arg);
+        char *mutable_argument = const_cast<char*>(argument);
+        mutable_argument = one_argument(mutable_argument, arg);
         if ((victim = get_char_room(ch, arg)) == NULL)
         {
                 send_to_char("You don't see anyone like that here.\n\r", ch);
@@ -3110,7 +3095,7 @@ CMDF do_unbind(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_subdue(CHAR_DATA * ch, char *argument)
+CMDF do_subdue(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         char      buf[MAX_STRING_LENGTH];
         CHAR_DATA *victim = NULL;
@@ -3121,7 +3106,7 @@ CMDF do_subdue(CHAR_DATA * ch, char *argument)
                 send_to_char("Who do you want to subdue?\n\r", ch);
                 return;
         }
-        if ((victim = get_char_room(ch, argument)) == NULL)
+        if ((victim = get_char_room(ch, const_cast<char*>(argument))) == NULL)
         {
                 sprintf(buf, "You don't see any %s nearby.\n\r", argument);
                 send_to_char(buf, ch);
@@ -3148,25 +3133,25 @@ CMDF do_subdue(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                victim->endurance =
+                victim->endurance = static_cast<sh_int>(
                         URANGE(0,
                                victim->endurance - (strain_amount +
                                                     number_range(strain_amount
                                                                  / 5,
                                                                  strain_amount
                                                                  / 2)),
-                               victim->max_endurance);
+                               victim->max_endurance));
                 act(AT_ACTION, "You rough $M up, and $E looks weaker.", ch,
                     NULL, victim, TO_CHAR);
                 act(AT_ACTION, "$n roughs you up, and you feel drained!", ch,
                     NULL, victim, TO_VICT);
                 act(AT_ACTION, "$n roughs $N up, and $E looks weaker.", ch,
                     NULL, victim, TO_NOTVICT);
-                WAIT_STATE(ch, number_range(4, 8));
+                WAIT_STATE(ch, static_cast<sh_int>(number_range(4, 8)));
                 return;
         }
 }
-CMDF do_bind(CHAR_DATA * ch, char *argument)
+CMDF do_bind(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         OBJ_DATA *obj = NULL;
         CHAR_DATA *victim = NULL;
@@ -3182,7 +3167,8 @@ CMDF do_bind(CHAR_DATA * ch, char *argument)
                          ch);
                 return;
         }
-        argument = one_argument(argument, arg);
+        char *mutable_argument = const_cast<char*>(argument);
+        mutable_argument = one_argument(mutable_argument, arg);
         if ((victim = get_char_room(ch, arg)) == NULL)
         {
                 send_to_char("You don't see anyone like that nearby.\n\r",
@@ -3225,7 +3211,7 @@ CMDF do_bind(CHAR_DATA * ch, char *argument)
                         obj->value[3] = keycode;
                 unequip_char(ch, obj);
                 SET_BIT(obj->wear_loc, WEAR_HOLD);
-                SET_BIT(obj->wear_loc, ITEM_WEAR_BINDING);
+                SET_BIT(obj->wear_loc, static_cast<sh_int>(ITEM_WEAR_BINDING));
                 SET_BIT(obj->extra_flags, ITEM_NOREMOVE);
                 separate_obj(obj);
                 obj_from_char(obj);
@@ -3243,11 +3229,11 @@ CMDF do_bind(CHAR_DATA * ch, char *argument)
                     TO_VICT);
                 act(AT_ACTION, "$n binds $N up with $p.", ch, obj, victim,
                     TO_NOTVICT);
-                WAIT_STATE(ch, number_range(2, 6));
+                WAIT_STATE(ch, static_cast<sh_int>(number_range(2, 6)));
                 return;
         }
 }
-CMDF do_release(CHAR_DATA * ch, char *argument)
+CMDF do_release(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         CHAR_DATA *victim = NULL;
         OBJ_DATA *obj = NULL;
