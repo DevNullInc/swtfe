@@ -170,7 +170,7 @@ void load_baccount_list()
 
         for (;;)
         {
-                account = feof(fpList) ? (char *) "$" : fread_word(fpList);
+                account = feof(fpList) ? const_cast<char*>("$") : fread_word(fpList);
 
                 if (account[0] == '$')
                         break;
@@ -219,7 +219,7 @@ void load_baccount(char *name)
 
         for (;;)
         {
-                word = feof(fp) ? (char *) "End" : fread_word(fp);
+                word = feof(fp) ? const_cast<char*>("End") : fread_word(fp);
                 fMatch = FALSE;
 
                 switch (UPPER(word[0]))
@@ -240,11 +240,11 @@ void load_baccount(char *name)
                                                 STRALLOC(generate_code());
                                 if (account->creator == NULL)
                                         account->creator =
-                                                STRALLOC("NOCREATOR");
+                                                STRALLOC(const_cast<char*>("NOCREATOR"));
                                 if (account->owner == NULL)
-                                        account->owner = STRALLOC("NOOWNER");
+                                        account->owner = STRALLOC(const_cast<char*>("NOOWNER"));
                                 if (account->trustees == NULL)
-                                        account->trustees = STRALLOC("");
+                                        account->trustees = STRALLOC(const_cast<char*>(""));
                                 FCLOSE(fp);
                                 return;
                         }
@@ -302,9 +302,9 @@ BANK_ACCOUNT *create_baccount(CHAR_DATA * ch)
         account->code = STRALLOC(generate_code());
         account->creator = STRALLOC(ch->name);
         account->owner = STRALLOC(ch->name);
-        account->trustees = STRALLOC("");
+        account->trustees = STRALLOC(const_cast<char*>(""));
         account->flags = 0;
-        account->interest = BankSecurity::DEFAULT_INTEREST_RATE;
+        account->interest = static_cast<float>(BankSecurity::DEFAULT_INTEREST_RATE);
         account->amounthi = 0;
         account->amountlo = 0;
 
@@ -379,9 +379,9 @@ char     *generate_code()
                 for (count = 0; count < 20; count++)
                 {
                         if (number_range(1, 100) <= 50)
-                                buf1[count] = number_range('0', '9');
+                                buf1[count] = static_cast<char>(number_range('0', '9'));
                         else
-                                buf1[count] = number_range('a', 'f');
+                                buf1[count] = static_cast<char>(number_range('a', 'f'));
                 }
 
                 buf1[20] = '\0';
@@ -627,7 +627,7 @@ void apply_interest(BANK_ACCOUNT* account)
         account->interest > BankSecurity::MAX_INTEREST_RATE) {
         bug("apply_interest: Invalid interest rate %f for account %s", 
             account->interest, account->code ? account->code : "UNKNOWN");
-        account->interest = BANK_INTEREST; // Reset to default safe value
+        account->interest = static_cast<float>(BANK_INTEREST); // Reset to default safe value
         return;
     }
 
@@ -641,7 +641,7 @@ void apply_interest(BANK_ACCOUNT* account)
     }
 
     // Calculate interest on low amount using safe integer operations
-    long interest_lo = static_cast<long>(original_lo * (account->interest - 1.0));
+    long interest_lo = static_cast<long>(static_cast<double>(original_lo) * (account->interest - 1.0));
     
     // Calculate interest on high amount (convert to credits first)
     long interest_hi = 0;
@@ -851,7 +851,7 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
         {
                 BANK_ACCOUNT *account;
                 int       count = 0;
-                char      buf[MAX_STRING_LENGTH];
+                // char      buf[MAX_STRING_LENGTH]; // Unused variable removed
 
                 ch_printf(ch,
                           "&wAccount Number            Your Status           Balance\n\r");
@@ -1153,7 +1153,7 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
                 return;
         }
         else
-                do_bank_new(ch, "");
+                do_bank_new(ch, const_cast<char*>(""));
 
         return;
 }
@@ -1210,7 +1210,7 @@ CMDF do_entrust(CHAR_DATA * ch, char *argument)
 
                 if (account->trustees != NULL)
                         STRFREE(account->trustees);
-                account->trustees = STRALLOC("");
+                account->trustees = STRALLOC(const_cast<char*>(""));
                 save_baccount(account);
                 ch_printf(ch,
                           "Okay, account %s no longer has any trustees.\n\r",
