@@ -170,7 +170,7 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
                 return;
         }
 
-        if (!ch->pcdata->realage != 1)
+        if (ch->pcdata->realage != 1)
         {
                 send_to_char
                         ("You must set your legal status before you can use this command",
@@ -288,7 +288,7 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
                 return;
         }
 
-        if (IS_SET(victim->act, PLR_AFK) || !victim->pcdata->realage != 1)
+        if (IS_SET(victim->act, PLR_AFK) || victim->pcdata->realage != 1)
         {
                 send_to_char("&BY&zou cannot do that to that person!", ch);
                 return;
@@ -510,7 +510,7 @@ CMDF do_beep(CHAR_DATA* ch, char* argument)
 }
 
 /* Text scrambler -- Altrag */
-char     *scramble(const char *argument, LANGUAGE_DATA * language)
+char     *scramble(const char *argument, [[maybe_unused]] LANGUAGE_DATA * language)
 {
         static char arg[MAX_INPUT_LENGTH];
         sh_int    position, modifier;
@@ -518,7 +518,7 @@ char     *scramble(const char *argument, LANGUAGE_DATA * language)
 
         language = NULL;
 
-        modifier = number_range(80, 300);   /* Bitvectors get way too large #s */
+        modifier = static_cast<sh_int>(number_range(80, 300));   /* Bitvectors get way too large #s */
         for (position = 0; position < MAX_INPUT_LENGTH; position++)
         {
                 if (argument[position] == '\0')
@@ -529,44 +529,44 @@ char     *scramble(const char *argument, LANGUAGE_DATA * language)
                 else if (argument[position] >= 'A'
                          && argument[position] <= 'Z')
                 {
-                        conversion =
+                        conversion = static_cast<sh_int>(
                                 -conversion + position - modifier +
-                                argument[position] - 'A';
-                        conversion =
-                                number_range(conversion - 5, conversion + 5);
+                                argument[position] - 'A');
+                        conversion = static_cast<sh_int>(
+                                number_range(conversion - 5, conversion + 5));
                         while (conversion > 25)
                                 conversion -= 26;
                         while (conversion < 0)
                                 conversion += 26;
-                        arg[position] = conversion + 'A';
+                        arg[position] = static_cast<char>(conversion + 'A');
                 }
                 else if (argument[position] >= 'a'
                          && argument[position] <= 'z')
                 {
-                        conversion =
+                        conversion = static_cast<sh_int>(
                                 -conversion + position - modifier +
-                                argument[position] - 'a';
-                        conversion =
-                                number_range(conversion - 5, conversion + 5);
+                                argument[position] - 'a');
+                        conversion = static_cast<sh_int>(
+                                number_range(conversion - 5, conversion + 5));
                         while (conversion > 25)
                                 conversion -= 26;
                         while (conversion < 0)
                                 conversion += 26;
-                        arg[position] = conversion + 'a';
+                        arg[position] = static_cast<char>(conversion + 'a');
                 }
                 else if (argument[position] >= '0'
                          && argument[position] <= '9')
                 {
-                        conversion =
+                        conversion = static_cast<sh_int>(
                                 -conversion + position - modifier +
-                                argument[position] - '0';
-                        conversion =
-                                number_range(conversion - 2, conversion + 2);
+                                argument[position] - '0');
+                        conversion = static_cast<sh_int>(
+                                number_range(conversion - 2, conversion + 2));
                         while (conversion > 9)
                                 conversion -= 10;
                         while (conversion < 0)
                                 conversion += 10;
-                        arg[position] = conversion + '0';
+                        arg[position] = static_cast<char>(conversion + '0');
                 }
                 else
                         arg[position] = argument[position];
@@ -576,12 +576,10 @@ char     *scramble(const char *argument, LANGUAGE_DATA * language)
 }
 
 /* I'll rewrite this later if its still needed.. -- Altrag */
-char     *translate(CHAR_DATA * ch, CHAR_DATA * victim, const char *argument)
+char     *translate([[maybe_unused]] CHAR_DATA * ch, [[maybe_unused]] CHAR_DATA * victim, [[maybe_unused]] const char *argument)
 {
-        ch = 0;
-        victim = 0;
-        argument = 0;
-        return "";
+        static char empty_string[] = "";
+        return empty_string;
 }
 
 char     *drunk_speech(const char *argument, CHAR_DATA * ch)
@@ -618,7 +616,8 @@ char     *drunk_speech(const char *argument, CHAR_DATA * ch)
         if (!argument)
         {
                 bug("Drunk_speech: NULL argument", 0);
-                return "";
+                static char empty_string[] = "";
+                return empty_string;
         }
 
         /*
@@ -652,7 +651,7 @@ char     *drunk_speech(const char *argument, CHAR_DATA * ch)
                 }
                 else if (number_percent() < (drunk * 2 / 5))    /* slurred letters */
                 {
-                        sh_int    slurn = number_range(1, 2);
+                        sh_int    slurn = static_cast<sh_int>(number_range(1, 2));
                         sh_int    currslur = 0;
 
                         while (currslur < slurn)
@@ -673,9 +672,9 @@ char     *drunk_speech(const char *argument, CHAR_DATA * ch)
                 if (number_percent() < (2 * drunk / 2.5))
                 {
                         if (isupper(*txt))
-                                *txt1 = tolower(*txt);
+                                *txt1 = static_cast<char>(tolower(*txt));
                         else if (islower(*txt))
-                                *txt1 = toupper(*txt);
+                                *txt1 = static_cast<char>(toupper(*txt));
                         else
                                 *txt1 = *txt;
                 }
@@ -700,7 +699,7 @@ char     *drunk_speech(const char *argument, CHAR_DATA * ch)
                         if ((number_percent() < (2 * drunk / 4))
                             && *txt1 != '\0')
                         {
-                                sh_int    offset = number_range(0, 2);
+                                sh_int    offset = static_cast<sh_int>(number_range(0, 2));
                                 sh_int    pos = 0;
 
                                 while (*txt1 != '\0' && pos < offset)
@@ -713,7 +712,7 @@ char     *drunk_speech(const char *argument, CHAR_DATA * ch)
                                 }
 
                                 pos = 0;
-                                offset = number_range(2, 4);
+                                offset = static_cast<sh_int>(number_range(2, 4));
                                 while (*txt1 != '\0' && pos < offset)
                                 {
                                         *txt++ = *txt1;
@@ -891,7 +890,7 @@ CMDF do_whisper(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        arglen = strlen(argument) - 1;
+        arglen = static_cast<int>(strlen(argument)) - 1;
         /*
          * Remove whitespace and tabs. 
          */
@@ -1122,7 +1121,7 @@ CMDF do_tell(CHAR_DATA* ch, char* argument)
                 act(AT_TELL, "$n tells you '$t'", ch, drunk_speech(sbuf, ch),
                     victim, TO_VICT);
 
-        victim->position = position;
+        victim->position = static_cast<sh_int>(position);
         victim->reply = ch;
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
@@ -1232,7 +1231,7 @@ CMDF do_reply(CHAR_DATA * ch, char *argument)
         else
                 act(AT_TELL, "$n tells you '$t'", ch,
                     drunk_speech(sbuf, ch), victim, TO_VICT);
-        victim->position = position;
+        victim->position = static_cast<sh_int>(position);
         victim->reply = ch;
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
@@ -1402,7 +1401,7 @@ CMDF do_otell(CHAR_DATA * ch, char *argument)
         else
                 act(AT_TELL, "&B$n &zOtells you &B'&w$t&B'", ch, argument,
                     victim, TO_VICT_OOC);
-        victim->position = position;
+        victim->position = static_cast<sh_int>(position);
         victim->oreply = ch;
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
@@ -1506,7 +1505,7 @@ CMDF do_oreply(CHAR_DATA * ch, char *argument)
         else
                 act(AT_TELL, "&B$n &zOtells you &B'&w$t&B'", ch, argument,
                     victim, TO_VICT_OOC);
-        victim->position = position;
+        victim->position = static_cast<sh_int>(position);
         victim->oreply = ch;
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
@@ -1600,7 +1599,9 @@ CMDF do_bug(CHAR_DATA* ch, char* argument)
                 FILE     *fp = fopen(BUGS_FILE, "w");
 
                 if (fp)
+                {
                         FCLOSE(fp);
+                }
                 send_to_char("Bug file cleared.\n\r", ch);
                 return;
         }
@@ -1643,7 +1644,9 @@ CMDF do_idea(CHAR_DATA * ch, char *argument)
                 FILE     *fp = fopen(IDEA_FILE, "w");
 
                 if (fp)
+                {
                         FCLOSE(fp);
+                }
                 send_to_char("Idea file cleared.\n\r", ch);
                 return;
         }
@@ -1690,7 +1693,9 @@ CMDF do_typo(CHAR_DATA * ch, char *argument)
                 FILE     *fp = fopen(TYPO_FILE, "w");
 
                 if (fp)
+                {
                         FCLOSE(fp);
+                }
                 send_to_char("Typo file cleared.\n\r", ch);
                 return;
         }
@@ -1707,7 +1712,7 @@ CMDF do_typo(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_qui(CHAR_DATA * ch, char *argument)
+CMDF do_qui(CHAR_DATA * ch, [[maybe_unused]] char *argument)
 {
         argument = NULL;
         set_char_color(AT_RED, ch);
@@ -1723,7 +1728,7 @@ CMDF do_qui(CHAR_DATA * ch, char *argument)
 /*
  * Quit command - leave the game
  */
-CMDF do_quit(CHAR_DATA* ch, char* argument)
+CMDF do_quit(CHAR_DATA* ch, [[maybe_unused]] char* argument)
 {
 
         char      buf[MAX_INPUT_LENGTH];
@@ -1819,7 +1824,7 @@ CMDF do_quit(CHAR_DATA* ch, char* argument)
         /*
          * don't show who's logging off to leaving player 
          */
-        log_string_plus(log_buf, LOG_COMM, level);
+        log_string_plus(log_buf, LOG_COMM, static_cast<sh_int>(level));
         return;
 }
 
@@ -2553,7 +2558,7 @@ bool knows_language(CHAR_DATA* ch, LANGUAGE_DATA* lang, CHAR_DATA* cch)
                 if (ch->speaking == lang)
                         return TRUE;
 
-                if ((sn = skill_lookup(lang->name)) != -1
+                if ((sn = static_cast<sh_int>(skill_lookup(lang->name))) != -1
                     && ch->pcdata->learned[sn] >= MIN_LANGUAGE_SKILL)
                         return TRUE;
         }
@@ -2581,7 +2586,7 @@ bool can_learn_lang(CHAR_DATA * ch, LANGUAGE_DATA * lang)
         return TRUE;
 }
 
-char     *const lang_names[] =
+const char* const lang_names[] =
         { "basic", "wookiee", "twilek", "rodian", "hutt",
         "mon calamari", "noghri", "gamorrean",
         "jawa", "adarian", "ewok", "verpine", "defel",
@@ -2749,7 +2754,7 @@ CMDF do_languages(CHAR_DATA * ch, char *argument)
                  * Max 12% (5 + 4 + 3) at 24+ int and 21+ wis. -- Altrag 
                  */
                 prct = 5 + (get_curr_int(ch) / 6) + (get_curr_wis(ch) / 7);
-                ch->pcdata->learned[sn] += prct;
+                ch->pcdata->learned[sn] += static_cast<sh_int>(prct);
                 ch->pcdata->learned[sn] = UMIN(ch->pcdata->learned[sn], 99);
                 if (ch->pcdata->learned[sn] == prct)
                         act(AT_PLAIN, "You begin lessons in $t.", ch,
@@ -2770,7 +2775,7 @@ CMDF do_languages(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (arg && arg[0] != '\0')
+        if (arg[0] != '\0')
                 victim = get_char_world(ch, arg);
         if (!victim || !IS_IMMORTAL(ch))
                 victim = ch;
@@ -3002,7 +3007,7 @@ CMDF do_talk(CHAR_DATA * ch, char *argument)
                  station);
         for (d = first_descriptor; d; d = d->next)
         {
-                CHAR_DATA *och;
+                [[maybe_unused]] CHAR_DATA *och;
                 CHAR_DATA *vch;
 
                 och = d->original ? d->original : d->character;
@@ -3033,13 +3038,6 @@ CMDF do_talk(CHAR_DATA * ch, char *argument)
 
         return;
 }
-
-/*
- * Just pop this into act_comm.c somewhere. (Or anywhere else)
- * It's pretty much say except modified to take args.
- *
- * Written by Kratas (moon@deathmoon.com)
- */
 
 char     *append_lang(const char *argument, CHAR_DATA * ch,
                       CHAR_DATA * victim)
@@ -3087,7 +3085,7 @@ CMDF do_say_to_char(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        arglen = strlen(argument) - 1;
+        arglen = static_cast<int>(strlen(argument)) - 1;
         /*
          * Remove whitespace and tabs. 
          */
@@ -3217,7 +3215,7 @@ CMDF do_say(CHAR_DATA* ch, char* argument)
                 return;
         }
 
-        arglen = strlen(argument) - 1;
+        arglen = static_cast<int>(strlen(argument)) - 1;
         /*
          * Remove whitespace and tabs. 
          */

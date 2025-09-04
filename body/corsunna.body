@@ -2,9 +2,9 @@
 Name         Corsunna~
 Filename     corsunna.body~
 Type         0
-Xpos         29700
-Ypos         117110
-Zpos         54720
+Xpos         24300
+Ypos         120050
+Zpos         60480
 Xmove        45
 Ymove        49
 Zmove        -48
@@ -12,7 +12,7 @@ Centerx      0
 Centery      0
 Centerz      0
 Gravity      400
-Orbitcount   149
+Orbitcount   155
 Starsystem   Coruscant System~
 Planet   Coruscant~
 End

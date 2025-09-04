@@ -173,7 +173,7 @@ class     RACE_DATA
         }
         inline int endurance(int p)
         {
-                return (this->_endurance = p);
+                return (this->_endurance = static_cast<sh_int>(p));
         }
         inline int affected()
         {
@@ -189,7 +189,7 @@ class     RACE_DATA
         }
         inline int lang_bonus(int p)
         {
-                return (this->_lang_bonus = p);
+                return (this->_lang_bonus = static_cast<sh_int>(p));
         }
         inline int hit()
         {
@@ -197,7 +197,7 @@ class     RACE_DATA
         }
         inline int hit(int p)
         {
-                return (this->_hit = p);
+                return (this->_hit = static_cast<sh_int>(p));
         }
         inline int home()
         {
@@ -221,7 +221,7 @@ class     RACE_DATA
         }
         inline sh_int class_modifier(int ability, int p)
         {
-                return (this->_class_modifier[ability] = p);
+                return (this->_class_modifier[ability] = static_cast<sh_int>(p));
         }
         inline sh_int attr_modifier(int attr)
         {
@@ -229,7 +229,7 @@ class     RACE_DATA
         }
         inline sh_int attr_modifier(int attr, int p)
         {
-                return (this->_attr_mod[attr] = p);
+                return (this->_attr_mod[attr] = static_cast<sh_int>(p));
         }
 
 

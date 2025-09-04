@@ -3625,7 +3625,7 @@ extern char *const log_flag[];
 extern char *const true_false[];
 
 extern int const lang_array[];
-extern char *const lang_names[];
+extern const char* const lang_names[];
 
 /*
  * Global variables.
@@ -4063,7 +4063,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void send_to_char args((const char *txt, CHAR_DATA * ch));
                    void center_to_char
                    args((char *argument, CHAR_DATA * ch, int columns));
-                   char *center_str args((char *argument, int columns));
+                   char *center_str args((const char *argument, int columns));
                    void send_to_char_color
                    args((const char *txt, CHAR_DATA * ch));
                    void send_to_pager args((const char *txt, CHAR_DATA * ch));
@@ -4071,8 +4071,8 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    args((const char *txt, CHAR_DATA * ch));
                    void set_char_color args((sh_int AType, CHAR_DATA * ch));
                    void set_pager_color args((sh_int AType, CHAR_DATA * ch));
-                   void ch_printf args((CHAR_DATA * ch, char *fmt,...));
-                   void pager_printf args((CHAR_DATA * ch, char *fmt,...));
+                   void ch_printf args((CHAR_DATA * ch, const char *fmt,...));
+                   void pager_printf args((CHAR_DATA * ch, const char *fmt,...));
                    void act
                    args((sh_int AType, const char *format, CHAR_DATA * ch,
                          void *arg1, void *arg2, int type));
@@ -4110,7 +4110,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
 /* db.c */
                    void boot_log args((const char *str,...));
                    void clear_file args((CHAR_DATA * ch, char *filename));
-                   void show_file args((CHAR_DATA * ch, char *filename));
+                   void show_file args((CHAR_DATA * ch, const char *filename));
                    int file_size args((char *buf));
                    bool file_exist args((char *name));
                    char *str_dup args((char const *str));
@@ -4160,8 +4160,8 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    char *strupper args((const char *str));
                    char *aoran args((const char *str));
                    void append_file
-                   args((CHAR_DATA * ch, char *file, char *str));
-                   void append_to_file args((char *file, char *str));
+                   args((CHAR_DATA * ch, const char *file, const char *str));
+                   void append_to_file args((const char *file, const char *str));
                    void bug args((const char *str,...));
                    void log_string_plus
                    args((const char *str, sh_int log_type, sh_int level));

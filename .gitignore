@@ -1,0 +1,16 @@
+# Backup folder
+src/bak/
+
+# Object files directory
+src/o/
+
+# Log files directory
+log/
+
+player/pfiles.tar
+imc/fix_imc_help.py
+src/simple_test.c
+addons/2xXP.txt
+src/test_cpp_compat.c
+src/update_includes.sh
+copilot-instructions.md/dontfailme.md.instructions.md

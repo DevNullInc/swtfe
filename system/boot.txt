@@ -18,33 +18,13 @@
 [*****] BOOT:  Done races
 [*****] BOOT: Reading in area files...
 [*****] BOOT: (help.are)
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_bountyhunter in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 1.
 [*****] BOOT: limbo.are               : Rooms:     1 - 45    Objs:     2 - 99    Mobs:     1 - 99
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_auth in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 10350.
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_newbie_pilot in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 10355.
 [*****] BOOT: newacad.are             : Rooms: 10300 - 10430 Objs: 10300 - 10499 Mobs: 10340 - 10499
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_customs_weapons in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 32003.
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_customs_smut in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 32003.
 [*****] BOOT: space.are               : Rooms: 32000 - 32499 Objs: 32000 - 32499 Mobs: 32000 - 32499
 [*****] BOOT: omni_complex.are        : Rooms:   100 - 100   Objs:   100 - 112   Mobs:   100 - 110
 [*****] BOOT: cloning.are             : Rooms: 10000 - 10099 Objs: 10000 - 10099 Mobs: 10000 - 10099
 [*****] BOOT: space2.are              : Rooms: 31000 - 31499 Objs: 31000 - 31499 Mobs: 31000 - 31499
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_auth in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 248.
 [*****] BOOT: dwacad.are              : Rooms:   227 - 299   Objs:   227 - 299   Mobs:   227 - 299
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_installation_guard in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 33001.
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_installation_entrance_guard in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 33002.
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_installation_doctor in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 33003.
-[*****] BOOT: [*****] BUG: spec_lookup: Error locating function spec_customs_weapons in symbol table.
-[*****] BOOT: [*****] BUG: Load_specials: 'M': vnum 33004.
 [*****] BOOT: pinstalls.are           : Rooms: 33000 - 43000 Objs: 33000 - 43000 Mobs: 33000 - 43000
 [*****] BOOT: pships.are              : Rooms: 11000 - 14999 Objs: 11000 - 14999 Mobs: 11000 - 14999
 [*****] BOOT: Initializing Supermob...
@@ -76,7 +56,7 @@
 [*****] BOOT: Done.
 [*****] BOOT: Loading reserved names
 [*****] BOOT: Loading corpses
-[*****] BOOT: [*****] BUG: Load_corpses: can't open CORPSE_DIR
+[*****] BOOT:  Done corpses 
 [*****] BOOT: Loading space
 [*****] BOOT:  Done starsystems 
 [*****] BOOT: Loading Ship Prototypes
@@ -90,7 +70,7 @@
 [*****] BOOT: Loading changes
 [*****] BOOT:  Done changes 
 [*****] BOOT: Loading Vendors
-[*****] BOOT: [*****] BUG: Load_vendors: can't open VENDOR_DIR
+[*****] BOOT:  Done vendors 
 [*****] BOOT: Loading Installations
 [*****] BOOT:  Done installations 
 [*****] BOOT: Loading bodies
