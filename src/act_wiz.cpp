@@ -8497,7 +8497,10 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
 #ifdef ACCOUNT
         if (victim->pcdata->account)
         {
-                del_from_account(victim->pcdata->account, victim);
+                if (!del_from_account(victim->pcdata->account, victim))
+                {
+                        bug("Failed to remove character from account during rename", 0);
+                }
                 save_account(victim->pcdata->account);
         }
 #endif
@@ -8516,7 +8519,10 @@ CMDF do_pcrename(CHAR_DATA * ch, char *argument)
 #ifdef ACCOUNT
         if (victim->pcdata->account)
         {
-                add_to_account(victim->pcdata->account, victim);
+                if (!add_to_account(victim->pcdata->account, victim))
+                {
+                        bug("Failed to add character to account during rename", 0);
+                }
                 save_account(victim->pcdata->account);
         }
 #endif

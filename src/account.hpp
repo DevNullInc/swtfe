@@ -40,20 +40,25 @@
  * Account system for managing multiple characters per user with shared resources.      *
  ****************************************************************************************/
 
-#ifndef _ACCOUNT_H_
-#define _ACCOUNT_H_
+#pragma once
+
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <array>
 
 /* Ensure core project types/macros are available when this header is included
  * directly so the header is self-contained for tools (IDE/intellisense) and
- * translation units that may not include `mud.h` beforehand. */
+ * translation units that may not include `mud.hpp` beforehand. */
 #include "mud.hpp"
 
 // =============================================================================
 // Account System Constants
 // =============================================================================
 
-#define ACCOUNT_DIR (char*)"../account/"
+constexpr const char* ACCOUNT_DIR = "../account/";
 
+// Note: These will be defined after including mud.hpp where BV00/BV01 are defined
 #define ACCOUNT_SOUND ACCOUNT_MSP
 #define ACCOUNT_MSP   BV00
 #define ACCOUNT_MXP   BV01
@@ -62,7 +67,8 @@
 // Forward Declarations
 // =============================================================================
 
-typedef struct account_data ACCOUNT_DATA;
+struct account_data;
+using ACCOUNT_DATA = account_data;
 
 // =============================================================================
 // Global Variables
@@ -75,39 +81,33 @@ extern ACCOUNT_DATA *last_account;
 // Account Data Structure
 // =============================================================================
 
-// =============================================================================
-// Account Data Structure
-// =============================================================================
-
 struct account_data
 {
-        ACCOUNT_DATA *prev;
-        ACCOUNT_DATA *next;
-        struct alias_data *first_alias;
-        struct alias_data *last_alias;
-        char     *name;
-        char     *password;
-        char     *character[MAX_CHARACTERS];
-        int       rppoints;
-        int       rpcurrent;
-        int       qpoints;
-        int       inuse;    /* To prevent deleting one that is active */
-        int       flags;
-        struct note_data *comments;
-        char     *email;
+        ACCOUNT_DATA *prev{nullptr};
+        ACCOUNT_DATA *next{nullptr};
+        struct alias_data *first_alias{nullptr};
+        struct alias_data *last_alias{nullptr};
+        char     *name{nullptr};
+        char     *password{nullptr};
+        char     *character[MAX_CHARACTERS]{nullptr};
+        long     rppoints{0};        // 64-bit signed for RP points (was int)
+        long     rpcurrent{-1};      // 64-bit signed for current RP character (was int)
+        long     qpoints{0};         // 64-bit signed for quest points (was int)
+        long     inuse{1};           // 64-bit signed usage flag (was int)
+        unsigned long flags{0};      // 64-bit unsigned for bit flags (was int)
+        struct note_data *comments{nullptr};
+        char     *email{nullptr};
 };
 
 // =============================================================================
-// Function Prototypes
+// Function Prototypes (C++23 modernized)
 // =============================================================================
 
-ACCOUNT_DATA *load_account args((const char *name));
-ACCOUNT_DATA *create_account args((void));
-void save_account args((ACCOUNT_DATA * account));
-bool add_to_account args((ACCOUNT_DATA * account, CHAR_DATA * ch));
-bool del_from_account args((ACCOUNT_DATA * account, CHAR_DATA * ch));
-void show_account_characters args((DESCRIPTOR_DATA * d));
-void free_account args((ACCOUNT_DATA * account));
-void fread_account args((ACCOUNT_DATA * account, FILE * fp));
-
-#endif
+[[nodiscard]] ACCOUNT_DATA *load_account(const char *name);
+[[nodiscard]] ACCOUNT_DATA *create_account() noexcept;
+void save_account(ACCOUNT_DATA *account);
+[[nodiscard]] bool add_to_account(ACCOUNT_DATA *account, CHAR_DATA *ch);
+[[nodiscard]] bool del_from_account(ACCOUNT_DATA *account, CHAR_DATA *ch);
+void show_account_characters(DESCRIPTOR_DATA *d);
+void free_account(ACCOUNT_DATA *account);
+void fread_account(ACCOUNT_DATA *account, FILE *fp);

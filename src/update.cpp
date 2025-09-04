@@ -2359,8 +2359,10 @@ void char_update(void)
                                         if (NOT_AUTHED(ch)
                                             && ch->pcdata->account)
                                         {
-                                                del_from_account(ch->pcdata->
-                                                                 account, ch);
+                                                if (!del_from_account(ch->pcdata->account, ch))
+                                                {
+                                                        bug("Failed to remove unauthed character from account", 0);
+                                                }
                                         }
                                         if (room)
                                         {

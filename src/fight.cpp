@@ -2633,7 +2633,10 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * victim)
         {
                 if (victim && victim->pcdata && victim->pcdata->account)
                 {
-                        del_from_account(victim->pcdata->account, victim);
+                        if (!del_from_account(victim->pcdata->account, victim))
+                        {
+                                bug("Failed to remove character from account on death", 0);
+                        }
                 }
         }
 #else

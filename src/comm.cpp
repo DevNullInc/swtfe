@@ -4235,7 +4235,10 @@ case CON_GET_NAME:
                                 ch->pcdata->auth_state = 1;
                                 SET_BIT(ch->pcdata->flags, PCFLAG_UNAUTHED);
                         }
-                        add_to_account(d->account, ch);
+                        if (!add_to_account(d->account, ch))
+                        {
+                                bug("Failed to add new character to account", 0);
+                        }
                         if (!ch->pcdata->birthday.hour)
                                 ch->pcdata->birthday.hour = time_info.hour;
                         if (!ch->pcdata->birthday.day)

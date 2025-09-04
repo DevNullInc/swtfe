@@ -40,9 +40,12 @@
  *                               Account management                                      *
  *****************************************************************************************/
 
-// System includes
-#include <string.h>
-#include <ctype.h>
+// C++ Standard Library includes
+#include <cstring>
+#include <cctype>
+#include <cstdio>
+
+// POSIX includes  
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -53,16 +56,18 @@
 #include "alias.hpp"
 #include "boards.hpp"
 
+// =============================================================================
 // Constants
-#define ACCOUNT_FILENAME_SIZE 255
+// =============================================================================
 
-#ifndef CMDF
-#define CMDF void
-#endif
+constexpr size_t ACCOUNT_FILENAME_SIZE = 255;
 
+// =============================================================================
 // Global variables
-ACCOUNT_DATA *first_account = NULL;
-ACCOUNT_DATA *last_account = NULL;
+// =============================================================================
+
+ACCOUNT_DATA *first_account = nullptr;
+ACCOUNT_DATA *last_account = nullptr;
 
 // Function prototypes
 
@@ -79,7 +84,7 @@ ACCOUNT_DATA *get_account(const char *name);
 // Account Creation and Management
 // =============================================================================
 
-ACCOUNT_DATA *create_account()
+ACCOUNT_DATA *create_account() noexcept
 {
         ACCOUNT_DATA *account = NULL;
 
@@ -97,13 +102,13 @@ ACCOUNT_DATA *create_account()
 
 void free_account(ACCOUNT_DATA * account)
 {
-        int       count;
-		NOTE_DATA *pnote, *next_note;
+        size_t count;  // 64-bit compatible size type for array indexing
+        NOTE_DATA *pnote, *next_note;
 
         if (!account)
                 return;
 #ifdef DEBUG
-        bug("Free'ing %s=%d", account->name, account->inuse - 1);
+        bug("Free'ing %s=%ld", account->name, account->inuse - 1);  // %ld for long
 #endif
         /*
          * Check to see uses
@@ -276,9 +281,9 @@ void save_account(ACCOUNT_DATA * account)
                 fprintf(fp, "Name      %s~\n", account->name);
                 fprintf(fp, "Password  %s~\n", account->password);
                 fprintf(fp, "Email     %s~\n", account->email);
-                fprintf(fp, "RPpoints  %d\n", account->rppoints);
-                fprintf(fp, "RPcurrent %d\n", account->rpcurrent);
-                fprintf(fp, "Qpoints   %d\n", account->qpoints);
+                fprintf(fp, "RPpoints  %ld\n", account->rppoints);   // %ld for long
+                fprintf(fp, "RPcurrent %ld\n", account->rpcurrent);  // %ld for long
+                fprintf(fp, "Qpoints   %ld\n", account->qpoints);    // %ld for long
                 for (count = 0; count < MAX_CHARACTERS; count++)
                 {
                         if (account->character[count] == NULL)

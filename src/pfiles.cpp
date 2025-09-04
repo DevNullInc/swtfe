@@ -387,7 +387,10 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
 
                                         CREATE(ch, CHAR_DATA, 1);
                                         ch->name = name;
-                                        del_from_account(account, ch);
+                                        if (!del_from_account(account, ch))
+                                        {
+                                                bug("Failed to remove character from account during pfile cleanup", 0);
+                                        }
                                         DISPOSE(ch);
                                         /*
                                          * To remove empty accounts, check the very first slot
