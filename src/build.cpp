@@ -49,22 +49,23 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include "mud.h"
-#include "editor.h"
-#include "body.h"
-#include "races.h"
-#include "olc_bounty.h"
-#include "installations.h"
-#include "space2.h"
-#include "password.h"
+#include "mud.hpp"
+#include "editor.hpp"
+#include "body.hpp"
+#include "races.hpp"
+#include "olc_bounty.hpp"
+#include "installations.hpp"
+#include "space2.hpp"
+#include "password.hpp"
 
-// Modern C++ includes for incremental modernization
+// Modern C++ includes for incremental modernization to C++23
 #include <string>
 #include <vector>
 #include <memory>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
+#include <optional>
 
 extern int top_affect;
 extern int top_reset;
@@ -79,23 +80,33 @@ void toggle_bexit_flag args((EXIT_DATA * pexit, int flag));
 void fix_exits args((void));
 
 // ============================================================================
-// Modern C++ Build Utilities (Incremental Modernization)
+// Modern C++23 Build Utilities (Incremental Modernization)
 // ============================================================================
 namespace BuildUtils {
-    // Safe numeric conversion functions
+    // Safe numeric conversion functions (C++23 modernization)
     inline bool safe_atoi(const std::string& str, int& result) {
         if (str.empty()) return false;
+        
         try {
             size_t pos;
             long val = std::stol(str, &pos);
-            if (pos != str.length()) return false; // Extra characters
+            
+            // Check for extra characters after the number
+            if (pos != str.length()) return false;
+            
+            // Check for overflow to int range
             if (val < std::numeric_limits<int>::min() || val > std::numeric_limits<int>::max()) {
-                return false; // Overflow
+                return false;
             }
+            
             result = static_cast<int>(val);
             return true;
+        } catch (const std::invalid_argument&) {
+            return false; // Invalid format
+        } catch (const std::out_of_range&) {
+            return false; // Number too large
         } catch (...) {
-            return false;
+            return false; // Any other exception
         }
     }
     
@@ -110,7 +121,7 @@ namespace BuildUtils {
         return vnum >= 1 && vnum <= 200000; // Reasonable bounds for room/obj/mob vnums
     }
     
-    // String safety utilities
+    // String safety utilities with C++23 features
     inline std::string safe_argument(const char* arg) {
         if (!arg) return "";
         std::string result(arg);
@@ -119,6 +130,17 @@ namespace BuildUtils {
             result.resize(1000);
         }
         return result;
+    }
+    
+    // Modern C++23 constexpr string validation
+    constexpr bool is_valid_string_length(std::size_t len) noexcept {
+        return len > 0 && len <= 1000;
+    }
+    
+    // Optional-based safe conversion (C++23 style)
+    inline std::optional<int> try_parse_int(const std::string& str) {
+        int result;
+        return safe_atoi(str, result) ? std::optional<int>{result} : std::nullopt;
     }
     
 } // namespace BuildUtils
@@ -3936,7 +3958,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                                 send_to_char("\n\rChoices:\n\r", ch);
                                 send_to_char(wordwrap(show_ext_flag_string
                                                       (NUMITEMS(weapon_table),
-                                                       weapon_table), 78),
+                                                       (char *const*)weapon_table), 78),
                                              ch);
                                 send_to_char("\n\r", ch);
 
@@ -3993,7 +4015,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                                 send_to_char("\n\rChoices:\n\r", ch);
                                 send_to_char(wordwrap(show_ext_flag_string
                                                       (NUMITEMS(spice_table),
-                                                       spice_table), 78), ch);
+                                                       (char *const*)spice_table), 78), ch);
                                 send_to_char("\n\r", ch);
 
                                 return;

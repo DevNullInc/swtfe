@@ -98,9 +98,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "mud.h"
-#include "mxp.h"
-#include "cpp_compat.h"
+#include "mud.hpp"
+#include "mxp.hpp"
+#include "cpp_compat.hpp"
 
 extern char *const pc_displays[MAX_COLORS];
 

@@ -46,12 +46,12 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "mud.h"
-#include "homes.h"
-#include "editor.h"
-#include "grid.h"
-#include "installations.h"
-#include "cpp_compat.h"
+#include "mud.hpp"
+#include "homes.hpp"
+#include "editor.hpp"
+#include "grid.hpp"
+#include "installations.hpp"
+#include "cpp_compat.hpp"
 
 #ifndef CMDF
 #define CMDF void

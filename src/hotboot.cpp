@@ -61,13 +61,13 @@
 #include <dlfcn.h>
 
 // Project includes
-#include "mud.h"
-#include "changes.h"
-#include "homes.h"
-#include "olc-shuttle.h"
-#include "account.h"
-#include "channels.h"
-#include "space2.h"
+#include "mud.hpp"
+#include "changes.hpp"
+#include "homes.hpp"
+#include "olc-shuttle.hpp"
+#include "account.hpp"
+#include "channels.hpp"
+#include "space2.hpp"
 
 // Constants
 #define MAX_NEST          100

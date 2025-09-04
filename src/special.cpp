@@ -44,11 +44,11 @@
 #include <string.h>
 #include <time.h>
 #include <dlfcn.h>
-#include "mud.h"
-#include "bounty.h"
-#include "races.h"
-#include "olc_bounty.h"
-#include "installations.h"
+#include "mud.hpp"
+#include "bounty.hpp"
+#include "races.hpp"
+#include "olc_bounty.hpp"
+#include "installations.hpp"
 
 /* jails for wanted flags */
 

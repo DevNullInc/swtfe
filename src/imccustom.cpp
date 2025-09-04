@@ -1,5 +1,5 @@
 /* Small safe additions: doublexp and gpoint command handlers and globals */
-#include "mud.h"
+#include "mud.hpp"
 
 /* Prototype for the info logging function used below */
 void info(CHAR_DATA *ch, int level, const char *format, ...)

@@ -42,7 +42,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 
 /* undef these at EOF */
 #define AM 95

@@ -1,0 +1,282 @@
+o/body.o: body.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp body.hpp space2.hpp \
+ installations.hpp
+o/account.o: account.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp account.hpp alias.hpp boards.hpp
+o/act_comm.o: act_comm.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp mxp.hpp msp.hpp account.hpp \
+ races.hpp
+o/act_info.o: act_info.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp mxp.hpp msp.hpp web-server.hpp \
+ olc-shuttle.hpp editor.hpp boards.hpp account.hpp body.hpp races.hpp \
+ greet.hpp password.hpp
+o/act_move.o: act_move.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp msp.hpp
+o/act_obj.o: act_obj.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp bet.hpp races.hpp olc_bounty.hpp
+o/act_wiz.o: act_wiz.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp changes.hpp boards.hpp bounty.hpp \
+ account.hpp channels.hpp body.hpp races.hpp password.hpp olc_bounty.hpp \
+ space2.hpp installations.hpp
+o/alias.o: alias.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp editor.hpp account.hpp alias.hpp
+o/arena.o: arena.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/autobuild.o: autobuild.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/ban.o: ban.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp pfiles.hpp \
+ autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp dns.hpp imc.hpp \
+ imccfg.hpp utils.hpp ban.hpp editor.hpp races.hpp
+o/bank.o: bank.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/bet.o: bet.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp pfiles.hpp \
+ autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp dns.hpp imc.hpp \
+ imccfg.hpp utils.hpp bet.hpp
+o/boards.o: boards.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp mxp.hpp editor.hpp boards.hpp
+o/bounty.o: bounty.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp bounty.hpp olc_bounty.hpp
+o/build.o: build.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp editor.hpp body.hpp races.hpp \
+ olc_bounty.hpp installations.hpp space2.hpp password.hpp
+o/changes.o: changes.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp changes.hpp web-server.hpp
+o/channels.o: channels.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp channels.hpp
+o/clans.o: clans.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp account.hpp body.hpp bounty.hpp \
+ space2.hpp installations.hpp
+o/cleanup.o: cleanup.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp homes.hpp grid.hpp restore.hpp \
+ boards.hpp bounty.hpp ban.hpp olc-shuttle.hpp channels.hpp body.hpp \
+ installations.hpp space2.hpp races.hpp
+o/color.o: color.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp mxp.hpp
+o/combat.o: combat.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/comm.o: comm.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp changes.hpp mxp.hpp msp.hpp ban.hpp \
+ editor.hpp account.hpp alias.hpp channels.hpp races.hpp greet.hpp \
+ password.hpp
+o/comments.o: comments.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp editor.hpp boards.hpp account.hpp
+o/const.o: const.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/db.o: db.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp pfiles.hpp \
+ autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp dns.hpp imc.hpp \
+ imccfg.hpp utils.hpp ban.hpp homes.hpp grid.hpp changes.hpp restore.hpp \
+ editor.hpp boards.hpp bounty.hpp olc-shuttle.hpp channels.hpp body.hpp \
+ account.hpp races.hpp olc_bounty.hpp web-server.hpp space2.hpp \
+ installations.hpp
+o/delivery.o: delivery.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/designship.o: designship.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp homes.hpp grid.hpp \
+ space2.hpp installations.hpp
+o/dns.o: dns.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp pfiles.hpp \
+ autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp dns.hpp imc.hpp \
+ imccfg.hpp utils.hpp
+o/editor.o: editor.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp editor.hpp
+o/fight.o: fight.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp account.hpp msp.hpp bounty.hpp \
+ races.hpp
+o/finger.o: finger.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp races.hpp account.hpp
+o/grid_c.o: grid_c.cpp grid.hpp
+o/handler.o: handler.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp homes.hpp grid.hpp account.hpp \
+ body.hpp races.hpp space2.hpp greet.hpp
+o/hashstr.o: hashstr.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/homes.o: homes.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp homes.hpp grid.hpp editor.hpp \
+ installations.hpp
+o/hotboot.o: hotboot.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp changes.hpp homes.hpp grid.hpp \
+ olc-shuttle.hpp account.hpp channels.hpp space2.hpp
+o/immcomm.o: immcomm.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp homes.hpp grid.hpp changes.hpp \
+ body.hpp space2.hpp
+o/implants.o: implants.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/installations.o: installations.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp body.hpp installations.hpp \
+ space2.hpp
+o/interp.o: interp.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp account.hpp alias.hpp channels.hpp
+o/magic.o: magic.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp races.hpp
+o/makeobjs.o: makeobjs.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/mccp.o: mccp.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp mxp.hpp
+o/medic.o: medic.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp races.hpp
+o/misc.o: misc.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp editor.hpp account.hpp races.hpp \
+ password.hpp
+o/msp.o: msp.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp pfiles.hpp \
+ autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp dns.hpp imc.hpp \
+ imccfg.hpp utils.hpp msp.hpp account.hpp
+o/mud_comm.o: mud_comm.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp races.hpp
+o/mud_prog.o: mud_prog.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp races.hpp bounty.hpp
+o/mxp.o: mxp.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp pfiles.hpp \
+ autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp dns.hpp imc.hpp \
+ imccfg.hpp utils.hpp mxp.hpp
+o/occupations.o: occupations.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/olc_bounty.o: olc_bounty.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp olc_bounty.hpp races.hpp
+o/olc-shuttle.o: olc-shuttle.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp olc-shuttle.hpp mxp.hpp
+o/olc.o: olc.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp pfiles.hpp \
+ autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp dns.hpp imc.hpp \
+ imccfg.hpp utils.hpp races.hpp
+o/password.o: password.cpp password.hpp mud.hpp cpp_compat.hpp \
+ commands.hpp shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp \
+ implants.hpp olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/pfiles.o: pfiles.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp account.hpp
+o/pilot.o: pilot.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp body.hpp
+o/player.o: player.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp editor.hpp bounty.hpp account.hpp \
+ races.hpp
+o/quest.o: quest.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/races.o: races.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp races.hpp
+o/raceskills.o: raceskills.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/renumber.o: renumber.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/reset.o: reset.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp installations.hpp
+o/restore.o: restore.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp restore.hpp editor.hpp
+o/save.o: save.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp bounty.hpp account.hpp channels.hpp \
+ races.hpp space2.hpp greet.hpp
+o/shell.o: shell.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/shops.o: shops.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/skills.o: skills.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp races.hpp
+o/smuggling.o: smuggling.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/space.o: space.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp mxp.hpp msp.hpp olc-shuttle.hpp \
+ body.hpp space2.hpp
+o/space2.o: space2.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp body.hpp space2.hpp \
+ installations.hpp
+o/special.o: special.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp bounty.hpp races.hpp olc_bounty.hpp \
+ installations.hpp
+o/starsystem.o: starsystem.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp body.hpp
+o/swskills.o: swskills.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp bounty.hpp races.hpp \
+ installations.hpp space2.hpp
+o/tables.o: tables.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/track.o: track.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/update.o: update.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp homes.hpp grid.hpp olc-shuttle.hpp \
+ account.hpp races.hpp space2.hpp installations.hpp
+o/vendor.o: vendor.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/wedding.o: wedding.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/grid.o: grid.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp grid.hpp
+o/greet.o: greet.cpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp greet.hpp races.hpp
+o/imccustom.o: imccustom.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/imc.o: imc.cpp md5.hpp mud.hpp cpp_compat.hpp commands.hpp shell.hpp \
+ pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp olc.hpp \
+ dns.hpp imc.hpp imccfg.hpp utils.hpp
+o/md5.o: md5.cpp md5.hpp
+o/web-server.o: web-server.cpp mud.hpp cpp_compat.hpp commands.hpp \
+ shell.hpp pfiles.hpp autobuild.hpp color.hpp hotboot.hpp implants.hpp \
+ olc.hpp dns.hpp imc.hpp imccfg.hpp utils.hpp races.hpp channels.hpp \
+ web-server.hpp installations.hpp

@@ -53,7 +53,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "mud.h"
+#include "mud.hpp"
 
 #define NOT_FOUND (-1)
 enum

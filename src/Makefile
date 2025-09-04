@@ -40,7 +40,7 @@ ifndef DEBUG
 OPT_FLAG = -pipe -Os
 endif
 
-C_FLAGS = $(DEFINES) $(IMCFLAGS) $(DBUGFLG) $(DEBUG) $(DLLEXP) -fpermissive -Wno-write-strings
+C_FLAGS = $(DEFINES) $(IMCFLAGS) $(DBUGFLG) $(DEBUG) $(DLLEXP) -std=c++23 -fpermissive -Wno-write-strings
 L_FLAGS = $(DYNLIB) $(MCCPLIB) $(CRYPT) -largon2 -lm
 
 ifndef DEBUG
@@ -62,7 +62,7 @@ CPP_FILES = body.cpp account.cpp act_comm.cpp act_info.cpp act_move.cpp act_obj.
 
 O_FILES = $(patsubst %.cpp,o/%.o,$(CPP_FILES))
 
-H_FILES = $(wildcard *.h) 
+H_FILES = $(wildcard *.hpp) 
 
 ifdef IMC
    CPP_FILES :=  $(CPP_FILES) imc.cpp md5.cpp
@@ -124,23 +124,25 @@ resolver: o/resolver.o
 	@chmod a+x $(RESOLVER)
 	@chmod g+w o/resolver.o
 
+o/resolver.o: resolver.cpp
+	@echo -n "  Compiling $@...";
+	@mkdir -p o
+	$(CC) -c $(C_FLAGS) $< -o $@
+	@echo "Done"
+
 neat:
 	$(INDENT) $(INDENT_FLAGS) $(C_FILES) $(H_FILES)
 
 indentclean:
 	rm *.cpp~ *.h~
 
-o/%.o: %.cpp mud.h
+o/%.o: %.cpp mud.hpp
 	@echo -n "  Compiling $@...";
+	@mkdir -p o
 	$(CC) -c $(C_FLAGS) $< -o $@
 	@echo "Done"
-
-# Modern pattern rule instead of old-style suffix rule
-%.o: %.cpp mud.h
-	@$(CC) -c $(C_FLAGS) $< -o $@
 	
 .depend:  $(CPP_FILES)
-	@echo Making Depend
 	@rm -f .depend
 # For each source, let the compiler run the preprocessor with the -M and -MM
 # options, which causes it to output a dependency suitable for make.
@@ -149,6 +151,6 @@ o/%.o: %.cpp mud.h
 	done
 
 DEPENDEXISTS=$(shell if [ -e .depend ]; then echo -n "1"; fi )
-ifdef (DEPENDEXISTS) 
+ifneq ($(DEPENDEXISTS),)
 include .depend
 endif

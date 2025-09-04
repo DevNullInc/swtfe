@@ -37,77 +37,32 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- * Account system for managing multiple characters per user with shared resources.      *
+ *                         Command exports header                                        *
  ****************************************************************************************/
+#ifndef _COMMAND_EXPORTS_H_
+#define _COMMAND_EXPORTS_H_
 
-#ifndef _ACCOUNT_H_
-#define _ACCOUNT_H_
+/*
+ * This header ensures command functions are exported with C linkage
+ * to prevent name mangling and allow dynamic lookup.
+ */
 
-/* Ensure core project types/macros are available when this header is included
- * directly so the header is self-contained for tools (IDE/intellisense) and
- * translation units that may not include `mud.h` beforehand. */
-#include "mud.h"
+#include "mud.hpp"
 
-// =============================================================================
-// Account System Constants
-// =============================================================================
-
-#define ACCOUNT_DIR (char*)"../account/"
-
-#define ACCOUNT_SOUND ACCOUNT_MSP
-#define ACCOUNT_MSP   BV00
-#define ACCOUNT_MXP   BV01
-
-// =============================================================================
-// Forward Declarations
-// =============================================================================
-
-typedef struct account_data ACCOUNT_DATA;
-
-// =============================================================================
-// Global Variables
-// =============================================================================
-
-extern ACCOUNT_DATA *first_account;
-extern ACCOUNT_DATA *last_account;
-
-// =============================================================================
-// Account Data Structure
-// =============================================================================
-
-// =============================================================================
-// Account Data Structure
-// =============================================================================
-
-struct account_data
-{
-        ACCOUNT_DATA *prev;
-        ACCOUNT_DATA *next;
-        struct alias_data *first_alias;
-        struct alias_data *last_alias;
-        char     *name;
-        char     *password;
-        char     *character[MAX_CHARACTERS];
-        int       rppoints;
-        int       rpcurrent;
-        int       qpoints;
-        int       inuse;    /* To prevent deleting one that is active */
-        int       flags;
-        struct note_data *comments;
-        char     *email;
-};
-
-// =============================================================================
-// Function Prototypes
-// =============================================================================
-
-ACCOUNT_DATA *load_account args((const char *name));
-ACCOUNT_DATA *create_account args((void));
-void save_account args((ACCOUNT_DATA * account));
-bool add_to_account args((ACCOUNT_DATA * account, CHAR_DATA * ch));
-bool del_from_account args((ACCOUNT_DATA * account, CHAR_DATA * ch));
-void show_account_characters args((DESCRIPTOR_DATA * d));
-void free_account args((ACCOUNT_DATA * account));
-void fread_account args((ACCOUNT_DATA * account, FILE * fp));
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+/* Just add a few critical commands to test the fix */
+DECLARE_DO_FUN(do_say);
+DECLARE_DO_FUN(do_emote);
+DECLARE_DO_FUN(do_gtell);
+DECLARE_DO_FUN(do_accelerate);
+DECLARE_DO_FUN(do_addpilot);
+DECLARE_DO_FUN(do_auction);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _COMMAND_EXPORTS_H_ */

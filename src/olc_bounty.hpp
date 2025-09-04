@@ -37,32 +37,133 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                         Command exports header                                        *
+ * Header file for Online Creation Bounty System definitions and data structures. *
  ****************************************************************************************/
-#ifndef _COMMAND_EXPORTS_H_
-#define _COMMAND_EXPORTS_H_
+#ifndef __OLC_BOUNTY_DATA_H__
+#define __OLC_BOUNTY_DATA_H__
 
-/*
- * This header ensures command functions are exported with C linkage
- * to prevent name mangling and allow dynamic lookup.
- */
+#include <list>
+#include "mud.hpp"
 
-#include "mud.h"
+enum
+{
+        BOUNTY_ALIVE, BOUNTY_DEAD, MAX_BOUNTY_TYPES
+};
 
-#ifdef __cplusplus
-extern "C" {
+const char *const olc_bounty_types[] = {
+        "Alive", "Dead", "MAX_TYPE"
+};
+
+#define OLC_BOUNTY_FILE SYSTEM_DIR "olcbounty.dat"
+
+class     OLC_BOUNTY_DATA
+{
+      private:
+        int       _owner;
+        int       _vnum;
+        int       _corpse;
+        sh_int    _type;
+        int       _amount;
+        int       _exp;
+
+      public:
+                  inline sh_int type()
+        {
+                return this->_type;
+        }
+        inline bool type(int i)
+        {
+                if (MAX_BOUNTY_TYPES <= i)
+                {
+                        return FALSE;
+                }
+
+                this->_type = i;
+                return TRUE;
+        }
+
+        inline int owner()
+        {
+                return this->_owner;
+        }
+
+        inline bool owner(int vnum)
+        {
+                if (vnum < 0 || vnum > MAX_VNUMS)
+                {
+                        return FALSE;
+                }
+                this->_owner = vnum;
+                return TRUE;
+        }
+
+        inline int vnum()
+        {
+                return this->_vnum;
+        }
+
+        inline bool vnum(int vnum)
+        {
+                if (vnum < 0 || vnum > MAX_VNUMS)
+                {
+                        return FALSE;
+                }
+                this->_vnum = vnum;
+                return TRUE;
+        }
+        inline int corpse()
+        {
+                return this->_corpse;
+        }
+
+        inline bool corpse(int vnum)
+        {
+                if (vnum < 0 || vnum > MAX_VNUMS)
+                {
+                        return FALSE;
+                }
+                this->_corpse = vnum;
+                return TRUE;
+        }
+        inline int amount()
+        {
+                return this->_amount;
+        }
+
+        inline void amount(int credits)
+        {
+                this->_amount = credits;
+        }
+
+        inline int experience()
+        {
+                return this->_exp;
+        }
+
+        inline void experience(int experience)
+        {
+                this->_exp = experience;
+        }
+
+      public:
+        OLC_BOUNTY_DATA();
+        OLC_BOUNTY_DATA(int vnum);
+
+        ~OLC_BOUNTY_DATA();
+        void      save();
+        void      load(FILE * fp);
+        static void load_olc_bounties(void);
+};
+
+
+typedef std::list < OLC_BOUNTY_DATA * >OLC_BOUNTY_LIST;
+extern OLC_BOUNTY_LIST olc_bounties;
+OLC_BOUNTY_DATA *has_olc_bounty(CHAR_DATA * victim);
+void mset_bounty(CHAR_DATA * ch, CHAR_DATA * mob, char *argument);
+void print_olc_bounties_mob(CHAR_DATA * ch, CHAR_DATA * mob);
+void load_olc_bounties(void);
+bool check_given_bounty(CHAR_DATA * ch, CHAR_DATA * hunter, OBJ_DATA * obj);
+int print_olc_bounties(CHAR_DATA * ch);
+bool check_olc_bounties(ROOM_INDEX_DATA * room);
+
 #endif
-
-/* Just add a few critical commands to test the fix */
-DECLARE_DO_FUN(do_say);
-DECLARE_DO_FUN(do_emote);
-DECLARE_DO_FUN(do_gtell);
-DECLARE_DO_FUN(do_accelerate);
-DECLARE_DO_FUN(do_addpilot);
-DECLARE_DO_FUN(do_auction);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* _COMMAND_EXPORTS_H_ */

@@ -41,7 +41,7 @@
 
 #include <list>
 #include <algorithm>
-#include "grid.h"
+#include "grid.hpp"
 
 struct ROOMMATE_DATA
 {

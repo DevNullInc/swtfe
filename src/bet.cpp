@@ -41,8 +41,8 @@
  * FEATURES: Advanced number parsing with k/m notation and relative betting              *
  ****************************************************************************************/
 
-#include "mud.h"
-#include "bet.h"
+#include "mud.hpp"
+#include "bet.hpp"
 
 // ============================================================================
 // Advanced Number Parsing - Enhanced with security and validation

@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <dlfcn.h>
-#include "mud.h"
+#include "mud.hpp"
 
 /* global variables */
 int       top_sn;

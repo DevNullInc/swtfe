@@ -41,10 +41,10 @@
  ****************************************************************************************/
 #include <sys/types.h>
 #include <list>
-#include "mud.h"
-#include "olc_bounty.h"
-#include "races.h"
-#include "utils.h"
+#include "mud.hpp"
+#include "olc_bounty.hpp"
+#include "races.hpp"
+#include "utils.hpp"
 
 OLC_BOUNTY_LIST olc_bounties;
 

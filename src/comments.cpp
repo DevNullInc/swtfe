@@ -44,10 +44,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
-#include "editor.h"
-#include "boards.h"
-#include "account.h"
+#include "mud.hpp"
+#include "editor.hpp"
+#include "boards.hpp"
+#include "account.hpp"
 
 void      note_attach(CHAR_DATA * ch);
 

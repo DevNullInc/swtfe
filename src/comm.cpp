@@ -88,19 +88,19 @@
 #define MIN_PORT            1024
 
 // Project includes
-#include "mud.h"
-#include "changes.h"
-#include "mxp.h"
-#include "msp.h"
-#include "hotboot.h"
-#include "ban.h"
-#include "editor.h"
-#include "account.h"
-#include "alias.h"
-#include "channels.h"
-#include "races.h"
-#include "greet.h"
-#include "password.h"
+#include "mud.hpp"
+#include "changes.hpp"
+#include "mxp.hpp"
+#include "msp.hpp"
+#include "hotboot.hpp"
+#include "ban.hpp"
+#include "editor.hpp"
+#include "account.hpp"
+#include "alias.hpp"
+#include "channels.hpp"
+#include "races.hpp"
+#include "greet.hpp"
+#include "password.hpp"
 
 // Forward declarations
 bool should_upgrade_hash(const char *hash);

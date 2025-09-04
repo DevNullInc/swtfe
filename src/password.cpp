@@ -36,8 +36,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <argon2.h>
-#include "password.h"
-#include "mud.h"
+#include "password.hpp"
+#include "mud.hpp"
 
 /*
  * Security Notes:

@@ -45,11 +45,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
-#include "bounty.h"
-#include "races.h"
-#include "installations.h"
-#include "space2.h"
+#include "mud.hpp"
+#include "bounty.hpp"
+#include "races.hpp"
+#include "installations.hpp"
+#include "space2.hpp"
 
 
 ch_ret one_hit args((CHAR_DATA * ch, CHAR_DATA * victim, int dt));

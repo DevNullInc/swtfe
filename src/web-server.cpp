@@ -104,11 +104,11 @@
 #include <vector>
 #include <string>
 #include <arpa/inet.h>
-#include "mud.h"
-#include "races.h"
-#include "channels.h"
-#include "web-server.h"
-#include "installations.h"
+#include "mud.hpp"
+#include "races.hpp"
+#include "channels.hpp"
+#include "web-server.hpp"
+#include "installations.hpp"
 
 /* Moved the Struct to Mud.h */
 

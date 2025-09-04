@@ -50,11 +50,11 @@
 #include <string.h>
 #include <time.h>
 #include <string>
-#include "mud.h"
-#include "editor.h"
-#include "bounty.h"
-#include "account.h"
-#include "races.h"
+#include "mud.hpp"
+#include "editor.hpp"
+#include "bounty.hpp"
+#include "account.hpp"
+#include "races.hpp"
 /* Telnet protocol constants for GMCP */
 #ifndef IAC
 #define IAC 255

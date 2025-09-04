@@ -77,9 +77,9 @@
 /* For memmove */
 #include <string.h>
 
-#include "mud.h"
+#include "mud.hpp"
 #ifdef MXP
-#include "mxp.h"
+#include "mxp.hpp"
 #endif
 
 bool write_to_descriptor args((int desc, char *txt, int length));

@@ -50,10 +50,10 @@
 #include <stdio.h>
 #include <time.h>
 #include <ctime>
-#include "mud.h"
-#include "ban.h"
-#include "editor.h"
-#include "races.h"
+#include "mud.hpp"
+#include "ban.hpp"
+#include "editor.hpp"
+#include "races.hpp"
 
 // ============================================================================
 // Constants and Configuration

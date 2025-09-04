@@ -52,10 +52,10 @@
 // ============================================================================
 // Local Includes
 // ============================================================================
-#include "mud.h"
-#include "editor.h"
-#include "account.h"
-#include "alias.h"
+#include "mud.hpp"
+#include "editor.hpp"
+#include "account.hpp"
+#include "alias.hpp"
 
 // ============================================================================
 // Constants and Configuration

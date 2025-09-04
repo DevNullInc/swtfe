@@ -43,8 +43,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
-#include "races.h"
+#include "mud.hpp"
+#include "races.hpp"
 
 char     *const spell_flag[] =
         { "water", "earth", "air", "astral", "area", "distant", "reverse",

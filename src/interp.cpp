@@ -46,11 +46,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 #include <stdlib.h>
-#include "account.h"
-#include "alias.h"
-#include "channels.h"
+#include "account.hpp"
+#include "alias.hpp"
+#include "channels.hpp"
 
 /*
  * Externals

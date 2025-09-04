@@ -41,9 +41,9 @@
  ****************************************************************************************/
 #include <string.h>
 #include <arpa/telnet.h>
-#include "mud.h"
-#include "msp.h"
-#include "account.h"
+#include "mud.hpp"
+#include "msp.hpp"
+#include "account.hpp"
 
 /* Good Example:
  * do_beep

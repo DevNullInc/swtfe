@@ -41,10 +41,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
-#include "body.h"
-#include "installations.h"
-#include "space2.h"
+#include "mud.hpp"
+#include "body.hpp"
+#include "installations.hpp"
+#include "space2.hpp"
 
 INSTALLATION_DATA *first_installation;
 INSTALLATION_DATA *last_installation;

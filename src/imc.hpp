@@ -35,7 +35,7 @@
 #define IMC_HOTBOOT_FILE IMC_DIR "imc.hotboot"
 
 /* Make sure you set the macros in the imccfg.h file properly or things get ugly from here. */
-#include "imccfg.h"
+#include "imccfg.hpp"
 
 /* Forward declarations to avoid circular dependencies */
 struct char_data;

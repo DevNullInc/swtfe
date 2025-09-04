@@ -54,9 +54,9 @@
 #include <time.h>
 #include <unistd.h>
 #include <stdarg.h>
-#include "mud.h"
-#include "changes.h"
-#include "web-server.h"
+#include "mud.hpp"
+#include "changes.hpp"
+#include "web-server.hpp"
 
 /*
  * Globals

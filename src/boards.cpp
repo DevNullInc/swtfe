@@ -45,12 +45,12 @@
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
-#include "mud.h"
+#include "mud.hpp"
 #ifdef MXP
-#include "mxp.h"
+#include "mxp.hpp"
 #endif
-#include "editor.h"
-#include "boards.h"
+#include "editor.hpp"
+#include "boards.hpp"
 
 void free_board args((BOARD_DATA * board));
 

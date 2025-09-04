@@ -37,133 +37,77 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- * Header file for Online Creation Bounty System definitions and data structures. *
+ * Account system for managing multiple characters per user with shared resources.      *
  ****************************************************************************************/
-#ifndef __OLC_BOUNTY_DATA_H__
-#define __OLC_BOUNTY_DATA_H__
 
-#include <list>
-#include "mud.h"
+#ifndef _ACCOUNT_H_
+#define _ACCOUNT_H_
 
-enum
+/* Ensure core project types/macros are available when this header is included
+ * directly so the header is self-contained for tools (IDE/intellisense) and
+ * translation units that may not include `mud.h` beforehand. */
+#include "mud.hpp"
+
+// =============================================================================
+// Account System Constants
+// =============================================================================
+
+#define ACCOUNT_DIR (char*)"../account/"
+
+#define ACCOUNT_SOUND ACCOUNT_MSP
+#define ACCOUNT_MSP   BV00
+#define ACCOUNT_MXP   BV01
+
+// =============================================================================
+// Forward Declarations
+// =============================================================================
+
+typedef struct account_data ACCOUNT_DATA;
+
+// =============================================================================
+// Global Variables
+// =============================================================================
+
+extern ACCOUNT_DATA *first_account;
+extern ACCOUNT_DATA *last_account;
+
+// =============================================================================
+// Account Data Structure
+// =============================================================================
+
+// =============================================================================
+// Account Data Structure
+// =============================================================================
+
+struct account_data
 {
-        BOUNTY_ALIVE, BOUNTY_DEAD, MAX_BOUNTY_TYPES
+        ACCOUNT_DATA *prev;
+        ACCOUNT_DATA *next;
+        struct alias_data *first_alias;
+        struct alias_data *last_alias;
+        char     *name;
+        char     *password;
+        char     *character[MAX_CHARACTERS];
+        int       rppoints;
+        int       rpcurrent;
+        int       qpoints;
+        int       inuse;    /* To prevent deleting one that is active */
+        int       flags;
+        struct note_data *comments;
+        char     *email;
 };
 
-const char *const olc_bounty_types[] = {
-        "Alive", "Dead", "MAX_TYPE"
-};
+// =============================================================================
+// Function Prototypes
+// =============================================================================
 
-#define OLC_BOUNTY_FILE SYSTEM_DIR "olcbounty.dat"
-
-class     OLC_BOUNTY_DATA
-{
-      private:
-        int       _owner;
-        int       _vnum;
-        int       _corpse;
-        sh_int    _type;
-        int       _amount;
-        int       _exp;
-
-      public:
-                  inline sh_int type()
-        {
-                return this->_type;
-        }
-        inline bool type(int i)
-        {
-                if (MAX_BOUNTY_TYPES <= i)
-                {
-                        return FALSE;
-                }
-
-                this->_type = i;
-                return TRUE;
-        }
-
-        inline int owner()
-        {
-                return this->_owner;
-        }
-
-        inline bool owner(int vnum)
-        {
-                if (vnum < 0 || vnum > MAX_VNUMS)
-                {
-                        return FALSE;
-                }
-                this->_owner = vnum;
-                return TRUE;
-        }
-
-        inline int vnum()
-        {
-                return this->_vnum;
-        }
-
-        inline bool vnum(int vnum)
-        {
-                if (vnum < 0 || vnum > MAX_VNUMS)
-                {
-                        return FALSE;
-                }
-                this->_vnum = vnum;
-                return TRUE;
-        }
-        inline int corpse()
-        {
-                return this->_corpse;
-        }
-
-        inline bool corpse(int vnum)
-        {
-                if (vnum < 0 || vnum > MAX_VNUMS)
-                {
-                        return FALSE;
-                }
-                this->_corpse = vnum;
-                return TRUE;
-        }
-        inline int amount()
-        {
-                return this->_amount;
-        }
-
-        inline void amount(int credits)
-        {
-                this->_amount = credits;
-        }
-
-        inline int experience()
-        {
-                return this->_exp;
-        }
-
-        inline void experience(int experience)
-        {
-                this->_exp = experience;
-        }
-
-      public:
-        OLC_BOUNTY_DATA();
-        OLC_BOUNTY_DATA(int vnum);
-
-        ~OLC_BOUNTY_DATA();
-        void      save();
-        void      load(FILE * fp);
-        static void load_olc_bounties(void);
-};
-
-
-typedef std::list < OLC_BOUNTY_DATA * >OLC_BOUNTY_LIST;
-extern OLC_BOUNTY_LIST olc_bounties;
-OLC_BOUNTY_DATA *has_olc_bounty(CHAR_DATA * victim);
-void mset_bounty(CHAR_DATA * ch, CHAR_DATA * mob, char *argument);
-void print_olc_bounties_mob(CHAR_DATA * ch, CHAR_DATA * mob);
-void load_olc_bounties(void);
-bool check_given_bounty(CHAR_DATA * ch, CHAR_DATA * hunter, OBJ_DATA * obj);
-int print_olc_bounties(CHAR_DATA * ch);
-bool check_olc_bounties(ROOM_INDEX_DATA * room);
+ACCOUNT_DATA *load_account args((const char *name));
+ACCOUNT_DATA *create_account args((void));
+void save_account args((ACCOUNT_DATA * account));
+bool add_to_account args((ACCOUNT_DATA * account, CHAR_DATA * ch));
+bool del_from_account args((ACCOUNT_DATA * account, CHAR_DATA * ch));
+void show_account_characters args((DESCRIPTOR_DATA * d));
+void free_account args((ACCOUNT_DATA * account));
+void fread_account args((ACCOUNT_DATA * account, FILE * fp));
 
 #endif

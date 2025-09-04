@@ -40,9 +40,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "mud.h"
-#include "races.h"
-#include "bounty.h"
+#include "mud.hpp"
+#include "races.hpp"
+#include "bounty.hpp"
 
 /* Defines by Narn for new mudprog parsing, used as 
    return values from mprog_do_command. */

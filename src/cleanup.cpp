@@ -60,20 +60,20 @@
  ****************************************************************************************/
 #include <dlfcn.h>
 #include <list>
-#include "mud.h"
-#include "homes.h"
-#include "restore.h"
-#include "boards.h"
-#include "bounty.h"
-#include "ban.h"
-#include "olc-shuttle.h"
-#include "channels.h"
-#include "body.h"
-#include "installations.h"
-#include "space2.h"
-#include "races.h"
-#include "utils.h"
-#include "body.h"
+#include "mud.hpp"
+#include "homes.hpp"
+#include "restore.hpp"
+#include "boards.hpp"
+#include "bounty.hpp"
+#include "ban.hpp"
+#include "olc-shuttle.hpp"
+#include "channels.hpp"
+#include "body.hpp"
+#include "installations.hpp"
+#include "space2.hpp"
+#include "races.hpp"
+#include "utils.hpp"
+#include "body.hpp"
 
 void free_desc args((DESCRIPTOR_DATA * d));
 void free_object args((OBJ_DATA * obj));

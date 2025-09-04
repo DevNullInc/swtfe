@@ -61,7 +61,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
-#include "mud.h"
+#include "mud.hpp"
 
 #define VENDOR_FEE  .05 /*fee vendor charges, taken out of all gode with teh GETGOLD command */
 

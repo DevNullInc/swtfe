@@ -59,9 +59,9 @@
  *                                SWR OLC Channel module                                 *
  ****************************************************************************************/
 
-#include "mud.h"
-#include "greet.h"
-#include "races.h"
+#include "mud.hpp"
+#include "greet.hpp"
+#include "races.hpp"
 
 GREET_INFO * get_greet(CHAR_DATA * ch, CHAR_DATA * victim);
 bool isavowel(char letter);

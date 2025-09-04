@@ -44,13 +44,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
-#include "homes.h"
-#include "account.h"
-#include "body.h"
-#include "races.h"
-#include "space2.h"
-#include "greet.h"
+#include "mud.hpp"
+#include "homes.hpp"
+#include "account.hpp"
+#include "body.hpp"
+#include "races.hpp"
+#include "space2.hpp"
+#include "greet.hpp"
 
 
 #define BFS_MARK         1

@@ -39,8 +39,8 @@
  ****************************************************************************************/
 
 #include <string.h>
-#include "mud.h"
-#include "races.h"
+#include "mud.hpp"
+#include "races.hpp"
 
 CMDF do_autopsy(CHAR_DATA * ch, char *argument)
 {

@@ -47,9 +47,9 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "mud.h"
-#include "bounty.h"
-#include "olc_bounty.h"
+#include "mud.hpp"
+#include "bounty.hpp"
+#include "olc_bounty.hpp"
 
 // ============================================================================
 // Modern C++ Bounty Utilities Implementation
@@ -1147,7 +1147,7 @@ void free_bounty(BOUNTY_DATA * bounty)
  */
 /*
 #include <stdio.h>
-#include "mud.h"
+#include "mud.hpp"
 Moved to bounty.c since it's much more appropriate
 */
 

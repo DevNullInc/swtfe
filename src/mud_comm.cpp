@@ -40,8 +40,8 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
-#include "mud.h"
-#include "races.h"
+#include "mud.hpp"
+#include "races.hpp"
 
 ch_ret    simple_damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt);
 CHAR_DATA *get_char_room_mp args((CHAR_DATA * ch, char *argument));

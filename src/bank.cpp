@@ -44,7 +44,7 @@
 #include <string.h>
 #include <limits.h>
 #include <cmath>
-#include "mud.h"
+#include "mud.hpp"
 
 // ============================================================================
 // Security and Configuration Constants

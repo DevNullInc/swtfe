@@ -45,11 +45,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
-#include "body.h"
+#include "mud.hpp"
+#include "body.hpp"
 #include <algorithm>
-#include "space2.h"
-#include "installations.h"
+#include "space2.hpp"
+#include "installations.hpp"
 
 void write_starsystem_list args((void));
 

@@ -49,7 +49,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 
 
 void fwrite_delivery(CHAR_DATA * ch, OBJ_DATA * obj)

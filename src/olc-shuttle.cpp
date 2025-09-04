@@ -40,10 +40,10 @@
  *                              OLC Shuttle Module                                       *
  ****************************************************************************************/
 #include <unistd.h>
-#include "mud.h"
-#include "olc-shuttle.h"
-#include "mxp.h"
-#include "olc-shuttle.h"
+#include "mud.hpp"
+#include "olc-shuttle.hpp"
+#include "mxp.hpp"
+#include "olc-shuttle.hpp"
 
 SHUTTLE_DATA *first_shuttle = NULL;
 SHUTTLE_DATA *last_shuttle = NULL;

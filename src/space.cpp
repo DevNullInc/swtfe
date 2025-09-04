@@ -57,14 +57,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 #ifdef MXP
-#  include "mxp.h"
+#  include "mxp.hpp"
 #endif
-#include "msp.h"
-#include "olc-shuttle.h"
-#include "body.h"
-#include "space2.h"
+#include "msp.hpp"
+#include "olc-shuttle.hpp"
+#include "body.hpp"
+#include "space2.hpp"
 
 SHIP_DATA *first_ship;
 SHIP_DATA *last_ship;

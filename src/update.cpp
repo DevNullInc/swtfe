@@ -46,13 +46,13 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include "mud.h"
-#include "homes.h"
-#include "olc-shuttle.h"
-#include "account.h"
-#include "races.h"
-#include "space2.h"
-#include "installations.h"
+#include "mud.hpp"
+#include "homes.hpp"
+#include "olc-shuttle.hpp"
+#include "account.hpp"
+#include "races.hpp"
+#include "space2.hpp"
+#include "installations.hpp"
 
 /* from swskills.c
  * Local functions.

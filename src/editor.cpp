@@ -43,8 +43,8 @@
  ****************************************************************************************/
 
 #include <string.h>
-#include "mud.h"
-#include "editor.h"
+#include "mud.hpp"
+#include "editor.hpp"
 
 /*
  * Removes the tildes from a line, except if it's the last character.

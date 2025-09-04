@@ -52,7 +52,7 @@
 #include <math.h>
 
 /* Make sure cpp_compat.h exists and is properly included */
-#include "cpp_compat.h"
+#include "cpp_compat.hpp"
 
 #ifdef MCCP
 #include <zlib.h>
@@ -231,7 +231,7 @@ struct bank_account
 #endif
 
 /* Duuude */
-#include "commands.h"
+#include "commands.hpp"
 
 
 #define DUR_CONV	23.333333333333333333333333
@@ -330,12 +330,12 @@ struct bank_account
 #define LEVEL_AVATAR		   (MAX_LEVEL - 5)
 #define LEVEL_BUILDER      LEVEL_CREATOR
 
-#include "shell.h"
-#include "pfiles.h"
-#include "autobuild.h"
-#include "color.h"
-#include "hotboot.h"
-#include "implants.h"
+#include "shell.hpp"
+#include "pfiles.hpp"
+#include "autobuild.hpp"
+#include "color.hpp"
+#include "hotboot.hpp"
+#include "implants.hpp"
 
 #ifdef CALLOC
 #undef CALLOC
@@ -431,10 +431,10 @@ struct extended_bitvector
         int bits[XBI];
 };
 
-#include "olc.h"
-#include "dns.h"
+#include "olc.hpp"
+#include "dns.hpp"
 #ifdef IMC
-#include "imc.h"
+#include "imc.hpp"
 #endif
 
 /*
@@ -3323,7 +3323,7 @@ extern sh_int gsn_autopsy;
 extern sh_int gsn_diagnose;
 extern sh_int gsn_makemedkit;
 
-#include "utils.h"
+#include "utils.hpp"
 
 /*
  * Macros for accessing virtually unlimited bitvectors.		-Thoric

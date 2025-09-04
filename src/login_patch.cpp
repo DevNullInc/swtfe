@@ -14,8 +14,8 @@
  * 2. Add calls to the streamlined login functions where appropriate
  */
 
-#include "mud.h"
-#include "account.h"
+#include "mud.hpp"
+#include "account.hpp"
 
 #ifndef CON_GET_CHAR_SELECTION
 #define CON_GET_CHAR_SELECTION  76765  // Use an unused integer value appropriate for your codebase

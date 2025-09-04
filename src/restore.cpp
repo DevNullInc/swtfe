@@ -40,9 +40,9 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include "mud.h"
-#include "restore.h"
-#include "editor.h"
+#include "mud.hpp"
+#include "restore.hpp"
+#include "editor.hpp"
 
 RESTORE_DATA *first_restore;
 RESTORE_DATA *last_restore;

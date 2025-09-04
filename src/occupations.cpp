@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 
 CMDF do_cook(CHAR_DATA * ch, char *argument)
 {

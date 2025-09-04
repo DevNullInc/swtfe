@@ -43,8 +43,8 @@
  ****************************************************************************************/
 
 #include <string.h>
-#include "mud.h"
-#include "body.h"
+#include "mud.hpp"
+#include "body.hpp"
 
 BODY_DATA *get_body_here(SPACE_DATA * star, char *name)
 {

@@ -49,8 +49,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
-#include "installations.h"
+#include "mud.hpp"
+#include "installations.hpp"
 
 /* Externals */
 extern int top_reset;

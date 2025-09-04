@@ -48,9 +48,9 @@
 #ifndef WIN32
 #include <dirent.h>
 #endif
-#include "mud.h"
-#include "races.h"
-#include "account.h"
+#include "mud.hpp"
+#include "races.hpp"
+#include "account.hpp"
 
 typedef struct finger_data
 {

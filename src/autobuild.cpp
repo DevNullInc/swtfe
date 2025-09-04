@@ -46,8 +46,8 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include "mud.h"
-#include "autobuild.h"
+#include "mud.hpp"
+#include "autobuild.hpp"
 
 // ============================================================================
 // Constants and Configuration

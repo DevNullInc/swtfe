@@ -100,7 +100,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 
 /* Object vnums for Quest Rewards */
 

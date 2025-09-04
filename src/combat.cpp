@@ -44,7 +44,7 @@
  */
 
 #include <string.h>
-#include "mud.h"
+#include "mud.hpp"
 
 extern bool could_dual(CHAR_DATA * ch);
 extern void separate_obj(OBJ_DATA * obj);

@@ -40,8 +40,8 @@
  * Star system management for space exploration, planetary data, and galactic navigation *
  ****************************************************************************************/
 
-#include "mud.h"
-#include "body.h"
+#include "mud.hpp"
+#include "body.hpp"
 
 space_data::space_data()
 {

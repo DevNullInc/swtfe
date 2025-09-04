@@ -57,7 +57,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <errno.h>
-#include "mud.h"
+#include "mud.hpp"
 
 DNS_DATA *first_cache;
 DNS_DATA *last_cache;

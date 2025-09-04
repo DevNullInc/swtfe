@@ -40,8 +40,8 @@
  *   Online Creation system for building and editing game areas, objects, and mobiles.   *
  ****************************************************************************************/
 #include <stdio.h>
-#include "mud.h"
-#include "races.h"
+#include "mud.hpp"
+#include "races.hpp"
 
 PROTOSHIP_DATA *first_protoship;
 PROTOSHIP_DATA *last_protoship;

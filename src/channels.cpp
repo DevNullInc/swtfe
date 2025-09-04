@@ -46,9 +46,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include "mud.h"
-#include "channels.h"
-#include "color.h"
+#include "mud.hpp"
+#include "channels.hpp"
+#include "color.hpp"
 
 char     *const channel_type[] = {
         "IC", "IC Comlink", "OOC"

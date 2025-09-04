@@ -1,6 +1,6 @@
 /* Grid Class */
-#include "mud.h"
-#include "grid.h"
+#include "mud.hpp"
+#include "grid.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>

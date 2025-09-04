@@ -52,11 +52,11 @@
 // =============================================================================
 // LOCAL INCLUDES
 // =============================================================================
-#include "mud.h"
-#include "mxp.h"
-#include "msp.h"
-#include "account.h"
-#include "races.h"
+#include "mud.hpp"
+#include "mxp.hpp"
+#include "msp.hpp"
+#include "account.hpp"
+#include "races.hpp"
 
 // =============================================================================
 // CONSTANTS

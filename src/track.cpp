@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 
 #define BFS_ERROR	   -1
 #define BFS_ALREADY_THERE  -2

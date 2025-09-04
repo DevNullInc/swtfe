@@ -45,11 +45,11 @@
 #include <time.h>
 #include <unistd.h>
 #include <crypt.h>
-#include "mud.h"
-#include "editor.h"
-#include "account.h"
-#include "races.h"
-#include "password.h"
+#include "mud.hpp"
+#include "editor.hpp"
+#include "account.hpp"
+#include "races.hpp"
+#include "password.hpp"
 
 
 extern int top_exit;

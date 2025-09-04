@@ -44,7 +44,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 
 #define WEB_ROOMS "../webrooms/"   /* Directory to store room HTML files */
 

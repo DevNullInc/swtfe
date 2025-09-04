@@ -50,10 +50,10 @@
 // ============================================================================
 // Local Headers  
 // ============================================================================
-#include "mud.h"
-#include "bet.h"
-#include "races.h"
-#include "olc_bounty.h"
+#include "mud.hpp"
+#include "bet.hpp"
+#include "races.hpp"
+#include "olc_bounty.hpp"
 
 // ============================================================================
 // Constants and Configuration

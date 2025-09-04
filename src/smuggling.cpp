@@ -40,7 +40,7 @@
  *    Smuggling mechanics for illegal goods, contraband, and black market operations.    *
  ****************************************************************************************/
 #include <string.h>
-#include "mud.h"
+#include "mud.hpp"
 
 
 CMDF do_placebeacon(CHAR_DATA * ch, char *argument)

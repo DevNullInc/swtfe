@@ -47,11 +47,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include "mud.h"
-#include "homes.h"
-#include "changes.h"
-#include "body.h"
-#include "space2.h"
+#include "mud.hpp"
+#include "homes.hpp"
+#include "changes.hpp"
+#include "body.hpp"
+#include "space2.hpp"
 
 void list_resets args((CHAR_DATA * ch, AREA_DATA * pArea,
                        ROOM_INDEX_DATA * pRoom, int start, int end));

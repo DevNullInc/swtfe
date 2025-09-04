@@ -1,5 +1,5 @@
 #include <stdlib.h>  /* For malloc and free */
-#include "grid.h"
+#include "grid.hpp"
 
 /* Implementation of C functions to replace the C++ class methods */
 

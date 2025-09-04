@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include "mud.h"
+#include "mud.hpp"
 
 #define STR_HASH_SIZE	1024
 

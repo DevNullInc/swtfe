@@ -65,12 +65,12 @@
 /* #include <stdlib.h> */
 #include <time.h>
 #include <memory.h>
-#include "mud.h"
-#include "account.h"
-#include "body.h"
-#include "bounty.h"
-#include "space2.h"
-#include "installations.h"
+#include "mud.hpp"
+#include "account.hpp"
+#include "body.hpp"
+#include "bounty.hpp"
+#include "space2.hpp"
+#include "installations.hpp"
 
 #define MAX_NEST	100
 static OBJ_DATA *rgObjNest[MAX_NEST];

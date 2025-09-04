@@ -27,8 +27,8 @@
 #if defined(__OpenBSD__) || defined(__FreeBSD__)
 #include <sys/types.h>
 #endif
-#include "md5.h"
-#include "mud.h"
+#include "md5.hpp"
+#include "mud.hpp"
 
 /* Provide boolean macros if mud.h isn't included in this TU. */
 #ifndef TRUE
@@ -42,18 +42,18 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "utils.h"
+#include "utils.hpp"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
 #include "interpreter.h"
-#include "imc.h"
+#include "imc.hpp"
 
 #endif
 
 #if defined(IMCSMAUG) || defined(IMCCHRONICLES)
-#include "mud.h"
-#include "imc.h"
+#include "mud.hpp"
+#include "imc.hpp"
 #if defined(IMCCHRONICLES)
 #include "factions.h"
 #include "files.h"
@@ -68,11 +68,11 @@
 #if defined(IMCACK)
 #include "ack.h"
 #endif
-#include "imccfg.h"
+#include "imccfg.hpp"
 
 /* Ensure imc.h is always included */
 #ifndef __IMC2_H__
-#include "imc.h"
+#include "imc.hpp"
 #endif
 
 #define IMCKEY( literal, field, value ) \

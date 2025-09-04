@@ -54,12 +54,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "mud.h"
+#include "mud.hpp"
 #ifdef OLC_HOMES
-#include "homes.h"
+#include "homes.hpp"
 #endif
-#include "space2.h"
-#include "installations.h"
+#include "space2.hpp"
+#include "installations.hpp"
 
 
 void write_ship_list args((void));

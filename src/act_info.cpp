@@ -57,20 +57,20 @@
 // =============================================================================
 // LOCAL INCLUDES
 // =============================================================================
-#include "mud.h"
-#include "mxp.h"
-#include "msp.h"
-#include "web-server.h"
+#include "mud.hpp"
+#include "mxp.hpp"
+#include "msp.hpp"
+#include "web-server.hpp"
 #ifdef OLC_SHUTTLE
-#include "olc-shuttle.h"
+#include "olc-shuttle.hpp"
 #endif
-#include "editor.h"
-#include "boards.h"
-#include "account.h"
-#include "body.h"
-#include "races.h"
-#include "greet.h"
-#include "password.h"
+#include "editor.hpp"
+#include "boards.hpp"
+#include "account.hpp"
+#include "body.hpp"
+#include "races.hpp"
+#include "greet.hpp"
+#include "password.hpp"
 
 // =============================================================================
 // CONSTANTS

@@ -51,13 +51,13 @@
 #else
 #include <sys/dir.h>
 #endif
-#include "mud.h"
-#include "bounty.h"
-#include "account.h"
-#include "channels.h"
-#include "races.h"
-#include "space2.h"
-#include "greet.h"
+#include "mud.hpp"
+#include "bounty.hpp"
+#include "account.hpp"
+#include "channels.hpp"
+#include "races.hpp"
+#include "space2.hpp"
+#include "greet.hpp"
 
 /*
  * Increment with every major format change.

@@ -61,19 +61,19 @@
 // ============================================================================
 // Local Headers
 // ============================================================================
-#include "mud.h"
-#include "changes.h"
-#include "boards.h"
-#include "bounty.h"
-#include "account.h"
-#include "channels.h"
-#include "body.h"
-#include "cpp_compat.h"
-#include "races.h"
-#include "password.h"
-#include "olc_bounty.h"
-#include "space2.h"
-#include "installations.h"
+#include "mud.hpp"
+#include "changes.hpp"
+#include "boards.hpp"
+#include "bounty.hpp"
+#include "account.hpp"
+#include "channels.hpp"
+#include "body.hpp"
+#include "cpp_compat.hpp"
+#include "races.hpp"
+#include "password.hpp"
+#include "olc_bounty.hpp"
+#include "space2.hpp"
+#include "installations.hpp"
 
 // ============================================================================
 // Constants and Configuration

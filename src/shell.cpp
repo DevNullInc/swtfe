@@ -65,7 +65,7 @@
 #ifdef USEGLOB  /* Samson 4-16-98 - For new command pipe */
 #include <glob.h>
 #endif
-#include "mud.h"
+#include "mud.hpp"
 
 /* Global variable to protect online compiler code - Samson */
 bool      compilelock = FALSE;  /* Reboot/shutdown commands locked during compiles */

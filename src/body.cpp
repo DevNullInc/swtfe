@@ -39,10 +39,10 @@
  *****************************************************************************************
  *                                SWR Astral body module                                 *
  ****************************************************************************************/
-#include "mud.h"
-#include "body.h"
-#include "space2.h"
-#include "installations.h"
+#include "mud.hpp"
+#include "body.hpp"
+#include "space2.hpp"
+#include "installations.hpp"
 #include <algorithm>
 #include <list>
 

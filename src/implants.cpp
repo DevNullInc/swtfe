@@ -39,7 +39,7 @@
  * Cybernetic implant system for player enhancements and character modifications. *
  ****************************************************************************************/
 #include <string.h>
-#include "mud.h"
+#include "mud.hpp"
 
 int get_type_number args((char *name));
 

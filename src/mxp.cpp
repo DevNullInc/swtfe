@@ -45,8 +45,8 @@
  */
 #include <arpa/telnet.h>
 #include <string.h>
-#include "mud.h"
-#include "mxp.h"
+#include "mud.hpp"
+#include "mxp.hpp"
 
 const unsigned char wont_mxp_str[] = { IAC, WONT, TELOPT_MXP, '\0' };
 const unsigned char will_mxp_str[] = { IAC, WILL, TELOPT_MXP, '\0' };

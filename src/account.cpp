@@ -48,10 +48,10 @@
 #include <unistd.h>
 
 // Project includes
-#include "mud.h"
-#include "account.h"
-#include "alias.h"
-#include "boards.h"
+#include "mud.hpp"
+#include "account.hpp"
+#include "alias.hpp"
+#include "boards.hpp"
 
 // Constants
 #define ACCOUNT_FILENAME_SIZE 255

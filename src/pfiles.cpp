@@ -59,8 +59,8 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdarg.h>
-#include "mud.h"
-#include "account.h"
+#include "mud.hpp"
+#include "account.hpp"
 
 /* Globals */
 time_t    pfile_time;

@@ -53,13 +53,13 @@
 #include <sys/dir.h>
 #endif
 
-#include "mud.h"
+#include "mud.hpp"
 #ifdef ACCOUNT
-#include "account.h"
+#include "account.hpp"
 #endif
-#include "msp.h"
-#include "bounty.h"
-#include "races.h"
+#include "msp.hpp"
+#include "bounty.hpp"
+#include "races.hpp"
 
 extern char lastplayercmd[MAX_INPUT_LENGTH];
 extern CHAR_DATA *gch_prev;
