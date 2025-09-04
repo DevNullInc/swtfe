@@ -155,17 +155,17 @@ char* format_ban_time_remaining(const BAN_DATA* ban)
     static char buf[256];
     
     if (!ban)
-        return "Invalid";
+        return const_cast<char*>("Invalid");
         
     if (ban->unban_date == PERMANENT_BAN)
-        return "Permanent";
+        return const_cast<char*>("Permanent");
         
     if (is_ban_expired(ban))
-        return "Expired";
+        return const_cast<char*>("Expired");
         
     time_t remaining = ban->unban_date - current_time;
-    int days = remaining / SECONDS_PER_DAY;
-    int hours = (remaining % SECONDS_PER_DAY) / SECONDS_PER_HOUR;
+    int days = static_cast<int>(remaining / SECONDS_PER_DAY);
+    int hours = static_cast<int>((remaining % SECONDS_PER_DAY) / SECONDS_PER_HOUR);
     
     if (days > 0)
         snprintf(buf, sizeof(buf), "%d days, %d hours", days, hours);
@@ -186,7 +186,7 @@ char* format_ban_creation_time(const BAN_DATA* ban)
     static char buf[64];
     
     if (!ban || ban->ban_time == 0)
-        return "Unknown";
+        return const_cast<char*>("Unknown");
         
     struct tm* tm_info = localtime(&ban->ban_time);
     strftime(buf, sizeof(buf), TIME_FORMAT_DISPLAY, tm_info);
@@ -238,6 +238,7 @@ void load_banlist(void)
                                 boot_log("Done.");
                                 return;
                         }
+                        break;
                 case 'R':
                         if (!str_cmp(word, "RACE"))
                         {
@@ -341,7 +342,7 @@ void fread_ban(FILE * fp, int type)
         if (type == BAN_RACE || type == BAN_CLASS)
         {
                 if (fMatch)
-                        pban->flag = i;
+                        pban->flag = static_cast<int>(i);
                 else    /* The file is corupted throw out this ban structure */
                 {
                         bug("Bad class structure %d.\n\r", i);
@@ -511,7 +512,7 @@ CMDF do_ban(CHAR_DATA * ch, char *argument)
                  * Returning to end the editing of the note 
                  */
         case SUB_BAN_DESC:
-                add_ban(ch, "", "", 0, 0);
+                add_ban(ch, const_cast<char*>(""), const_cast<char*>(""), 0, 0);
                 return;
         }
         if (arg1[0] == '\0')
@@ -758,7 +759,7 @@ CMDF do_allow(CHAR_DATA * ch, char *argument)
         else if (!str_cmp(arg1, "race"))
         {
 
-                arg2[0] = toupper(arg2[0]);
+                arg2[0] = static_cast<char>(toupper(static_cast<unsigned char>(arg2[0])));
                 for (pban = first_ban_race; pban; pban = pban->next)
                 {
                         /*
@@ -780,7 +781,7 @@ CMDF do_allow(CHAR_DATA * ch, char *argument)
         else if (!str_cmp(arg1, "class"))
         {
 
-                arg2[0] = toupper(arg2[0]);
+                arg2[0] = static_cast<char>(toupper(static_cast<unsigned char>(arg2[0])));
                 for (pban = first_ban_class; pban; pban = pban->next)
                 {
                         /*
@@ -831,7 +832,7 @@ CMDF do_warn(CHAR_DATA * ch, char *argument)
         char      arg2[MAX_STRING_LENGTH];
         char     *name;
         int       count = -1, type;
-        BAN_DATA *pban, *start, *end;
+        BAN_DATA *pban;
 
         /*
          * Don't want mobs or link-deads doing this.
@@ -884,22 +885,16 @@ CMDF do_warn(CHAR_DATA * ch, char *argument)
         if (type == BAN_CLASS)
         {
                 pban = first_ban_class;
-                start = first_ban_class;
-                end = last_ban_class;
-                arg2[0] = toupper(arg2[0]);
+                arg2[0] = static_cast<char>(toupper(static_cast<unsigned char>(arg2[0])));
         }
         else if (type == BAN_RACE)
         {
                 pban = first_ban_race;
-                start = first_ban_race;
-                end = last_ban_race;
-                arg2[0] = toupper(arg2[0]);
+                arg2[0] = static_cast<char>(toupper(static_cast<unsigned char>(arg2[0])));
         }
         else if (type == BAN_SITE)
         {
                 pban = first_ban;
-                start = first_ban;
-                end = last_ban;
         }
         else
                 goto syntax_message;
@@ -963,7 +958,6 @@ CMDF do_warn(CHAR_DATA * ch, char *argument)
 int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
 {
         char      arg[MAX_STRING_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
         BAN_DATA *pban, *temp;
         struct tm *tms;
         char     *name;
@@ -1291,13 +1285,13 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                         ch->substate = SUB_BAN_DESC;
                         ch->dest_buf = pban;
                         if (!pban->note)
-                                pban->note = STRALLOC("");
+                                pban->note = STRALLOC(const_cast<char*>(""));
                         start_editing(ch, pban->note);
                         return 1;
                 }
         case SUB_BAN_DESC:
                 {
-                        pban = (BAN_DATA *) ch->dest_buf;
+                        pban = static_cast<BAN_DATA *>(ch->dest_buf);
                         if (!pban)
                         {
                                 bug("do_ban: sub_ban_desc: NULL ch->dest_buf",
@@ -1309,7 +1303,7 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                                 STRFREE(pban->note);
                         pban->note = copy_buffer(ch);
                         stop_editing(ch);
-                        ch->substate = ch->tempnum;
+                        ch->substate = static_cast<sh_int>(ch->tempnum);
                         save_banlist();
                         if (pban->duration_days > 0)
                         {
@@ -1429,7 +1423,7 @@ bool check_total_bans(DESCRIPTOR_DATA * d)
         char      new_host[MAX_STRING_LENGTH];
         int       i;
 
-        for (i = 0; i < (int) strlen(d->host); i++)
+        for (i = 0; i < static_cast<int>(strlen(d->host)); i++)
                 new_host[i] = LOWER(d->host[i]);
         new_host[i] = '\0';
 
@@ -1511,7 +1505,7 @@ bool check_bans(CHAR_DATA * ch, int type)
                 break;
         case BAN_SITE:
                 pban = first_ban;
-                for (i = 0; i < (int) (strlen(ch->desc->host)); i++)
+                for (i = 0; i < static_cast<int>(strlen(ch->desc->host)); i++)
                         new_host[i] = LOWER(ch->desc->host[i]);
                 new_host[i] = '\0';
                 break;

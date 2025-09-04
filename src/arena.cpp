@@ -184,10 +184,10 @@ void create_arena(void)
         arena->announcer = create_mobile(pMobIndex);
         REMOVE_BIT(arena->announcer->act, ACT_PROTOTYPE);
         SET_BIT(arena->announcer->act, ACT_SPEAKSALL);
-        arena->announcer->speaking = get_language("basic");
+        arena->announcer->speaking = get_language(const_cast<char*>("basic"));
         STRFREE(arena->announcer->short_descr);
         char_to_room(arena->announcer, get_room_index(1));
-        arena->announcer->short_descr = STRALLOC("Arena Announcer");
+        arena->announcer->short_descr = STRALLOC(const_cast<char*>("Arena Announcer"));
         REMOVE_BIT(arena->announcer->act, ACT_SECRETIVE);
         arena->ooc = FALSE;
         arena->pot = 0;
@@ -209,7 +209,7 @@ void create_arena(void)
 
 bool arena_can_fight(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-        victim = NULL;
+        (void)victim;  // Silence unused parameter warning
         if (xIS_SET(ch->in_room->room_flags, ROOM_ARENA))
         {
                 if (arena && arena->fighting)
@@ -309,7 +309,7 @@ void remove_better(CHAR_DATA * better)
 
         if (better == arena->challenger)
         {
-                command_printf(arena->challenger, "achat %s",
+                command_printf(arena->challenger, const_cast<char*>("achat %s"),
                                "The Challenger has quit");
                 char_from_room(arena->challenger);
                 char_to_room(arena->challenger,
@@ -320,7 +320,7 @@ void remove_better(CHAR_DATA * better)
         }
         if (better == arena->challenged)
         {
-                command_printf(arena->challenger, "achat %s",
+                command_printf(arena->challenger, const_cast<char*>("achat %s"),
                                "The Challenged has quit");
                 char_from_room(arena->challenged);
                 char_to_room(arena->challenged,
@@ -347,7 +347,7 @@ void win_fight(CHAR_DATA * winner, CHAR_DATA * looser)
 {
         BET_DATA *bet, *next_bet = NULL;
         char      buf[MIL];
-        int       amountbet, bettercount = 0;
+        int       bettercount = 0;
 
         if (!arena)
                 return;
@@ -378,7 +378,7 @@ void win_fight(CHAR_DATA * winner, CHAR_DATA * looser)
 
         snprintf(buf, MIL, "%s has defeated %s in combat",
                  winner->pcdata->full_name, looser->pcdata->full_name);
-        command_printf(arena->challenger, "achat %s", buf);;
+        command_printf(arena->challenger, const_cast<char*>("achat %s"), buf);
 
         /*
          * Figure out winners, remove all winner cash from pot 
@@ -396,7 +396,6 @@ void win_fight(CHAR_DATA * winner, CHAR_DATA * looser)
         for (bet = arena->first_better; bet; bet = next_bet)
         {
                 next_bet = bet->next;
-                amountbet = 0;
 
                 /*
                  * Do Stuff - FIXME Grev 
@@ -574,7 +573,7 @@ CMDF do_bets(CHAR_DATA * ch, char *argument)
 {
         BET_DATA *bet;
 
-        argument = nullptr;
+        (void)argument;  // Silence unused parameter warning
 
         set_char_color(AT_PLAIN, ch);
         if (arena == nullptr || arena->accepted == FALSE || !arena->first_better)
@@ -653,7 +652,7 @@ CMDF do_challenge(CHAR_DATA * ch, char *argument)
                         arena->time_to_battle = ARENA_TIMEOUT;
                 else
                         arena->time_to_battle = ARENA_BETTING_ROUND;
-                command_printf(ch, "achat %s", "I accept");
+                command_printf(ch, const_cast<char*>("achat %s"), "I accept");
 
                 /*
                  * transfer to arena, hardcoded, or planetary set, or whatever 
@@ -675,10 +674,10 @@ CMDF do_challenge(CHAR_DATA * ch, char *argument)
                 char_to_room(arena->challenged, get_room_index(40));
                 do_look(arena->challenged, "");
                 if (arena->ooc == TRUE)
-                        command_printf(arena->announcer, "achat %s",
+                        command_printf(arena->announcer, const_cast<char*>("achat %s"),
                                        "Betting is suspended for OOC battles");
                 else
-                        command_printf(ch, "achat %s", "Betting now Open");
+                        command_printf(ch, const_cast<char*>("achat %s"), "Betting now Open");
                 return;
         }
         else if (!str_cmp("decline", arg) || !str_cmp("refuse", arg))
@@ -688,7 +687,7 @@ CMDF do_challenge(CHAR_DATA * ch, char *argument)
                         send_to_char("You havn't been challenged.", ch);
                         return;
                 }
-                command_printf(ch, "achat %s", "NO THANKS!");
+                command_printf(ch, const_cast<char*>("achat %s"), "NO THANKS!");
                 free_arena();
                 return;
         }
@@ -740,12 +739,12 @@ CMDF do_challenge(CHAR_DATA * ch, char *argument)
                 arena->challenger = ch;
                 arena->challenged = victim;
                 arena->time_to_battle = ARENA_TIMEOUT;
-                command_printf(ch, "achat %s", buf);
+                command_printf(ch, const_cast<char*>("achat %s"), buf);
                 return;
         }
         else
         {
-                do_challenge(ch, "");
+                do_challenge(ch, const_cast<char*>(""));
                 return;
         }
 }
@@ -770,17 +769,17 @@ void arena_update(void)
         {
                 if (!arena->accepted)
                 {
-                        command_printf(arena->announcer, "achat %s",
+                        command_printf(arena->announcer, const_cast<char*>("achat %s"),
                                        "Challenge Timed out");
                         free_arena();
                         return;
                 }
 
                 if (arena->ooc == TRUE)
-                        command_printf(arena->announcer, "achat %s",
+                        command_printf(arena->announcer, const_cast<char*>("achat %s"),
                                        "Let the battle begin");
                 else
-                        command_printf(arena->announcer, "achat %s",
+                        command_printf(arena->announcer, const_cast<char*>("achat %s"),
                                        "Betting Now Closed. Let the battle begin");
                 arena->time_to_battle = -1;
                 arena->fighting = TRUE;
@@ -858,7 +857,7 @@ CMDF do_arena(CHAR_DATA * ch, char *argument)
                                next, prev);
                         DISPOSE(bet);
                 }
-                command_printf(arena->announcer, "achat %s",
+                command_printf(arena->announcer, const_cast<char*>("achat %s"),
                                "The current battle has been called off!");
                 if (arena->challenger)
                 {
