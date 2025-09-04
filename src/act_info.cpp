@@ -82,7 +82,7 @@ namespace {
     constexpr int    MIN_HALLUCINATION_RANGE = 6;
     constexpr int    AGE_SUFFIX_THRESHOLD_LOW = 4;
     constexpr int    AGE_SUFFIX_THRESHOLD_HIGH = 20;
-    constexpr int    MIN_PASSWORD_LENGTH = 5;
+    constexpr int    MIN_PASSWORD_LENGTH = 8;
     constexpr int    PAGER_MIN_LINES = 5;
     constexpr int    SOCIAL_COLUMNS = 6;
     constexpr int    COMMAND_COLUMNS = 4;
@@ -1026,7 +1026,7 @@ int get_door(char *arg)
 /*
  * Look command - examine the environment and objects
  */
-CMDF do_look(CHAR_DATA* ch, char* argument)
+CMDF do_look(CHAR_DATA* ch, const char* argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         char      arg1[MAX_INPUT_LENGTH];
@@ -1070,9 +1070,9 @@ CMDF do_look(CHAR_DATA* ch, char* argument)
                 return;
         }
 
-        argument = one_argument(argument, arg1);
-        argument = one_argument(argument, arg2);
-        argument = one_argument(argument, arg3);
+        const char* arg_ptr = one_argument(const_cast<char*>(argument), arg1);
+        arg_ptr = one_argument(const_cast<char*>(arg_ptr), arg2);
+        arg_ptr = one_argument(const_cast<char*>(arg_ptr), arg3);
 
         doexaprog = str_cmp("noprog", arg2) && str_cmp("noprog", arg3);
 
@@ -1746,7 +1746,7 @@ the condition of a mob or pc, or if used without an argument, the
 same you would see if you enter the room and have config +brief.
 -- Narn, winter '96
 */
-CMDF do_glance(CHAR_DATA * ch, char *argument)
+CMDF do_glance(CHAR_DATA * ch, const char *argument)
 {
         char      arg1[MAX_INPUT_LENGTH];
         CHAR_DATA *victim;
@@ -1771,7 +1771,7 @@ CMDF do_glance(CHAR_DATA * ch, char *argument)
         if (!check_blind(ch))
                 return;
 
-        argument = one_argument(argument, arg1);
+        one_argument(const_cast<char*>(argument), arg1);
 
         if (arg1[0] == '\0')
         {
@@ -2009,7 +2009,7 @@ CMDF do_examine(CHAR_DATA * ch, char *argument)
                         break;
 
                 case ITEM_WEAPON:
-                        dam = INIT_WEAPON_CONDITION - obj->value[0];
+                        dam = static_cast<sh_int>(INIT_WEAPON_CONDITION - obj->value[0]);
                         mudstrlcpy(buf,
                                    "As you look more closely, you notice that it is ",
                                    MSL);
@@ -2084,7 +2084,7 @@ CMDF do_examine(CHAR_DATA * ch, char *argument)
 
                 case ITEM_FOOD:
                         if (obj->timer > 0 && obj->value[1] > 0)
-                                dam = (obj->timer * 10) / obj->value[1];
+                                dam = static_cast<sh_int>((obj->timer * 10) / obj->value[1]);
                         else
                                 dam = 10;
                         mudstrlcpy(buf,
@@ -2227,10 +2227,12 @@ CMDF do_examine(CHAR_DATA * ch, char *argument)
                                         break;
                                 }
                         }
+                        [[fallthrough]];
 
                 case ITEM_CONTAINER:
                         if (IS_OBJ_STAT(obj, ITEM_COVERING))
                                 break;
+                        [[fallthrough]];
 
                 case ITEM_DRINK_CON:
                         send_to_char("When you look inside, you see:\n\r",
@@ -2253,7 +2255,7 @@ CMDF do_examine(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_exits(CHAR_DATA * ch, char *argument)
+CMDF do_exits(CHAR_DATA * ch, const char *argument)
 {
         char      buf[MAX_STRING_LENGTH];
         EXIT_DATA *pexit;
@@ -2402,12 +2404,12 @@ CMDF do_exits(CHAR_DATA * ch, char *argument)
         return;
 }
 
-char     *const day_name[] = {
+const char* const day_name[] = {
         "the Moon", "the Bull", "Deception", "Thunder", "Freedom",
         "the Great Gods", "the Sun"
 };
 
-char     *const month_name[] = {
+const char* const month_name[] = {
         "Winter", "the Winter Wolf", "the Frost Giant", "the Old Forces",
         "the Grand Struggle", "the Spring", "Nature", "Futility",
         "the Dragon",
@@ -2417,9 +2419,9 @@ char     *const month_name[] = {
 
 extern char str_boot_time[];
 extern char reboot_time[];
-CMDF do_time(CHAR_DATA * ch, char *argument)
+CMDF do_time(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        char     *suf;
+        const char *suf;
         int       day;
         time_t    current;
         time_t    diff;
@@ -2427,7 +2429,7 @@ CMDF do_time(CHAR_DATA * ch, char *argument)
         current = time(0);
         diff = current - boot_time;
 
-        argument = NULL;
+        (void)argument;
         day = time_info.day + 1;
 
         if (day > AGE_SUFFIX_THRESHOLD_LOW && day < AGE_SUFFIX_THRESHOLD_HIGH)
@@ -2465,16 +2467,16 @@ CMDF do_time(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_weather(CHAR_DATA * ch, char *argument)
+CMDF do_weather(CHAR_DATA * ch, const char *argument)
 {
-        static char *const sky_look[4] = {
+        static const char* const sky_look[4] = {
                 "cloudless",
                 "cloudy",
                 "rainy",
                 "lit by flashes of lightning"
         };
 
-        argument = NULL;
+        (void)argument; // Mark as unused
         if (!IS_OUTSIDE(ch))
         {
                 send_to_char("You can't see the sky from here.\n\r", ch);
@@ -2504,7 +2506,10 @@ HELP_DATA *get_help(CHAR_DATA * ch, char *argument)
         int       lev;
 
         if (argument[0] == '\0')
-                argument = "summary";
+        {
+                mudstrlcpy(argnew, "summary", MAX_INPUT_LENGTH);
+                argument = argnew;
+        }
 
         if (isdigit(argument[0]))
         {
@@ -2743,7 +2748,10 @@ void do_help(CHAR_DATA* ch, char* argument)
         set_pager_color(AT_HELP, ch);
 
         if (!argument || argument[0] == '\0')
-                argument = "help";
+        {
+                static char help_default[] = "help";
+                argument = help_default;
+        }
 
         if (!(pHelp = get_help(ch, argument)))
         {
@@ -2791,8 +2799,7 @@ void do_help(CHAR_DATA* ch, char* argument)
                         send_to_pager("&C&GNo suggested help files.\n\r", ch);
                         return;
                 }
-                if (totalmatched == 1 && lastmatch != NULL
-                    && lastmatch[0] != '\0')
+                if (totalmatched == 1 && lastmatch[0] != '\0')
                 {
                         send_to_pager
                                 ("&COpening only suggested helpfile.&D\n\r",
@@ -2859,8 +2866,8 @@ CMDF do_hedit(CHAR_DATA * ch, char *argument)
                 STRFREE(pHelp->text);
                 pHelp->text = copy_buffer(ch);
                 stop_editing(ch);
-                stralloc_printf(&pHelp->author, "%s", ch->name);
-                stralloc_printf(&pHelp->date, "%s", ctime(&current_time));
+                stralloc_printf(&pHelp->author, const_cast<char*>("%s"), ch->name);
+                stralloc_printf(&pHelp->date, const_cast<char*>("%s"), ctime(&current_time));
 /*	  pHelp->author  = ch->name;
       pHelp->date    = ctime( &current_time );*/
                 return;
@@ -2879,10 +2886,10 @@ CMDF do_hedit(CHAR_DATA * ch, char *argument)
                         lev = get_trust(ch);
                 CREATE(pHelp, HELP_DATA, 1);
                 pHelp->keyword = STRALLOC(strupper(argument));
-                pHelp->text = STRALLOC("");
-                pHelp->level = lev;
-                stralloc_printf(&pHelp->author, "%s", ch->name);
-                stralloc_printf(&pHelp->date, "%s", ctime(&current_time));
+                pHelp->text = STRALLOC(const_cast<char*>(""));
+                pHelp->level = static_cast<sh_int>(lev);
+                stralloc_printf(&pHelp->author, const_cast<char*>("%s"), ch->name);
+                stralloc_printf(&pHelp->date, const_cast<char*>("%s"), ctime(&current_time));
 /*	pHelp->author  = ch->name;
 	pHelp->date    = ctime( &current_time );*/
                 add_help(pHelp);
@@ -2898,9 +2905,10 @@ CMDF do_hedit(CHAR_DATA * ch, char *argument)
 char     *help_fix(char *text)
 {
         char     *fixed;
+        static char empty[] = "";
 
         if (!text)
-                return "";
+                return empty;
         fixed = strip_cr(text);
         if (fixed[0] == ' ')
                 fixed[0] = '.';
@@ -2997,7 +3005,7 @@ CMDF do_hset(CHAR_DATA * ch, char *argument)
         argument = one_argument(argument, arg1);
         if (!str_cmp(arg1, "level"))
         {
-                pHelp->level = atoi(argument);
+                pHelp->level = static_cast<sh_int>(atoi(argument));
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -3021,7 +3029,7 @@ CMDF do_hset(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_hset(ch, "");
+        do_hset(ch, const_cast<char*>(""));
 }
 
 /*
@@ -3082,7 +3090,7 @@ CMDF do_hlist(CHAR_DATA * ch, char *argument)
  * Latest version eliminates redundant code by using linked lists.
  * Shows imms separately, indicates guest and retired immortals. -Narn, Oct/96
  */
-CMDF do_who(CHAR_DATA* ch, char* argument)
+CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
 {
         char      buf[MAX_STRING_LENGTH];
         char      invis_str[MAX_INPUT_LENGTH];
@@ -3092,7 +3100,7 @@ CMDF do_who(CHAR_DATA* ch, char* argument)
         DESCRIPTOR_DATA *d;
         int       iLevelLower;
         int       iLevelUpper;
-        int       nNumber;
+        [[maybe_unused]] int       nNumber;
         int       nMatch;
         bool      fImmortalOnly;
         FILE     *whoout = NULL;
@@ -3108,7 +3116,7 @@ CMDF do_who(CHAR_DATA* ch, char* argument)
         WHO_DATA *first_newbie = NULL;
         WHO_DATA *first_imm = NULL;
 
-        argument = NULL;
+        (void)argument;
         /*
          * Set default arguments.
          */
@@ -3290,18 +3298,18 @@ CMDF do_who(CHAR_DATA* ch, char* argument)
                 int len = 0;
                 
                 /* Start with race and basic status info (limited to 100 chars) */
-                len += snprintf(safe_buf + len, MAX_STRING_LENGTH - len, "%.100s &W%.10s%.20s%.20s&W", 
+                len += snprintf(safe_buf + len, static_cast<size_t>(MAX_STRING_LENGTH - len), "%.100s &W%.10s%.20s%.20s&W", 
                          race, 
                          invis_str,
                          NOT_AUTHED(wch) ? "&BN&W " : "",
                          IS_SET(wch->act, PLR_AFK) ? "[AFK] " : "");
                 
                 /* Add titles and clan info (limited to 200 chars) */
-                len += snprintf(safe_buf + len, MAX_STRING_LENGTH - len, "%.200s%.200s", 
+                len += snprintf(safe_buf + len, static_cast<size_t>(MAX_STRING_LENGTH - len), "%.200s%.200s", 
                          extra_title, clan_name);
                 
                 /* Add status flags (limited space) */
-                len += snprintf(safe_buf + len, MAX_STRING_LENGTH - len, "%.50s%.50s%.50s&w",
+                len += snprintf(safe_buf + len, static_cast<size_t>(MAX_STRING_LENGTH - len), "%.50s%.50s%.50s&w",
                          IS_SET(wch->pcdata->flags, PCFLAG_WORKING) ? "&Y [&RWORKING&Y]&W" : "&W",
                          IS_SET(wch->act, PLR_SILENCE) ? "&Y [&BS&zilenced&Y]&W" : "&W",
                          wch->desc->connected == CON_EDITING ? "&Y [&cWRITING&Y]" : 
@@ -3516,7 +3524,7 @@ CMDF do_compare(CHAR_DATA * ch, char *argument)
         OBJ_DATA *obj2;
         int       value1;
         int       value2;
-        char     *msg;
+        const char *msg;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -3684,7 +3692,7 @@ CMDF do_consider(CHAR_DATA * ch, char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         CHAR_DATA *victim;
-        char     *msg;
+        const char *msg;
         int       diff;
 
         one_argument(argument, arg);
@@ -3757,7 +3765,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
                 {
                         argument = one_argument(argument, arg); /* Strip away the word class into arg */
                         argument = one_argument(argument, arg); /* Fill arg with class name, what we want */
-                        if (arg && arg[0] != '\0')
+                        if (arg[0] != '\0')
                         {
                                 for (iClass = 0; iClass < MAX_ABILITY;
                                      iClass++)
@@ -3956,7 +3964,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
                         return;
                 }
 
-                if (is_name(skill_tname[skill_table[sn]->type], (char*)CANT_PRAC))
+                if (is_name(skill_tname[skill_table[sn]->type], static_cast<char*>(const_cast<char*>(CANT_PRAC))))
                 {
                         act(AT_TELL,
                             "$n tells you 'I do not know how to teach that.'",
@@ -4035,7 +4043,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
                             skill_table[sn]->name, TO_ROOM);
                         if (ch->pcdata->learned[sn] >= adept)
                         {
-                                ch->pcdata->learned[sn] = adept;
+                                ch->pcdata->learned[sn] = static_cast<sh_int>(adept);
                                 act(AT_TELL,
                                     "$n tells you. 'You'll have to practice it on your own now...'",
                                     mob, NULL, ch, TO_VICT);
@@ -4111,7 +4119,7 @@ CMDF do_teach(CHAR_DATA * ch, char *argument)
                         }
 
                         if (is_name
-                            (skill_tname[skill_table[sn]->type], (char*)CANT_PRAC))
+                            (skill_tname[skill_table[sn]->type], static_cast<char*>(const_cast<char*>(CANT_PRAC))))
                         {
                                 act(AT_TELL,
                                     "You are unable to teach that skill.",
@@ -4141,7 +4149,7 @@ CMDF do_teach(CHAR_DATA * ch, char *argument)
                                 return;
                         }
 
-                        add_request(ch, victim, argument, "teach");
+                        add_request(ch, victim, argument, const_cast<char*>("teach"));
                         return;
 
         case TRUE: // Can't be reached without consent.
@@ -4221,7 +4229,7 @@ CMDF do_wimpy(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        ch->wimpy = wimpy;
+        ch->wimpy = static_cast<sh_int>(wimpy);
         ch_printf(ch, "Wimpy set to %d hit points.\n\r", wimpy);
         return;
 }
@@ -4238,7 +4246,7 @@ CMDF do_password(CHAR_DATA* ch, char* argument)
         char      arg1[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
         char     *pArg;
-        char     *pwdnew;
+        [[maybe_unused]] char     *pwdnew;
         char     *p;
         char      cEnd;
 
@@ -4339,7 +4347,7 @@ CMDF do_password(CHAR_DATA* ch, char* argument)
         return;
 }
 
-CMDF do_ls(CHAR_DATA * ch, char *argument)
+CMDF do_ls(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
         send_to_char("This isn't your terminal dumbass.\n\r", ch);
         return;
@@ -4358,7 +4366,7 @@ CMDF do_socials(CHAR_DATA* ch, char* argument)
         int       col = 0;
         SOCIALTYPE *social;
 
-        argument = NULL;
+        (void)argument;
 
         set_pager_color(AT_PLAIN, ch);
         for (iHash = 0; iHash < 27; iHash++)
@@ -4386,7 +4394,7 @@ CMDF do_commands(CHAR_DATA * ch, char *argument)
         int       hash;
         CMDTYPE  *command;
 
-        argument = NULL;
+        (void)argument;
 
         col = 0;
         set_pager_color(AT_PLAIN, ch);
@@ -4418,14 +4426,14 @@ CMDF do_commands(CHAR_DATA * ch, char *argument)
  */
 CMDF do_wizlist(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;
         set_pager_color(AT_IMMORT, ch);
         show_file(ch, WIZLIST_FILE);
 }
 
 CMDF do_showhelp(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;
         set_pager_color(AT_IMMORT, ch);
         show_file(ch, HELP_FILE);
 }
@@ -4453,49 +4461,49 @@ CMDF do_showlog(CHAR_DATA * ch, char *argument)
         if (!str_cmp(arg, "help"))
         {
                 if (clear)
-                        clear_file(ch, HELP_FILE);
+                        clear_file(ch, const_cast<char*>(HELP_FILE));
                 else
                         show_file(ch, HELP_FILE);
         }
         else if (!str_cmp(arg, "boot"))
         {
                 if (clear)
-                        clear_file(ch, BOOTLOG_FILE);
+                        clear_file(ch, const_cast<char*>(BOOTLOG_FILE));
                 else
                         show_file(ch, BOOTLOG_FILE);
         }
         else if (!str_cmp(arg, "usage"))
         {
                 if (clear)
-                        clear_file(ch, USAGE_FILE);
+                        clear_file(ch, const_cast<char*>(USAGE_FILE));
                 else
                         show_file(ch, USAGE_FILE);
         }
         else if (!str_cmp(arg, "log"))
         {
                 if (clear)
-                        clear_file(ch, LOG_FILE);
+                        clear_file(ch, const_cast<char*>(LOG_FILE));
                 else
                         show_file(ch, LOG_FILE);
         }
         else if (!str_cmp(arg, "bug"))
         {
                 if (clear)
-                        clear_file(ch, BUGS_FILE);
+                        clear_file(ch, const_cast<char*>(BUGS_FILE));
                 else
                         show_file(ch, BUGS_FILE);
         }
         else if (!str_cmp(arg, "idea"))
         {
                 if (clear)
-                        clear_file(ch, IDEA_FILE);
+                        clear_file(ch, const_cast<char*>(IDEA_FILE));
                 else
                         show_file(ch, IDEA_FILE);
         }
         else if (!str_cmp(arg, "typo"))
         {
                 if (clear)
-                        clear_file(ch, TYPO_FILE);
+                        clear_file(ch, const_cast<char*>(TYPO_FILE));
                 else
                         show_file(ch, TYPO_FILE);
         }
@@ -4797,7 +4805,7 @@ CMDF do_config(CHAR_DATA * ch, char *argument)
 
 CMDF do_credits(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;
         do_help(ch, "credits");
 }
 
@@ -4812,7 +4820,7 @@ CMDF do_areas(CHAR_DATA* ch, char* argument)
 {
         AREA_DATA *pArea;
 
-        argument = NULL;
+        (void)argument;
 
         set_pager_color(AT_PLAIN, ch);
         send_to_pager
@@ -4833,7 +4841,7 @@ CMDF do_areas(CHAR_DATA* ch, char* argument)
 
 CMDF do_afk(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;
         if (IS_NPC(ch))
                 return;
 
@@ -4856,7 +4864,11 @@ CMDF do_afk(CHAR_DATA * ch, char *argument)
 
 CMDF do_slist(CHAR_DATA * ch, char *argument)
 {
-        int       sn, i, lFound;
+        int       sn, i;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+        int lFound = 0;
+#pragma GCC diagnostic pop
         char      skn[MAX_INPUT_LENGTH];
         int       col = 0;
 
@@ -5141,9 +5153,9 @@ CMDF do_pager(CHAR_DATA * ch, char *argument)
         if (!*arg)
         {
                 if (IS_SET(ch->pcdata->flags, PCFLAG_PAGERON))
-                        do_config(ch, "-pager");
+                        do_config(ch, const_cast<char*>("-pager"));
                 else
-                        do_config(ch, "+pager");
+                        do_config(ch, const_cast<char*>("+pager"));
                 return;
         }
         if (!is_number(arg))
@@ -5151,7 +5163,7 @@ CMDF do_pager(CHAR_DATA * ch, char *argument)
                 send_to_char("Set page pausing to how many lines?\n\r", ch);
                 return;
         }
-        ch->pcdata->pagerlen = atoi(arg);
+        ch->pcdata->pagerlen = static_cast<sh_int>(atoi(arg));
         if (ch->pcdata->pagerlen < PAGER_MIN_LINES)
                 ch->pcdata->pagerlen = 5;
         ch_printf(ch, "Page pausing set to %d lines.\n\r",
@@ -5167,7 +5179,11 @@ CMDF do_steacher(CHAR_DATA * ch, char *argument)
         char     *buf1;
         char      arg[MAX_STRING_LENGTH];
         int       sn, vnum;
-        bool      fMob = FALSE, fSet = FALSE, fMI = FALSE;
+        bool      fMob = FALSE, fSet = FALSE;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+        bool fMI = FALSE;
+#pragma GCC diagnostic pop
         SKILLTYPE *skill = NULL;
 
 
@@ -5291,7 +5307,7 @@ char     *revision(void)
         int       i, j;
 
         mudstrlcpy(buf1, REVISION, MIL);
-        for (i = 11, j = 0; i < ((int) strlen(buf1) - 2); i++, j++)
+        for (i = 11, j = 0; i < static_cast<int>(strlen(buf1)) - 2; i++, j++)
                 buf[j] = buf1[i];
         buf[i++] = '\0';
 
@@ -5302,7 +5318,7 @@ char     *revision(void)
 
 CMDF do_mudinfo(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;
         ch_printf(ch, "&BM&zud name:             &w%-20s&D\n\r",
                   sysdata.mud_name);
         ch_printf(ch, "&BM&zud email:            &w%-20s&D\n\r",
