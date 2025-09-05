@@ -3346,8 +3346,8 @@ char     *print_bitvector args((EXT_BV * bits));
 void fwrite_bitvector args((EXT_BV * bits, FILE * fp));
 EXT_BV meb args((int bit));
 EXT_BV multimeb args((int bit, ...));
-char     *ext_flag_string args((EXT_BV * bitvector, char *const flagarray[]));
-char     *show_ext_flag_string args((int len, char *const flagarray[]));
+char     *ext_flag_string args((EXT_BV * bitvector, const char *const flagarray[]));
+char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 
 /*
  * Here are the extended bitvector macros:
@@ -3574,8 +3574,8 @@ extern const struct cha_app_type cha_app[41];
 extern const struct lck_app_type lck_app[41];
 extern const struct frc_app_type frc_app[41];
 
-extern char *const wear_locs[];
-extern char *const ex_flags[];
+extern const char* const wear_locs[];
+extern const char* const ex_flags[];
 
 extern const struct race_type race_table[];
 extern const struct liq_type liq_table[LIQ_MAX];
@@ -3588,27 +3588,27 @@ extern const char *const dir_name[];
 extern const char* const where_name[];
 extern const sh_int rev_dir[];
 extern const int trap_door[];
-extern char *const r_flags[];
-extern char *const part_flags[];
-extern char *const w_flags[];
-extern char *const o_flags[];
-extern char *const a_flags[];
-extern char *const o_types[];
-extern char *const a_types[];
-extern char *const act_flags[];
+extern const char* const r_flags[];
+extern const char* const part_flags[];
+extern const char* const w_flags[];
+extern const char* const o_flags[];
+extern const char* const a_flags[];
+extern const char* const o_types[];
+extern const char* const a_types[];
+extern const char* const act_flags[];
 extern const char *const planet_flags[];
 extern const char *const weapon_table[13];
 extern const char *const spice_table[];
-extern char *const plr_flags[];
-extern char *const pc_flags[];
-extern char *const trap_flags[];
-extern char *const ris_flags[];
-extern char *const trig_flags[];
-extern char *const part_flags[];
+extern const char* const plr_flags[];
+extern const char* const pc_flags[];
+extern const char* const trap_flags[];
+extern const char* const ris_flags[];
+extern const char* const trig_flags[];
+extern const char* const part_flags[];
 extern char *const npc_race[];
-extern char *const defense_flags[];
-extern char *const attack_flags[];
-extern char *const area_flags[];
+extern const char* const defense_flags[];
+extern const char* const attack_flags[];
+extern const char* const area_flags[];
 extern char *const ship_flags[];
 extern const char *const cargo_names[CONTRABAND_MAX];
 extern char *const hair_list[];
@@ -3975,7 +3975,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void add_command args((CMDTYPE * command));
 /* build.c */
                    char *flag_string
-                   args((int bitvector, char *const flagarray[]));
+                   args((int bitvector, const char *const flagarray[]));
                    int get_mpflag args((char *flag));
                    int get_dir args((char *txt));
                    char *strip_cr args((char *str));

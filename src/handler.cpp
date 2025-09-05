@@ -4952,7 +4952,7 @@ EXT_BV multimeb(int bit, ...)
         return bits;
 }
 
-char     *ext_flag_string(EXT_BV * bitvector, char *const flagarray[])
+char     *ext_flag_string(EXT_BV * bitvector, const char *const flagarray[])
 {
         static char buf[MAX_STRING_LENGTH];
         int       x;
@@ -4970,7 +4970,7 @@ char     *ext_flag_string(EXT_BV * bitvector, char *const flagarray[])
         return buf;
 }
 
-char     *show_ext_flag_string(int len, char *const flagarray[])
+char     *show_ext_flag_string(int len, const char *const flagarray[])
 {
         static char buf[MAX_STRING_LENGTH];
         int       x;
