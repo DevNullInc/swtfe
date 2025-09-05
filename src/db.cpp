@@ -7470,7 +7470,7 @@ bool file_exist(char *name)
          */
 }
 
-void stralloc_printf(char **pointer, char *fmt, ...)
+void stralloc_printf(char **pointer, const char *fmt, ...)
 {
         char      buf[MAX_STRING_LENGTH * 2];
         va_list   args;
@@ -7484,7 +7484,7 @@ void stralloc_printf(char **pointer, char *fmt, ...)
         *pointer = STRALLOC(buf);
         return;
 }
-void strdup_printf(char **pointer, char *fmt, ...)
+void strdup_printf(char **pointer, const char *fmt, ...)
 {
         char      buf[MAX_STRING_LENGTH * 2];
         va_list   args;

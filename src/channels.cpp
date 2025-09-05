@@ -43,20 +43,25 @@
  *  their code applies here as well                                                      *
  ****************************************************************************************/
 
-#include <string.h>
-#include <ctype.h>
-#include <time.h>
+#include <cstring>
+#include <cctype>
+#include <ctime>
 #include "mud.hpp"
 #include "channels.hpp"
 #include "color.hpp"
 
-char     *const channel_type[] = {
-        "IC", "IC Comlink", "OOC"
-};
+// Mutable static buffers for legacy string pool functions expecting char*
+static char empty_channel_name[] = "";
+static char immortal_visible_name[] = "An Immortal";
 
-char     *const channel_range[] = {
-        "Room", "Area", "Planet", "System", "Global", "Clan"
-};
+// Immutable channel classification tables (legacy form for now; will migrate fully later)
+static const char *const channel_type[]  = { "IC", "IC Comlink", "OOC" };
+static const char *const channel_range[] = { "Room", "Area", "Planet", "System", "Global", "Clan" };
+
+// Mutable format strings (legacy helper functions take non-const char * for fmt)
+static char fmt_act[]    = "%s $n: $t";
+static char fmt_emote[]  = "(%s) * $n $t";
+static char fmt_social[] = "(%s) * $t";
 
 DECLARE_DO_FUN(do_history);
 extern bool is_ignoring(CHAR_DATA * ch, CHAR_DATA * victim);
@@ -66,17 +71,23 @@ char     *scramble args((const char *argument, LANGUAGE_DATA * language));
 CHANNEL_DATA *first_channel = NULL;
 CHANNEL_DATA *last_channel = NULL;
 
-CHANNEL_DATA *get_channel(char *name)
-{
-        CHANNEL_DATA *channel;
+CHANNEL_DATA *get_channel(char *name) { return get_channel(static_cast<const char*>(name)); }
 
-        for (channel = first_channel; channel; channel = channel->next)
+CHANNEL_DATA *get_channel(const char *name)
+{
+        if (!name)
+                return nullptr;
+        for (CHANNEL_DATA *channel = first_channel; channel; channel = channel->next)
+        {
                 if (!str_cmp(name, channel->name))
                         return channel;
-        for (channel = first_channel; channel; channel = channel->next)
+        }
+        for (CHANNEL_DATA *channel = first_channel; channel; channel = channel->next)
+        {
                 if (nifty_is_name_prefix(name, channel->name))
                         return channel;
-        return NULL;
+        }
+        return nullptr;
 }
 
 void free_channel(CHANNEL_DATA * channel)
@@ -136,7 +147,7 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
         char      buf[MSL], buf2[MSL];
         char      arg[MSL];
 
-        char     *messagetype;
+        const char *messagetype;
 
         if (!ch || !command)
                 return FALSE;
@@ -332,7 +343,7 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
         }
 
 
-        strncpy(buf, argument, MSL);
+        mudstrlcpy(buf, argument, MSL);
         if (social)
         {
                 char     *sbuf = argument;
@@ -354,11 +365,11 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
                                 sbuf = act_string(social->char_no_arg, ch, ch,
                                                   NULL, victim, 1);
                 }
-                strncpy(buf, sbuf, MSL);
+                mudstrlcpy(buf, sbuf, MSL);
         }
         else if (emote)
         {
-                strncpy(buf, argument, MSL);
+                mudstrlcpy(buf, argument, MSL);
         }
 
         add_channel_log(ch, buf, channel);
@@ -451,7 +462,7 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
                                                           others_no_arg, vch,
                                                           ch, NULL, victim,
                                                           0);
-                                        strncpy(buf, sbuf, MSL);
+                                        mudstrlcpy(buf, sbuf, MSL);
                                         sbuf = buf;
                                 }
                                 else
@@ -486,7 +497,7 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
                                                                   NULL,
                                                                   victim, 1);
                                 }
-                                strncpy(buf, sbuf, MSL);
+                                mudstrlcpy(buf, sbuf, MSL);
                                 sbuf = buf;
                         }
                         else
@@ -612,11 +623,9 @@ CHANNEL_DATA *fread_channel(FILE * fp)
                         if (!str_cmp(word, "End"))
                         {
                                 if (!channel->name)
-                                        channel->name = STRALLOC("");
-                                if (!channel->actmessage)
-                                        strdup_printf(&channel->actmessage,
-                                                      "%s $n: $t",
-                                                      channel->name);
+                                        channel->name = STRALLOC(empty_channel_name);
+                                       if (!channel->actmessage)
+                                               strdup_printf(&channel->actmessage, fmt_act, channel->name);
                                 if (!channel->socialmessage)
                                 {
                                         if (channel->emotemessage)
@@ -630,16 +639,11 @@ CHANNEL_DATA *fread_channel(FILE * fp)
                                         }
                                         else
                                         {
-                                                strdup_printf(&channel->
-                                                              socialmessage,
-                                                              "(%s) * $t",
-                                                              channel->name);
+                                                       strdup_printf(&channel->socialmessage, fmt_social, channel->name);
                                         }
                                 }
-                                if (!channel->emotemessage)
-                                        strdup_printf(&channel->emotemessage,
-                                                      "(%s) * $n $t",
-                                                      channel->name);
+                                       if (!channel->emotemessage)
+                                               strdup_printf(&channel->emotemessage, fmt_emote, channel->name);
                                 return channel;
                         }
                         break;
@@ -784,10 +788,10 @@ CMDF do_makechannel(CHAR_DATA * ch, char *argument)
         channel = create_channel();
         if (channel->name)
                 STRFREE(channel->name);
-        channel->name = STRALLOC(argument);
-        strdup_printf(&channel->actmessage, "%s $n: $t", channel->name);
-        strdup_printf(&channel->emotemessage, "(%s) * $n $t", channel->name);
-        strdup_printf(&channel->socialmessage, "(%s) * $t", channel->name);
+        channel->name = STRALLOC(argument); // argument is mutable here
+        strdup_printf(&channel->actmessage, fmt_act, channel->name);
+        strdup_printf(&channel->emotemessage, fmt_emote, channel->name);
+        strdup_printf(&channel->socialmessage, fmt_social, channel->name);
         LINK(channel, first_channel, last_channel, next, prev);
         save_channels();
         send_to_char("Done.\n\r", ch);
@@ -804,7 +808,10 @@ CMDF do_setchannel(CHAR_DATA * ch, char *argument)
         argument = one_argument(argument, arg);
         if (argument[0] == '\0' || arg[0] == '\0')
         {
-                interpret(ch, "showchannel");
+                {
+                        char showcmd[] = "showchannel";
+                        interpret(ch, showcmd);
+                }
                 send_to_char
                         ("Valid fields are:\n\r\tname, socialmessage, emotemessage, actmessage, logtype, type, range, color, level, history, cost, enable",
                          ch);
@@ -1242,7 +1249,7 @@ void add_channel_log(CHAR_DATA * from, char *message, CHANNEL_DATA * channel)
 
         if (channel->log == NULL)
         {
-                CREATE(channel->log, LOG_DATA, sysdata.channellog);
+                CREATE(channel->log, LOG_DATA, static_cast<size_t>(sysdata.channellog));
                 channel->logpos = -1;
         }
 
@@ -1274,8 +1281,7 @@ void add_channel_log(CHAR_DATA * from, char *message, CHANNEL_DATA * channel)
         if (channel->log[channel->logpos].name)
                 STRFREE(channel->log[channel->logpos].name);
         channel->log[channel->logpos].name =
-                STRALLOC(IS_SET(from->act, PLR_WIZINVIS) ? (char *)
-                         "An Immortal" : from->name);
+                STRALLOC(IS_SET(from->act, PLR_WIZINVIS) ? immortal_visible_name : from->name);
         if (channel->log[channel->logpos].message)
                 DISPOSE(channel->log[channel->logpos].message);
         channel->log[channel->logpos].message = str_dup(message);
@@ -1283,7 +1289,7 @@ void add_channel_log(CHAR_DATA * from, char *message, CHANNEL_DATA * channel)
         channel->log[channel->logpos].language = from->speaking;
 }
 
-CMDF do_history(CHAR_DATA * ch, char *argument)
+CMDF do_history(CHAR_DATA * ch, const char *argument)
 {
         int       count = 0;
         int       pos = 0;

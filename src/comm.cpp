@@ -4918,7 +4918,7 @@ char     *act_string(const char *format, CHAR_DATA * to, CHAR_DATA * ch,
 #undef NAME
 #undef NAME2
 
-void act(sh_int AType, const char *format, CHAR_DATA * ch, void *arg1,
+void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
          void *arg2, int type)
 {
         char     *txt;

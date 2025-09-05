@@ -56,13 +56,13 @@ struct channel_data
         char     *actmessage;   /* The title to sens, "OOC", "[INFO]", etc, accepts colors */
         char     *emotemessage;
         char     *socialmessage;
-        sh_int    logtype;
-        sh_int    type; /* IC, OOC, IMM? */
-        sh_int    color;    /* Here, this is color of TEXT to send, best to reset title at the end with &D */
-        sh_int    range;    /* Umm, planetary? system? I dunno */
-        sh_int    level;    /* Minimum level to see this channel? */
-        sh_int    logpos;   /* Current position in the log that this channel is at. Not setable. */
-        sh_int    cost; /* Does it cost to use this channel? */
+        int       logtype;   /* logging behavior */
+        int       type;      /* IC, OOC, IMM? */
+        int       color;     /* Color of TEXT to send, best to reset title at the end with &D */
+        int       range;     /* Room/Area/Planet/System/Global/Clan */
+        int       level;     /* Minimum level to see this channel */
+        int       logpos;    /* Current position in the log (runtime only) */
+        int       cost;      /* Does it cost to use this channel? */
         bool      history;  /* Whether or not we are saving a log on thig channel */
         bool      enabled;  /* Whether we want people to use this channel at the moment */
 };
@@ -78,7 +78,8 @@ typedef enum
         CHANNEL_IC, CHANNEL_IC_COM, CHANNEL_OOC
 } channel_types;
 
-CHANNEL_DATA *get_channel(char *name);
+CHANNEL_DATA *get_channel(char *name);              // legacy mutable interface
+CHANNEL_DATA *get_channel(const char *name);        // const-safe overload
 bool check_channel(CHAR_DATA * ch, char *command, char *argument);
 void add_channel_log(CHAR_DATA * from, char *message, CHANNEL_DATA * channel);
 int hasname(const char *list, const char *name);

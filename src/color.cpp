@@ -1144,7 +1144,7 @@ int colorcode(const char *col, char *code, CHAR_DATA * ch)
 }
 
 /* Moved from comm.c */
-void set_char_color(sh_int AType, CHAR_DATA * ch)
+void set_char_color(int AType, CHAR_DATA * ch)
 {
         if (!ch || !ch->desc)
                 return;

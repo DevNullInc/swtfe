@@ -698,7 +698,7 @@ bool nifty_is_name(char *str, char *namelist)
         }
 }
 
-bool nifty_is_name_prefix(char *str, char *namelist)
+bool nifty_is_name_prefix(const char *str, const char *namelist)
 {
         char      name[MAX_INPUT_LENGTH];
 

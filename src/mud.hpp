@@ -4069,13 +4069,13 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void send_to_pager args((const char *txt, CHAR_DATA * ch));
                    void send_to_pager_color
                    args((const char *txt, CHAR_DATA * ch));
-                   void set_char_color args((sh_int AType, CHAR_DATA * ch));
+                   void set_char_color args((int AType, CHAR_DATA * ch));
                    void set_pager_color args((sh_int AType, CHAR_DATA * ch));
                    void ch_printf args((CHAR_DATA * ch, const char *fmt,...));
                    void pager_printf args((CHAR_DATA * ch, const char *fmt,...));
-                   void act
-                   args((sh_int AType, const char *format, CHAR_DATA * ch,
-                         void *arg1, void *arg2, int type));
+                         void act
+                         args((int AType, const char *format, CHAR_DATA * ch,
+                                 void *arg1, void *arg2, int type));
                    int strlen_color args((char *argument));
                    extern const unsigned char do_termtype_str[];
                    extern const unsigned char will_compress_str[];
@@ -4186,8 +4186,8 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
 void	obj_sort	args( ( OBJ_INDEX_DATA *pObj ) );
 void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    void sort_area args((AREA_DATA * pArea, bool proto));
-                   void strdup_printf args((char **pointer, char *fmt,...));
-                   void stralloc_printf args((char **pointer, char *fmt,...));
+                   void strdup_printf args((char **pointer, const char *fmt,...));
+                   void stralloc_printf args((char **pointer, const char *fmt,...));
                    void command_printf args((CHAR_DATA * ch, char *fmt,...));
                    size_t mudstrlcpy
                    args((char *dst, const char *src, size_t siz));
@@ -4365,7 +4365,7 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    args((const char *str, char *namelist));
                    bool nifty_is_name args((char *str, char *namelist));
                    bool nifty_is_name_prefix
-                   args((char *str, char *namelist));
+                   args((const char *str, const char *namelist));
                    void affect_modify
                    args((CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd));
                    void affect_to_char
