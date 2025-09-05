@@ -91,9 +91,23 @@ void load_changes(void)
 
         immortal_changes = 0;
 
-        fscanf(fp, "%d\n", &maxChanges);
+        if (fscanf(fp, "%d\n", &maxChanges) != 1 || maxChanges < 0)
+        {
+                bug("Invalid maxChanges value in changes file", 0);
+                FCLOSE(fp);
+                return;
+        }
 
-        CREATE(changes_table, CHANGE_DATA, maxChanges + 1);
+        // Allocate (maxChanges+1) entries; use calloc-family to stay consistent with
+        // later REALLOC/STRFREE/DISPOSE patterns elsewhere in legacy code.
+        // (Earlier modernization briefly switched to new[] which conflicted with
+        // existing free()/REALLOC based macros, triggering allocator mismatch risk.)
+        changes_table = static_cast<CHANGE_DATA*>(calloc(static_cast<size_t>(maxChanges + 1), sizeof(CHANGE_DATA)));
+        if (!changes_table) {
+                bug("Allocation failure for changes_table", 0);
+                FCLOSE(fp);
+                return;
+        }
 
         for (i = 0; i < maxChanges; i++)
         {
@@ -233,15 +247,10 @@ void free_changes(void)
 void delete_change(int iChange)
 {
         int       i, j;
-        CHANGE_DATA *new_table;
-
-        new_table =
-                (CHANGE_DATA *) CALLOC(1, sizeof(CHANGE_DATA) * maxChanges);
-
+        // Rebuild the table without the removed entry. Keep C allocation semantics.
+        CHANGE_DATA *new_table = static_cast<CHANGE_DATA*>(calloc(static_cast<size_t>(UMAX(maxChanges,0)), sizeof(CHANGE_DATA)));
         if (!new_table)
-        {
-                return;
-        }
+                return; // allocation failed; leave original intact
 
         for (i = 0, j = 0; i < maxChanges + 1; i++)
         {
@@ -272,7 +281,6 @@ void delete_change(int iChange)
 
 CMDF do_addchange(CHAR_DATA * ch, char *argument)
 {
-        CHANGE_DATA *new_table;
         char      buf[MAX_STRING_LENGTH];
 
         if (IS_NPC(ch))
@@ -286,20 +294,17 @@ CMDF do_addchange(CHAR_DATA * ch, char *argument)
         }
 
         maxChanges++;
-        new_table =
-                (CHANGE_DATA *) REALLOC(changes_table,
-                                        sizeof(CHANGE_DATA) * (maxChanges +
-                                                               1));
-
-        if (!new_table) /* REALLOC failed */
         {
-                send_to_char
-                        ("Memory allocation failed. Brace for impact.\n\r",
-                         ch);
-                return;
+                size_t newCount = static_cast<size_t>(maxChanges + 1);
+                void *tmp = REALLOC(changes_table, sizeof(CHANGE_DATA) * newCount);
+                if (!tmp)
+                {
+                        --maxChanges; // rollback
+                        send_to_char("Memory allocation failed. Brace for impact.\n\r", ch);
+                        return;
+                }
+                changes_table = static_cast<CHANGE_DATA*>(tmp);
         }
-
-        changes_table = new_table;
 
         changes_table[maxChanges - 1].change = STRALLOC(argument);
         changes_table[maxChanges - 1].coder = STRALLOC(ch->name);
@@ -320,7 +325,6 @@ CMDF do_addchange(CHAR_DATA * ch, char *argument)
 
 CMDF do_addimmchange(CHAR_DATA * ch, char *argument)
 {
-        CHANGE_DATA *new_table;
 
         if (IS_NPC(ch))
                 return;
@@ -333,20 +337,17 @@ CMDF do_addimmchange(CHAR_DATA * ch, char *argument)
         }
 
         maxChanges++;
-        new_table =
-                (CHANGE_DATA *) REALLOC(changes_table,
-                                        sizeof(CHANGE_DATA) * (maxChanges +
-                                                               1));
-
-        if (!new_table) /* REALLOC failed */
         {
-                send_to_char
-                        ("Memory allocation failed. Brace for impact.\n\r",
-                         ch);
-                return;
+                size_t newCount = static_cast<size_t>(maxChanges + 1);
+                void *tmp = REALLOC(changes_table, sizeof(CHANGE_DATA) * newCount);
+                if (!tmp)
+                {
+                        --maxChanges; // rollback
+                        send_to_char("Memory allocation failed. Brace for impact.\n\r", ch);
+                        return;
+                }
+                changes_table = static_cast<CHANGE_DATA*>(tmp);
         }
-
-        changes_table = new_table;
 
         changes_table[maxChanges - 1].change = STRALLOC(argument);
         changes_table[maxChanges - 1].coder = STRALLOC(ch->name);
@@ -413,7 +414,8 @@ CMDF do_chedit(CHAR_DATA * ch, char *argument)
         if (NULLSTR(arg1))
         {
                 send_to_char("do what?\n\r", ch);
-                do_chedit(ch, "");
+                char empty_arg[] = ""; // avoid passing string literal to char * parameter
+                do_chedit(ch, empty_arg);
         }
 
         if (!str_cmp(arg1, "coder"))
@@ -423,7 +425,7 @@ CMDF do_chedit(CHAR_DATA * ch, char *argument)
                 changes_table[change].coder = STRALLOC(argument);
                 send_to_char("Coder changed.\n\r", ch);
         }
-        else if (!str_cmp(arg1, "coder"))
+        else if (!str_cmp(arg1, "change"))
         {
                 if (changes_table[change].change)
                         STRFREE(changes_table[change].change);

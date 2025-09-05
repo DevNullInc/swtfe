@@ -40,7 +40,9 @@
  *                                SWR OLC Channel module                                 *
  ****************************************************************************************/
 
-typedef struct channel_data CHANNEL_DATA;
+// Forward declaration
+struct channel_data;
+using CHANNEL_DATA = channel_data;
 extern CHANNEL_DATA *first_channel;
 extern CHANNEL_DATA *last_channel;
 
@@ -76,13 +78,12 @@ typedef enum
         CHANNEL_IC, CHANNEL_IC_COM, CHANNEL_OOC
 } channel_types;
 
-CHANNEL_DATA *get_channel args((char *name));
-bool check_channel args((CHAR_DATA * ch, char *command, char *argument));
-void      add_channel_log
-args((CHAR_DATA * from, char *message, CHANNEL_DATA * channel));
-int hasname args((const char *list, const char *name));
-void addname args((char **list, const char *name));
-void removename args((char **list, const char *name));
-const char *getarg args((const char *argument, char *arg, int length));
-void load_channels args((void));
+CHANNEL_DATA *get_channel(char *name);
+bool check_channel(CHAR_DATA * ch, char *command, char *argument);
+void add_channel_log(CHAR_DATA * from, char *message, CHANNEL_DATA * channel);
+int hasname(const char *list, const char *name);
+void addname(char **list, const char *name);
+void removename(char **list, const char *name);
+const char *getarg(const char *argument, char *arg, int length);
+void load_channels(void);
 extern char *const pc_displays[MAX_COLORS];
