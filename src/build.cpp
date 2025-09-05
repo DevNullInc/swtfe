@@ -183,16 +183,16 @@ const char *const planet_flags[] = {
 		"p31"
 };
 
-const char *const weapon_table[13] = { /* matches extern in mud.hpp */
-        "none",
-        "vibro-axe", "vibro-blade", "lightsaber", "whip", "knife",
-        "blaster", "w7", "bludgeon", "bowcaster", "w10",
-        "force pike", "w12"
+// weapon and spice tables (single authoritative definition matching externs in mud.hpp)
+const char *const weapon_table[13] = { // must remain 13 entries
+        "none", "vibro-axe", "vibro-blade", "lightsaber", "blaster", "bludgeon",
+        "bowcaster", "force pike", "hand to hand", "shield", "heavy blaster",
+        "rifle", "dual saber"
 };
 
-const char *const spice_table[] = { // matches extern in mud.hpp
-        "glitterstim", "carsanum", "ryll", "andris", "s4", "s5", "s6", "s7",
-        "s8", "s9"
+const char *const spice_table[] = { // must remain 10 entries (used dynamically)
+        "glitterstim", "carsanum", "ryll", "andalite", "neutron pixie",
+        "kwi", "andris", "scramjet", "bone marrow", "t'bac"
 };
 
 // Build a space-separated list of table entries. wordwrap requires mutable char*.
@@ -3990,12 +3990,10 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
         case ITEM_WEAPON:
                 if (!str_cmp(arg2, "weapontype"))
                 {
-                        unsigned int x; // loop index (unsigned ok)
-
                         value = -1;
-                        for (x = 0; x < (sizeof(weapon_table) / sizeof(weapon_table[0])); ++x)
+                        for (size_t x = 0; x < NUMITEMS(weapon_table); ++x)
                                 if (!str_cmp(arg3, weapon_table[x]))
-                                        value = static_cast<int>(x); // explicit cast removes sign-conversion warning
+                                        value = static_cast<int>(x);
                         if (value < 0)
                         {
                                 send_to_char("Unknown weapon type.\n\r", ch);
@@ -4042,12 +4040,10 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                         tmp = 1;
                 if (!str_cmp(arg2, "spicetype"))
                 {
-                        unsigned int x; // loop index
-
                         value = -1;
-                        for (x = 0; x < (sizeof(spice_table) / sizeof(spice_table[0])); ++x)
+                        for (size_t x = 0; x < NUMITEMS(spice_table); ++x)
                                 if (!str_cmp(arg3, spice_table[x]))
-                                        value = static_cast<int>(x); // explicit cast
+                                        value = static_cast<int>(x);
                         if (value < 0)
                         {
                                 send_to_char("Unknown spice type.\n\r", ch);
@@ -4064,12 +4060,10 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
         case ITEM_CRYSTAL:
                 if (!str_cmp(arg2, "gemtype"))
                 {
-                        unsigned int x; // loop index
-
                         value = -1;
-                        for (x = 0; x < (sizeof(crystal_table) / sizeof(crystal_table[0])); ++x)
+                        for (size_t x = 0; x < NUMITEMS(crystal_table); ++x)
                                 if (!str_cmp(arg3, crystal_table[x]))
-                                        value = static_cast<int>(x); // explicit cast
+                                        value = static_cast<int>(x);
                         if (value < 0)
                         {
                                 send_to_char("Unknown gem type.\n\r", ch);
