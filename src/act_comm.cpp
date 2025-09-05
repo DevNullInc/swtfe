@@ -271,7 +271,7 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
                 snprintf(buf, MSL, "%s", social->char_no_arg);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
-                ch->pcdata->arousal += (sh_int) (social->arousal * .25);
+                ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
                 return;
         }
         victim = get_char_room(ch, arg);
@@ -318,7 +318,7 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
                 snprintf(buf, MSL, "%s", social->char_auto);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
-                ch->pcdata->arousal += (sh_int) (social->arousal * AROUSAL_MULTIPLIER);
+                ch->pcdata->arousal += static_cast<sh_int>(social->arousal * AROUSAL_MULTIPLIER);
                 /*
                  * FIXME - 
                  * * Gavin - Uh... all 3 of these victim->sex lines had ; at the end.
@@ -357,7 +357,7 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
                 snprintf(buf, MSL, "%s", social->vict_found);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_VICT);
                 victim->pcdata->arousal += social->arousal;
-                ch->pcdata->arousal += (sh_int) (social->arousal * .25);
+                ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
                 if (victim->sex == SEX_NEUTRAL)
                 {
                         if (victim->pcdata->arousal >=

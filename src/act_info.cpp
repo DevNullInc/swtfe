@@ -1973,7 +1973,7 @@ CMDF do_examine(CHAR_DATA * ch, char *argument)
                                 obj->value[1] = obj->value[0];
                         if (obj->value[1] == 0)
                                 obj->value[1] = 1;
-                        dam = (sh_int) ((obj->value[0] * 10) / obj->value[1]);
+                        dam = static_cast<sh_int>((obj->value[0] * 10) / obj->value[1]);
                         mudstrlcpy(buf,
                                    "As you look more closely, you notice that it is ",
                                    MSL);
@@ -2153,7 +2153,7 @@ CMDF do_examine(CHAR_DATA * ch, char *argument)
                                 sh_int    timerfrac = obj->timer;
 
                                 if (obj->item_type == ITEM_CORPSE_PC)
-                                        timerfrac = (int) obj->timer / 8 + 1;
+                                        timerfrac = static_cast<int>(obj->timer) / 8 + 1;
 
                                 switch (timerfrac)
                                 {
@@ -2454,10 +2454,10 @@ CMDF do_time(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
                   day_name[day % 7],
                   day, suf,
                   month_name[time_info.month],
-                  str_boot_time, (char *) ctime(&current_time), reboot_time);
+                  str_boot_time, const_cast<char *>(ctime(&current_time)), reboot_time);
         if (sysdata.CLEANPFILES)
                 ch_printf(ch, "Next pfile cleanup :      %s",
-                          (char *) ctime(&new_pfile_time_t));
+                          const_cast<char *>(ctime(&new_pfile_time_t)));
         ch_printf(ch,
                   "The mud has been up for:  %d hours, %d minutes, %d seconds.\n\r",
                   diff / 3600, (diff / 60) % 60, diff % 60);
@@ -2855,7 +2855,7 @@ CMDF do_hedit(CHAR_DATA * ch, char *argument)
         default:
                 break;
         case SUB_HELP_EDIT:
-                if ((pHelp = (HELP_DATA *) ch->dest_buf) == NULL)
+                if ((pHelp = static_cast<HELP_DATA *>(ch->dest_buf)) == NULL)
                 {
                         bug("hedit: sub_help_edit: NULL ch->dest_buf", 0);
                         stop_editing(ch);
@@ -3710,7 +3710,7 @@ CMDF do_consider(CHAR_DATA * ch, char *argument)
 
         diff = (victim->top_level - ch->top_level) * 10;
 
-        diff += (int) (victim->max_hit - ch->max_hit) / 10;
+        diff += static_cast<int>(victim->max_hit - ch->max_hit) / 10;
 
         if (diff <= -200)
                 msg = "$N looks like a feather!";
@@ -4152,7 +4152,7 @@ CMDF do_teach(CHAR_DATA * ch, char *argument)
                         return;
 
         case TRUE: // Can't be reached without consent.
-                        victim = (CHAR_DATA *) ch->dest_buf;    // Should exist, this is a triggered response caused by victim.
+                        victim = static_cast<CHAR_DATA *>(ch->dest_buf);    // Should exist, this is a triggered response caused by victim.
                         sn = skill_lookup(argument);    // argument has already been parsed, should be fine.
 
                         if (victim->skill_level[skill_table[sn]->guild] <
@@ -4212,7 +4212,7 @@ CMDF do_wimpy(CHAR_DATA * ch, char *argument)
         one_argument(argument, arg);
 
         if (arg[0] == '\0')
-                wimpy = (int) ch->max_hit / 5;
+                wimpy = static_cast<int>(ch->max_hit) / 5;
         else
                 wimpy = atoi(arg);
 
