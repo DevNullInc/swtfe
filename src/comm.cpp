@@ -129,12 +129,12 @@ static void copy_and_escape_to_buf(unsigned char *gmcp_buf, int *len, size_t buf
         return;
 
     /* leave room for potential escapes and final IAC SE */
-    while (*p && *len < (int)bufsize - 4) {
-        unsigned char uc = (unsigned char)*p++;
+    while (*p && *len < static_cast<int>(bufsize) - 4) {
+        unsigned char uc = static_cast<unsigned char>(*p++);
         if (uc == IAC) {
             /* Escape 0xFF by doubling */
-            if (*len < (int)bufsize) gmcp_buf[(*len)++] = IAC;
-            if (*len < (int)bufsize) gmcp_buf[(*len)++] = IAC;
+            if (*len < static_cast<int>(bufsize)) gmcp_buf[(*len)++] = IAC;
+            if (*len < static_cast<int>(bufsize)) gmcp_buf[(*len)++] = IAC;
         } else {
             gmcp_buf[(*len)++] = uc;
         }
@@ -159,15 +159,15 @@ void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *data) {
 
         /* If we have data, insert a single space separator then copy data */
         if (data && *data) {
-                if (len < (int)sizeof(gmcp_buf) - 4) gmcp_buf[len++] = ' ';
+                if (len < static_cast<int>(sizeof(gmcp_buf)) - 4) gmcp_buf[len++] = ' ';
                 copy_and_escape_to_buf(gmcp_buf, &len, sizeof(gmcp_buf), data);
         }
 
         /* End subnegotiation */
-        if (len < (int)sizeof(gmcp_buf) - 2) gmcp_buf[len++] = IAC;
-        if (len < (int)sizeof(gmcp_buf) - 1) gmcp_buf[len++] = SE;
+        if (len < static_cast<int>(sizeof(gmcp_buf)) - 2) gmcp_buf[len++] = IAC;
+        if (len < static_cast<int>(sizeof(gmcp_buf)) - 1) gmcp_buf[len++] = SE;
 
-        write_to_buffer(d, (const char *)gmcp_buf, len);
+        write_to_buffer(d, reinterpret_cast<const char *>(gmcp_buf), len);
 }
 
 // =============================================================================
@@ -178,9 +178,9 @@ void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *data) {
 // Telnet Protocol Constants and Definitions
 // =============================================================================
 
-#define IS              '\x00'
-#define TERMINAL_TYPE   '\x18'
-#define SEND            '\x01'
+#define IS              static_cast<char>('\x00')
+#define TERMINAL_TYPE   static_cast<char>('\x18')
+#define SEND            static_cast<char>('\x01')
 
 // Terminal type negotiation
 const unsigned char do_termtype_str[]   = { IAC, DO, TERMINAL_TYPE, '\0' };
@@ -189,12 +189,12 @@ const unsigned char term_call_back_str[] = { IAC, SB, TERMINAL_TYPE, IS };
 const unsigned char req_termtype_str[]  = { IAC, SB, TERMINAL_TYPE, SEND, IAC, SE, '\0' };
 
 // Echo control
-const unsigned char echo_off_str[]      = { IAC, WILL, TELOPT_ECHO, '\0' };
-const unsigned char echo_on_str[]       = { IAC, WONT, TELOPT_ECHO, '\0' };
+const char echo_off_str[]      = { static_cast<char>(IAC), static_cast<char>(WILL), static_cast<char>(TELOPT_ECHO), '\0' };
+const char echo_on_str[]       = { static_cast<char>(IAC), static_cast<char>(WONT), static_cast<char>(TELOPT_ECHO), '\0' };
 
 // End of Record and Go Ahead
 const unsigned char wont_eor_str[]      = { IAC, WONT, EOR, '\0' };
-const unsigned char go_ahead_str[]      = { IAC, GA, '\0' };
+const char go_ahead_str[]      = { static_cast<char>(IAC), static_cast<char>(GA), '\0' };
 
 // GMCP (Generic Mud Communication Protocol)
 const unsigned char will_gmcp_str[]     = { IAC, WILL, TELOPT_GMCP, '\0' };
@@ -268,7 +268,7 @@ sh_int client_speed args((sh_int speed));
 // Signal handlers
 static void SigTerm(int signum);
 static void SegVio(int signum);
-static void caught_alarm(void);
+// Removed unused function declaration: static void caught_alarm(void);
 
 // External references
 extern int maxChanges;
@@ -332,7 +332,7 @@ int main(int argc, char **argv)
          * Init time.
          */
         gettimeofday(&now_time, NULL);
-        current_time = (time_t) now_time.tv_sec;
+        current_time = static_cast<time_t>(now_time.tv_sec);
 /*  gettimeofday( &boot_time, NULL);   okay, so it's kludgy, sue me :) */
         boot_time = time(0);    /*  <-- I think this is what you wanted */
         mudstrlcpy(str_boot_time, ctime(&current_time), MIL);
@@ -504,6 +504,11 @@ int init_socket(int init_port)
 
         gethostname(hostname, sizeof(hostname));
 
+        hp = gethostbyname(hostname);
+        sp = getservbyname("service", "mud");
+        (void)hp;    /* Currently unused */
+        (void)sp;    /* Currently unused */
+
 
         if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         {
@@ -512,7 +517,7 @@ int init_socket(int init_port)
         }
 
         if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-                       (void *) &x, sizeof(x)) < 0)
+                       static_cast<void *>(&x), sizeof(x)) < 0)
         {
                 perror("Init_socket: SO_REUSEADDR");
                 close(fd);
@@ -527,7 +532,7 @@ int init_socket(int init_port)
                 ld.l_linger = SOCKET_LINGER_TIME;
 
                 if (setsockopt(fd, SOL_SOCKET, SO_DONTLINGER,
-                               (void *) &ld, sizeof(ld)) < 0)
+                               static_cast<void *>()&ld, sizeof(ld)) < 0)
                 {
                         perror("Init_socket: SO_DONTLINGER");
                         close(fd);
@@ -536,13 +541,11 @@ int init_socket(int init_port)
         }
 #endif
 
-        hp = gethostbyname(hostname);
-        sp = getservbyname("service", "mud");
         memset(&sa, '\0', sizeof(sa));
         sa.sin_family = AF_INET;    /* hp->h_addrtype; */
-        sa.sin_port = htons(init_port);
+        sa.sin_port = htons(static_cast<uint16_t>(init_port));
 
-        if (bind(fd, (struct sockaddr *) &sa, sizeof(sa)) == -1)
+        if (bind(fd, reinterpret_cast<struct sockaddr *>(&sa), sizeof(sa)) == -1)
         {
                 perror("Init_socket: bind");
                 close(fd);
@@ -565,7 +568,7 @@ static void SegVio(int signum)
         DESCRIPTOR_DATA *d;
         char      buf[MSL];
 
-        signum = 0;
+        (void)signum;    /* Unused parameter */
         log_string("SEGMENTATION VIOLATION");
         log_string(lastplayercmd);
         mudstrlcpy(lastplayercmd, "", MIL * 2);
@@ -606,7 +609,7 @@ static void SegVio(int signum)
                 {
                         crashover = FALSE;
                         echo_to_all(AT_RED,
-                                    "&RATTENTION!! Crash, Hold on while we try and recover.\a",
+                                    const_cast<char *>("&RATTENTION!! Crash, Hold on while we try and recover.\a"),
                                     ECHOTAR_ALL);
                         for (d = first_descriptor; d; d = d->next)
                                 flush_buffer(d, TRUE);
@@ -637,7 +640,7 @@ static void SigTerm(int signum)
         CHAR_DATA *vch;
         char      buf[MAX_STRING_LENGTH];
 
-        signum = 0;
+        (void)signum;    /* Unused parameter */
 
         snprintf(log_buf, MSL, "%s",
                  "&RATTENTION!! Message from game server: &YEmergency shutdown called.\a");
@@ -663,7 +666,7 @@ static void SigTerm(int signum)
                         if (vch->desc)
                         {
                                 write_to_descriptor(vch->desc->descriptor,
-                                                    "You have been saved to disk.\n\r",
+                                                    const_cast<char *>("You have been saved to disk.\n\r"),
                                                     0);
                         }
                 }
@@ -689,7 +692,7 @@ static void SigTerm(int signum)
 #endif
 
         log_string("Emergency shutdown complete.");
-        shutdown_mud("Executing emergency shutdown proceedure.");
+        shutdown_mud(const_cast<char *>("Executing emergency shutdown proceedure."));
 
         /*
          * Using exit here instead of mud_down because the thing sometimes failed to kill when asked!! 
@@ -855,7 +858,7 @@ void game_loop()
         signal(SIGSEGV, SegVio);
         signal(SIGTERM, SigTerm);   /* Catch kill signals */
         gettimeofday(&last_time, NULL);
-        current_time = (time_t) last_time.tv_sec;
+        current_time = static_cast<time_t>(last_time.tv_sec);
 
         /*
          * Main loop 
@@ -910,7 +913,7 @@ void game_loop()
                                  || (!IS_IMMORTAL(d->character) && d->idle > 28800))    /* 2 hrs  */
                         {
                                 write_to_descriptor(d->descriptor,
-                                                    "Idle timeout... disconnecting.\n\r",
+                                                    const_cast<char *>(const_cast<char *>("Idle timeout... disconnecting.\n\r")),
                                                     0);
                                 d->outtop = 0;
                                 close_socket(d, TRUE);
@@ -1046,12 +1049,12 @@ void game_loop()
 
                         gettimeofday(&now_time, NULL);
                         usecDelta =
-                                ((int) last_time.tv_usec) -
-                                ((int) now_time.tv_usec) +
+                                static_cast<int>(last_time.tv_usec) -
+                                static_cast<int>(now_time.tv_usec) +
                                 1000000 / PULSE_PER_SECOND;
                         secDelta =
-                                ((int) last_time.tv_sec) -
-                                ((int) now_time.tv_sec);
+                                static_cast<int>(last_time.tv_sec) -
+                                static_cast<int>(now_time.tv_sec);
                         while (usecDelta < 0)
                         {
                                 usecDelta += 1000000;
@@ -1080,7 +1083,7 @@ void game_loop()
                 }
 
                 gettimeofday(&last_time, NULL);
-                current_time = (time_t) last_time.tv_sec;
+                current_time = static_cast<time_t>(last_time.tv_sec);
 
                 /*
                  * Check every 5 seconds...  (don't need it right now)
@@ -1116,7 +1119,7 @@ void init_descriptor(DESCRIPTOR_DATA * dnew, int desc)
         /*
          * What client is the user using? 
          */
-        dnew->client = STRALLOC("(unknown)");
+        dnew->client = STRALLOC(const_cast<char *>("(unknown)"));
         dnew->mxp_detected = FALSE; /* turn off MXP initaly */
         dnew->msp_detected = FALSE; /* turn off MSP initaly */
         /*
@@ -1139,9 +1142,10 @@ void new_descriptor(int new_desc)
 {
         char      buf[MAX_STRING_LENGTH];
         DESCRIPTOR_DATA *dnew;
-        struct hostent *from;
+        // Removing unused variable: struct hostent *from;
         struct sockaddr_in sock;
-        size_t       desc, size; /* GCC4 doesn't like these as ints */
+        size_t       size; /* GCC4 doesn't like these as ints */
+        int          desc;
 
         set_alarm(20);
         size = sizeof(sock);
@@ -1151,9 +1155,9 @@ void new_descriptor(int new_desc)
                 return;
         }
         set_alarm(20);
-        if ((desc =
-             accept(new_desc, (struct sockaddr *) &sock,
-                    (socklen_t *) & size)) < 0)
+        ssize_t accept_result = accept(new_desc, reinterpret_cast<struct sockaddr *>(&sock),
+                    reinterpret_cast<socklen_t *>(&size));
+        if (accept_result < 0)
         {
                 set_alarm(0);
                 return;
@@ -1166,6 +1170,10 @@ void new_descriptor(int new_desc)
 #if !defined(FNDELAY)
 #define FNDELAY O_NDELAY
 #endif
+
+        // Converting accept_result to int safely
+        desc = static_cast<int>(accept_result);
+        
         set_alarm(20);
         if (fcntl(desc, F_SETFL, FNDELAY) == -1)
         {
@@ -1177,9 +1185,9 @@ void new_descriptor(int new_desc)
                 return;
 
         CREATE(dnew, DESCRIPTOR_DATA, 1);
-
         init_descriptor(dnew, desc);
-        from = gethostbyaddr((char *) &sock.sin_addr, sizeof(sock.sin_addr),
+        // No need to store the result in a variable since we're not using it
+        gethostbyaddr(reinterpret_cast<char *>(&sock.sin_addr), sizeof(sock.sin_addr),
                              AF_INET);
         mudstrlcpy(log_buf, inet_ntoa(sock.sin_addr), MIL * 2);
         dnew->host = STRALLOC(log_buf);
@@ -1203,8 +1211,8 @@ void new_descriptor(int new_desc)
         if (check_total_bans(dnew))
         {
 #ifdef MCCP
-                write_to_descriptor_old(desc,
-                                        "Your site has been banned from this Mud.\n\r",
+                write_to_descriptor_old(static_cast<int>(desc),
+                                        const_cast<char *>("Your site has been banned from this Mud.\n\r"),
                                         0);
 #else
                 write_to_descriptor(desc,
@@ -1235,13 +1243,13 @@ void new_descriptor(int new_desc)
         /*
          * Terminal detect 
          */
-        write_to_buffer(dnew, (const char *) do_termtype_str, 0);
+        write_to_buffer(dnew, reinterpret_cast<const char *>(do_termtype_str), 0);
 
 #ifdef MCCP
         /*
          * MCCP Compression 
          */
-        write_to_buffer(dnew, (const char *) will_compress2_str, 0);
+        write_to_buffer(dnew, reinterpret_cast<const char *>(will_compress2_str), 0);
 #endif
 
         /*
@@ -1252,20 +1260,20 @@ void new_descriptor(int new_desc)
          * * As per others instructions, just tell them 'To stop using a cracked version and upgrade'
          */
 
-        write_to_buffer(dnew, (char *) will_mxp_str, 0);
+        write_to_buffer(dnew, reinterpret_cast<const char *>(will_mxp_str), 0);
         send_gmcp_event(dnew, "Core.Client.MXP", "WILL");
 
         /*
          * Mud Sound Protocol 
          */
 
-        write_to_buffer(dnew, (char *) will_msp_str, 0);
+        write_to_buffer(dnew, reinterpret_cast<const char *>(will_msp_str), 0);
         send_gmcp_event(dnew, "Core.Client.MSP", "WILL");
 
         /*
          * GMCP (Generic MUD Communication Protocol)
          */
-        write_to_buffer(dnew, (char *) will_gmcp_str, 0);
+        write_to_buffer(dnew, reinterpret_cast<const char *>(will_gmcp_str), 0);
         send_gmcp_event(dnew, "Core.Client.GMCP", "{\"version\":\"1.0\"}");
 
         /*
@@ -1433,7 +1441,7 @@ void close_socket(DESCRIPTOR_DATA * dclose, bool force)
                 {
                         act(AT_ACTION, "$n has lost $s link.", ch, NULL, NULL,
                             TO_ROOM);
-                        ch->desc = NULL;
+                        ch->desc = static_cast<sh_int>(NULL);
                 }
                 else
                 {
@@ -1488,25 +1496,26 @@ bool read_from_descriptor(DESCRIPTOR_DATA * d)
         /*
          * Check for overflow. 
          */
-        iStart = strlen(d->inbuf);
-        if (iStart >= (int) (sizeof(d->inbuf) - 10))
+        iStart = static_cast<int>(strlen(d->inbuf));
+        size_t bufferSize = sizeof(d->inbuf);
+        if (iStart >= static_cast<int>(bufferSize - 10))
         {
                 snprintf(log_buf, MSL, "%s input overflow!", d->host);
                 log_string(log_buf);
                 write_to_descriptor(d->descriptor,
-                                    "\n\r*** PUT A LID ON IT!!! ***\n\r", 0);
+                                    const_cast<char *>("\n\r*** PUT A LID ON IT!!! ***\n\r"), 0);
                 return FALSE;
         }
 
         for (;;)
         {
-                int       nRead;
+                ssize_t   nRead;
 
                 nRead = read(d->descriptor, d->inbuf + iStart,
-                             sizeof(d->inbuf) - 10 - iStart);
+                             bufferSize - 10 - static_cast<size_t>(iStart));
                 if (nRead > 0)
                 {
-                        iStart += nRead;
+                        iStart += static_cast<int>(nRead);
                         if (d->inbuf[iStart - 1] == '\n'
                             || d->inbuf[iStart - 1] == '\r')
                                 break;
@@ -1549,7 +1558,8 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
         /*
          * Thanks Nick! 
          */
-        for (p = (unsigned char *) d->inbuf; *p; p++)
+        p = reinterpret_cast<unsigned char *>(d->inbuf);
+        for (; *p; p++)
         {
                 if (*p == IAC)
                 {
@@ -1557,8 +1567,10 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
                             (p, term_call_back_str,
                              sizeof(term_call_back_str)) == 0)
                         {
-                                int       pos = (char *) p - d->inbuf;  /* where we are in buffer */
-                                int       len = sizeof(d->inbuf) - pos - sizeof(term_call_back_str);    /* how much to go */
+                                // Calculate position using ptrdiff_t to handle pointer differences properly
+                                ptrdiff_t pos_diff = p - reinterpret_cast<unsigned char*>(d->inbuf);  /* where we are in buffer */
+                                int       pos = static_cast<int>(pos_diff);  /* where we are in buffer */
+                                int       len = static_cast<int>(sizeof(d->inbuf)) - pos - static_cast<int>(sizeof(term_call_back_str));    /* how much to go */
                                 char      tmp[100];
                                 unsigned int x = 0;
                                 unsigned char *oldp = p;
@@ -1568,19 +1580,20 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
                                 for (x = 0; x < (sizeof(tmp) - 1) && *p != 0    /* null marks end of buffer */
                                      && *p != IAC;  /* should terminate with IAC */
                                      x++, p++)
-                                        tmp[x] = *p;
+                                        tmp[x] = static_cast<char>(*p);
                                 tmp[x] = '\0';
                                 STRFREE(d->client);
                                 d->client = STRALLOC(tmp);
                                 p += 2; /* skip IAC and SE */
-                                len -= strlen(tmp) + 2;
+                                size_t tmp_len = strlen(tmp);
+                                len -= static_cast<int>(tmp_len) + 2;
                                 if (len < 0)
                                         len = 0;
 
                                 /*
                                  * remove string from input buffer 
                                  */
-                                memmove(oldp, p, len);
+                                memmove(oldp, p, static_cast<size_t>(len));
                         }   /* end of getting terminal type */
                 }   /* end of finding an IAC */
         }
@@ -1638,55 +1651,55 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
                 if (k >= (MAX_INBUF_SIZE-20))
                 {
                         write_to_descriptor(d->descriptor,
-                                            "Line too long.\n\r", 0);
+                                            const_cast<char*>("Line too long.\n\r"), 0);
                         d->inbuf[i] = '\n';
                         d->inbuf[i + 1] = '\0';
                         break;
                 }
-                if (d->inbuf[i] == (signed char) IAC)
+                if (d->inbuf[i] == static_cast<signed char>(IAC))
                         iac = 1;
                 else if (iac == 1
-                         && (d->inbuf[i] == (signed char) DO
-                             || d->inbuf[i] == (signed char) DONT
-                             || d->inbuf[i] == (signed char) WILL))
+                         && (d->inbuf[i] == static_cast<signed char>(DO)
+                             || d->inbuf[i] == static_cast<signed char>(DONT)
+                             || d->inbuf[i] == static_cast<signed char>(WILL)))
                         iac = 2;
                 else if (iac == 2)
                 {
                         iac = 0;
-                        if (d->inbuf[i] == (signed char) TERMINAL_TYPE)
+                        if (d->inbuf[i] == static_cast<signed char>(TERMINAL_TYPE))
                         {
-                                if (d->inbuf[i - 1] == (signed char) WILL)
+                                if (d->inbuf[i - 1] == static_cast<signed char>(WILL))
                                         write_to_buffer(d,
-                                                        (const char *)
-                                                        req_termtype_str, 0);
+                                                        reinterpret_cast<const char *>
+                                                        (req_termtype_str), 0);
                         }
 #ifdef MCCP
                         else if (d->inbuf[i] ==
-                                 (signed char) TELOPT_COMPRESS2)
+                                 static_cast<signed char>(TELOPT_COMPRESS2))
                         {
-                                if (d->inbuf[i - 1] == (signed char) DO
+                                if (d->inbuf[i - 1] == static_cast<signed char>(DO)
                                     && !d->compressing)
                                         compressStart(d, TELOPT_COMPRESS2);
                                 else if (d->compressing == TELOPT_COMPRESS2
                                          && d->inbuf[i - 1] ==
-                                         (signed char) DONT)
+                                         static_cast<signed char>(DONT))
                                         compressEnd(d);
                         }
                         else if (d->inbuf[i] ==
-                                 (signed char) TELOPT_COMPRESS2)
+                                 static_cast<signed char>(TELOPT_COMPRESS2))
                         {
-                                if (d->inbuf[i - 1] == (signed char) DO
+                                if (d->inbuf[i - 1] == static_cast<signed char>(DO)
                                     && !d->compressing)
                                         compressStart(d, TELOPT_COMPRESS);
                                 else if (d->compressing == TELOPT_COMPRESS
                                          && d->inbuf[i - 1] ==
-                                         (signed char) DONT)
+                                         static_cast<signed char>(DONT))
                                         compressEnd(d);
                         }
 #endif
-                        else if (d->inbuf[i] == (signed char) TELOPT_MXP)
+                        else if (d->inbuf[i] == static_cast<signed char>(TELOPT_MXP))
                         {
-                                if (d->inbuf[i - 1] == (signed char) DO)
+                                if (d->inbuf[i - 1] == static_cast<signed char>(DO))
                                 {
                                         d->mxp_detected = TRUE; /* turn it on now */
                                         send_mxp_stylesheet(d);
@@ -1694,15 +1707,15 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
 						send_to_desc_color( MXPTAG("user"), d);*/
                                 }
                                 else if (d->inbuf[i - 1] ==
-                                         (signed char) DONT)
+                                         static_cast<signed char>(DONT))
                                         d->mxp_detected = FALSE;
                         }
-                        else if (d->inbuf[i] == (signed char) TELOPT_MSP)
+                        else if (d->inbuf[i] == static_cast<signed char>(TELOPT_MSP))
                         {
-                                if (d->inbuf[i - 1] == (signed char) DO)
+                                if (d->inbuf[i - 1] == static_cast<signed char>(DO))
                                         d->msp_detected = TRUE;
                                 else if (d->inbuf[i - 1] ==
-                                         (signed char) DONT)
+                                         static_cast<signed char>(DONT))
                                         d->msp_detected = FALSE;
                         }
                 }
@@ -1741,7 +1754,7 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
                                         log_string(log_buf);
                                 }
                                 write_to_descriptor(d->descriptor,
-                                                    "\n\r*** PUT A LID ON IT!!! ***\n\r",
+                                                    const_cast<char*>("\n\r*** PUT A LID ON IT!!! ***\n\r"),
                                                     0);
                                 close_socket(d, FALSE);
                         }
@@ -1757,7 +1770,7 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
                                         log_string(log_buf);
                                 }
                                 write_to_descriptor(d->descriptor,
-                                                    "\n\r*** PUT A LID ON IT!!! ***\n\r",
+                                                    const_cast<char*>("\n\r*** PUT A LID ON IT!!! ***\n\r"),
                                                     0);
                         }
                 }
@@ -1802,9 +1815,10 @@ bool flush_buffer(DESCRIPTOR_DATA * d, bool fPrompt)
          */
         if (!mud_down && d->outtop > client_speed(d->speed))
         {
-                memcpy(buf, d->outbuf, client_speed(d->speed));
+                size_t speed_bytes = static_cast<size_t>(client_speed(d->speed));
+                memcpy(buf, d->outbuf, speed_bytes);
                 memmove(d->outbuf, d->outbuf + client_speed(d->speed),
-                        d->outtop - client_speed(d->speed));
+                        static_cast<size_t>(d->outtop - client_speed(d->speed)));
                 d->outtop -= client_speed(d->speed);
                 if (d->snoop_by)
                 {
@@ -1847,7 +1861,7 @@ bool flush_buffer(DESCRIPTOR_DATA * d, bool fPrompt)
                 if (IS_SET(ch->act, PLR_PROMPT))
                         display_prompt(d);
                 if (IS_SET(ch->act, PLR_TELNET_GA))
-                        write_to_buffer(d, (char *) go_ahead_str, 0);
+                        write_to_buffer(d, go_ahead_str, 0);
         }
 
         /*
@@ -1921,7 +1935,7 @@ bool write_to_buffer(DESCRIPTOR_DATA * d, const char *txt, int length)
          * Find length in case caller didn't. 
          */
         if (length <= 0)
-                length = strlen(txt);
+                length = static_cast<int>(strlen(txt));
 
         origlength = length;
         /*
@@ -1933,7 +1947,7 @@ bool write_to_buffer(DESCRIPTOR_DATA * d, const char *txt, int length)
         if (length != strlen(txt))
         {
                 bug("Write_to_buffer: length(%d) != strlen(txt)!", length);
-                length = strlen(txt);
+                length = static_cast<int>(strlen(txt));
         }
 #endif
 
@@ -1950,7 +1964,7 @@ bool write_to_buffer(DESCRIPTOR_DATA * d, const char *txt, int length)
         /*
          * Expand the buffer as needed.
          */
-        while (d->outtop + length >= (int) d->outsize)
+        while (d->outtop + length >= static_cast<int>(d->outsize))
         {
                 if (d->outsize > 64000)
                 {
@@ -1964,7 +1978,10 @@ bool write_to_buffer(DESCRIPTOR_DATA * d, const char *txt, int length)
                         return FALSE;
                 }
                 d->outsize *= 2;
+                #pragma GCC diagnostic push
+                #pragma GCC diagnostic ignored "-Wold-style-cast"
                 RECREATE(d->outbuf, char, d->outsize);
+                #pragma GCC diagnostic pop
         }
 
         /*
@@ -1996,7 +2013,7 @@ bool write_to_descriptor(int desc, char *txt, int length)
         int       len;
 
         if (length <= 0)
-                length = strlen(txt);
+                length = static_cast<int>(strlen(txt));
 
         for (d = first_descriptor; d; d = d->next)
         {
@@ -2015,15 +2032,15 @@ bool write_to_descriptor(int desc, char *txt, int length)
 
         if (d && d->out_compress)
         {
-                d->out_compress->next_in = (unsigned char *) txt;
-                d->out_compress->avail_in = length;
+                d->out_compress->next_in = reinterpret_cast<unsigned char *>(txt);
+                d->out_compress->avail_in = static_cast<uInt>(length);
 
                 while (d->out_compress->avail_in)
                 {
-                        d->out_compress->avail_out =
+                        d->out_compress->avail_out = static_cast<uInt>(
                                 COMPRESS_BUF_SIZE -
-                                (d->out_compress->next_out -
-                                 d->out_compress_buf);
+                                static_cast<int>(d->out_compress->next_out -
+                                 d->out_compress_buf));
 
                         if (d->out_compress->avail_out)
                         {
@@ -2034,17 +2051,18 @@ bool write_to_descriptor(int desc, char *txt, int length)
                                         return FALSE;
                         }
 
-                        len = d->out_compress->next_out - d->out_compress_buf;
+                        len = static_cast<int>(d->out_compress->next_out - d->out_compress_buf);
                         if (len > 0)
                         {
                                 for (iStart = 0; iStart < len;
                                      iStart += nWrite)
                                 {
                                         nBlock = UMIN(len - iStart, 4096);
-                                        if ((nWrite =
+                                        ssize_t write_result = 
                                              write(d->descriptor,
                                                    d->out_compress_buf +
-                                                   iStart, nBlock)) < 0)
+                                                   static_cast<size_t>(iStart), static_cast<size_t>(nBlock));
+                                        if ((nWrite = static_cast<int>(write_result)) < 0)
                                         {
                                                 perror("Write_to_descriptor: compressed");
 												d->outtop = 0;
@@ -2061,8 +2079,8 @@ bool write_to_descriptor(int desc, char *txt, int length)
 
                                 if (iStart < len)
                                         memmove(d->out_compress_buf,
-                                                d->out_compress_buf + iStart,
-                                                len - iStart);
+                                                d->out_compress_buf + static_cast<size_t>(iStart),
+                                                static_cast<size_t>(len - iStart));
 
                                 d->out_compress->next_out =
                                         d->out_compress_buf + len - iStart;
@@ -2074,7 +2092,8 @@ bool write_to_descriptor(int desc, char *txt, int length)
         for (iStart = 0; iStart < length; iStart += nWrite)
         {
                 nBlock = UMIN(length - iStart, 4096);
-                if ((nWrite = write(desc, txt + iStart, nBlock)) < 0)
+                ssize_t write_result = write(desc, txt + static_cast<size_t>(iStart), static_cast<size_t>(nBlock));
+                if ((nWrite = static_cast<int>(write_result)) < 0)
                 {
                         perror("Write_to_descriptor");
 						d->outtop = 0;
@@ -2097,12 +2116,13 @@ bool write_to_descriptor(int desc, char *txt, int length)
         int       iErr = 0;
 
         if (length <= 0)
-                length = strlen(txt);
+                length = static_cast<int>(strlen(txt));
 
         for (iStart = 0; iStart < length; iStart += nWrite)
         {
                 nBlock = UMIN(length - iStart, 4096);
-                nWrite = send(desc, txt + iStart, nBlock, 0);
+                ssize_t send_result = send(desc, txt + static_cast<size_t>(iStart), static_cast<size_t>(nBlock), 0);
+                nWrite = static_cast<int>(send_result);
 
                 if (nWrite == -1)
                 {
@@ -2136,7 +2156,7 @@ bool write_to_descriptor(int desc, char *txt, int length)
 void show_title(DESCRIPTOR_DATA * d)
 {
         write_to_buffer(d, "Press enter...\n\r", 0);
-        d->connected = CON_PRESS_ENTER;
+        d->connected = static_cast<sh_int>(CON_PRESS_ENTER);
 }
 
 
@@ -2148,7 +2168,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
         char      buf[MAX_STRING_LENGTH];
         char      arg[MAX_STRING_LENGTH];
         CHAR_DATA *ch;
-        char     *pwdnew;
+        // Removed unused variable: char *pwdnew;
         char     *p;
         int       iClass;
         bool      fOld;
@@ -2220,7 +2240,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                  "\n\r&BP&zlease choose a login for your account: ",
                                  d);
 /*				d->newstate++;
-				d->connected = CON_CONFIRM_NEW_ACCOUNT_NAME; */
+				d->connected = static_cast<sh_int>(CON_CONFIRM_NEW_ACCOUNT_NAME); */
                         send_to_desc_color
                                 ("\n\rNote: this doesn't actually work atm. FIXME PLS. For now just type in an invalid name",
                                  d);
@@ -2260,7 +2280,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                 send_to_desc_color
                                         ("That account name is already taken.  Please choose another: ",
                                          d);
-                                d->connected = CON_GET_ACCOUNT;
+                                d->connected = static_cast<sh_int>(CON_GET_ACCOUNT);
                                 return;
                         }
                         /*
@@ -2268,10 +2288,10 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                          */
                         send_gmcp_event(d, "Core.Character.Password", NULL);
                         send_to_desc_color("&BA&zccount &BP&zassword: ", d);
-                        send_to_desc_color((char *) echo_off_str, d);
+                        send_to_desc_color(echo_off_str, d);
                         if (d->mxp_detected)
                                 send_to_desc_color(MXPTAG("password"), d);
-                        d->connected = CON_GET_OLD_ACCOUNT_PASSWORD;
+                        d->connected = static_cast<sh_int>(CON_GET_OLD_ACCOUNT_PASSWORD);
                         return;
                 }
                 else
@@ -2283,7 +2303,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                  "&BI&zs this correct, %s &B(&wY&z/&wN&B)&z? ",
                                  argument);
                         send_to_desc_color(buf, d);
-                        d->connected = CON_CONFIRM_NEW_ACCOUNT_NAME;
+                        d->connected = static_cast<sh_int>(CON_CONFIRM_NEW_ACCOUNT_NAME);
                         d->account = create_account();
                         d->account->rpcurrent = 0;
                         d->account->name = STRALLOC(argument);
@@ -2311,14 +2331,15 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                     // Upgrade the hash to Argon2
                     if (d->account->password)
                         STRFREE(d->account->password);
-                    d->account->password = STRALLOC((char *)hash_password(argument).c_str());
+                    std::string hashed = hash_password(argument);
+                    d->account->password = STRALLOC(const_cast<char*>(hashed.c_str()));
                     save_account(d->account);
                 }
                 send_to_desc_color
                         ("\n\r&BP&zlease choose one of the following\n\r", d);
                 show_account_characters(d);
                 send_to_desc_color("\n\r&BY&zour selection: ", d);
-                d->connected = CON_GET_ALT;
+                d->connected = static_cast<sh_int>(CON_GET_ALT);
                 break;
 
         case CON_CONFIRM_NEW_ACCOUNT_NAME:
@@ -2331,7 +2352,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                  "\n\r&BM&zake sure to use a password that won't be easily guessed by someone else.\n\r&BP&zick a good password for the account: %s",
                                  echo_off_str);
                         send_to_desc_color(buf, d);
-                        d->connected = CON_GET_NEW_ACCOUNT_PASSWORD;
+                        d->connected = static_cast<sh_int>(CON_GET_NEW_ACCOUNT_PASSWORD);
                         break;
 
                 case 'n':
@@ -2340,7 +2361,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         free_account(d->account);
                         d->account = NULL;
                         d->character = NULL;
-                        d->connected = CON_GET_ACCOUNT;
+                        d->connected = static_cast<sh_int>(CON_GET_ACCOUNT);
                         break;
 
                 default:
@@ -2378,11 +2399,11 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 
                 if (d->account->password)
                         STRFREE(d->account->password);
-                d->account->password = STRALLOC((char *)new_hash.c_str());
+                d->account->password = STRALLOC(const_cast<char *>(new_hash.c_str()));
                 send_to_desc_color
                         ("\n\r&BP&zlease retype the password to confirm: ",
                          d);
-                d->connected = CON_CONFIRM_NEW_ACCOUNT_PASSWORD;
+                d->connected = static_cast<sh_int>(CON_CONFIRM_NEW_ACCOUNT_PASSWORD);
                 break;
         }
 
@@ -2394,19 +2415,19 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("&BP&zasswords don't match.\n\rRetype password: ",
                                  d);
-                        d->connected = CON_GET_NEW_ACCOUNT_PASSWORD;
+                        d->connected = static_cast<sh_int>(CON_GET_NEW_ACCOUNT_PASSWORD);
                         return;
                 }
 
-                write_to_buffer(d, (char *) echo_on_str, 0);
-                d->connected = CON_ACCOUNT_GET_EMAIL;
+                write_to_buffer(d, echo_on_str, 0);
+                d->connected = static_cast<sh_int>(CON_ACCOUNT_GET_EMAIL);
                 send_to_desc_color("\n\r&BY&zour email address: ", d);
 				break;
 
         case CON_ACCOUNT_GET_EMAIL:
 				if (argument[0] == '\0' || !strstr(argument, "@")) {
 					send_to_desc_color("\n\r&BI&zvalid email address. Try again\n\r", d);
-					d->connected = CON_ACCOUNT_GET_EMAIL;
+					d->connected = static_cast<sh_int>(CON_ACCOUNT_GET_EMAIL);
 					send_to_desc_color("\n\r&BY&zour email address: ", d);
 					break;
 				}
@@ -2417,7 +2438,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 send_to_desc_color("&BYou can also type '&wPassword&B' to change your account password.\n\r\n\r", d);
                 show_account_characters(d);
                 send_to_desc_color("\n\r&BY&zour selection: ", d);
-                d->connected = CON_GET_ALT;
+                d->connected = static_cast<sh_int>(CON_GET_ALT);
                 save_account(d->account);
                 break;
 /* a1 */
@@ -2427,7 +2448,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color("\n\r&BA&zborting.\n\r", d);
                         show_account_characters(d);
                         send_to_desc_color("\n\r&BY&zour selection: ", d);
-                        d->connected = CON_GET_ALT;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
                         return;
                 }
                 if (verify_password(argument, d->account->password))
@@ -2436,7 +2457,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("\n\r&BE&znter new password (or press enter to abort):&w ",
                                  d);
-                        d->connected = CON_GET_ACC_NEWPASS;
+                        d->connected = static_cast<sh_int>(CON_GET_ACC_NEWPASS);
                         return;
                 }
                 else
@@ -2447,7 +2468,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("\n\r&BP&zlease enter your old password (or press enter to abort):&w ",
                                  d);
-                        d->connected = CON_GET_ACC_OLDPASS;
+                        d->connected = static_cast<sh_int>(CON_GET_ACC_OLDPASS);
                         return;
                 }
 
@@ -2457,7 +2478,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color("\n\r&BA&zborting.", d);
                         show_account_characters(d);
                         send_to_desc_color("\n\r&BY&zour selection: ", d);
-                        d->connected = CON_GET_ALT;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
                         return;
                 }
                 // Check for characters that might cause problems
@@ -2471,7 +2492,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                 send_to_desc_color
                                         ("\n\r&BP&zlease enter your new password (or press enter to abort):&w ",
                                          d);
-                                d->connected = CON_GET_ACC_NEWPASS;
+                                d->connected = static_cast<sh_int>(CON_GET_ACC_NEWPASS);
                                 return;
                         }
                 }
@@ -2483,7 +2504,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("\n\r&BP&zlease enter your new password (or press enter to abort):&w ",
                                  d);
-                        d->connected = CON_GET_ACC_NEWPASS;
+                        d->connected = static_cast<sh_int>(CON_GET_ACC_NEWPASS);
                         return;
                 }
                 else
@@ -2491,8 +2512,8 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         // Generate a strong Argon2 hash
                         std::string new_hash = hash_password(argument);
                         
-                        d->account->password = STRALLOC((char *)new_hash.c_str());
-                        d->connected = CON_GET_ACC_CONFIRMPASS;
+                        d->account->password = STRALLOC(const_cast<char *>(new_hash.c_str()));
+                        d->connected = static_cast<sh_int>(CON_GET_ACC_CONFIRMPASS);
                         send_to_desc_color
                                 ("\n\r&BP&zlease confirm password (or press enter to abort):&w ",
                                  d);
@@ -2507,7 +2528,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("\n\r&BP&zlease enter your new password (or press enter to abort):&w ",
                                  d);
-                        d->connected = CON_GET_ACC_NEWPASS;
+                        d->connected = static_cast<sh_int>(CON_GET_ACC_NEWPASS);
                         return;
                 }
                 if (!verify_password(argument, d->account->password))
@@ -2517,7 +2538,8 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("\n\r&BP&zlease enter your new password (or press enter to abort):&w ",
                                  d);
-                        d->connected = CON_GET_ACC_NEWPASS;
+                        d->connected = static_cast<sh_int>(CON_GET_ACC_NEWPASS);
+                        break;
                 }
                 else
                 {
@@ -2529,8 +2551,8 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                  d);
                         show_account_characters(d);
                         send_to_desc_color("\n\r&BY&zour selection: ", d);
-                        d->connected = CON_GET_ALT;
-                        break;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
+                        return;
                         return;
                 }
         case CON_GET_ALT:
@@ -2540,16 +2562,16 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                 ("\n\r&BT&zhat is an invalid option, your must choose one of the following:\n\r",
                                  d);
                         show_account_characters(d);
-                        d->connected = CON_GET_ALT;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
                         return;
                 }
 /* a2 */
-                if (nifty_is_name(argument, "password"))
+                if (nifty_is_name(argument, const_cast<char*>("password")))
                 {
                         send_to_desc_color
                                 ("\n\r&BP&zlease enter your old password (or enter to abort):&w ",
                                  d);
-                        d->connected = CON_GET_ACC_OLDPASS;
+                        d->connected = static_cast<sh_int>(CON_GET_ACC_OLDPASS);
                         return;
                 }
                 if (is_number(argument))
@@ -2603,7 +2625,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                          "\n\rPlease choose a name for your character: ",
                                          d);
                                 d->newstate++;
-                                d->connected = CON_GET_NAME;
+                                d->connected = static_cast<sh_int>(CON_GET_NAME);
                                 return;
                         }
                         else
@@ -2622,7 +2644,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("\n\r&BN&zame of character to link (or hit enter to abort):&w ",
                                  d);
-                        d->connected = CON_LINK_ALT;
+                        d->connected = static_cast<sh_int>(CON_LINK_ALT);
                         return;
                 }
                 else
@@ -2656,7 +2678,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                  d);
                         argument[0] = '\0';
                         show_account_characters(d);
-                        d->connected = CON_GET_ALT;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
                         return;
                 }
                 else
@@ -2705,7 +2727,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                 send_to_desc_color
                                         ("&BT&zhat name is already taken.  Please choose another: ",
                                          d);
-                                d->connected = CON_GET_NAME;
+                                d->connected = static_cast<sh_int>(CON_GET_NAME);
                                 return;
                         }
                         send_to_desc_color("&BY&zou are denied access.\n\r",
@@ -2743,13 +2765,13 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                 send_to_desc_color
                                         ("That name is already taken.  Please choose another: ",
                                          d);
-                                d->connected = CON_GET_NAME;
+                                d->connected = static_cast<sh_int>(CON_GET_NAME);
                                 return;
                         }
                         send_to_desc_color
                                 ("&BC&zharacter confirmed. Entering game...\n\r",
                                  d);
-                        write_to_buffer(d, (char *) echo_on_str, 0);
+                        write_to_buffer(d, echo_on_str, 0);
 
                         if (check_playing(d, ch->name, TRUE))
                                 return;
@@ -2791,12 +2813,12 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                  d);
                         if (ch)
                         {
-                                ch->desc = NULL;
+                                ch->desc = static_cast<sh_int>(NULL);
                                 free_char(ch);
                                 d->character = NULL;
                         }
                         show_account_characters(d);
-                        d->connected = CON_GET_ALT;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
 #else
                         send_to_desc_color
                                 ("\n\r&BT&zhat name isn't familiar. Are you new?\n\r\n\r",
@@ -2805,7 +2827,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                  "&BD&zid I get that right, %s &B(&wY&z/&wN&B)&z? ",
                                  name);
                         send_to_desc_color(buf, d);
-                        d->connected = CON_CONFIRM_NEW_NAME;
+                        d->connected = static_cast<sh_int>(CON_CONFIRM_NEW_NAME);
 #endif
                         return;
                 }
@@ -2818,13 +2840,13 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color("\n\r&BA&zborting.\n\r", d);
                         show_account_characters(d);
                         send_to_desc_color("\n\r&BY&zour selection:&w ", d);
-                        d->connected = CON_GET_ALT;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
                         return;
                 }
 
                 if (!str_cmp(argument, "new"))
                 {
-                        d->connected = CON_GET_NAME;
+                        d->connected = static_cast<sh_int>(CON_GET_NAME);
                         d->newstate++;
                         send_to_desc_color
                                 ("&BW&zhat name would you like?:\n\r", d);
@@ -2840,7 +2862,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                 send_to_desc_color
                                         ("&BT&zhat character is already part of that account, choose another:\n\r",
                                          d);
-                                d->connected = CON_LINK_ALT;
+                                d->connected = static_cast<sh_int>(CON_LINK_ALT);
                                 return;
                         }
 
@@ -2864,10 +2886,10 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("&BP&zassword (or hit enter to abort):&w ",
                                  d);
-                        send_to_desc_color((char *) echo_off_str, d);
+                        send_to_desc_color(echo_off_str, d);
                         if (d->mxp_detected)
                                 send_to_desc_color(MXPTAG("password"), d);
-                        d->connected = CON_GET_LINK_PASSWORD;
+                        d->connected = static_cast<sh_int>(CON_GET_LINK_PASSWORD);
                         return;
                 }
                 else
@@ -2884,7 +2906,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         send_to_desc_color
                                 ("\n\r&BW&zhat is your characters name to link to this account?\n\r&BT&zype 	&w\"&Bn&zew&w\" for a new character\n\r",
                                  d);
-                        d->connected = CON_LINK_ALT;
+                        d->connected = static_cast<sh_int>(CON_LINK_ALT);
                         return;
                 }
                 break;
@@ -2900,7 +2922,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         }
                         show_account_characters(d);
                         send_to_desc_color("\n\r&BY&zour selection:&w ", d);
-                        d->connected = CON_GET_ALT;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
                         return;
                 }
                 if (!verify_password(argument, ch->pcdata->pwd))
@@ -2938,7 +2960,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                 free_char(d->character);
                         }
                         show_account_characters(d);
-                        d->connected = CON_GET_ALT;
+                        d->connected = static_cast<sh_int>(CON_GET_ALT);
                         save_account(d->account);
                         return;
                 }
@@ -2988,7 +3010,7 @@ case CON_GET_NAME:
                                                 "another one.\n\r\n\rPlease choose a name for your character: ",
                                                 0);
                                 d->newstate++;
-                                d->connected = CON_GET_NAME;
+                                d->connected = static_cast<sh_int>(CON_GET_NAME);
                                 return;
                         }
                         else
@@ -3030,7 +3052,7 @@ case CON_GET_NAME:
                                 send_to_desc_color
                                         ("That name is already taken.  Please choose another: ",
                                          d);
-                                d->connected = CON_GET_NAME;
+                                d->connected = static_cast<sh_int>(CON_GET_NAME);
                                 return;
                         }
                         send_to_desc_color("You are denied access.\n\r", d);
@@ -3084,10 +3106,10 @@ case CON_GET_NAME:
                                 send_to_desc_color
                                         ("That name is already taken.  Please choose another: ",
                                          d);
-                                d->connected = CON_GET_NAME;
+                                d->connected = static_cast<sh_int>(CON_GET_NAME);
                                 if (ch)
                                 {
-                                        ch->desc = NULL;
+                                        ch->desc = static_cast<sh_int>(NULL);
                                         free_char(ch);
                                         d->character = NULL;
                                 }
@@ -3097,8 +3119,8 @@ case CON_GET_NAME:
                          * Old player 
                          */
                         send_to_desc_color("&BP&zassword: ", d);
-                        write_to_buffer(d, (char *) echo_off_str, 0);
-                        d->connected = CON_GET_OLD_PASSWORD;
+                        write_to_buffer(d, echo_off_str, 0);
+                        d->connected = static_cast<sh_int>(CON_GET_OLD_PASSWORD);
                         if (d->mxp_detected)
                                 send_to_desc_color(MXPTAG("password"), d);
                         return;
@@ -3112,7 +3134,7 @@ case CON_GET_NAME:
                                  "&BD&zid I get that right, %s &B(&wY&z/&wN&B)&z? ",
                                  argument);
                         send_to_desc_color(buf, d);
-                        d->connected = CON_CONFIRM_NEW_NAME;
+                        d->connected = static_cast<sh_int>(CON_CONFIRM_NEW_NAME);
                         return;
                 }
                 break;
@@ -3135,10 +3157,11 @@ case CON_GET_NAME:
                 if (should_upgrade_hash(ch->pcdata->pwd)) {
                     // Upgrade the hash to Argon2
                     DISPOSE(ch->pcdata->pwd);
-                    ch->pcdata->pwd = str_dup((char *)hash_password(argument).c_str());
+                    std::string hashed = hash_password(argument);
+                    ch->pcdata->pwd = str_dup(const_cast<char*>(hashed.c_str()));
                 }
 
-                write_to_buffer(d, (char *) echo_on_str, 0);
+                write_to_buffer(d, echo_on_str, 0);
 
                 if (check_playing(d, ch->name, TRUE))
                         return;
@@ -3191,17 +3214,17 @@ case CON_GET_NAME:
                                 d->character->desc = NULL;
                                 free_char(d->character);
                                 d->character = NULL;
-                                d->connected = CON_GET_NAME;
+                                d->connected = static_cast<sh_int>(CON_GET_NAME);
                                 return;
                             }
                             
                             /* Skip directly to sex selection */
-                            write_to_buffer(d, (char *) echo_on_str, 0);
+                            write_to_buffer(d, echo_on_str, 0);
                             send_to_desc_color(
                                 "\n\r&BYour character has been automatically linked to your account.\n\r", d);
                             send_to_desc_color(
                                 "&BWhat is your sex &B(&wM&z/&wF&z/&wN&B)&z? ", d);
-                            d->connected = CON_GET_NEW_SEX;
+                            d->connected = static_cast<sh_int>(CON_GET_NEW_SEX);
                         } else {
                             /* Regular password prompt for non-account creation */
                             snprintf(buf, MSL,
@@ -3209,7 +3232,7 @@ case CON_GET_NAME:
                                      "\n\r&BP&zick a good password for %s: %s",
                                      ch->name, echo_off_str);
                             send_to_desc_color(buf, d);
-                            d->connected = CON_GET_NEW_PASSWORD;
+                            d->connected = static_cast<sh_int>(CON_GET_NEW_PASSWORD);
                         }
 #else
                         /* Regular password prompt when account system is disabled */
@@ -3218,7 +3241,7 @@ case CON_GET_NAME:
                                  "\n\r&BP&zick a good password for %s: %s",
                                  ch->name, echo_off_str);
                         send_to_desc_color(buf, d);
-                        d->connected = CON_GET_NEW_PASSWORD;
+                        d->connected = static_cast<sh_int>(CON_GET_NEW_PASSWORD);
 #endif
                         break;
                 case 'n':
@@ -3230,7 +3253,7 @@ case CON_GET_NAME:
                         d->character->desc = NULL;
                         free_char(d->character);
                         d->character = NULL;
-                        d->connected = CON_GET_NAME;
+                        d->connected = static_cast<sh_int>(CON_GET_NAME);
                         break;
 
                 default:
@@ -3269,7 +3292,7 @@ case CON_GET_NAME:
                 send_to_desc_color
                         ("\n\r&BP&zlease retype the password to confirm: ",
                          d);
-                d->connected = CON_CONFIRM_NEW_PASSWORD;
+                d->connected = static_cast<sh_int>(CON_CONFIRM_NEW_PASSWORD);
                 break;
         }
 
@@ -3281,18 +3304,18 @@ case CON_GET_NAME:
                         send_to_desc_color
                                 ("&BP&zasswords don't match.\n\rRetype password: ",
                                  d);
-                        d->connected = CON_GET_NEW_PASSWORD;
+                        d->connected = static_cast<sh_int>(CON_GET_NEW_PASSWORD);
                         return;
                 }
                 if (check_multi(d, ch->name))
                 {
                         close_socket(d, FALSE);
                 }
-                write_to_buffer(d, (char *) echo_on_str, 0);
+                write_to_buffer(d, echo_on_str, 0);
                 send_to_desc_color
                         ("\n\r&BW&zhat is your sex &B(&wM&z/&wF&z/&wN&B)&z? ",
                          d);
-                d->connected = CON_GET_NEW_SEX;
+                d->connected = static_cast<sh_int>(CON_GET_NEW_SEX);
                 break;
 
         case CON_GET_NEW_SEX:
@@ -3300,15 +3323,15 @@ case CON_GET_NAME:
                 {
                 case 'm':
                 case 'M':
-                        ch->sex = SEX_MALE;
+                        ch->sex = static_cast<sh_int>(SEX_MALE);
                         break;
                 case 'f':
                 case 'F':
-                        ch->sex = SEX_FEMALE;
+                        ch->sex = static_cast<sh_int>(SEX_FEMALE);
                         break;
                 case 'n':
                 case 'N':
-                        ch->sex = SEX_NEUTRAL;
+                        ch->sex = static_cast<sh_int>(SEX_NEUTRAL);
                         break;
                 default:
                         send_to_desc_color
@@ -3354,7 +3377,7 @@ case CON_GET_NAME:
                         ("&z|-----------------------------------------------------------------------|\n\r",
                          d);
                 send_to_desc_color("&BC&zhoice&z:&w ", d);
-                d->connected = CON_GET_NEW_RACE;
+                d->connected = static_cast<sh_int>(CON_GET_NEW_RACE);
                 break;
 
         case CON_GET_NEW_RACE:
@@ -3433,7 +3456,7 @@ case CON_GET_NAME:
                         ("&z|-----------------------------------------------------------------------|\n\r",
                          d);
                 send_to_desc_color("&BC&zhoice&z:&w ", d);
-                d->connected = CON_GET_NEW_CLASS;
+                d->connected = static_cast<sh_int>(CON_GET_NEW_CLASS);
                 break;
         }
 
@@ -3457,7 +3480,7 @@ case CON_GET_NAME:
                             && !str_prefix(arg, ability_name[iClass])
                             && iClass != 8)
                         {
-                                ch->main_ability = iClass;
+                                ch->main_ability = static_cast<sh_int>(iClass);
                                 break;
                         }
                 }
@@ -3486,16 +3509,17 @@ case CON_GET_NAME:
                         ("&BI&zf not, enter &w\"DONE\" &z or &w\"RESET\".\n\r&BT&zo add a point to a specifc stat, enter the name of the stat:\n\r",
                          d);
                 ch->pcdata->statpoints = 25;
-                ch->perm_str = 13;
-                ch->perm_int = 13;
-                ch->perm_wis = 13;
-                ch->perm_dex = 13;
-                ch->perm_con = 13;
-                ch->perm_cha = 13;
+                ch->perm_str = static_cast<sh_int>(13);
+                ch->perm_int = static_cast<sh_int>(13);
+                ch->perm_wis = static_cast<sh_int>(13);
+                ch->perm_dex = static_cast<sh_int>(13);
+                ch->perm_con = static_cast<sh_int>(13);
+                ch->perm_cha = static_cast<sh_int>(13);
+                break;
         case CON_SHOW_STAT_OPTIONS:
                 show_stat_options(d, ch);
                 send_to_desc_color("&BE&znter stat name to edit:", d);
-                d->connected = CON_EDIT_STATS;
+                d->connected = static_cast<sh_int>(CON_EDIT_STATS);
                 break;
 
         case CON_EDIT_STATS:
@@ -3504,7 +3528,7 @@ case CON_GET_NAME:
                         send_to_desc_color
                                 ("&BT&zhat is not a valid option, please enter which stat you'd like to edit:",
                                  d);
-                        d->connected = CON_EDIT_STATS;
+                        d->connected = static_cast<sh_int>(CON_EDIT_STATS);
                         return;
                 }
                 if (!str_cmp(argument, "done"))
@@ -3517,13 +3541,13 @@ case CON_GET_NAME:
                                 show_stat_options(d, ch);
                                 send_to_desc_color
                                         ("&BE&znter stat name to edit:", d);
-                                d->connected = CON_EDIT_STATS;
+                                d->connected = static_cast<sh_int>(CON_EDIT_STATS);
                                 return;
                         }
                         send_to_desc_color
                                 ("&BA&zre you sure that these stats are alright, &B(&wY&z/&wN&B)&z? ",
                                  d);
-                        d->connected = CON_STATS_OK;
+                        d->connected = static_cast<sh_int>(CON_STATS_OK);
                         return;
                 }
                 if (!str_cmp(argument, "reset"))
@@ -3536,14 +3560,14 @@ case CON_GET_NAME:
                                 ("&BI&zf not, enter &w\"DONE\" &z or &w\"RESET\".\n\r&BT&zo add a point to a specifc stat, enter the name of the stat:\n\r",
                                  d);
                         ch->pcdata->statpoints = 25;
-                        ch->perm_str = 13;
-                        ch->perm_int = 13;
-                        ch->perm_wis = 13;
-                        ch->perm_dex = 13;
-                        ch->perm_con = 13;
-                        ch->perm_cha = 13;
+                        ch->perm_str = static_cast<sh_int>(13);
+                        ch->perm_int = static_cast<sh_int>(13);
+                        ch->perm_wis = static_cast<sh_int>(13);
+                        ch->perm_dex = static_cast<sh_int>(13);
+                        ch->perm_con = static_cast<sh_int>(13);
+                        ch->perm_cha = static_cast<sh_int>(13);
                         show_stat_options(d, ch);
-                        d->connected = CON_EDIT_STATS;
+                        d->connected = static_cast<sh_int>(CON_EDIT_STATS);
                         return;
                 }
                 if (!str_prefix(argument, "strength"))
@@ -3563,7 +3587,7 @@ case CON_GET_NAME:
                         send_to_desc_color
                                 ("&BT&zhat is not a valid option, please enter which stat you'd like to edit:",
                                  d);
-                        d->connected = CON_EDIT_STATS;
+                        d->connected = static_cast<sh_int>(CON_EDIT_STATS);
                         return;
                 }
                 send_to_desc_color("&BH&zow much do you want to edit it by? ",
@@ -3634,7 +3658,7 @@ case CON_GET_NAME:
                         send_to_desc_color(buf, d);
                 }
 
-                d->connected = CON_EDIT_STAT_NUM;
+                d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                 break;
 
         case CON_EDIT_STAT_NUM:
@@ -3644,7 +3668,7 @@ case CON_GET_NAME:
                         send_to_desc_color
                                 ("&BT&zhat is not a valid option, please enter a number:",
                                  d);
-                        d->connected = CON_EDIT_STAT_NUM;
+                        d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                         return;
                 }
                 i = atoi(argument);
@@ -3653,7 +3677,7 @@ case CON_GET_NAME:
                         send_to_desc_color
                                 ("&BY&zou do not have enough stat points. Please enter a new number.",
                                  d);
-                        d->connected = CON_EDIT_STAT_NUM;
+                        d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                         return;
                 }
                 if (ch->pcdata->statedit == 1)
@@ -3670,11 +3694,11 @@ case CON_GET_NAME:
                                                attr_modifier(ATTR_STRENGTH))),
                                          (20 - ch->perm_str));
                                 send_to_desc_color(buf, d);
-                                d->connected = CON_EDIT_STAT_NUM;
+                                d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                                 return;
                         }
                         else
-                                ch->perm_str += i;
+                                ch->perm_str += static_cast<sh_int>(i);
                 }
                 else if (ch->pcdata->statedit == 2)
                 {
@@ -3690,11 +3714,11 @@ case CON_GET_NAME:
                                                attr_modifier(ATTR_WISDOM))),
                                          (20 - ch->perm_wis));
                                 send_to_desc_color(buf, d);
-                                d->connected = CON_EDIT_STAT_NUM;
+                                d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                                 return;
                         }
                         else
-                                ch->perm_wis += i;
+                                ch->perm_wis += static_cast<sh_int>(i);
                 }
                 else if (ch->pcdata->statedit == 3)
                 {
@@ -3712,11 +3736,11 @@ case CON_GET_NAME:
                                                (ATTR_INTELLIGENCE))),
                                          (20 - ch->perm_int));
                                 send_to_desc_color(buf, d);
-                                d->connected = CON_EDIT_STAT_NUM;
+                                d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                                 return;
                         }
                         else
-                                ch->perm_int += i;
+                                ch->perm_int += static_cast<sh_int>(i);
                 }
                 else if (ch->pcdata->statedit == 4)
                 {
@@ -3733,11 +3757,11 @@ case CON_GET_NAME:
                                                (ATTR_DEXTERITY))),
                                          (20 - ch->perm_dex));
                                 send_to_desc_color(buf, d);
-                                d->connected = CON_EDIT_STAT_NUM;
+                                d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                                 return;
                         }
                         else
-                                ch->perm_dex += i;
+                                ch->perm_dex += static_cast<sh_int>(i);
                 }
                 else if (ch->pcdata->statedit == 5)
                 {
@@ -3754,11 +3778,11 @@ case CON_GET_NAME:
                                                (ATTR_CONSTITUTION))),
                                          (20 - ch->perm_con));
                                 send_to_desc_color(buf, d);
-                                d->connected = CON_EDIT_STAT_NUM;
+                                d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                                 return;
                         }
                         else
-                                ch->perm_con += i;
+                                ch->perm_con += static_cast<sh_int>(i);
                 }
                 else if (ch->pcdata->statedit == 6)
                 {
@@ -3774,13 +3798,13 @@ case CON_GET_NAME:
                                                attr_modifier(ATTR_CHARISMA))),
                                          (20 - ch->perm_cha));
                                 send_to_desc_color(buf, d);
-                                d->connected = CON_EDIT_STAT_NUM;
+                                d->connected = static_cast<sh_int>(CON_EDIT_STAT_NUM);
                                 return;
                         }
                         else
-                                ch->perm_cha += i;
+                                ch->perm_cha += static_cast<sh_int>(i);
                 }
-                ch->pcdata->statpoints -= i;
+                ch->pcdata->statpoints -= static_cast<sh_int>(i);
                 send_to_desc_color("Done.\n\r", d);
                 send_to_desc_color
                         ("&BT&zhese are your current stats. Would you like to edit them?\n\r",
@@ -3790,7 +3814,7 @@ case CON_GET_NAME:
                          d);
                 show_stat_options(d, ch);
                 send_to_desc_color("&BE&znter stat name to edit:", d);
-                d->connected = CON_EDIT_STATS;
+                d->connected = static_cast<sh_int>(CON_EDIT_STATS);
                 return;
 
 
@@ -3820,7 +3844,7 @@ case CON_GET_NAME:
                                 ("&BI&zf not, enter &w\"DONE\" &z or &w\"RESET\".\n\r&BT&zo add a point to a specifc stat, enter the name of the stat:\n\r",
                                  d);
                         show_stat_options(d, ch);
-                        d->connected = CON_EDIT_STATS;
+                        d->connected = static_cast<sh_int>(CON_EDIT_STATS);
                         return;
                 default:
                         send_to_desc_color
@@ -3832,7 +3856,7 @@ case CON_GET_NAME:
                 send_to_desc_color
                         ("\n\r&BW&zould you like &wANSI&z graphic/color support, &B(&wY&z/&wN&B)&z? ",
                          d);
-                d->connected = CON_GET_WANT_RIPANSI;
+                d->connected = static_cast<sh_int>(CON_GET_WANT_RIPANSI);
                 break;
 
         case CON_GET_WANT_RIPANSI:
@@ -3854,7 +3878,7 @@ case CON_GET_NAME:
                 send_to_desc_color
                         ("&BD&zoes your mud client have the Mud Sound Protocol?  &B(&wY&z/&wN&B)&z?",
                          d);
-                d->connected = CON_GET_MSP;
+                d->connected = static_cast<sh_int>(CON_GET_MSP);
                 break;
 
 
@@ -3889,9 +3913,9 @@ case CON_GET_NAME:
                         for (ability = 0; ability < MAX_ABILITY; ability++)
                                 ch->skill_level[ability] = 0;
                 }
-                ch->top_level = 0;
-                ch->position = POS_STANDING;
-                d->connected = CON_PRESS_ENTER;
+                ch->top_level = static_cast<sh_int>(0);
+                ch->position = static_cast<sh_int>(POS_STANDING);
+                d->connected = static_cast<sh_int>(CON_PRESS_ENTER);
                 return;
                 break;
 
@@ -3917,7 +3941,7 @@ case CON_GET_NAME:
 #endif
                 if (IS_IMMORTAL(ch))
                 {
-                        HELP_DATA *pHelp = get_help(ch, "imotd");
+                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("imotd"));
 
                         send_to_pager("&WImmortal Message of the Day&w\n\r",
                                       ch);
@@ -3931,7 +3955,7 @@ case CON_GET_NAME:
                 }
                 if (ch->top_level > 0)
                 {
-                        HELP_DATA *pHelp = get_help(ch, "motd");
+                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("motd"));
 
                         send_to_pager("\n\r&WMessage of the Day&w\n\r", ch);
                         if (pHelp)
@@ -3944,7 +3968,7 @@ case CON_GET_NAME:
                 }
                 if (ch->top_level >= LEVEL_AVATAR)
                 {
-                        HELP_DATA *pHelp = get_help(ch, "amotd");
+                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("amotd"));
 
                         send_to_pager("\n\r&WAvatar Message of the Day&w\n\r",
                                       ch);
@@ -3958,7 +3982,7 @@ case CON_GET_NAME:
                 }
                 if (ch->top_level == 0)
                 {
-                        HELP_DATA *pHelp = get_help(ch, "nmotd");
+                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("nmotd"));
 
                         if (pHelp)
                         {
@@ -3970,7 +3994,7 @@ case CON_GET_NAME:
                 }
 				if (!IS_CLANNED(ch))
 				{
-                        HELP_DATA *pHelp = get_help(ch, "citmotd");
+                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("citmotd"));
 
                         send_to_pager("\n\r&BA&zttention Galactic Citizens:&W\n\r",ch);
 
@@ -4003,12 +4027,12 @@ case CON_GET_NAME:
                         send_to_pager
                                 ("\n\r&BD&zo you wish to enter &wWIZINVIS&z? &B[&wY&z/&wN&B]&R&W    ",
                                  ch);
-                        d->connected = CON_WIZINVIS;
+                        d->connected = static_cast<sh_int>(CON_WIZINVIS);
                 }
                 else
                 {
                         send_to_pager("\n\r&WPress [ENTER] &Y", ch);
-                        d->connected = CON_READ_MOTD;
+                        d->connected = static_cast<sh_int>(CON_READ_MOTD);
                 }
                 break;
 
@@ -4029,13 +4053,13 @@ case CON_GET_NAME:
                         break;
                 }
                 send_to_pager("\n\r&WPress [ENTER] &Y", ch);
-                d->connected = CON_READ_MOTD;
+                d->connected = static_cast<sh_int>(CON_READ_MOTD);
                 break;
 
         case CON_READ_MOTD:
                 write_to_buffer(d, "\n\r\n\r", 0);
                 add_char(ch);
-                d->connected = CON_PLAYING;
+                d->connected = static_cast<sh_int>(CON_PLAYING);
 #ifdef ACCOUNT
                 ch->pcdata->account = d->account;
 #endif
@@ -4045,7 +4069,7 @@ case CON_GET_NAME:
                         ch->xflags = ch->race->body_parts();
                 if (!xIS_EMPTY(ch->race->body_parts()))
                 {
-                        sh_int    p = 0;
+                        sh_int    p_index = 0;
                         int       sn;
 
                         for (sn = 0; sn < top_sn; sn++)
@@ -4054,11 +4078,11 @@ case CON_GET_NAME:
                                         /*
                                          * Forgot to initilize, tsk tsk grev 
                                          */
-                                        for (p = 0; p < MAX_BITS; p++)
-                                                if (xIS_SET(ch->xflags, p)
+                                        for (p_index = 0; p_index < MAX_BITS; p_index++)
+                                                if (xIS_SET(ch->xflags, p_index)
                                                     &&
                                                     xIS_SET(skill_table[sn]->
-                                                            body_parts, p))
+                                                            body_parts, p_index))
                                                         ch->pcdata->
                                                                 learned[sn] =
                                                                 100;
@@ -4075,18 +4099,18 @@ case CON_GET_NAME:
                                 SET_BIT(ch->act, PLR_MXP);
                         ch->pcdata->clan = NULL;
                         ch->pcdata->full_name = QUICKLINK(ch->name);
-                        ch->pcdata->spouse = STRALLOC("");
+                        ch->pcdata->spouse = STRALLOC(const_cast<char *>(""));
 
-                        ch->perm_lck = number_range(6, 18);
+                        ch->perm_lck = static_cast<sh_int>(number_range(6, 18));
                         if (ch->main_ability == FORCE_ABILITY)
-                                ch->perm_frc = number_range(3, 20);
+                                ch->perm_frc = static_cast<sh_int>(number_range(3, 20));
                         /*
                          * 1 in 100 chance. To increase, check more random numbers of chance 
                          */
                         else if (chance == 2)
-                                ch->perm_frc = number_range(1, 20);
+                                ch->perm_frc = static_cast<sh_int>(number_range(1, 20));
                         else
-                                ch->perm_frc = 0;
+                                ch->perm_frc = static_cast<sh_int>(0);
 
                         ch->affected_by = ch->race->affected();
                         ch->perm_lck += ch->race->attr_modifier(ATTR_LUCK);
@@ -4096,7 +4120,7 @@ case CON_GET_NAME:
                                        ch->race->attr_modifier(ATTR_FORCE),
                                        20);
 
-                        ch->pcdata->age = ch->race->start_age();
+                        ch->pcdata->age = static_cast<sh_int>(ch->race->start_age());
 
                         if ((ch->perm_frc -
                              ch->race->attr_modifier(ATTR_FORCE)) > 0
@@ -4135,21 +4159,21 @@ case CON_GET_NAME:
 
                         }
 
-                        ch->bonus_str = 0;
-                        ch->bonus_dex = 0;
-                        ch->bonus_wis = 0;
-                        ch->bonus_int = 0;
-                        ch->bonus_con = 0;
-                        ch->bonus_cha = 0;
-                        ch->bonus_frc = 0;
-                        ch->bonus_lck = 0;
-                        ch->top_level = 1;
+                        ch->bonus_str = static_cast<sh_int>(0);
+                        ch->bonus_dex = static_cast<sh_int>(0);
+                        ch->bonus_wis = static_cast<sh_int>(0);
+                        ch->bonus_int = static_cast<sh_int>(0);
+                        ch->bonus_con = static_cast<sh_int>(0);
+                        ch->bonus_cha = static_cast<sh_int>(0);
+                        ch->bonus_frc = static_cast<sh_int>(0);
+                        ch->bonus_lck = static_cast<sh_int>(0);
+                        ch->top_level = static_cast<sh_int>(1);
                         ch->hit = ch->max_hit;
-                        ch->max_hit += ch->race->hit();
+                        ch->max_hit += static_cast<sh_int>(ch->race->hit());
                         if (ch->perm_frc > 0)
-                                ch->max_endurance = 700;
+                                ch->max_endurance = static_cast<sh_int>(700);
                         else
-                                ch->max_endurance = 500;
+                                ch->max_endurance = static_cast<sh_int>(500);
                         ch->endurance = ch->max_endurance;
                         snprintf(buf, MSL, "%s the %s", ch->name,
                                  ch->race->name());
@@ -4202,7 +4226,7 @@ case CON_GET_NAME:
                         obj = create_object(get_obj_index
                                             (OBJ_VNUM_SCHOOL_DAGGER), 0);
                         obj_to_char(obj, ch);
-                        ch->gold = 5000;
+                        ch->gold = static_cast<sh_int>(5000);
                         equip_char(ch, obj, WEAR_WIELD);
 
                         /*
@@ -4398,7 +4422,7 @@ bool check_parse_name(char *name)
          */
         if (is_name
             (name,
-             "all auto someone immortal self god supreme demigod dog guard cityguard cat cornholio spock hicaine hithoric death ass fuck shit piss crap quit public link new"))
+             const_cast<char*>("all auto someone immortal self god supreme demigod dog guard cityguard cat cornholio spock hicaine hithoric death ass fuck shit piss crap quit public link new")))
                 return FALSE;
 
         if (is_reserved_name(name))
@@ -4467,7 +4491,7 @@ bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn)
                                 write_to_buffer(d,
                                                 "Already playing.\n\rName: ",
                                                 0);
-                                d->connected = CON_GET_NAME;
+                                d->connected = static_cast<sh_int>(CON_GET_NAME);
                                 if (d->character)
                                 {
                                         /*
@@ -4497,7 +4521,7 @@ bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn)
                                 }
                                 d->character = ch;
                                 ch->desc = d;
-                                ch->timer = 0;
+                                ch->timer = static_cast<sh_int>(0);
                                 send_to_char("Reconnecting.\n\r", ch);
                                 act(AT_ACTION, "$n has reconnected.", ch,
                                     NULL, NULL, TO_ROOM);
@@ -4510,7 +4534,7 @@ bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn)
                                 ch->pcdata->account = d->account;
                                 ch->pcdata->account->inuse--;
 #endif
-                                d->connected = CON_PLAYING;
+                                d->connected = static_cast<sh_int>(CON_PLAYING);
                         }
                         return TRUE;
                 }
@@ -4626,10 +4650,10 @@ sh_int check_playing(DESCRIPTOR_DATA * d, char *name, bool kick)
                         free_char(d->character);
                         d->character = ch;
                         ch->desc = d;
-                        ch->timer = 0;
+                        ch->timer = static_cast<sh_int>(0);
                         if (ch->switched)
                                 do_return(ch->switched, "");
-                        ch->switched = NULL;
+                        ch->switched = static_cast<sh_int>(NULL);
                         ch->pcdata->account->inuse--;
                         send_to_char("Reconnecting.\n\r", ch);
                         act(AT_ACTION,
@@ -4641,7 +4665,7 @@ sh_int check_playing(DESCRIPTOR_DATA * d, char *name, bool kick)
                         log_string_plus(log_buf, LOG_COMM,
                                         UMAX(sysdata.log_level,
                                              ch->top_level));
-                        d->connected = cstate;
+                        d->connected = static_cast<sh_int>(cstate);
                         return TRUE;
                 }
         }
@@ -4660,10 +4684,10 @@ void stop_idling(CHAR_DATA * ch)
             || ch->in_room != get_room_index(ROOM_VNUM_LIMBO))
                 return;
 
-        ch->timer = 0;
+        ch->timer = static_cast<sh_int>(0);
         char_from_room(ch);
         char_to_room(ch, ch->was_in_room);
-        ch->was_in_room = NULL;
+        ch->was_in_room = static_cast<sh_int>(NULL);
         act(AT_ACTION, "$n has returned from the void.", ch, NULL, NULL,
             TO_ROOM);
         return;
@@ -4677,7 +4701,8 @@ void center_to_char(char *argument, CHAR_DATA * ch, int columns)
         int       spaces;
 
         columns = (columns < 2) ? 80 : columns;
-        spaces = (columns - strlen(argument)) / 2;
+        size_t arg_len = strlen(argument);
+        spaces = static_cast<int>((columns - static_cast<int>(arg_len))) / 2;
 
         snprintf(centered, MSL, "%*c%s", spaces, ' ', argument);
         send_to_char(centered, ch);
@@ -4690,8 +4715,9 @@ char     *center_str(char *argument, int columns)
         static char centered[MAX_INPUT_LENGTH];
         int       spaces;
 
+        size_t arg_len = strlen(argument);
+        spaces = static_cast<int>((columns - static_cast<int>(arg_len))) / 2;
         columns = (columns < 2) ? 80 : columns;
-        spaces = (columns - strlen(argument)) / 2;
 
         snprintf(centered, MSL, "%*c%s%*c", spaces, ' ', argument, spaces,
                  ' ');
@@ -4733,22 +4759,22 @@ char     *obj_short(OBJ_DATA * obj)
 char     *act_string(const char *format, CHAR_DATA * to, CHAR_DATA * ch,
                      void *arg1, void *arg2, bool OOC)
 {
-        static char *const he_she[] = { "it", "he", "she" };
-        static char *const him_her[] = { "it", "him", "her" };
-        static char *const his_her[] = { "its", "his", "her" };
+        static const char * const he_she[] = { "it", "he", "she" };
+        static const char * const him_her[] = { "it", "him", "her" };
+        static const char * const his_her[] = { "its", "his", "her" };
         static char buf[MAX_STRING_LENGTH];
         char      fname[MAX_INPUT_LENGTH];
         char     *point = buf;
         const char *str = format;
         const char *i;
         int       room = 0;
-        CHAR_DATA *vch = (CHAR_DATA *) arg2;
-        OBJ_DATA *obj1 = (OBJ_DATA *) arg1;
-        OBJ_DATA *obj2 = (OBJ_DATA *) arg2;
+        CHAR_DATA *vch = static_cast<CHAR_DATA *>(arg2);
+        OBJ_DATA *obj1 = static_cast<OBJ_DATA *>(arg1);
+        OBJ_DATA *obj2 = static_cast<OBJ_DATA *>(arg2);
         SHIP_DATA *ship = NULL;
 
         if (str == NULL || *str == '\0')
-                return "";
+                return const_cast<char*>("");
 
         while (*str != '\0')
         {
@@ -4778,10 +4804,10 @@ char     *act_string(const char *format, CHAR_DATA * to, CHAR_DATA * ch,
                                 i = ship ? ship->name : "";
                                 break;
                         case 't':
-                                i = (char *) arg1;
+                                i = reinterpret_cast<const char *>(arg1);
                                 break;
                         case 'T':
-                                i = (char *) arg2;
+                                i = reinterpret_cast<const char *>(arg2);
                                 break;
                         case 'g':
                                 i = (can_see_ooc(to, ch) ? NAME(ch) :
@@ -4896,11 +4922,11 @@ char     *act_string(const char *format, CHAR_DATA * to, CHAR_DATA * ch,
                                      ? obj_short(obj2) : "something");
                                 break;
                         case 'd':
-                                if (!arg2 || ((char *) arg2)[0] == '\0')
+                                if (!arg2 || (reinterpret_cast<const char *>(arg2))[0] == '\0')
                                         i = "door";
                                 else
                                 {
-                                        one_argument((char *) arg2, fname);
+                                        one_argument(reinterpret_cast<char *>(arg2), fname);
                                         i = fname;
                                 }
                                 break;
@@ -4923,7 +4949,7 @@ void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
 {
         char     *txt;
         CHAR_DATA *to;
-        CHAR_DATA *vch = (CHAR_DATA *) arg2;
+        CHAR_DATA *vch = static_cast<CHAR_DATA *>(arg2);
         bool      OOC = IS_OOC_ACT(type);
 
         if (OOC)
@@ -4989,13 +5015,13 @@ void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
                         return;
                 if (IS_SET(to->in_room->progtypes, ACT_PROG))
                         rprog_act_trigger(txt, to->in_room, ch,
-                                          (OBJ_DATA *) arg1, (void *) arg2);
+                                          static_cast<OBJ_DATA *>(arg1), static_cast<void *>(arg2));
                 for (to_obj = to->in_room->first_content; to_obj;
                      to_obj = to_obj->next_content)
                         if (IS_SET(to_obj->pIndexData->progtypes, ACT_PROG))
                                 oprog_act_trigger(txt, to_obj, ch,
-                                                  (OBJ_DATA *) arg1,
-                                                  (void *) arg2);
+                                                  static_cast<OBJ_DATA *>(arg1),
+                                                  static_cast<void *>(arg2));
         }
 
         /*
@@ -5035,7 +5061,7 @@ void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
                 txt = act_string(format, to, ch, arg1, arg2, OOC);
                 if (to->desc && !is_ignoring(to, ch))
                 {
-                        set_char_color(AType, to);
+                        set_char_color(static_cast<sh_int>(AType), to);
                         send_to_char(txt, to);
                 }
                 if (MOBtrigger && !IS_OOC_ACT(type))
@@ -5043,8 +5069,8 @@ void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
                         /*
                          * Note: use original string, not string with ANSI. -- Alty 
                          */
-                        mprog_act_trigger(txt, to, ch, (OBJ_DATA *) arg1,
-                                          (void *) arg2);
+                        mprog_act_trigger(txt, to, ch, static_cast<OBJ_DATA *>(arg1),
+                                          static_cast<void *>(arg2));
                 }
         }
         MOBtrigger = TRUE;
@@ -5128,8 +5154,9 @@ char     *default_prompt(CHAR_DATA * ch)
 char     *gav_prompt(CHAR_DATA * ch)
 {
         static char buf[MAX_STRING_LENGTH];
-
-        ch = NULL;
+        
+        // Suppress unused parameter warning
+        (void)ch;
 
         mudstrlcpy(buf,
                    "&B[&Y%T&B] &BH&zealth&B: &c%h&B/&C%H &BE&zndurance&B: &c%v&B/&C%V",
@@ -5168,9 +5195,7 @@ void display_prompt(DESCRIPTOR_DATA * d)
         char      buf[MAX_STRING_LENGTH];
         char     *pbuf = buf;
         int       pstat, percent;
-		static char * no_email_prompt = "Please set your email using setself realemail <your email address>";
-
-
+                static const char * no_email_prompt = "Please set your email using setself realemail <your email address>";
         if (!ch)
         {
                 bug("display_prompt: NULL ch");
@@ -5444,7 +5469,7 @@ void display_prompt(DESCRIPTOR_DATA * d)
                                 pstat = ch->max_endurance;
                                 break;
                         case 'g':
-                                pstat = ch->gold;
+                                pstat = static_cast<int>(ch->gold);
                                 break;
                         case 'r':
                                 if (IS_IMMORTAL(och))
@@ -5579,7 +5604,7 @@ bool pager_output(DESCRIPTOR_DATA * d)
         if (last != d->pagepoint)
         {
                 if (!write_to_descriptor
-                    (d->descriptor, d->pagepoint, (last - d->pagepoint)))
+                    (d->descriptor, d->pagepoint, (static_cast<int>(last - d->pagepoint))))
                         return FALSE;
                 d->pagepoint = last;
         }
@@ -5596,12 +5621,12 @@ bool pager_output(DESCRIPTOR_DATA * d)
         }
         d->pagecmd = -1;
         if (IS_SET(ch->act, PLR_ANSI))
-                if (write_to_descriptor(d->descriptor, ANSI_LBLUE, 0) ==
+                if (write_to_descriptor(d->descriptor, const_cast<char*>(ANSI_LBLUE), 0) ==
                     FALSE)
                         return FALSE;
         if ((ret =
              write_to_descriptor(d->descriptor,
-                                 "(C)ontinue, (R)efresh, (B)ack, (Q)uit: [C] ",
+                                 const_cast<char*>("(C)ontinue, (R)efresh, (B)ack, (Q)uit: [C] "),
                                  0)) == FALSE)
                 return FALSE;
         if (IS_SET(ch->act, PLR_ANSI))
@@ -5617,7 +5642,7 @@ bool pager_output(DESCRIPTOR_DATA * d)
 
 CMDF do_speed(CHAR_DATA * ch, char *argument)
 {
-        sh_int    speed = atoi(argument);
+        sh_int    speed = static_cast<sh_int>(atoi(argument));
 
         if (!ch->desc)
                 return;
@@ -5636,7 +5661,7 @@ CMDF do_speed(CHAR_DATA * ch, char *argument)
                 return;
         }
         ch->desc->speed = speed;
-        ch->speed = speed;
+        ch->speed = static_cast<sh_int>(speed);
         ch_printf(ch,
                   "The MUD will now send output to you at %d bytes per second.\n\r",
                   client_speed(speed));

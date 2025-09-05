@@ -53,7 +53,8 @@ void      note_attach(CHAR_DATA * ch);
 
 void comment_remove(CHAR_DATA * ch, CHAR_DATA * victim, NOTE_DATA * pnote)
 {
-        ch = NULL;
+        // Suppress unused parameter warning
+        (void)ch;
         if (!victim->pcdata || !victim->pcdata->account)
         {
                 bug("comment remove: null account", 0);
@@ -522,7 +523,7 @@ void fread_comment(ACCOUNT_DATA * account, FILE * fp)
 
                 do
                 {
-                        letter = getc(fp);
+                        letter = static_cast<char>(getc(fp));
                         if (feof(fp))
                         {
                                 FCLOSE(fp);
@@ -562,6 +563,7 @@ void fread_comment(ACCOUNT_DATA * account, FILE * fp)
 
         bug("fread_comment: bad key word. strap in!", 0);
         free_note(pnote);
+        return;
 }
 
 
@@ -606,7 +608,7 @@ void comment_add_comment(CHAR_DATA * from, ACCOUNT_DATA * account, char * subjec
 	char     *strtime;
 	CREATE(pnote, NOTE_DATA, 1);
 	pnote->sender = STRALLOC(from->name);;
-	pnote->to_list = STRALLOC("");
+	pnote->to_list = STRALLOC(const_cast<char*>(""));
 	pnote->subject = STRALLOC(subject);
 	pnote->text = STRALLOC(text);
 

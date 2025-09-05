@@ -136,9 +136,10 @@ CMDF do_draw(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_holster(CHAR_DATA * ch, char *argument)
+CMDF do_holster(CHAR_DATA * ch, char * argument)
 {
         OBJ_DATA *wield1 = get_eq_char(ch, WEAR_WIELD),
+        (void)argument;    /* Unused parameter */
                 *wield2 = get_eq_char(ch, WEAR_DUAL_WIELD);
         OBJ_DATA *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
                 *holster2 = get_eq_char(ch, WEAR_HOLSTER_R);

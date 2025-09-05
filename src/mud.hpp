@@ -212,8 +212,8 @@ struct bank_account
 };
 
 #ifdef __cplusplus
-#define CMDF extern "C" void
-#define SPELLF extern "C" ch_ret
+#define CMDF void
+#define SPELLF ch_ret
 #else
 #define CMDF void
 #define SPELLF ch_ret
