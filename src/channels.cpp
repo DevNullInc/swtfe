@@ -84,7 +84,7 @@ CHANNEL_DATA *get_channel(const char *name)
         }
         for (CHANNEL_DATA *channel = first_channel; channel; channel = channel->next)
         {
-                if (nifty_is_name_prefix(name, channel->name))
+                if (nifty_is_name_prefix(const_cast<char*>(name), channel->name))
                         return channel;
         }
         return nullptr;
@@ -380,9 +380,9 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
         else
                 messagetype = channel->actmessage;
         if (channel->type == CHANNEL_IC || channel->type == CHANNEL_IC_COM)
-                act(channel->color, messagetype, ch, buf, NULL, TO_CHAR);
+                act(static_cast<sh_int>(channel->color), messagetype, ch, buf, NULL, TO_CHAR);
         else
-                act(channel->color, messagetype, ch, buf, NULL, TO_CHAR_OOC);
+                act(static_cast<sh_int>(channel->color), messagetype, ch, buf, NULL, TO_CHAR_OOC);
 
         for (d = first_descriptor; d; d = d->next)
         {
@@ -511,10 +511,10 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
                         }
 
                         if (IC_CHANNEL(channel))
-                                act(channel->color, messagetype, ch, sbuf,
+                                act(static_cast<sh_int>(channel->color), messagetype, ch, sbuf,
                                     vch, TO_VICT);
                         else
-                                act(channel->color, messagetype, ch, sbuf,
+                                act(static_cast<sh_int>(channel->color), messagetype, ch, sbuf,
                                     vch, TO_VICT_OOC);
                         MOBtrigger = TRUE;
                 }
@@ -1344,7 +1344,7 @@ CMDF do_history(CHAR_DATA * ch, const char *argument)
                                          channel->log[pos].language->name);
                 }
 
-                set_char_color(channel->color, ch);
+                set_char_color(static_cast<sh_int>(channel->color), ch);
                 ch_printf(ch,
                           "&B[&W%2d&B][&W%.24s&B]&D %s %s&W: &Y%s&W%s&w\n\r",
                           count,

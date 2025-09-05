@@ -303,7 +303,9 @@ void free_skills(void)
         int       x;
 
         for (x = 0; x < MAX_SKILL; x++)
+        {
                 free_skill(skill_table[x]);
+        }
 }
 
 void free_leftovers(void)
@@ -311,12 +313,18 @@ void free_leftovers(void)
         int       hash;
 
         for (hash = 0; hash < 1024; hash++)
+        {
                 hash_dump(hash);
+        }
         dlclose(sysdata.dlHandle);
         if (fpReserve)
+        {
                 FCLOSE(fpReserve);
+        }
         if (fpLOG)
+        {
                 FCLOSE(fpLOG);
+        }
 }
 
 void free_dnses(void)

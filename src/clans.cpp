@@ -71,6 +71,7 @@
 #include "bounty.hpp"
 #include "space2.hpp"
 #include "installations.hpp"
+#include "hotboot.hpp"
 
 #define MAX_NEST	100
 static OBJ_DATA *rgObjNest[MAX_NEST];
@@ -240,6 +241,10 @@ void save_planet(PLANET_DATA * planet, bool copyover)
         char      buf[MAX_STRING_LENGTH];
         int       i;
 
+        // copyover parameter controls save behavior during hotboot/copyover operations
+        // Currently always saves all fields, but parameter preserved for future use
+        (void)copyover; // Suppress unused parameter warning
+
         if (!planet)
         {
                 bug("save_planet: null planet pointer!", 0);
@@ -364,48 +369,48 @@ void fread_clan(CLAN_DATA * clan, FILE * fp)
                         if (!str_cmp(word, "End"))
                         {
                                 if (!clan->name)
-                                        clan->name = STRALLOC("");
+                                        clan->name = STRALLOC(const_cast<char*>(""));
                                 if (!clan->leader)
-                                        clan->leader = STRALLOC("");
+                                        clan->leader = STRALLOC(const_cast<char*>(""));
                                 if (!clan->description)
-                                        clan->description = STRALLOC("");
+                                        clan->description = STRALLOC(const_cast<char*>(""));
                                 if (!clan->number1)
-                                        clan->number1 = STRALLOC("");
+                                        clan->number1 = STRALLOC(const_cast<char*>(""));
                                 if (!clan->number2)
-                                        clan->number2 = STRALLOC("");
+                                        clan->number2 = STRALLOC(const_cast<char*>(""));
                                 if (!clan->tmpstr)
-                                        clan->tmpstr = STRALLOC("");
+                                        clan->tmpstr = STRALLOC(const_cast<char*>(""));
 								/* FIXME FIXME FIXME */
                                 if (!clan->rank[0])
-                                        clan->rank[0] = STRALLOC("Inductee");
+                                        clan->rank[0] = STRALLOC(const_cast<char*>("Inductee"));
                                 if (!clan->rank[1])
-                                        clan->rank[1] = STRALLOC("Cadet");
+                                        clan->rank[1] = STRALLOC(const_cast<char*>("Cadet"));
                                 if (!clan->rank[2])
-                                        clan->rank[2] = STRALLOC("Private");
+                                        clan->rank[2] = STRALLOC(const_cast<char*>("Private"));
                                 if (!clan->rank[3])
-                                        clan->rank[3] = STRALLOC("Seargent");
+                                        clan->rank[3] = STRALLOC(const_cast<char*>("Seargent"));
                                 if (!clan->rank[4])
-                                        clan->rank[4] = STRALLOC("Commander");
+                                        clan->rank[4] = STRALLOC(const_cast<char*>("Commander"));
                                 if (!clan->rank[5])
                                         clan->rank[5] =
-                                                STRALLOC("Lt. Captain");
+                                                STRALLOC(const_cast<char*>("Lt. Captain"));
                                 if (!clan->rank[6])
-                                        clan->rank[6] = STRALLOC("Captain");
+                                        clan->rank[6] = STRALLOC(const_cast<char*>("Captain"));
                                 if (!clan->rank[7])
-                                        clan->rank[7] = STRALLOC("Major");
+                                        clan->rank[7] = STRALLOC(const_cast<char*>("Major"));
                                 if (!clan->rank[8])
                                         clan->rank[8] =
-                                                STRALLOC("Lt. Colonel");
+                                                STRALLOC(const_cast<char*>("Lt. Colonel"));
                                 if (!clan->rank[9])
-                                        clan->rank[9] = STRALLOC("Colonel");
+                                        clan->rank[9] = STRALLOC(const_cast<char*>("Colonel"));
                                 if (!clan->rank[10])
-                                        clan->rank[10] = STRALLOC("General");
+                                        clan->rank[10] = STRALLOC(const_cast<char*>("General"));
                                 if (!clan->rank[11])
-                                        clan->rank[11] = STRALLOC("Second");
+                                        clan->rank[11] = STRALLOC(const_cast<char*>("Second"));
                                 if (!clan->rank[12])
-                                        clan->rank[12] = STRALLOC("First");
+                                        clan->rank[12] = STRALLOC(const_cast<char*>("First"));
                                 if (!clan->rank[13])
-                                        clan->rank[13] = STRALLOC("Leader");
+                                        clan->rank[13] = STRALLOC(const_cast<char*>("Leader"));
 
                                 return;
                         }
@@ -428,7 +433,7 @@ void fread_clan(CLAN_DATA * clan, FILE * fp)
                 case 'M':
                         KEY("MDeaths", clan->mdeaths, fread_number(fp));
                         KEY("Motto", clan->motto, fread_string(fp));
-                        KEY("Members", clan->members, fread_number(fp));
+                        KEY("Members", clan->members, static_cast<sh_int>(fread_number(fp)));
                         KEY("MKills", clan->mkills, fread_number(fp));
                         KEY("MainClan", clan->tmpstr, fread_string(fp));
                         break;
@@ -483,7 +488,7 @@ void fread_clan(CLAN_DATA * clan, FILE * fp)
                         break;
 
                 case 'T':
-                        KEY("Type", clan->clan_type, fread_number(fp));
+                        KEY("Type", clan->clan_type, static_cast<sh_int>(fread_number(fp)));
                         break;
                 default:
                         /*
@@ -598,7 +603,7 @@ void fread_planet(PLANET_DATA * planet, FILE * fp)
                         if (!str_cmp(word, "End"))
                         {
                                 if (!planet->name)
-                                        planet->name = STRALLOC("");
+                                        planet->name = STRALLOC(const_cast<char*>(""));
                                 return;
                         }
                         break;
@@ -955,7 +960,7 @@ void load_clans()
                 if (filename[0] == '$')
                         break;
 
-                if (!load_clan_file((char *) filename))
+                if (!load_clan_file(const_cast<char*>(filename)))
                 {
                         snprintf(buf, MSL, "Cannot load clan file: %s",
                                  filename);
@@ -1023,7 +1028,7 @@ void load_planets()
                 if (filename[0] == '$')
                         break;
 
-                if (!load_planet_file((char *) filename))
+                if (!load_planet_file(const_cast<char*>(filename)))
                 {
                         snprintf(buf, MSL, "Cannot load planet file: %s",
                                  filename);
@@ -1038,7 +1043,7 @@ void load_planets()
 
 CMDF do_make(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument; // Unused parameter
         send_to_char("Huh?\n\r", ch);
         return;
 }
@@ -1217,12 +1222,12 @@ CMDF do_outcast(CHAR_DATA * ch, char *argument)
         if (!str_cmp(victim->name, ch->pcdata->clan->number1))
         {
                 STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC("");
+                ch->pcdata->clan->number1 = STRALLOC(const_cast<char*>(""));
         }
         if (!str_cmp(victim->name, ch->pcdata->clan->number2))
         {
                 STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC("");
+                ch->pcdata->clan->number2 = STRALLOC(const_cast<char*>(""));
         }
 
         if (ch->pcdata->clan->roster)
@@ -1241,7 +1246,7 @@ CMDF do_outcast(CHAR_DATA * ch, char *argument)
         echo_to_all(AT_MAGIC, buf, ECHOTAR_ALL);
 
         STRFREE(victim->pcdata->bestowments);
-        victim->pcdata->bestowments = STRALLOC("");
+        victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
 
         save_char_obj(victim);  /* clan gets saved when pfile is saved */
         return;
@@ -1388,7 +1393,7 @@ CMDF do_setclan(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg2, "members"))
         {
-                clan->members = atoi(argument);
+                clan->members = static_cast<sh_int>(atoi(argument));
                 send_to_char("Done.\n\r", ch);
                 save_clan(clan);
                 return;
@@ -1420,7 +1425,7 @@ CMDF do_setclan(CHAR_DATA * ch, char *argument)
 
         if (get_trust(ch) < LEVEL_SUB_IMPLEM)
         {
-                do_setclan(ch, "");
+                do_setclan(ch, const_cast<char*>(""));
                 return;
         }
 
@@ -1520,7 +1525,7 @@ CMDF do_setclan(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_setclan(ch, "");
+        do_setclan(ch, const_cast<char*>(""));
         return;
 }
 
@@ -1665,7 +1670,7 @@ CMDF do_clanset(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_clanset(ch, "");
+        do_clanset(ch, const_cast<char*>(""));
         return;
 }
 
@@ -1954,7 +1959,7 @@ CMDF do_setplanet(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                do_setplanet(ch, "");
+                do_setplanet(ch, const_cast<char*>(""));
                 return;
         }
         send_to_char("Done.\n\r", ch);
@@ -2079,9 +2084,9 @@ CMDF do_makeclan(CHAR_DATA * ch, char *argument)
         char      filename[256];
         CLAN_DATA *clan;
         bool      found;
-		short     i;
-
-        if (!argument || argument[0] == '\0')
+	short     i;
+        
+        (void)found;  // Currently unused but kept for future development        if (!argument || argument[0] == '\0')
         {
                 send_to_char("Usage: makeclan <clan name>\n\r", ch);
                 return;
@@ -2099,26 +2104,26 @@ CMDF do_makeclan(CHAR_DATA * ch, char *argument)
         clan->mainclan = NULL;
 		clan->filename = STRALLOC(filename);
         clan->name = STRALLOC(argument);
-        clan->description = STRALLOC("");
-        clan->motto = STRALLOC("");
-        clan->leader = STRALLOC("");
-        clan->number1 = STRALLOC("");
-        clan->number2 = STRALLOC("");
-        clan->tmpstr = STRALLOC("");
+        clan->description = STRALLOC(const_cast<char*>(""));
+        clan->motto = STRALLOC(const_cast<char*>(""));
+        clan->leader = STRALLOC(const_cast<char*>(""));
+        clan->number1 = STRALLOC(const_cast<char*>(""));
+        clan->number2 = STRALLOC(const_cast<char*>(""));
+        clan->tmpstr = STRALLOC(const_cast<char*>(""));
         clan->enliston = 1;
         clan->alignment = 0;
         clan->roster = NULL;
-		for (i=0;i<MAX_RANK ;i++ )
-			clan->rank[i] = STRALLOC("None");
-		save_clan(clan);
-		write_clan_list();
-}
-
-CMDF do_makeplanet(CHAR_DATA * ch, char *argument)
+	for (i=0;i<MAX_RANK ;i++ )
+		clan->rank[i] = STRALLOC(const_cast<char*>("None"));
+	save_clan(clan);
+	write_clan_list();
+}CMDF do_makeplanet(CHAR_DATA * ch, char *argument)
 {
         char      filename[256];
         PLANET_DATA *planet;
         bool      found;
+        
+        (void)found;  // Currently unused but kept for future development
 
         if (!argument || argument[0] == '\0')
         {
@@ -2257,7 +2262,7 @@ CMDF do_clans(CHAR_DATA * ch, char *argument)
                 if (!clan)
                 {
                         send_to_pager("&YNo such clan.\n\r", ch);
-                        do_clans(ch, "");
+                        do_clans(ch, const_cast<char*>(""));
                         return;
                 }
                 send_to_pager
@@ -2331,7 +2336,7 @@ CMDF do_planets(CHAR_DATA * ch, char *argument)
                 planet = get_planet(argument);
                 if (!planet)
                 {
-                        do_planets(ch, "");
+                        do_planets(ch, const_cast<char*>(""));
                         send_to_char("No such planet.\n\r", ch);
                         return;
                 }
@@ -2439,7 +2444,7 @@ CMDF do_shove(CHAR_DATA * ch, char *argument)
         }
         victim->position = POS_SHOVE;
         nogo = FALSE;
-        if ((pexit = get_exit(ch->in_room, exit_dir)) == NULL)
+        if ((pexit = get_exit(ch->in_room, static_cast<sh_int>(exit_dir))) == NULL)
                 nogo = TRUE;
         else if (IS_SET(pexit->exit_info, EX_CLOSED)
                  && (!IS_AFFECTED(victim, AFF_PASS_DOOR)
@@ -2486,7 +2491,7 @@ act( AT_ACTION, buf, ch, NULL, NULL, TO_ROOM );
         }
         act(AT_ACTION, "You shove $M.", ch, NULL, victim, TO_CHAR);
         act(AT_ACTION, "$n shoves you.", ch, NULL, victim, TO_VICT);
-        move_char(victim, get_exit(ch->in_room, exit_dir), 0, FALSE);
+        move_char(victim, get_exit(ch->in_room, static_cast<sh_int>(exit_dir)), 0, FALSE);
         if (!char_died(victim))
                 victim->position = POS_STANDING;
         WAIT_STATE(ch, 12);
@@ -2558,7 +2563,7 @@ CMDF do_drag(CHAR_DATA * ch, char *argument)
         }
 
         nogo = FALSE;
-        if ((pexit = get_exit(ch->in_room, exit_dir)) == NULL)
+        if ((pexit = get_exit(ch->in_room, static_cast<sh_int>(exit_dir))) == NULL)
                 nogo = TRUE;
         else if (IS_SET(pexit->exit_info, EX_CLOSED)
                  && (!IS_AFFECTED(victim, AFF_PASS_DOOR)
@@ -2604,11 +2609,11 @@ act( AT_ACTION, buf, ch, NULL, NULL, TO_ROOM );
                     victim, TO_CHAR);
                 act(AT_ACTION, "$n grabs your hair and drags you.", ch, NULL,
                     victim, TO_VICT);
-                move_char(victim, get_exit(ch->in_room, exit_dir), 0, FALSE);
+                move_char(victim, get_exit(ch->in_room, static_cast<sh_int>(exit_dir)), 0, FALSE);
                 if (!char_died(victim))
                         victim->position = temp;
 /* Move ch to the room too.. they are doing dragging - Scryn */
-                move_char(ch, get_exit(ch->in_room, exit_dir), 0, FALSE);
+                move_char(ch, get_exit(ch->in_room, static_cast<sh_int>(exit_dir)), 0, FALSE);
                 WAIT_STATE(ch, 12);
                 return;
         }
@@ -2619,11 +2624,10 @@ act( AT_ACTION, buf, ch, NULL, NULL, TO_ROOM );
 
 CMDF do_enlist(CHAR_DATA * ch, char *argument)
 {
+        (void)argument;  // Currently unused but kept for command interface consistency
 
         CLAN_DATA *clan;
         INSTALLATION_DATA *installation;
-
-        argument = NULL;
 
         if (IS_NPC(ch) || !ch->pcdata)
         {
@@ -2745,6 +2749,7 @@ CMDF do_enlist(CHAR_DATA * ch, char *argument)
 
 CMDF do_resign(CHAR_DATA * ch, char *argument)
 {
+        (void)argument;  // Currently unused but kept for command interface consistency
 
         CLAN_DATA *clan;
         long      lose_exp;
@@ -2780,12 +2785,12 @@ CMDF do_resign(CHAR_DATA * ch, char *argument)
         if (!str_cmp(ch->name, ch->pcdata->clan->number1))
         {
                 STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC("");
+                ch->pcdata->clan->number1 = STRALLOC(const_cast<char*>(""));
         }
         if (!str_cmp(ch->name, ch->pcdata->clan->number2))
         {
                 STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC("");
+                ch->pcdata->clan->number2 = STRALLOC(const_cast<char*>(""));
         }
         if (ch->pcdata->clan->roster)
                 if (hasname(ch->pcdata->clan->roster, ch->name))
@@ -2803,12 +2808,10 @@ CMDF do_resign(CHAR_DATA * ch, char *argument)
         ch->experience[DIPLOMACY_ABILITY] -= lose_exp;
 
         STRFREE(ch->pcdata->bestowments);
-        ch->pcdata->bestowments = STRALLOC("");
-		ch->pcdata->clanrank = 0;
+        ch->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
+	ch->pcdata->clanrank = 0;
 
-        save_char_obj(ch);  /* clan gets saved when pfile is saved */
-
-        return;
+        save_char_obj(ch);  /* clan gets saved when pfile is saved */        return;
 
 }
 
@@ -2923,7 +2926,7 @@ CMDF do_clan_donate(CHAR_DATA * ch, char *argument)
 
 CMDF do_newclan(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;
+        (void)argument;  // Currently unused but kept for command interface consistency
         send_to_char
                 ("This command is being recycled to conserve thought.\n\r",
                  ch);
@@ -2987,7 +2990,7 @@ CMDF do_appoint(CHAR_DATA * ch, char *argument)
                 ch->pcdata->clan->number2 = STRALLOC(arg);
         }
         else
-                do_appoint(ch, "");
+                do_appoint(ch, const_cast<char*>(""));
         save_clan(ch->pcdata->clan);
 
 }
@@ -3021,14 +3024,14 @@ CMDF do_demote(CHAR_DATA * ch, char *argument)
                 send_to_char("Player Demoted!", ch);
 
                 STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC("");
+                ch->pcdata->clan->number1 = STRALLOC(const_cast<char*>(""));
         }
         else if (!str_cmp(argument, ch->pcdata->clan->number2))
         {
                 send_to_char("Player Demoted!", ch);
 
                 STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC("");
+                ch->pcdata->clan->number2 = STRALLOC(const_cast<char*>(""));
         }
         else
         {
@@ -3042,6 +3045,7 @@ CMDF do_demote(CHAR_DATA * ch, char *argument)
 
 CMDF do_capture(CHAR_DATA * ch, char *argument)
 {
+        (void)argument;  // Currently unused but kept for command interface consistency
         CLAN_DATA *clan;
         INSTALLATION_DATA *install;
         PLANET_DATA *planet;
@@ -3243,7 +3247,7 @@ CMDF do_empower(CHAR_DATA * ch, char *argument)
         }
 
         if (!victim->pcdata->bestowments)
-                victim->pcdata->bestowments = STRALLOC("");
+                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
 
         if (arg2[0] == '\0' || !str_cmp(arg2, "list"))
         {
@@ -3255,7 +3259,7 @@ CMDF do_empower(CHAR_DATA * ch, char *argument)
         if (!str_cmp(arg2, "none"))
         {
                 STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC("");
+                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
                 ch_printf(ch, "Bestowments removed from %s.\n\r",
                           victim->name);
                 ch_printf(victim,
@@ -3671,7 +3675,7 @@ CMDF do_load_battalions(CHAR_DATA * ch, char *argument)
 
         if (arg1[0] == '\0' || arg2[0] == '\0')
         {
-                do_load_battalions(ch, "");
+                do_load_battalions(ch, const_cast<char*>(""));
                 return;
         }
 
@@ -3792,7 +3796,7 @@ CMDF do_deploy_battalions(CHAR_DATA * ch, char *argument)
 
         if (arg1[0] == '\0' || arg2[0] == '\0')
         {
-                do_deploy_battalions(ch, "");
+                do_deploy_battalions(ch, const_cast<char*>(""));
                 return;
         }
 
@@ -3863,6 +3867,7 @@ CMDF do_deploy_battalions(CHAR_DATA * ch, char *argument)
 
 CMDF do_clanstat(CHAR_DATA * ch, char *argument)
 {
+        (void)argument;  // Currently unused but kept for command interface consistency
         CLAN_DATA *clan;
         CLAN_DATA *wclan;
         PLANET_DATA *planet;
@@ -4001,7 +4006,7 @@ CMDF do_clanstat(CHAR_DATA * ch, char *argument)
 
 CMDF do_overthrow(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;    /* Not Needed - Gavin */
+        (void)argument;  // Currently unused but kept for command interface consistency
         CLAN_DATA *clan;
 
         if (IS_NPC(ch))
@@ -4039,14 +4044,14 @@ CMDF do_overthrow(CHAR_DATA * ch, char *argument)
                 ch->pcdata->clan->leader =
                         STRALLOC(ch->pcdata->clan->number1);
                 STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC("");
+                ch->pcdata->clan->number1 = STRALLOC(const_cast<char*>(""));
         }
         else if (!strcmp(ch->name, ch->pcdata->clan->number2))
         {
                 ch->pcdata->clan->leader =
                         STRALLOC(ch->pcdata->clan->number2);
                 STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC("");
+                ch->pcdata->clan->number2 = STRALLOC(const_cast<char*>(""));
         }
         else
                 ch->pcdata->clan->leader = STRALLOC(ch->name);
@@ -4259,7 +4264,7 @@ void free_planet(PLANET_DATA * planet)
 
 CMDF do_stepdown(CHAR_DATA * ch, char *argument)
 {
-        argument = NULL;    /* Not Needed - Gavin */
+        (void)argument;  // Currently unused but kept for command interface consistency
         CLAN_DATA *clan;
 
         if (IS_NPC(ch))
@@ -4287,19 +4292,19 @@ CMDF do_stepdown(CHAR_DATA * ch, char *argument)
 				STRFREE(clan->number1);
                 clan->number1 = STRALLOC(clan->number2);
                 STRFREE(clan->number2);
-                clan->number2 = STRALLOC("");
+                clan->number2 = STRALLOC(const_cast<char*>(""));
 		}
 		else if (!str_cmp(clan->number1, ch->name))
 		{
 				STRFREE(clan->number1);
                 clan->number1 = STRALLOC(clan->number2);
                 STRFREE(clan->number2);
-                clan->number2 = STRALLOC("");
+                clan->number2 = STRALLOC(const_cast<char*>(""));
 		}
 		else if (!str_cmp(clan->number2, ch->name))
 		{
 				STRFREE(clan->number2);
-                clan->number2 = STRALLOC("");
+                clan->number2 = STRALLOC(const_cast<char*>(""));
 		}
 		else 
         {
