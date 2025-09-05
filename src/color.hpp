@@ -75,7 +75,7 @@ void      reset_colors(CHAR_DATA * ch);
 
 /*void set_char_color( sh_int AType, CHAR_DATA *ch );
 void set_pager_color( sh_int AType, CHAR_DATA *ch );*/
-char     *color_str(sh_int AType, CHAR_DATA * ch);
+const char *color_str(sh_int AType, CHAR_DATA * ch);
 const char *const_color_align(const char *argument, int size, int align);
 void send_to_desc_color args((const char *txt, DESCRIPTOR_DATA * d));
 

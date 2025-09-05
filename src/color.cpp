@@ -102,9 +102,9 @@
 #include "mxp.hpp"
 #include "cpp_compat.hpp"
 
-extern char *const pc_displays[MAX_COLORS];
+extern const char *const pc_displays[MAX_COLORS];
 
-char     *const pc_displays[MAX_COLORS] = {
+const char *const pc_displays[MAX_COLORS] = {
         "black", "dred", "dgreen", "orange",
         "dblue", "purple", "cyan", "grey",
         "dgrey", "red", "green", "yellow",
@@ -163,7 +163,7 @@ const sh_int default_set[MAX_COLORS] = {
         AT_BLUE, AT_DGREEN
 };
 
-char     *const valid_color[] = {
+const char *const valid_color[] = {
         "black",
         "dred",
         "dgreen",
@@ -786,7 +786,7 @@ void reset_colors(CHAR_DATA * ch)
         memcpy(&ch->colors, &default_set, sizeof(default_set));
 }
 
-char     *color_str(sh_int AType, CHAR_DATA * ch)
+const char *color_str(sh_int AType, CHAR_DATA * ch)
 {
         if (!ch)
         {
@@ -1136,7 +1136,7 @@ int colorcode(const char *col, char *code, CHAR_DATA * ch)
                                 break;
                         }
                 }
-                ln = strlen(code);
+                ln = static_cast<int>(strlen(code));
         }
         if (ln <= 0)
                 *code = '\0';
@@ -1149,8 +1149,8 @@ void set_char_color(int AType, CHAR_DATA * ch)
         if (!ch || !ch->desc)
                 return;
 
-        write_to_buffer(ch->desc, color_str(AType, ch), 0);
-        ch->desc->pagecolor = ch->colors[AType];
+        write_to_buffer(ch->desc, color_str(static_cast<sh_int>(AType), ch), 0);
+        ch->desc->pagecolor = static_cast<char>(ch->colors[AType]);
 }
 
 void set_pager_color(sh_int AType, CHAR_DATA * ch)
@@ -1159,7 +1159,7 @@ void set_pager_color(sh_int AType, CHAR_DATA * ch)
                 return;
 
         write_to_pager(ch->desc, color_str(AType, ch), 0);
-        ch->desc->pagecolor = ch->colors[AType];
+        ch->desc->pagecolor = static_cast<char>(ch->colors[AType]);
 }
 
 void write_to_pager(DESCRIPTOR_DATA * d, const char *txt, int length)
@@ -1168,7 +1168,7 @@ void write_to_pager(DESCRIPTOR_DATA * d, const char *txt, int length)
         int       origlength = 0;
 
         if (length <= 0)
-                length = strlen(txt);
+                length = static_cast<int>(strlen(txt));
 
         /*
          * Find length in case caller didn't. 
@@ -1185,7 +1185,7 @@ void write_to_pager(DESCRIPTOR_DATA * d, const char *txt, int length)
         if (!d->pagebuf)
         {
                 d->pagesize = MAX_STRING_LENGTH;
-                CREATE(d->pagebuf, char, d->pagesize);
+                CREATE(d->pagebuf, char, static_cast<size_t>(d->pagesize));
         }
         if (!d->pagepoint)
         {
@@ -1199,7 +1199,7 @@ void write_to_pager(DESCRIPTOR_DATA * d, const char *txt, int length)
                 d->pagebuf[1] = '\r';
                 d->pagetop = 2;
         }
-        pageroffset = d->pagepoint - d->pagebuf;    /* pager fix (goofup fixed 08/21/97) */
+        pageroffset = static_cast<int>(d->pagepoint - d->pagebuf);    /* pager fix (goofup fixed 08/21/97) */
         while (d->pagetop + length >= d->pagesize)
         {
                 if (d->pagesize > MSL * 16)
@@ -1212,7 +1212,10 @@ void write_to_pager(DESCRIPTOR_DATA * d, const char *txt, int length)
                         return;
                 }
                 d->pagesize *= 2;
-                RECREATE(d->pagebuf, char, d->pagesize);
+                _Pragma("GCC diagnostic push")
+                _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")
+                RECREATE(d->pagebuf, char, static_cast<size_t>(d->pagesize));
+                _Pragma("GCC diagnostic pop")
         }
         d->pagepoint = d->pagebuf + pageroffset;    /* pager fix (goofup fixed 08/21/97) */
 /*   mudstrlcpy( d->pagebuf + d->pagetop, txt, length ); */
@@ -1242,7 +1245,7 @@ void send_to_desc_color(const char *txt, DESCRIPTOR_DATA * d)
         while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&^}")) != NULL)
         {
                 if (colstr > prevstr)
-                        write_to_buffer(d, prevstr, (colstr - prevstr));
+                        write_to_buffer(d, prevstr, static_cast<int>(colstr - prevstr));
 
                 ln = colorcode(colstr, colbuf, d->character);
                 if (ln < 0)
@@ -1287,7 +1290,7 @@ void send_to_char_color(const char *txt, CHAR_DATA * ch)
                 {
                         if (colstr > prevstr)
                                 write_to_buffer(ch->desc, prevstr,
-                                                (colstr - prevstr));
+                                                static_cast<int>(colstr - prevstr));
                         if (!ch->desc)
                                 return;
                         ln = colorcode(colstr, colbuf, ch);
@@ -1340,7 +1343,7 @@ void send_to_pager_color(const char *txt, CHAR_DATA * ch)
                 {
                         if (colstr > prevstr)
                                 write_to_pager(ch->desc, prevstr,
-                                               (colstr - prevstr));
+                                               static_cast<int>(colstr - prevstr));
                         ln = colorcode(colstr, colbuf, ch);
                         if (ln < 0)
                         {
