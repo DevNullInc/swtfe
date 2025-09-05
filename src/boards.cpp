@@ -54,8 +54,8 @@
 
 void free_board args((BOARD_DATA * board));
 
-char     *const board_types[BOARD_MAX] = { "Note", "Mail", "Idea", "Global" };
-char     *const vote_types[VOTE_MAX] = { "None", "Open", "Closed" };
+char     *const board_types[BOARD_MAX] = { const_cast<char*>("Note"), const_cast<char*>("Mail"), const_cast<char*>("Idea"), const_cast<char*>("Global") };
+char     *const vote_types[VOTE_MAX] = { const_cast<char*>("None"), const_cast<char*>("Open"), const_cast<char*>("Closed") };
 
 BOARD_DATA *first_board;
 BOARD_DATA *last_board;
@@ -66,7 +66,7 @@ int get_boardtypes(char *flag)
 
         for (x = 0; x < BOARD_MAX; x++)
                 if (!str_cmp(flag, board_types[x]))
-                        return x;
+                        return static_cast<int>(x);
         return -1;
 }
 
@@ -246,10 +246,10 @@ void note_attach(CHAR_DATA * ch)
         pnote->next = NULL;
         pnote->prev = NULL;
         pnote->sender = QUICKLINK(ch->name);
-        pnote->date = STRALLOC("");
-        pnote->to_list = STRALLOC("");
-        pnote->subject = STRALLOC("");
-        pnote->text = STRALLOC("");
+        pnote->date = STRALLOC(const_cast<char*>(""));
+        pnote->to_list = STRALLOC(const_cast<char*>(""));
+        pnote->subject = STRALLOC(const_cast<char*>(""));
+        pnote->text = STRALLOC(const_cast<char*>(""));
         ch->pnote = pnote;
         return;
 }
@@ -310,7 +310,7 @@ void free_note(NOTE_DATA * pnote)
 
 void note_remove(CHAR_DATA * ch, BOARD_DATA * board, NOTE_DATA * pnote)
 {
-        ch = NULL;
+        (void)ch; // Mark as intentionally unused for now
         if (!board)
         {
                 bug("note remove: null board", 0);
@@ -502,7 +502,7 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                                 stop_editing(ch);
                                 return;
                         }
-                        ed = (EXTRA_DESCR_DATA *) ch->dest_buf;
+                        ed = static_cast<EXTRA_DESCR_DATA *>(ch->dest_buf);
                         STRFREE(ed->description);
                         ed->description = copy_buffer(ch);
                         stop_editing(ch);
@@ -830,7 +830,7 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                 {
 
                         bug("note( ch, \"\", board );");
-                        note(ch, "", board);
+                        note(ch, const_cast<char*>(""), board);
                         return;
                 }
                 if (board->type == BOARD_NOTE)
@@ -876,7 +876,7 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                 if (paper->value[0] < 2)
                 {
                         paper->value[0] = 1;
-                        ed = SetOExtra(paper, "_text_");
+                        ed = SetOExtra(paper, const_cast<char*>("_text_"));
                         ch->substate = SUB_WRITING_NOTE;
                         ch->dest_buf = ed;
                         start_editing(ch, ed->description);
@@ -929,7 +929,7 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                 else
                 {
                         paper->value[1] = 1;
-                        ed = SetOExtra(paper, "_subject_");
+                        ed = SetOExtra(paper, const_cast<char*>("_subject_"));
                         STRFREE(ed->description);
                         ed->description = STRALLOC(arg_passed);
                         send_to_char("Ok.\n\r", ch);
@@ -986,7 +986,7 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                     || !str_cmp(arg_passed, "all"))
                 {
                         paper->value[2] = 1;
-                        ed = SetOExtra(paper, "_to_");
+                        ed = SetOExtra(paper, const_cast<char*>("_to_"));
                         STRFREE(ed->description);
                         ed->description = STRALLOC(arg_passed);
                         send_to_char("Ok.\n\r", ch);
@@ -1017,17 +1017,17 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                 if ((subject =
                      get_extra_descr("_subject_",
                                      paper->first_extradesc)) == NULL)
-                        subject = "(no subject)";
+                        subject = const_cast<char*>("(no subject)");
                 if ((to_list =
                      get_extra_descr("_to_", paper->first_extradesc)) == NULL)
-                        to_list = "(nobody)";
+                        to_list = const_cast<char*>("(nobody)");
                 snprintf(buf, MSL, "%s: %s\n\rTo: %s\n\r",
                          ch->name, subject, to_list);
                 send_to_char(buf, ch);
                 if ((text =
                      get_extra_descr("_text_",
                                      paper->first_extradesc)) == NULL)
-                        text = "The disk is blank.\n\r";
+                        text = const_cast<char*>("The disk is blank.\n\r");
                 send_to_char(text, ch);
                 return;
         }
@@ -1072,9 +1072,9 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                                 ("This message has no subject... using 'none'.\n\r",
                                  ch);
                         paper->value[1] = 1;
-                        ed = SetOExtra(paper, "_subject_");
+                        ed = SetOExtra(paper, const_cast<char*>("_subject_"));
                         STRFREE(ed->description);
-                        ed->description = STRALLOC("none");
+                        ed->description = STRALLOC(const_cast<char*>("none"));
                 }
 
                 if (paper->value[2] == 0)
@@ -1092,9 +1092,9 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                                         ("This message is addressed to no one... sending to 'all'!\n\r",
                                          ch);
                                 paper->value[2] = 1;
-                                ed = SetOExtra(paper, "_to_");
+                                ed = SetOExtra(paper, const_cast<char*>("_to_"));
                                 STRFREE(ed->description);
-                                ed->description = STRALLOC("All");
+                                ed->description = STRALLOC(const_cast<char*>("All"));
                         }
                 }
 
@@ -1129,11 +1129,11 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                 pnote->date = STRALLOC(strtime);
 
                 text = get_extra_descr("_text_", paper->first_extradesc);
-                pnote->text = text ? STRALLOC(text) : STRALLOC("");
+                pnote->text = text ? STRALLOC(text) : STRALLOC(const_cast<char*>(""));
                 text = get_extra_descr("_to_", paper->first_extradesc);
-                pnote->to_list = text ? STRALLOC(text) : STRALLOC("all");
+                pnote->to_list = text ? STRALLOC(text) : STRALLOC(const_cast<char*>("all"));
                 text = get_extra_descr("_subject_", paper->first_extradesc);
-                pnote->subject = text ? STRALLOC(text) : STRALLOC("");
+                pnote->subject = text ? STRALLOC(text) : STRALLOC(const_cast<char*>(""));
                 pnote->sender = QUICKLINK(ch->name);
                 pnote->voting = 0;
                 pnote->yesvotes = str_dup("");
@@ -1237,27 +1237,27 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                                         paper = create_object(get_obj_index
                                                               (OBJ_VNUM_NOTE),
                                                               0);
-                                        ed = SetOExtra(paper, "_sender_");
+                                        ed = SetOExtra(paper, const_cast<char*>("_sender_"));
                                         STRFREE(ed->description);
                                         ed->description =
                                                 QUICKLINK(pnote->sender);
-                                        ed = SetOExtra(paper, "_text_");
+                                        ed = SetOExtra(paper, const_cast<char*>("_text_"));
                                         STRFREE(ed->description);
                                         ed->description =
                                                 QUICKLINK(pnote->text);
-                                        ed = SetOExtra(paper, "_to_");
+                                        ed = SetOExtra(paper, const_cast<char*>("_to_"));
                                         STRFREE(ed->description);
                                         ed->description =
                                                 QUICKLINK(pnote->to_list);
-                                        ed = SetOExtra(paper, "_subject_");
+                                        ed = SetOExtra(paper, const_cast<char*>("_subject_"));
                                         STRFREE(ed->description);
                                         ed->description =
                                                 QUICKLINK(pnote->subject);
-                                        ed = SetOExtra(paper, "_date_");
+                                        ed = SetOExtra(paper, const_cast<char*>("_date_"));
                                         STRFREE(ed->description);
                                         ed->description =
                                                 QUICKLINK(pnote->date);
-                                        ed = SetOExtra(paper, "note");
+                                        ed = SetOExtra(paper, const_cast<char*>("note"));
                                         STRFREE(ed->description);
                                         snprintf(notebuf, MSL, "%s",
                                                  "From: ");
@@ -1330,18 +1330,18 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
         return;
 }
 
-BOARD_DATA *read_board(char *boardfile, FILE * fp)
+BOARD_DATA *read_board(char * /* boardfile */, FILE * fp)
 {
         BOARD_DATA *board;
         const char *word;
         bool      fMatch;
         char      letter;
 
-        boardfile = NULL;
+        // boardfile parameter removed as unused
 
         do
         {
-                letter = getc(fp);
+                letter = static_cast<char>(getc(fp));
                 if (feof(fp))
                 {
                         FCLOSE(fp);
@@ -1405,12 +1405,12 @@ BOARD_DATA *read_board(char *boardfile, FILE * fp)
 
                 case 'M':
                         KEY("Min_read_level", board->min_read_level,
-                            fread_number(fp));
+                            static_cast<sh_int>(fread_number(fp)));
                         KEY("Min_post_level", board->min_post_level,
-                            fread_number(fp));
+                            static_cast<sh_int>(fread_number(fp)));
                         KEY("Min_remove_level", board->min_remove_level,
-                            fread_number(fp));
-                        KEY("Max_posts", board->max_posts, fread_number(fp));
+                            static_cast<sh_int>(fread_number(fp)));
+                        KEY("Max_posts", board->max_posts, static_cast<sh_int>(fread_number(fp)));
                         break;
 
                 case 'P':
@@ -1440,12 +1440,12 @@ BOARD_DATA *read_board(char *boardfile, FILE * fp)
         return board;
 }
 
-NOTE_DATA *read_note(char *notefile, FILE * fp)
+NOTE_DATA *read_note(char * /* notefile */, FILE * fp)
 {
         NOTE_DATA *pnote;
         char     *word;
 
-        notefile = NULL;
+        // notefile parameter removed as unused
 
         for (;;)
         {
@@ -1453,7 +1453,7 @@ NOTE_DATA *read_note(char *notefile, FILE * fp)
 
                 do
                 {
-                        letter = getc(fp);
+                        letter = static_cast<char>(getc(fp));
                         if (feof(fp))
                         {
                                 FCLOSE(fp);
@@ -1647,7 +1647,7 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
                         send_to_char("Value out of range.\n\r", ch);
                         return;
                 }
-                board->min_read_level = value;
+                board->min_read_level = static_cast<sh_int>(value);
         }
         else if (!str_cmp(arg2, "read_group"))
         {
@@ -1736,7 +1736,7 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
                         send_to_char("Value out of range.\n\r", ch);
                         return;
                 }
-                board->min_post_level = value;
+                board->min_post_level = static_cast<sh_int>(value);
         }
 
         else if (!str_cmp(arg2, "remove"))
@@ -1746,7 +1746,7 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
                         send_to_char("Value out of range.\n\r", ch);
                         return;
                 }
-                board->min_remove_level = value;
+                board->min_remove_level = static_cast<sh_int>(value);
         }
 
         else if (!str_cmp(arg2, "maxpost"))
@@ -1756,7 +1756,7 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
                         send_to_char("Value out of range.\n\r", ch);
                         return;
                 }
-                board->max_posts = value;
+                board->max_posts = static_cast<sh_int>(value);
         }
 
         else if (!str_cmp(arg2, "type"))
@@ -1773,7 +1773,7 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
         else
         {
                 send_to_char("What?\n\r", ch);
-                do_bset(ch, "");
+                do_bset(ch, const_cast<char*>(""));
                 return;
         }
 
@@ -1831,11 +1831,11 @@ CMDF do_bstat(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_boards(CHAR_DATA * ch, char *argument)
+CMDF do_boards(CHAR_DATA * ch, char * /* argument */)
 {
         BOARD_DATA *board;
 
-        argument = NULL;
+        // argument parameter removed as unused
 
         if (!first_board)
         {
@@ -1893,7 +1893,7 @@ CMDF do_global(CHAR_DATA * ch, char *argument)
 
         if (ch->substate == SUB_WRITING_NOTE)
         {
-                note(ch, "", first_board);
+                note(ch, const_cast<char*>(""), first_board);
                 return;
         }
 

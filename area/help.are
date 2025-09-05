@@ -1481,6 +1481,28 @@ not one of the primary targets (i.e. is not tanking).
 Greven~
 Tue Jun 24 16:52:16 2003~
 
+1 BASHDOOR~
+&RSyntax: &Gbashdoor &C<&cdirection&C>&w
+
+Attempts to break down a closed door in the specified direction.
+Success depends on:
+- Your strength and bash skill
+- Door material and structural integrity
+- Whether the door is locked or barred
+
+&RPermission: &YLevel 1 (Player)
+
+&RResults:
+- Success: Door is destroyed and passage opens
+- Failure: Takes damage from the impact
+- May create noise that attracts attention
+
+&RNote: Some doors are reinforced and cannot be bashed.
+Alternative: PICK, UNLOCK, or find another route.
+~
+StygianRenegade~
+Thu Sep 4 14:21:00 2025~
+
 153 BASIC~
 The Language Basic
 
@@ -1868,15 +1890,19 @@ offered.
 Jason~
 Sat Dec  6 20:14:08 2003~
 
-1 BOUNTY ADDBOUNTY~
+1 BOUNTY ADDBOUNTY REMBOUNTY~
 .
 Syntax : Addbounty (character) (amount)
 Syntax : bounty
+Syntax : Rembounty (character)
  
 Addbounty will allow you to add a bounty to a character as long
 as they are online and you are in a bounty placement office.
 Minimum bounty is 5k, Please realize that placing a bounty is 
 a serious thing.See help death.
+
+Rembounty will allow you to remove a bounty you have placed on a character.
+You must be the original bounty placer to remove it.
  
 Bounty by itself will list all the current unclaimd bounties.
  
@@ -5616,6 +5642,26 @@ REMOVE ALL will remove all your equipment and place it into inventory.
 Greven~
 Tue Jun 24 16:52:16 2003~
 
+0 HOLD_PERSON~
+&RSyntax: &Ghold_person &C<&ctarget&C>&w
+
+Force power that attempts to paralyze a target, preventing them from:
+- Moving or attacking
+- Using items or abilities  
+- Speaking or communicating
+- Performing any actions
+
+&RPermission: &YLevel 0 (Player)
+
+Duration depends on Force skill and target's resistance.
+Stronger opponents may break free more quickly.
+Requires significant Force energy to maintain.
+
+&RRelated: &GFORCE, STUN
+~
+StygianRenegade~
+Thu Sep 4 14:20:00 2025~
+
 101 HOLYLIGHT INVIS IMMFLY PASSDOOR~
 Syntax: holylight
 Syntax: invis
@@ -8368,6 +8414,24 @@ whats running while you have no access to the shell.
 Greven~
 Wed Dec 15 21:55:48 2004~
 
+1 MUDINFO~
+&RSyntax: &Gmudinfo&w
+
+Displays comprehensive information about the MUD including:
+- Current uptime and boot time
+- Number of active players
+- System resource usage
+- Memory statistics
+- Network connection data
+- Database status and performance metrics
+
+&RPermission: &YLevel 1 (Player)
+
+Useful for players wanting to check MUD status and performance.
+~
+StygianRenegade~
+Thu Sep 4 14:15:00 2025~
+
 153 MUDSAVE~
 &RSyntax: &gmudsave
  
@@ -9883,6 +9947,20 @@ Recalls immortal to Omnipresent Being's Monitering Room.
 Greven~
 Tue Jun 24 16:52:16 2003~
 
+1 REMBOUNTY~
+&RSyntax: &Grembounty &C<&ctarget&C>&w
+
+This command allows you to remove a bounty that you have placed on another
+character. You must be the person who originally placed the bounty to remove it.
+This can only be done at a bounty placement office.
+
+If used without arguments, it will display the current list of bounties.
+
+&RNote:&w Removing a bounty will not refund the credits you paid to place it.
+~
+Greven~
+Thu Jul 28 13:11:15 2005~
+
 1 RECRUIT~
 Syntax: recruit <amount>
  
@@ -11356,6 +11434,23 @@ either leave of their own choice or they shove/drag another player.
 Greven~
 Tue Jun 24 16:52:16 2003~
 
+155 SHOWHELP~
+&RSyntax: &Gshowhelp &C<&chelp_keyword&C>&w
+
+Displays detailed help system debugging information including:
+- Help entry content and formatting
+- Trust level requirements
+- Last modification timestamps
+- Help system structure and organization
+
+&RPermission: &YLevel 155 (Supreme Immortal)
+
+Used for debugging and managing the help system.
+Can show raw help data for system maintenance.
+~
+StygianRenegade~
+Thu Sep 4 14:16:00 2025~
+
 153 SHOWALLBOUNTIES~
 &RSyntax: &gshowallbounties
  
@@ -11434,6 +11529,46 @@ Rmessage: The message that is sent to the room that the victim is in.
 ~
 Greven~
 Sun Aug  7 17:02:41 2005~
+
+155 SHOWACCOUNTS~
+&RSyntax: &Gshowaccounts &C<&ccharacter|account&C>&w
+
+Display account information for a specific character or account.
+When used with a character name, shows that character's account details.
+When used with no argument, displays all online characters and their accounts.
+
+&RPermission: &YLevel 155 (Supreme Immortal)
+
+&RShows:
+- Account Name
+- RP Points  
+- RP Current
+- Quest Points
+- Character count for account
+~
+StygianRenegade~
+Thu Sep 4 13:38:30 2025~
+
+155 SHOWALTS~
+&RSyntax: &Gshowalts &C<&ccharacter|account&C>&w
+
+Display all alternative characters linked to an account.
+Shows detailed information about all characters associated with 
+a specific account for administrative purposes.
+
+&RPermission: &YLevel 155 (Supreme Immortal)
+
+&RShows:
+- Account Name
+- RP Points and Current RP
+- Quest Points  
+- Complete list of all characters (numbered slots)
+- Character names in all account slots
+
+&RUsage: &WProvide either a character name currently online or an account name.
+~
+StygianRenegade~
+Thu Sep 4 13:38:30 2025~
 
 101 SHOWSHIP~
 Syntax : showship <ship name>
@@ -11957,6 +12092,24 @@ co-pilot seat or cockpit if applicable.
 Greven~
 Thu Mar 11 16:28:25 2004~
 
+153 STEACHER~
+&RSyntax: &Gsteacher &C<&cmob_vnum&C> &C<&cskill_name&C>&w
+
+Sets or removes a mob as a teacher for a specific skill.
+When set, the designated mob can teach players the specified skill
+through normal practice mechanics.
+
+&RPermission: &YLevel 153 (Immortal)
+
+&RUsage:
+- steacher 1234 lightsaber    (makes mob 1234 teach lightsaber)
+- steacher 1234 remove       (removes teaching ability)
+
+Related: ADDTEACHER, PRACTICE
+~
+StygianRenegade~
+Thu Sep 4 14:17:00 2025~
+
 153 STING~
 &RSyntax: &gsting
  
@@ -12388,6 +12541,23 @@ Area resets are indicated by 'squeaking noises' just prior to the reset.
 ~
 Greven~
 Tue Jun 24 16:52:16 2003~
+
+151 TIME~
+&RSyntax: &Gtime&w
+
+Displays comprehensive time information including:
+- Current game time and date
+- Real world time and date  
+- Server uptime duration
+- Time zone information
+- Game calendar details
+
+&RPermission: &YLevel 151 (Immortal)
+
+Useful for immortals to coordinate events and check server status.
+~
+StygianRenegade~
+Thu Sep 4 14:18:00 2025~
 
 101 TIMECMD~
 Syntax:  timecmd <command>
@@ -13461,6 +13631,26 @@ races find this offensive.
 ~
 Greven~
 Tue Jun 24 16:52:16 2003~
+
+1 WEATHER~
+&RSyntax: &Gweather&w
+
+Displays current weather conditions for your location including:
+- Temperature and humidity levels
+- Precipitation status (rain, snow, etc.)
+- Wind conditions and direction
+- Atmospheric visibility
+- Weather forecast for the area
+
+&RPermission: &YLevel 1 (Player)
+
+Weather affects various game mechanics such as:
+- Movement speed in severe conditions
+- Visibility during storms
+- Ship landing capabilities
+~
+StygianRenegade~
+Thu Sep 4 14:19:00 2025~
 
 1 wedding marriage propose refuse~
 &RSyntax: &Gpropose &C<&cperson&C>&w

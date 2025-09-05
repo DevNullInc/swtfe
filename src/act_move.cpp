@@ -2033,7 +2033,6 @@ CMDF do_unlock(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 
 CMDF do_bashdoor(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 {
-        [[maybe_unused]] CHAR_DATA *gch;
         EXIT_DATA *pexit;
         char      arg[MAX_INPUT_LENGTH];
 

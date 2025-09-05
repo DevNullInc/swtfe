@@ -58,14 +58,20 @@
 #include "space2.hpp"
 #include "password.hpp"
 
+// Shared mutable empty string buffer to avoid repeated string literal casting
+static char empty_string[] = ""; // use with STRALLOC(empty_string)
+
 // Modern C++ includes for incremental modernization to C++23
 #include <string>
+#include <string_view>
 #include <vector>
 #include <memory>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <optional>
+#include <algorithm>
+#include <type_traits>
 
 extern int top_affect;
 extern int top_reset;
@@ -145,6 +151,27 @@ namespace BuildUtils {
     
 } // namespace BuildUtils
 
+// Utility: create a mutable working copy from a const command argument
+static char* make_mutable_argument(const char* src, char* dest, size_t destsz)
+{
+        if (!src)
+        {
+                dest[0] = '\0';
+                return dest;
+        }
+        mudstrlcpy(dest, src, destsz);
+        return dest;
+}
+
+// Helper to safely clamp and cast an int to sh_int without triggering -Wconversion
+[[nodiscard]] inline sh_int to_shint(int v) noexcept {
+        if (v < static_cast<int>(std::numeric_limits<sh_int>::min()))
+                return std::numeric_limits<sh_int>::min();
+        if (v > static_cast<int>(std::numeric_limits<sh_int>::max()))
+                return std::numeric_limits<sh_int>::max();
+        return static_cast<sh_int>(v);
+}
+
 /* planet constants for vip and wanted flags */
 
 const char *const planet_flags[] = {
@@ -156,17 +183,46 @@ const char *const planet_flags[] = {
 		"p31"
 };
 
-const char *const weapon_table[13] = {
+const char *const weapon_table[13] = { /* matches extern in mud.hpp */
         "none",
         "vibro-axe", "vibro-blade", "lightsaber", "whip", "knife",
         "blaster", "w7", "bludgeon", "bowcaster", "w10",
         "force pike", "w12"
 };
 
-const char *const spice_table[] = {
+const char *const spice_table[] = { // matches extern in mud.hpp
         "glitterstim", "carsanum", "ryll", "andris", "s4", "s5", "s6", "s7",
         "s8", "s9"
 };
+
+// Build a space-separated list of table entries. wordwrap requires mutable char*.
+static char *build_joined_table(size_t count, const char *const *table)
+{
+        static char outbuf[MAX_STRING_LENGTH];
+        outbuf[0] = '\0';
+        int len = 0;
+        for (size_t i = 0; i < count; ++i)
+        {
+                if (i)
+                {
+                        int added = snprintf(outbuf + len, MSL - static_cast<size_t>(len), " ");
+                        if (added <= 0) break;
+                        len += added;
+                        if (static_cast<size_t>(len) >= MSL) break;
+                }
+                int added = snprintf(outbuf + len, MSL - static_cast<size_t>(len), "%s", table[i]);
+                if (added <= 0) break;
+                len += added;
+                if (static_cast<size_t>(len) >= MSL) break;
+        }
+        return outbuf;
+}
+
+// Overloads to accept int directions without triggering -Wconversion
+inline EXIT_DATA *get_exit(ROOM_INDEX_DATA *room, int dir) { return get_exit(room, to_shint(dir)); }
+inline EXIT_DATA *get_exit_num(ROOM_INDEX_DATA *room, int dir) { return get_exit_num(room, to_shint(dir)); }
+inline EXIT_DATA *get_exit_to(ROOM_INDEX_DATA *room, int dir, int vnum) { return get_exit_to(room, to_shint(dir), vnum); }
+inline EXIT_DATA *make_exit(ROOM_INDEX_DATA *from, ROOM_INDEX_DATA *to, int dir) { return make_exit(from, to, to_shint(dir)); }
 
 const char *const cargo_names[CONTRABAND_MAX] = {
         "none", "Ore", "Produce", "Meat", "Metal", "Minerals", "Components",
@@ -179,14 +235,14 @@ const char *const cargo_names[CONTRABAND_MAX] = {
         "Explosives"
 };
 
-extern char *const crystal_table[8];
-char     *const crystal_table[8] = {
+extern const char *const crystal_table[8];
+const char *const crystal_table[8] = {
         "non-adegan", "kathracite", "relacite", "danite", "mephite", "ponite",
         "illum", "corusca"
 };
 
 
-char     *const ex_flags[] = {
+const char *const ex_flags[] = {
         "isdoor", "closed", "locked", "secret", "swim", "pickproof", "fly",
         "climb",
         "dig", "r1", "nopassdoor", "hidden", "passage", "portal", "r2", "r3",
@@ -194,7 +250,7 @@ char     *const ex_flags[] = {
         "bashed", "bashproof", "nomob", "window", "can_look", "rubble"
 };
 
-char     *const r_flags[] = {
+const char *const r_flags[] = {
         "dark", "reserved", "nomob", "indoors", "can_land", "can_fly",
         "no_drive",
         "nomagic", "bank", "private", "safe", "installation", "petshop",
@@ -212,7 +268,7 @@ char     *const r_flags[] = {
         "sysmonitor", "emptyplot"
 };
 
-char     *const o_flags[] = {
+const char *const o_flags[] = {
         "glow", "hum", "dark", "hutt_size", "contraband", "invis", "magic",
         "nodrop", "bless",
         "antigood", "antievil", "antineutral", "noremove", "inventory",
@@ -223,12 +279,12 @@ char     *const o_flags[] = {
         "human_size"
 };
 
-char     *const mag_flags[] = {
+const char *const mag_flags[] = {
         "returning", "backstabber", "bane", "loyal", "haste", "drain",
         "lightning_blade"
 };
 
-char     *const w_flags[] = {
+const char *const w_flags[] = {
         "take", "finger", "neck", "body", "head", "legs", "feet", "hands",
         "arms",
         "shield", "about", "waist", "wrist", "wield", "hold", "_dual_",
@@ -237,41 +293,31 @@ char     *const w_flags[] = {
         "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r13"
 };
 
-char     *const area_flags[] = {
+const char *const area_flags[] = {
         "nopkill", "noquest", "prototype", "r3", "r4", "r5", "r6", "r7", "r8",
         "r9", "r10", "r11", "r12", "r13", "r14", "r15", "r16", "r17",
         "r18", "r19", "r20", "r21", "r22", "r23", "r24",
         "r25", "r26", "r27", "r28", "r29", "r30", "r31"
 };
 
-char     *const o_types[] = {
+const char *const o_types[] = {
         "none", "light", "_scroll", "_wand", "staff", "weapon", "_fireweapon",
-        "missile",
-        "treasure", "armor", "potion", "_worn", "furniture", "trash",
-        "_oldtrap",
-        "container", "_note", "drinkcon", "key", "food", "money", "pen",
-        "_boat",
-        "corpse", "corpse_pc", "fountain", "pill", "_blood", "_bloodstain",
-        "scraps", "_unused1", "_unused2", "_unused3", "_incense", "fire",
-        "book",
-        "switch",
-        "lever", "_pullchain", "button", "beacon", "trap", "_runepouch",
-        "_match", "raw_metal",
-        "canister", "_portal", "paper", "_tinder", "lockpick", "_spike",
-        "_disease", "_oil",
-        "fuel", "restraint", "_longbow", "_crossbow", "ammo", "_quiver",
-        "shovel",
-        "salve", "rawspice", "lens", "crystal", "duraplast", "battery",
-        "toolkit", "durasteel", "oven", "mirror", "circuit", "superconductor",
-        "comlink", "medpac",
-        "fabric", "rare_metal", "magnet", "thread", "spice", "smut", "device",
-        "spacecraft",
-        "grenade", "landmine", "government", "droid_corpse", "bolt", "bond",
-        "implant",
-        "chemical", "binding", "holster", "landdeed", "<error>"
+        "missile", "treasure", "armor", "potion", "_worn", "furniture", "trash",
+        "_oldtrap", "container", "_note", "drinkcon", "key", "food", "money", "pen",
+        "_boat", "corpse", "corpse_pc", "fountain", "pill", "_blood", "_bloodstain",
+        "scraps", "_pipe", "_herbcon", "_herb", "_incense", "fire", "book", "switch",
+        "lever", "_pullchain", "button", "beacon", "trap", "_runepouch", "_match",
+        "raw_metal", "canister", "portal", "paper", "tinder", "lockpick", "spike",
+        "disease", "oil", "fuel", "restraint", "long_bow", "crossbow", "ammo",
+        "quiver", "shovel", "salve", "rawspice", "lens", "crystal", "duraplast",
+        "battery", "toolkit", "durasteel", "oven", "mirror", "circuit",
+        "superconductor", "comlink", "medpac", "fabric", "rare_metal", "magnet",
+        "thread", "spice", "smut", "device", "spacecraft", "grenade", "landmine",
+        "government", "droid_corpse", "bolt", "bond", "implant", "chemical", "binding",
+        "holster", "landdeed", "<error>"
 };
 
-char     *const a_types[] = {
+const char *const a_types[] = {
         "none", "strength", "dexterity", "intelligence", "wisdom",
         "constitution",
         "sex", "null", "level", "age", "height", "weight", "endurance", "hit",
@@ -291,7 +337,7 @@ char     *const a_types[] = {
         "stripsn", "remove", "dig", "full", "thirst", "drunk", "blood"
 };
 
-char     *const a_flags[] = {
+const char *const a_flags[] = {
         "blind", "invisible", "detect_evil", "detect_invis", "detect_magic",
         "detect_hidden", "weaken", "sanctuary", "faerie_fire", "infrared",
         "curse",
@@ -304,7 +350,7 @@ char     *const a_flags[] = {
         "berserk", "aqua_breath"
 };
 
-char     *const act_flags[] = {
+const char *const act_flags[] = {
         "npc", "sentinel", "scavenger", "norunsnipe", "r3", "aggressive",
         "stayarea",
         "wimpy", "pet", "train", "practice", "immortal", "deadly",
@@ -316,7 +362,7 @@ char     *const act_flags[] = {
         "mail", "citizen", "prototype", "r31"
 };
 
-char     *const pc_flags[] = {
+const char *const pc_flags[] = {
         "r1", "nohunger", "unauthed", "norecall", "nointro", "gag", "retired",
         "guest",
         "nosummon", "pageron", "notitled", "room", "working", "gotmail",
@@ -326,7 +372,7 @@ char     *const pc_flags[] = {
         "r28", "r29", "r30", "r31"
 };
 
-char     *const plr_flags[] = {
+const char *const plr_flags[] = {
         "npc", "boughtpet", "shovedrag", "autoexits", "autoloot", "forsaken",
         "blank",
         "secretive", "brief", "combine", "prompt", "telnet_ga", "holylight",
@@ -337,7 +383,7 @@ char     *const plr_flags[] = {
         "flee", "autocred", "automap", "afk"
 };
 
-char     *const trap_flags[] = {
+const char *const trap_flags[] = {
         "room", "obj", "enter", "leave", "open", "close", "get", "put",
         "pick",
         "unlock", "north", "south", "east", "r1", "west", "up", "down",
@@ -347,7 +393,7 @@ char     *const trap_flags[] = {
         "r14", "r15"
 };
 
-char     *const wear_locs[] = {
+const char *const wear_locs[] = {
         "light", "finger1", "finger2", "neck1", "neck2", "body", "head",
         "legs",
         "feet", "hands", "arms", "shield", "about", "waist", "wrist1",
@@ -356,7 +402,7 @@ char     *const wear_locs[] = {
         "binding"
 };
 
-char     *const ris_flags[] = {
+const char* const ris_flags[] = {
         "fire", "cold", "electricity", "energy", "blunt", "pierce", "slash",
         "acid",
         "poison", "drain", "sleep", "charm", "hold", "nonmagic", "plus1",
@@ -366,7 +412,7 @@ char     *const ris_flags[] = {
         "r4", "r5", "r6", "r7", "r8", "r9", "r10"
 };
 
-char     *const trig_flags[] = {
+const char* const trig_flags[] = {
         "up", "unlock", "lock", "d_north", "d_south", "d_east", "d_west",
         "d_up",
         "d_down", "door", "container", "open", "close", "passage", "oload",
@@ -377,7 +423,7 @@ char     *const trig_flags[] = {
         "showroomdesc", "autoreturn", "r2", "r3"
 };
 
-char     *const part_flags[] = {
+const char *const part_flags[] = {
         "head", "arms", "legs", "heart", "brains", "guts", "hands", "feet",
         "fingers",
         "ear", "eye", "long_tongue", "eyestalks", "tentacles", "fins",
@@ -388,14 +434,14 @@ char     *const part_flags[] = {
         "r1", "r2"
 };
 
-char *const attack_flags[] = {
+const char *const attack_flags[] = {
        "bite", "claws", "tail", "sting", "punch", "kick",
        "trip", "r7", "r8", "r9", "backstab", "r11", "r12", "r13", "r14", "r15", "r16", "r17",
        "r18", "r19", "r20", "r21", "r22", "r23", "r24", "r25", "r26", "r27", "r28", "r29",
        "r30", "r31"
 };
 
-char *const defense_flags[] = {
+const char *const defense_flags[] = {
        "parry", "dodge", "r2", "r3", "r4", "r5",
        "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15", "r16", "r17",
        "r18", "disarm", "r20", "grip", "r22", "r23", "r24", "r25", "r26", "r27", "r28", "r29",
@@ -415,9 +461,8 @@ char *const defense_flags[] = {
  *  hour and time, rand and randiw, speech and speechiw
  * 
  */
-char     *const mprog_flags[] = {
-        "act", "speech", "rand", "fight", "death", "hitprcnt", "entry",
-        "greet",
+const char *const mprog_flags[] = {
+        "act", "speech", "rand", "fight", "death", "hitprcnt", "entry", "greet",
         "allgreet", "give", "bribe", "hour", "time", "wear", "remove", "sac",
         "look", "exa", "zap", "get", "drop", "damage", "repair", "randiw",
         "speechiw", "pull", "push", "sleep", "rest", "leave", "script", "use"
@@ -429,21 +474,21 @@ extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
 extern MOB_INDEX_DATA *mob_index_hash[MAX_KEY_HASH];
 extern OBJ_INDEX_DATA *obj_index_hash[MAX_KEY_HASH];
 
-char     *flag_string(int bitvector, char *const flagarray[])
+char* flag_string(int bitvector, const char* const flagarray[])
 {
         static char buf[MAX_STRING_LENGTH];
-        int       x;
-
         buf[0] = '\0';
-        for (x = 0; x < 32; x++)
-                if (IS_SET(bitvector, 1 << x))
+        for (int i = 0; i < 32; ++i)
+        {
+                if (IS_SET(bitvector, 1 << i))
                 {
-                        mudstrlcat(buf, flagarray[x], MSL);
+                        mudstrlcat(buf, flagarray[i], MSL);
                         mudstrlcat(buf, ", ", MSL);
                 }
-        if ((x = strlen(buf)) > 0)
-                buf[x - 2] = '\0';
-
+        }
+        size_t len = strlen(buf);
+        if (len > 1)
+                buf[len - 2] = '\0';
         return buf;
 }
 
@@ -582,32 +627,31 @@ bool can_medit(CHAR_DATA * ch, MOB_INDEX_DATA * mob)
 
 int get_bodypart(char *flag)
 {
-        unsigned int x;
-        unsigned int max = NUMITEMS(body_parts);
-
-        for (x = 0; x < max; x++)
+        for (size_t x = 0; x < NUMITEMS(body_parts); ++x)
+        {
                 if (!str_cmp(flag, body_parts[x]))
-                        return x;
+                        return static_cast<int>(x);
+        }
         return -1;
 }
 
 int get_otype(char *type)
 {
-        unsigned int x;
-
-        for (x = 0; x < (sizeof(o_types) / sizeof(o_types[0])); x++)
+        for (size_t x = 0; x < NUMITEMS(o_types); ++x)
+        {
                 if (!str_cmp(type, o_types[x]))
-                        return x;
+                        return static_cast<int>(x);
+        }
         return -1;
 }
 
 int get_aflag(char *flag)
 {
-        unsigned int x;
-
-        for (x = 0; x < NUMITEMS(a_flags); x++)
+        for (size_t x = 0; x < NUMITEMS(a_flags); ++x)
+        {
                 if (!str_cmp(flag, a_flags[x]))
-                        return x;
+                        return static_cast<int>(x);
+        }
         return -1;
 }
 
@@ -623,11 +667,11 @@ int get_trapflag(char *flag)
 
 int get_atype(char *type)
 {
-        unsigned int x;
-
-        for (x = 0; x < NUMITEMS(a_types); x++)
+        for (size_t x = 0; x < NUMITEMS(a_types); ++x)
+        {
                 if (!str_cmp(type, a_types[x]))
-                        return x;
+                        return static_cast<int>(x);
+        }
         return -1;
 }
 
@@ -752,11 +796,11 @@ int get_plrflag(char *flag)
 
 int get_risflag(char *flag)
 {
-        unsigned int x;
-
-        for (x = 0; x < NUMITEMS(ris_flags); x++)
+        for (size_t x = 0; x < NUMITEMS(ris_flags); ++x)
+        {
                 if (!str_cmp(flag, ris_flags[x]))
-                        return x;
+                        return static_cast<int>(x);
+        }
         return -1;
 }
 
@@ -772,11 +816,11 @@ int get_trigflag(char *flag)
 
 int get_partflag(char *flag)
 {
-        int       x;
-
-        for (x = 0; x < (int) NUMITEMS(part_flags); x++)
+        for (size_t x = 0; x < NUMITEMS(part_flags); ++x)
+        {
                 if (!str_cmp(flag, part_flags[x]))
-                        return x;
+                        return static_cast<int>(x);
+        }
         return -1;
 }
 
@@ -800,7 +844,7 @@ int get_defenseflag(char *flag)
         return -1;
 }
 
-CMDF do_goto(CHAR_DATA * ch, char *argument)
+CMDF do_goto(CHAR_DATA * ch, const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         ROOM_INDEX_DATA *location;
@@ -810,7 +854,11 @@ CMDF do_goto(CHAR_DATA * ch, char *argument)
         AREA_DATA *pArea;
         int       vnum;
 
-        one_argument(argument, arg);
+        // Prepare mutable working copy for legacy parsing helpers
+        char argument_work[MAX_STRING_LENGTH];
+        char* work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
+
+        one_argument(work, arg);
         if (arg[0] == '\0')
         {
                 send_to_char("Goto where?\n\r", ch);
@@ -922,10 +970,10 @@ CMDF do_goto(CHAR_DATA * ch, char *argument)
                 if (ch->pcdata && ch->pcdata->bamfout[0] != '\0')
                         act(AT_IMMORT, "$T", ch, NULL, ch->pcdata->bamfout,
                             TO_ROOM);
-                else
-                        act(AT_IMMORT, "$n $T", ch, NULL,
-                            (void *) "leaves in a swirl of the force.",
-                            TO_ROOM);
+                else {
+                        static const char bamfout_msg[] = "leaves in a swirl of the force.";
+                        act(AT_IMMORT, "$n $T", ch, NULL, const_cast<char*>(bamfout_msg), TO_ROOM);
+                }
         }
 
         ch->regoto = ch->in_room->vnum;
@@ -942,10 +990,10 @@ CMDF do_goto(CHAR_DATA * ch, char *argument)
                 if (ch->pcdata && ch->pcdata->bamfin[0] != '\0')
                         act(AT_IMMORT, "$T", ch, NULL, ch->pcdata->bamfin,
                             TO_ROOM);
-                else
-                        act(AT_IMMORT, "$n $T", ch, NULL,
-                            (void *) "enters in a swirl of the Force.",
-                            TO_ROOM);
+                else {
+                        static const char bamfin_msg[] = "enters in a swirl of the Force.";
+                        act(AT_IMMORT, "$n $T", ch, NULL, const_cast<char*>(bamfin_msg), TO_ROOM);
+                }
         }
 
 
@@ -1022,7 +1070,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                 QUICKLINK(victim->description);
                 }
                 stop_editing(ch);
-                ch->substate = ch->tempnum;
+                ch->substate = static_cast<sh_int>(std::clamp(ch->tempnum, 
+                                                              static_cast<int>(std::numeric_limits<sh_int>::min()), 
+                                                              static_cast<int>(std::numeric_limits<sh_int>::max())));
                 return;
         }
 
@@ -1146,9 +1196,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   minattr, maxattr);
                         return;
                 }
-                victim->perm_str = value;
+                victim->perm_str = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->perm_str = value;
+                        victim->pIndexData->perm_str = to_shint(value);
                 return;
         }
 
@@ -1162,9 +1212,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   minattr, maxattr);
                         return;
                 }
-                victim->perm_int = value;
+                victim->perm_int = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->perm_int = value;
+                        victim->pIndexData->perm_int = to_shint(value);
                 return;
         }
 
@@ -1178,9 +1228,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   minattr, maxattr);
                         return;
                 }
-                victim->perm_wis = value;
+                victim->perm_wis = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->perm_wis = value;
+                        victim->pIndexData->perm_wis = to_shint(value);
                 return;
         }
 
@@ -1194,9 +1244,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   minattr, maxattr);
                         return;
                 }
-                victim->perm_dex = value;
+                victim->perm_dex = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->perm_dex = value;
+                        victim->pIndexData->perm_dex = to_shint(value);
                 return;
         }
 
@@ -1210,9 +1260,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   minattr, maxattr);
                         return;
                 }
-                victim->perm_con = value;
+                victim->perm_con = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->perm_con = value;
+                        victim->pIndexData->perm_con = to_shint(value);
                 return;
         }
 
@@ -1226,9 +1276,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   minattr, maxattr);
                         return;
                 }
-                victim->perm_cha = value;
+                victim->perm_cha = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->perm_cha = value;
+                        victim->pIndexData->perm_cha = to_shint(value);
                 return;
         }
         else if (!str_cmp(arg2, "wanted"))
@@ -1247,9 +1297,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   maxattr);
                         return;
                 }
-                victim->perm_lck = value;
+                victim->perm_lck = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->perm_lck = value;
+                        victim->pIndexData->perm_lck = to_shint(value);
                 return;
         }
 
@@ -1286,9 +1336,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   maxattr);
                         return;
                 }
-                victim->perm_frc = value;
+                victim->perm_frc = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->perm_frc = value;
+                        victim->pIndexData->perm_frc = to_shint(value);
                 return;
         }
 
@@ -1303,9 +1353,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_poison_death = value;
+                victim->saving_poison_death = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_poison_death = value;
+                        victim->pIndexData->saving_poison_death = to_shint(value);
                 return;
         }
 
@@ -1320,9 +1370,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_wand = value;
+                victim->saving_wand = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_wand = value;
+                        victim->pIndexData->saving_wand = to_shint(value);
                 return;
         }
 
@@ -1337,9 +1387,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_para_petri = value;
+                victim->saving_para_petri = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_para_petri = value;
+                        victim->pIndexData->saving_para_petri = to_shint(value);
                 return;
         }
 
@@ -1354,9 +1404,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_breath = value;
+                victim->saving_breath = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_breath = value;
+                        victim->pIndexData->saving_breath = to_shint(value);
                 return;
         }
 
@@ -1371,9 +1421,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_spell_staff = value;
+                victim->saving_spell_staff = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_spell_staff = value;
+                        victim->pIndexData->saving_spell_staff = to_shint(value);
                 return;
         }
 
@@ -1386,9 +1436,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         send_to_char("Sex range is 0 to 2.\n\r", ch);
                         return;
                 }
-                victim->sex = value;
+                victim->sex = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->sex = value;
+                        victim->pIndexData->sex = to_shint(value);
                 return;
         }
 
@@ -1483,7 +1533,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                victim->main_ability = iclass;
+                victim->main_ability = to_shint(iclass);
                 return;
         }
 
@@ -1494,7 +1544,8 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 victim->race = get_race(arg3);
                 if (victim->race == NULL)
                 {
-                        victim->race = get_race("human");
+                        static char human_race[] = "human"; // mutable to silence write-strings
+                        victim->race = get_race(human_race);
                         send_to_char("That is not a valid race.", ch);
                         return;
                 }
@@ -1512,9 +1563,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         send_to_char("AC range is -30000 to 300.\n\r", ch);
                         return;
                 }
-                victim->armor = value;
+                victim->armor = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->ac = value;
+                        victim->pIndexData->ac = to_shint(value);
                 return;
         }
 
@@ -1538,16 +1589,16 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         int       ability;
 
                         for (ability = 0; ability < MAX_ABILITY; ability++)
-                                victim->skill_level[ability] = value;
+                                victim->skill_level[ability] = to_shint(value);
                 }
-                victim->top_level = value;
-                victim->armor = (sh_int) (100 - value * 2.5);
-                victim->hitroll = value / 5;
-                victim->damroll = value / 5;
+                victim->top_level = to_shint(value);
+                victim->armor = to_shint(static_cast<int>(100 - value * 2.5));
+                victim->hitroll = to_shint(value / 5);
+                victim->damroll = to_shint(value / 5);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
                 {
-                        victim->pIndexData->level = value;
-                        victim->pIndexData->ac = (sh_int) (100 - value * 2.5);
+                        victim->pIndexData->level = to_shint(value);
+                        victim->pIndexData->ac = to_shint(static_cast<int>(100 - value * 2.5));
                         victim->pIndexData->hitroll = victim->hitroll;
                         victim->pIndexData->damroll = victim->damroll;
                 }
@@ -1582,9 +1633,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         send_to_char("Attacks range is 0 to 20.\n\r", ch);
                         return;
                 }
-                victim->numattacks = value;
+                victim->numattacks = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->numattacks = value;
+                        victim->pIndexData->numattacks = to_shint(value);
                 return;
         }
 
@@ -1594,7 +1645,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 victim->gold = value;
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->gold = value;
+                        victim->pIndexData->gold = value < 0 ? 0u : static_cast<unsigned int>(value);
                 return;
         }
 
@@ -1615,7 +1666,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                victim->hitroll = URANGE(0, value, 85);
+                victim->hitroll = to_shint(URANGE(0, value, 85));
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
                         victim->pIndexData->hitroll = victim->hitroll;
                 return;
@@ -1625,7 +1676,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                victim->damroll = URANGE(0, value, 65);
+                victim->damroll = to_shint(URANGE(0, value, 65));
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
                         victim->pIndexData->damroll = victim->damroll;
                 return;
@@ -1642,7 +1693,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->max_hit = value;
+                victim->max_hit = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
                         victim->pIndexData->max_hit = victim->max_hit;
                 return;
@@ -1659,7 +1710,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->max_endurance = value;
+                victim->max_endurance = to_shint(value);
                 return;
         }
 
@@ -1673,16 +1724,15 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                      ch);
                         return;
                 }
-                victim->alignment = value;
+                victim->alignment = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->alignment = value;
+                        victim->pIndexData->alignment = to_shint(value);
                 return;
         }
 
         if (!str_cmp(arg2, "password"))
         {
-                char     *pwdnew;
-                char     *p;
+                char     *p; // removed unused pwdnew
 
                 if (get_trust(ch) < LEVEL_SUB_IMPLEM)
                 {
@@ -1746,7 +1796,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->quest_number = value;
+                victim->pcdata->quest_number = to_shint(value);
                 return;
         }
 
@@ -1778,7 +1828,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->quest_curr = value;
+                victim->pcdata->quest_curr = to_shint(value);
                 return;
         }
 
@@ -1791,7 +1841,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->mental_state = value;
+                victim->mental_state = to_shint(value);
                 return;
         }
 
@@ -1804,7 +1854,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->emotional_state = value;
+                victim->emotional_state = to_shint(value);
                 return;
         }
 
@@ -1822,7 +1872,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[COND_THIRST] = value;
+                victim->pcdata->condition[COND_THIRST] = to_shint(value);
                 return;
         }
 
@@ -1840,7 +1890,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[COND_DRUNK] = value;
+                victim->pcdata->condition[COND_DRUNK] = to_shint(value);
                 return;
         }
 
@@ -1858,7 +1908,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[COND_FULL] = value;
+                victim->pcdata->condition[COND_FULL] = to_shint(value);
                 return;
         }
 
@@ -1907,7 +1957,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 }
                 if (victim->pcdata)
                 {
-                        victim->pcdata->min_snoop = value;
+                        victim->pcdata->min_snoop = to_shint(value);
                         return;
                 }
         }
@@ -1923,10 +1973,10 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 }
                 if (IS_NPC(victim))
                 {
-                        if (!arg3 || arg3[0] == '\0')
+                        if (arg3[0] == '\0')
                         {
                                 STRFREE(victim->mob_clan);
-                                victim->mob_clan = STRALLOC("");
+                                victim->mob_clan = STRALLOC(empty_string);
                                 send_to_char("Clan unset.\n\r", ch);
                                 return;
                         }
@@ -1950,7 +2000,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
 
 
-                if (!arg3 || arg3[0] == '\0')
+                if (arg3[0] == '\0')
                 {
                         if (victim->pcdata->clan->roster)
                                 if (hasname
@@ -2058,7 +2108,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 if (victim->pcdata->rank)
                         STRFREE(victim->pcdata->rank);
                 if (!str_cmp(arg3, "none"))
-                        victim->pcdata->rank = STRALLOC("");
+                        victim->pcdata->rank = STRALLOC(empty_string);
                 else
                         victim->pcdata->rank = STRALLOC(arg3);
                 return;
@@ -2075,7 +2125,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 if (victim->pcdata->spouse)
                         STRFREE(victim->pcdata->spouse);
                 if (!str_cmp(arg3, "none") || arg3[0] == '\0')
-                        ch->pcdata->spouse = STRALLOC("");
+                        ch->pcdata->spouse = STRALLOC(empty_string);
                 else
                         ch->pcdata->spouse = STRALLOC(arg3);
                 return;
@@ -2088,7 +2138,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
                 }
-                ch->pcdata->age = value;
+                ch->pcdata->age = to_shint(value);
                 return;
         }
 
@@ -2105,20 +2155,20 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                if (!arg3 || arg3[0] == '\0')
+                if (arg3[0] == '\0')
                 {
-                        SPEC_LIST *specfun;
+                        SPEC_LIST *specfun_list;
                         sh_int    count = 0;
 
                         send_to_char
                                 ("Please select one of the following special functions:\n\r",
                                  ch);
                         {
-                                for (specfun = first_specfun; specfun;
-                                     specfun = specfun->next, count++)
+                                                                                  for (specfun_list = first_specfun; specfun_list;
+                                                                                                 specfun_list = specfun_list->next, count++)
                                 {
-                                        ch_printf(ch, "%s\t\t",
-                                                  specfun->name);
+                                                                                                         ch_printf(ch, "%s\t\t",
+                                                                                                                                  specfun_list->name);
                                         if ((count % 3) == 0)
                                         {
                                                 send_to_char("\n\r", ch);
@@ -2183,20 +2233,20 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                if (!arg3 || arg3[0] == '\0')
+                if (arg3[0] == '\0')
                 {
-                        SPEC_LIST *specfun;
+                        SPEC_LIST *specfun_list;
                         sh_int    count = 0;
 
                         send_to_char
                                 ("Please select one of the following special functions:\n\r",
                                  ch);
                         {
-                                for (specfun = first_specfun; specfun;
-                                     specfun = specfun->next)
+                                                                                  for (specfun_list = first_specfun; specfun_list;
+                                                                                                 specfun_list = specfun_list->next)
                                 {
-                                        ch_printf(ch, "%s\t\t",
-                                                  specfun->name);
+                                                                                                         ch_printf(ch, "%s\t\t",
+                                                                                                                                  specfun_list->name);
                                         if ((count % 3) == 0)
                                         {
                                                 send_to_char("\n\r", ch);
@@ -2264,7 +2314,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
                 if (!can_mmodify(ch, victim))
                         return;
-                if (!argument || argument[0] == '\0')
+                if (argument[0] == '\0')
                 {
                         send_to_char
                                 ("Usage: mset <victim> flags <flag> [flag]...\n\r",
@@ -2275,20 +2325,17 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                                        act_flags), 78), ch);
                         else
                         {
-                                char      buf[MSL];
-
-                                mudstrlcpy(buf,
-                                           show_ext_flag_string(NUMITEMS
-                                                                (plr_flags),
+                                char      localbuf[MSL];
+                                mudstrlcpy(localbuf,
+                                           show_ext_flag_string(NUMITEMS(plr_flags),
                                                                 plr_flags),
                                            MSL);
-                                mudstrlcat(buf, ", ", MSL);
-                                mudstrlcat(buf,
-                                           show_ext_flag_string(NUMITEMS
-                                                                (pc_flags),
+                                mudstrlcat(localbuf, ", ", MSL);
+                                mudstrlcat(localbuf,
+                                           show_ext_flag_string(NUMITEMS(pc_flags),
                                                                 pc_flags),
                                            MSL);
-                                send_to_char(wordwrap(buf, 78), ch);
+                                send_to_char(wordwrap(localbuf, 78), ch);
                         }
                         send_to_char("\n\r", ch);
                         return;
@@ -2348,8 +2395,8 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "godflags"))
         {
-                char      arg3[MSL];
-                sh_int    tempnum;
+                char      godflags_arg[MSL]; // renamed to avoid shadowing outer arg3
+                int       tempnum; // keep full int from get_godflags then narrow only when toggling
 
                 if (!argument || argument[0] == '\0')
                 {
@@ -2371,15 +2418,15 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 }
                 while (argument[0] != '\0')
                 {
-                        argument = one_argument(argument, arg3);
-                        tempnum = get_godflags(arg3);
+                        argument = one_argument(argument, godflags_arg);
+                        tempnum = get_godflags(godflags_arg);
 
                         if (tempnum < 0 || tempnum > 31)
                         {
-                                ch_printf(ch, "Unknown flag: %s\n\r", arg3);
+                                ch_printf(ch, "Unknown flag: %s\n\r", godflags_arg);
                                 return;
                         }
-                        TOGGLE_BIT(victim->pcdata->godflags, 1 << tempnum);
+                        TOGGLE_BIT(victim->pcdata->godflags, 1 << to_shint(tempnum));
                 }
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -2808,9 +2855,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   POS_STANDING);
                         return;
                 }
-                victim->position = value;
+                victim->position = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->position = victim->position;
+                        victim->pIndexData->position = to_shint(victim->position);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -2830,9 +2877,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                                   POS_STANDING);
                         return;
                 }
-                victim->defposition = value;
+                victim->defposition = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->defposition = victim->defposition;
+                        victim->pIndexData->defposition = to_shint(victim->defposition);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -2903,7 +2950,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->hitnodice = value;
+                        victim->pIndexData->hitnodice = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -2925,7 +2972,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->hitsizedice = value;
+                        victim->pIndexData->hitsizedice = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -2947,7 +2994,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->hitplus = value;
+                        victim->pIndexData->hitplus = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -2969,7 +3016,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->damnodice = value;
+                        victim->pIndexData->damnodice = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -2991,7 +3038,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->damsizedice = value;
+                        victim->pIndexData->damsizedice = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -3013,7 +3060,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 }
 
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->damplus = value;
+                        victim->pIndexData->damplus = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
 
@@ -3151,7 +3198,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_mset(ch, "");
+        send_to_char("Type 'mset ?' for syntax.\n\r", ch);
         return;
 }
 
@@ -3207,7 +3254,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                 tmpobj = (OBJ_DATA *) ch->spare_ptr;
                 stop_editing(ch);
                 ch->dest_buf = tmpobj;
-                ch->substate = ch->tempnum;
+                ch->substate = to_shint(ch->tempnum);
                 return;
 
         case SUB_OBJ_LONG:
@@ -3236,7 +3283,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                 }
                 tmpobj = (OBJ_DATA *) ch->spare_ptr;
                 stop_editing(ch);
-                ch->substate = ch->tempnum;
+                ch->substate = to_shint(ch->tempnum);
                 ch->dest_buf = tmpobj;
                 return;
         }
@@ -3497,7 +3544,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
         {
                 if (!can_omodify(ch, obj))
                         return;
-                obj->level = value;
+                obj->level = to_shint(value);
                 return;
         }
 
@@ -3505,9 +3552,9 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
         {
                 if (!can_omodify(ch, obj))
                         return;
-                obj->weight = value;
+                obj->weight = to_shint(value);
                 if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
-                        obj->pIndexData->weight = value;
+                        obj->pIndexData->weight = to_shint(value);
                 return;
         }
 
@@ -3539,7 +3586,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
-                        obj->pIndexData->layers = value;
+                        obj->pIndexData->layers = to_shint(value);
                 else
                         send_to_char
                                 ("Item must have prototype flag to set this value.\n\r",
@@ -3551,7 +3598,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
         {
                 if (!can_omodify(ch, obj))
                         return;
-                obj->timer = value;
+                obj->timer = to_shint(value);
                 return;
         }
 
@@ -3647,7 +3694,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                 int       bitv;
 
                 argument = one_argument(argument, arg2);
-                if (!arg2 || arg2[0] == '\0' || !argument || argument[0] == 0)
+                if (arg2[0] == '\0' || !argument || argument[0] == 0) // arg2 is stack array, never null
                 {
                         send_to_char
                                 ("Usage: oset <object> affect <field> <value>\n\r",
@@ -3660,7 +3707,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
 
                         return;
                 }
-                loc = get_atype(arg2);
+                loc = to_shint(get_atype(arg2)); // safe narrowing
                 if (loc < 1)
                 {
                         ch_printf(ch, "Unknown field: %s\n\r", arg2);
@@ -3731,7 +3778,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                         send_to_char("Invalid affect number.\n\r", ch);
                         return;
                 }
-                loc = temp_loc;
+                loc = to_shint(temp_loc); // safe narrowing
 
                 count = 0;
 
@@ -3778,7 +3825,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "ed"))
         {
-                if (!arg3 || arg3[0] == '\0')
+                if (arg3[0] == '\0')
                 {
                         send_to_char
                                 ("Syntax: oset <object> ed <keywords>\n\r",
@@ -3851,7 +3898,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "rmed"))
         {
-                if (!arg3 || arg3[0] == '\0')
+                if (arg3[0] == '\0')
                 {
                         send_to_char
                                 ("Syntax: oset <object> rmed <keywords>\n\r",
@@ -3943,23 +3990,17 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
         case ITEM_WEAPON:
                 if (!str_cmp(arg2, "weapontype"))
                 {
-                        unsigned int x;
+                        unsigned int x; // loop index (unsigned ok)
 
                         value = -1;
-                        for (x = 0;
-                             x <
-                             sizeof(weapon_table) / sizeof(weapon_table[0]);
-                             x++)
+                        for (x = 0; x < (sizeof(weapon_table) / sizeof(weapon_table[0])); ++x)
                                 if (!str_cmp(arg3, weapon_table[x]))
-                                        value = x;
+                                        value = static_cast<int>(x); // explicit cast removes sign-conversion warning
                         if (value < 0)
                         {
                                 send_to_char("Unknown weapon type.\n\r", ch);
                                 send_to_char("\n\rChoices:\n\r", ch);
-                                send_to_char(wordwrap(show_ext_flag_string
-                                                      (NUMITEMS(weapon_table),
-                                                       (char *const*)weapon_table), 78),
-                                             ch);
+                                send_to_char(wordwrap(build_joined_table(NUMITEMS(weapon_table), weapon_table), 78), ch);
                                 send_to_char("\n\r", ch);
 
                                 return;
@@ -4001,21 +4042,17 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                         tmp = 1;
                 if (!str_cmp(arg2, "spicetype"))
                 {
-                        unsigned int x;
+                        unsigned int x; // loop index
 
                         value = -1;
-                        for (x = 0;
-                             x < sizeof(spice_table) / sizeof(spice_table[0]);
-                             x++)
+                        for (x = 0; x < (sizeof(spice_table) / sizeof(spice_table[0])); ++x)
                                 if (!str_cmp(arg3, spice_table[x]))
-                                        value = x;
+                                        value = static_cast<int>(x); // explicit cast
                         if (value < 0)
                         {
                                 send_to_char("Unknown spice type.\n\r", ch);
                                 send_to_char("\n\rChoices:\n\r", ch);
-                                send_to_char(wordwrap(show_ext_flag_string
-                                                      (NUMITEMS(spice_table),
-                                                       (char *const*)spice_table), 78), ch);
+                                send_to_char(wordwrap(build_joined_table(NUMITEMS(spice_table), spice_table), 78), ch);
                                 send_to_char("\n\r", ch);
 
                                 return;
@@ -4027,15 +4064,12 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
         case ITEM_CRYSTAL:
                 if (!str_cmp(arg2, "gemtype"))
                 {
-                        unsigned int x;
+                        unsigned int x; // loop index
 
                         value = -1;
-                        for (x = 0;
-                             x <
-                             sizeof(crystal_table) / sizeof(crystal_table[0]);
-                             x++)
+                        for (x = 0; x < (sizeof(crystal_table) / sizeof(crystal_table[0])); ++x)
                                 if (!str_cmp(arg3, crystal_table[x]))
-                                        value = x;
+                                        value = static_cast<int>(x); // explicit cast
                         if (value < 0)
                         {
                                 send_to_char("Unknown gem type.\n\r", ch);
@@ -4129,7 +4163,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_oset(ch, "");
+        send_to_char("Type 'oset ?' for syntax.\n\r", ch);
         return;
 }
 
@@ -4195,14 +4229,14 @@ CMDF do_rset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "sector"))
         {
-                location->sector_type = value;
+                location->sector_type = to_shint(value); // safe narrowing
                 return;
         }
 
         /*
          * Generate usage message.
          */
-        do_rset(ch, "");
+        send_to_char("Type 'rset ?' for syntax.\n\r", ch);
         return;
 }
 
@@ -4302,207 +4336,77 @@ int get_dir(char *txt)
         return edir;
 }
 
-char     *sprint_reset(CHAR_DATA * ch, RESET_DATA * pReset, sh_int num,
-                       bool rlist)
+char *sprint_reset(CHAR_DATA *ch, RESET_DATA *pReset, sh_int num, bool rlist)
 {
         static char buf[MAX_STRING_LENGTH];
-        char      mobname[MAX_STRING_LENGTH];
-        char      roomname[MAX_STRING_LENGTH];
-        char      objname[MAX_STRING_LENGTH];
-        /* Declare all size_t variables at the top of the function to avoid scope issues */
-        size_t len = 0, len1 = 0, len2 = 0, len3 = 0, len4 = 0, len5 = 0, len6 = 0;
+        char mobname[MAX_STRING_LENGTH];
+        char roomname[MAX_STRING_LENGTH];
+        char objname[MAX_STRING_LENGTH];
         static ROOM_INDEX_DATA *room;
         static OBJ_INDEX_DATA *obj, *obj2;
         static MOB_INDEX_DATA *mob;
-        int       rvnum = 0;
-
-        if (ch->in_room)
-                rvnum = ch->in_room->vnum;
-        if (num == 1)
-        {
-                room = NULL;
-                obj = NULL;
-                obj2 = NULL;
-                mob = NULL;
-        }
-
-        switch (pReset->command)
-        {
-        default:
-                /* Use step-by-step buffer building to avoid truncation */
-                len5 = 0; /* Reuse len5 that was declared at top of function */
-                buf[0] = '\0';
-                len5 += snprintf(buf + len5, MSL - len5, "%2d) *** BAD RESET: %c %d %d %d %d ***\n\r", 
-                         num, pReset->command, pReset->extra, pReset->arg1,
-                         pReset->arg2, pReset->arg3);
-                break;
-        case 'M':
-                mob = get_mob_index(pReset->arg1);
+        int rvnum = 0;
+        if (ch->in_room) rvnum = ch->in_room->vnum;
+        if (num == 1) { room = NULL; obj = NULL; obj2 = NULL; mob = NULL; }
+        size_t len = 0; buf[0] = '\0';
+        auto append = [&](const char *fmt, auto ...args){ if (len >= static_cast<size_t>(MSL)) return; int added = snprintf(buf + len, static_cast<size_t>(MSL) - len, fmt, args...); if (added > 0) len += static_cast<size_t>(added); };
+        switch (pReset->command) {
+        default: append("%2d) *** BAD RESET: %c %d %d %d %d ***\n\r", num, pReset->command, pReset->extra, pReset->arg1, pReset->arg2, pReset->arg3); break;
+        case 'M': {
+                mob = get_mob_index(pReset->arg1); 
                 room = get_room_index(pReset->arg3);
-                if (mob)
-                        mudstrlcpy(mobname, mob->player_name, MSL);
-                else
-                        mudstrlcpy(mobname, "Mobile: *BAD VNUM*", MSL);
-                if (room)
-                        mudstrlcpy(roomname, room->name, MSL);
-                else
-                        mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL);
-                /* Use step-by-step buffer building to avoid truncation */
-                len = 0; /* Reuse len variable declared at top of function */
-                buf[0] = '\0';
-                len += snprintf(buf + len, MSL - len, "%2d) ", num);
-                len += snprintf(buf + len, MSL - len, "%s", mobname);
-                len += snprintf(buf + len, MSL - len, " (%d) -> ", pReset->arg1);
-                len += snprintf(buf + len, MSL - len, "%s", roomname);
-                len += snprintf(buf + len, MSL - len, " (%d) [%d]\n\r", pReset->arg3, pReset->arg2);
-                break;
-        case 'E':
-                if (!mob)
-                        mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL);
-                if ((obj = get_obj_index(pReset->arg1)) == NULL)
-                        mudstrlcpy(objname, "Object: *BAD VNUM*", MSL);
-                else
-                        mudstrlcpy(objname, obj->name, MSL);
-                /* Use step-by-step buffer building to avoid truncation */
-                len2 = 0; /* Reuse len2 variable declared at top of function */
-                buf[0] = '\0';
-                len2 += snprintf(buf + len2, MSL - len2, "%2d) %s (%d)", num, objname, pReset->arg1);
-                len2 += snprintf(buf + len2, MSL - len2, " -> %s (%s) [%d]\n\r", 
-                         mobname, wear_locs[URANGE(0,pReset->arg3,MAX_WEAR)], pReset->arg2);
-                break;
-        case 'H':
-                if (pReset->arg1 > 0
-                    && (obj = get_obj_index(pReset->arg1)) == NULL)
-                        mudstrlcpy(objname, "Object: *BAD VNUM*", MSL);
-                else if (!obj)
-                        mudstrlcpy(objname, "Object: *NULL obj*", MSL);
-                /* Use step-by-step buffer building to avoid truncation */
-                len = 0; /* Reuse len variable declared at top of function */
-                buf[0] = '\0';
-                len += snprintf(buf + len, MSL - len, "%2d) Hide ", num);
-                len += snprintf(buf + len, MSL - len, "%s", objname);
-                len += snprintf(buf + len, MSL - len, " (%d)\n\r", obj ? obj->vnum : pReset->arg1);
-                break;
-        case 'G':
-                if (!mob)
-                        mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL);
-                if ((obj = get_obj_index(pReset->arg1)) == NULL)
-                        mudstrlcpy(objname, "Object: *BAD VNUM*", MSL);
-                else
-                        mudstrlcpy(objname, obj->name, MSL);
-                /* Use step-by-step buffer building to avoid truncation */
-                len1 = 0; /* Reuse len1 variable declared at top of function */
-                buf[0] = '\0';
-                len1 += snprintf(buf + len1, MSL - len1, "%2d) %s (%d)", num, objname, pReset->arg1);
-                len1 += snprintf(buf + len1, MSL - len1, " -> %s (carry) [%d]\n\r", mobname, pReset->arg2);
-                break;
-        case 'O':
-                if ((obj = get_obj_index(pReset->arg1)) == NULL)
-                        mudstrlcpy(objname, "Object: *BAD VNUM*", MSL);
-                else
-                        mudstrlcpy(objname, obj->name, MSL);
-                room = get_room_index(pReset->arg3);
-                if (!room)
-                        mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL);
-                else
-                        mudstrlcpy(roomname, room->name, MSL);
-                /* Use step-by-step buffer building to avoid truncation */
-                len = 0; /* Reuse len variable declared at top of function */
-                buf[0] = '\0';
-                len += snprintf(buf + len, MSL - len, "%2d) (object) ", num);
-                len += snprintf(buf + len, MSL - len, "%s", objname);
-                len += snprintf(buf + len, MSL - len, " (%d) -> ", pReset->arg1);
-                len += snprintf(buf + len, MSL - len, "%s", roomname);
-                len += snprintf(buf + len, MSL - len, " (%d) [%d]\n\r", pReset->arg3, pReset->arg2);
-                break;
-        case 'P':
-                if ((obj2 = get_obj_index(pReset->arg1)) == NULL)
-                        mudstrlcpy(objname, "Object1: *BAD VNUM*", MSL);
-                else
-                        mudstrlcpy(objname, obj2->name, MSL);
-                if (pReset->arg3 > 0
-                    && (obj = get_obj_index(pReset->arg3)) == NULL)
-                        mudstrlcpy(roomname, "Object2: *BAD VNUM*", MSL);
-                else if (!obj)
-                        mudstrlcpy(roomname, "Object2: *NULL obj*", MSL);
-                else
-                        mudstrlcpy(roomname, obj->name, MSL);
-                /* Use step-by-step buffer building to avoid truncation */
-                len = 0; /* Reuse len variable declared at top of function */
-                buf[0] = '\0';
-                len += snprintf(buf + len, MSL - len, "%2d) (Put) ", num);
-                len += snprintf(buf + len, MSL - len, "%s", objname);
-                len += snprintf(buf + len, MSL - len, " (%d) -> ", pReset->arg1);
-                len += snprintf(buf + len, MSL - len, "%s", roomname);
-                len += snprintf(buf + len, MSL - len, " (%d) [%d]\n\r", 
-                         obj ? obj->vnum : pReset->arg3, pReset->arg2);
-                break;
-        case 'D':
-                if (pReset->arg2 < 0 || pReset->arg2 > MAX_DIR + 1)
-                        pReset->arg2 = 0;
-                if ((room = get_room_index(pReset->arg1)) == NULL)
-                {
-                        mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL);
-                        snprintf(objname, MSL, "%s (no exit)",
-                                 dir_name[pReset->arg2]);
+                const char *mobsrc = mob ? mob->player_name : "Mobile: *BAD VNUM*";
+                const char *roomsr = room ? room->name : "Room: *BAD VNUM*";
+                mudstrlcpy(mobname, mobsrc, MSL);
+                mudstrlcpy(roomname, roomsr, MSL);
+                append("%2d) %s (%d) -> %s (%d) [%d]\n\r", num, mobname, pReset->arg1, roomname, pReset->arg3, pReset->arg2);
+                break; }
+        case 'E': if (!mob) mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL); if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) %s (%d) -> %s (%s) [%d]\n\r", num, objname, pReset->arg1, mobname, wear_locs[URANGE(0,pReset->arg3,MAX_WEAR)], pReset->arg2); break;
+        case 'H': if (pReset->arg1 > 0 && (obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else if (!obj) mudstrlcpy(objname, "Object: *NULL obj*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) Hide %s (%d)\n\r", num, objname, obj ? obj->vnum : pReset->arg1); break;
+        case 'G': if (!mob) mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL); if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) %s (%d) -> %s (carry) [%d]\n\r", num, objname, pReset->arg1, mobname, pReset->arg2); break;
+        case 'O': {
+                if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); 
+                room = get_room_index(pReset->arg3); 
+                const char *roomsr = room ? room->name : "Room: *BAD VNUM*"; 
+                mudstrlcpy(roomname, roomsr, MSL); 
+                append("%2d) (object) %s (%d) -> %s (%d) [%d]\n\r", num, objname, pReset->arg1, roomname, pReset->arg3, pReset->arg2); 
+                break; }
+        case 'P': {
+                if ((obj2 = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object1: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj2->name, MSL);
+                if (pReset->arg3 > 0 && (obj = get_obj_index(pReset->arg3)) == NULL) mudstrlcpy(roomname, "Object2: *BAD VNUM*", MSL);
+                else if (!obj) mudstrlcpy(roomname, "Object2: *NULL obj*", MSL);
+                else mudstrlcpy(roomname, obj->name, MSL);
+                append("%2d) (Put) %s (%d) -> %s (%d) [%d]\n\r", num, objname, pReset->arg1, roomname, obj ? obj->vnum : pReset->arg3, pReset->arg2);
+                break; }
+        case 'D': {
+                if (pReset->arg2 < 0 || pReset->arg2 > MAX_DIR + 1) pReset->arg2 = 0; 
+                if ((room = get_room_index(pReset->arg1)) == NULL) { 
+                        mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL); 
+                        snprintf(objname, MSL, "%s (no exit)", dir_name[pReset->arg2]); 
+                } else { 
+                        mudstrlcpy(roomname, room->name, MSL); 
+                        snprintf(objname, MSL, "%s%s", dir_name[pReset->arg2], get_exit(room, to_shint(pReset->arg2)) ? "" : " (NO EXIT!)"); 
                 }
-                else
-                {
-                        mudstrlcpy(roomname, room->name, MSL);
-                        snprintf(objname, MSL, "%s%s",
-                                 dir_name[pReset->arg2],
-                                 get_exit(room,
-                                          pReset->arg2) ? "" : " (NO EXIT!)");
+                switch (pReset->arg3) { 
+                        default: mudstrlcpy(mobname, "(* ERROR *)", MSL); break; 
+                        case 0: mudstrlcpy(mobname, "Open", MSL); break; 
+                        case 1: mudstrlcpy(mobname, "Close", MSL); break; 
+                        case 2: mudstrlcpy(mobname, "Close and lock", MSL); break; 
                 }
-                switch (pReset->arg3)
-                {
-                default:
-                        mudstrlcpy(mobname, "(* ERROR *)", MSL);
-                        break;
-                case 0:
-                        mudstrlcpy(mobname, "Open", MSL);
-                        break;
-                case 1:
-                        mudstrlcpy(mobname, "Close", MSL);
-                        break;
-                case 2:
-                        mudstrlcpy(mobname, "Close and lock", MSL);
-                        break;
-                }
-                /* Use step-by-step buffer building to avoid truncation */
-                len3 = 0; /* Reuse len3 variable declared at top of function */
-                buf[0] = '\0';
-                len3 += snprintf(buf + len3, MSL - len3, "%2d) %s [%d] the %s [%d]", 
-                         num, mobname, pReset->arg3, objname, pReset->arg2);
-                len3 += snprintf(buf + len3, MSL - len3, " door %s (%d)\n\r", roomname, pReset->arg1);
-                break;
-        case 'R':
-                if ((room = get_room_index(pReset->arg1)) == NULL)
-                        mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL);
-                else
-                        mudstrlcpy(roomname, room->name, MSL);
-                /* Use step-by-step buffer building to avoid truncation */
-                len = 0; /* Reuse len variable declared at top of function */
-                buf[0] = '\0';
-                len += snprintf(buf + len, MSL - len, "%2d) Randomize exits 0 to %d -> ", num, pReset->arg2);
-                len += snprintf(buf + len, MSL - len, "%s", roomname);
-                len += snprintf(buf + len, MSL - len, " (%d)\n\r", pReset->arg1);
-                break;
-        case 'T':
-                /* Use step-by-step buffer building to avoid truncation */
-                len4 = 0; /* Reuse len4 variable declared at top of function */
-                buf[0] = '\0';
-                len4 += snprintf(buf + len4, MSL - len4, "%2d) TRAP: %d %d %d %d", 
-                         num, pReset->extra, pReset->arg1, pReset->arg2, pReset->arg3);
-                len4 += snprintf(buf + len4, MSL - len4, " (%s)\n\r", flag_string(pReset->extra, trap_flags));
-                break;
-        }
-        if (rlist && (!room || (room && room->vnum != rvnum)))
-                return NULL;
+                append("%2d) %s [%d] the %s [%d] door %s (%d)\n\r", num, mobname, pReset->arg3, objname, pReset->arg2, roomname, pReset->arg1); 
+                break; }
+        case 'R': {
+                room = get_room_index(pReset->arg1); 
+                const char *roomsr = room ? room->name : "Room: *BAD VNUM*"; 
+                mudstrlcpy(roomname, roomsr, MSL); 
+                append("%2d) Randomize exits 0 to %d -> %s (%d)\n\r", num, pReset->arg2, roomname, pReset->arg1); 
+                break; }
+        case 'T': append("%2d) TRAP: %d %d %d %d (%s)\n\r", num, pReset->extra, pReset->arg1, pReset->arg2, pReset->arg3, flag_string(pReset->extra, trap_flags)); break; }
+        if (rlist && (!room || (room && room->vnum != rvnum))) return NULL;
         return buf;
 }
 
-CMDF do_redit(CHAR_DATA * ch, char *argument)
+CMDF do_redit(CHAR_DATA * ch, const char *argument)
 {
         char      arg[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
@@ -4535,7 +4439,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                 STRFREE(location->description);
                 location->description = copy_buffer(ch);
                 stop_editing(ch);
-                ch->substate = ch->tempnum;
+                ch->substate = to_shint(ch->tempnum);
                 return;
         case SUB_ROOM_EXTRA:
                 ed = (EXTRA_DESCR_DATA *) ch->dest_buf;
@@ -4548,14 +4452,17 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                 STRFREE(ed->description);
                 ed->description = copy_buffer(ch);
                 stop_editing(ch);
-                ch->substate = ch->tempnum;
+                ch->substate = to_shint(ch->tempnum);
                 return;
         }
 
         location = ch->in_room;
 
-        smash_tilde(argument);
-        argument = one_argument(argument, arg);
+        // Make mutable working argument copy
+        char argument_work[MAX_STRING_LENGTH];
+        char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
+        smash_tilde(work);
+        work = one_argument(work, arg);
 
         if (arg[0] == '\0' || !str_cmp(arg, "?"))
         {
@@ -4575,7 +4482,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "name"))
         {
-                if (argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         send_to_char
                                 ("Set the room name.  A very brief single line room description.\n\r",
@@ -4585,7 +4492,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 STRFREE(location->name);
-                location->name = STRALLOC(argument);
+                location->name = STRALLOC(work);
                 return;
         }
 
@@ -4600,7 +4507,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "tunnel"))
         {
-                if (!argument || argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         send_to_char
                                 ("Set the maximum characters allowed in the room at one time. (0 = unlimited).\n\r",
@@ -4608,27 +4515,27 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         send_to_char("Usage: redit tunnel <value>\n\r", ch);
                         return;
                 }
-                int tunnel_value = BuildUtils::safe_atoi_with_default(argument, -1);
+                int tunnel_value = BuildUtils::safe_atoi_with_default(work, -1);
                 if (tunnel_value < 0)
                 {
                         send_to_char("Invalid tunnel value. Please enter a number (0-1000).\n\r", ch);
                         return;
                 }
-                location->tunnel = URANGE(0, tunnel_value, 1000);
+                location->tunnel = to_shint(URANGE(0, tunnel_value, 1000));
                 send_to_char("Done.\n\r", ch);
                 return;
         }
 
         if (!str_cmp(arg, "ed"))
         {
-                if (!argument || argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         send_to_char("Create an extra description.\n\r", ch);
                         send_to_char("You must supply keyword(s).\n\r", ch);
                         return;
                 }
                 CHECK_SUBRESTRICTED(ch);
-                ed = SetRExtra(location, argument);
+                ed = SetRExtra(location, work);
                 ch->tempnum = SUB_NONE;
                 ch->substate = SUB_ROOM_EXTRA;
                 ch->dest_buf = ed;
@@ -4638,13 +4545,13 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "rmed"))
         {
-                if (!argument || argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         send_to_char("Remove an extra description.\n\r", ch);
                         send_to_char("You must supply keyword(s).\n\r", ch);
                         return;
                 }
-                if (DelRExtra(location, argument))
+                if (DelRExtra(location, work))
                         send_to_char("Deleted.\n\r", ch);
                 else
                         send_to_char("Not found.\n\r", ch);
@@ -4680,7 +4587,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "flags"))
         {
-                if (!argument || argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         send_to_char("Toggle the room flags.\n\r", ch);
                         send_to_char
@@ -4693,11 +4600,9 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         send_to_char("\n\r", ch);
                         return;
                 }
-
-
-                while (argument[0] != '\0')
+                while (work[0] != '\0')
                 {
-                        argument = one_argument(argument, arg2);
+                        work = one_argument(work, arg2);
                         value = get_rflag(arg2);
                         if (value < 0 || value > MAX_BITS)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg2);
@@ -4716,7 +4621,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "sector"))
         {
-                if (!argument || argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         send_to_char("Set the sector type.\n\r", ch);
                         send_to_char("Usage: redit sector <value>\n\r", ch);
@@ -4732,21 +4637,21 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 int sector_value;
-                if (!BuildUtils::safe_atoi(argument, sector_value) || 
+                if (!BuildUtils::safe_atoi(work, sector_value) || 
                     sector_value < 0 || sector_value >= SECT_MAX)
                 {
                         send_to_char("Invalid sector type. Please enter a valid sector number (0-14).\n\r", ch);
                         return;
                 }
-                location->sector_type = sector_value;
+                location->sector_type = to_shint(sector_value);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
 
         if (!str_cmp(arg, "exkey"))
         {
-                argument = one_argument(argument, arg2);
-                argument = one_argument(argument, arg3);
+                work = one_argument(work, arg2);
+                work = one_argument(work, arg3);
                 if (arg2[0] == '\0' || arg3[0] == '\0')
                 {
                         send_to_char
@@ -4756,10 +4661,15 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                 }
                 if (arg2[0] == '#')
                 {
-                        if (!BuildUtils::safe_atoi(arg2 + 1, edir) || edir < 0 || edir >= MAX_DIR)
                         {
-                                send_to_char("Invalid exit direction number.\n\r", ch);
-                                return;
+                                        const char* dirDigits = arg2 + 1;
+                                        int parsedDir = -1;
+                                        if (!BuildUtils::safe_atoi(std::string(dirDigits), parsedDir) || parsedDir < 0 || parsedDir >= MAX_DIR)
+                                        {
+                                                        send_to_char("Invalid exit direction number.\n\r", ch);
+                                                        return;
+                                        }
+                                        edir = parsedDir;
                         }
                         xit = get_exit_num(location, edir);
                 }
@@ -4787,7 +4697,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "exname"))
         {
-                argument = one_argument(argument, arg2);
+                work = one_argument(work, arg2);
                 if (arg2[0] == '\0')
                 {
                         send_to_char("Change or clear exit keywords.\n\r",
@@ -4815,14 +4725,14 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         return;
                 }
                 STRFREE(xit->keyword);
-                xit->keyword = STRALLOC(argument);
+                xit->keyword = STRALLOC(work);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
 
         if (!str_cmp(arg, "exflags"))
         {
-                if (!argument || argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         send_to_char("Toggle or display exit flags.\n\r", ch);
                         send_to_char
@@ -4835,7 +4745,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         send_to_char("\n\r", ch);
                         return;
                 }
-                argument = one_argument(argument, arg2);
+                work = one_argument(work, arg2);
                 if (arg2[0] == '#')
                 {
                         edir = atoi(arg2 + 1);
@@ -4853,7 +4763,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         snprintf(buf, MSL,
                                  "Flags for exit direction: %d  Keywords: %s  Key: %d\n\r[ ",
@@ -4870,9 +4780,9 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         send_to_char(buf, ch);
                         return;
                 }
-                while (argument[0] != '\0')
+                while (work[0] != '\0')
                 {
-                        argument = one_argument(argument, arg2);
+                        work = one_argument(work, arg2);
                         value = get_exflag(arg2);
                         if (value < 0 || value > MAX_EXFLAG)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg2);
@@ -4884,7 +4794,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "bexflags"))
         {
-                if (!argument || argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         send_to_char("Toggle or display exit flags.\n\r", ch);
                         send_to_char
@@ -4897,7 +4807,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         send_to_char("\n\r", ch);
                         return;
                 }
-                argument = one_argument(argument, arg2);
+                work = one_argument(work, arg2);
                 if (arg2[0] == '#')
                 {
                         edir = atoi(arg2 + 1);
@@ -4915,7 +4825,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (argument[0] == '\0')
+                if (work[0] == '\0')
                 {
                         snprintf(buf, MSL,
                                  "Flags for exit direction: %d  Keywords: %s  Key: %d\n\r[ ",
@@ -4932,9 +4842,9 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         send_to_char(buf, ch);
                         return;
                 }
-                while (argument[0] != '\0')
+                while (work[0] != '\0')
                 {
-                        argument = one_argument(argument, arg2);
+                        work = one_argument(work, arg2);
                         value = get_exflag(arg2);
                         if (value < 0 || value > MAX_EXFLAG)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg2);
@@ -4946,7 +4856,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "ex_flags"))
         {
-                argument = one_argument(argument, arg2);
+                work = one_argument(work, arg2);
                 dir = 'n';
                 edir = 0;
 
@@ -4969,7 +4879,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "ex_to_room"))
         {
-                argument = one_argument(argument, arg2);
+                work = one_argument(work, arg2);
                 dir = 'n';
                 edir = 0;
                 evnum = atoi(arg2);
@@ -4997,19 +4907,17 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
         {
                 bool      addexit, numnotdir;
 
-                if (!str_cmp(argument, "remove all"))
+                if (!str_cmp(work, "remove all"))
                 {
-                        EXIT_DATA *xit = NULL;
-
                         for (xit = location->first_exit; xit; xit = xit->next)
                                 extract_exit(location, xit);
                         send_to_char("All exits removed.\n\r", ch);
                         return;
                 }
 
-                argument = one_argument(argument, arg2);
-                argument = one_argument(argument, arg3);
-                if (!arg2 || arg2[0] == '\0')
+                work = one_argument(work, arg2);
+                work = one_argument(work, arg3);
+                if (arg2[0] == '\0')
                 {
                         send_to_char("Create, change or remove an exit.\n\r",
                                      ch);
@@ -5033,7 +4941,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         numnotdir = TRUE;
                         break;
                 }
-                if (!arg3 || arg3[0] == '\0')
+                if (arg3[0] == '\0')
                         evnum = 0;
                 else
                         evnum = atoi(arg3);
@@ -5091,8 +4999,8 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                                 return;
                         }
                         xit = make_exit(location, tmp, edir);
-                        xit->keyword = STRALLOC("");
-                        xit->description = STRALLOC("");
+                        xit->keyword = STRALLOC(empty_string);
+                        xit->description = STRALLOC(empty_string);
                         xit->key = -1;
                         xit->exit_info = 0;
                         act(AT_IMMORT, "$n reveals a hidden passage!", ch,
@@ -5113,22 +5021,22 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                                 xit->rexit = texit;
                         }
                 }
-                argument = one_argument(argument, arg3);
-                if (arg3 && arg3[0] != '\0')
+                work = one_argument(work, arg3);
+                if (arg3[0] != '\0')
                         xit->exit_info = atoi(arg3);
-                if (argument && argument[0] != '\0')
+                if (work && work[0] != '\0')
                 {
-                        one_argument(argument, arg3);
+                        work = one_argument(work, arg3);
                         ekey = atoi(arg3);
                         if (ekey != 0 || arg3[0] == '0')
                         {
-                                argument = one_argument(argument, arg3);
+                                work = one_argument(work, arg3);
                                 xit->key = ekey;
                         }
-                        if (argument && argument[0] != '\0')
+                        if (work && work[0] != '\0')
                         {
                                 STRFREE(xit->keyword);
-                                xit->keyword = STRALLOC(argument);
+                                xit->keyword = STRALLOC(work);
                         }
                 }
                 send_to_char("Done.\n\r", ch);
@@ -5148,10 +5056,8 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                 char      rvnum[MAX_INPUT_LENGTH];
                 bool      numnotdir;
 
-                if (!str_cmp(argument, "remove all"))
+                if (!str_cmp(work, "remove all"))
                 {
-                        EXIT_DATA *xit = NULL;
-
                         for (xit = location->first_exit; xit; xit = xit->next)
                         {
                                 if (xit->to_room && xit->to_room != location)
@@ -5164,9 +5070,9 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         send_to_char("All exits removed.\n\r", ch);
                         return;
                 }
-                argument = one_argument(argument, arg2);
-                argument = one_argument(argument, arg3);
-                if (!arg2 || arg2[0] == '\0')
+                work = one_argument(work, arg2);
+                work = one_argument(work, arg3);
+                if (arg2[0] == '\0')
                 {
                         send_to_char
                                 ("Create, change or remove a two-way exit.\n\r",
@@ -5212,7 +5118,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                         else
                                 rxit = NULL;
                 }
-                snprintf(tmpcmd, MSL, "exit %s %s %s", arg2, arg3, argument);
+                snprintf(tmpcmd, MSL, "exit %s %s %s", arg2, arg3, work);
                 do_redit(ch, tmpcmd);
                 if (numnotdir)
                         xit = get_exit_num(tmploc, exnum);
@@ -5231,7 +5137,7 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                 if (vnum)
                 {
                         snprintf(tmpcmd, MSL, "%d redit exit %d %s %s",
-                                 vnum, rev_dir[edir], rvnum, argument);
+                                 vnum, rev_dir[edir], rvnum, work);
                         do_at(ch, tmpcmd);
                 }
                 return;
@@ -5240,8 +5146,8 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "exdesc"))
         {
-                argument = one_argument(argument, arg2);
-                if (!arg2 || arg2[0] == '\0')
+                work = one_argument(work, arg2);
+                if (arg2[0] == '\0')
                 {
                         send_to_char
                                 ("Create or clear a description for an exit.\n\r",
@@ -5264,11 +5170,11 @@ CMDF do_redit(CHAR_DATA * ch, char *argument)
                 if (xit)
                 {
                         STRFREE(xit->description);
-                        if (!argument || argument[0] == '\0')
-                                xit->description = STRALLOC("");
+                        if (!work || work[0] == '\0')
+                                xit->description = STRALLOC(empty_string);
                         else
                         {
-                                snprintf(buf, MSL, "%s\n\r", argument);
+                                snprintf(buf, MSL, "%s\n\r", work);
                                 xit->description = STRALLOC(buf);
                         }
                         send_to_char("Done.\n\r", ch);
@@ -5291,18 +5197,20 @@ CMDF do_ocreate(CHAR_DATA * ch, char *argument)
         OBJ_INDEX_DATA *pObjIndex;
         OBJ_DATA *obj;
         int       vnum, cvnum;
+        // Mutable working copy of the incoming argument string
+        char argument_work[MAX_STRING_LENGTH];
+        char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
         if (IS_NPC(ch))
         {
                 send_to_char("Mobiles cannot create.\n\r", ch);
                 return;
         }
-
-        argument = one_argument(argument, arg);
+        work = one_argument(work, arg);
 
         vnum = is_number(arg) ? atoi(arg) : -1;
 
-        if (vnum == -1 || !argument || argument[0] == '\0')
+        if (vnum == -1 || work[0] == '\0')
         {
                 send_to_char
                         ("Usage: ocreate <vnum> [copy vnum] <item name>\n\r",
@@ -5316,12 +5224,17 @@ CMDF do_ocreate(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        one_argument(argument, arg2);
+        // Peek at potential copy vnum without advancing unless it's valid
+        char *after_cvnum = one_argument(work, arg2);
         cvnum = atoi(arg2);
-        if (cvnum != 0)
-                argument = one_argument(argument, arg2);
-        if (cvnum < 1)
+        if (cvnum > 0)
+        {
+                work = after_cvnum; // advance past copy vnum
+        }
+        else
+        {
                 cvnum = 0;
+        }
 
         if (get_obj_index(vnum))
         {
@@ -5352,7 +5265,7 @@ CMDF do_ocreate(CHAR_DATA * ch, char *argument)
                 }
         }
 
-        pObjIndex = make_object(vnum, cvnum, argument);
+        pObjIndex = make_object(vnum, cvnum, work);
         if (!pObjIndex)
         {
                 send_to_char("Error.\n\r", ch);
@@ -5376,6 +5289,9 @@ CMDF do_mcreate(CHAR_DATA * ch, char *argument)
         MOB_INDEX_DATA *pMobIndex;
         CHAR_DATA *mob;
         int       vnum, cvnum;
+        // Mutable working copy
+        char argument_work[MAX_STRING_LENGTH];
+        char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
         if (IS_NPC(ch))
         {
@@ -5383,11 +5299,11 @@ CMDF do_mcreate(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        argument = one_argument(argument, arg);
+        work = one_argument(work, arg);
 
         vnum = is_number(arg) ? atoi(arg) : -1;
 
-        if (vnum == -1 || !argument || argument[0] == '\0')
+        if (vnum == -1 || work[0] == '\0')
         {
                 send_to_char
                         ("Usage: mcreate <vnum> [cvnum] <mobile name>\n\r",
@@ -5401,12 +5317,16 @@ CMDF do_mcreate(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        one_argument(argument, arg2);
+        char *after_cvnum_mob = one_argument(work, arg2);
         cvnum = atoi(arg2);
-        if (cvnum != 0)
-                argument = one_argument(argument, arg2);
-        if (cvnum < 1)
-                cvnum = 0;
+        if (cvnum > 0)
+        {
+                work = after_cvnum_mob;
+        }
+        else
+        {
+            cvnum = 0;
+        }
 
         if (get_mob_index(vnum))
         {
@@ -5437,7 +5357,7 @@ CMDF do_mcreate(CHAR_DATA * ch, char *argument)
                 }
         }
 
-        pMobIndex = make_mobile(vnum, cvnum, argument);
+        pMobIndex = make_mobile(vnum, cvnum, work);
         if (!pMobIndex)
         {
                 send_to_char("Error.\n\r", ch);
@@ -5662,7 +5582,7 @@ EXTRA_DESCR_DATA *SetRExtra(ROOM_INDEX_DATA * room, char *keywords)
                 LINK(ed, room->first_extradesc, room->last_extradesc, next,
                      prev);
                 ed->keyword = STRALLOC(keywords);
-                ed->description = STRALLOC("");
+                ed->description = STRALLOC(empty_string);
                 top_ed++;
         }
         return ed;
@@ -5702,7 +5622,7 @@ EXTRA_DESCR_DATA *SetOExtra(OBJ_DATA * obj, char *keywords)
                 LINK(ed, obj->first_extradesc, obj->last_extradesc, next,
                      prev);
                 ed->keyword = STRALLOC(keywords);
-                ed->description = STRALLOC("");
+                ed->description = STRALLOC(empty_string);
                 top_ed++;
         }
         return ed;
@@ -5742,7 +5662,7 @@ EXTRA_DESCR_DATA *SetOExtraProto(OBJ_INDEX_DATA * obj, char *keywords)
                 LINK(ed, obj->first_extradesc, obj->last_extradesc, next,
                      prev);
                 ed->keyword = STRALLOC(keywords);
-                ed->description = STRALLOC("");
+                ed->description = STRALLOC(empty_string);
                 top_ed++;
         }
         return ed;
@@ -5846,16 +5766,19 @@ void fold_area(AREA_DATA * tarea, char *filename, bool install, bool dolog)
                         complexmob = TRUE;
                 else
                         complexmob = FALSE;
-                fprintf(fpout, "#%d\n", vnum);
-                fprintf(fpout, "%s~\n", pMobIndex->player_name);
-                fprintf(fpout, "%s~\n", pMobIndex->short_descr);
-                fprintf(fpout, "%s~\n", strip_cr(pMobIndex->long_descr));
+                fprintf(fpout, "#%d\n", vnum); // vnum
+                fprintf(fpout, "%s~\n", pMobIndex->player_name); // player name
+                fprintf(fpout, "%s~\n", pMobIndex->short_descr); // short description
+                fprintf(fpout, "%s~\n", strip_cr(pMobIndex->long_descr)); // long description
                 fprintf(fpout, "%s~\n", strip_cr(pMobIndex->description));
-                if (!pMobIndex->race || !pMobIndex->race->name())
-                        pMobIndex->race = get_race("human");
-                fprintf(fpout, "%s~\n", pMobIndex->race->name());
-                if (pMobIndex->speaking && pMobIndex->speaking->name)
-                        fprintf(fpout, "%s~\n", pMobIndex->speaking->name);
+                if (!pMobIndex->race || !pMobIndex->race->name()) // shouldn't happen
+                {
+                        static char human_race[] = "human"; // mutable buffer for legacy API
+                        pMobIndex->race = get_race(human_race); // assume default
+                }
+                fprintf(fpout, "%s~\n", pMobIndex->race->name()); // race name
+                if (pMobIndex->speaking && pMobIndex->speaking->name) // language name
+                        fprintf(fpout, "%s~\n", pMobIndex->speaking->name); 
                 else
                         fprintf(fpout, "%s~\n",
                                 pMobIndex->race->language()->name);
@@ -5991,7 +5914,7 @@ void fold_area(AREA_DATA * tarea, char *filename, bool install, bool dolog)
                 fprintf(fpout, "%d %d %d\n", pObjIndex->weight,
                         pObjIndex->cost,
                         pObjIndex->rent ? pObjIndex->rent :
-                        (int) (pObjIndex->cost / 10));
+                        static_cast<int>(pObjIndex->cost / 10));
 
                 for (ed = pObjIndex->first_extradesc; ed; ed = ed->next)
                         fprintf(fpout, "E\n%s~\n%s~\n",
@@ -6222,7 +6145,7 @@ void fold_area(AREA_DATA * tarea, char *filename, bool install, bool dolog)
         return;
 }
 
-CMDF do_savearea(CHAR_DATA * ch, char *argument)
+CMDF do_savearea(CHAR_DATA * ch, const char *argument)
 {
         AREA_DATA *tarea;
         char      filename[256];
@@ -6275,11 +6198,11 @@ CMDF do_savearea(CHAR_DATA * ch, char *argument)
         }
 
         snprintf(filename, MSL, "%s%s", BUILD_DIR, tarea->filename);
-        fold_area(tarea, filename, FALSE, TRUE);
+        ::fold_area(tarea, filename, FALSE, TRUE);
         send_to_char("Done.\n\r", ch);
 }
 
-CMDF do_loadarea(CHAR_DATA * ch, char *argument)
+CMDF do_loadarea(CHAR_DATA * ch, const char *argument)
 {
         AREA_DATA *tarea;
         char      filename[256];
@@ -6342,7 +6265,7 @@ CMDF do_loadarea(CHAR_DATA * ch, char *argument)
                 tarea->nplayer = 0;
                 send_to_char("Resetting area...\n\r", ch);
                 reset_area(tarea);
-                tarea->nplayer = tmp;
+                tarea->nplayer = to_shint(tmp);
         }
         send_to_char("Done.\n\r", ch);
 }
@@ -6389,9 +6312,9 @@ CMDF do_foldarea(CHAR_DATA * ch, char *argument)
                 {
                         send_to_char("Folding...\n\r", ch);
                         if (!strcmp(argument, "remproto"))
-                                fold_area(tarea, tarea->filename, TRUE, TRUE);
+                                ::fold_area(tarea, tarea->filename, TRUE, TRUE);
                         else
-                                fold_area(tarea, tarea->filename, FALSE,
+                                ::fold_area(tarea, tarea->filename, FALSE,
                                           TRUE);
                         send_to_char("Done.\n\r", ch);
                         return;
@@ -6500,7 +6423,7 @@ CMDF do_installarea(CHAR_DATA * ch, char *argument)
                         num = tarea->nplayer;
                         tarea->nplayer = 0;
                         reset_area(tarea);
-                        tarea->nplayer = num;
+                        tarea->nplayer = to_shint(num);
                         send_to_char("Renaming author's building file.\n\r",
                                      ch);
                         snprintf(buf, MSL, "%s%s.installed", BUILD_DIR,
@@ -6548,12 +6471,15 @@ RESET_DATA *parse_reset(AREA_DATA * tarea, char *argument, CHAR_DATA * ch)
         ROOM_INDEX_DATA *room;
         EXIT_DATA *pexit;
 
-        tarea = NULL;
+        // tarea not currently needed inside this function; keep signature for callers
+        (void)tarea;
 
-        argument = one_argument(argument, arg1);
-        argument = one_argument(argument, arg2);
-        argument = one_argument(argument, arg3);
-        argument = one_argument(argument, arg4);
+        char argument_work[MAX_STRING_LENGTH];
+        char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
+        work = one_argument(work, arg1);
+        work = one_argument(work, arg2);
+        work = one_argument(work, arg3);
+        work = one_argument(work, arg4);
         extra = 0;
         letter = '*';
         val1 = atoi(arg2);
@@ -6671,8 +6597,8 @@ RESET_DATA *parse_reset(AREA_DATA * tarea, char *argument, CHAR_DATA * ch)
                         return NULL;
                 }
                 extra = UMAX(val3, 0);
-                argument = one_argument(argument, arg4);
-                val3 = (is_number(argument) ? atoi(arg4) : 0);
+                work = one_argument(work, arg4);
+                val3 = (is_number(arg4) ? atoi(arg4) : 0);
                 if (val3 < 0)
                         val3 = 0;
                 letter = 'P';
@@ -6689,7 +6615,7 @@ RESET_DATA *parse_reset(AREA_DATA * tarea, char *argument, CHAR_DATA * ch)
                         send_to_char("Reset: DOOR: invalid exit\n\r", ch);
                         return NULL;
                 }
-                if ((pexit = get_exit(room, val2)) == NULL
+                if ((pexit = get_exit(room, to_shint(val2))) == NULL
                     || !IS_SET(pexit->exit_info, EX_ISDOOR))
                 {
                         send_to_char("Reset: DOOR: no such door\n\r", ch);
@@ -6737,9 +6663,9 @@ RESET_DATA *parse_reset(AREA_DATA * tarea, char *argument, CHAR_DATA * ch)
                                      ch);
                         return NULL;
                 }
-                while (argument[0] != '\0')
+                while (work[0] != '\0')
                 {
-                        argument = one_argument(argument, arg4);
+                        work = one_argument(work, arg4);
                         value = get_trapflag(arg4);
                         if (value >= 0 || value < 32)
                                 SET_BIT(extra, 1 << value);
@@ -6888,12 +6814,14 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
         char      arg1[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
         char      arg3[MAX_INPUT_LENGTH];
-        bool      proto, found;
+        bool      found; // removed unused 'proto'
         int       vnum, value;
-
-        argument = one_argument(argument, arg1);
-        argument = one_argument(argument, arg2);
-        vnum = atoi(argument);
+        // Mutable working copy
+        char argument_work[MAX_STRING_LENGTH];
+        char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
+        work = one_argument(work, arg1);
+        work = one_argument(work, arg2);
+        vnum = atoi(work);
 
         if (arg1[0] == '\0' || arg2[0] == '\0')
         {
@@ -6913,7 +6841,6 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
         }
 
         found = FALSE;
-        proto = FALSE;
         for (tarea = first_area; tarea; tarea = tarea->next)
                 if (!str_cmp(tarea->filename, arg1))
                 {
@@ -6926,7 +6853,6 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
                         if (!str_cmp(tarea->filename, arg1))
                         {
                                 found = TRUE;
-                                proto = TRUE;
                                 break;
                         }
 
@@ -7003,7 +6929,7 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
                 DISPOSE(tarea->filename);
                 tarea->filename = str_dup(argument);
                 write_area_list();
-                fold_area(tarea, tarea->filename, TRUE, TRUE);
+                ::fold_area(tarea, tarea->filename, TRUE, TRUE);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -7140,7 +7066,7 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "resetfreq"))
         {
-                tarea->reset_frequency = vnum;
+                tarea->reset_frequency = to_shint(vnum);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -7171,7 +7097,8 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_aset(ch, "");
+        // Avoid recursive empty string call; show syntax directly
+        send_to_char("Usage: aset <area filename> <field> <value>\n\r", ch);
         return;
 }
 
@@ -7185,6 +7112,9 @@ CMDF do_rlist(CHAR_DATA * ch, char *argument)
         AREA_DATA *tarea;
         int       lrange;
         int       trange;
+        // Mutable working copy
+        char argument_work[MAX_STRING_LENGTH];
+        char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
         if (IS_NPC(ch) || get_trust(ch) < LEVEL_AVATAR || !ch->pcdata
             || (!ch->pcdata->area && get_trust(ch) < LEVEL_GREATER))
@@ -7196,8 +7126,8 @@ CMDF do_rlist(CHAR_DATA * ch, char *argument)
         tarea = ch->pcdata->area;
         if (!tarea)
                 tarea = ch->in_room->area;
-        argument = one_argument(argument, arg1);
-        argument = one_argument(argument, arg2);
+        work = one_argument(work, arg1);
+        work = one_argument(work, arg2);
 
         if (tarea)
         {
@@ -7376,7 +7306,7 @@ void mpedit(CHAR_DATA * ch, MPROG_DATA * mprg, int mptype, char *argument)
         ch->substate = SUB_MPROG_EDIT;
         ch->dest_buf = mprg;
         if (!mprg->comlist)
-                mprg->comlist = STRALLOC("");
+                mprg->comlist = STRALLOC(empty_string);
         start_editing(ch, mprg->comlist);
         return;
 }
@@ -7679,7 +7609,10 @@ CMDF do_mpedit(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_mpedit(ch, "");
+        {
+                char empty_arg[] = "";
+                do_mpedit(ch, empty_arg);
+        }
 }
 
 CMDF do_opedit(CHAR_DATA * ch, char *argument)
@@ -7975,7 +7908,7 @@ CMDF do_opedit(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_opedit(ch, "");
+        send_to_char("Type 'opedit ?' for syntax.\n\r", ch);
 }
 
 
@@ -7995,7 +7928,7 @@ void rpedit(CHAR_DATA * ch, MPROG_DATA * mprg, int mptype, char *argument)
         ch->substate = SUB_MPROG_EDIT;
         ch->dest_buf = mprg;
         if (!mprg->comlist)
-                mprg->comlist = STRALLOC("");
+                mprg->comlist = STRALLOC(empty_string);
         start_editing(ch, mprg->comlist);
         return;
 }
@@ -8262,7 +8195,7 @@ CMDF do_rpedit(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        do_rpedit(ch, "");
+        send_to_char("Type 'rpedit ?' for syntax.\n\r", ch);
 }
 
 CMDF do_rdelete(CHAR_DATA * ch, char *argument)
@@ -8528,15 +8461,16 @@ int strlen_color(char *argument)
                                 --length;
                 }
         }
-        return length;
+        return static_cast<int>(length);
 }
 
 
 CMDF do_testtest(CHAR_DATA * ch, char *argument)
 {
         char      arg[MSL];
-
+        char      workbuf[MSL];
         argument = one_argument(argument, arg);
-        snprintf(argument, 255, "%s %s", argument, "moo");
-        ch_printf(ch, "Arg: %s Argument: %s\n\r", arg, argument);
+        mudstrlcpy(workbuf, argument, MSL);
+        mudstrlcat(workbuf, " moo", MSL);
+        ch_printf(ch, "Arg: %s Argument: %s\n\r", arg, workbuf);
 }

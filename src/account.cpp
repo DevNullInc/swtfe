@@ -326,10 +326,7 @@ ACCOUNT_DATA *load_account(const char *name)
 {
         ACCOUNT_DATA *account;
         char      accountsave[MIL];
-        [[maybe_unused]] bool found;
         FILE     *fp;
-
-        found = FALSE;
 
         account = get_account(name);
         if (account)
@@ -344,7 +341,6 @@ ACCOUNT_DATA *load_account(const char *name)
 
         if ((fp = fopen(accountsave, "r")) != NULL)
         {
-                found = TRUE;
                 for (;;)
                 {
                         char      letter;

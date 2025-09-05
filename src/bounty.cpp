@@ -217,23 +217,21 @@ BOUNTY_DATA *get_disintigration(char *target)
         return NULL;
 }
 
-void fread_bounty(FILE * fp, int version)
+void fread_bounty(FILE * fp, int version [[maybe_unused]])
 {
         const char *word;
-        bool      fMatch;
         BOUNTY_DATA *bounty = NULL;
+        bool fMatch [[maybe_unused]];
 
         CREATE(bounty, BOUNTY_DATA, 1);
 
         for (;;)
         {
                 word = feof(fp) ? "End" : fread_word(fp);
-                fMatch = FALSE;
 
                 switch (UPPER(word[0]))
                 {
                 case '*':
-                        fMatch = TRUE;
                         fread_to_eol(fp);
                         break;
 
@@ -264,7 +262,7 @@ void fread_bounty(FILE * fp, int version)
                                              last_disintigration, next, prev);
 
                                         if (bounty->source == NULL)
-                                                bounty->source = STRALLOC("");
+                                                bounty->source = STRALLOC(const_cast<char*>(""));
                                 }
 
                                 return;
@@ -314,13 +312,13 @@ void load_bounties()
                         target = feof(fpList) ? "$" : fread_word(fpList);
                         if (target[0] == '$')
                                 break;
-                        bounty = get_disintigration((char *) target);
+                        bounty = get_disintigration(const_cast<char *>(target));
                         if (!bounty)
                         {
                                 CREATE(bounty, BOUNTY_DATA, 1);
                                 LINK(bounty, first_disintigration,
                                      last_disintigration, next, prev);
-                                bounty->target = STRALLOC((char *) target);
+                                bounty->target = STRALLOC(const_cast<char *>(target));
                                 bounty->amount = 0;
                         }
                         amount = fread_number(fpList);
@@ -357,7 +355,7 @@ void load_bounties()
         return;
 }
 
-CMDF do_bounties(CHAR_DATA * ch, char *argument)
+CMDF do_bounties(CHAR_DATA * ch, char *argument [[maybe_unused]])
 {
         BOUNTY_DATA *bounty;
         int       count = 0;
@@ -622,7 +620,7 @@ void claim_disintigration(CHAR_DATA * ch, CHAR_DATA * victim)
                                                   skill_level
                                                   [HUNTING_ABILITY])));
 						experience *= 5;
-                        gain_exp(ch, experience, HUNTING_ABILITY);
+                        gain_exp(ch, static_cast<int>(experience), HUNTING_ABILITY);
                         set_char_color(AT_BLOOD, ch);
                         ch_printf(ch,
                                   "You receive %ld hunting experience for executing a wanted killer.\n\r",
@@ -651,7 +649,7 @@ void claim_disintigration(CHAR_DATA * ch, CHAR_DATA * victim)
                 URANGE(1, bounty->amount + xp_compute(ch, victim),
                        (exp_level(ch->skill_level[HUNTING_ABILITY] + 1) -
                         exp_level(ch->skill_level[HUNTING_ABILITY])));
-        gain_exp(ch, experience, HUNTING_ABILITY);
+        gain_exp(ch, static_cast<int>(experience), HUNTING_ABILITY);
 
         experience *= 5;
 
@@ -843,20 +841,18 @@ void fwrite_wanted(CHAR_DATA * ch, FILE * fp)
 void fread_wanted(CHAR_DATA * ch, FILE * fp)
 {
         const char *word;
-        bool      fMatch;
         WANTED_DATA *wanted;
+        bool fMatch [[maybe_unused]];
 
         CREATE(wanted, WANTED_DATA, 1);
 
         for (;;)
         {
                 word = feof(fp) ? "End" : fread_word(fp);
-                fMatch = FALSE;
 
                 switch (UPPER(word[0]))
                 {
                 case '*':
-                        fMatch = TRUE;
                         fread_to_eol(fp);
                         break;
 
@@ -883,7 +879,6 @@ void fread_wanted(CHAR_DATA * ch, FILE * fp)
 
                                 wanted->government = get_clan(temp);
                                 STRFREE(temp);
-                                fMatch = TRUE;
                         }
                         break;
                 }
@@ -1088,7 +1083,7 @@ CMDF do_imprison(CHAR_DATA * ch, char *argument)
             victim, NULL, NULL, TO_ROOM);
 
         learn_from_success(ch, gsn_imprison);
-        gain_exp(ch, bounty->amount * 3, HUNTING_ABILITY);
+        gain_exp(ch, static_cast<int>(bounty->amount * 3), HUNTING_ABILITY);
         remove_wanted_planet(victim, ch->in_room->area->planet);
 
         return;

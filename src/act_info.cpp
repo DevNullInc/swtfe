@@ -3100,7 +3100,6 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
         DESCRIPTOR_DATA *d;
         int       iLevelLower;
         int       iLevelUpper;
-        [[maybe_unused]] int       nNumber;
         int       nMatch;
         bool      fImmortalOnly;
         FILE     *whoout = NULL;
@@ -3128,7 +3127,7 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
         /*
          * Parse arguments.
          */
-        nNumber = 0;
+
 
         /*
          * Now find matching chars.
@@ -4246,7 +4245,6 @@ CMDF do_password(CHAR_DATA* ch, char* argument)
         char      arg1[MAX_INPUT_LENGTH];
         char      arg2[MAX_INPUT_LENGTH];
         char     *pArg;
-        [[maybe_unused]] char     *pwdnew;
         char     *p;
         char      cEnd;
 
@@ -5123,7 +5121,7 @@ CMDF do_whois(CHAR_DATA * ch, char *argument)
                     && get_trust(ch) >= get_trust(victim) && victim->pcdata)
                 {
                         ch_printf(ch, "&zEmail: &w%s\n\r",
-                                  victim->pcdata->account->email);
+                                  victim->pcdata->email ? victim->pcdata->email : "None");
                 }
                 if (victim->desc)
                 {
