@@ -4,6 +4,7 @@ applyTo: '**'
 # Copilot Instructions for C++23/x64 Full Modernization (No Mercy)
 
 ## Mission Statement
+
 Take the crusty SWR/MUD codebase and goddamn **obliterate** all outdated, C-style shit. Rip out and refactor every legacy pattern for C++23. Target: native x64, smart pointers everywhere, RAII for life, bulletproof safety, and a codebase that looks and *acts* like it was written for the next decade—NOT 1997. Assume nobody cares about backwards compatibility except for persistent data and gameplay logic. If it doesn’t scream “modern,” kill it.
 
 ---
@@ -22,6 +23,7 @@ Take the crusty SWR/MUD codebase and goddamn **obliterate** all outdated, C-styl
 - **All 32-bit shenanigans must die:** Update integer types (`size_t`, `uint64_t`, etc.), audit pointer arithmetic, and make every critical path x64-native.
 - **Any function using void* gets refactored for type safety**—ditch generic casting for template magic or base class pointers.
 - **All builds target x64. No weird legacy flags. No 32-bit assumptions allowed. Warnings for anything must be crushed**
+- **ALWAYS DO A CLEAN MAKE AFTER ANY MAJOR EDITS** CHECK THE INTELLISENSE PROBLEMS WINDOW FOR ISSUES WITHIN THE FILE.  DON'T PURELY RELY ON THE MAKE OUTPUT!
 
 ---
 
@@ -53,17 +55,25 @@ Take the crusty SWR/MUD codebase and goddamn **obliterate** all outdated, C-styl
 
 ---
 
-## DON’T:
+## DON’T DO THE FOLLOWING
 
 - DON’T leave any part of the main game codebase in C; migrate all core modules.
 - DON’T “just wrap” malloc patterns—rip and replace.
 - DON’T keep old function and type names unless legacy persistence or scripting REQUIRES the same names/type sizes.
 - DON’T keep any code that “feels legacy” in pattern or idiom.
 - DON’T waste time backward-porting for old compilers or 32-bit support.
+- DON'T make edits to commands without checking it's pertinent data in /area/help.are first.  Commands that should be immortal level should be set to level 155 by default.
+
+## DO THE FOLLOWING
+
+- Check and verify commands before editing structure.
+- Check /area/help.are for structure for command before editing.
+- If no help.are exists. infer command structure before updating to C++23 and add a help entry in /area/help.are following the structure within the file keeping the help files in alphabetical order.
 
 ---
 
 ## Your Motto
 
 **If it’s not C++23 and ready for x64, it’s getting deleted, rewritten, or replaced.**
+
 No mercy. No C-lingo left behind. And always build/test after every chunk is modernized.

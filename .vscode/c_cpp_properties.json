@@ -4,49 +4,60 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/src",
-                "${workspaceFolder}/src/**",
-                "${workspaceFolder}/**",
                 "/usr/include",
-                "/usr/include/**",
                 "/usr/include/x86_64-linux-gnu",
-                "/usr/include/x86_64-linux-gnu/**"
+                "/usr/include/c++/13"
             ],
             "defines": [
                 "MCCP",
-                "MXP",
+                "MXP", 
                 "ACCOUNT",
                 "OLC_HOMES",
-                "RESTORE",
+                "RESTORE", 
                 "OLC_SHUTTLE",
-                "__cplusplus",
-                "MAX_STRING_LENGTH=4096",
-                "MSL=MAX_STRING_LENGTH",
-                "MIL=256",
-                "_ALLOW_STR_CONST_TO_CHAR_PTR",
+                "WEB",
                 "IMC",
                 "IMCSMAUG",
-                "DEFAULT_PROTOCOL=1",
-                "_GNU_SOURCE",
-                "__EXTENSIONS__",
-                "_POSIX_C_SOURCE=200809L",
-                "_BSD_SOURCE"
+                "_GNU_SOURCE"
             ],
             "compilerPath": "/usr/bin/g++",
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "linux-gcc-x64",
-            "compilerArgs": ["-fpermissive", "-Wno-write-strings"]
-        },
-        {
-            "name": "shit",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [],
-            "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "linux-clang-x64"
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.makefile-tools",
+            "compilerArgs": [
+                "-std=c++23",
+                "-m64",
+                "-g3",
+                "-Wall",
+                "-Wextra", 
+                "-Wpedantic",
+                "-Wshadow",
+                "-Wpointer-arith",
+                "-Wcast-qual",
+                "-Wcast-align", 
+                "-Wformat-security",
+                "-Wconversion",
+                "-Wsign-conversion",
+                "-Wold-style-cast",
+                "-Woverloaded-virtual",
+                "-Wnon-virtual-dtor",
+                "-Wdeprecated",
+                "-Wdeprecated-declarations",
+                "-Werror",
+                "-MMD",
+                "-MP"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/src",
+                    "${workspaceFolder}/src/**",
+                    "/usr/include",
+                    "/usr/include/c++/13"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
         }
     ],
     "version": 4
