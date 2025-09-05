@@ -142,7 +142,7 @@ CMDF do_holster(CHAR_DATA * ch, char *argument)
                 *wield2 = get_eq_char(ch, WEAR_DUAL_WIELD);
         OBJ_DATA *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
                 *holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
-        argument = NULL;    /* Added by greven to silence compile warnings. */
+        (void)argument;    /* Unused parameter */
 
         if (!(holster1 = get_eq_char(ch, WEAR_HOLSTER_L)))
         {
