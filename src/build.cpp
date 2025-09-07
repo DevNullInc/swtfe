@@ -1054,7 +1054,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                victim = (CHAR_DATA *) ch->dest_buf;
+                victim = static_cast<CHAR_DATA*>(ch->dest_buf);
                 if (char_died(victim))
                 {
                         send_to_char("Your victim died!\n\r", ch);
@@ -3248,10 +3248,10 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                  * the object and index-object lists, searching through the
                  * extra_descr lists for a matching pointer...
                  */
-                ed = (EXTRA_DESCR_DATA *) ch->dest_buf;
+                ed = static_cast<EXTRA_DESCR_DATA*>(ch->dest_buf);
                 STRFREE(ed->description);
                 ed->description = copy_buffer(ch);
-                tmpobj = (OBJ_DATA *) ch->spare_ptr;
+                tmpobj = static_cast<OBJ_DATA*>(ch->spare_ptr);
                 stop_editing(ch);
                 ch->dest_buf = tmpobj;
                 ch->substate = to_shint(ch->tempnum);
@@ -3266,7 +3266,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                obj = (OBJ_DATA *) ch->dest_buf;
+                obj = static_cast<OBJ_DATA*>(ch->dest_buf);
                 if (obj && obj_extracted(obj))
                 {
                         send_to_char("Your object was extracted!\n\r", ch);
@@ -3281,7 +3281,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                         obj->pIndexData->description =
                                 QUICKLINK(obj->description);
                 }
-                tmpobj = (OBJ_DATA *) ch->spare_ptr;
+                tmpobj = static_cast<OBJ_DATA*>(ch->spare_ptr);
                 stop_editing(ch);
                 ch->substate = to_shint(ch->tempnum);
                 ch->dest_buf = tmpobj;
@@ -3467,7 +3467,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                         ch_printf(ch, "Unknown type: %s\n\r", arg3);
                         return;
                 }
-                obj->item_type = (sh_int) value;
+                obj->item_type = static_cast<sh_int>(value);
                 if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
                         obj->pIndexData->item_type = obj->item_type;
                 return;
@@ -4424,7 +4424,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
         default:
                 break;
         case SUB_ROOM_DESC:
-                location = (ROOM_INDEX_DATA *) ch->dest_buf;
+                location = static_cast<ROOM_INDEX_DATA*>(ch->dest_buf);
                 if (!location)
                 {
                         bug("redit: sub_room_desc: NULL ch->dest_buf", 0);
@@ -4436,7 +4436,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 ch->substate = to_shint(ch->tempnum);
                 return;
         case SUB_ROOM_EXTRA:
-                ed = (EXTRA_DESCR_DATA *) ch->dest_buf;
+                ed = static_cast<EXTRA_DESCR_DATA*>(ch->dest_buf);
                 if (!ed)
                 {
                         bug("redit: sub_room_extra: NULL ch->dest_buf", 0);
@@ -7344,7 +7344,7 @@ CMDF do_mpedit(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                mprog = (MPROG_DATA *) ch->dest_buf;
+                mprog = static_cast<MPROG_DATA*>(ch->dest_buf);
                 if (mprog->comlist)
                         STRFREE(mprog->comlist);
                 mprog->comlist = copy_buffer(ch);
@@ -7638,14 +7638,14 @@ CMDF do_opedit(CHAR_DATA * ch, char *argument)
         case SUB_MPROG_EDIT:
                 if (!ch->dest_buf)
                 {
-                        send_to_char("Fatal error: report to Thoric.\n\r",
+                        send_to_char("Fatal error: report to Kator.\n\r",
                                      ch);
                         bug("do_opedit: sub_oprog_edit: NULL ch->dest_buf",
                             0);
                         ch->substate = SUB_NONE;
                         return;
                 }
-                mprog = (MPROG_DATA *) ch->dest_buf;
+                mprog = static_cast<MPROG_DATA*>(ch->dest_buf);
                 if (mprog->comlist)
                         STRFREE(mprog->comlist);
                 mprog->comlist = copy_buffer(ch);
@@ -7961,7 +7961,7 @@ CMDF do_rpedit(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                mprog = (MPROG_DATA *) ch->dest_buf;
+                mprog = static_cast<MPROG_DATA*>(ch->dest_buf);
                 if (mprog->comlist)
                         STRFREE(mprog->comlist);
                 mprog->comlist = copy_buffer(ch);
@@ -8432,9 +8432,9 @@ CMDF do_ropen(CHAR_DATA * ch, char *argument)
 
 }
 
-int strlen_color(char *argument)
+int strlen_color(const char *argument)
 {
-        char     *str;
+        const char     *str;
         unsigned int i, length;
 
         str = argument;

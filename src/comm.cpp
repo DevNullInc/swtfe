@@ -4724,7 +4724,7 @@ char     *center_str(char *argument, int columns)
         return centered;
 }
 
-void log_printf(char *fmt, ...)
+void log_printf(const char *fmt, ...)
 {
         char      buf[MAX_STRING_LENGTH * 2];
         va_list   args;

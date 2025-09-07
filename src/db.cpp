@@ -88,7 +88,7 @@ extern int _filbuf args((FILE *));
 void      load_baccount_list();
 void load_languages args((void));
 void init_supermob args((void));
-void towwwwizfile args((char *line, bool Border));
+void towwwwizfile args((const char *line, bool Border));
 
 /*
  * Globals.
@@ -476,7 +476,7 @@ MPROG_DATA *rprog_file_read
 args((char *f, MPROG_DATA * mprg, ROOM_INDEX_DATA * pRoomIndex));
 
 
-void shutdown_mud(char *reason)
+void shutdown_mud(const char *reason)
 {
         FILE     *fp;
 
@@ -536,12 +536,12 @@ void initialize_timeweather(void)
         long      lhour, lday, lmonth;
 
         lhour = (current_time - 650336715) / (PULSE_TICK / PULSE_PER_SECOND);
-        time_info.hour = lhour % 24;
+        time_info.hour = INT_TO_SHINT(lhour % 24);
         lday = lhour / 24;
-        time_info.day = lday % 35;
+        time_info.day = INT_TO_SHINT(lday % 35);
         lmonth = lday / 35;
-        time_info.month = lmonth % 17;
-        time_info.year = lmonth / 17;
+        time_info.month = INT_TO_SHINT(lmonth % 17);
+        time_info.year = INT_TO_SHINT(lmonth / 17);
 
         if (time_info.hour < 5)
                 weather_info.sunlight = SUN_DARK;
@@ -859,21 +859,21 @@ void initialize_skills(void)
 
         load_skill_table();
         sort_skill_table();
-        gsn_top_sn = top_sn;
+        gsn_top_sn = INT_TO_SHINT(top_sn);
 
         for (x = 0; x < top_sn; x++)
         {
                 if (!gsn_first_spell && skill_table[x]->type == SKILL_SPELL)
-                        gsn_first_spell = x;
+                        gsn_first_spell = INT_TO_SHINT(x);
                 else if (!gsn_first_skill
                          && skill_table[x]->type == SKILL_SKILL)
-                        gsn_first_skill = x;
+                        gsn_first_skill = INT_TO_SHINT(x);
                 else if (!gsn_first_weapon
                          && skill_table[x]->type == SKILL_WEAPON)
-                        gsn_first_weapon = x;
+                        gsn_first_weapon = INT_TO_SHINT(x);
                 else if (!gsn_first_tongue
                          && skill_table[x]->type == SKILL_TONGUE)
-                        gsn_first_tongue = x;
+                        gsn_first_tongue = INT_TO_SHINT(x);
         }
 }
 
@@ -1175,9 +1175,9 @@ void load_flags(AREA_DATA * tarea, FILE * fp)
         x1 = x2 = 0;
         sscanf(ln, "%d %d", &x1, &x2);
         tarea->flags = x1;
-        tarea->reset_frequency = x2;
+        tarea->reset_frequency = INT_TO_SHINT(x2);
         if (x2)
-                tarea->age = x2;
+                tarea->age = INT_TO_SHINT(x2);
         return;
 }
 
@@ -1255,7 +1255,7 @@ void add_help(HELP_DATA * pHelp)
 /*
  * Load a help section.
  */
-void load_helps(AREA_DATA * tarea, FILE * fp)
+void load_helps([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 {
         HELP_DATA *pHelp;
 
@@ -1264,7 +1264,7 @@ void load_helps(AREA_DATA * tarea, FILE * fp)
         for (;;)
         {
                 CREATE(pHelp, HELP_DATA, 1);
-                pHelp->level = fread_number(fp);
+                pHelp->level = INT_TO_SHINT(fread_number(fp));
                 pHelp->keyword = fread_string(fp);
                 /*
                  * WTF? - Greven REPORTED BY VALGRIND 
@@ -1413,40 +1413,40 @@ void load_mobiles(AREA_DATA * tarea, FILE * fp)
                 pMobIndex->affected_by = fread_number(fp);
                 pMobIndex->pShop = NULL;
                 pMobIndex->rShop = NULL;
-                pMobIndex->alignment = fread_number(fp);
+                pMobIndex->alignment = INT_TO_SHINT(fread_number(fp));
                 letter = fread_letter(fp);
-                pMobIndex->level = fread_number(fp);
+                pMobIndex->level = INT_TO_SHINT(fread_number(fp));
 
-                pMobIndex->mobthac0 = fread_number(fp);
-                pMobIndex->ac = fread_number(fp);
-                pMobIndex->hitnodice = fread_number(fp);
+                pMobIndex->mobthac0 = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->ac = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->hitnodice = INT_TO_SHINT(fread_number(fp));
                 /*
                  * 'd'      
                  */ fread_letter(fp);
-                pMobIndex->hitsizedice = fread_number(fp);
+                pMobIndex->hitsizedice = INT_TO_SHINT(fread_number(fp));
                 /*
                  * '+'      
                  */ fread_letter(fp);
-                pMobIndex->hitplus = fread_number(fp);
-                pMobIndex->damnodice = fread_number(fp);
+                pMobIndex->hitplus = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->damnodice = INT_TO_SHINT(fread_number(fp));
                 /*
                  * 'd'      
                  */ fread_letter(fp);
-                pMobIndex->damsizedice = fread_number(fp);
+                pMobIndex->damsizedice = INT_TO_SHINT(fread_number(fp));
                 /*
                  * '+'      
                  */ fread_letter(fp);
-                pMobIndex->damplus = fread_number(fp);
+                pMobIndex->damplus = INT_TO_SHINT(fread_number(fp));
                 pMobIndex->max_hit = fread_number(fp);
-                pMobIndex->gold = fread_number(fp);
+                pMobIndex->gold = static_cast<unsigned int>(fread_number(fp));
                 pMobIndex->exp = fread_number(fp);
-                pMobIndex->position = fread_number(fp);
-                pMobIndex->defposition = fread_number(fp);
+                pMobIndex->position = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->defposition = INT_TO_SHINT(fread_number(fp));
 
                 /*
                  * Back to meaningful values.
                  */
-                pMobIndex->sex = fread_number(fp);
+                pMobIndex->sex = INT_TO_SHINT(fread_number(fp));
 
                 if (letter != 'S' && letter != 'C' && letter != 'Z')
                 {
@@ -1456,30 +1456,30 @@ void load_mobiles(AREA_DATA * tarea, FILE * fp)
 
                 if (letter == 'C' || letter == 'Z') /* Realms complex mob     -Thoric  */
                 {
-                        pMobIndex->perm_str = fread_number(fp);
-                        pMobIndex->perm_int = fread_number(fp);
-                        pMobIndex->perm_wis = fread_number(fp);
-                        pMobIndex->perm_dex = fread_number(fp);
-                        pMobIndex->perm_con = fread_number(fp);
-                        pMobIndex->perm_cha = fread_number(fp);
-                        pMobIndex->perm_lck = fread_number(fp);
-                        pMobIndex->saving_poison_death = fread_number(fp);
-                        pMobIndex->saving_wand = fread_number(fp);
-                        pMobIndex->saving_para_petri = fread_number(fp);
-                        pMobIndex->saving_breath = fread_number(fp);
-                        pMobIndex->saving_spell_staff = fread_number(fp);
+                        pMobIndex->perm_str = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->perm_int = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->perm_wis = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->perm_dex = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->perm_con = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->perm_cha = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->perm_lck = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->saving_poison_death = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->saving_wand = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->saving_para_petri = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->saving_breath = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->saving_spell_staff = INT_TO_SHINT(fread_number(fp));
                         ln = fread_line(fp);
                         x1 = x2 = x3 = x4 = x5 = x6 = x7 = 0;
                         sscanf(ln, "%d %d %d %d %d %d %d", &x1, &x2, &x3, &x4,
                                &x5, &x6, &x7);
                         if (tarea->version == 0)
                                 pMobIndex->race = get_race_number(x1);
-                        pMobIndex->height = x3;
-                        pMobIndex->weight = x4;
+                        pMobIndex->height = INT_TO_SHINT(x3);
+                        pMobIndex->weight = INT_TO_SHINT(x4);
                         if (tarea->version == 0)
                                 pMobIndex->speaking =
                                         pMobIndex->race->language();
-                        pMobIndex->numattacks = x7;
+                        pMobIndex->numattacks = INT_TO_SHINT(x7);
                         if (!pMobIndex->speaking)
                                 pMobIndex->speaking =
                                         pMobIndex->race->language();
@@ -1491,8 +1491,8 @@ void load_mobiles(AREA_DATA * tarea, FILE * fp)
                                 x1 = x2 = x3 = x4 = x5 = x6 = x7 = x8 = 0;
                                 sscanf(ln, "%d %d %d %d %d %d %d %d", &x1,
                                        &x2, &x3, &x4, &x5, &x6, &x7, &x8);
-                                pMobIndex->hitroll = x1;
-                                pMobIndex->damroll = x2;
+                                pMobIndex->hitroll = INT_TO_SHINT(x1);
+                                pMobIndex->damroll = INT_TO_SHINT(x2);
                                 for (i = 0; i < 32; i++)
                                         if (IS_SET(x1, 1 << i))
                                                 xSET_BIT(pMobIndex->xflags,
@@ -1505,8 +1505,8 @@ void load_mobiles(AREA_DATA * tarea, FILE * fp)
                         }
                         else
                         {
-                                pMobIndex->hitroll = fread_number(fp);
-                                pMobIndex->damroll = fread_number(fp);
+                                pMobIndex->hitroll = INT_TO_SHINT(fread_number(fp));
+                                pMobIndex->damroll = INT_TO_SHINT(fread_number(fp));
                                 pMobIndex->xflags = fread_bitvector(fp);
                                 pMobIndex->resistant = fread_number(fp);
                                 pMobIndex->immune = fread_number(fp);
@@ -1656,10 +1656,10 @@ void load_objects(AREA_DATA * tarea, FILE * fp)
                 ln = fread_line(fp);
                 x1 = x2 = x3 = x4 = 0;
                 sscanf(ln, "%d %d %d %d", &x1, &x2, &x3, &x4);
-                pObjIndex->item_type = x1;
+                pObjIndex->item_type = INT_TO_SHINT(x1);
                 pObjIndex->extra_flags = x2;
                 pObjIndex->wear_flags = x3;
-                pObjIndex->layers = x4;
+                pObjIndex->layers = INT_TO_SHINT(x4);
 
                 ln = fread_line(fp);
                 x1 = x2 = x3 = x4 = x5 = x6 = 0;
@@ -1670,7 +1670,7 @@ void load_objects(AREA_DATA * tarea, FILE * fp)
                 pObjIndex->value[3] = x4;
                 pObjIndex->value[4] = x5;
                 pObjIndex->value[5] = x6;
-                pObjIndex->weight = fread_number(fp);
+                pObjIndex->weight = INT_TO_SHINT(fread_number(fp));
                 pObjIndex->weight = UMAX(1, pObjIndex->weight);
                 pObjIndex->cost = fread_number(fp);
                 pObjIndex->rent = fread_number(fp); /* unused */
@@ -1686,7 +1686,7 @@ void load_objects(AREA_DATA * tarea, FILE * fp)
                                 CREATE(paf, AFFECT_DATA, 1);
                                 paf->type = -1;
                                 paf->duration = -1;
-                                paf->location = fread_number(fp);
+                                paf->location = INT_TO_SHINT(fread_number(fp));
                                 if (paf->location == APPLY_WEAPONSPELL
                                     || paf->location == APPLY_WEARSPELL
                                     || paf->location == APPLY_REMOVESPELL
@@ -1900,7 +1900,7 @@ void load_resets(AREA_DATA * tarea, FILE * fp)
                         }
 
                         if (arg2 < 0 || arg2 > MAX_DIR + 1
-                            || (pexit = get_exit(pRoomIndex, arg2)) == NULL
+                            || (pexit = get_exit(pRoomIndex, INT_TO_SHINT(arg2))) == NULL
                             || !IS_SET(pexit->exit_info, EX_ISDOOR))
                         {
                                 bug("Load_resets: 'D': exit %d not door.",
@@ -2038,8 +2038,8 @@ void load_rooms(AREA_DATA * tarea, FILE * fp)
                 pRoomIndex->room_flags = fread_bitvector(fp);
                 ln = fread_line(fp);
                 sscanf(ln, "%d %d %d %d %d %d", &x3, &x4, &x5, &x6, &x7, &x8);
-                pRoomIndex->sector_type = x5;
-                pRoomIndex->tunnel = x8;
+                pRoomIndex->sector_type = INT_TO_SHINT(x5);
+                pRoomIndex->tunnel = INT_TO_SHINT(x8);
 
                 if (tarea->version < 2)
                 {
@@ -2084,7 +2084,7 @@ void load_rooms(AREA_DATA * tarea, FILE * fp)
                                 else
                                 {
                                         pexit = make_exit(pRoomIndex, NULL,
-                                                          door);
+                                                          INT_TO_SHINT(door));
                                         pexit->description = fread_string(fp);
                                         pexit->keyword = fread_string(fp);
                                         pexit->exit_info = 0;
@@ -2096,8 +2096,8 @@ void load_rooms(AREA_DATA * tarea, FILE * fp)
                                         locks = x1;
                                         pexit->key = x2;
                                         pexit->vnum = x3;
-                                        pexit->vdir = door;
-                                        pexit->distance = x4;
+                                        pexit->vdir = INT_TO_SHINT(door);
+                                        pexit->distance = INT_TO_SHINT(x4);
 
                                         switch (locks)
                                         {
@@ -2155,7 +2155,7 @@ void load_rooms(AREA_DATA * tarea, FILE * fp)
 /*
  * Load a shop section.
  */
-void load_shops(AREA_DATA * tarea, FILE * fp)
+void load_shops([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 {
         SHOP_DATA *pShop;
 
@@ -2174,16 +2174,16 @@ void load_shops(AREA_DATA * tarea, FILE * fp)
                         break;
                 }
                 for (iTrade = 0; iTrade < MAX_TRADE; iTrade++)
-                        pShop->buy_type[iTrade] = fread_number(fp);
-                pShop->profit_buy = fread_number(fp);
-                pShop->profit_sell = fread_number(fp);
+                        pShop->buy_type[iTrade] = INT_TO_SHINT(fread_number(fp));
+                pShop->profit_buy = INT_TO_SHINT(fread_number(fp));
+                pShop->profit_sell = INT_TO_SHINT(fread_number(fp));
                 pShop->profit_buy =
                         URANGE(pShop->profit_sell + 5, pShop->profit_buy,
                                1000);
                 pShop->profit_sell =
                         URANGE(0, pShop->profit_sell, pShop->profit_buy - 5);
-                pShop->open_hour = fread_number(fp);
-                pShop->close_hour = fread_number(fp);
+                pShop->open_hour = INT_TO_SHINT(fread_number(fp));
+                pShop->close_hour = INT_TO_SHINT(fread_number(fp));
                 fread_to_eol(fp);
                 pMobIndex = get_mob_index(pShop->keeper);
                 pMobIndex->pShop = pShop;
@@ -2203,7 +2203,7 @@ void load_shops(AREA_DATA * tarea, FILE * fp)
 /*
  * Load a repair shop section.					-Thoric
  */
-void load_repairs(AREA_DATA * tarea, FILE * fp)
+void load_repairs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 {
         REPAIR_DATA *rShop;
 
@@ -2222,11 +2222,11 @@ void load_repairs(AREA_DATA * tarea, FILE * fp)
                         break;
                 }
                 for (iFix = 0; iFix < MAX_FIX; iFix++)
-                        rShop->fix_type[iFix] = fread_number(fp);
-                rShop->profit_fix = fread_number(fp);
-                rShop->shop_type = fread_number(fp);
-                rShop->open_hour = fread_number(fp);
-                rShop->close_hour = fread_number(fp);
+                        rShop->fix_type[iFix] = INT_TO_SHINT(fread_number(fp));
+                rShop->profit_fix = INT_TO_SHINT(fread_number(fp));
+                rShop->shop_type = INT_TO_SHINT(fread_number(fp));
+                rShop->open_hour = INT_TO_SHINT(fread_number(fp));
+                rShop->close_hour = INT_TO_SHINT(fread_number(fp));
                 fread_to_eol(fp);
                 pMobIndex = get_mob_index(rShop->keeper);
                 pMobIndex->rShop = rShop;
@@ -2241,7 +2241,7 @@ void load_repairs(AREA_DATA * tarea, FILE * fp)
 /*
  * Load spec proc declarations.
  */
-void load_specials(AREA_DATA * tarea, FILE * fp)
+void load_specials([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 {
         tarea = NULL;
         for (;;)
@@ -2374,7 +2374,7 @@ void initialize_economy(void)
                 boost_economy(tarea, gold);
                 for (idx = tarea->low_m_vnum; idx < tarea->hi_m_vnum; idx++)
                         if ((mob = get_mob_index(idx)) != NULL)
-                                boost_economy(tarea, mob->gold * 10);
+                                boost_economy(tarea, static_cast<int>(mob->gold * 10));
         }
 }
 
@@ -2503,8 +2503,8 @@ void sort_exits(ROOM_INDEX_DATA * room)
                         return;
                 }
         }
-        qsort(&exits[0], nexits, sizeof(EXIT_DATA *),
-              (int (*)(const void *, const void *)) exit_comp);
+        qsort(&exits[0], static_cast<size_t>(nexits), sizeof(EXIT_DATA *),
+              reinterpret_cast<int (*)(const void *, const void *)>(exit_comp));
         for (x = 0; x < nexits; x++)
         {
                 if (x > 0)
@@ -2550,7 +2550,7 @@ void randomize_exits(ROOM_INDEX_DATA * room, sh_int maxdir)
         }
         count = 0;
         for (pexit = room->first_exit; pexit; pexit = pexit->next)
-                pexit->vdir = vdirs[count++];
+                pexit->vdir = INT_TO_SHINT(vdirs[count++]);
 
         sort_exits(room);
 }
@@ -2613,7 +2613,7 @@ void area_update(void)
                         if (reset_age == -1)
                                 pArea->age = -1;
                         else
-                                pArea->age = number_range(0, reset_age / 5);
+                                pArea->age = INT_TO_SHINT(number_range(0, reset_age / 5));
                         pRoomIndex = get_room_index(ROOM_VNUM_SCHOOL);
                         if (pRoomIndex != NULL && pArea == pRoomIndex->area
                             && pArea->reset_frequency == 0)
@@ -2654,7 +2654,7 @@ CHAR_DATA *create_mobile(MOB_INDEX_DATA * pMobIndex)
         if (pMobIndex->spec2_funname)
                 mob->spec2_funname = QUICKLINK(pMobIndex->spec2_funname);
         mob->mpscriptpos = 0;
-        mob->top_level = number_fuzzy(pMobIndex->level);
+        mob->top_level = INT_TO_SHINT(number_fuzzy(pMobIndex->level));
         {
                 int       ability;
 
@@ -2680,21 +2680,21 @@ CHAR_DATA *create_mobile(MOB_INDEX_DATA * pMobIndex)
         if (pMobIndex->ac)
                 mob->armor = pMobIndex->ac;
         else
-                mob->armor = (sh_int) (100 - mob->top_level * 2.5);
+                mob->armor = static_cast<sh_int>(100 - mob->top_level * 2.5);
 
         if (!pMobIndex->max_hit)
                 mob->max_hit =
-                        mob->top_level * 10 + number_range(mob->top_level,
+                        INT_TO_SHINT(mob->top_level * 10 + number_range(mob->top_level,
                                                            mob->top_level *
-                                                           10);
+                                                           10));
         else
-                mob->max_hit = pMobIndex->max_hit;
+                mob->max_hit = INT_TO_SHINT(pMobIndex->max_hit);
         mob->hit = mob->max_hit;
         /*
          * lets put things back the way they used to be! -Thoric 
          */
         mob->gold = pMobIndex->gold;
-        mob->position = pMobIndex->position;
+        mob->position = INT_TO_SHINT(pMobIndex->position);
         mob->defposition = pMobIndex->defposition;
         mob->barenumdie = pMobIndex->damnodice;
         mob->baresizedie = pMobIndex->damsizedice;
@@ -2757,7 +2757,7 @@ OBJ_DATA *create_object(OBJ_INDEX_DATA * pObjIndex, int level)
 
         obj->pIndexData = pObjIndex;
         obj->in_room = NULL;
-        obj->level = level;
+        obj->level = INT_TO_SHINT(level);
         obj->wear_loc = -1;
         obj->count = 1;
         cur_obj_serial = UMAX((cur_obj_serial + 1) & (BV30 - 1), 1);
@@ -2854,9 +2854,9 @@ OBJ_DATA *create_object(OBJ_INDEX_DATA * pObjIndex, int level)
                  * value4 is the optional initial condition
                  */
                 if (obj->value[4])
-                        obj->timer = obj->value[4];
+                        obj->timer = INT_TO_SHINT(obj->value[4]);
                 else
-                        obj->timer = obj->value[1];
+                        obj->timer = INT_TO_SHINT(obj->value[1]);
                 break;
 
         case ITEM_SALVE:
@@ -2915,7 +2915,7 @@ OBJ_DATA *create_object(OBJ_INDEX_DATA * pObjIndex, int level)
         case ITEM_ARMOR:
                 if (obj->value[0] == 0)
                         obj->value[0] = obj->value[1];
-                obj->timer = obj->value[3];
+                obj->timer = INT_TO_SHINT(obj->value[3]);
                 break;
 
         case ITEM_POTION:
@@ -3086,8 +3086,7 @@ void free_char(CHAR_DATA * ch)
                      (pos < MAX_IGNORE && ch->pcdata->ignore[pos] != NULL);
                      pos++)
                 {
-                        if (ch->pcdata->ignore)
-                                STRFREE(ch->pcdata->ignore[pos]);
+                        STRFREE(ch->pcdata->ignore[pos]);
                 }
                 if (!(ch->pcdata->birthday.year > -1)
                     || !(ch->pcdata->birthday.day > -1)
@@ -3296,7 +3295,7 @@ char fread_letter(FILE * fp)
                                 exit(1);
                         return '\0';
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (isspace(c));
 
@@ -3323,7 +3322,7 @@ int fread_number(FILE * fp)
                                 exit(1);
                         return 0;
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (isspace(c));
 
@@ -3331,11 +3330,11 @@ int fread_number(FILE * fp)
 
         sign = FALSE;
         if (c == '+')
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         else if (c == '-')
         {
                 sign = TRUE;
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
 
         if (!isdigit(c))
@@ -3356,7 +3355,7 @@ int fread_number(FILE * fp)
                         return number;
                 }
                 number = number * 10 + c - '0';
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
 
         if (sign)
@@ -3391,7 +3390,7 @@ float fread_float(FILE * fp)
                                 exit(1);
                         return 0.0f;
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (isspace(c));
 
@@ -3399,11 +3398,11 @@ float fread_float(FILE * fp)
 
         sign = FALSE;
         if (c == '+')
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         else if (c == '-')
         {
                 sign = TRUE;
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
 
         if (!isdigit(c))
@@ -3431,14 +3430,14 @@ float fread_float(FILE * fp)
                                 exit(1);
                         return number;
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
                 if (c != ' ')
                         buf[count] = c;
                 count++;
 
         }
         buf[count] = '\0';
-        number = atof(buf);
+        number = static_cast<float>(atof(buf));
 
         if (sign)
                 number = 0 - number;
@@ -3469,7 +3468,7 @@ long fread_long(FILE * fp)
                         }
                         return 0;
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (isspace(c));
 
@@ -3477,11 +3476,11 @@ long fread_long(FILE * fp)
 
         sign = FALSE;
         if (c == '+')
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         else if (c == '-')
         {
                 sign = TRUE;
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
 
         if (!isdigit(c))
@@ -3502,7 +3501,7 @@ long fread_long(FILE * fp)
                         return number;
                 }
                 number = number * 10 + c - '0';
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
 
         if (sign)
@@ -3522,14 +3521,19 @@ long fread_long(FILE * fp)
 char     *str_dup(char const *str)
 {
         static char *ret;
-        int       len;
+        size_t    len;
 
         if (!str)
                 return NULL;
 
         len = strlen(str) + 1;
 
-        CREATE(ret, char, len);
+        ret = static_cast<char*>(calloc(len, sizeof(char)));
+        if (!ret)
+        {
+                perror("malloc failure");
+                exit(1);
+        }
         mudstrlcpy(ret, str, len);
         return ret;
 }
@@ -3561,7 +3565,7 @@ char     *fread_string(FILE * fp)
                                 exit(1);
                         return STRALLOC("");
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (isspace(c));
 
@@ -3577,7 +3581,7 @@ char     *fread_string(FILE * fp)
                         return STRALLOC(buf);
                 }
 
-                switch (*plast = getc(fp))
+                switch (*plast = static_cast<char>(getc(fp)))
                 {
                 default:
                         plast++;
@@ -3637,7 +3641,7 @@ char     *fread_string_nohash(FILE * fp)
                                 exit(1);
                         return str_dup("");
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (isspace(c));
 
@@ -3652,7 +3656,7 @@ char     *fread_string_nohash(FILE * fp)
                         *plast = '\0';
                         return str_dup(buf);
                 }
-                switch (*plast = getc(fp))
+                switch (*plast = static_cast<char>(getc(fp)))
                 {
                 default:
                         plast++;
@@ -3711,7 +3715,7 @@ char     *fread_string_noalloc(FILE * fp)
                                 exit(1);
                         return buf;
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (isspace(c));
 
@@ -3727,7 +3731,7 @@ char     *fread_string_noalloc(FILE * fp)
                         return buf;
                 }
 
-                switch (*plast = getc(fp))
+                switch (*plast = static_cast<char>(getc(fp)))
                 {
                 default:
                         plast++;
@@ -3776,13 +3780,13 @@ void fread_to_eol(FILE * fp)
                                 exit(1);
                         return;
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (c != '\n' && c != '\r');
 
         do
         {
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (c == '\n' || c == '\r');
 
@@ -3818,7 +3822,7 @@ char     *fread_line(FILE * fp)
                         mudstrlcpy(line, "", MSL);
                         return line;
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (isspace(c));
 
@@ -3833,7 +3837,7 @@ char     *fread_line(FILE * fp)
                         *pline = '\0';
                         return line;
                 }
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
                 *pline++ = c;
                 ln++;
                 if (ln >= (MAX_STRING_LENGTH - 1))
@@ -3846,7 +3850,7 @@ char     *fread_line(FILE * fp)
 
         do
         {
-                c = getc(fp);
+                c = static_cast<char>(getc(fp));
         }
         while (c == '\n' || c == '\r');
 
@@ -3876,7 +3880,7 @@ char     *fread_word(FILE * fp)
                         word[0] = '\0';
                         return word;
                 }
-                cEnd = getc(fp);
+                cEnd = static_cast<char>(getc(fp));
         }
         while (isspace(cEnd));
 
@@ -3901,7 +3905,7 @@ char     *fread_word(FILE * fp)
                         *pword = '\0';
                         return word;
                 }
-                *pword = getc(fp);
+                *pword = static_cast<char>(getc(fp));
                 if (cEnd == ' ' ? isspace(*pword) : *pword == cEnd)
                 {
                         if (cEnd == ' ')
@@ -4063,7 +4067,7 @@ void init_mm()
         piState[-2] = 55 - 55;
         piState[-1] = 55 - 24;
 
-        piState[0] = ((int) current_time) & ((1 << 30) - 1);
+        piState[0] = static_cast<int>(current_time) & ((1 << 30) - 1);
         piState[1] = 1;
         for (iState = 2; iState < 55; iState++)
         {
@@ -4250,9 +4254,9 @@ bool str_prefix(const char *astr, const char *bstr)
  */
 bool str_infix(const char *astr, const char *bstr)
 {
-        int       sstr1;
-        int       sstr2;
-        int       ichar;
+        size_t    sstr1;
+        size_t    sstr2;
+        size_t    ichar;
         char      c0;
 
         if ((c0 = LOWER(astr[0])) == '\0')
@@ -4278,8 +4282,8 @@ bool str_infix(const char *astr, const char *bstr)
  */
 bool str_suffix(const char *astr, const char *bstr)
 {
-        int       sstr1;
-        int       sstr2;
+        size_t    sstr1;
+        size_t    sstr2;
 
         sstr1 = strlen(astr);
         sstr2 = strlen(bstr);
@@ -4342,7 +4346,7 @@ bool isavowel(char letter)
 {
         char      c;
 
-        c = tolower(letter);
+        c = static_cast<char>(tolower(letter));
         if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
                 return TRUE;
         else
@@ -4359,7 +4363,8 @@ char     *aoran(const char *str)
         if (!str)
         {
                 bug("Aoran(): NULL str");
-                return "";
+                temp[0] = '\0';
+                return temp;
         }
 
         if (isavowel(str[0])
@@ -4436,7 +4441,7 @@ void bug(const char *str, ...)
         if (fpArea != NULL)
         {
                 int       iLine;
-                int       iChar;
+                long      iChar;
 
                 if (fpArea == stdin)
                 {
@@ -4482,13 +4487,13 @@ void bug(const char *str, ...)
 #if !defined(__CYGWIN__) && !defined(__FreeBSD__)
         if( !fBootDb && sysdata.DEBUG )
         {
-                size = backtrace( array, 20 );
-                strings = backtrace_symbols( array, size );
+                size = static_cast<size_t>(backtrace( array, 20 ));
+                strings = backtrace_symbols( array, static_cast<int>(size) );
 
-                log_printf( "Obtained %d stack frames.", size );
+                log_printf( "Obtained %d stack frames.", static_cast<int>(size) );
 
                 for( i = 0; i < size; i++ )
-                        log_string( strings[i] );
+                        log_string( static_cast<const char*>(strings[i]) );
 
                 free( strings );
         }
@@ -4531,8 +4536,9 @@ void clear_file(CHAR_DATA * ch, char *filename)
         FILE     *fp;
 
         fp = fopen(filename, "w");
-        if (fp != NULL)
+        if (fp != NULL) {
                 FCLOSE(fp);
+        }
         send_to_pager("File Cleared\n\r", ch);
 
         return;
@@ -4552,7 +4558,7 @@ void show_file(CHAR_DATA * ch, char *filename)
         {
                 while (!feof(fp))
                 {
-                        while ((buf[num] = fgetc(fp)) != EOF
+                        while ((buf[num] = static_cast<char>(fgetc(fp))) != EOF
                                && buf[num] != '\n'
                                && buf[num] != '\r'
                                && num < (MAX_STRING_LENGTH - 2))
@@ -4574,7 +4580,7 @@ void show_file(CHAR_DATA * ch, char *filename)
 /*
  * Show the boot log file					-Thoric
  */
-CMDF do_dmesg(CHAR_DATA * ch, char *argument)
+CMDF do_dmesg(CHAR_DATA * ch, [[maybe_unused]] char *argument)
 {
         argument = NULL;
         set_pager_color(AT_LOG, ch);
@@ -4617,7 +4623,7 @@ void log_string_plus(const char *str, sh_int log_type, sh_int level)
  * wizlist builder!						-Thoric
  */
 
-void towizfile(char *line, bool Border)
+void towizfile(const char *line, bool Border)
 {
         int       filler = 0, xx, ofiller = 0;
         char      outline[MAX_STRING_LENGTH];
@@ -4656,9 +4662,9 @@ void towizfile(char *line, bool Border)
                 /* Use step-by-step buffer building to avoid truncation warnings */
                 size_t len = 0;
                 outline2[0] = '\0';
-                len += snprintf(outline2 + len, MSL - len, "&B||&z");
-                len += snprintf(outline2 + len, MSL - len, "%s", outline);
-                len += snprintf(outline2 + len, MSL - len, "&B");
+                len += static_cast<size_t>(snprintf(outline2 + len, MSL - len, "&B||&z"));
+                len += static_cast<size_t>(snprintf(outline2 + len, MSL - len, "%s", outline));
+                len += static_cast<size_t>(snprintf(outline2 + len, MSL - len, "&B"));
                 /* Add spaces for padding */
                 for (xx = 0; xx < filler; xx++)
                         mudstrlcat(outline2, " ", MSL);
@@ -4677,7 +4683,7 @@ void towizfile(char *line, bool Border)
         }
 }
 
-void towwwwizfile(char *line, bool Border)
+void towwwwizfile(const char *line, bool Border)
 {
         int       filler = 0, xx, ofiller = 0;
         char      outline[MAX_STRING_LENGTH];
@@ -4717,9 +4723,9 @@ void towwwwizfile(char *line, bool Border)
                 /* Use step-by-step buffer building to avoid truncation warnings */
                 size_t len2 = 0;
                 outline2[0] = '\0';
-                len2 += snprintf(outline2 + len2, MSL - len2, "&B||&z");
-                len2 += snprintf(outline2 + len2, MSL - len2, "%s", outline);
-                len2 += snprintf(outline2 + len2, MSL - len2, "&B");
+                len2 += static_cast<size_t>(snprintf(outline2 + len2, MSL - len2, "&B||&z"));
+                len2 += static_cast<size_t>(snprintf(outline2 + len2, MSL - len2, "%s", outline));
+                len2 += static_cast<size_t>(snprintf(outline2 + len2, MSL - len2, "&B"));
                 /* Add spaces for padding */
                 for (xx = 0; xx < filler; xx++)
                         mudstrlcat(outline2, " ", MSL);
@@ -4753,7 +4759,7 @@ void add_to_wizlist(char *name, int level, int flags)
 
         CREATE(wiz, WIZENT, 1);
         wiz->name = str_dup(name);
-        wiz->level = level;
+        wiz->level = INT_TO_SHINT(level);
         wiz->flags = flags;
 
         if (!first_wiz)
@@ -5027,7 +5033,7 @@ void make_wizlist()
 }
 
 
-CMDF do_makewizlist(CHAR_DATA * ch, char *argument)
+CMDF do_makewizlist([[maybe_unused]] CHAR_DATA * ch, [[maybe_unused]] char *argument)
 {
         ch = NULL;
         argument = NULL;
@@ -5195,7 +5201,7 @@ MPROG_DATA *mprog_file_read(char *f, MPROG_DATA * mprg,
 
 /* Load a MUDprogram section from the area file.
  */
-void load_mudprogs(AREA_DATA * tarea, FILE * fp)
+void load_mudprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 {
         MOB_INDEX_DATA *iMob;
         MPROG_DATA *original;
@@ -5424,7 +5430,7 @@ MPROG_DATA *oprog_file_read(char *f, MPROG_DATA * mprg,
 
 /* Load a MUDprogram section from the area file.
  */
-void load_objprogs(AREA_DATA * tarea, FILE * fp)
+void load_objprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 {
         OBJ_INDEX_DATA *iObj;
         MPROG_DATA *original;
@@ -5650,7 +5656,7 @@ MPROG_DATA *rprog_file_read(char *f, MPROG_DATA * mprg,
 
 /* Load a ROOMprogram section from the area file.
  */
-void load_roomprogs(AREA_DATA * tarea, FILE * fp)
+void load_roomprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 {
         ROOM_INDEX_DATA *iRoom;
         MPROG_DATA *original;
@@ -6538,7 +6544,7 @@ void load_buildlist(void)
                                 hi = 0;
                                 word[0] = 0;
                                 line[0] = 0;
-                                if ((temp = fgetc(fp)) != EOF)
+                                if ((temp = static_cast<char>(fgetc(fp))) != EOF)
                                         ungetc(temp, fp);
                                 else
                                         break;
@@ -6705,7 +6711,7 @@ void sort_area(AREA_DATA * pArea, bool proto)
  * Sorted, and flagged if loaded.
  */
 void show_vnums(CHAR_DATA * ch, int low, int high, bool proto, bool shownl,
-                char *loadst, char *notloadst)
+                const char *loadst, const char *notloadst)
 {
         AREA_DATA *pArea, *first_sort;
         int       count, loaded;
@@ -6905,28 +6911,28 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
                         KEY("Autopurge", sys->CLEANPFILES, fread_number(fp));
                         break;
                 case 'B':
-                        KEY("Build", sys->build_level, fread_number(fp));
+                        KEY("Build", sys->build_level, INT_TO_SHINT(fread_number(fp)));
                         KEY("BanSiteLevel", sys->ban_site_level,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("BanClassLevel", sys->ban_class_level,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("BanRaceLevel", sys->ban_race_level,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         break;
                 case 'C':
-                        KEY("Channellog", sys->channellog, fread_number(fp));
+                        KEY("Channellog", sys->channellog, INT_TO_SHINT(fread_number(fp)));
                         break;
 
                 case 'D':
                         KEY("DEBUG", sys->DEBUG, fread_number(fp));
                         KEY("Damplrvsplr", sys->dam_plr_vs_plr,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Damplrvsmob", sys->dam_plr_vs_mob,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Dammobvsplr", sys->dam_mob_vs_plr,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Dammobvsmob", sys->dam_mob_vs_mob,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         break;
 
                 case 'E':
@@ -6940,7 +6946,7 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
                         break;
 
                 case 'F':
-                        KEY("Forcepc", sys->level_forcepc, fread_number(fp));
+                        KEY("Forcepc", sys->level_forcepc, INT_TO_SHINT(fread_number(fp)));
                         break;
 
                 case 'G':
@@ -6954,14 +6960,14 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
                         break;
 
                 case 'L':
-                        KEY("Log", sys->log_level, fread_number(fp));
+                        KEY("Log", sys->log_level, INT_TO_SHINT(fread_number(fp)));
                         KEY("Logsize", sys->log_size, fread_number(fp));
                         break;
 
                 case 'M':
                         KEY("Msetplayer", sys->level_mset_player,
-                            fread_number(fp));
-                        KEY("Muse", sys->muse_level, fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
+                        KEY("Muse", sys->muse_level, INT_TO_SHINT(fread_number(fp)));
                         KEY("Mud_Name", sys->mud_name, fread_string(fp));
                         KEY("Mud_Url", sys->mud_url, fread_string(fp));
                         KEY("Mud_Email", sys->mud_email, fread_string(fp));
@@ -6971,44 +6977,44 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
                         KEY("Nameresolving", sys->NO_NAME_RESOLVING,
                             fread_number(fp));
                         KEY("Newbie_purge", sys->newbie_purge,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         break;
 
                 case 'O':
                         KEY("Overridepriv", sys->level_override_private,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         break;
 
                 case 'P':
                         KEY("Protoflag", sys->level_modify_proto,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Port", sys->PORT, fread_number(fp));
                         break;
 
                 case 'R':
                         KEY("Readallmail", sys->read_all_mail,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Readmailfree", sys->read_mail_free,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Regular_purge", sys->regular_purge,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         break;
 
                 case 'S':
                         KEY("Stunplrvsplr", sys->stun_plr_vs_plr,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Stunregular", sys->stun_regular,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Saveflags", sys->save_flags, fread_number(fp));
                         KEY("Savefreq", sys->save_frequency,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("SendmailPath", sys->mail_path, fread_string(fp));
                         break;
 
                 case 'T':
                         KEY("Takeothersmail", sys->take_others_mail,
-                            fread_number(fp));
-                        KEY("Think", sys->think_level, fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
+                        KEY("Think", sys->think_level, INT_TO_SHINT(fread_number(fp)));
                         break;
 
 
@@ -7016,7 +7022,7 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
                         KEY("Waitforauth", sys->WAIT_FOR_AUTH,
                             fread_number(fp));
                         KEY("Writemailfree", sys->write_mail_free,
-                            fread_number(fp));
+                            INT_TO_SHINT(fread_number(fp)));
                         KEY("Web", sys->web, fread_number(fp));
                         break;
                 }
@@ -7437,7 +7443,7 @@ int file_size(char *buf)
         /*
          * Returns the number of characters from the beginning 
          */
-        size = ftell(fp);
+        size = static_cast<int>(ftell(fp));
 
         FCLOSE(fp);
 
@@ -7548,7 +7554,7 @@ size_t mudstrlcpy(char *dst, const char *src, size_t siz)
                 while (*s++)
                         ;
         }
-        return (s - src - 1);   /* count does not include NUL */
+        return static_cast<size_t>(s - src - 1);   /* count does not include NUL */
 }
 
 /*
@@ -7573,7 +7579,7 @@ size_t mudstrlcat(char *dst, const char *src, size_t siz)
          */
         while (n-- != 0 && *d != '\0')
                 d++;
-        dlen = d - dst;
+        dlen = static_cast<size_t>(d - dst);
         n = siz - dlen;
 
         if (n == 0)
@@ -7588,7 +7594,7 @@ size_t mudstrlcat(char *dst, const char *src, size_t siz)
                 s++;
         }
         *d = '\0';
-        return (dlen + (s - src));  /* count does not include NUL */
+        return (dlen + static_cast<size_t>(s - src));  /* count does not include NUL */
 }
 
 
@@ -7616,7 +7622,7 @@ void load_watchlist(void)
         WATCH_DATA *pwatch;
         FILE     *fp;
         int       number;
-        int       version;
+        [[maybe_unused]] int version;
         CMDTYPE  *cmd;
 
         version = 0;
@@ -7626,7 +7632,7 @@ void load_watchlist(void)
 
         for (;;)
         {
-                char     *p;
+                [[maybe_unused]] char *p;
 
                 if (feof(fp))
                 {
@@ -7643,7 +7649,7 @@ void load_watchlist(void)
 
                 CREATE(pwatch, WATCH_DATA, 1);
 
-                pwatch->imm_level = number;
+                pwatch->imm_level = INT_TO_SHINT(number);
                 pwatch->imm_name = fread_string_nohash(fp);
                 pwatch->target_name = fread_string_nohash(fp);
                 if (strlen(pwatch->target_name) < 2)
@@ -7656,7 +7662,7 @@ void load_watchlist(void)
                  */
                 {
                         long      pos = ftell(fp);
-                        char      tmp = getc(fp);
+                        char      tmp = static_cast<char>(getc(fp));
 
                         fseek(fp, pos, SEEK_SET);
                         if (tmp != '\n' && tmp != '\r')
@@ -7672,7 +7678,7 @@ void load_watchlist(void)
                  * Check for command watches 
                  */
                 if (pwatch->target_name)
-                        for (cmd = command_hash[(int) pwatch->target_name[0]];
+                        for (cmd = command_hash[static_cast<int>(pwatch->target_name[0])];
                              cmd; cmd = cmd->next)
                         {
                                 if (!str_cmp(pwatch->target_name, cmd->name))

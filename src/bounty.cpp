@@ -1020,7 +1020,7 @@ CMDF do_imprison(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        chance = (int) (ch->pcdata->learned[gsn_imprison]);
+        chance = static_cast<int>(ch->pcdata->learned[gsn_imprison]);
         if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE) && chance < 80)
         {
                 set_char_color(AT_MAGIC, ch);

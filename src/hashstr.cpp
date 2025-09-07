@@ -60,7 +60,7 @@ struct hashstr_data *string_hash[STR_HASH_SIZE];
  * If found, increase link count, and return pointer,
  * otherwise add new string to hash table, and return pointer.
  */
-char     *str_alloc(char *str)
+char     *str_alloc(const char *str)
 {
         /* Removed 'register' keyword for C++17 compatibility */
         int len, hash, psize;

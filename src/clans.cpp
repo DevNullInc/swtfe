@@ -3594,7 +3594,7 @@ CMDF do_recruit(CHAR_DATA * ch, char *argument)
         }
 
         percent_chance = IS_NPC(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_recruit]);
+                : static_cast<int>(ch->pcdata->learned[gsn_recruit]);
 
         if (number_percent() > percent_chance)
         {

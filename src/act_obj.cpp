@@ -2846,7 +2846,7 @@ CMDF do_auction(CHAR_DATA * ch, const char *argument)
                 act(AT_TELL,
                     "Try again later - $p is being auctioned right now!", ch,
                     auction->item, NULL, TO_CHAR);
-                WAIT_STATE(ch, (sh_int) (1.5 * PULSE_VIOLENCE));
+                WAIT_STATE(ch, static_cast<sh_int>(1.5 * PULSE_VIOLENCE));
                 return;
         }
 }

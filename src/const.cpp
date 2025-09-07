@@ -109,7 +109,7 @@ const struct race_type race_table[MAX_RACE] = {
 
 
 
-char     *const hair_list[] = {
+const char *const hair_list[] = {
         "none", "bald", "hairless", "black", "brown",
         "red", "blonde", "argent",
         "golden", "platinum",
@@ -121,7 +121,7 @@ char     *const hair_list[] = {
         "hunter green", "cyan"
 };
 
-char     *const eye_list[] = {
+const char *const eye_list[] = {
         "none", "blue", "green", "brown", "grey",
         "black", "hazel", "aqua", "royal blue",
         "baby blue", "evergreen", "jade",
@@ -129,30 +129,30 @@ char     *const eye_list[] = {
         "charcoal", "sky", "lavender"
 };
 
-char     *const build_list[] = {
+const char *const build_list[] = {
         "none", "thin", "lean", "muscular", "bulky",
         "fat", "frail", "toned", "slender",
         "willowy"
 };
 
-char     *const height_list[] = {
+const char *const height_list[] = {
         "none", "tiny", "small", "short", "average",
         "tall", "large", "huge"
 };
 
-char     *const weight_list[] = {
+const char *const weight_list[] = {
         "none", "feathery", "light", "average", "heavy",
         "massive"
 };
 
-char     *const complextion_list[] = {
+const char *const complextion_list[] = {
         "none", "pasty", "light", "drained", "dark",
         "leathery", "wrinkley", "reddened", "fair",
         "pale"
 };
 
 
-char     *const illness_list[] = {
+const char *const illness_list[] = {
         "none", "sniffles", "gas", "cough", "cold",
         "flu", "strep", "pneumonia",
         "eye infection", "ear infection",
@@ -161,7 +161,7 @@ char     *const illness_list[] = {
         "aids"
 };
 
-char     *const npc_race[MAX_NPC_RACE] = {
+const char *const npc_race[MAX_NPC_RACE] = {
         "Human", "Wookiee", "Twi'lek", "Rodian", "Hutt", "Mon Calamari",
         "Noghri",
         "Gamorrean", "Jawa", "Adarian", "Ewok", "Verpine", "Defel",
@@ -180,7 +180,7 @@ char     *const npc_race[MAX_NPC_RACE] = {
 };
 
 
-char     *const ability_name[MAX_ABILITY] = {
+const char *const ability_name[MAX_ABILITY] = {
         "combat", "piloting", "engineering", "bounty hunting", "smuggling",
         "diplomacy",
         "leadership", "force", "occupation", "piracy", "medic"
@@ -584,14 +584,14 @@ const struct liq_type liq_table[LIQ_MAX] = {
         {"milkshake", "creamy", {0, 8, 5}}  /* 18 */
 };
 
-char     *const attack_table[13] = {
+const char *const attack_table[13] = {
         "hit",
         "slice", "stab", "slash", "whip", "stab",
         "blast", "pound", "crush", "shot", "bite",
         "pierce", "suction"
 };
 
-char     *const body_parts[MAX_BODY_PARTS] = {
+const char *const body_parts[MAX_BODY_PARTS] = {
         "left leg", "right leg", "left foot", "right foot", "left arm",
         "right arm", "left wrist", "right wrist", "left knee", "right knee",
         "left ankle", "right ankle", "left sholder", "right sholder",
@@ -600,21 +600,21 @@ char     *const body_parts[MAX_BODY_PARTS] = {
 };
 
 
-char     *const npc_sex[SEX_MAX] = {
+const char *const npc_sex[SEX_MAX] = {
         "neuter", "male", "female"
 };
 
-char     *const npc_position[POS_MAX] = {
+const char *const npc_position[POS_MAX] = {
         "dead", "mortal", "incapacitated", "stunned", "sleeping",
         "resting", "sitting", "fighting", "standing", "mounted",
         "shove", "drag"
 };
 
-char     *const log_flag[] = {
+const char *const log_flag[] = {
         "normal", "always", "never", "build", "high", "comm", "all"
 };
 
-char     *const true_false[] = {
+const char *const true_false[] = {
         "false", "true"
 };
 

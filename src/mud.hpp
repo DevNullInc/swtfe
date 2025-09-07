@@ -828,7 +828,7 @@ struct repairshop_data
 
 /* Mob program structures */
 /* Mob program structures and defines */
-/* Moved these defines here from mud_prog.c as I need them -rkb */
+/* Moved these defines here from mud_prog.cpp as I need them -TSR */
 #define MAX_IFS 20  /* should always be generous */
 #define IN_IF 0
 #define IN_ELSE 1
@@ -2613,8 +2613,8 @@ struct pc_data
 
 struct liq_type
 {
-        char     *liq_name;
-        char     *liq_color;
+        const char     *liq_name;
+        const char     *liq_color;
         sh_int liq_affect[3];
 };
 
@@ -3589,10 +3589,10 @@ extern const char* const ex_flags[];
 
 extern const struct race_type race_table[];
 extern const struct liq_type liq_table[LIQ_MAX];
-extern char *const attack_table[13];
-extern char *const ability_name[MAX_ABILITY];
+extern const char *const attack_table[13];
+extern const char *const ability_name[MAX_ABILITY];
 
-extern char *const skill_tname[];
+extern const char *const skill_tname[];
 extern sh_int const movement_loss[SECT_MAX];
 extern const char *const dir_name[];
 extern const char* const where_name[];
@@ -3615,24 +3615,24 @@ extern const char* const trap_flags[];
 extern const char* const ris_flags[];
 extern const char* const trig_flags[];
 extern const char* const part_flags[];
-extern char *const npc_race[];
+extern const char *const npc_race[];
 extern const char* const defense_flags[];
 extern const char* const attack_flags[];
 extern const char* const area_flags[];
-extern char *const ship_flags[];
+extern const char *const ship_flags[];
 extern const char *const cargo_names[CONTRABAND_MAX];
-extern char *const hair_list[];
-extern char *const eye_list[];
-extern char *const build_list[];
-extern char *const height_list[];
-extern char *const weight_list[];
-extern char *const complextion_list[];
-extern char *const illness_list[];
-extern char *const body_parts[MAX_BODY_PARTS];
-extern char *const npc_sex[SEX_MAX];
-extern char *const npc_position[POS_MAX];
-extern char *const log_flag[];
-extern char *const true_false[];
+extern const char *const hair_list[];
+extern const char *const eye_list[];
+extern const char *const build_list[];
+extern const char *const height_list[];
+extern const char *const weight_list[];
+extern const char *const complextion_list[];
+extern const char *const illness_list[];
+extern const char *const body_parts[MAX_BODY_PARTS];
+extern const char *const npc_sex[SEX_MAX];
+extern const char *const npc_position[POS_MAX];
+extern const char *const log_flag[];
+extern const char *const true_false[];
 
 extern int const lang_array[];
 extern const char* const lang_names[];
@@ -3890,13 +3890,13 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
 #define SK	SKILLTYPE
 #define SH      SHIP_DATA
 #ifdef MCCP
-/* mccp.c */
+/* mccp.cpp */
                    bool compressStart
                    args((DESCRIPTOR_DATA * d, unsigned char telopt));
                    bool compressEnd args((DESCRIPTOR_DATA * d));
 #endif
-/* act_comm.c */
-                   void log_printf args((char *fmt,...));
+/* act_comm.cpp */
+                   void log_printf args((const char *fmt,...));
                    void copyover_recover args((void));
                    bool has_comlink args((CHAR_DATA * ch));
                    bool circle_follow
@@ -3927,7 +3927,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    args((CHAR_DATA * ch, CHAR_DATA * victim,
                          const char *argument));
                    char *obj_short args((OBJ_DATA * obj));
-/* act_info.c */
+/* act_info.cpp */
                    int get_door args((char *arg));
                    char *format_obj_to_char
                    args((OBJ_DATA * obj, CHAR_DATA * ch, bool fShort));
@@ -3935,12 +3935,12 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    args((OBJ_DATA * list, CHAR_DATA * ch, bool fShort,
                          bool fShowNothing));
                    void save_help args((void));
-/* finger2.c */
+/* finger2.cpp */
                    void read_finger args((CHAR_DATA * ch, char *argument));
                    void fread_finger
                    args((CHAR_DATA * ch, FILE * fp, char *laston));
                    void save_finger args((CHAR_DATA * ch));
-/* act_move.c */
+/* act_move.cpp */
                    void clear_vrooms args((void));
                    EXIT_DATA * find_door args((CHAR_DATA * ch, char *arg, bool quiet));
                    EXIT_DATA * get_exit args((ROOM_INDEX_DATA * room, sh_int dir));
@@ -3953,13 +3953,13 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    CMDF do_hold_person args((CHAR_DATA * ch, const char *argument));
                    CMDF do_release args((CHAR_DATA * ch, const char *argument));
                    char *wordwrap args((char *txt, sh_int wrap));
-/* act_obj.c */
+/* act_obj.cpp */
                    obj_ret damage_obj args((OBJ_DATA * obj));
                    sh_int get_obj_resistance args((OBJ_DATA * obj));
                    void save_clan_storeroom
                    args((CHAR_DATA * ch, CLAN_DATA * clan));
                    void obj_fall args((OBJ_DATA * obj, bool through));
-/* act_wiz.c */
+/* act_wiz.cpp */
                    void close_area args((AREA_DATA * pArea));
                    RID * find_location args((CHAR_DATA * ch, char *arg));
                    void echo_to_room
@@ -3983,7 +3983,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void free_command args((CMDTYPE * command));
                    void unlink_command args((CMDTYPE * command));
                    void add_command args((CMDTYPE * command));
-/* build.c */
+/* build.cpp */
                    char *flag_string
                    args((int bitvector, const char *const flagarray[]));
                    int get_mpflag args((char *flag));
@@ -3992,7 +3992,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    int get_vip_flag args((char *flag));
                    int get_wanted_flag args((char *flag));
                    void set_bexit_flag args((EXIT_DATA * pexit, int flag));
-/* clans.c */
+/* clans.cpp */
                    CL * get_clan args((char *name));
                    void load_clans args((void));
                    void save_clan args((CLAN_DATA * clan));
@@ -4003,7 +4003,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    args((CHAR_DATA * ch, CHAR_DATA * victim));
                    bool is_same_clan
                    args((CHAR_DATA * ch, CHAR_DATA * victim));
-/* space.c */
+/* space.cpp */
                    SH * get_ship args((char *name));
                    void load_ships args((void));
                    void save_ship args((SHIP_DATA * ship));
@@ -4063,7 +4063,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void wipe_resets
                    args((AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom));
                    bool autofly args((SHIP_DATA * ship));
-/* comm.c */
+/* comm.cpp */
                    void close_socket
                    args((DESCRIPTOR_DATA * dclose, bool force));
                    bool write_to_buffer
@@ -4086,11 +4086,11 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void act
                    args((sh_int AType, const char *format, CHAR_DATA * ch,
                          void *arg1, void *arg2, int type));
-                   int strlen_color args((char *argument));
+                   int strlen_color args((const char *argument));
                    extern const unsigned char do_termtype_str[];
                    extern const unsigned char will_compress_str[];
                    extern const unsigned char will_compress2_str[];
-/* reset.c */
+/* reset.cpp */
                    RD *
                    make_reset
                    args((char letter, int extra, int arg1, int arg2,
@@ -4110,14 +4110,14 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void add_obj_reset
                    args((AREA_DATA * pArea, char cm, OBJ_DATA * obj, int v2,
                          int v3));
-/* swskills.c */
+/* swskills.cpp */
                    void add_reinforcements args((CHAR_DATA * ch));
                    void load_races args((void));
-/* web-server.c */
+/* web-server.cpp */
                    void init_web(int port); void handle_web(void);
                    void shutdown_web(void);
 
-/* db.c */
+/* db.cpp */
                    void boot_log args((const char *str,...));
                    void clear_file args((CHAR_DATA * ch, char *filename));
                    void show_file args((CHAR_DATA * ch, const char *filename));
@@ -4203,7 +4203,7 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    args((char *dst, const char *src, size_t siz));
                    size_t mudstrlcat
                    args((char *dst, const char *src, size_t siz));
-/* build.c */
+/* build.cpp */
                    bool can_rmodify
                    args((CHAR_DATA * ch, ROOM_INDEX_DATA * room));
                    bool can_omodify args((CHAR_DATA * ch, OBJ_DATA * obj));
@@ -4232,16 +4232,16 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    int get_aflag args((char *flag));
                    int get_oflag args((char *flag));
                    int get_wflag args((char *flag));
-                   RACE_DATA * get_race args((char *string));
-                   LANGUAGE_DATA * get_language args((char *string));
+                   RACE_DATA * get_race args((const char *string));
+                   LANGUAGE_DATA * get_language args((const char *string));
                    RACE_DATA * get_race_number args((int number));
-/* channels.c */
+/* channels.cpp */
                    void removename args((char **list, const char *name));
                    void addname args((char **list, const char *name));
                    int hasname args((const char *list, const char *name));
                    const char *getarg
                    args((const char *argument, char *arg, int length));
-/* fight.c */
+/* fight.cpp */
                    int max_fight args((CHAR_DATA * ch));
                    void violence_update args((void));
                    ch_ret multi_hit
@@ -4282,7 +4282,7 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    void raw_kill args((CHAR_DATA * ch, CHAR_DATA * victim));
                    bool in_arena args((CHAR_DATA * ch));
                    int in_hash_table args((char *str));
-/* makeobjs.c */
+/* makeobjs.cpp */
                    void make_corpse
                    args((CHAR_DATA * ch, CHAR_DATA * killer));
                    void make_blood args((CHAR_DATA * ch));
@@ -4292,15 +4292,15 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    args((ROOM_INDEX_DATA * in_room, sh_int timer));
                    OD * make_trap args((int v0, int v1, int v2, int v3));
                    OD * create_money args((int amount));
-/* misc.c */
+/* misc.cpp */
                    void actiondesc
                    args((CHAR_DATA * ch, OBJ_DATA * obj, void *vo));
                    void jedi_checks args((CHAR_DATA * ch));
                    void jedi_bonus args((CHAR_DATA * ch));
                    void sith_penalty args((CHAR_DATA * ch));
-/* mud_comm.c */
+/* mud_comm.cpp */
                    char *mprog_type_to_name args((int type));
-/* mud_prog.c */
+/* mud_prog.cpp */
 #ifdef DUNNO_STRSTR
                    char *strstr args((const char *s1, const char *s2));
 #endif
@@ -4336,10 +4336,10 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    void rset_supermob args((ROOM_INDEX_DATA * room));
                    void release_supermob args((void));
                    void mpsleep_update args((void));
-/* player.c */
+/* player.cpp */
                    void set_title args((CHAR_DATA * ch, char *title));
                    char *convert_newline args((char *str));
-/* skills.c */
+/* skills.cpp */
                    bool check_skill
                    args((CHAR_DATA * ch, char *command, char *argument));
                    void learn_from_success args((CHAR_DATA * ch, int sn));
@@ -4351,7 +4351,7 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    bool check_grip args((CHAR_DATA * ch, CHAR_DATA * victim));
                    void disarm args((CHAR_DATA * ch, CHAR_DATA * victim));
                    void trip args((CHAR_DATA * ch, CHAR_DATA * victim));
-/* handler.c */
+/* handler.cpp */
                    void explode args((OBJ_DATA * obj));
                    int get_exp args((CHAR_DATA * ch, int ability));
                    int get_exp_worth args((CHAR_DATA * ch));
@@ -4503,7 +4503,7 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    void add_request
                    args((CHAR_DATA * ch, CHAR_DATA * victim, char *argument,
                          char *syntax));
-/* interp.c */
+/* interp.cpp */
                    bool check_pos args((CHAR_DATA * ch, sh_int position));
                    void interpret args((CHAR_DATA * ch, char *argument));
                    bool is_number args((char *arg));
@@ -4524,7 +4524,7 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                          struct timerset * userec));
                    bool check_command
                    args((CHAR_DATA * ch, CMDTYPE * command));
-/* magic.c */
+/* magic.cpp */
                    bool process_spell_components
                    args((CHAR_DATA * ch, int sn));
                    int ch_slookup args((CHAR_DATA * ch, const char *name));
@@ -4559,7 +4559,7 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    int dice_parse
                    args((CHAR_DATA * ch, int level, char *_exp));
                    SK * get_skilltype args((int sn));
-/* save.c */
+/* save.cpp */
 /* object saving defines for fread/write_obj. -- Altrag */
 #define OS_CARRY	static_cast<sh_int>(0)
 #define OS_CORPSE	static_cast<sh_int>(1)
@@ -4579,11 +4579,11 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    void re_equip_char args((CHAR_DATA * ch));
                    void save_home args((CHAR_DATA * ch));
                    void load_home args((CHAR_DATA * ch));
-/* shops.c */
+/* shops.cpp */
                    CD * find_keeper args((CHAR_DATA * ch));
-/* special.c */
+/* special.cpp */
                    SF * spec_lookup args((char *name));
-/* tables.c */
+/* tables.cpp */
                    int get_skill args((char *skilltype));
                    char *spell_name args((SPELL_FUN * spell));
                    char *skill_name args((DO_FUN * skill));
@@ -4598,10 +4598,10 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    DO_FUN * skill_function args((char *name));
                    void load_herb_table args((void));
                    void save_herb_table args((void));
-/* track.c */
+/* track.cpp */
                    void found_prey args((CHAR_DATA * ch, CHAR_DATA * victim));
                    void hunt_victim args((CHAR_DATA * ch));
-/* update.c */
+/* update.cpp */
                    void advance_level args((CHAR_DATA * ch, int ability));
                    void gain_exp
                    args((CHAR_DATA * ch, int gain, int ability));
@@ -4618,8 +4618,8 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    void auction_update args((void));
                    void remove_portal args((OBJ_DATA * portal));
                    int max_level(CHAR_DATA * ch, int ability);
-/* hashstr.c */
-                   char *str_alloc args((char *str));
+/* hashstr.cpp */
+                   char *str_alloc args((const char *str));
                    char *quick_link args((char *str));
                    int str_free args((char *str));
                    int allocated_strings args((void));
@@ -4628,10 +4628,10 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    char *check_hash args((char *str));
                    void hash_dump args((int hash));
                    void show_high_hash args((int top));
-/* newscore.c */
+/* newscore.cpp */
                    void web_colourconv(char *buffer, const char *txt);
 
-/* vendor.c*/
+/* vendor.cpp */
                    void fwrite_vendor args((FILE * fp, CHAR_DATA * mob));
                    CHAR_DATA * fread_vendor args((FILE * fp));
                    void load_vendors args((void));

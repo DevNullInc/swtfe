@@ -2011,7 +2011,7 @@ CMDF do_oldmstat(CHAR_DATA * ch, char *argument)
                   victim->numattacks);
         ch_printf(ch,
                   "Years: %d   Seconds Played: %d   Timer: %d   Act: %d\n\r",
-                  get_age(victim), (int) victim->played, victim->timer,
+                  get_age(victim), static_cast<int>(victim->played), victim->timer,
                   victim->act);
         if (IS_NPC(victim))
         {
@@ -3836,8 +3836,8 @@ CMDF do_restoretime(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
         else
         {
                 time_passed = current_time - last_restore_all_time;
-                hour = (int) (time_passed / 3600);
-                minute = (int) ((time_passed - (hour * 3600)) / 60);
+                hour = static_cast<int>(time_passed / 3600);
+                minute = static_cast<int>((time_passed - (hour * 3600)) / 60);
                 ch_printf(ch,
                           "The  last restore all was %d hours and %d minutes ago.\n\r",
                           hour, minute);
@@ -3853,8 +3853,8 @@ CMDF do_restoretime(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
         }
 
         time_passed = current_time - ch->pcdata->restore_time;
-        hour = (int) (time_passed / 3600);
-        minute = (int) ((time_passed - (hour * 3600)) / 60);
+        hour = static_cast<int>(time_passed / 3600);
+        minute = static_cast<int>((time_passed - (hour * 3600)) / 60);
         ch_printf(ch,
                   "Your last restore all was %d hours and %d minutes ago.\n\r",
                   hour, minute);
@@ -6255,7 +6255,7 @@ CMDF do_cset(CHAR_DATA * ch, char *argument)
         }
 
         argument = one_argument(argument, arg);
-        level = (sh_int) atoi(argument);
+        level = static_cast<sh_int>(atoi(argument));
 
         if (!str_cmp(arg, "help"))
         {

@@ -277,7 +277,7 @@ void load_languages(void)
 }
 
 
-LANGUAGE_DATA *get_language(char *string)
+LANGUAGE_DATA *get_language(const char *string)
 {
         LANGUAGE_DATA *language;
 

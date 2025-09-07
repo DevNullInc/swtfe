@@ -377,7 +377,7 @@ void RACE_DATA::load_races(void)
         return;
 }
 
-RACE_DATA *get_race(char *string)
+RACE_DATA *get_race(const char *string)
 {
         RACE_DATA *race = NULL;
 

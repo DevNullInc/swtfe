@@ -136,7 +136,7 @@ do											\
  * Fixed to avoid unsafe char* to int cast that loses precision
  * Original: #define QUICKMATCH(p1, p2)	((int) (p1) == (int) (p2))
  */
-#define QUICKMATCH(p1, p2)	((void*) (p1) == (void*) (p2))
+#define QUICKMATCH(p1, p2)	(static_cast<void*>(p1) == static_cast<void*>(p2))
 #define STRFREE(point)                           \
 do                                               \
 {                                                \
@@ -262,7 +262,7 @@ do {								\
 #define ASSIGN_GSN(gsn, skill)					\
 do								\
 {								\
-    if ( ((gsn) = skill_lookup((skill))) == -1 )		\
+    if ( ((gsn) = static_cast<sh_int>(skill_lookup((skill)))) == -1 )		\
 	fprintf( stderr, "ASSIGN_GSN: Skill %s not found.\n",	\
 		(skill) );					\
 } while(0)
@@ -276,3 +276,7 @@ do								\
 	return;                                         \
     } 						   	\
 } while(0)
+
+// C++23 conversion helpers for legacy code modernization
+// Safe conversion from int to sh_int
+#define INT_TO_SHINT(value) static_cast<sh_int>(value)

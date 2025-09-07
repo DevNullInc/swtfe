@@ -196,10 +196,10 @@ CMDF do_alias(CHAR_DATA *ch, char *argument)
                 break;
 
         case SUB_ALIASMSG:
-                alias = (ALIAS_DATA *)ch->dest_buf;
+                alias = static_cast<ALIAS_DATA*>(ch->dest_buf);
                 if (!alias)
                 {
-                        bug("%s has no alias coming out of edit");
+                        bug("%s has no alias coming out of edit", ch->name);
                         return;
                 }
                 if (alias->cmd)

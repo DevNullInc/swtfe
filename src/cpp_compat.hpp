@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <climits>
 
 #ifdef __cplusplus
 
