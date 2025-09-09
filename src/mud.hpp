@@ -276,6 +276,7 @@ struct bank_account
  */
 #define MAX_KEY_HASH		 2048
 #define MAX_STRING_LENGTH	 4096   /* buf */
+#define MSL                  MAX_STRING_LENGTH  /* Centralized MSL definition */
 #define MAX_INPUT_LENGTH	 1024   /* arg */
 #define MAX_INBUF_SIZE		 1024
 

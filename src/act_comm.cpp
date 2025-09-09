@@ -267,9 +267,9 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
 
         if (arg[0] == '\0')
         {
-                snprintf(buf, MSL, "%s", social->others_no_arg);
+                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->others_no_arg);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
-                snprintf(buf, MSL, "%s", social->char_no_arg);
+                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->char_no_arg);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
                 ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
                 return;
@@ -314,9 +314,9 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
 
         if (victim == ch)
         {
-                snprintf(buf, MSL, "%s", social->others_auto);
+                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->others_auto);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
-                snprintf(buf, MSL, "%s", social->char_auto);
+                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->char_auto);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
                 ch->pcdata->arousal += static_cast<sh_int>(social->arousal * AROUSAL_MULTIPLIER);
                 /*
@@ -350,11 +350,11 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
         }
         else
         {
-                snprintf(buf, MSL, "%s", social->others_found);
+                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->others_found);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_NOTVICT);
-                snprintf(buf, MSL, "%s", social->char_found);
+                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->char_found);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
-                snprintf(buf, MSL, "%s", social->vict_found);
+                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->vict_found);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_VICT);
                 victim->pcdata->arousal += social->arousal;
                 ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
@@ -1127,7 +1127,7 @@ CMDF do_tell(CHAR_DATA* ch, char* argument)
         {
                 char      buf[MAX_INPUT_LENGTH];
 
-                snprintf(buf, MSL, "%s: %s (tell to) %s.",
+                snprintf(buf, MAX_INPUT_LENGTH, "%s: %s (tell to) %s.",
                          IS_NPC(ch) ? ch->short_descr : ch->name,
                          argument,
                          IS_NPC(victim) ? victim->short_descr : victim->name);
@@ -1376,7 +1376,7 @@ CMDF do_otell(CHAR_DATA * ch, char *argument)
 
         if (is_ignoring(victim, ch))
         {
-                snprintf(buf, MSL, "%s is ignoring you.\n\r", victim->name);
+                snprintf(buf, MAX_INPUT_LENGTH, "%s is ignoring you.\n\r", victim->name);
                 send_to_char(buf, ch);
                 return;
         }
@@ -1405,7 +1405,7 @@ CMDF do_otell(CHAR_DATA * ch, char *argument)
         victim->oreply = ch;
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
-                snprintf(buf, MSL, "%s: %s (otell to) %s.",
+                snprintf(buf, MAX_INPUT_LENGTH, "%s: %s (otell to) %s.",
                          IS_NPC(ch) ? ch->short_descr : ch->name,
                          argument,
                          IS_NPC(victim) ? victim->short_descr : victim->name);
@@ -1793,7 +1793,7 @@ CMDF do_quit(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
         set_char_color(AT_GREY, ch);
         if (!IS_SET(ch->act, PLR_WIZINVIS) && ch->desc)
         {
-                snprintf(buf, MSL, "%s has left %s", ch->name,
+                snprintf(buf, MAX_INPUT_LENGTH, "%s has left %s", ch->name,
                          sysdata.mud_name);
                 info_chan(buf);
         }
@@ -3048,7 +3048,7 @@ char     *append_lang(const char *argument, CHAR_DATA * ch,
         if (!IS_NPC(victim) && !IS_SET(victim->act, PLR_BRIEF)
             && knows_language(victim, ch->speaking, ch))
         {
-                snprintf(buf, MSL, "(%s) ", ch->speaking->name);
+                snprintf(buf, MAX_INPUT_LENGTH * 2, "(%s) ", ch->speaking->name);
         }
         mudstrlcat(buf, argument, MIL * 2);
         return buf;
