@@ -40,7 +40,12 @@
  *                                SWR OLC Channel module                                 *
  ****************************************************************************************/
 
-// Forward declaration
+
+#pragma once
+#include <string>
+#include <string_view>
+#include <memory>
+
 struct channel_data;
 using CHANNEL_DATA = channel_data;
 extern CHANNEL_DATA *first_channel;
@@ -52,39 +57,45 @@ struct channel_data
         CHANNEL_DATA *next;
         CHANNEL_DATA *prev;
         LOG_DATA *log;
-        char     *name;
-        char     *actmessage;   /* The title to sens, "OOC", "[INFO]", etc, accepts colors */
-        char     *emotemessage;
-        char     *socialmessage;
-        int       logtype;   /* logging behavior */
-        int       type;      /* IC, OOC, IMM? */
-        int       color;     /* Color of TEXT to send, best to reset title at the end with &D */
-        int       range;     /* Room/Area/Planet/System/Global/Clan */
-        int       level;     /* Minimum level to see this channel */
-        int       logpos;    /* Current position in the log (runtime only) */
-        int       cost;      /* Does it cost to use this channel? */
-        bool      history;  /* Whether or not we are saving a log on thig channel */
-        bool      enabled;  /* Whether we want people to use this channel at the moment */
+        std::string name;
+        std::string actmessage;   // The title to send, "OOC", "[INFO]", etc, accepts colors
+        std::string emotemessage;
+        std::string socialmessage;
+        int logtype;   // logging behavior
+        int type;      // IC, OOC, IMM?
+        int color;     // Color of TEXT to send, best to reset title at the end with &D
+        int range;     // Room/Area/Planet/System/Global/Clan
+        int level;     // Minimum level to see this channel
+        int logpos;    // Current position in the log (runtime only)
+        int cost;      // Does it cost to use this channel?
+        bool history;  // Whether or not we are saving a log on this channel
+        bool enabled;  // Whether we want people to use this channel at the moment
 };
 
-typedef enum
-{
-        CHANNEL_ROOM, CHANNEL_AREA, CHANNEL_PLANET, CHANNEL_SYSTEM,
-        CHANNEL_OOC_GLOBAL, CHANNEL_CLAN
-} channel_ranges;
+enum class ChannelRange {
+        ROOM, AREA, PLANET, SYSTEM, OOC_GLOBAL, CLAN
+};
 
-typedef enum
-{
-        CHANNEL_IC, CHANNEL_IC_COM, CHANNEL_OOC
-} channel_types;
+enum class ChannelType {
+        IC, IC_COM, OOC
+};
 
-CHANNEL_DATA *get_channel(char *name);              // legacy mutable interface
-CHANNEL_DATA *get_channel(const char *name);        // const-safe overload
-bool check_channel(CHAR_DATA * ch, char *command, char *argument);
-void add_channel_log(CHAR_DATA * from, char *message, CHANNEL_DATA * channel);
+CHANNEL_DATA *get_channel(const char *name);
+CHANNEL_DATA *get_channel(std::string_view name);
+CHANNEL_DATA *get_channel(std::shared_ptr<std::string> name);
+bool check_channel(CHAR_DATA *ch, const char *command, const char *argument);
+bool check_channel(CHAR_DATA *ch, std::string_view command, std::string_view argument);
+bool check_channel(std::shared_ptr<CHAR_DATA> ch, std::string_view command, std::string_view argument);
+void add_channel_log(CHAR_DATA *from, const char *message, CHANNEL_DATA *channel);
+void add_channel_log(CHAR_DATA *from, std::string_view message, CHANNEL_DATA *channel);
+void add_channel_log(std::shared_ptr<CHAR_DATA> from, std::string_view message, std::shared_ptr<CHANNEL_DATA> channel);
 int hasname(const char *list, const char *name);
+int hasname(std::string_view list, std::string_view name);
 void addname(char **list, const char *name);
+void addname(std::shared_ptr<std::string> list, std::string_view name);
 void removename(char **list, const char *name);
+void removename(std::shared_ptr<std::string> list, std::string_view name);
 const char *getarg(const char *argument, char *arg, int length);
-void load_channels(void);
+std::string getarg(std::string_view argument, int length);
+void load_channels();
 extern char *const pc_displays[MAX_COLORS];

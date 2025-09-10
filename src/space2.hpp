@@ -1,21 +1,24 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
  * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
@@ -34,57 +37,73 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- * Space system header for ship and travel definitions and data structures. *
+ * Space system header for ship and travel definitions and data structures.              *
  ****************************************************************************************/
 
-class     BODY_DATA;
 
-/* dock structure */
-struct DOCK_DATA
-{
-        CLAN_DATA *clan;
-        int       vnum;
-        bool      hidden;
-        bool      temporary;    /* For installations and beacons */
-        BODY_DATA *body;
-        char     *name;
-        /*
-         * next dock in list 
-         */
-        DOCK_DATA *next;
-        /*
-         * previous dock in list 
-         */
-        DOCK_DATA *prev;
-        DOCK_DATA *next_in_body;
-        DOCK_DATA *prev_in_body;
-        DOCK_DATA *next_in_installation;
-        DOCK_DATA *prev_in_installation;
-};
+#include <string_view>
+#include <memory>
+#include <string>
 
-#define DOCK_DIR       "../dock/"
-#define FILE_DOCK_LIST	"dock.lst"
-#define SHIPIMMAGE_DIR       "../shipimages/"
+class BodyData;
+class ClanData;
+class InstallationData;
+class PlanetData;
+class ShipData;
+class MissileData;
 
-void free_dock args((DOCK_DATA * dock));
-void fread_planet args((PLANET_DATA * planet, FILE * fp));
-bool load_planet_file args((char *planetfile));
-void write_planet_list args((void));
-void fread_dock args((DOCK_DATA * dock, FILE * fp));
-bool load_dock_file args((char *dockfile));
-void write_dock_list args((void));
-void fread_body args((BODY_DATA * bpdy, FILE * fp));
-bool load_body_file args((char *bodyfile));
-void write_body_list args((void));
-PLANET_DATA *get_planet args((char *name));
-void load_planets args((void));
-void save_planet args((PLANET_DATA * planet, bool copyover));
-void load_docks args((void));
-void fwrite_dock args((FILE * fp, DOCK_DATA * dock));
-void save_body args((BODY_DATA * body));
-void makedock args((INSTALLATION_DATA * installation));
+namespace space2 {
+        inline constexpr std::string_view DOCK_DIR = "../dock/";
+        inline constexpr std::string_view FILE_DOCK_LIST = "dock.lst";
+        inline constexpr std::string_view SHIPIMAGE_DIR = "../shipimages/";
 
-int distance_ship_ship args((SHIP_DATA * target, SHIP_DATA * ship));
-int distance_missile_ship args((MISSILE_DATA * missile, SHIP_DATA * ship));
-char     *get_direction_body args((BODY_DATA * body, SHIP_DATA * ship));
-char     *get_direction_ship args((SHIP_DATA * target, SHIP_DATA * ship));
+        class Dock {
+        public:
+                std::shared_ptr<ClanData> clan;
+                int vnum = 0;
+                bool hidden = false;
+                bool temporary = false; // For installations and beacons
+                std::shared_ptr<BodyData> body;
+                std::string name;
+
+                std::shared_ptr<Dock> next;
+                std::shared_ptr<Dock> prev;
+                std::shared_ptr<Dock> next_in_body;
+                std::shared_ptr<Dock> prev_in_body;
+                std::shared_ptr<Dock> next_in_installation;
+                std::shared_ptr<Dock> prev_in_installation;
+
+                Dock() = default;
+                ~Dock() = default;
+                Dock(const Dock&) = delete;
+                Dock& operator=(const Dock&) = delete;
+        };
+}
+
+
+
+// Modern C++23 prototypes and overloads
+namespace space2 {
+        void free_dock(std::shared_ptr<Dock> dock);
+        void fread_planet(std::shared_ptr<PlanetData> planet, FILE* fp);
+        bool load_planet_file(std::string_view planetfile);
+        void write_planet_list();
+        void fread_dock(std::shared_ptr<Dock> dock, FILE* fp);
+        bool load_dock_file(std::string_view dockfile);
+        void write_dock_list();
+        void fread_body(std::shared_ptr<BodyData> body, FILE* fp);
+        bool load_body_file(std::string_view bodyfile);
+        void write_body_list();
+        std::shared_ptr<PlanetData> get_planet(std::string_view name);
+        void load_planets();
+        void save_planet(std::shared_ptr<PlanetData> planet, bool copyover);
+        void load_docks();
+        void fwrite_dock(FILE* fp, std::shared_ptr<Dock> dock);
+        void save_body(std::shared_ptr<BodyData> body);
+        void makedock(std::shared_ptr<InstallationData> installation);
+
+        int distance_ship_ship(std::shared_ptr<ShipData> target, std::shared_ptr<ShipData> ship);
+        int distance_missile_ship(std::shared_ptr<MissileData> missile, std::shared_ptr<ShipData> ship);
+        std::string get_direction_body(std::shared_ptr<BodyData> body, std::shared_ptr<ShipData> ship);
+        std::string get_direction_ship(std::shared_ptr<ShipData> target, std::shared_ptr<ShipData> ship);
+}

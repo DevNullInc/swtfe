@@ -1,30 +1,42 @@
+
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
  *                                                                                       *
  * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
+ *****************************************************************************************
+ * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
+ * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
+ *                                                                                       *
+ * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
+ *                                                                                       *
+ * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
+ * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
  *                           ^     +----- |  / ^     ^ |     | +-\                       *
  *                          / \    |      | /  |\   /| |     | |  \                      *
@@ -48,20 +60,19 @@
  *                          SWR Hotboot module                                           *
  ****************************************************************************************/
 
-#ifndef CH
-#define CH(d)			((d)->original ? (d)->original : (d)->character)
-#endif
+#pragma once
+#include <string_view>
 
-#define HOTBOOT_FILE SYSTEM_DIR "copyover.dat"  /* for hotboots */
-#define HOTBOOT_DIR "../hotboot/"   /* For storing objects across hotboots */
-#define MOB_FILE	"mobs.dat"  /* For storing mobs across hotboots */
-#define SHIP_FILE	"ships.dat" /* For storing ships across hotboots */
-#define OOCHISTORY_FILE SYSTEM_DIR "oochistory.dat" /* For storing oochistory across hotboots */
+constexpr std::string_view SYSTEM_DIR = "../system/";  // Define the system directory path
+constexpr std::string_view HOTBOOT_FILE = "../system/copyover.dat";  // for hotboots
+constexpr std::string_view HOTBOOT_DIR = "../hotboot/";               // For storing objects across hotboots
+constexpr std::string_view MOB_FILE = "mobs.dat";                     // For storing mobs across hotboots
+constexpr std::string_view SHIP_FILE = "ships.dat";                   // For storing ships across hotboots
+constexpr std::string_view OOCHISTORY_FILE = "../system/oochistory.dat"; // For storing oochistory across hotboots
 
+// HOTBOOT_SHIPS is a build flag, not needed as macro here
 
-#define HOTBOOT_SHIPS
-
-/* warmboot code */
-void      hotboot_recover(void);
-void      load_world(CHAR_DATA * ch);
-void      crash_hotboot(void);
+// warmboot code
+void hotboot_recover();
+void load_world(CHAR_DATA* ch);
+void crash_hotboot();

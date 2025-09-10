@@ -43,16 +43,21 @@
  *                            Ban System Header                                          *
  ****************************************************************************************/
 
-#ifndef __BAN_H__
-#define __BAN_H__
 
-#include <time.h>
+#pragma once
+
+#include <ctime>
+#include <string>
+#include <string_view>
+#include <memory>
 
 // ============================================================================
 // Forward Declarations
 // ============================================================================
-typedef struct ban_data BAN_DATA;
-typedef struct reserve_data RESERVE_DATA;
+struct ban_data;
+using BAN_DATA = ban_data;
+struct reserve_data;
+using RESERVE_DATA = reserve_data;
 
 // ============================================================================
 // Configuration Constants
@@ -143,34 +148,47 @@ extern RESERVE_DATA* last_reserved;
 // ============================================================================
 
 // Core ban management
-void load_banlist(void);
-void save_banlist(void);
+void load_banlist();
+void save_banlist();
 bool check_total_bans(DESCRIPTOR_DATA* d);
+bool check_total_bans(std::shared_ptr<DESCRIPTOR_DATA> d);
 bool check_bans(CHAR_DATA* ch, int type);
+bool check_bans(std::shared_ptr<CHAR_DATA> ch, int type);
 
 // Ban operations
-int add_ban(CHAR_DATA* ch, char* arg1, char* arg2, int time, int type);
+int add_ban(CHAR_DATA* ch, const char* arg1, const char* arg2, int time, int type);
+int add_ban(CHAR_DATA* ch, std::string_view arg1, std::string_view arg2, int time, int type);
+int add_ban(std::shared_ptr<CHAR_DATA> ch, std::string_view arg1, std::string_view arg2, int time, int type);
 void show_bans(CHAR_DATA* ch, int type);
+void show_bans(std::shared_ptr<CHAR_DATA> ch, int type);
 bool check_expire(BAN_DATA* ban);
 void dispose_ban(BAN_DATA* ban, int type);
 void free_ban(BAN_DATA* ban);
 
 // Time utilities
-time_t calculate_unban_time(int duration_days);
+std::time_t calculate_unban_time(int duration_days);
 bool is_ban_expired(const BAN_DATA* ban);
-char* format_ban_time_remaining(const BAN_DATA* ban);
-char* format_ban_creation_time(const BAN_DATA* ban);
+std::string format_ban_time_remaining(const BAN_DATA* ban);
+std::string format_ban_creation_time(const BAN_DATA* ban);
 
 // Reserved names
-void load_reserved(void);
-void save_reserved(void);
-bool is_reserved_name(char* name);
+void load_reserved();
+void save_reserved();
+bool is_reserved_name(const char* name);
+bool is_reserved_name(std::string_view name);
 void sort_reserved(RESERVE_DATA* pRes);
+void sort_reserved(std::shared_ptr<RESERVE_DATA> pRes);
 
 // Command functions
-CMDF do_ban(CHAR_DATA* ch, char* argument);
-CMDF do_allow(CHAR_DATA* ch, char* argument);
-CMDF do_warn(CHAR_DATA* ch, char* argument);
-CMDF do_reserve(CHAR_DATA* ch, char* argument);
-
-#endif /* __BAN_H__ */
+CMDF do_ban(CHAR_DATA* ch, const char* argument);
+CMDF do_ban(CHAR_DATA* ch, std::string_view argument);
+CMDF do_ban(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
+CMDF do_allow(CHAR_DATA* ch, const char* argument);
+CMDF do_allow(CHAR_DATA* ch, std::string_view argument);
+CMDF do_allow(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
+CMDF do_warn(CHAR_DATA* ch, const char* argument);
+CMDF do_warn(CHAR_DATA* ch, std::string_view argument);
+CMDF do_warn(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
+CMDF do_reserve(CHAR_DATA* ch, const char* argument);
+CMDF do_reserve(CHAR_DATA* ch, std::string_view argument);
+CMDF do_reserve(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);

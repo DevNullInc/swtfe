@@ -1,25 +1,28 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2005 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -37,129 +40,82 @@
  *                                SWR OLC Shuttle module                                 *
  ****************************************************************************************/
 
-#ifndef _OLC_SHUTTLE_
-#define _OLC_SHUTTLE_
 
-#define SHUTTLE_DIR	"../shuttle/"
-#define SHUTTLE_LIST	"shuttle.lst"
+#pragma once
 
+#include <vector>
+#include <memory>
+#include <string>
+#include <string_view>
 
-typedef struct shuttle_data SHUTTLE_DATA;
-typedef struct stop_data STOP_DATA;
+constexpr std::string_view SHUTTLE_DIR = "../shuttle/";
+constexpr std::string_view SHUTTLE_LIST = "shuttle.lst";
 
-struct stop_data
-{
-        STOP_DATA *prev;    /* Previous Stop */
-        STOP_DATA *next;    /* Next Stop */
-        char     *stop_name;    /* Name of the Stop, ie 'Coruscant' or 'Monument Plaza' */
-        int       room;
+class StopData {
+public:
+        std::string stop_name;
+        int room{0};
+
+        StopData(std::string name, int room_vnum) : stop_name(std::move(name)), room(room_vnum) {}
+        StopData() = default;
+        ~StopData() = default;
 };
 
-enum _shuttle_state
-{
-        SHUTTLE_STATE_LANDING,
-        SHUTTLE_STATE_LANDED,
-        SHUTTLE_STATE_TAKINGOFF,
-        SHUTTLE_STATE_INSPACE,
-        SHUTTLE_STATE_HYPERSPACE_LAUNCH,
-        SHUTTLE_STATE_HYPERSPACE_END
+enum class ShuttleState : int {
+        Landing,
+        Landed,
+        TakingOff,
+        InSpace,
+        HyperspaceLaunch,
+        HyperspaceEnd
 };
 
-
-typedef enum
-{
-        SHUTTLE_TURBOCAR,   /* Pretty much the same as SHUTTLE_SPACE IMO */
-        SHUTTLE_SPACE,  /* Has some message about taking off and landing */
-        SHUTTLE_HYPERSPACE
-} SHUTTLE_CLASS;
-
-struct shuttle_data
-{
-        /*
-         * Linked List Stuff 
-         */
-        SHUTTLE_DATA *prev;
-        SHUTTLE_DATA *next;
-
-        /*
-         * For wherever we are 
-         */
-        SHUTTLE_DATA *next_in_room;
-        SHUTTLE_DATA *prev_in_room;
-
-        /*
-         * Where are We 
-         */
-        ROOM_INDEX_DATA *in_room;
-
-        /*
-         * HOTBOOT info, save vnum of current, then loop through on load to find it 
-         */
-        STOP_DATA *current;
-        int       current_number;
-        /*
-         * Current State 
-         */
-        int       state;
-
-        /*
-         * Stops 
-         */
-        STOP_DATA *first_stop;
-        STOP_DATA *last_stop;
-
-        /*
-         * Shuttle Class 
-         */
-        SHUTTLE_CLASS type;
-
-        /*
-         * Shuttle Filename 
-         */
-        char     *filename;
-        /*
-         * Shuttle Name 
-         */
-        char     *name;
-        /*
-         * Delay Between Stops 
-         */
-        int       delay;
-        /*
-         * Actual time for delay.. 
-         */
-        int       current_delay;
-        /*
-         * For echoing any messages 
-         */
-        int       start_room;
-        int       end_room;
-        int       entrance;
-        /*
-         * Descriptions 
-         */
-        char     *takeoff_desc;
-        char     *land_desc;
-        char     *approach_desc;
+enum class ShuttleClass : int {
+        TurboCar,
+        Space,
+        Hyperspace
 };
 
-extern SHUTTLE_DATA *first_shuttle;
-extern SHUTTLE_DATA *last_shuttle;
+class ShuttleData {
+public:
+        // Room pointer types are left as-is for compatibility
+        ROOM_INDEX_DATA* in_room{nullptr};
+        std::shared_ptr<StopData> current;
+        int current_number{0};
+        ShuttleState state{ShuttleState::Landing};
+        std::vector<std::shared_ptr<StopData>> stops;
+        ShuttleClass type{ShuttleClass::Space};
+        std::string filename;
+        std::string name;
+        int delay{0};
+        int current_delay{0};
+        int start_room{0};
+        int end_room{0};
+        int entrance{0};
+        std::string takeoff_desc;
+        std::string land_desc;
+        std::string approach_desc;
 
-void      update_shuttle(void);
-SHUTTLE_DATA *get_shuttle(char *argument);
-void      write_shuttle_list(void);
-bool      save_shuttle(SHUTTLE_DATA * shuttle);
-SHUTTLE_DATA *make_shuttle(char *filename, char *name);
-bool      extract_shuttle(SHUTTLE_DATA * shuttle);
-bool      insert_shuttle(SHUTTLE_DATA * shuttle, ROOM_INDEX_DATA * room);
-void      load_shuttles(void);
-bool      load_shuttle_file(char *shuttlefile);
-void      fread_shuttle(SHUTTLE_DATA * shuttle, FILE * fp);
-void      fread_stop(STOP_DATA * stop, FILE * fp);
-void      destroy_shuttle(SHUTTLE_DATA * shuttle);
-void      show_shuttles_to_char(CHAR_DATA * ch, SHUTTLE_DATA * shuttle);
-SHUTTLE_DATA *shuttle_in_room(ROOM_INDEX_DATA * room, char *name);
-SHUTTLE_DATA *shuttle_from_entrance(int vnum);
+        ShuttleData() = default;
+        ShuttleData(std::string filename, std::string name) : filename(std::move(filename)), name(std::move(name)) {}
+        ~ShuttleData() = default;
+};
 
-#endif
+using ShuttleList = std::vector<std::shared_ptr<ShuttleData>>;
+extern ShuttleList shuttles;
+
+void update_shuttle();
+std::shared_ptr<ShuttleData> get_shuttle(std::string_view argument);
+void write_shuttle_list();
+bool save_shuttle(const std::shared_ptr<ShuttleData>& shuttle);
+std::shared_ptr<ShuttleData> make_shuttle(std::string_view filename, std::string_view name);
+bool extract_shuttle(const std::shared_ptr<ShuttleData>& shuttle);
+bool insert_shuttle(const std::shared_ptr<ShuttleData>& shuttle, ROOM_INDEX_DATA* room);
+void load_shuttles();
+bool load_shuttle_file(std::string_view shuttlefile);
+void fread_shuttle(const std::shared_ptr<ShuttleData>& shuttle, FILE* fp);
+void fread_stop(const std::shared_ptr<StopData>& stop, FILE* fp);
+void destroy_shuttle(const std::shared_ptr<ShuttleData>& shuttle);
+void show_shuttles_to_char(CHAR_DATA* ch, const std::shared_ptr<ShuttleData>& shuttle);
+std::shared_ptr<ShuttleData> shuttle_in_room(ROOM_INDEX_DATA* room, std::string_view name);
+std::shared_ptr<ShuttleData> shuttle_from_entrance(int vnum);

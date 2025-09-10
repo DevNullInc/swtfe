@@ -43,88 +43,110 @@
 //typedef struct dock_data DOCK_DATA;
 //typedef struct installation_data INSTALLATION_DATA;
 
-extern INSTALLATION_DATA *first_installation;
-extern INSTALLATION_DATA *last_installation;
+
+#pragma once
+#include <memory>
+#include <string>
+#include <vector>
+#include <cstdint>
+
+class DockData;
+class ClanData;
+class PlanetData;
+class CharData;
+
+using InstallationPtr = std::shared_ptr<class Installation>;
+using InstallationList = std::vector<InstallationPtr>;
+
+extern InstallationList all_installations;
 
 /* installation structure */
-struct INSTALLATION_DATA
-{
-        INSTALLATION_DATA *next;
-        INSTALLATION_DATA *prev;
-        INSTALLATION_DATA *next_on_planet;
-        INSTALLATION_DATA *prev_on_planet;
-        DOCK_DATA *first_dock;
-        DOCK_DATA *last_dock;
-        CLAN_DATA *clan;
-        char     *filename;
-        int       first_room;
-        int       flags;
-        int       last_built;
-        int       last_room;
-        PLANET_DATA *planet;
-        int       type;
-        int       mainroom;
-        sh_int    timer;
-        int       weapon_time;
+
+class Installation {
+public:
+        InstallationPtr next;
+        InstallationPtr prev;
+        InstallationPtr next_on_planet;
+        InstallationPtr prev_on_planet;
+        std::shared_ptr<DOCK_DATA> first_dock;
+        std::shared_ptr<DOCK_DATA> last_dock;
+        std::shared_ptr<ClanData> clan;
+        std::string filename;
+        int32_t first_room = 0;
+        int32_t flags = 0;
+        int32_t last_built = 0;
+        int32_t last_room = 0;
+        std::shared_ptr<PLANET_DATA> planet;
+        int32_t type = 0;
+        int32_t mainroom = 0;
+        int16_t timer = 0;
+        int32_t weapon_time = 0;
+
+        Installation() = default;
+        ~Installation() = default;
+        Installation(const Installation&) = delete;
+        Installation& operator=(const Installation&) = delete;
+        Installation(Installation&&) = default;
+        Installation& operator=(Installation&&) = default;
 };
 
 /* Type and flag declarations */
 
-typedef enum
-{
-        BATTERY_INSTALLATION,
-        ION_INSTALLATION,
-        TURBOLASER_INSTALLATION,
-        RESEARCH_INSTALLATION,
-        CLANHQ_INSTALLATION,
-        TRAINING_INSTALLATION,
-        GOVERNMENT_INSTALLATION,
-        SHIPYARD_INSTALLATION,
-        MINING_INSTALLATION,
-        INS_MAX
-} installation_types;
 
-/* Why were these bit vectors? these are mutually exclusive */
-#define INS_UNDERGROUND         0
-#define INS_ABOVEGROUND         1
-#define INS_UNDERWATER          2
-
-/* This should probably be a flag */
-#define INS_SECURE             	BV00
-
-#define MAX_INSTALLATION       	INS_MAX+1
-
-#define INSTALLATIONS_DIR       "../installations/"
-#define INSTALLATION_LIST	"installations.lst"
-#define INSTALLATION_AREA       "pinstalls.are"
-
-#define MOB_VNUM_INSTALL_GUARD           33001
-#define MOB_VNUM_INSTALL_ENTERANCE_GUARD 33002
-#define MOB_VNUM_INSTALL_DOCTOR          33003
-#define MOB_VNUM_INSTALL_CUSTOMS         33004
-
-#define OBJ_VNUM_INSTALL_BACTA_SPRAY     33001
-#define OBJ_VNUM_INSTALL_MEDPAC          33002
-
-int find_pvnum_block args((int num_needed, char *areaname));
-void load_installations args((void));
-void      echo_to_installation
-args((sh_int AT_COLOR, char *argument, INSTALLATION_DATA * installation));
-bool mob_reset args((CHAR_DATA * ch, char *type, bool check));
-std::shared_ptr<INSTALLATION_DATA> installation_from_room(int vnum);
-void addroominstallation args((CHAR_DATA * ch, char *argument));
-void fireplanet_update args((void));
-int planetary_installations args((PLANET_DATA * planet, int type));
-
-
-struct installation_type
-{
-        const char *installation_name;  /* Installation name    */
-        sh_int    shields;  /* shield */
-        sh_int    ions; /* ions */
-        sh_int    turbo;    /* turbo lasers */
-        sh_int    rooms;    /* rooms */
-        const char *main_name;  /* Name of the installations main room */
+enum class InstallationType : int32_t {
+        Battery,
+        Ion,
+        Turbolaser,
+        Research,
+        ClanHQ,
+        Training,
+        Government,
+        Shipyard,
+        Mining,
+        Max
 };
 
-extern const struct installation_type installation_table[];
+
+enum class InstallationLocation : int32_t {
+        Underground = 0,
+        Aboveground = 1,
+        Underwater = 2
+};
+
+constexpr int INS_SECURE = 1 << 0;
+constexpr int MAX_INSTALLATION = static_cast<int>(InstallationType::Max);
+
+inline constexpr auto INSTALLATIONS_DIR   = "../installations/";
+inline constexpr auto INSTALLATION_LIST   = "installations.lst";
+inline constexpr auto INSTALLATION_AREA   = "pinstalls.are";
+
+inline constexpr int MOB_VNUM_INSTALL_GUARD           = 33001;
+inline constexpr int MOB_VNUM_INSTALL_ENTRANCE_GUARD  = 33002;
+inline constexpr int MOB_VNUM_INSTALL_DOCTOR          = 33003;
+inline constexpr int MOB_VNUM_INSTALL_CUSTOMS         = 33004;
+
+inline constexpr int OBJ_VNUM_INSTALL_BACTA_SPRAY     = 33001;
+inline constexpr int OBJ_VNUM_INSTALL_MEDPAC          = 33002;
+
+
+int find_pvnum_block(int num_needed, const std::string& areaname);
+void load_installations();
+void echo_to_installation(int16_t at_color, const std::string& argument, const InstallationPtr& installation);
+bool mob_reset(std::shared_ptr<CharData> ch, const std::string& type, bool check);
+InstallationPtr installation_from_room(int vnum);
+void add_room_installation(std::shared_ptr<CharData> ch, const std::string& argument);
+void fireplanet_update();
+int planetary_installations(const std::shared_ptr<PlanetData>& planet, InstallationType type);
+
+
+
+struct InstallationTypeInfo {
+        std::string installation_name;
+        int16_t shields = 0;
+        int16_t ions = 0;
+        int16_t turbo = 0;
+        int16_t rooms = 0;
+        std::string main_name;
+};
+
+extern const std::vector<InstallationTypeInfo> installation_table;

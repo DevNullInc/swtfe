@@ -1,30 +1,41 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
  *                                                                                       *
  * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
+ *****************************************************************************************
+ * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
+ * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
+ *                                                                                       *
+ * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
+ *                                                                                       *
+ * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
+ * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
  *                           ^     +----- |  / ^     ^ |     | +-\                       *
  *                          / \    |      | /  |\   /| |     | |  \                      *
@@ -48,22 +59,37 @@
  *                                 Pfile Pruning Module                                  *
  ****************************************************************************************/
 
-/* Used to interact with other snippets */
-#define PFILECODE
+#pragma once
 
-#ifndef MSL
-#define MSL MAX_STRING_LENGTH
-#endif
+#include <chrono>
+#include <memory>
+#include <cstdint>
 
-#ifndef MIL
-#define MIL MAX_INPUT_LENGTH
-#endif
+struct HourMinSec {
+public:
+    HourMinSec() = default;
+    HourMinSec(int h, int m, int s) : hour_(h), min_(m), sec_(s) {}
 
-extern time_t pfile_time;
-extern HOUR_MIN_SEC *set_pfile_time;
-extern struct tm *new_pfile_time;
-extern time_t new_pfile_time_t;
-extern sh_int num_pfiles;
+    int get_hour() const { return hour_; }
+    void set_hour(int h) { hour_ = h; }
 
-void check_pfiles args((time_t reset));
-void init_pfile_scan_time args((void));
+    int get_min() const { return min_; }
+    void set_min(int m) { min_ = m; }
+
+    int get_sec() const { return sec_; }
+    void set_sec(int s) { sec_ = s; }
+
+private:
+    int hour_{0};
+    int min_{0};
+    int sec_{0};
+};
+
+extern std::chrono::system_clock::time_point pfile_time;
+extern std::unique_ptr<HourMinSec> set_pfile_time;
+extern std::unique_ptr<std::tm> new_pfile_time;
+extern std::chrono::system_clock::time_point new_pfile_time_t;
+extern std::int16_t num_pfiles;
+
+void check_pfiles(std::chrono::system_clock::time_point reset);
+void init_pfile_scan_time();

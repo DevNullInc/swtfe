@@ -65,16 +65,25 @@ struct alias_data
 // ============================================================================
 
 // Alias lookup and management
-ALIAS_DATA *get_alias args((CHAR_DATA *ch, char *argument));
-void free_alias args((ACCOUNT_DATA *acct, ALIAS_DATA *alias));
-void free_aliases args((ACCOUNT_DATA *acct));
 
-// Alias execution and processing  
-bool check_alias args((CHAR_DATA *ch, char *command, char *argument));
-bool check_aliases args((DESCRIPTOR_DATA *d));
+// Modern C++23 prototypes and overloads
+ALIAS_DATA *get_alias(CHAR_DATA *ch, const char *argument);
+ALIAS_DATA *get_alias(CHAR_DATA *ch, std::string_view argument);
+ALIAS_DATA *get_alias(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
+void free_alias(ACCOUNT_DATA *acct, ALIAS_DATA *alias);
+void free_alias(std::shared_ptr<ACCOUNT_DATA> acct, std::shared_ptr<ALIAS_DATA> alias);
+void free_aliases(ACCOUNT_DATA *acct);
+void free_aliases(std::shared_ptr<ACCOUNT_DATA> acct);
+
+// Alias execution and processing
+bool check_alias(CHAR_DATA *ch, const char *command, const char *argument);
+bool check_alias(CHAR_DATA *ch, std::string_view command, std::string_view argument);
+bool check_alias(std::shared_ptr<CHAR_DATA> ch, std::string_view command, std::string_view argument);
+bool check_aliases(DESCRIPTOR_DATA *d);
+bool check_aliases(std::shared_ptr<DESCRIPTOR_DATA> d);
 
 // File I/O operations
-void fread_alias args((ACCOUNT_DATA *acct, FILE *fp));
-void fwrite_alias args((ACCOUNT_DATA *acct, FILE *fp));
-
-#endif // ALIAS_H
+void fread_alias(ACCOUNT_DATA *acct, FILE *fp);
+void fread_alias(std::shared_ptr<ACCOUNT_DATA> acct, FILE *fp);
+void fwrite_alias(ACCOUNT_DATA *acct, FILE *fp);
+void fwrite_alias(std::shared_ptr<ACCOUNT_DATA> acct, FILE *fp);

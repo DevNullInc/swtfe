@@ -1,25 +1,28 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2005 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -37,15 +40,19 @@
  *                                   Mud Sound Protocol Module                           *
  *****************************************************************************************/
 
-/* Mud Sound Protocol */
-#define TELOPT_MSP 90
 
-extern const unsigned char will_msp_str[];
-extern const unsigned char start_msp_str[];
+#pragma once
+#include <string>
+#include <array>
 
-void sound_to_char args((CHAR_DATA * ch, char *sound));
-void sound_to_room args((ROOM_INDEX_DATA * room, char *sound));
-void sound_to_ship args((SHIP_DATA * ship, char *sound));
-void start_msp args((DESCRIPTOR_DATA * d));
-void reset_sound args((CHAR_DATA * ch));
-void reset_music args((CHAR_DATA * ch));
+constexpr int TELOPT_MSP = 90;
+
+extern const std::array<unsigned char, 3> will_msp_str;
+extern const std::array<unsigned char, 3> start_msp_str;
+
+void sound_to_char(CHAR_DATA* ch, const std::string& sound);
+void sound_to_room(ROOM_INDEX_DATA* room, const std::string& sound);
+void sound_to_ship(SHIP_DATA* ship, const std::string& sound);
+void start_msp(DESCRIPTOR_DATA* d);
+void reset_sound(CHAR_DATA* ch);
+void reset_music(CHAR_DATA* ch);

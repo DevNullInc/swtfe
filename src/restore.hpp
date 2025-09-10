@@ -1,30 +1,28 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
- *****************************************************************************************
- *                           STAR WARS UNKNOWN REGIONS                                   *
- *---------------------------------------------------------------------------------------*
- * Star Wars Unknown Regions Code Addtions and changes from the SWR Code                 *
- * copyright (c) 2000 by Gavin Mogan                                                     *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -39,39 +37,39 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- * Player restoration and recovery system header for game state management. *
- *****************************************************************************************
- *                                 Restores V1.0 header information			             *
+ * Player restoration and recovery system header for game state management.              *
  *****************************************************************************************/
 
 /* Capability to create, edit and delete restore messages added to original code
    by Gavin(halkeye@halkeye.net) 5-26-2000 */
-#define RESTORE_ADDON
 
-typedef struct restore_data RESTORE_DATA;
+#pragma once
 
-extern RESTORE_DATA *first_restore;
-extern RESTORE_DATA *last_restore;
+#include <string>
+#include <vector>
+#include <memory>
+#include <string_view>
 
-/* Improved data structure for online restore editing - Gavin 5-26-2000 */
-struct restore_data
-{
-        RESTORE_DATA *next;
-        RESTORE_DATA *prev;
-        char     *owner;
-        char     *type;
-        char     *cmsg;
-        char     *vmsg;
-        char     *rmsg;
-        int       color;
-        float     boost;
-        int       flags;
+constexpr std::string_view RESTORE_FILE = "restore.dat";   // Restore data file for online editing - Gavin 5-26-2000
+constexpr int RESTORE_INTERVAL = 21600;
+constexpr int MAX_RESTORE_TYPES = 50;
+
+class RestoreData {
+public:
+        std::string owner;
+        std::string type;
+        std::string cmsg;
+        std::string vmsg;
+        std::string rmsg;
+        int color{0};
+        float boost{0.0f};
+        int flags{0};
+
+        RestoreData() = default;
+        ~RestoreData() = default;
 };
 
-#define RESTORE_FILE		"restore.dat"   /* Restore data file for online editing - Gavin 5-26-2000 */
-#define RESTORE_INTERVAL 21600
+using RestoreList = std::vector<std::shared_ptr<RestoreData>>;
+extern RestoreList restores;
 
-/* Maxsrestoretypes variable - 50 should be WAY more than enough */
-#define MAX_RESTORE_TYPES		50
-
-void load_restores args((void));
+void load_restores();

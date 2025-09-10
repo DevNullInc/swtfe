@@ -48,81 +48,81 @@
    variables. I think I commented most of them.  Also if not using SWFoTE you can remove 
    the parts commented about SWFoTE */
 
-#include <math.h>
-#include <sys/types.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
+
+#include <cmath>
+#include <cctype>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <string>
+#include <string_view>
+#include <memory>
+#include <format>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+
 #include "mud.hpp"
+#include "space2.hpp"
+#include "installations.hpp"
 #ifdef OLC_HOMES
 #include "homes.hpp"
 #endif
-#include "space2.hpp"
-#include "installations.hpp"
 
 
-void write_ship_list args((void));
-void fleet_make args((CHAR_DATA * ch, char *argument));
-void smush_tilde args((char *str));
-INSTALLATION_DATA *installation_from_room(int vnum);
+
+void write_ship_list();
+void fleet_make(CHAR_DATA* ch, const std::string& argument);
+void smush_tilde(std::string& str);
+std::shared_ptr<INSTALLATION_DATA> installation_from_room(int vnum);
 
 int reserve_rooms_ship(int firstroom, int numrooms)
 {
-        AREA_DATA *tarea;
-        ROOM_INDEX_DATA *room;
-        int       i;
-
+        AREA_DATA* tarea = nullptr;
+        ROOM_INDEX_DATA* room = nullptr;
+        int i = 0;
         for (tarea = first_area; tarea; tarea = tarea->next)
-                if (!str_cmp(PSHIP_AREA, tarea->filename))
+                if (std::string_view(PSHIP_AREA) == std::string_view(tarea->filename))
                         break;
-
-        for (i = firstroom; i < firstroom + numrooms; i++)
-        {
+        for (i = firstroom; i < firstroom + numrooms; i++) {
                 room = make_room(i, tarea);
-                if (!room)
-                {
+                if (!room) {
                         bug("reserve_rooms: make_room failed");
                         return -1;
                 }
                 xSET_BIT(room->room_flags, ROOM_SPACECRAFT);
         }
-        fold_area(tarea, tarea->filename, TRUE, FALSE);
+        fold_area(tarea, tarea->filename, true, false);
         return i;
 }
 
-int find_pvnum_block(int num_needed, char *areaname)
+int find_pvnum_block(int num_needed, const std::string& areaname)
 {
-        bool      counting = FALSE;
-        int       count = 0;
-        AREA_DATA *tarea;
-        int       lrange;
-        int       trange;
-        int       vnum;
-        int       startvnum = -1;
-        ROOM_INDEX_DATA *room;
-
+        bool counting = false;
+        int count = 0;
+        AREA_DATA* tarea = nullptr;
+        int lrange = 0;
+        int trange = 0;
+        int vnum = 0;
+        int startvnum = -1;
+        ROOM_INDEX_DATA* room = nullptr;
         for (tarea = first_area; tarea; tarea = tarea->next)
-                if (!str_cmp(areaname, tarea->filename))
+                if (std::string_view(areaname) == std::string_view(tarea->filename))
                         break;
         lrange = tarea->low_r_vnum;
         trange = tarea->hi_r_vnum;
-        for (vnum = lrange; vnum <= trange; vnum++)
-        {
-                if ((room = get_room_index(vnum)) == NULL)
-                {
-                        if (!counting)
-                        {
-                                counting = TRUE;
+        for (vnum = lrange; vnum <= trange; vnum++) {
+                room = get_room_index(vnum);
+                if (room == nullptr) {
+                        if (!counting) {
+                                counting = true;
                                 startvnum = vnum;
                         }
                         count++;
                         if (count == num_needed + 1)
                                 break;
-                }
-                else if (counting)
-                {
-                        counting = FALSE;
+                } else if (counting) {
+                        counting = false;
                         count = 0;
                         startvnum = -1;
                 }
@@ -134,63 +134,54 @@ int find_pvnum_block(int num_needed, char *areaname)
 have one*/
 
 
-void transship(SHIP_DATA * ship, int destination)
+void transship(SHIP_DATA* ship, int destination)
 {
-        int       origShipyard;
-
-
         if (!ship)
                 return;
-
-        origShipyard = ship->shipyard;
-
+        int origShipyard = ship->shipyard;
         ship->shipyard = destination;
         ship->shipstate = SHIP_DOCKED;
-
         extract_ship(ship);
         ship_to_room(ship, ship->shipyard);
-
         ship->location = ship->shipyard;
         ship->lastdoc = ship->shipyard;
-
         ship->shipyard = origShipyard;
-
         if (ship->starsystem)
                 ship_from_starsystem(ship, ship->starsystem);
-
         save_ship(ship);
 }
 
 
-CMDF do_designship(CHAR_DATA * ch, char *argument)
+CMDF do_designship(CHAR_DATA* ch, const std::string& argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      filename[MAX_STRING_LENGTH];
-        int       percentage, numrooms, ship_class;
-        bool      checktool, checkdura, checkcir, checksuper;
-        ROOM_INDEX_DATA *room;
-        OBJ_DATA *obj;
-        SHIP_DATA *ship;
-        PLANET_DATA *planet;
-        int       vnum, durasteel, transparisteel, cost, fee;
+        std::string arg1;
+        std::string arg2;
+        std::string filename;
+        int percentage = 0, numrooms = 0, ship_class = 0;
+        bool checktool = false, checkdura = false, checkcir = false, checksuper = false;
+        ROOM_INDEX_DATA* room = nullptr;
+        OBJ_DATA* obj = nullptr;
+        SHIP_DATA* ship = nullptr;
+        PLANET_DATA* planet = nullptr;
+        int vnum = 0, durasteel = 0, transparisteel = 0, cost = 0, fee = 0;
 
-        argument = one_argument(argument, arg1);
-        mudstrlcpy(arg2, argument, MIL);
+        std::string rest = argument;
+        arg1 = one_argument(rest, rest);
+        arg2 = rest;
 
 
         switch (ch->substate)
         {
         default:
 
-                if (!is_number(arg1) || arg2[0] == '\0')
+                if (!is_number(arg1.c_str()) || arg2.empty())
                 {
                         send_to_char
                                 ("&RUsage: &Gdesignship &C<&cnumber of rooms&C> <&cname of ship&C>&w\r\n",
                                  ch);
                         return;
                 }
-                numrooms = atoi(arg1);
+                numrooms = atoi(arg1.c_str());
                 if (numrooms > 100 || numrooms < 1)
                 {
                         send_to_char
@@ -200,11 +191,9 @@ CMDF do_designship(CHAR_DATA * ch, char *argument)
                 }
                 for (ship = first_ship; ship; ship = ship->next)
                 {
-                        if (!str_cmp(ship->name, argument))
+                        if (std::string_view(ship->name) == std::string_view(argument.c_str()))
                         {
-                                send_to_char
-                                        ("&CThat ship name is already in use. Choose another.\r\n",
-                                         ch);
+                                send_to_char("&CThat ship name is already in use. Choose another.\r\n", ch);
                                 return;
                         }
                 }
@@ -263,8 +252,7 @@ CMDF do_designship(CHAR_DATA * ch, char *argument)
 
                 if (xIS_SET(ch->in_room->room_flags, ROOM_INSTALLATION))
                 {
-                        INSTALLATION_DATA *installation =
-                                installation_from_room(ch->in_room->vnum);
+                        INSTALLATION_DATA *installation = installation_from_room(ch->in_room->vnum).get();
                         if (installation
                             && installation->type == SHIPYARD_INSTALLATION)
                                 planet = installation->planet;
@@ -365,13 +353,13 @@ CMDF do_designship(CHAR_DATA * ch, char *argument)
                         send_to_char
                                 ("&GYou begin the LONG process of building a ship.\n\r",
                                  ch);
-                        act(AT_PLAIN,
-                            "$n takes $s tools and starts constructing a ship.\r\n",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 35, do_designship, 1);
-                        ch->dest_buf = str_dup(arg1);
-                        ch->dest_buf_2 = str_dup(arg2);
-                        return;
+                                                act(AT_PLAIN,
+                                                        "$n takes $s tools and starts constructing a ship.\r\n",
+                                                        ch, NULL, argument.c_str(), TO_ROOM);
+                                                add_timer(ch, TIMER_DO_FUN, 35, do_designship, 1);
+                                                ch->dest_buf = str_dup(arg1.c_str());
+                                                ch->dest_buf_2 = str_dup(arg2.c_str());
+                                                return;
                 }
                 send_to_char
                         ("&RYou can't figure out how to fit the parts together.\n\r",
@@ -388,9 +376,9 @@ CMDF do_designship(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                mudstrlcpy(arg1, (char *) ch->dest_buf, MSL);
+                mudstrlcpy(arg1, static_cast<char *>(ch->dest_buf), MSL);
                 DISPOSE(ch->dest_buf);
-                mudstrlcpy(arg2, (char *) ch->dest_buf_2, MSL);
+                mudstrlcpy(arg2, static_cast<char *>(ch->dest_buf_2), MSL);
                 DISPOSE(ch->dest_buf_2);
                 break;
 
@@ -506,12 +494,13 @@ CMDF do_designship(CHAR_DATA * ch, char *argument)
                              ch);
                 return;
         }
-        snprintf(filename, MSL, "%d.pship", vnum);
+        filename = std::format("{}.pship", vnum);
 
-        CREATE(ship, SHIP_DATA, 1);
+        auto ship_ptr = std::make_shared<SHIP_DATA>();
+        ship = ship_ptr.get();
         LINK(ship, first_ship, last_ship, next, prev);
-        ship->filename = STRALLOC(filename);
-        ship->name = STRALLOC(arg2);
+        ship->filename = STRALLOC(filename.c_str());
+        ship->name = STRALLOC(arg2.c_str());
         ship->owner = STRALLOC(ch->name);
         ship->copilot = STRALLOC("");
         ship->pilot = STRALLOC("");
@@ -597,21 +586,20 @@ CMDF do_designship(CHAR_DATA * ch, char *argument)
         ch_printf(ch, "&WYou gain 10000 engineering experience.\r\n");
         learn_from_success(ch, gsn_shipdesign);
         transship(ship, ch->in_room->vnum);
-        act(AT_PLAIN, "$n finishes building new ship, and climbs inside.", ch,
-            NULL, argument, TO_ROOM);
+                        act(AT_PLAIN, "$n finishes building new ship, and climbs inside.", ch,
+                                NULL, argument.c_str(), TO_ROOM);
         room = get_room_index(vnum);
         if (!room)
         {
                 bug("designship..no such room", 0);
                 return;
         }
-        if (room->name)
-                STRFREE(room->name);
-
-        if (numrooms > 1)
-                room->name = STRALLOC("Entrance Ramp");
-        else
-                room->name = STRALLOC("Cockpit");
+                if (room->name)
+                        STRFREE(room->name);
+                if (numrooms > 1)
+                        room->name = STRALLOC("Entrance Ramp");
+                else
+                        room->name = STRALLOC("Cockpit");
         fold_area(room->area, room->area->filename, TRUE, FALSE);
         save_ship(ship);
         write_ship_list();
@@ -620,16 +608,13 @@ CMDF do_designship(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_addroom(CHAR_DATA * ch, char *argument)
+CMDF do_addroom(CHAR_DATA* ch, const std::string& argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-        ROOM_INDEX_DATA *room;
-        SHIP_DATA *ship;
-        bool      match, tset = FALSE;
-        EXIT_DATA *pexit;
+        std::string arg, arg1, arg2, buf;
+        ROOM_INDEX_DATA* room = nullptr;
+        SHIP_DATA* ship = nullptr;
+        bool match = false, tset = false;
+        EXIT_DATA* pexit = nullptr;
 
 
 		if (IS_NPC(ch)) 
@@ -643,12 +628,13 @@ CMDF do_addroom(CHAR_DATA * ch, char *argument)
 #endif
 
 
-        match = FALSE;
-        argument = one_argument(argument, arg);
-        argument = one_argument(argument, arg1);
-        argument = one_argument(argument, arg2);
+        match = false;
+        std::string rest = argument;
+        arg = one_argument(rest, rest);
+        arg1 = one_argument(rest, rest);
+        arg2 = rest;
 
-        if (arg1[0] == '\0' || arg2[0] == '\0' || arg[0] == '\0')
+        if (arg1.empty() || arg2.empty() || arg.empty())
         {
                 send_to_char
                         ("Usage: addroom <ship/installation> <direction> <type>\r\n",
@@ -660,7 +646,7 @@ CMDF do_addroom(CHAR_DATA * ch, char *argument)
         }
 
 /* To make them enter a decent room description. 80 characters a line * 5 lines == 400 */
-        if (strlen(ch->in_room->description) < 6)
+        if (ch->in_room->description == nullptr || std::strlen(ch->in_room->description) < 6)
         {
                 send_to_char
                         ("You must use decorateroom to make a description approximately 6 lines long.\r\n",
@@ -668,10 +654,10 @@ CMDF do_addroom(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg, "installation"))
+        if (!str_cmp(arg.c_str(), "installation"))
         {
-                snprintf(buf, MSL, "%s %s", arg1, arg2);
-                addroominstallation(ch, buf);
+                buf = std::format("{} {}", arg1, arg2);
+                addroominstallation(ch, buf.c_str());
                 return;
         }
 
@@ -689,7 +675,7 @@ CMDF do_addroom(CHAR_DATA * ch, char *argument)
                          ch);
                 return;
         }
-        if (!argument)
+        if (argument.empty())
         {
                 send_to_char("You really should name your room\r\n", ch);
                 return;
@@ -715,16 +701,16 @@ CMDF do_addroom(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg1, "n") || !str_cmp(arg1, "north") ||
-            !str_cmp(arg1, "s") || !str_cmp(arg1, "south") ||
-            !str_cmp(arg1, "e") || !str_cmp(arg1, "east") ||
-            !str_cmp(arg1, "w") || !str_cmp(arg1, "west") ||
-            !str_cmp(arg1, "sw") || !str_cmp(arg1, "southwest") ||
-            !str_cmp(arg1, "nw") || !str_cmp(arg1, "northwest") ||
-            !str_cmp(arg1, "se") || !str_cmp(arg1, "southeast") ||
-            !str_cmp(arg1, "ne") || !str_cmp(arg1, "northeast") ||
-            !str_cmp(arg1, "u") || !str_cmp(arg1, "up") ||
-            !str_cmp(arg1, "d") || !str_cmp(arg1, "down"))
+                        if (!str_cmp(arg1.c_str(), "n") || !str_cmp(arg1.c_str(), "north") ||
+                                !str_cmp(arg1.c_str(), "s") || !str_cmp(arg1.c_str(), "south") ||
+                                !str_cmp(arg1.c_str(), "e") || !str_cmp(arg1.c_str(), "east") ||
+                                !str_cmp(arg1.c_str(), "w") || !str_cmp(arg1.c_str(), "west") ||
+                                !str_cmp(arg1.c_str(), "sw") || !str_cmp(arg1.c_str(), "southwest") ||
+                                !str_cmp(arg1.c_str(), "nw") || !str_cmp(arg1.c_str(), "northwest") ||
+                                !str_cmp(arg1.c_str(), "se") || !str_cmp(arg1.c_str(), "southeast") ||
+                                !str_cmp(arg1.c_str(), "ne") || !str_cmp(arg1.c_str(), "northeast") ||
+                                !str_cmp(arg1.c_str(), "u") || !str_cmp(arg1.c_str(), "up") ||
+                                !str_cmp(arg1.c_str(), "d") || !str_cmp(arg1.c_str(), "down"))
         {
                 if (get_exit(ch->in_room, get_dir(arg1)))
                 {
@@ -1048,16 +1034,16 @@ CMDF do_addroom(CHAR_DATA * ch, char *argument)
                 send_to_char("&RNo such room type\r\n", ch);
                 return;
         }
-        if (!str_cmp(arg1, "n") || !str_cmp(arg1, "north") ||
-            !str_cmp(arg1, "s") || !str_cmp(arg1, "south") ||
-            !str_cmp(arg1, "e") || !str_cmp(arg1, "east") ||
-            !str_cmp(arg1, "w") || !str_cmp(arg1, "west") ||
-            !str_cmp(arg1, "sw") || !str_cmp(arg1, "southwest") ||
-            !str_cmp(arg1, "nw") || !str_cmp(arg1, "northwest") ||
-            !str_cmp(arg1, "se") || !str_cmp(arg1, "southeast") ||
-            !str_cmp(arg1, "ne") || !str_cmp(arg1, "northeast") ||
-            !str_cmp(arg1, "u") || !str_cmp(arg1, "up") ||
-            !str_cmp(arg1, "d") || !str_cmp(arg1, "down"))
+                if (!str_cmp(arg1.c_str(), "n") || !str_cmp(arg1.c_str(), "north") ||
+                        !str_cmp(arg1.c_str(), "s") || !str_cmp(arg1.c_str(), "south") ||
+                        !str_cmp(arg1.c_str(), "e") || !str_cmp(arg1.c_str(), "east") ||
+                        !str_cmp(arg1.c_str(), "w") || !str_cmp(arg1.c_str(), "west") ||
+                        !str_cmp(arg1.c_str(), "sw") || !str_cmp(arg1.c_str(), "southwest") ||
+                        !str_cmp(arg1.c_str(), "nw") || !str_cmp(arg1.c_str(), "northwest") ||
+                        !str_cmp(arg1.c_str(), "se") || !str_cmp(arg1.c_str(), "southeast") ||
+                        !str_cmp(arg1.c_str(), "ne") || !str_cmp(arg1.c_str(), "northeast") ||
+                        !str_cmp(arg1.c_str(), "u") || !str_cmp(arg1.c_str(), "up") ||
+                        !str_cmp(arg1.c_str(), "d") || !str_cmp(arg1.c_str(), "down"))
         {
                 if (get_exit(ch->in_room, get_dir(arg1)))
                 {
@@ -1090,15 +1076,15 @@ CMDF do_addroom(CHAR_DATA * ch, char *argument)
         fold_area(room->area, room->area->filename, TRUE, FALSE);
 }
 
-CMDF do_decorate(CHAR_DATA * ch, char *argument)
+CMDF do_decorate(CHAR_DATA* ch, const std::string& argument)
 {
         SHIP_DATA *ship;
         ROOM_INDEX_DATA *room;
         AREA_DATA *tarea;
-        int       tmplvl;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      buf[MSL];
-        INSTALLATION_DATA *installation;
+        int tmplvl = 0;
+        std::string arg1;
+        std::string buf;
+        INSTALLATION_DATA* installation = nullptr;
 
 #ifdef OLC_HOMES
 		if (ch->in_room && ch->in_room->home) {
@@ -1107,9 +1093,10 @@ CMDF do_decorate(CHAR_DATA * ch, char *argument)
 		}
 #endif
 
-        argument = one_argument(argument, arg1);
+        std::string rest = argument;
+        arg1 = one_argument(rest, rest);
 
-        if (arg1[0] != '\0' && !str_cmp(arg1, "name"))
+        if (!arg1.empty() && arg1 == "name")
         {
                 room = ch->in_room;
                 if (!room)
@@ -1182,11 +1169,11 @@ CMDF do_decorate(CHAR_DATA * ch, char *argument)
   desc..might want to either figure out another way to do this or make sure your dangerous
   imm commands check to make sure it's not coming from redit */
 
-                snprintf(buf, MSL, "name %s", argument);
+                buf = std::format("name {}", argument);
                 tarea = room->area;
                 tmplvl = ch->top_level;
                 ch->top_level = 152;
-                do_redit(ch, buf);
+                do_redit(ch, buf.c_str());
                 ch->top_level = tmplvl;
                 fold_area(tarea, tarea->filename, FALSE, FALSE);
                 return;
@@ -1316,7 +1303,7 @@ CMDF do_decorate(CHAR_DATA * ch, char *argument)
         tarea = room->area;
         tmplvl = ch->top_level;
         ch->top_level = 152;
-        do_redit(ch, "desc");
+        do_redit(ch, std::string("desc"));
         ch->top_level = tmplvl;
         fold_area(tarea, tarea->filename, FALSE, FALSE);
         return;
@@ -1329,7 +1316,7 @@ CMDF do_decorate(CHAR_DATA * ch, char *argument)
           player ships to give them a reson to recycle rather than sell.
 */
 
-CMDF do_recycle(CHAR_DATA * ch, char *argument)
+CMDF do_recycle(CHAR_DATA* ch, const std::string& argument)
 {
         long      price;
         SHIP_DATA *ship;
@@ -1340,7 +1327,7 @@ CMDF do_recycle(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        ship = ship_in_room(ch->in_room, argument);
+        ship = ship_in_room(ch->in_room, argument.c_str());
         if (!ship)
         {
                 act(AT_PLAIN, "I see no $T here.", ch, NULL, argument,
@@ -1382,14 +1369,14 @@ CMDF do_recycle(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_fleet(CHAR_DATA * ch, char *argument)
+CMDF do_fleet(CHAR_DATA* ch, const std::string& argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        std::string arg;
+        std::string rest = argument;
+        arg = one_argument(rest, rest);
 
-        argument = one_argument(argument, arg);
-
-        if (!str_cmp(arg, "make"))
-                fleet_make(ch, argument);
+                if (arg == "make")
+                        fleet_make(ch, rest);
 /*	else if ( !str_cmp(arg, "addship" ) )
 		fleet_addship(ch, argument);
 	else if ( !str_cmp(arg, "remship" ) )
@@ -1402,20 +1389,18 @@ CMDF do_fleet(CHAR_DATA * ch, char *argument)
 		fleet_disbandfleet(ch, argument);	*/
 }
 
-void fleet_make(CHAR_DATA * ch, char *argument)
+void fleet_make(CHAR_DATA* ch, const std::string& argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      filename[MAX_STRING_LENGTH];
-        int       percentage, ship_class;
-        SHIP_DATA *ship;
-        PLANET_DATA *planet;
-        SPACE_DATA *starsystem;
-        CLAN_DATA *clan;
-        int       durasteel, transparisteel, cost;
-
-        argument = one_argument(argument, arg1);
-        mudstrlcpy(arg2, argument, MIL);
+        std::string arg1, arg2, filename;
+        int percentage = 0, ship_class = 0;
+        SHIP_DATA* ship = nullptr;
+        PLANET_DATA* planet = nullptr;
+        SPACE_DATA* starsystem = nullptr;
+        CLAN_DATA* clan = nullptr;
+        int durasteel = 0, transparisteel = 0, cost = 0;
+        std::string rest = argument;
+        arg1 = one_argument(rest, rest);
+        arg2 = rest;
 
 
 
@@ -1446,7 +1431,7 @@ void fleet_make(CHAR_DATA * ch, char *argument)
 
                 for (ship = first_ship; ship; ship = ship->next)
                 {
-                        if (!str_cmp(ship->name, arg2))
+                        if (!str_cmp(ship->name, arg2.c_str()))
                         {
                                 send_to_char
                                         ("&CThat ship name is already in use. Choose another.\r\n",
@@ -1670,12 +1655,12 @@ void fleet_make(CHAR_DATA * ch, char *argument)
         planet->resource[CARGO_TRANSPARISTEEL] -= transparisteel;
         planet->resource[CARGO_DURASTEEL] -= durasteel;
 
-        snprintf(filename, MSL, "%s.mship", arg2);
+        filename = std::format("{}.mship", arg2);
 
-        CREATE(ship, SHIP_DATA, 1);
+        ship = new SHIP_DATA();
         LINK(ship, first_ship, last_ship, next, prev);
-        ship->filename = STRALLOC(smash_space(filename));
-        ship->name = STRALLOC(arg2);
+        ship->filename = STRALLOC(smash_space(filename).c_str());
+        ship->name = STRALLOC(arg2.c_str());
         ship->owner = clan->name;
         ship->clan = clan;
         ship->copilot = STRALLOC("");
@@ -1751,43 +1736,29 @@ void fleet_make(CHAR_DATA * ch, char *argument)
         write_ship_list();
 }
 
-CMDF do_modifyship(CHAR_DATA * ch, char *argument)
+CMDF do_modifyship(CHAR_DATA* ch, const std::string& argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        SHIP_DATA *ship = NULL;
-        bool      match, checktool;
-        int       percentage;
-        OBJ_DATA *obj;
-
-        match = FALSE;
-
-        argument = one_argument(argument, arg);
-        argument = one_argument(argument, arg1);
-        argument = one_argument(argument, arg2);
+        std::string arg, arg1, arg2;
+        SHIP_DATA* ship = nullptr;
+        bool match = false, checktool = false;
+        int percentage = 0;
+        OBJ_DATA* obj = nullptr;
+        std::string rest = argument;
+        arg = one_argument(rest, rest);
+        arg1 = one_argument(rest, rest);
+        arg2 = rest;
 
         switch (ch->substate)
         {
         default:
-                checktool = FALSE;
-                if (arg[0] == '\0' || arg1[0] == '\0' || arg2[0] == '\0')
+                checktool = false;
+                if (arg.empty() || arg1.empty() || arg2.empty())
                 {
-                        send_to_char
-                                ("Usage: modifyship <ship> <add> <remove>\r\n",
-                                 ch);
-                        send_to_char
-                                ("Options: speed manuever hyperspeed cargo battalions\r\n",
-                                 ch);
-                        send_to_char
-                                ("Options: lasers ions missiles rockets torpedos\r\n",
-                                 ch);
-                        send_to_char
-                                ("Options: tractors chaff shields hull energy\r\n",
-                                 ch);
-                        send_to_char("Options: stealth cloak interdictor\r\n",
-                                     ch);
-
+                        send_to_char("Usage: modifyship <ship> <add> <remove>\r\n", ch);
+                        send_to_char("Options: speed manuever hyperspeed cargo battalions\r\n", ch);
+                        send_to_char("Options: lasers ions missiles rockets torpedos\r\n", ch);
+                        send_to_char("Options: tractors chaff shields hull energy\r\n", ch);
+                        send_to_char("Options: stealth cloak interdictor\r\n", ch);
                         return;
                 }
                 ship = ship_in_room(ch->in_room, arg);

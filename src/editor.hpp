@@ -41,17 +41,30 @@
  ****************************************************************************************/
 
 
-typedef struct editor_data EDITOR_DATA;
+
+#pragma once
+#include <string>
+#include <string_view>
+#include <memory>
+
+struct editor_data;
+using EDITOR_DATA = editor_data;
 
 struct editor_data
 {
-        sh_int    numlines;
-        sh_int    on_line;
-        sh_int    size;
-        char      line[100][160];
+        sh_int numlines;
+        sh_int on_line;
+        sh_int size;
+        char line[100][160];
 };
 
-void start_editing args((CHAR_DATA * ch, char *data));
-void stop_editing args((CHAR_DATA * ch));
-void edit_buffer args((CHAR_DATA * ch, char *argument));
-char     *copy_buffer args((CHAR_DATA * ch));
+void start_editing(CHAR_DATA *ch, const char *data);
+void start_editing(CHAR_DATA *ch, std::string_view data);
+void start_editing(std::shared_ptr<CHAR_DATA> ch, std::string_view data);
+void stop_editing(CHAR_DATA *ch);
+void stop_editing(std::shared_ptr<CHAR_DATA> ch);
+void edit_buffer(CHAR_DATA *ch, const char *argument);
+void edit_buffer(CHAR_DATA *ch, std::string_view argument);
+void edit_buffer(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
+char *copy_buffer(CHAR_DATA *ch);
+std::string copy_buffer(std::shared_ptr<CHAR_DATA> ch);

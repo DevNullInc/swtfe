@@ -48,8 +48,10 @@
   1999-05-03 lpd Original version.
  */
 
-#ifndef md5_INCLUDED
-#  define md5_INCLUDED
+
+#pragma once
+#include <array>
+#include <cstdint>
 
 /*
  * This package supports both compile-time and run-time determination of CPU
@@ -61,25 +63,28 @@
  * efficiently on either one than if ARCH_IS_BIG_ENDIAN is defined.
  */
 
-typedef unsigned char md5_byte_t;   /* 8-bit byte */
-typedef unsigned int md5_word_t;    /* 32-bit word */
 
-/* Define the state of the MD5 Algorithm. */
-typedef struct md5_state_s
-{
-        md5_word_t count[2];    /* message length in bits, lsw first */
-        md5_word_t abcd[4]; /* digest buffer */
-        md5_byte_t buf[64]; /* accumulate block */
-} md5_state_t;
+using md5_byte_t = std::uint8_t;
+using md5_word_t = std::uint32_t;
 
-/* Initialize the algorithm. */
-        void      md5_init(md5_state_t * pms);
 
-/* Append a string to the message. */
-        void      md5_append(md5_state_t * pms, const md5_byte_t * data,
-                             int nbytes);
+class md5_state_t {
+public:
+  std::array<md5_word_t, 2> count{};    // message length in bits, lsw first
+  std::array<md5_word_t, 4> abcd{};     // digest buffer
+  std::array<md5_byte_t, 64> buf{};     // accumulate block
 
-/* Finish the message and return the digest. */
-        void      md5_finish(md5_state_t * pms, md5_byte_t digest[16]);
+  md5_state_t() = default;
+};
+
+
+// Initialize the algorithm.
+void md5_init(md5_state_t& pms);
+
+// Append a string to the message.
+void md5_append(md5_state_t& pms, const md5_byte_t* data, int nbytes);
+
+// Finish the message and return the digest.
+void md5_finish(md5_state_t& pms, std::array<md5_byte_t, 16>& digest);
 
 #endif /* md5_INCLUDED */

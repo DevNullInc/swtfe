@@ -39,12 +39,14 @@
  *****************************************************************************************
  *                             SWTFE Corpse/Body Module                                  *
  ****************************************************************************************/
-#ifndef __BODY_DATA__
-#define __BODY_DATA__
+
+#pragma once
+
 
 #include <list>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 // Directory and file constants - modernized
@@ -291,17 +293,16 @@ class BODY_DATA
         ROOM_INDEX_DATA *get_rand_room(int bit, bool include);
 };
 
+
 // Modern function declarations
-BODY_DATA *get_body(char *name);
-DOCK_DATA *get_dock(char *name);
-DOCK_DATA *get_dock_isname(SHIP_DATA *ship, char *name);
+BODY_DATA *get_body(const char *name);
+BODY_DATA *get_body(std::string_view name);
+BODY_DATA *get_body(std::shared_ptr<std::string> name);
+DOCK_DATA *get_dock(const char *name);
+DOCK_DATA *get_dock(std::string_view name);
+DOCK_DATA *get_dock(std::shared_ptr<std::string> name);
+DOCK_DATA *get_dock_isname(SHIP_DATA *ship, const char *name);
+DOCK_DATA *get_dock_isname(SHIP_DATA *ship, std::string_view name);
+DOCK_DATA *get_dock_isname(std::shared_ptr<SHIP_DATA> ship, std::string_view name);
 void load_bodies();
 
-// Legacy macro-style declarations for compatibility
-BODY_DATA *get_body args((char *name));
-DOCK_DATA *get_dock args((char *name));
-DOCK_DATA *get_dock_isname args((SHIP_DATA * ship, char *name));
-void load_bodies args((void));
-
-
-#endif /*  */

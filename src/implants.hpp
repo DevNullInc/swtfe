@@ -1,25 +1,28 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2005 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -34,34 +37,31 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                                SWR Implanet module                                    *
+ *                                SWR Implant module                                     *
  ****************************************************************************************/
 
-/* How many do I want to have? */
-#define MAX_IMPLANT_TYPES 7
-#define OBJ_VNUM_IMPLANT 10439
 
-/* Names of the implants */
-extern char *const implant_names[];
+#pragma once
+#include <array>
+#include <string>
 
-/* Name of the affect, I think I wanna have the character field in an integer array check this, I dunno... */
-extern char *const implant_affect_names[];
+constexpr int MAX_IMPLANT_TYPES = 7;
+constexpr int OBJ_VNUM_IMPLANT = 10439;
 
-/* How it affects the character. Initialize character array to -2? */
-extern int const implant_affect_modifier[];
+extern const std::array<std::string, MAX_IMPLANT_TYPES> implant_names;
+extern const std::array<std::string, MAX_IMPLANT_TYPES> implant_affect_names;
+extern const std::array<int, MAX_IMPLANT_TYPES> implant_affect_modifier;
 
-/* Implant flags, may not need these */
+int get_implant_affect(CHAR_DATA* ch, int implant);
 
-int get_implant_affect args((CHAR_DATA * ch, int implant));
 
-enum implants_types
-{
-        IMPLANT_STRENGTH,
-        IMPLANT_DEXTERITY,
-        IMPLANT_CONSTITUTION,
-        IMPLANT_INTELLIGENCE,
-        IMPLANT_WISDOM,
-        IMPLANT_CHARISMA,
-        IMPLANT_HUNGER,
-        MAX_IMPLANTS_TYPES
+enum class ImplantType : int {
+        Strength,
+        Dexterity,
+        Constitution,
+        Intelligence,
+        Wisdom,
+        Charisma,
+        Hunger,
+        MaxTypes
 };

@@ -40,29 +40,38 @@
  *                                SWR OLC Changes module                                 *
  ****************************************************************************************/
 
- #define CHANGES_SNIPPET
 
-#define CHANGES_FILE	SYSTEM_DIR "changes.dat"
-typedef struct changes_data CHANGE_DATA;
+#pragma once
+#include <string>
+#include <string_view>
+#include <memory>
+#include <ctime>
 
-/* changes.c */
-int num_changes args((void));
-void save_changes args((void));
+#define CHANGES_SNIPPET
 
-void load_changes args((void));
-void delete_change args((int num));
+#define CHANGES_FILE SYSTEM_DIR "changes.dat"
+struct changes_data;
+using CHANGE_DATA = changes_data;
+
+// changes.c
+int num_changes();
+void save_changes();
+void load_changes();
+void delete_change(int num);
+
+// Modern overloads
+void save_changes(std::string_view filename);
+void load_changes(std::string_view filename);
 
 struct changes_data
 {
-
-        char     *change;
-        char     *coder;
-        char     *date;
-        time_t    mudtime;
-        bool      immchange;
+        std::string change;
+        std::string coder;
+        std::string date;
+        std::time_t mudtime;
+        bool immchange;
 };
 
-/* extern struct  changes_data * changes_table; */
 extern int maxChanges;
 extern int immortal_changes;
 

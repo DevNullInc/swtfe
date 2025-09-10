@@ -51,42 +51,42 @@
  *                          SWR Hotboot module                                           *
  ****************************************************************************************/
 
-#include <string.h>
-#include <ctype.h>
+
+#include <string>
+#include <string_view>
+#include <cstring>
+#include <cctype>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #include "mud.hpp"
 
-DNS_DATA *first_cache;
-DNS_DATA *last_cache;
+
+DNS_DATA *first_cache = nullptr;
+DNS_DATA *last_cache = nullptr;
 
 void      save_dns(void);
 
-void prune_dns(void)
+
+void prune_dns()
 {
-        DNS_DATA *cache, *cache_next;
-
-        for (cache = first_cache; cache; cache = cache_next)
-        {
-                cache_next = cache->next;
-
-                /*
-                 * Stay in cache for 14 days 
-                 */
+        DNS_DATA *cache = first_cache;
+        while (cache) {
+                DNS_DATA *cache_next = cache->next;
                 if (current_time - cache->time >= 1209600
-                    || !str_cmp(cache->ip, "Unknown??")
-                    || !str_cmp(cache->name, "Unknown??"))
-                {
-                        STRFREE(cache->ip);
-                        STRFREE(cache->name);
-                        UNLINK(cache, first_cache, last_cache, next, prev);
-                        DISPOSE(cache);
+                        || cache->ip == "Unknown??"
+                        || cache->name == "Unknown??") {
+                        // Remove from linked list
+                        if (cache->prev) cache->prev->next = cache->next;
+                        if (cache->next) cache->next->prev = cache->prev;
+                        if (cache == first_cache) first_cache = cache->next;
+                        if (cache == last_cache) last_cache = cache->prev;
+                        delete cache;
                 }
+                cache = cache_next;
         }
         save_dns();
-        return;
 }
 
 void check_dns(void)
@@ -96,36 +96,30 @@ void check_dns(void)
         return;
 }
 
-void add_dns(char *dhost, char *address)
+
+void add_dns(const std::string& dhost, const std::string& address)
 {
-        DNS_DATA *cache;
-
-        CREATE(cache, DNS_DATA, 1);
-        cache->ip = STRALLOC(dhost);
-        cache->name = STRALLOC(address);
+        auto* cache = new DNS_DATA;
+        cache->ip = dhost;
+        cache->name = address;
         cache->time = current_time;
-        LINK(cache, first_cache, last_cache, next, prev);
-
+        cache->prev = last_cache;
+        cache->next = nullptr;
+        if (last_cache) last_cache->next = cache;
+        last_cache = cache;
+        if (!first_cache) first_cache = cache;
         save_dns();
-        return;
 }
 
-char     *in_dns_cache(char *ip)
+
+std::string in_dns_cache(const std::string& ip)
 {
-        DNS_DATA *cache;
-        static char dnsbuf[MAX_STRING_LENGTH];
-
-        dnsbuf[0] = '\0';
-
-        for (cache = first_cache; cache; cache = cache->next)
-        {
-                if (!str_cmp(ip, cache->ip))
-                {
-                        mudstrlcpy(dnsbuf, cache->name, MAX_STRING_LENGTH);
-                        break;
+        for (DNS_DATA* cache = first_cache; cache; cache = cache->next) {
+                if (ip == cache->ip) {
+                        return cache->name;
                 }
         }
-        return dnsbuf;
+        return "";
 }
 
 void fread_dns(DNS_DATA * cache, FILE * fp)
@@ -457,32 +451,27 @@ void resolve_dns(DESCRIPTOR_DATA * d, long ip)
         }
 }
 
-void do_cache(CHAR_DATA * ch, char *argument)
-{
-        DNS_DATA *cache;
-        int       ip = 0;
 
-        argument = NULL;
+void do_cache(CHAR_DATA *ch, char *argument)
+{
+        // Only allow access for authorized users (immortal/admin)
+        if (!IS_IMMORTAL(ch)) {
+                send_to_char("You do not have permission to view DNS cache information.\n\r", ch);
+                return;
+        }
+        int ip_count = 0;
         send_to_pager("&YCached DNS Information\n\r", ch);
         send_to_pager("IP               | Address\n\r", ch);
-        send_to_pager
-                ("------------------------------------------------------------------------------\n\r",
-                 ch);
-        for (cache = first_cache; cache; cache = cache->next)
-        {
-                pager_printf(ch, "&W%16.16s  &Y%s\n\r", cache->ip,
-                             cache->name);
-                ip++;
+        send_to_pager("------------------------------------------------------------------------------\n\r", ch);
+        for (DNS_DATA* cache = first_cache; cache; cache = cache->next) {
+                pager_printf(ch, "&W%16.16s  &Y%s\n\r", cache->ip.c_str(), cache->name.c_str());
+                ip_count++;
         }
-        pager_printf(ch, "\n\r&W%d IPs in the cache.\n\r", ip);
-        return;
+        pager_printf(ch, "\n\r&W%d IPs in the cache.\n\r", ip_count);
 }
 
-void free_dns(DNS_DATA * cache)
+
+void free_dns(DNS_DATA *cache)
 {
-        if (cache->ip)
-                STRFREE(cache->ip);
-        if (cache->name)
-                STRFREE(cache->name);
-        DISPOSE(cache);
+        delete cache;
 }

@@ -61,23 +61,29 @@
  *                             Enhanced ANSI parser by Samson                            *
  ****************************************************************************************/
 
-#define SAMSONCOLOR /* To interact with other snippets */
 
+#pragma once
+#include <string>
+#include <string_view>
+#include <memory>
+
+#define SAMSONCOLOR /* To interact with other snippets */
 #ifndef MSL
 #define MSL MAX_STRING_LENGTH
 #endif
-
 #ifndef MIL
 #define MIL MAX_INPUT_LENGTH
 #endif
 
-void      reset_colors(CHAR_DATA * ch);
 
-/*void set_char_color( sh_int AType, CHAR_DATA *ch );
-void set_pager_color( sh_int AType, CHAR_DATA *ch );*/
-const char *color_str(sh_int AType, CHAR_DATA * ch);
+void reset_colors(CHAR_DATA *ch);
+void reset_colors(std::shared_ptr<CHAR_DATA> ch);
+const char *color_str(sh_int AType, CHAR_DATA *ch);
+std::string color_str(sh_int AType, std::shared_ptr<CHAR_DATA> ch);
 const char *const_color_align(const char *argument, int size, int align);
-void send_to_desc_color args((const char *txt, DESCRIPTOR_DATA * d));
+std::string const_color_align(std::string_view argument, int size, int align);
+void send_to_desc_color(const char *txt, DESCRIPTOR_DATA *d);
+void send_to_desc_color(std::string_view txt, std::shared_ptr<DESCRIPTOR_DATA> d);
 
 
 /*

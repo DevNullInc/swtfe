@@ -51,9 +51,18 @@
  *                                 DNS Resolver Module                                   *
  ****************************************************************************************/
 
+typedef struct dns_data DNS_DATA;
+
+#pragma once
+#include <string>
+#include <string_view>
+#include <memory>
+#include <ctime>
+
 #define DNS_FILE SYSTEM_DIR "dns.dat"
 
-typedef struct dns_data DNS_DATA;
+struct dns_data;
+using DNS_DATA = dns_data;
 
 extern DNS_DATA *first_cache;
 extern DNS_DATA *last_cache;
@@ -62,14 +71,17 @@ struct dns_data
 {
         DNS_DATA *next;
         DNS_DATA *prev;
-        char     *ip;
-        char     *name;
-        time_t    time;
+        std::string ip;
+        std::string name;
+        std::time_t time;
 };
 
 DECLARE_DO_FUN(do_cache);
-void      resolve_dns(DESCRIPTOR_DATA * d, long ip);
-void      process_dns(DESCRIPTOR_DATA * d);
-char     *in_dns_cache(char *ip);
-void      load_dns(void);
-void      check_dns(void);
+void resolve_dns(DESCRIPTOR_DATA *d, long ip);
+void resolve_dns(std::shared_ptr<DESCRIPTOR_DATA> d, long ip);
+void process_dns(DESCRIPTOR_DATA *d);
+void process_dns(std::shared_ptr<DESCRIPTOR_DATA> d);
+char *in_dns_cache(const char *ip);
+char *in_dns_cache(std::string_view ip);
+void load_dns();
+void check_dns();

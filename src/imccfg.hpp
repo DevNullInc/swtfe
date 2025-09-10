@@ -2,150 +2,136 @@
  * Yes, Rogel, you can gloat all you want. You win, this is cleaner, though not by a whole lot.
  */
 
-#ifndef __IMC2CFG_H__
-#define __IMC2CFG_H__
+
+#pragma once
+#include <string>
+
 
 #if !defined(IMCCIRCLE) && !defined(IMCSTANDALONE)
-#define CH_IMCDATA(ch)           ((ch)->pcdata->imcchardata)
-#define CH_IMCLEVEL(ch)          ((ch)->top_level)
-#define CH_IMCNAME(ch)           ((ch)->name)
-#define CH_IMCSEX(ch)            ((ch)->sex)
-#define CH_IMCTITLE(ch)          ((ch)->pcdata->title)
+// Modernized: prefer inline functions for type safety
+inline auto CH_IMCDATA(auto ch) { return ch->pcdata->imcchardata; }
+inline auto CH_IMCLEVEL(auto ch) { return ch->top_level; }
+inline std::string CH_IMCNAME(auto ch) { return ch->name; }
+inline auto CH_IMCSEX(auto ch) { return ch->sex; }
+inline std::string CH_IMCTITLE(auto ch) { return ch->pcdata->title; }
 #endif
+
 
 #if defined(IMCSMAUG) || defined(IMCCHRONICLES)
 #define SMAUGSOCIAL
-#define SOCIAL_DATA SOCIALTYPE
-#define CH_IMCRANK(ch)           ((ch)->pcdata->rank)
+using SOCIAL_DATA = SOCIALTYPE;
+inline auto CH_IMCRANK(auto ch) { return ch->pcdata->rank; }
 #endif
+
 
 #if defined(IMCROM)
-#define first_descriptor descriptor_list
-#define CH_IMCRANK(ch)           (title_table[(ch)->class][(ch)->level][(ch)->sex == SEX_FEMALE ? 1 : 0])
+inline auto first_descriptor() { return descriptor_list; }
+inline std::string CH_IMCRANK(auto ch) { return title_table[ch->class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]; }
 #endif
+
 
 #if defined(IMCMERC)
-#define first_descriptor descriptor_list
-#define CH_IMCRANK(ch)           (title_table[(ch)->class][(ch)->level][(ch)->sex == SEX_FEMALE ? 1 : 0])
+inline auto first_descriptor() { return descriptor_list; }
+inline std::string CH_IMCRANK(auto ch) { return title_table[ch->class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]; }
 #endif
 
+
 #if defined(IMCACK)
-#define first_descriptor first_desc
-#define CH_IMCRANK(ch)           (class_table[(ch)->class].who_name)
+inline auto first_descriptor() { return first_desc; }
+inline std::string CH_IMCRANK(auto ch) { return class_table[ch->class].who_name; }
 #endif
+
 
 #if defined(IMCUENVY)
 #define SMAUGSOCIAL
-#define SOCIAL_DATA SOC_INDEX_DATA
-SOC_INDEX_DATA *find_social(char *command);
+using SOCIAL_DATA = SOC_INDEX_DATA;
+SOC_INDEX_DATA* find_social(const std::string& command);
 
-#define first_descriptor descriptor_list
-#define CH_IMCRANK(ch)           (title_table[(ch)->class][(ch)->level][(ch)->sex == SEX_FEMALE ? 1 : 0])
+inline auto first_descriptor() { return descriptor_list; }
+inline std::string CH_IMCRANK(auto ch) { return title_table[ch->class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]; }
 #endif
 
 /* Blasted circle, always gotta do thing the hard way! */
+
 #if defined(IMCCIRCLE)
 #define SMAUGSOCIAL
 
-   /*
-    * This should be in an act.social.h, if it existed. Introducing
-    * it in an IMC patch would be too intrusive. 
-    */
-struct social_messg
-{
-        int       act_nr;
-        int       hide;
-        int       min_victim_position;
-        char     *char_no_arg;
-        char     *others_no_arg;
-        char     *char_found;
-        char     *others_found;
-        char     *vict_found;
-        char     *not_found;
-        char     *char_auto;
-        char     *others_auto;
+struct social_messg {
+        int act_nr = 0;
+        int hide = 0;
+        int min_victim_position = 0;
+        std::string char_no_arg;
+        std::string others_no_arg;
+        std::string char_found;
+        std::string others_found;
+        std::string vict_found;
+        std::string not_found;
+        std::string char_auto;
+        std::string others_auto;
 };
 
-   /*
-    * UNCOMMENT if mud has Ascii Pfile code installed. 
-    */
-   /*
-    * #include "diskio.h" 
-    */
+extern social_messg* soc_mess_list;
+social_messg* find_social(const std::string& name);
 
-extern struct social_messg *soc_mess_list;
-struct social_messg *find_social(const char *name);
+using SOCIAL_DATA = social_messg;
+using CHAR_DATA = char_data;
+using DESCRIPTOR_DATA = descriptor_data;
 
-typedef struct social_messg SOCIAL_DATA;
-typedef struct char_data CHAR_DATA;
-typedef struct descriptor_data DESCRIPTOR_DATA;
+extern const char* class_abbrevs[];
 
-extern const char *class_abbrevs[];
+inline std::string title_female(int chclass, int level);
+inline std::string title_male(int chclass, int level);
 
-const char *title_female(int chclass, int level);
-const char *title_male(int chclass, int level);
-
-#define first_descriptor         descriptor_list
-#define URANGE(a, b, c)          ((b) < (a) ? (a) : ((b) > (c) ? (c) : (b)))
-#define CH_IMCDATA(ch)           ((ch)->player_specials->imcchardata)
-#define CH_IMCLEVEL(ch)          GET_LEVEL(ch)
-#define CH_IMCNAME(ch)           GET_NAME(ch)
-#define CH_IMCTITLE(ch)          GET_TITLE(ch)
-#define CH_IMCRANK(ch)           (GET_SEX(ch) == SEX_FEMALE ? title_female(GET_CLASS(ch), GET_LEVEL(ch))	\
-								: title_male(GET_CLASS(ch), GET_LEVEL(ch)))
-#define CH_IMCSEX(ch)            GET_SEX(ch)
-#endif
-
+inline auto first_descriptor() { return descriptor_list; }
+inline int URANGE(int a, int b, int c) { return (b < a ? a : (b > c ? c : b)); }
+inline auto CH_IMCDATA(auto ch) { return ch->player_specials->imcchardata; }
+inline auto CH_IMCLEVEL(auto ch) { return GET_LEVEL(ch); }
+inline std::string CH_IMCNAME(auto ch) { return GET_NAME(ch); }
+inline std::string CH_IMCTITLE(auto ch) { return GET_TITLE(ch); }
+inline std::string CH_IMCRANK(auto ch) { return GET_SEX(ch) == SEX_FEMALE ? title_female(GET_CLASS(ch), GET_LEVEL(ch)) : title_male(GET_CLASS(ch), GET_LEVEL(ch)); }
+inline auto CH_IMCSEX(auto ch) { return GET_SEX(ch); }
 #endif
 
 #if defined(IMCSTANDALONE)
 
-typedef unsigned char bool;
+using bool = unsigned char;
 
-#if !defined(FALSE)
-#define FALSE 0
+#ifndef FALSE
+constexpr int FALSE = 0;
 #endif
 
-#if !defined(TRUE)
-#define TRUE 1
+#ifndef TRUE
+constexpr int TRUE = 1;
 #endif
 
-#define CH_IMCDATA(ch)           ((ch)->imcchardata)
-#define CH_IMCLEVEL(ch)          ((ch)->top_level)
-#define CH_IMCNAME(ch)           ((ch)->name)
-#define CH_IMCSEX(ch)            ((ch)->sex)
-#define CH_IMCTITLE(ch)          ( "User" )
-#define CH_IMCRANK(ch)           ( "User" )
+inline auto CH_IMCDATA(auto ch) { return ch->imcchardata; }
+inline auto CH_IMCLEVEL(auto ch) { return ch->top_level; }
+inline std::string CH_IMCNAME(auto ch) { return ch->name; }
+inline auto CH_IMCSEX(auto ch) { return ch->sex; }
+inline std::string CH_IMCTITLE(auto) { return "User"; }
+inline std::string CH_IMCRANK(auto) { return "User"; }
 
-typedef enum
-{
-        SEX_NEUTRAL, SEX_MALE, SEX_FEMALE
-} genders;
+enum class genders { SEX_NEUTRAL, SEX_MALE, SEX_FEMALE };
 
-#define CON_PLAYING 1
-#define LOWER(c)		((c) >= 'A' && (c) <= 'Z' ? (c)+'a'-'A' : (c))
+constexpr int CON_PLAYING = 1;
+inline char LOWER(char c) { return (c >= 'A' && c <= 'Z' ? c + 'a' - 'A' : c); }
 
-typedef struct user_data CHAR_DATA;
-typedef struct conn_data DESCRIPTOR_DATA;
-
-struct user_data
-{
-        struct imcchar_data *imcchardata;
-        char     *name;
-        int       level;
-        short     sex;
+struct user_data {
+        imcchar_data* imcchardata = nullptr;
+        std::string name;
+        int level = 0;
+        short sex = 0;
 };
 
-struct conn_data
-{
-        DESCRIPTOR_DATA *next;
-        DESCRIPTOR_DATA *prev;
-        CHAR_DATA *original;
-        CHAR_DATA *character;
-        short     connected;
+struct conn_data {
+        conn_data* next = nullptr;
+        conn_data* prev = nullptr;
+        user_data* original = nullptr;
+        user_data* character = nullptr;
+        short connected = 0;
 };
 
-DESCRIPTOR_DATA *first_descriptor;
-DESCRIPTOR_DATA *last_descriptor;
+conn_data* first_descriptor = nullptr;
+conn_data* last_descriptor = nullptr;
 
 #endif

@@ -1,25 +1,30 @@
+
+
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -34,216 +39,120 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                $Id: races.h 1330 2005-12-05 03:23:24Z halkeye $                *
- ****************************************************************************************/
-#ifndef __RACE_DATA_H__
-#define __RACE_DATA_H__
+ *                Data for Races and their attributes                                    *
+ *****************************************************************************************/
+#pragma once
 
-#include <list>
+#include <vector>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <array>
 
-#define FILE_RACE_LIST       "race.lst"
-#define RACES_DIR "../races/"
+constexpr std::string_view FILE_RACE_LIST = "race.lst";
+constexpr std::string_view RACES_DIR = "../races/";
 
-enum
-{
-        ATTR_STRENGTH, ATTR_INTELLIGENCE, ATTR_WISDOM,
-        ATTR_DEXTERITY, ATTR_CONSTITUTION, ATTR_CHARISMA,
-        ATTR_FORCE, ATTR_LUCK,
-        MAX_ATTR
+enum class RaceAttr : int {
+        Strength,
+        Intelligence,
+        Wisdom,
+        Dexterity,
+        Constitution,
+        Charisma,
+        Force,
+        Luck,
+        MaxAttr
 };
 
-class     RACE_DATA
-{
-      private:
-        // I think this will be best to do a reference
-        EXT_BV _body_parts;
-        LANGUAGE_DATA *_language;
-        int       _affected;
-        sh_int    _con_plus;
-        sh_int    _cha_plus;
-        sh_int    _dex_plus;
-        sh_int    _frc_plus;
-        sh_int    _hit;
-        sh_int    _int_plus;
-        sh_int    _lang_bonus;
-        sh_int    _lck_plus;
-        sh_int    _endurance;
-        char     *_name;
-        sh_int    _str_plus;
-        sh_int    _wis_plus;
-        sh_int    _class_modifier[MAX_ABILITY];
-        sh_int    _attr_mod[MAX_ATTR];
 
-        // Should this be planet ?
-        int       _home;
-        // Age at which a player begins to die 
-        int       _death_age;
-        // No more hard coding 
-        int       _hunger_mod;
-        int       _thirst_mod;
-        int       _rpneeded;
-        int       _start_age;
-        int       _class_restriction;
+class RACE_DATA {
+private:
+        EXT_BV body_parts_;
+        std::shared_ptr<LANGUAGE_DATA> language_;
+        int affected_{0};
+        int con_plus_{0};
+        int cha_plus_{0};
+        int dex_plus_{0};
+        int frc_plus_{0};
+        int hit_{0};
+        int int_plus_{0};
+        int lang_bonus_{0};
+        int lck_plus_{0};
+        int endurance_{0};
+        std::string name_;
+        int str_plus_{0};
+        int wis_plus_{0};
+        std::array<int, MAX_ABILITY> class_modifier_{};
+        std::array<int, static_cast<int>(RaceAttr::MaxAttr)> attr_mod_{};
+        int home_{0};
+        int death_age_{0};
+        int hunger_mod_{0};
+        int thirst_mod_{0};
+        int rpneeded_{0};
+        int start_age_{0};
+        int class_restriction_{0};
 
-      public:
-                  inline LANGUAGE_DATA * language()
-        {
-                return this->_language;
-        }
-        inline void language(LANGUAGE_DATA * p)
-        {
-                this->_language = p;
-        }
-        // For Now
-        inline    EXT_BV & body_parts()
-        {
-                return this->_body_parts;
-        }
-        // Set
-        inline void body_parts(int bit, bool set)
-        {
-                if (set)
-                {
-                        xSET_BIT(this->_body_parts, bit);
-                }
-                else
-                {
-                        xREMOVE_BIT(this->_body_parts, bit);
-                }
-        }
-        // Toggle
-        inline void body_parts(int bit)
-        {
-                xTOGGLE_BIT(this->_body_parts, bit);
-        }
+public:
+        RACE_DATA() = default;
+        ~RACE_DATA() = default;
 
-        inline char *name()
-        {
-                return this->_name;
-        }
-        inline void name(char *newname)
-        {
-                if (this->_name)
-                        STRFREE(this->_name);
-                this->_name = STRALLOC(newname);
-        }
-        inline int class_restriction()
-        {
-                return this->_class_restriction;
-        }
-        inline int class_restriction(int p)
-        {
-                return (this->_class_restriction = p);
-        }
-        inline int start_age()
-        {
-                return this->_start_age;
-        }
-        inline int start_age(int p)
-        {
-                return (this->_start_age = p);
-        }
-        inline int thirst_mod()
-        {
-                return this->_thirst_mod;
-        }
-        inline int thirst_mod(int p)
-        {
-                return (this->_thirst_mod = p);
-        }
-        inline int hunger_mod()
-        {
-                return this->_hunger_mod;
-        }
-        inline int hunger_mod(int p)
-        {
-                return (this->_hunger_mod = p);
-        }
-        inline int death_age()
-        {
-                return this->_death_age;
-        }
-        inline int death_age(int p)
-        {
-                return (this->_death_age = p);
-        }
-        inline int endurance()
-        {
-                return this->_endurance;
-        }
-        inline int endurance(int p)
-        {
-                return (this->_endurance = static_cast<sh_int>(p));
-        }
-        inline int affected()
-        {
-                return this->_affected;
-        }
-        inline int affected(int p)
-        {
-                return (this->_affected = p);
-        }
-        inline int lang_bonus()
-        {
-                return this->_lang_bonus;
-        }
-        inline int lang_bonus(int p)
-        {
-                return (this->_lang_bonus = static_cast<sh_int>(p));
-        }
-        inline int hit()
-        {
-                return this->_hit;
-        }
-        inline int hit(int p)
-        {
-                return (this->_hit = static_cast<sh_int>(p));
-        }
-        inline int home()
-        {
-                return this->_home;
-        }
-        inline int home(int p)
-        {
-                return (this->_home = p);
-        }
-        inline int rpneeded()
-        {
-                return this->_rpneeded;
-        }
-        inline int rpneeded(int p)
-        {
-                return (this->_rpneeded = p);
-        }
-        inline sh_int class_modifier(int ability)
-        {
-                return this->_class_modifier[ability];
-        }
-        inline sh_int class_modifier(int ability, int p)
-        {
-                return (this->_class_modifier[ability] = static_cast<sh_int>(p));
-        }
-        inline sh_int attr_modifier(int attr)
-        {
-                return this->_attr_mod[attr];
-        }
-        inline sh_int attr_modifier(int attr, int p)
-        {
-                return (this->_attr_mod[attr] = static_cast<sh_int>(p));
-        }
+        std::shared_ptr<LANGUAGE_DATA> language() const { return language_; }
+        void set_language(std::shared_ptr<LANGUAGE_DATA> p) { language_ = std::move(p); }
 
+        EXT_BV& body_parts() { return body_parts_; }
+        void set_body_parts(int bit, bool set);
+        void toggle_body_parts(int bit);
 
-      public:
-        RACE_DATA();
-        ~RACE_DATA();
-        void      save();
-        void      load(FILE * fp);
-        static bool load_race_file(char *racefile);
-        static void fwrite_race_list(void);
-        static void load_races(void);
+        const std::string& name() const { return name_; }
+        void set_name(const std::string& newname) { name_ = newname; }
+
+        int class_restriction() const { return class_restriction_; }
+        void set_class_restriction(int p) { class_restriction_ = p; }
+
+        int start_age() const { return start_age_; }
+        void set_start_age(int p) { start_age_ = p; }
+
+        int thirst_mod() const { return thirst_mod_; }
+        void set_thirst_mod(int p) { thirst_mod_ = p; }
+
+        int hunger_mod() const { return hunger_mod_; }
+        void set_hunger_mod(int p) { hunger_mod_ = p; }
+
+        int death_age() const { return death_age_; }
+        void set_death_age(int p) { death_age_ = p; }
+
+        int endurance() const { return endurance_; }
+        void set_endurance(int p) { endurance_ = p; }
+
+        int affected() const { return affected_; }
+        void set_affected(int p) { affected_ = p; }
+
+        int lang_bonus() const { return lang_bonus_; }
+        void set_lang_bonus(int p) { lang_bonus_ = p; }
+
+        int hit() const { return hit_; }
+        void set_hit(int p) { hit_ = p; }
+
+        int home() const { return home_; }
+        void set_home(int p) { home_ = p; }
+
+        int rpneeded() const { return rpneeded_; }
+        void set_rpneeded(int p) { rpneeded_ = p; }
+
+        int class_modifier(int ability) const { return class_modifier_.at(ability); }
+        void set_class_modifier(int ability, int p) { class_modifier_.at(ability) = p; }
+
+        int attr_modifier(int attr) const { return attr_mod_.at(attr); }
+        void set_attr_modifier(int attr, int p) { attr_mod_.at(attr) = p; }
+
+        void save() const;
+        void load(FILE* fp);
+        static bool load_race_file(const std::string& racefile);
+        static void fwrite_race_list();
+        static void load_races();
 };
 
-typedef std::list < RACE_DATA * >RACE_LIST;
+using RACE_LIST = std::vector<std::shared_ptr<RACE_DATA>>;
 extern RACE_LIST races;
 
-#endif
+

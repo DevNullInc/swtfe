@@ -1,181 +1,103 @@
-/*****************************************************************************************
- *                      .___________. __    __   _______                                 *
- *                      |           ||  |  |  | |   ____|                                *
- *                      `---|  |----`|  |__|  | |  |__                                   *
- *                          |  |     |   __   | |   __|                                  *
- *                          |  |     |  |  |  | |  |____                                 *
- *                          |__|     |__|  |__| |_______|                                *
- *                                                                                       *
- *                _______  __  .__   __.      ___       __                               *
- *               |   ____||  | |  \ |  |     /   \     |  |                              *
- *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
- *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
- *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
- *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
- *                                                                                       *
- *      _______ .______    __       _______.  ______    _______   _______                *
- *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
- *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
- *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
- *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
- *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
- *****************************************************************************************
- *                                                                                       *
- * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
- * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
- *                                                                                       *
- * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
- * by Sean Cooper                                                                        *
- *                                                                                       *
- * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
- *****************************************************************************************
- * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
- * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
- *                                                                                       *
- * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
- *                                                                                       *
- * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
- * and Sebastian Hammer.                                                                 *
- *****************************************************************************************
- *                                SWR Online Creation module                             *
- ****************************************************************************************/
-#ifndef _OLC_H_
-#define _OLC_H_
+#pragma once
 
 #include "mud.hpp"
+#include <string>
+#include <vector>
+#include <memory>
+#include <string_view>
 
-typedef struct class_data CLASS_DATA;
-typedef struct protoship_data PROTOSHIP_DATA;
-typedef struct language_data LANGUAGE_DATA;
-typedef struct list_data LIST_DATA;
-typedef struct illness_data ILLNESS_DATA;
+constexpr std::string_view CLASSES_DIR = "../classes/";
+constexpr std::string_view PROTOSHIP_DIR = "../protoships/";
+constexpr std::string_view LIST_DIR = "../list/";
+constexpr std::string_view ILLNESS_DIR = "../illness/";
+constexpr std::string_view PROTOSHIP_LIST = "protoship.lst";
+constexpr std::string_view CLASS_LIST = "class.lst";
+constexpr std::string_view LIST_LIST = "list.lst";
+constexpr std::string_view LANGUAGE_LIST = "language.lst";
+constexpr std::string_view ILLNESS_LIST = "illness.lst";
 
-extern CLASS_DATA *first_class;
-extern CLASS_DATA *last_class;
-extern LANGUAGE_DATA *first_language;
-extern LANGUAGE_DATA *last_language;
-extern PROTOSHIP_DATA *first_protoship;
-extern PROTOSHIP_DATA *last_protoship;
-extern PROTOSHIP_DATA *first_list;
-extern PROTOSHIP_DATA *last_list;
-extern ILLNESS_DATA *first_illness;
-extern ILLNESS_DATA *last_illness;
+class ClassData {
+public:
+        std::string class_name;
+        int value{0};
+        std::vector<std::shared_ptr<ClassData>> foils;
 
-#define CLASSES_DIR "../classes/"
-#define PROTOSHIP_DIR "../protoships/"
-#define LIST_DIR "../list/"
-#define ILLNESS_DIR "../illness/"
-#define PROTOSHIP_LIST       "protoship.lst"
-#define CLASS_LIST       "class.lst"
-#define LIST_LIST       "list.lst"
-#define LANGUAGE_LIST       "language.lst"
-#define ILLNESS_LIST		"illness.lst"
-
-/* olc.c function prototypes */
-PROTOSHIP_DATA *get_protoship args((char *name));
-
-/* class structure */
-struct class_data
-{
-        char     *class_name;
-        sh_int    value;
-        CLASS_DATA *first_foil;
-        CLASS_DATA *last_foil;
-        CLASS_DATA *next;   /* next class in list           */
-        CLASS_DATA *prev;   /* previous class in list       */
+        ClassData() = default;
+        explicit ClassData(std::string name, int val = 0) : class_name(std::move(name)), value(val) {}
+        ~ClassData() = default;
 };
 
+class LanguageData {
+public:
+        std::string name;
+        int min_intelligence{0};
 
-/* class structure */
-struct language_data
-{
-        char     *name;
-        sh_int    min_intelligence;
-        LANGUAGE_DATA *next;
-        LANGUAGE_DATA *prev;
+        LanguageData() = default;
+        explicit LanguageData(std::string language_name, int min_int = 0) : name(std::move(language_name)), min_intelligence(min_int) {}
+        ~LanguageData() = default;
 };
 
-/* protosjip structure */
-struct protoship_data
-{
-        char     *name;
-        char     *description;
-        char     *shipclass;
-        sh_int    mingroundspeed;
-        sh_int    maxgroundspeed;
-        sh_int    minrooms;
-        sh_int    maxrooms;
-        sh_int    mincomm;
-        sh_int    maxcomm;
-        sh_int    minsensor;
-        sh_int    maxsensor;
-        sh_int    minastro_array;
-        sh_int    maxastro_array;
-        sh_int    minhyperspeed;
-        sh_int    maxhyperspeed;
-        sh_int    minspeed;
-        sh_int    maxspeed;
-        sh_int    minmissiles;
-        sh_int    maxmissiles;
-        sh_int    mintorpedos;
-        sh_int    maxtorpedos;
-        sh_int    minrockets;
-        sh_int    maxrockets;
-        sh_int    minlasers;
-        sh_int    maxlasers;
-        sh_int    mintractorbeam;
-        sh_int    maxtractorbeam;
-        sh_int    minions;
-        sh_int    maxions;
-        sh_int    minmanuever;
-        sh_int    maxmanuever;
-        int       maxcargo;
-        int       mincargo;
-        int       maxenergy;
-        int       minenergy;
-        int       minshield;
-        int       maxshield;
-        int       minhull;
-        int       maxhull;
-        sh_int    minchaff;
-        sh_int    maxchaff;
-        int       minbattalions;
-        int       maxbattalions;
-        PROTOSHIP_DATA *next;
-        PROTOSHIP_DATA *prev;
+class ProtoshipData {
+public:
+        std::string name;
+        std::string description;
+        std::string shipclass;
+        int mingroundspeed{0}, maxgroundspeed{0};
+        int minrooms{0}, maxrooms{0};
+        int mincomm{0}, maxcomm{0};
+        int minsensor{0}, maxsensor{0};
+        int minastro_array{0}, maxastro_array{0};
+        int minhyperspeed{0}, maxhyperspeed{0};
+        int minspeed{0}, maxspeed{0};
+        int minmissiles{0}, maxmissiles{0};
+        int mintorpedos{0}, maxtorpedos{0};
+        int minrockets{0}, maxrockets{0};
+        int minlasers{0}, maxlasers{0};
+        int mintractorbeam{0}, maxtractorbeam{0};
+        int minions{0}, maxions{0};
+        int minmanuever{0}, maxmanuever{0};
+        int maxcargo{0}, mincargo{0};
+        int maxenergy{0}, minenergy{0};
+        int minshield{0}, maxshield{0};
+        int minhull{0}, maxhull{0};
+        int minchaff{0}, maxchaff{0};
+        int minbattalions{0}, maxbattalions{0};
 
+        ProtoshipData() = default;
+        ~ProtoshipData() = default;
 };
 
-/* list structure */
-struct list_data
-{
-        char     *name;
-        char     *filename;
-        char     *value1;
-        char     *value2;
-        char     *value3;
-        char     *value4;
-        char     *value5;
-        LIST_DATA *next;    /* next list in list            */
-        LIST_DATA *prev;    /* previous list in list        */
+class ListData {
+public:
+        std::string name;
+        std::string filename;
+        std::string value1, value2, value3, value4, value5;
+
+        ListData() = default;
+        ~ListData() = default;
 };
 
+class IllnessData {
+public:
+        std::string name;
+        std::string social1, social2, social3;
+        std::string message1, message2, message3;
+        int hploss{0}, mvloss{0}, hunger{0}, thirst{0};
 
-/* illness structure */
-struct illness_data
-{
-        ILLNESS_DATA *next;
-        ILLNESS_DATA *prev;
-        char     *name;
-        char     *social1;
-        char     *social2;
-        char     *social3;
-        char     *message1;
-        char     *message2;
-        char     *message3;
-        sh_int    hploss;
-        sh_int    mvloss;
-        sh_int    hunger;
-        sh_int    thirst;
+        IllnessData() = default;
+        ~IllnessData() = default;
 };
-#endif
+
+using ClassList = std::vector<std::shared_ptr<ClassData>>;
+using LanguageList = std::vector<std::shared_ptr<LanguageData>>;
+using ProtoshipList = std::vector<std::shared_ptr<ProtoshipData>>;
+using ListList = std::vector<std::shared_ptr<ListData>>;
+using IllnessList = std::vector<std::shared_ptr<IllnessData>>;
+
+extern ClassList classes;
+extern LanguageList languages;
+extern ProtoshipList protoships;
+extern ListList lists;
+extern IllnessList illnesses;
+
+std::shared_ptr<ProtoshipData> get_protoship(std::string_view name);

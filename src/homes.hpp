@@ -1,25 +1,28 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2005 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -34,106 +37,96 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                                SWR Hotboot module                                     *
- *****************************************************************************************
- * Homes system header for player housing and property management. *
+ * Homes system header for player housing and property management.                       *
  ****************************************************************************************/
 
+
+#pragma once
 #include <list>
 #include <algorithm>
+#include <string>
+#include <memory>
 #include "grid.hpp"
 
-struct ROOMMATE_DATA
-{
-        int       type; /* Dunno what this if for anymore */
-        char     *name; /* Hashed */
-	public: 
-		ROOMMATE_DATA(void);
-		~ROOMMATE_DATA(void);
+
+struct ROOMMATE_DATA {
+	int type = 0; // Unused legacy field
+	std::string name;
+	ROOMMATE_DATA();
+	~ROOMMATE_DATA();
 };
 
-typedef std::list < ROOM_INDEX_DATA * > ROOM_LIST;
-typedef std::list < ROOMMATE_DATA * > ROOMMATE_LIST;
-struct HOME_DATA
-{
-        HOME_DATA *next;
-        HOME_DATA *prev;
-        char     *filename;
-        char     *name;
-        char     *description;
-        char     *owner;    /* Can be clan or a player, or 'public' */
-        long int  price;
-        GRID_WRAPPER * grid;
 
-        ROOMMATE_LIST roommates;
-        ROOM_LIST rooms;
-		/* Status: Public, private
-		 * (Default) Private - Only allowed list of people allowed in
-		 *           Public  - Anyone allowed in, good for shops and stuff
-		 */
+using ROOM_LIST = std::list<ROOM_INDEX_DATA*>;
+using ROOMMATE_LIST = std::list<std::shared_ptr<ROOMMATE_DATA>>;
 
-	public:
-		/* Constructor */
-		HOME_DATA();
-		/* Destructor */
-		~HOME_DATA();
-		/** Save data to file (specified by ->filename */
-        void save(void);
-		/** tie in for addroom skill */
-		void add_room(CHAR_DATA * ch, char * argument);
-		/** tie in for decorate skill */
-		void decorate_room(CHAR_DATA * ch, char * argument);
-		/**  is ch a member of the house */
-		bool check_member(CHAR_DATA * ch);
-      /* can we enter that room? check privacy and stuff */
-		bool can_enter(CHAR_DATA * ch);
-		/** Echo a message to the entire house */
-		void echo(int color, char *argument);
-		/** Reset your home */
-		void reset();
+struct HOME_DATA {
+	HOME_DATA* next = nullptr;
+	HOME_DATA* prev = nullptr;
+	std::string filename;
+	std::string name;
+	std::string description;
+	std::string owner; // Can be clan, player, or 'public'
+	long int price = 0;
+	std::shared_ptr<GRID_WRAPPER> grid;
 
-		/** remove a roommate */
-		inline void remove(ROOMMATE_DATA * roomie) {
-			this->roommates.erase(find(this->roommates.begin(), this->roommates.end(), roomie));
-		}
-		/** Add a roommate */
-		inline void add(ROOMMATE_DATA * roomie) {
-			this->roommates.push_back(roomie);
-		}
-		/** remove a room*/
-		inline void remove(ROOM_INDEX_DATA * room) {
-			this->rooms.erase(find(this->rooms.begin(), this->rooms.end(), room));
-			room->home = NULL;
-		}
-		/** Add a roommate */
-		inline void add(ROOM_INDEX_DATA * room) {
-			this->rooms.push_back(room);
-			room->home = this;
-		}
+	ROOMMATE_LIST roommates;
+	ROOM_LIST rooms;
+
+	// Status: Public, private
+	// (Default) Private - Only allowed list of people allowed in
+	//           Public  - Anyone allowed in, good for shops and stuff
+
+	HOME_DATA();
+	~HOME_DATA();
+	void save();
+	void add_room(CHAR_DATA* ch, const std::string& argument);
+	void decorate_room(CHAR_DATA* ch, const std::string& argument);
+	bool check_member(CHAR_DATA* ch);
+	bool can_enter(CHAR_DATA* ch);
+	void echo(int color, const std::string& argument);
+	void reset();
+
+	// Remove a roommate
+	inline void remove(const std::shared_ptr<ROOMMATE_DATA>& roomie) {
+		roommates.remove(roomie);
+	}
+	// Add a roommate
+	inline void add(const std::shared_ptr<ROOMMATE_DATA>& roomie) {
+		roommates.push_back(roomie);
+	}
+	// Remove a room
+	inline void remove(ROOM_INDEX_DATA* room) {
+		rooms.remove(room);
+		room->home = nullptr;
+	}
+	// Add a room
+	inline void add(ROOM_INDEX_DATA* room) {
+		rooms.push_back(room);
+		room->home = this;
+	}
 };
 
-#define HOMEDIR		"../homes/"
-#define HOME_LIST       "homes.lst"
 
-#define	HOME_SAVE_TIME  60*20   /* 20 Minutes */
-/* homes.c */
+constexpr auto HOMEDIR = "../homes/";
+constexpr auto HOME_LIST = "homes.lst";
+constexpr int HOME_SAVE_TIME = 60 * 20; // 20 Minutes
 
-HOME_DATA *get_home args((char *name));
-void save_home2 args((HOME_DATA * home));
-void write_home_list args((void));
-void fwrite_roommates args((FILE * fp, HOME_DATA * home));
-void load_homes args((void));
-void fread_roommate args((ROOMMATE_DATA * roomie, FILE * fp));
-void fread_home args((HOME_DATA * home, FILE * fp));
+// homes.c
+HOME_DATA* get_home(const std::string& name);
+void save_home2(HOME_DATA* home);
+void write_home_list();
+void fwrite_roommates(FILE* fp, HOME_DATA* home);
+void load_homes();
+void fread_roommate(std::shared_ptr<ROOMMATE_DATA> roomie, FILE* fp);
+void fread_home(HOME_DATA* home, FILE* fp);
+void save_homes_check();
+long get_home_value(HOME_DATA* home);
+bool load_home_file(const std::string& homefile);
 
-void save_homes_check args((void));
-long get_home_value args((HOME_DATA * home));
-
-bool load_home_file args((char *homefile));
-
-extern HOME_DATA *first_home;
-extern HOME_DATA *last_home;
-extern char *const home_flags[];
+extern HOME_DATA* first_home;
+extern HOME_DATA* last_home;
+extern const char* const home_flags[];
 extern time_t save_homes_time;
 
 DECLARE_DO_FUN(do_homes);

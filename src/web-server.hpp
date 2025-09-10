@@ -1,25 +1,28 @@
 /*****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
  *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
  *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2003 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -36,13 +39,21 @@
  *****************************************************************************************
  *                                 SWR HTML Header file                                  *
  ****************************************************************************************/
+#include <array>
+#include <string_view>
 
-#define HTML_DIR	"../public_html/"   /* HTML         */
-#define HTML_MUDINFO_WRITE_DIR	HTML_DIR "mudinfo/" /* HTML         */
-#define WEBCHANGES_FILE	HTML_DIR "mudinfo/" "changes.html"  /* Who output file     */
-#define WHO_FILE	HTML_DIR "mudinfo/" "wholist.html"  /* Who output file     */
+namespace web_server {
 
-/* The mark of the end of a HTTP/1.x request */
-const char ENDREQUEST[5] = { 13, 10, 13, 10, 0 };   /* (CRLFCRLF) */
+// HTML Directories
+constexpr std::string_view HTML_DIR = "../public_html/";
+constexpr std::string_view HTML_MUDINFO_WRITE_DIR = "../public_html/mudinfo/";
+constexpr std::string_view WEBCHANGES_FILE = "../public_html/mudinfo/changes.html";
+constexpr std::string_view WHO_FILE = "../public_html/mudinfo/wholist.html";
 
-#define MAXDATA 1024
+// HTTP Request End Marker
+constexpr std::array<char, 5> ENDREQUEST = { 13, 10, 13, 10, 0 }; // (CRLFCRLF)
+
+// Maximum Data Size
+constexpr size_t MAXDATA = 1024;
+
+} // namespace web_server

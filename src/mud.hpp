@@ -217,7 +217,7 @@ struct bank_account
 };
 
 #ifdef __cplusplus
-#define CMDF void
+#define CMDFV void // renamed from CMDF to CMDFV to prevent conflict with typedef
 #define SPELLF ch_ret
 #else
 #define CMDF void
@@ -929,7 +929,7 @@ struct log_data
         char     *name;
         char     *message;
         time_t time;
-        LANGUAGE_DATA *language;
+        LanguageData *language;
 };
 
 typedef enum
@@ -1139,7 +1139,7 @@ struct ship_data
         SHIP_DATA *prev_in_room;
         ROOM_INDEX_DATA *in_room;
         SPACE_DATA *starsystem;
-        PROTOSHIP_DATA *prototype;
+        ProtoshipData *prototype;
         SHIP_DATA *dockedto;
         SHIP_DATA *tractorby;
         SHIP_DATA *target0;
@@ -2265,7 +2265,7 @@ struct mob_index_data
         int susceptible;
         int attacks;
         int defenses;
-        LANGUAGE_DATA *speaking;
+        LanguageData *speaking;
         int position;
         sh_int defposition;
         sh_int height;
@@ -2437,7 +2437,7 @@ struct char_data
         int susceptible;
         int attacks;
         int defenses;
-        LANGUAGE_DATA *speaking;
+        LanguageData *speaking;
         sh_int saving_poison_death;
         sh_int saving_wand;
         sh_int saving_para_petri;
@@ -3927,10 +3927,10 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void auto_save args((CHAR_DATA * ch));
                    void talk_auction args((char *argument));
                    bool knows_language
-                   args((CHAR_DATA * ch, LANGUAGE_DATA * lang,
+                   args((CHAR_DATA * ch, LanguageData * lang,
                          CHAR_DATA * cch));
                    bool can_learn_lang
-                   args((CHAR_DATA * ch, LANGUAGE_DATA * lang));
+                   args((CHAR_DATA * ch, LanguageData * lang));
                    char *translate
                    args((CHAR_DATA * ch, CHAR_DATA * victim,
                          const char *argument));
@@ -4246,7 +4246,7 @@ void	room_sort	args( ( ROOM_INDEX_DATA *pRoom ) );*/
                    int get_oflag args((char *flag));
                    int get_wflag args((char *flag));
                    RACE_DATA * get_race args((const char *string));
-                   LANGUAGE_DATA * get_language args((const char *string));
+                   LanguageData * get_language args((const char *string));
                    RACE_DATA * get_race_number args((int number));
 /* channels.cpp */
                    void removename args((char **list, const char *name));

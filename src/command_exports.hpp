@@ -39,13 +39,14 @@
  *****************************************************************************************
  *                         Command exports header                                        *
  ****************************************************************************************/
-#ifndef _COMMAND_EXPORTS_H_
-#define _COMMAND_EXPORTS_H_
+
+#pragma once
 
 /*
  * This header ensures command functions are exported with C linkage
  * to prevent name mangling and allow dynamic lookup.
  */
+
 
 #include "mud.hpp"
 
@@ -53,7 +54,7 @@
 extern "C" {
 #endif
 
-/* Just add a few critical commands to test the fix */
+// Exported command functions for dynamic lookup
 DECLARE_DO_FUN(do_say);
 DECLARE_DO_FUN(do_emote);
 DECLARE_DO_FUN(do_gtell);
@@ -64,5 +65,3 @@ DECLARE_DO_FUN(do_auction);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* _COMMAND_EXPORTS_H_ */

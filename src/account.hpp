@@ -104,10 +104,14 @@ struct account_data
 // =============================================================================
 
 [[nodiscard]] ACCOUNT_DATA *load_account(const char *name);
+[[nodiscard]] ACCOUNT_DATA *load_account(std::string_view name);
 [[nodiscard]] ACCOUNT_DATA *create_account() noexcept;
 void save_account(ACCOUNT_DATA *account);
 [[nodiscard]] bool add_to_account(ACCOUNT_DATA *account, CHAR_DATA *ch);
+[[nodiscard]] bool add_to_account(std::shared_ptr<ACCOUNT_DATA> account, std::shared_ptr<CHAR_DATA> ch);
 [[nodiscard]] bool del_from_account(ACCOUNT_DATA *account, CHAR_DATA *ch);
+[[nodiscard]] bool del_from_account(std::shared_ptr<ACCOUNT_DATA> account, std::shared_ptr<CHAR_DATA> ch);
 void show_account_characters(DESCRIPTOR_DATA *d);
+void show_account_characters(std::shared_ptr<DESCRIPTOR_DATA> d);
 void free_account(ACCOUNT_DATA *account);
 void fread_account(ACCOUNT_DATA *account, FILE *fp);

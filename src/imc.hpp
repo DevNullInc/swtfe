@@ -4,6 +4,7 @@
  * Contributions by Johnathan Walker ( Xorith ), Copyright (C)2004
  * Additional contributions by Jesse Defer ( Garil ), Copyright (C)2004
  * Additional contributions by Rogel, Copyright (c) 2004
+ * Additional contributions by StygianRenegade, Copyright (c) 2025
  * Comments and suggestions welcome: imc@imc2.org
  * License terms are available in the imc2freedom.license file.
  */
@@ -15,7 +16,7 @@
  * This name was chosen to represent the ideals of not only the code, but of the
  * network which spawned it.
  */
-#define IMC_VERSION_STRING "IMC2 Freedom CL-1c "
+#define IMC_VERSION_STRING "IMC2 Renegade CL-2d " // Version 2d - September 2025
 #define IMC_VERSION 2
 
 /* Number of entries to keep in the channel histories */
@@ -100,127 +101,52 @@ typedef enum
 #define LGST 4096   /* Large String */
 #define SMST 1024   /* Small String */
 
-/* Macro taken from DOTD codebase. Fcloses a file, then nulls its pointer for safety. */
-#define IMCFCLOSE(fp)  fclose((fp)); (fp)=NULL;
 
-/*
- * Memory allocation macros.
- */
-#define IMCCREATE(result, type, number)                           \
-do                                                                \
-{                                                                 \
-    if (!((result) = (type *) calloc ((number), sizeof(type))))   \
-    {                                                             \
-	imclog( "Malloc failure @ %s:%d\n", __FILE__, __LINE__ );   \
-	abort();                                                    \
-    }                                                             \
-} while(0)
+// Modern C++: use smart pointers and containers for memory management.
+// IMCFCLOSE: use std::unique_ptr<FILE, fclose_deleter> for file safety.
+// IMCCREATE/IMCRECREATE/IMCDISPOSE: use std::make_unique, std::vector, std::string.
+// IMCSTRALLOC/IMCSTRFREE: std::string handles allocation and disposal automatically.
 
-#define IMCRECREATE(result, type, number)                               \
-do                                                                      \
-{                                                                       \
-   if(!((result) = (type *)realloc((result), sizeof(type) * (number)))) \
-   {                                                                    \
-      imclog( "Realloc failure @ %s:%d\n", __FILE__, __LINE__ );        \
-      abort();                                                          \
-   }                                                                    \
-} while(0)
 
-#define IMCDISPOSE(point)     \
-do                            \
-{                             \
-   if((point))                \
-   {                          \
-      free((point));          \
-      (point) = NULL;         \
-   }                          \
-} while(0)
+// Modern C++: use std::list or std::vector for double-linked list management.
+// Remove manual macros; use container member functions for linking/unlinking.
 
-#define IMCSTRALLOC strdup
-#define IMCSTRFREE IMCDISPOSE
-
-/* double-linked list handling macros -Thoric ( From the Smaug codebase ) */
-/* Updated by Scion 8/6/1999 */
-#define IMCLINK(link, first, last, next, prev)  \
-do                                              \
-{                                               \
-   if ( !(first) )                              \
-   {                                            \
-      (first) = (link);                         \
-      (last) = (link);                          \
-   }                                            \
-   else                                         \
-      (last)->next = (link);                    \
-   (link)->next = NULL;                         \
-   if ((first) == (link))                       \
-      (link)->prev = NULL;                      \
-   else                                         \
-      (link)->prev = (last);                    \
-   (last) = (link);                             \
-} while(0)
-
-#define IMCINSERT(link, insert, first, next, prev)    \
-do                                                    \
-{                                                     \
-   (link)->prev = (insert)->prev;                     \
-   if ( !(insert)->prev )                             \
-      (first) = (link);                               \
-   else                                               \
-      (insert)->prev->next = (link);                  \
-   (insert)->prev = (link);                           \
-   (link)->next = (insert);                           \
-} while(0)
-
-#define IMCUNLINK(link, first, last, next, prev) \
-do                                               \
-{                                                \
-   if ( !(link)->prev )                          \
-   {                                             \
-      (first) = (link)->next;                    \
-	if((first))                                \
-	   (first)->prev = NULL;                   \
-   }                                             \
-   else                                          \
-   {                                             \
-      (link)->prev->next = (link)->next;         \
-   }                                             \
-   if( !(link)->next )                           \
-   {                                             \
-      (last) = (link)->prev;                     \
-	if((last))                                 \
-	   (last)->next = NULL;                    \
-   }                                             \
-   else                                          \
-   {                                             \
-      (link)->next->prev = (link)->prev;         \
-   }                                             \
-} while(0)
 
 /* No real functional difference in alot of this, but double linked lists DO seem to handle better,
  * and they look alot neater too. Yes, readability IS important! - Samson
  */
-typedef struct imc_channel IMC_CHANNEL; /* Channels, both local and non-local */
-typedef struct imc_packet IMC_PACKET;   /* It's a packet! */
-typedef struct imc_packet_data IMC_PDATA;   /* Extra data fields for packets */
-typedef struct imc_siteinfo SITEINFO;   /* The given mud :) */
-typedef struct imc_remoteinfo REMOTEINFO;   /* Information on a mud connected to IMC */
-typedef struct imc_ban_data IMC_BAN;    /* Mud level bans */
-typedef struct imcchar_data IMC_CHARDATA;   /* Player flags */
-typedef struct imc_ignore IMC_IGNORE;   /* Player level ignores */
-typedef struct imcucache_data IMCUCACHE_DATA;   /* User cache data for gender targetting socials */
-typedef struct imc_color_table IMC_COLOR;   /* The Color config */
-typedef struct imc_command_table IMC_CMD_DATA;  /* Command table */
-typedef struct imc_help_table IMC_HELP_DATA;    /* Help table */
-typedef struct imc_cmd_alias IMC_ALIAS; /* Big, bad, bloated command alias thing */
-typedef struct imc_packet_handler IMC_PHANDLER; /* custom packet handlers added dynamically */
+struct imc_channel;
+struct imc_packet;
+struct imc_packet_data;
+struct imc_siteinfo;
+struct imc_remoteinfo;
+struct imc_ban_data;
+struct imcchar_data;
+struct imc_ignore;
+struct imcucache_data;
+struct imc_color_table;
+struct imc_command_table;
+struct imc_help_table;
+struct imc_cmd_alias;
+struct imc_packet_handler;
 
-typedef void IMC_FUN(CHAR_DATA * ch, char *argument);
+using IMC_CHANNEL = imc_channel;
+using IMC_PACKET = imc_packet;
+using IMC_PDATA = imc_packet_data;
+using SITEINFO = imc_siteinfo;
+using REMOTEINFO = imc_remoteinfo;
+using IMC_BAN = imc_ban_data;
+using IMC_CHARDATA = imcchar_data;
+using IMC_IGNORE = imc_ignore;
+using IMCUCACHE_DATA = imcucache_data;
+using IMC_COLOR = imc_color_table;
+using IMC_CMD_DATA = imc_command_table;
+using IMC_HELP_DATA = imc_help_table;
+using IMC_ALIAS = imc_cmd_alias;
+using IMC_PHANDLER = imc_packet_handler;
 
-#define IMC_CMD( name ) void (name)( CHAR_DATA *ch, char *argument )
-
-typedef void PACKET_FUN(IMC_PACKET * q, char *packet);
-
-#define PFUN( name ) void (name)( IMC_PACKET *q, char *packet )
+using IMC_FUN = void(CHAR_DATA*, const std::string&);
+using PACKET_FUN = void(IMC_PACKET*, const std::string&);
 
 extern REMOTEINFO *first_rinfo;
 extern REMOTEINFO *last_rinfo;
@@ -233,7 +159,7 @@ struct imc_cmd_alias
 {
         IMC_ALIAS *next;
         IMC_ALIAS *prev;
-        char     *name;
+   std::string name;
 };
 
 struct imc_command_table
@@ -243,7 +169,7 @@ struct imc_command_table
         IMC_ALIAS *first_alias;
         IMC_ALIAS *last_alias;
         IMC_FUN  *function;
-        char     *name;
+   std::string name;
         int       level;
         bool      connected;
 };
@@ -252,117 +178,117 @@ struct imc_help_table
 {
         IMC_HELP_DATA *next;
         IMC_HELP_DATA *prev;
-        char     *name;
-        char     *text;
         int       level;
+   std::string name;
+   std::string text;
 };
 
 struct imc_color_table
 {
         IMC_COLOR *next;
         IMC_COLOR *prev;
-        char     *name; /* the name of the color */
-        char     *mudtag;   /* What the mud uses for the raw tag */
-        char     *imctag;   /* The imc tilde code that represents the mudtag to the network */
+   std::string name;
+   std::string mudtag;
+   std::string imctag;
 };
 
 struct imc_ignore
 {
         IMC_IGNORE *next;
         IMC_IGNORE *prev;
-        char     *name;
+   std::string name;
 };
 
 struct imcucache_data
 {
         IMCUCACHE_DATA *next;
         IMCUCACHE_DATA *prev;
-        char     *name;
         time_t    time;
         int       gender;
+   std::string name;
 };
 
 struct imcchar_data
 {
         IMC_IGNORE *imcfirst_ignore;    /* List of ignored people */
         IMC_IGNORE *imclast_ignore;
-        char     *rreply;   /* IMC reply-to */
-        char     *rreply_name;  /* IMC reply-to shown to char */
-        char     *imc_listen;   /* Channels the player is listening to */
-        char     *imc_denied;   /* Channels the player has been denied use of */
-        char     *imc_tellhistory[MAX_IMCTELLHISTORY];  /* History of received imctells - Samson 1-21-04 */
-        char     *email;    /* Person's email address - for imcfinger - Samson 3-21-04 */
-        char     *homepage; /* Person's homepage - Samson 3-21-04 */
-        char     *aim;  /* Person's AOL Instant Messenger screenname - Samson 3-21-04 */
-        char     *yahoo;    /* Person's Y! screenname - Samson 3-21-04 */
-        char     *msn;  /* Person's MSN Messenger screenname - Samson 3-21-04 */
-        char     *comment;  /* Person's personal comment - Samson 3-21-04 */
-        long      imcflag;  /* Flags set on the player */
-        int       icq;  /* Person's ICQ UIN Number - Samson 3-21-04 */
-        int       imcperm;  /* Permission level for the player */
+   std::string rreply;
+   std::string rreply_name;
+   std::string imc_listen;
+   std::string imc_denied;
+   std::vector<std::string> imc_tellhistory = std::vector<std::string>(MAX_IMCTELLHISTORY);
+   std::string email;
+   std::string homepage;
+   std::string aim;
+   std::string yahoo;
+   std::string msn;
+   std::string comment;
+   long imcflag = 0;
+   int icq = 0;
+   int imcperm = 0;
 };
 
 struct imc_channel
 {
         IMC_CHANNEL *next;
         IMC_CHANNEL *prev;
-        char     *name; /* name of channel */
-        char     *owner;    /* owner (singular) of channel */
-        char     *operators;    /* current operators of channel */
-        char     *invited;
-        char     *excluded;
-        char     *local_name;   /* Operational localname */
-        char     *regformat;
-        char     *emoteformat;
-        char     *socformat;
-        char     *history[MAX_IMCHISTORY];
         long      flags;
         short     level;
         bool      open;
         bool      refreshed;
+   std::string name;
+   std::string owner;
+   std::string operators;
+   std::string invited;
+   std::string excluded;
+   std::string local_name;
+   std::string regformat;
+   std::string emoteformat;
+   std::string socformat;
+   std::vector<std::string> history = std::vector<std::string>(MAX_IMCHISTORY);
 };
 
 struct imc_packet_data
 {
         IMC_PDATA *next;
         IMC_PDATA *prev;
-        char      field[IMC_BUFF_SIZE];
+   std::string field;
 };
 
 struct imc_packet
 {
-        IMC_PDATA *first_data;
-        IMC_PDATA *last_data;
-        char      from[SMST];
-        char      to[SMST];
-        char      type[SMST];
-        char      route[SMST];  /* This is only used internally and not sent */
+   IMC_PDATA *first_data;
+   IMC_PDATA *last_data;
+   std::string from;
+   std::string to;
+   std::string type;
+   std::string route; // This is only used internally and not sent
 };
 
 /* The mud's connection data for the router */
 struct imc_siteinfo
 {
-        char     *routername;   /* name of router */
-        char     *rhost;    /* DNS/IP of router */
-        char     *network;  /* Network name of the router, set at keepalive - Samson */
-        char     *serverpw; /* server password */
-        char     *clientpw; /* client password */
-        char     *localname;    /* One word localname */
-        char     *fullname; /* FULL name of mud */
-        char     *ihost;    /* host AND port of mud */
-        char     *email;    /* contact address (email) */
-        char     *www;  /* homepage */
-        char     *base; /* The mud's codebase name */
-        char     *details;  /* BRIEF description of mud */
-        int       iport;    /* The port the mud itself is on */
-        int       minlevel; /* Minimum player level */
-        int       immlevel; /* Immortal level */
-        int       adminlevel;   /* Admin level */
-        int       implevel; /* Implementor level */
-        unsigned short rport;   /* remote port of router */
-        bool      md5;  /* Client will support MD5 authentication */
-        bool      md5pass;  /* Client is using MD5 authentication */
-        bool      autoconnect;  /* Do we autoconnect on bootup or not? - Samson */
+   std::string routername;
+   std::string rhost;
+   std::string network;
+   std::string serverpw;
+   std::string clientpw;
+   std::string localname;
+   std::string fullname;
+   std::string ihost;
+   std::string email;
+   std::string www;
+   std::string base;
+   std::string details;
+   int iport = 0;
+   int minlevel = 0;
+   int immlevel = 0;
+   int adminlevel = 0;
+   int implevel = 0;
+   unsigned short rport = 0;
+   bool md5 = false;
+   bool md5pass = false;
+   bool autoconnect = false;
 
         /*
          * Conection parameters - These don't save in the config file 
@@ -381,12 +307,12 @@ struct imc_remoteinfo
 {
         REMOTEINFO *next;
         REMOTEINFO *prev;
-        char     *name;
-        char     *version;
-        char     *network;
-        char     *path;
-        char     *url;
         bool      expired;
+   std::string name;
+   std::string version;
+   std::string network;
+   std::string path;
+   std::string url;
 };
 
 /* A mudwide ban */
@@ -394,7 +320,7 @@ struct imc_ban_data
 {
         IMC_BAN  *next;
         IMC_BAN  *prev;
-        char     *name;
+   std::string name;
 };
 
 struct imc_packet_handler
@@ -402,26 +328,26 @@ struct imc_packet_handler
         IMC_PHANDLER *next;
         IMC_PHANDLER *prev;
         PACKET_FUN *func;
-        char     *name;
+   std::string name;
 };
 
-bool      imc_command_hook(CHAR_DATA * ch, char *command, char *argument);
-void      imc_hotboot(void);
-void      imc_startup(bool force, int desc, bool connected);
-void      imc_shutdown(bool reconnect);
-void      imc_initchar(CHAR_DATA * ch);
-bool      imc_loadchar(CHAR_DATA * ch, FILE * fp, const char *word);
-void      imc_savechar(CHAR_DATA * ch, FILE * fp);
-void      imc_freechardata(CHAR_DATA * ch);
-void      imc_loop(void);
-IMC_CHANNEL *imc_findchannel(char *name);   /* Externalized for comm.c spamguard checks */
-void      imc_register_packet_handler(char *name, PACKET_FUN * func);
-char     *imc_funcname(IMC_FUN * func);
-IMC_FUN  *imc_function(const char *func);
+bool imc_command_hook(CHAR_DATA* ch, const std::string& command, const std::string& argument);
+void imc_hotboot();
+void imc_startup(bool force, int desc, bool connected);
+void imc_shutdown(bool reconnect);
+void imc_initchar(CHAR_DATA* ch);
+bool imc_loadchar(CHAR_DATA* ch, FILE* fp, const std::string& word);
+void imc_savechar(CHAR_DATA* ch, FILE* fp);
+void imc_freechardata(CHAR_DATA* ch);
+void imc_loop();
+IMC_CHANNEL* imc_findchannel(const std::string& name); // Externalized for comm.c spamguard checks
+void imc_register_packet_handler(const std::string& name, PACKET_FUN* func);
+std::string imc_funcname(IMC_FUN* func);
+IMC_FUN* imc_function(const std::string& func);
 
 #if defined(_DISKIO_H_)
-void      imc_load_pfile(CHAR_DATA * ch, char *tag, int num, char *line);
-void      imc_save_pfile(struct CHAR_DATA *ch, FBFILE * fp);
+void imc_load_pfile(CHAR_DATA* ch, const std::string& tag, int num, const std::string& line);
+void imc_save_pfile(CHAR_DATA* ch, FBFILE* fp);
 #endif
 
 #endif

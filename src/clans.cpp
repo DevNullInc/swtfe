@@ -2662,7 +2662,7 @@ CMDF do_enlist(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        installation = installation_from_room(ch->in_room->vnum);
+        installation = installation_from_room(ch->in_room->vnum).get();
 
         if (!installation)
                 for (clan = first_clan; clan; clan = clan->next)

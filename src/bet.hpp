@@ -41,11 +41,13 @@
  * FEATURES: Advanced number parsing with k/m notation and relative betting              *
  ****************************************************************************************/
 
-#ifndef __BET_H__
-#define __BET_H__
 
-#include <ctype.h>
+#pragma once
+
+#include <cctype>
 #include <climits>
+#include <string>
+#include <string_view>
 
 // ============================================================================
 // Betting System Constants
@@ -67,7 +69,8 @@ namespace BettingSystem {
  * Examples: 14k = 14000, 5m = 5000000, 14k42 = 14420
  * Returns 0 on invalid input or overflow conditions
  */
-int advatoi(char *s);
+int advatoi(const char* s);
+int advatoi(std::string_view s);
 
 /*
  * Enhanced betting parser supporting relative and absolute bets
@@ -76,6 +79,6 @@ int advatoi(char *s);
  *   - Relative: +25 (add 25%), x2 (multiply by 2)
  * Returns parsed amount or 0 on invalid input
  */
-int parsebet(const int currentbet, char *s);
+int parsebet(const int currentbet, const char* s);
+int parsebet(const int currentbet, std::string_view s);
 
-#endif /* __BET_H__ */

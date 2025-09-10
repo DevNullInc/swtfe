@@ -1,26 +1,28 @@
-/* vim: ts=8 et ft=cpp sw=8
+/*****************************************************************************************
+ *                      .___________. __    __   _______                                 *
+ *                      |           ||  |  |  | |   ____|                                *
+ *                      `---|  |----`|  |__|  | |  |__                                   *
+ *                          |  |     |   __   | |   __|                                  *
+ *                          |  |     |  |  |  | |  |____                                 *
+ *                          |__|     |__|  |__| |_______|                                *
+ *                                                                                       *
+ *                _______  __  .__   __.      ___       __                               *
+ *               |   ____||  | |  \ |  |     /   \     |  |                              *
+ *               |  |__   |  | |   \|  |    /  ^  \    |  |                              *
+ *               |   __|  |  | |  . `  |   /  /_\  \   |  |                              *
+ *               |  |     |  | |  |\   |  /  _____  \  |  `----.                         *
+ *               |__|     |__| |__| \__| /__/     \__\ |_______|                         *
+ *                                                                                       *
+ *      _______ .______    __       _______.  ______    _______   _______                *
+ *     |   ____||   _  \  |  |     /       | /  __  \  |       \ |   ____|               *
+ *     |  |__   |  |_)  | |  |    |   (----`|  |  |  | |  .--.  ||  |__                  *
+ *     |   __|  |   ___/  |  |     \   \    |  |  |  | |  |  |  ||   __|                 *
+ *     |  |____ |  |      |  | .----)   |   |  `--'  | |  '--'  ||  |____                *
+ *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
- *                       DDDDD        A        RRRRRRR     K    K                        *
- *                       D    D      A A       R      R    K   K                         *
- *                       D     D    A   A      R      R    KK K                          *
- *                       D     D   A     A     RRRRRRR     K K                           *
- *                       D     D  AAAAAAAAA    R    R      K  K                          *
- *                       D    D  A         A   R     R     K   K                         *
- *                       DDDDD  A           A  R      R    K    K                        *
  *                                                                                       *
- *                                                                                       *
- *W      WW      W    A        RRRRRRR   RRRRRRR   IIIIIIII    OOOO   RRRRRRR     SSSSS  *
- * W    W  W    W    A A       R      R  R      R     II      O    O  R      R   S       *
- * W    W  W    W   A   A      R      R  R      R     II     O      O R      R   S       *
- * W    W  W    W  A     A     RRRRRRR   RRRRRRR      II     O      O RRRRRRR     SSSSS  *
- *  W  W    W  W  AAAAAAAAA    R    R    R    R       II     O      O R    R           S *
- *  W W     W W  A         A   R     R   R     R      II      O    O  R     R          S *
- *   W       W  A           A  R      R  R      R  IIIIIIII    OOOO   R      R    SSSSS  *
- *                                                                                       *
- *****************************************************************************************
- *                                                                                       *
- * Dark Warrior Code additions and changes from the Star Wars Reality code copyright (c) *
- * 2005 by Michael Ervin, Mark Gottselig, Gavin Mogan                                    *
+ * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
+ * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
  *                                                                                       *
  * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
  * by Sean Cooper                                                                        *
@@ -37,47 +39,28 @@
  *****************************************************************************************
  *                                SWR OLC Channel module                                 *
  ****************************************************************************************/
-#ifndef _GREET_H_
-#define _GREET_H_
 
+#pragma once
 #include <map>
-#include <cstring>
+#include <string>
+#include <memory>
 
-struct map_char_ltstr
-{
-                bool operator()(char* s1, char* s2) const
-                {
-                                return strcmp(s1, s2) < 0;
-                }
+class GREET_INFO {
+public:
+        int last_seen;
+        int last_heard;
+        std::string remembered_name;
+        std::string key;
+        std::string char_name;
 };
 
-
-char * get_char_desc(CHAR_DATA * ch, CHAR_DATA * looker);
-
-void add_greet_to_char(CHAR_DATA * ch, CHAR_DATA * victim, char * name);
-
-class GREET_INFO
-{
-                public: // for now
-        // last seen date
-                int last_seen;
-        // last heard data
-                int last_heard;
-        // remembered name
-                char * remembered_name;
-        // name / digusised name
-                char * key;
-        // real char name
-                char * char_name;
-};
-
-typedef std::map<char*, GREET_INFO *,map_char_ltstr> GREET_MAP;
+using GREET_MAP = std::map<std::string, std::shared_ptr<GREET_INFO>>;
 
 struct temp_greet_ptr {
-                GREET_MAP greet_info;
+        GREET_MAP greet_info;
 };
 
-void fwrite_greet(CHAR_DATA * ch, FILE * fp);
-void fread_greet(CHAR_DATA * ch, FILE * fp);
-
-#endif /* _GREET_H_ */
+std::string get_char_desc(CHAR_DATA *ch, CHAR_DATA *looker);
+void add_greet_to_char(CHAR_DATA *ch, CHAR_DATA *victim, const std::string& name);
+void fwrite_greet(CHAR_DATA *ch, FILE *fp);
+void fread_greet(CHAR_DATA *ch, FILE *fp);

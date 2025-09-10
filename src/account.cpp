@@ -46,14 +46,12 @@
 #include "alias.hpp"
 #include "boards.hpp"
 #include "imccfg.hpp"
-
-// All type definitions and macros are provided by mud.hpp and account.hpp
-#include <cstddef> // for size_t
-#include <cstdint> // for int64_t
-#include <cstring> // for strdup
-#include <cctype> // for isalpha, tolower
-#include <cstdio> // for FILE, fopen, fclose, fprintf, fscanf, fgets, sscanf
-#include <cstdlib> // for atoi, atof, strtol, malloc, free, calloc, abort
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
 #include <ctime>
 #include <cerrno>
 #include <string>
@@ -67,15 +65,9 @@
 #include <dirent.h>
 #include <fcntl.h>
 
-// =============================================================================
-// Constants
-// =============================================================================
+namespace account {
 
 constexpr std::size_t ACCOUNT_FILENAME_SIZE = 255;
-
-// =============================================================================
-// Global variables
-// =============================================================================
 
 ACCOUNT_DATA *first_account = nullptr;
 ACCOUNT_DATA *last_account = nullptr;
@@ -97,66 +89,160 @@ ACCOUNT_DATA *get_account(const char *name);
 
 ACCOUNT_DATA *create_account() noexcept
 {
-        ACCOUNT_DATA *account = nullptr;
+    ACCOUNT_DATA *account = nullptr;
 
-        CREATE(account, ACCOUNT_DATA, 1);
-        account->rppoints = 0;
-        account->rpcurrent = -1;
-        account->qpoints = 0;
-        account->name = nullptr;
-        account->password = NULL;
-        account->inuse = 1;
-		account->comments = NULL;
+    CREATE(account, ACCOUNT_DATA, 1);
+    account->rppoints = 0;
+    account->rpcurrent = -1;
+    account->qpoints = 0;
+    account->name = nullptr;
+    account->password = nullptr;
+    account->inuse = 1;
+    account->comments = nullptr;
 
-        return account;
+    return account;
 }
 
-void free_account(ACCOUNT_DATA * account)
+void free_account(ACCOUNT_DATA *account)
 {
-        std::size_t count;  // 64-bit compatible size type for array indexing
-        NOTE_DATA *pnote, *next_note;
+    if (!account) {
+        return;
+    }
 
-        if (!account)
-                return;
-#ifdef DEBUG
-        bug("Free'ing %s=%ld", account->name, account->inuse - 1);  // %ld for long
-#endif
-        /*
-         * Check to see uses
-         */
-        if (--account->inuse > 0)
-        {
-                /*
-                 * Still in use, not ready to delete yet 
-                 */
-                return;
+    if (--account->inuse > 0) {
+        return;
+    }
+
+    if (account->name) {
+        STRFREE(account->name);
+    }
+
+    if (account->password) {
+        STRFREE(account->password);
+    }
+
+    for (std::size_t count = 0; count < MAX_CHARACTERS; ++count) {
+        if (account->character[count]) {
+            STRFREE(account->character[count]);
         }
-        else if (account->inuse < 0)
-        {
-                bug("Freeing err'd data", 0);
-                abort();
+    }
+
+    NOTE_DATA *pnote = account->comments;
+    while (pnote) {
+        NOTE_DATA *next_note = pnote->next;
+        free_note(pnote);
+        pnote = next_note;
+    }
+
+    free_aliases(account);
+    UNLINK(account, first_account, last_account, next, prev);
+    DISPOSE(account);
+}
+
+void save_account(ACCOUNT_DATA *account)
+{
+    if (!account) {
+        bug("Save_account: null account!", 0);
+        return;
+    }
+
+    char accountsave[MIL];
+    snprintf(accountsave, MIL, "%s%c/%s.account", ACCOUNT_DIR, tolower(account->name[0]), capitalize(account->name));
+
+    FILE *fp = fopen(accountsave, "w");
+    if (!fp) {
+        bug("save_account: fopen", 0);
+        perror(accountsave);
+        return;
+    }
+
+    fprintf(fp, "#%s\n", "ACCOUNT");
+    fprintf(fp, "Name      %s~\n", account->name);
+    fprintf(fp, "Password  %s~\n", account->password);
+    fprintf(fp, "Email     %s~\n", account->email);
+    fprintf(fp, "RPpoints  %ld\n", account->rppoints);
+    fprintf(fp, "RPcurrent %ld\n", account->rpcurrent);
+    fprintf(fp, "Qpoints   %ld\n", account->qpoints);
+
+    for (std::size_t count = 0; count < MAX_CHARACTERS; ++count) {
+        if (account->character[count]) {
+            fprintf(fp, "Character %s~\n", account->character[count]);
+        }
+    }
+
+    fwrite_alias(account, fp);
+    if (account->comments) {
+        fwrite_comments(account, fp);
+    }
+
+    fprintf(fp, "#END\n");
+    FCLOSE(fp);
+}
+
+ACCOUNT_DATA *get_account(const char *name)
+{
+    for (ACCOUNT_DATA *account = first_account; account; account = account->next) {
+        if (!account->name) {
+            bug("Account with invalid Name", 0);
+            free_account(account);
+        } else if (!str_cmp(account->name, name)) {
+            return account;
+        }
+    }
+    return nullptr;
+}
+
+ACCOUNT_DATA *load_account(const char *name)
+{
+    ACCOUNT_DATA *account = get_account(name);
+    if (account) {
+        ++account->inuse;
+        return account;
+    }
+
+    char accountsave[MIL];
+    snprintf(accountsave, MIL, "%s%c/%s.account", ACCOUNT_DIR, tolower(name[0]), capitalize(name));
+
+    FILE *fp = fopen(accountsave, "r");
+    if (!fp) {
+        return nullptr;
+    }
+
+    for (;;) {
+        char letter = fread_letter(fp);
+        if (letter == '*') {
+            fread_to_eol(fp);
+            continue;
         }
 
-        if (account->name)
-                STRFREE(account->name);
-        if (account->password)
-                STRFREE(account->password);
-        for (count = 0; count < MAX_CHARACTERS; count++)
-        {
-                if (account->character[count] == nullptr)
-                        continue;
-                if (account->character[count])
-                        STRFREE(account->character[count]);
+        if (letter != '#') {
+            bug("Load_account_file: # not found.", 0);
+            break;
         }
-		for(pnote = account->comments; pnote; pnote = next_note)
-		{
-			next_note = pnote->next;
-			free_note(pnote);
-		}
-        free_aliases(account);
-        UNLINK(account, first_account, last_account, next, prev);
-        DISPOSE(account);
-        account = nullptr;
+
+        char *word = fread_word(fp);
+        if (!str_cmp(word, "ACCOUNT")) {
+            account = create_account();
+            fread_account(account, fp);
+        } else if (!str_cmp(word, "COMMENT")) {
+            fread_comment(account, fp);
+        } else if (!str_cmp(word, "ALIAS")) {
+            fread_alias(account, fp);
+        } else if (!str_cmp(word, "END")) {
+            break;
+        } else {
+            bug("Load_account_file: bad section.", 0);
+            break;
+        }
+    }
+
+    FCLOSE(fp);
+
+    if (account) {
+        LINK(account, first_account, last_account, next, prev);
+    }
+
+    return account;
 }
 
 // =============================================================================

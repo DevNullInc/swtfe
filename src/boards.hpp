@@ -41,8 +41,16 @@
  ****************************************************************************************/
 
 
-typedef struct note_data NOTE_DATA;
-typedef struct board_data BOARD_DATA;
+
+#pragma once
+#include <string>
+#include <string_view>
+#include <memory>
+
+struct note_data;
+using NOTE_DATA = note_data;
+struct board_data;
+using BOARD_DATA = board_data;
 
 #define VNUM_IDEA_BOARD 10123
 #define VNUM_MAIL_BOARD 38
@@ -97,15 +105,23 @@ struct board_data
         int       type; /* Normal board or mail board? */
 };
 
-bool is_note_to args((CHAR_DATA * ch, NOTE_DATA * pnote));
-bool is_note_to_def args((CHAR_DATA * ch, NOTE_DATA * pnote));
-void note_attach args((CHAR_DATA * ch));
-void      note_remove
-args((CHAR_DATA * ch, BOARD_DATA * board, NOTE_DATA * pnote));
-void note args((CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board));
-void write_board args((BOARD_DATA * board));
+bool is_note_to(CHAR_DATA *ch, NOTE_DATA *pnote);
+bool is_note_to(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<NOTE_DATA> pnote);
+bool is_note_to_def(CHAR_DATA *ch, NOTE_DATA *pnote);
+bool is_note_to_def(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<NOTE_DATA> pnote);
+void note_attach(CHAR_DATA *ch);
+void note_attach(std::shared_ptr<CHAR_DATA> ch);
+void note_remove(CHAR_DATA *ch, BOARD_DATA *board, NOTE_DATA *pnote);
+void note_remove(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<BOARD_DATA> board, std::shared_ptr<NOTE_DATA> pnote);
+void note(CHAR_DATA *ch, const char *arg_passed, BOARD_DATA *board);
+void note(CHAR_DATA *ch, std::string_view arg_passed, BOARD_DATA *board);
+void note(std::shared_ptr<CHAR_DATA> ch, std::string_view arg_passed, std::shared_ptr<BOARD_DATA> board);
+void write_board(BOARD_DATA *board);
+void write_board(std::shared_ptr<BOARD_DATA> board);
 
-/* boards.c */
-void load_boards args((void));
-BOARD_DATA *get_board args((OBJ_DATA * obj));
-void free_note args((NOTE_DATA * pnote));
+// boards.c
+void load_boards();
+BOARD_DATA *get_board(OBJ_DATA *obj);
+BOARD_DATA *get_board(std::shared_ptr<OBJ_DATA> obj);
+void free_note(NOTE_DATA *pnote);
+void free_note(std::shared_ptr<NOTE_DATA> pnote);

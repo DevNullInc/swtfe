@@ -96,31 +96,25 @@ namespace {
     }
 }
 
-std::string hash_password(const char* password, const char* salt_in)
-{
-    if (!password) {
-        password = "";
-    }
-
+std::string hash_password(std::string_view password, std::string_view salt_in) {
     // Prepare salt bytes (if provided, use those bytes; else create random bytes)
     std::vector<uint8_t> salt_bytes;
-    if (salt_in && *salt_in) {
-        const uint8_t* p = reinterpret_cast<const uint8_t*>(salt_in);
-        salt_bytes.assign(p, p + strlen(salt_in));
+    if (!salt_in.empty()) {
+        salt_bytes.assign(salt_in.begin(), salt_in.end());
     } else {
         salt_bytes.resize(SALT_LENGTH);
         generate_secure_random(salt_bytes.data(), SALT_LENGTH);
     }
 
     // Compute required encoded length and allocate string buffer
-    size_t encoded_len = argon2_encodedlen(ARGON2_TIME_COST, ARGON2_MEMORY_COST, 
-                                           ARGON2_PARALLELISM, salt_bytes.size(), 
+    size_t encoded_len = argon2_encodedlen(ARGON2_TIME_COST, ARGON2_MEMORY_COST,
+                                           ARGON2_PARALLELISM, salt_bytes.size(),
                                            HASH_LENGTH, Argon2_id);
     std::string encoded;
     encoded.resize(encoded_len);
 
     int rc = argon2id_hash_encoded(ARGON2_TIME_COST, ARGON2_MEMORY_COST, ARGON2_PARALLELISM,
-                                   password, strlen(password),
+                                   password.data(), password.size(),
                                    salt_bytes.data(), salt_bytes.size(),
                                    HASH_LENGTH,
                                    &encoded[0], encoded_len);
@@ -134,51 +128,47 @@ std::string hash_password(const char* password, const char* salt_in)
     return encoded;
 }
 
-bool verify_password(const char* password, const char* stored_hash)
-{
-    if (!password || !stored_hash) {
+bool verify_password(std::string_view password, std::string_view stored_hash) {
+    if (password.empty() || stored_hash.empty()) {
         return false;
     }
 
     // Check if this is an Argon2 hash
-    if (strncmp(stored_hash, ARGON2_PREFIX, strlen(ARGON2_PREFIX)) == 0) {
-        int rc = argon2id_verify(stored_hash, password, strlen(password));
+    if (stored_hash.substr(0, strlen(ARGON2_PREFIX)) == ARGON2_PREFIX) {
+        int rc = argon2id_verify(stored_hash.data(), password.data(), password.size());
         return rc == ARGON2_OK;
     } else {
         // Legacy verification using crypt
-        const char* encrypted = crypt(password, stored_hash);
-        return encrypted && (strcmp(encrypted, stored_hash) == 0);
+        const char* encrypted = crypt(password.data(), stored_hash.data());
+        return encrypted && (strcmp(encrypted, stored_hash.data()) == 0);
     }
 }
 
-std::string generate_salt()
-{
+std::string generate_salt() {
     std::string salt;
     salt.resize(SALT_LENGTH);
     generate_secure_random(reinterpret_cast<uint8_t*>(&salt[0]), SALT_LENGTH);
     return salt;
 }
 
-std::string migrate_password(const char* password, const char* old_hash)
-{
-    if (!password || !old_hash) {
-        return old_hash ? old_hash : "";
+std::string migrate_password(std::string_view password, std::string_view old_hash) {
+    if (password.empty() || old_hash.empty()) {
+        return old_hash.empty() ? std::string() : std::string(old_hash);
     }
 
     // First verify the password against the old hash
-    const char* encrypted = crypt(password, old_hash);
-    if (!encrypted || strcmp(encrypted, old_hash) != 0) {
+    const char* encrypted = crypt(password.data(), old_hash.data());
+    if (!encrypted || strcmp(encrypted, old_hash.data()) != 0) {
         // Password doesn't match the old hash, return unchanged
-        return old_hash;
+        return std::string(old_hash);
     }
-    
+
     // Create a new Argon2 hash
     return hash_password(password);
 }
 
 // Utility function to check if we should upgrade a password hash
-bool should_upgrade_hash(const char* hash)
-{
+bool should_upgrade_hash(std::string_view hash) {
     // If it doesn't start with the Argon2 prefix, it needs to be upgraded
-    return !hash || strncmp(hash, ARGON2_PREFIX, strlen(ARGON2_PREFIX)) != 0;
+    return hash.empty() || hash.substr(0, strlen(ARGON2_PREFIX)) != ARGON2_PREFIX;
 }

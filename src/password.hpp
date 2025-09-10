@@ -1,5 +1,5 @@
-#ifndef _PASSWORD_H_
-#define _PASSWORD_H_
+
+#pragma once
 
 #include <string>
 
@@ -16,40 +16,45 @@
  */
 
 /**
+
  * @brief Hash a password using Argon2id
  * @param password The password to hash (required)
- * @param salt Optional salt bytes; if NULL, generates random salt
+ * @param salt Optional salt bytes; if empty, generates random salt
  * @return Encoded Argon2id hash string, or empty string on failure
  */
-std::string hash_password(const char* password, const char* salt = nullptr);
+std::string hash_password(std::string_view password, std::string_view salt = "");
 
 /**
+
  * @brief Verify a password against a stored hash
  * @param password The password to verify
  * @param stored_hash The stored hash (Argon2 or legacy crypt)
  * @return true if password matches, false otherwise
  */
-bool verify_password(const char* password, const char* stored_hash);
+bool verify_password(std::string_view password, std::string_view stored_hash);
 
 /**
+
  * @brief Generate a cryptographically secure random salt
  * @return 16 bytes of random salt data
  */
 std::string generate_salt();
 
 /**
+
  * @brief Migrate a legacy crypt hash to Argon2
  * @param password The original password
  * @param old_hash The legacy hash to migrate from
  * @return New Argon2 hash if migration successful, original hash otherwise
  */
-std::string migrate_password(const char* password, const char* old_hash);
+std::string migrate_password(std::string_view password, std::string_view old_hash);
 
 /**
+
  * @brief Check if a hash should be upgraded to Argon2
  * @param hash The hash to check
  * @return true if hash needs upgrading, false if already Argon2
  */
-bool should_upgrade_hash(const char* hash);
+bool should_upgrade_hash(std::string_view hash);
 
-#endif /* _PASSWORD_H_ */
+

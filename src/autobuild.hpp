@@ -40,8 +40,17 @@
  *                               SWR Autobuild module                                    *
  ****************************************************************************************/
 
-#ifndef __AUTOBUILD_H__
-#define __AUTOBUILD_H__
+#pragma once
+
+#include <string>
+#include <string_view>
+#include <memory>
+#include <cstddef>
+
+// Forward declarations for types used in function signatures
+struct char_data; // Align with typedef in account.hpp and imccfg.hpp
+using CHAR_DATA = char_data;
+using CMDF = void(*)(std::shared_ptr<CHAR_DATA>, std::string_view);
 
 // ============================================================================
 // AutoBuild System - Function Declarations
@@ -53,10 +62,10 @@
  */
 
 // Command function declarations
-CMDF do_create_list(CHAR_DATA* ch, char* argument);   // Create new list file
-CMDF do_addto_list(CHAR_DATA* ch, char* argument);    // Add text to existing list
-CMDF do_showlist(CHAR_DATA* ch, char* argument);      // Display list contents with line numbers
-CMDF do_remlist(CHAR_DATA* ch, char* argument);       // Remove specific line from list
+CMDF do_create_list(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);   // Create new list file
+CMDF do_addto_list(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);    // Add text to existing list
+CMDF do_showlist(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);      // Display list contents with line numbers
+CMDF do_remlist(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);       // Remove specific line from list
 
 // ============================================================================
 // Configuration Constants
@@ -65,7 +74,5 @@ CMDF do_remlist(CHAR_DATA* ch, char* argument);       // Remove specific line fr
 // Note: Implementation constants are in autobuild.cpp anonymous namespace
 // These are the public interface limits
 
-#define AUTOBUILD_MAX_FILENAME_SIZE     512     // Maximum filename length including path
-#define AUTOBUILD_MAX_LINES_PER_LIST    10000   // Safety limit for list file size
-
-#endif /* __AUTOBUILD_H__ */
+constexpr std::size_t AUTOBUILD_MAX_FILENAME_SIZE = 512;      // Maximum filename length including path
+constexpr std::size_t AUTOBUILD_MAX_LINES_PER_LIST = 10000;   // Safety limit for list file size

@@ -42,52 +42,48 @@
  * MXP protocol header for enhanced client communication and display features. *
  ****************************************************************************************/
 
-/* strings */
-#define MXP_SECURE "\x1B[1"
-#define MXP_BEG "\x03"  /* becomes < */
-#define MXP_END "\x04"  /* becomes > */
-#define MXP_AMP "\x05"  /* becomes & */
 
-/* characters */
+#pragma once
+#include <string>
+#include <array>
 
-#define MXP_BEGc '\x03' /* becomes < */
-#define MXP_ENDc '\x04' /* becomes > */
-#define MXP_AMPc '\x05' /* becomes & */
+constexpr auto MXP_SECURE = "\x1B[1";
+constexpr auto MXP_BEG = "\x03";  // becomes <
+constexpr auto MXP_END = "\x04";  // becomes >
+constexpr auto MXP_AMP = "\x05";  // becomes &
 
-/* constructs an MXP tag with < and > around it */
+constexpr char MXP_BEGc = '\x03'; // becomes <
+constexpr char MXP_ENDc = '\x04'; // becomes >
+constexpr char MXP_AMPc = '\x05'; // becomes &
 
-#define MXPTAG(arg) MXP_BEG arg MXP_END
+inline std::string MXPTAG(const std::string& arg) { return MXP_BEG + arg + MXP_END; } // for <tag>
 
-#define ESC "\x1B"  /* esc character */
-
-#define MXPMODE(arg) ESC "[" #arg "z"
+constexpr auto ESC = "\x1B"; // esc character
+inline std::string MXPMODE(const std::string& arg) { return ESC + "[" + arg + "z"; } // for setting modes
 
 /* flags for show_list_to_char */
 
-enum
-{
-        eItemNothing,   /* item is not readily accessible */
-        eItemGet,   /* item on ground */
-        eItemDrop,  /* item in inventory */
-        eItemBid    /* auction item */
+
+enum class ItemShowType : int {
+        Nothing,   // item is not readily accessible
+        Get,       // item on ground
+        Drop,      // item in inventory
+        Bid        // auction item
 };
 
-#define  TELOPT_MXP        '\x5B'
-extern const unsigned char will_mxp_str[];
-extern const unsigned char start_mxp_str[];
-extern const unsigned char do_mxp_str[];
-extern const unsigned char dont_mxp_str[];
 
-/* DECLARE_DO_FUN(do_mxp); */
-void      convert_mxp_tags
-args((DESCRIPTOR_DATA * d, char *dest, const char *src, int length));
-int count_mxp_tags args((DESCRIPTOR_DATA * d, const char *txt, int length));
-void send_mxp_stylesheet args((DESCRIPTOR_DATA * d));
+constexpr char TELOPT_MXP = '\x5B';
+extern const std::array<unsigned char, 3> will_mxp_str;
+extern const std::array<unsigned char, 3> start_mxp_str;
+extern const std::array<unsigned char, 3> do_mxp_str;
+extern const std::array<unsigned char, 3> dont_mxp_str;
 
-/*
- void free_mxpobj_cmds( void );
- */
+void convert_mxp_tags(DESCRIPTOR_DATA* d, std::string& dest, const std::string& src, int length); // convert < > & to MXP safe versions
+int count_mxp_tags(DESCRIPTOR_DATA* d, const std::string& txt, int length); // count number of MXP tags in a string
+void send_mxp_stylesheet(DESCRIPTOR_DATA* d); // send the MXP stylesheet to the client
 
-#define MXP_STYLESHEET_FILE     "../system/mxp.style"
+constexpr auto MXP_STYLESHEET_FILE = "../system/mxp.style";
 
-#define IS_MXP(ch) ( (ch) && IS_SET((ch)->act, PLR_MXP) && (ch)->desc && (ch)->desc->mxp_detected == TRUE )
+inline bool IS_MXP(const CHAR_DATA* ch) { // is the character using MXP?
+        return ch && IS_SET(ch->act, PLR_MXP) && ch->desc && ch->desc->mxp_detected == TRUE; // and the client supports it
+}

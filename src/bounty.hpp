@@ -40,13 +40,17 @@
  *                                SWR Bounty module                                      *
  ****************************************************************************************/
 
-// Modern C++ includes for incremental modernization 
+// Modern C++ includes for incremental modernization
+#pragma once
 #include <string>
+#include <string_view>
 #include <vector>
 #include <memory>
 
-typedef struct bounty_data BOUNTY_DATA;
-typedef struct wanted_data WANTED_DATA;
+struct bounty_data;
+using BOUNTY_DATA = bounty_data;
+struct wanted_data;
+using WANTED_DATA = wanted_data;
 
 extern BOUNTY_DATA *first_bounty;
 extern BOUNTY_DATA *last_bounty;
@@ -80,19 +84,31 @@ struct wanted_data
 };
 
 /* bounty.c */
-BOUNTY_DATA *get_disintigration args((char *target));
-void load_bounties args((void));
-void save_bounties args((void));
-void save_disintigrations args((void));
-void remove_wanted args((CHAR_DATA * ch, CLAN_DATA * clan));
-void remove_wanted_planet args((CHAR_DATA * ch, PLANET_DATA * planet));
-void remove_disintigration args((BOUNTY_DATA * bounty));
-void claim_disintigration args((CHAR_DATA * ch, CHAR_DATA * victim));
-void add_police_bounty args((CHAR_DATA * ch, PLANET_DATA * planet));
-void add_wanted args((CHAR_DATA * ch, PLANET_DATA * planet));
-bool is_wanted args((CHAR_DATA * ch, PLANET_DATA * pl));
-void fwrite_wanted args((CHAR_DATA * ch, FILE * fp));
-void fread_wanted args((CHAR_DATA * ch, FILE * fp));
+
+BOUNTY_DATA *get_disintigration(const char *target);
+BOUNTY_DATA *get_disintigration(std::string_view target);
+BOUNTY_DATA *get_disintigration(std::shared_ptr<std::string> target);
+void load_bounties();
+void save_bounties();
+void save_disintigrations();
+void remove_wanted(CHAR_DATA *ch, CLAN_DATA *clan);
+void remove_wanted(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<CLAN_DATA> clan);
+void remove_wanted_planet(CHAR_DATA *ch, PLANET_DATA *planet);
+void remove_wanted_planet(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<PLANET_DATA> planet);
+void remove_disintigration(BOUNTY_DATA *bounty);
+void remove_disintigration(std::shared_ptr<BOUNTY_DATA> bounty);
+void claim_disintigration(CHAR_DATA *ch, CHAR_DATA *victim);
+void claim_disintigration(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<CHAR_DATA> victim);
+void add_police_bounty(CHAR_DATA *ch, PLANET_DATA *planet);
+void add_police_bounty(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<PLANET_DATA> planet);
+void add_wanted(CHAR_DATA *ch, PLANET_DATA *planet);
+void add_wanted(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<PLANET_DATA> planet);
+bool is_wanted(CHAR_DATA *ch, PLANET_DATA *pl);
+bool is_wanted(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<PLANET_DATA> pl);
+void fwrite_wanted(CHAR_DATA *ch, FILE *fp);
+void fwrite_wanted(std::shared_ptr<CHAR_DATA> ch, FILE *fp);
+void fread_wanted(CHAR_DATA *ch, FILE *fp);
+void fread_wanted(std::shared_ptr<CHAR_DATA> ch, FILE *fp);
 
 // ============================================================================
 // Modern C++ Bounty Utilities (Incremental Modernization)
