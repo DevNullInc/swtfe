@@ -62,16 +62,17 @@
 static char empty_string[] = ""; // use with STRALLOC(empty_string)
 
 // Modern C++ includes for incremental modernization to C++23
-#include <string>
-#include <string_view>
-#include <vector>
-#include <memory>
-#include <limits>
-#include <sstream>
-#include <stdexcept>
-#include <optional>
-#include <algorithm>
-#include <type_traits>
+#include <string> // for std::string
+#include <string_view> // for std::string_view
+#include <vector> // for std::vector
+#include <memory> // for std::memory
+#include <limits> // for std::limits
+#include <sstream> // for std::stringstream
+#include <stdexcept> // for std::invalid_argument, std::out_of_range
+#include <optional> // for std::optional
+#include <algorithm> // for std::clamp
+#include <type_traits> // for std::is_same_v
+#include <format> // C++23 feature for safer string formatting
 
 extern int top_affect;
 extern int top_reset;
@@ -5044,11 +5045,11 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
         if (!str_cmp(arg, "bexit"))
         {
                 EXIT_DATA *rxit;
-                char      tmpcmd[MAX_INPUT_LENGTH];
+                std::string tmpcmd;
                 ROOM_INDEX_DATA *tmploc;
-                int       vnum, exnum;
-                char      rvnum[MAX_INPUT_LENGTH];
-                bool      numnotdir;
+                int vnum, exnum;
+                std::string rvnum;
+                bool numnotdir;
 
                 if (!str_cmp(work, "remove all"))
                 {
@@ -5057,8 +5058,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                                 if (xit->to_room && xit->to_room != location)
                                         extract_exit(xit->to_room,
                                                      get_exit(xit->to_room,
-                                                              rev_dir[xit->
-                                                                      vdir]));
+                                                              rev_dir[xit->vdir]));
                                 extract_exit(location, xit);
                         }
                         send_to_char("All exits removed.\n\r", ch);
@@ -5068,12 +5068,8 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 work = one_argument(work, arg3);
                 if (arg2[0] == '\0')
                 {
-                        send_to_char
-                                ("Create, change or remove a two-way exit.\n\r",
-                                 ch);
-                        send_to_char
-                                ("Usage: redit bexit <dir> [room] [flags] [key] [keywords]\n\r",
-                                 ch);
+                        send_to_char("Create, change or remove a two-way exit.\n\r", ch);
+                        send_to_char("Usage: redit bexit <dir> [room] [flags] [key] [keywords]\n\r", ch);
                         return;
                 }
                 numnotdir = FALSE;
@@ -5101,19 +5097,19 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                         xit = get_exit(tmploc, edir);
                 rxit = NULL;
                 vnum = 0;
-                rvnum[0] = '\0';
+                rvnum.clear();
                 if (xit)
                 {
                         vnum = xit->vnum;
                         if (arg3[0] != '\0')
-                                snprintf(rvnum, sizeof(rvnum), "%d", tmploc->vnum);
+                                rvnum = std::to_string(tmploc->vnum);
                         if (xit->to_room)
                                 rxit = get_exit(xit->to_room, rev_dir[edir]);
                         else
                                 rxit = NULL;
                 }
-                snprintf(tmpcmd, sizeof(tmpcmd), "exit %s %s %s", arg2, arg3, work);
-                do_redit(ch, tmpcmd);
+                tmpcmd = std::format("exit {} {} {}", arg2, arg3, work);
+                do_redit(ch, tmpcmd.c_str());
                 if (numnotdir)
                         xit = get_exit_num(tmploc, exnum);
                 else
@@ -5122,7 +5118,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 {
                         vnum = xit->vnum;
                         if (arg3[0] != '\0')
-                                snprintf(rvnum, sizeof(rvnum), "%d", tmploc->vnum);
+                                rvnum = std::to_string(tmploc->vnum);
                         if (xit->to_room)
                                 rxit = get_exit(xit->to_room, rev_dir[edir]);
                         else
@@ -5130,9 +5126,8 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 }
                 if (vnum)
                 {
-                        snprintf(tmpcmd, sizeof(tmpcmd), "%d redit exit %d %s %s",
-                                 vnum, rev_dir[edir], rvnum, work);
-                        do_at(ch, tmpcmd);
+                        tmpcmd = std::format("{} redit exit {} {} {}", vnum, rev_dir[edir], rvnum, work);
+                        do_at(ch, tmpcmd.c_str());
                 }
                 return;
         }

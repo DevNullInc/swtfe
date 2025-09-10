@@ -40,27 +40,38 @@
  *                               Account management                                      *
  *****************************************************************************************/
 
-// C++ Standard Library includes
-#include <cstring>
-#include <cctype>
-#include <cstdio>
 
-// POSIX includes  
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-// Project includes
 #include "mud.hpp"
 #include "account.hpp"
 #include "alias.hpp"
 #include "boards.hpp"
+#include "imccfg.hpp"
+
+// All type definitions and macros are provided by mud.hpp and account.hpp
+#include <cstddef> // for size_t
+#include <cstdint> // for int64_t
+#include <cstring> // for strdup
+#include <cctype> // for isalpha, tolower
+#include <cstdio> // for FILE, fopen, fclose, fprintf, fscanf, fgets, sscanf
+#include <cstdlib> // for atoi, atof, strtol, malloc, free, calloc, abort
+#include <ctime>
+#include <cerrno>
+#include <string>
+#include <memory>
+#include <vector>
+#include <algorithm>
+#include <stdexcept>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <fcntl.h>
 
 // =============================================================================
 // Constants
 // =============================================================================
 
-constexpr size_t ACCOUNT_FILENAME_SIZE = 255;
+constexpr std::size_t ACCOUNT_FILENAME_SIZE = 255;
 
 // =============================================================================
 // Global variables
@@ -73,7 +84,7 @@ ACCOUNT_DATA *last_account = nullptr;
 
 
 // Function prototypes
-sh_int check_playing(DESCRIPTOR_DATA * d, char *name, bool kick);
+int check_playing(DESCRIPTOR_DATA* d, const std::string& name, bool kick);
 bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn);
 void fwrite_comments(ACCOUNT_DATA * account, FILE * fp);
 void fread_comment(ACCOUNT_DATA * account, FILE * fp);
@@ -86,13 +97,13 @@ ACCOUNT_DATA *get_account(const char *name);
 
 ACCOUNT_DATA *create_account() noexcept
 {
-        ACCOUNT_DATA *account = NULL;
+        ACCOUNT_DATA *account = nullptr;
 
         CREATE(account, ACCOUNT_DATA, 1);
         account->rppoints = 0;
         account->rpcurrent = -1;
         account->qpoints = 0;
-        account->name = NULL;
+        account->name = nullptr;
         account->password = NULL;
         account->inuse = 1;
 		account->comments = NULL;
@@ -102,7 +113,7 @@ ACCOUNT_DATA *create_account() noexcept
 
 void free_account(ACCOUNT_DATA * account)
 {
-        size_t count;  // 64-bit compatible size type for array indexing
+        std::size_t count;  // 64-bit compatible size type for array indexing
         NOTE_DATA *pnote, *next_note;
 
         if (!account)
@@ -122,7 +133,7 @@ void free_account(ACCOUNT_DATA * account)
         }
         else if (account->inuse < 0)
         {
-                bug("Freeing err'd data");
+                bug("Freeing err'd data", 0);
                 abort();
         }
 
@@ -132,7 +143,7 @@ void free_account(ACCOUNT_DATA * account)
                 STRFREE(account->password);
         for (count = 0; count < MAX_CHARACTERS; count++)
         {
-                if (account->character[count] == NULL)
+                if (account->character[count] == nullptr)
                         continue;
                 if (account->character[count])
                         STRFREE(account->character[count]);
@@ -145,7 +156,7 @@ void free_account(ACCOUNT_DATA * account)
         free_aliases(account);
         UNLINK(account, first_account, last_account, next, prev);
         DISPOSE(account);
-        account = NULL;
+        account = nullptr;
 }
 
 // =============================================================================
@@ -403,7 +414,7 @@ ACCOUNT_DATA *load_account(const char *name)
         }
         else
         {
-                bug("Account is null");
+                bug("Account is null", 0);
         }
         return account;
 }

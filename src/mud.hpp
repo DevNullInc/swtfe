@@ -50,6 +50,11 @@
 #include <sys/cdefs.h>
 #include <sys/time.h>
 #include <math.h>
+#include <string>
+#include <string_view>
+#include <cstring>
+#include <stdint.h>
+#include <format>
 
 /* Make sure cpp_compat.h exists and is properly included */
 #include "cpp_compat.hpp"
@@ -4165,6 +4170,11 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void hide_tilde args((char *str));
                    char *show_tilde args((char *str));
                    bool str_cmp args((const char *astr, const char *bstr));
+                // Modern C++23 overloads for str_cmp
+                   inline bool str_cmp(const std::string& a, const std::string& b) { return str_cmp(a.c_str(), b.c_str()); }
+                   inline bool str_cmp(const std::string_view a, const std::string_view b) { return str_cmp(a.data(), b.data()); }
+                   inline bool str_cmp(const std::string& a, const char* b) { return str_cmp(a.c_str(), b); }
+                   inline bool str_cmp(const char* a, const std::string& b) { return str_cmp(a, b.c_str()); }
                    bool str_prefix args((const char *astr, const char *bstr));
                    bool str_infix args((const char *astr, const char *bstr));
                    bool str_suffix args((const char *astr, const char *bstr));

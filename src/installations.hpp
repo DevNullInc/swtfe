@@ -111,7 +111,7 @@ void load_installations args((void));
 void      echo_to_installation
 args((sh_int AT_COLOR, char *argument, INSTALLATION_DATA * installation));
 bool mob_reset args((CHAR_DATA * ch, char *type, bool check));
-INSTALLATION_DATA *installation_from_room args((int vnum));
+std::shared_ptr<INSTALLATION_DATA> installation_from_room(int vnum);
 void addroominstallation args((CHAR_DATA * ch, char *argument));
 void fireplanet_update args((void));
 int planetary_installations args((PLANET_DATA * planet, int type));

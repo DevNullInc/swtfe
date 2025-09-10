@@ -40,17 +40,13 @@
  * Account system for managing multiple characters per user with shared resources.      *
  ****************************************************************************************/
 
+// Always include mud.hpp first for type definitions and macros
 #pragma once
-
+#include "mud.hpp"
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <array>
-
-/* Ensure core project types/macros are available when this header is included
- * directly so the header is self-contained for tools (IDE/intellisense) and
- * translation units that may not include `mud.hpp` beforehand. */
-#include "mud.hpp"
 
 // =============================================================================
 // Account System Constants
@@ -69,6 +65,10 @@ constexpr const char* ACCOUNT_DIR = "../account/";
 
 struct account_data;
 using ACCOUNT_DATA = account_data;
+struct char_data;
+using CHAR_DATA = char_data;
+struct descriptor_data;
+using DESCRIPTOR_DATA = descriptor_data;
 
 // =============================================================================
 // Global Variables
