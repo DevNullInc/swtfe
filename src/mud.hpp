@@ -279,6 +279,8 @@ struct bank_account
 #define MSL                  MAX_STRING_LENGTH  /* Centralized MSL definition */
 #define MAX_INPUT_LENGTH	 1024   /* arg */
 #define MAX_INBUF_SIZE		 1024
+#define MAX_FILE_LENGTH          256   /* file */
+#define MFL                  MAX_FILE_LENGTH /* Centralized MFL definition */
 
 #define HASHSTR /* use string hashing */
 

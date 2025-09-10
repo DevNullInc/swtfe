@@ -474,9 +474,10 @@ extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
 extern MOB_INDEX_DATA *mob_index_hash[MAX_KEY_HASH];
 extern OBJ_INDEX_DATA *obj_index_hash[MAX_KEY_HASH];
 
-char* flag_string(int bitvector, const char* const flagarray[])
+// Match declaration in mud.hpp
+char *flag_string(int bitvector, const char *const flagarray[])
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MSL];
         buf[0] = '\0';
         for (int i = 0; i < 32; ++i)
         {
@@ -486,8 +487,7 @@ char* flag_string(int bitvector, const char* const flagarray[])
                         mudstrlcat(buf, ", ", MSL);
                 }
         }
-        size_t len = strlen(buf);
-        if (len > 1)
+        if (const size_t len = strlen(buf); len > 1)
                 buf[len - 2] = '\0';
         return buf;
 }
@@ -5106,13 +5106,13 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 {
                         vnum = xit->vnum;
                         if (arg3[0] != '\0')
-                                snprintf(rvnum, MSL, "%d", tmploc->vnum);
+                                snprintf(rvnum, sizeof(rvnum), "%d", tmploc->vnum);
                         if (xit->to_room)
                                 rxit = get_exit(xit->to_room, rev_dir[edir]);
                         else
                                 rxit = NULL;
                 }
-                snprintf(tmpcmd, MSL, "exit %s %s %s", arg2, arg3, work);
+                snprintf(tmpcmd, sizeof(tmpcmd), "exit %s %s %s", arg2, arg3, work);
                 do_redit(ch, tmpcmd);
                 if (numnotdir)
                         xit = get_exit_num(tmploc, exnum);
@@ -5122,7 +5122,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 {
                         vnum = xit->vnum;
                         if (arg3[0] != '\0')
-                                snprintf(rvnum, MSL, "%d", tmploc->vnum);
+                                snprintf(rvnum, sizeof(rvnum), "%d", tmploc->vnum);
                         if (xit->to_room)
                                 rxit = get_exit(xit->to_room, rev_dir[edir]);
                         else
@@ -5130,7 +5130,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 }
                 if (vnum)
                 {
-                        snprintf(tmpcmd, MSL, "%d redit exit %d %s %s",
+                        snprintf(tmpcmd, sizeof(tmpcmd), "%d redit exit %d %s %s",
                                  vnum, rev_dir[edir], rvnum, work);
                         do_at(ch, tmpcmd);
                 }
@@ -5439,7 +5439,7 @@ void assign_area(CHAR_DATA * ch)
             && ch->pcdata->r_range_lo && ch->pcdata->r_range_hi)
         {
                 tarea = ch->pcdata->area;
-                snprintf(taf, MSL, "%s.are", capitalize(ch->name));
+                snprintf(taf, sizeof(taf), "%s.are", capitalize(ch->name));
                 if (!tarea)
                 {
                         for (tmp = first_build; tmp; tmp = tmp->next)
@@ -5451,7 +5451,7 @@ void assign_area(CHAR_DATA * ch)
                 }
                 if (!tarea)
                 {
-                        snprintf(buf, MSL, "Creating area entry for %s",
+                        snprintf(buf, sizeof(buf), "Creating area entry for %s",
                                  ch->name);
                         log_string_plus(buf, LOG_NORMAL, ch->top_level);
                         CREATE(tarea, AREA_DATA, 1);
@@ -5459,11 +5459,11 @@ void assign_area(CHAR_DATA * ch)
                         tarea->first_reset = NULL;
                         tarea->last_reset = NULL;
                         tarea->version = 0;
-                        snprintf(buf, MSL, "{PROTO} %s's area in progress",
+                        snprintf(buf, sizeof(buf), "{PROTO} %s's area in progress",
                                  ch->name);
                         tarea->name = str_dup(buf);
                         tarea->filename = str_dup(taf);
-                        snprintf(buf2, MSL, "%s", ch->name);
+                        snprintf(buf2, sizeof(buf2), "%s", ch->name);
                         tarea->author = STRALLOC(buf2);
                         tarea->age = 0;
                         tarea->nplayer = 0;
@@ -5471,7 +5471,7 @@ void assign_area(CHAR_DATA * ch)
                 }
                 else
                 {
-                        snprintf(buf, MSL, "Updating area entry for %s",
+                        snprintf(buf, sizeof(buf), "Updating area entry for %s",
                                  ch->name);
                         log_string_plus(buf, LOG_NORMAL, ch->top_level);
                 }
@@ -5508,7 +5508,7 @@ CMDF do_aassign(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        snprintf(buf, MSL, "%s", argument);
+        snprintf(buf, sizeof(buf), "%s", argument);
         if (argument[0] == '\0')
                 strcpy(buf, ch->in_room->area->filename);
         //send_to_char("Syntax: aassign <filename.are>\n\r", ch);
@@ -6191,7 +6191,7 @@ CMDF do_savearea(CHAR_DATA * ch, const char *argument)
                 return;
         }
 
-        snprintf(filename, MSL, "%s%s", BUILD_DIR, tarea->filename);
+        snprintf(filename, MFL, "%s%s", BUILD_DIR, tarea->filename);
         ::fold_area(tarea, filename, FALSE, TRUE);
         send_to_char("Done.\n\r", ch);
 }
@@ -6248,7 +6248,7 @@ CMDF do_loadarea(CHAR_DATA * ch, const char *argument)
                 send_to_char("Your area is already loaded.\n\r", ch);
                 return;
         }
-        snprintf(filename, MSL, "%s%s", BUILD_DIR, tarea->filename);
+        snprintf(filename, MFL, "%s%s", BUILD_DIR, tarea->filename);
         send_to_char("Loading...\n\r", ch);
         load_area_file(tarea, filename);
         send_to_char("Linking exits...\n\r", ch);
@@ -6298,7 +6298,7 @@ CMDF do_foldarea(CHAR_DATA * ch, char *argument)
 
         argument = one_argument(argument, arg);
         if (arg[0] == '\0')
-                snprintf(arg, MSL, "%s", ch->in_room->area->filename);
+                snprintf(arg, sizeof(arg), "%s", ch->in_room->area->filename);
 
         for (tarea = first_area; tarea; tarea = tarea->next)
         {
@@ -6420,9 +6420,9 @@ CMDF do_installarea(CHAR_DATA * ch, char *argument)
                         tarea->nplayer = to_shint(num);
                         send_to_char("Renaming author's building file.\n\r",
                                      ch);
-                        snprintf(buf, MSL, "%s%s.installed", BUILD_DIR,
+                        snprintf(buf, sizeof(buf), "%s%s.installed", BUILD_DIR,
                                  tarea->filename);
-                        snprintf(arg, MSL, "%s%s", BUILD_DIR,
+                        snprintf(arg, sizeof(arg), "%s%s", BUILD_DIR,
                                  tarea->filename);
                         rename(arg, buf);
                         send_to_char("Done.\n\r", ch);
