@@ -55,9 +55,9 @@
 constexpr const char* AccountDir = "../Account/";
 
 // Note: These will be defined after including mud.hpp where BV00/BV01 are defined
-#define AccountSound AccountMsp
-#define AccountMsp   BV00
-#define AccountMxp   BV01
+constexpr int AccountMsp  = 0;
+constexpr int AccountMxp  = 1;
+constexpr int AccountSound = AccountMsp;
 
 // =============================================================================
 // Forward Declarations
@@ -106,7 +106,7 @@ struct AccountData
 [[nodiscard]] AccountData *load_account(const char *name);
 [[nodiscard]] AccountData *load_account(std::string_view name);
 [[nodiscard]] AccountData *create_account() noexcept;
-void save_account(AccountData *Account);
+void SaveAccount(AccountData *Account);
 [[nodiscard]] bool add_to_account(AccountData *Account, CharData *ch);
 [[nodiscard]] bool add_to_account(std::shared_ptr<AccountData> Account, std::shared_ptr<CharData> ch);
 [[nodiscard]] bool del_from_account(AccountData *Account, CharData *ch);

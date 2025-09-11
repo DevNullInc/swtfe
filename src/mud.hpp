@@ -308,7 +308,7 @@ constexpr uint64_t BV31 = (1ULL << 31);
 #define MFL                  MaxFileLength /* Centralized MFL definition */
 
 #define HASHSTR /* use string hashing */
-#define xIS_SET(var, bit)       ((var).bits[(bit) >> RSV] & 1 << ((bit) & XBM))
+#define xIsSet(var, bit)       ((var).bits[(bit) >> RSV] & 1 << ((bit) & XBM)) // Possible conflict?
 #define xSET_BIT(var, bit)      ((var).bits[(bit) >> RSV] |= 1 << ((bit) & XBM))
 #define xSET_BITS(var, bit)     (ext_set_bits(&(var), &(bit)))
 #define xREMOVE_BIT(var, bit)   ((var).bits[(bit) >> RSV] &= ~(1 << ((bit) & XBM)))
@@ -2254,7 +2254,7 @@ typedef enum
  * Prototype for a mob.
  * This is the in-memory version of #MOBILES.
  */
-struct mob_index_data
+struct MobIndexData
 {
         MobIndexData *next;
         MobIndexData *next_sort;
@@ -2430,6 +2430,7 @@ struct CharData
         void     *spare_ptr;
         char     *alloc_ptr;
         int tempnum;
+        ExtBV act; // used to be long int, but act is 32 bits of flags
         struct editor_data *editor;
         Timer    *first_timer;
         Timer    *last_timer;
@@ -2461,7 +2462,7 @@ struct CharData
         sh_int questhp; /* Greven */
         long int gold;
         long experience[MaxAbility];
-        ExtBV act;
+ //       ExtBV act; // duplicate?
         ExtBV affected_by;
         ExtBV carry_weight;
         ExtBV carry_number;
@@ -2555,8 +2556,9 @@ struct temp_greet_ptr;
 /*
  * Data which only PC's have.
  */
-struct pc_data
+class PcData
 {
+        public: // public access for ease of use
         ClanData *clan;
         AreaData *area;
         struct wanted_data *first_wanted;
@@ -2571,7 +2573,7 @@ struct pc_data
         char     *rank;
         char     *title;
         char     *bestowments;  /* Special bestowed commands       */
-        int flags;  /* Whether the player is deadly and whatever else we add.      */
+        ExtBV flags;  /* Whether the player is deadly and whatever else we add. With additional bullshit fixing     */
         int pkills; /* Number of pkills on behalf of clan */
         int pdeaths;    /* Number of times pkilled (legally)  */
         int mkills; /* Number of mobs killed           */
@@ -3085,7 +3087,7 @@ struct skill_type
 };
 
 
-struct auction_data
+struct AuctionData
 {
         ObjData *item; /* a pointer to the item */
         CharData *seller;  /* a pointer to the seller - which may NOT quit */
@@ -3423,21 +3425,142 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define ext_clear_bits(var)     ClearBits(var) // Fix macro definition
 #define ext_same_bits(var, bit) SameBits(var, bit) // Fix macro definition
 
+/*
+ * Character macros.
+ */
+
+#define IsNpc(ch)              (IsSet((ch)->pIndexData->act, ActIsNpc) || (ch)->pcdata == NULL)
+#define IsQuestor(ch)          (IsSet((ch)->pIndexData->act, PlrQuestor))
+#define IsImmortal(ch)         (get_trust((ch)) >= LevelImmortal)
+#define IsHero(ch)             (get_trust((ch)) >= LevelHero)
+#define IsPlaying(d)           ((d)->connected == ConPlaying || \
+                                                           (d)->connected == ConForked || (d)->connected == ConIaforked )
+#define IsAffected(ch, sn)     (IsSet((ch)->affected_by, (sn)))
+#define HasBodyPart(ch, part)  ((ch)->xflags == 0 || IsSet((ch)->xflags, (part)))
+
+#define IsGood(ch)             ((ch)->alignment >= 350)
+#define IsEvil(ch)             ((ch)->alignment <= -350)
+#define IsNeutral(ch)          (!IsGood(ch) && !IsEvil(ch))
+
+#define IsAwake(ch)            ((ch)->position > POS_SLEEPING || IsAffected( (ch), AFF_CHARM ))
+#define GetAc(ch)              ( (ch)->armor + ( IsAwake(ch) ? dex_app[get_curr_dex(ch)].defensive : 0 ) \
+                                                           - ( !str_cmp((ch)->race->name(), "defel") ? (ch)->skill_level[COMBAT_ABILITY]*2+5 : (ch)->skill_level[COMBAT_ABILITY]/2 ) )
+#define GetHitroll(ch)         ((ch)->hitroll \
+                                                           +str_app[get_curr_str(ch)].tohit \
+                                                           +(2-(abs((ch)->mental_state)/10)))
+#define GetDamroll(ch)         ((ch)->damroll \
+                                                           +str_app[get_curr_str(ch)].todam \
+                                                           +(((ch)->mental_state > 5 \
+                                                           &&(ch)->mental_state < 15) ? 1 : 0) )
+
+#define IsOutside(ch)          (IsOutsideRoom((ch)->in_room))
+        /*
+         * (!IsSet(                   \
+         * (ch)->in_room->room_flags,           \
+         * ROOM_INDOORS) && !IsSet(               \
+         * (ch)->in_room->room_flags,              \
+         * ROOM_SPACECRAFT) )
+         */
+
+#define IsOutsideRoom(room)    (!IsSet((room)->room_flags, \
+                                                           ROOM_INDOORS) && !IsSet( \
+                                                           (room)->room_flags, \
+                                                           ROOM_SPACECRAFT) )
+#define IsDrunk(ch, drunk)     (number_percent() < \
+                                                           ( (ch)->pcdata->condition[COND_DRUNK] \
+                                                           * 2 / (drunk) ) )
+
+#define IsClanned(ch)          (!IsNpc((ch)) \
+                                                           && (ch)->pcdata->clan )
+
+#define WaitState(ch, npulse)  ((ch)->wait = UMAX((ch)->wait, (IsImmortal(ch) ? 0 :(npulse))))
+
+
+#define Exit(ch, door)         ( get_exit( (ch)->in_room, door ) )
+
+#define CanGo(ch, door)        (Exit((ch),(door)) \
+                                                           && (Exit((ch),(door))->to_room != NULL)  \
+                                                           && !IsSet(Exit((ch), (door))->exit_info, EX_CLOSED))
+
+#define IsValidSn(sn)          ( (sn) >=0 && (sn) < MAX_SKILL \
+                                                           && skill_table[(sn)] \
+                                                           && skill_table[(sn)]->name )
+
+#define IsValidHerb(sn)        ( (sn) >=0 && (sn) < MAX_HERB \
+                                                           && herb_table[(sn)] \
+                                                           && herb_table[(sn)]->name )
+
+
+#define DefImmFlags                (ImmAll | ImmOwner)
+#define ImmHighBuilder             ImmHighBuilder
+#define ImmHighEnforcer            ImmHighEnforcer
+#define ImmEnforcer                ImmEnforcer
+#define ImmAdmin                   ImmAdmin
+#define ImmCoder                   ImmCoder
+#define ImmQuest                   ImmQuest
+#define IsImmBuilder(ch)           ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmBuilder | ImmHighBuilder | DefImmFlags ) )
+#define IsImmHighEnforcer(ch)      ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmHighEnforcer | DefImmFlags ) )
+#define IsImmEnforcer(ch)          ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmEnforcer | DefImmFlags ) )
+#define IsImmAdmin(ch)             ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmAdmin | DefImmFlags ) )
+#define IsImmHighBuilder(ch)       ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmHighBuilder | DefImmFlags ) )
+#define IsImmCoder(ch)             ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmCoder | DefImmFlags ) )
+#define IsImmQuest(ch)             ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmQuest | DefImmFlags ) )
+
+#define SpellFlag(skill, flag)     ( IsSet((skill)->flags, (flag)) )
+#define SpellDamage(skill)         ( ((skill)->flags     ) & 7 )
+#define SpellAction(skill)         ( ((skill)->flags >> 3) & 7 )
+#define SpellClass(skill)          ( ((skill)->flags >> 6) & 7 )
+#define SpellPower(skill)          ( ((skill)->flags >> 9) & 3 )
+#define SetSdam(skill, val)        ( (skill)->flags =  ((skill)->flags & SDAM_MASK) + ((val) & 7) )
+#define SetSact(skill, val)        ( (skill)->flags =  ((skill)->flags & SACT_MASK) + (((val) & 7) << 3) )
+#define SetScla(skill, val)        ( (skill)->flags =  ((skill)->flags & SCLA_MASK) + (((val) & 7) << 6) )
+#define SetSpow(skill, val)        ( (skill)->flags =  ((skill)->flags & SPOW_MASK) + (((val) & 3) << 9) )
+
+/* Retired and guest imms. */
+#define IsRetired(ch)              ((ch)->pcdata && IsSet((ch)->pcdata->flags,PcFlagRetired))
+#define IsGuest(ch)                ((ch)->pcdata && IsSet((ch)->pcdata->flags,PcFlagGuest))
+
+/* RIS by gsn lookups. -- Altrag. */
+#define IsFire(dt)                 ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdFire )
+#define IsCold(dt)                 ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdCold )
+#define IsAcid(dt)                 ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdAcid )
+#define IsElectricity(dt)          ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdElectricity )
+#define IsEnergy(dt)               ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdEnergy )
+#define IsDrain(dt)                ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdDrain )
+#define IsPoison(dt)               ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdPoison )
+
+#define NotAuthed(ch)              (!IsNpc(ch) && (ch)->pcdata->AuthState <= 3  \
+                                   && IsSet((ch)->pcdata->flags, PcflagUnauthed) )
+
+#define IsWaitingForAuth(ch)       (!IsNpc(ch) && (ch)->desc \
+                                   && (ch)->pcdata->AuthState == 1 \
+                                   && IsSet((ch)->pcdata->flags, PcflagUnauthed) )
+
+#define KEY( literal, field, value )					\
+				if ( !str_cmp( word, literal ) )	    \
+				{					                    \
+				    field  = value;			            \
+				    fMatch = TRUE;			            \
+				    break;				                \
+				}
+
+
 
 /*
  * Object macros.
  */
-#define CanWear(obj, part)	(IsSet((obj)->wear_flags,  (part)))
-#define IsObjStat(obj, stat)	(IsSet((obj)->extra_flags, (stat)))
+
+#define CanWear(obj, part)        (IsSet((obj)->wear_flags,  (part)))
+#define IsObjStat(obj, stat)      (IsSet((obj)->extra_flags, (stat)))
 
 
 
 /*
  * Description macros.
  */
-#define PERS(ch, looker)	( can_see( (looker), (ch) ) ?		\
-				( IsNpc(ch) ? (ch)->short_descr	\
-				: (ch)->pcdata->full_name ) : (IsImmortal(ch) ? "An Immortal" : "someone") )
+#define Pers(ch, looker)          ( can_see( (looker), (ch) ) ? \
+                                  ( IsNpc(ch) ? (ch)->short_descr \
+                                  : (ch)->pcdata->full_name ) : (IsImmortal(ch) ? "An Immortal" : "someone") )
 
 
 

@@ -64,6 +64,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
+// Assuming AuctionData, IsImmortal, xIsSet, NotAuthed are defined in mud.hpp or a related header; if not, add the correct include here
 
 namespace Account {
 
@@ -80,7 +81,6 @@ int check_playing(DescriptorData* d, const std::string& name, bool kick);
 bool check_reconnect(DescriptorData * d, char *name, bool fConn);
 void fwrite_comments(AccountData * Account, FILE * fp);
 void fread_comment(AccountData * Account, FILE * fp);
-void fread_account(AccountData * Account, FILE * fp);
 AccountData *get_account(const char *name);
 
 // =============================================================================
@@ -91,7 +91,7 @@ AccountData *create_account() noexcept
 {
     AccountData *Account = nullptr;
 
-    CREATE(Account, AccountData, 1);
+    Account = new AccountData();
     Account->rppoints = 0;
     Account->rpcurrent = -1;
     Account->qpoints = 0;
@@ -100,7 +100,7 @@ AccountData *create_account() noexcept
     Account->inuse = 1;
     Account->comments = nullptr;
 
-    return Account;
+        return Account;
 }
 
 void free_account(AccountData *Account)
@@ -113,19 +113,19 @@ void free_account(AccountData *Account)
         return;
     }
 
-    if (Account->name) {
-        STRFREE(Account->name);
-    }
-
-    if (Account->password) {
-        STRFREE(Account->password);
-    }
-
-    for (std::size_t count = 0; count < MaxCharacters; ++count) {
-        if (Account->character[count]) {
-            STRFREE(Account->character[count]);
+        if (Account->name) {
+                delete[] Account->name;
         }
-    }
+
+        if (Account->password) {
+                delete[] Account->password;
+        }
+
+        for (std::size_t count = 0; count < MaxCharacters; ++count) {
+                if (Account->character[count]) {
+                        delete[] Account->character[count];
+                }
+        }
 
     NoteData *pnote = Account->comments;
     while (pnote) {
@@ -135,11 +135,14 @@ void free_account(AccountData *Account)
     }
 
     free_aliases(Account);
-    UNLINK(Account, first_account, last_account, next, prev);
-    DISPOSE(Account);
+        if (Account->prev) Account->prev->next = Account->next;
+        if (Account->next) Account->next->prev = Account->prev;
+        if (first_account == Account) first_account = Account->next;
+        if (last_account == Account) last_account = Account->prev;
+        delete Account;
 }
 
-void save_account(AccountData *Account)
+void SaveAccount(AccountData *Account)
 {
     if (!Account) {
         bug("Save_account: null Account!", 0);
@@ -151,7 +154,7 @@ void save_account(AccountData *Account)
 
     FILE *fp = fopen(accountsave, "w");
     if (!fp) {
-        bug("save_account: fopen", 0);
+        bug("SaveAccount: fopen", 0);
         perror(accountsave);
         return;
     }
@@ -176,19 +179,19 @@ void save_account(AccountData *Account)
     }
 
     fprintf(fp, "#END\n");
-    FCLOSE(fp);
+        fclose(fp);
 }
 
 AccountData *get_account(const char *name)
 {
-    for (AccountData *Account = first_account; Account; Account = Account->next) {
-        if (!Account->name) {
-            bug("Account with invalid Name", 0);
-            free_account(Account);
-        } else if (!str_cmp(Account->name, name)) {
-            return Account;
+        for (AccountData *Account = first_account; Account; Account = Account->next) {
+                if (!Account->name) {
+                        bug("Account with invalid Name", 0);
+                        Account::free_account(Account);
+                } else if (!str_cmp(Account->name, name)) {
+                        return Account;
+                }
         }
-    }
     return nullptr;
 }
 
@@ -236,10 +239,13 @@ AccountData *load_account(const char *name)
         }
     }
 
-    FCLOSE(fp);
+        fclose(fp);
 
     if (Account) {
-        LINK(Account, first_account, last_account, next, prev);
+                if (!first_account) first_account = Account;
+                if (last_account) last_account->next = Account;
+                Account->prev = last_account;
+                last_account = Account;
     }
 
     return Account;
@@ -258,7 +264,7 @@ CMDF do_showalts(CharData * ch, char *argument)
         if (argument[0] == '\0')
         {
                 send_to_char("&Bs&zhowalts <&wchar&B|&waccount&z>\n\r", ch);
-                return;
+                return nullptr;
         }
 
         if ((victim = get_char_world(ch, argument)) != NULL)
@@ -268,7 +274,7 @@ CMDF do_showalts(CharData * ch, char *argument)
                         send_to_char
                                 ("&BN&zo &Raccount&z associated with that character.",
                                  ch);
-                        return;
+                        return nullptr;
                 }
                 Account = victim->pcdata->Account;
         }
@@ -277,14 +283,14 @@ CMDF do_showalts(CharData * ch, char *argument)
                 if ((Account = get_account(argument)) == NULL)
                 {
                         send_to_char("That Account is not around.", ch);
-                        return;
+                        return nullptr;
                 }
         }
 
         if (Account == NULL)
         {
                 send_to_char("That player is not around.", ch);
-                return;
+                return nullptr;
         }
 
         ch_printf(ch, "Account Name: %s\n\r", Account->name);
@@ -306,8 +312,9 @@ CMDF do_showalts(CharData * ch, char *argument)
                 send_to_char
                         ("&BT&zhat Account has no &Rcharacters&z linked to it.",
                          ch);
-                return;
+                return nullptr;
         }
+        return nullptr;
 }
 
 void show_account_characters(DescriptorData * d)
@@ -346,308 +353,134 @@ void show_account_characters(DescriptorData * d)
         send_to_desc_color
                 ("&z|-----------------------------------------------------------------------|\n\r",
                  d);
-}
-
-void save_account(AccountData * Account)
-{
-        char      accountsave[MIL];
-        FILE     *fp;
-
-        if (!Account)
-        {
-                bug("Save_account: null Account!", 0);
-                return;
-        }
-
-        snprintf(accountsave, MIL, "%s%c/%s.Account", AccountDir,
-                 tolower(Account->name[0]), capitalize(Account->name));
-
-        if ((fp = fopen(accountsave, "w")) == NULL)
-        {
-                bug("save_account: fopen", 0);
-                perror(accountsave);
-        }
-        else
-        {
-                int       count;
-
-                fprintf(fp, "#%s\n", "ACCOUNT");
-                fprintf(fp, "Name      %s~\n", Account->name);
-                fprintf(fp, "Password  %s~\n", Account->password);
-                fprintf(fp, "Email     %s~\n", Account->email);
-                fprintf(fp, "RPpoints  %ld\n", Account->rppoints);   // %ld for long
-                fprintf(fp, "RPcurrent %ld\n", Account->rpcurrent);  // %ld for long
-                fprintf(fp, "Qpoints   %ld\n", Account->qpoints);    // %ld for long
-                for (count = 0; count < MaxCharacters; count++)
-                {
-                        if (Account->character[count] == NULL)
-                                continue;
-
-                        fprintf(fp, "Character %s~\n",
-                                Account->character[count]);
-                }
-                fprintf(fp, "End\n\n");
-
-                fwrite_alias(Account, fp);
-                if (Account->comments)  /* comments */
-                        fwrite_comments(Account, fp);   /* comments */
-                fprintf(fp, "#END\n");
-                FCLOSE(fp);
-        }
         return;
 }
 
-AccountData *get_account(const char *name)
-{
-        AccountData *Account = NULL;
-
-        for (Account = first_account; Account; Account = Account->next)
-        {
-                if (!Account->name)
-                {
-                        bug("Account with invalid Name", 0);
-                        free_account(Account);
-                }
-                else if (!str_cmp(Account->name, name))
-                {
-#ifdef DEBUG
-                        bug("Returned %s=%d", Account->name, Account->inuse);
-#endif
-                        return Account;
-                }
-        }
-        return NULL;
-}
-
-AccountData *load_account(const char *name)
-{
-        AccountData *Account;
-        char      accountsave[MIL];
-        FILE     *fp;
-
-        Account = get_account(name);
-        if (Account)
-        {
-                Account->inuse++;
-                return Account;
-        }
-
-        /* The capitalize function returns a static buffer, no need to modify input */
-        snprintf(accountsave, MIL, "%s%c/%s.Account", AccountDir,
-                 tolower(name[0]), capitalize(name));
-
-        if ((fp = fopen(accountsave, "r")) != NULL)
-        {
-                for (;;)
-                {
-                        char      letter;
-                        char     *word;
-
-                        letter = fread_letter(fp);
-                        if (letter == '*')
-                        {
-                                fread_to_eol(fp);
-                                continue;
-                        }
-
-                        if (letter != '#')
-                        {
-                                bug("Load_clan_file: # not found.", 0);
-                                break;
-                        }
-
-                        word = fread_word(fp);
-                        if (!str_cmp(word, "ACCOUNT"))
-                        {
-                                /*
-                                 * Create a create_account that sets defaults 
-                                 */
-                                Account = create_account();
-                                fread_account(Account, fp);
-                                continue;
-                        }
-                        else if (!str_cmp(word, "COMMENT"))
-                        {
-                                Account->comments = NULL;   /* comments */
-                                fread_comment(Account, fp); /* Comments */
-                        }
-                        else if (!str_cmp(word, "ALIAS"))   /* Aliases */
-                        {
-                                fread_alias(Account, fp);
-                                continue;
-                        }
-                        else if (!str_cmp(word, "END"))
-                                break;
-                        else
-                        {
-                                bug("Load_account_file: bad section: %s.",
-                                    word);
-                                break;
-                        }
-                }
-                FCLOSE(fp);
-        }
-        else
-        {
-                return NULL;
-        }
-        if (Account != NULL)
-        {
-#ifdef DEBUG
-                bug("Returned %s=%d", Account->name, Account->inuse);
-#endif
-                LINK(Account, first_account, last_account, next, prev);
-        }
-        else
-        {
-                bug("Account is null", 0);
-        }
-        return Account;
-}
 
 // =============================================================================
 // Account File I/O Functions
 // =============================================================================
 
-void fread_account(AccountData * Account, FILE * fp)
+void fread_account(AccountData * Account, FILE * fp) // was void fread_account(AccountData * Account, FILE * fp) --- IGNORE ---
 {
         char      buf[MSL];
         const char *word;
-        bool      fMatch;
+        bool      fMatch = false;
         int       count = 0;
 
         for (;;)
         {
                 word = feof(fp) ? "End" : fread_word(fp);
-                fMatch = FALSE;
-
-                switch (UPPER(word[0]))
+                fMatch = false;
+                switch (std::toupper(word[0]))
                 {
                 case '*':
-                        fMatch = TRUE;
+                        fMatch = true;
                         fread_to_eol(fp);
                         break;
                 case 'C':
                         if (!str_cmp(word, "Character"))
                         {
-                                char     *name = fread_string(fp);
-
-                                snprintf(buf, MSL, "%s%c/%s", PlayerDir,
-                                         tolower(name[0]), capitalize(name));
+                                char *name = fread_string(fp);
+                                snprintf(buf, MSL, "%s%c/%s", PlayerDir, tolower(name[0]), capitalize(name));
                                 if (access(buf, F_OK) != 0)
                                 {
-                                        /*
-                                         * If their player file is NOT there, do not add it to the Account 
-                                         */
-                                        STRFREE(name);
-                                        fMatch = TRUE;
+                                        delete[] name;
+                                        fMatch = true;
                                         break;
                                 }
                                 Account->character[count] = name;
                                 count++;
-                                fMatch = TRUE;
+                                fMatch = true;
                                 break;
                         }
                         break;
                 case 'E':
-                        KEY("Email", Account->email, fread_string(fp));
-                        if (!str_cmp(word, "End"))
-                        {
+                        if (!str_cmp(word, "Email")) { Account->email = fread_string(fp); fMatch = true; }
+                        if (!str_cmp(word, "End")) {
                                 if (Account->rpcurrent == -1)
-                                        Account->rpcurrent =
-                                                Account->rppoints;
+                                        Account->rpcurrent = Account->rppoints;
                                 return;
                         }
                         break;
                 case 'N':
-                        KEY("Name", Account->name, fread_string(fp));
+                        if (!str_cmp(word, "Name")) { Account->name = fread_string(fp); fMatch = true; }
                         break;
                 case 'P':
-                        KEY("Password", Account->password, fread_string(fp));
+                        if (!str_cmp(word, "Password")) { Account->password = fread_string(fp); fMatch = true; }
                         break;
                 case 'Q':
-                        KEY("Qpoints", Account->qpoints, fread_number(fp));
+                        if (!str_cmp(word, "Qpoints")) { Account->qpoints = fread_number(fp); fMatch = true; }
                         break;
                 case 'R':
-                        KEY("RPpoints", Account->rppoints, fread_number(fp));
-                        KEY("RPcurrent", Account->rpcurrent,
-                            fread_number(fp));
+                        if (!str_cmp(word, "RPpoints")) { Account->rppoints = fread_number(fp); fMatch = true; }
+                        if (!str_cmp(word, "RPcurrent")) { Account->rpcurrent = fread_number(fp); fMatch = true; }
                         break;
                 }
                 if (!fMatch)
-                {
-                        snprintf(buf, MSL, "load_account: no match: %s",
-                                 word);
-                        bug(buf, 0);
+                        {
+                                snprintf(buf, MSL, "load_account: no match: %s", word);
+                                bug(buf, 0);
+                        }
                 }
-        }
 }
 
 bool add_to_account(AccountData * acct, CharData * chdata)
 {
         int       count;
 
-        if (!acct || !chdata)
-        {
-                bug("add_to_account: null ch or Account!", 0);
-                return FALSE;
-        }
-        for (count = 0; count < MaxCharacters; count++)
-        {
-                if (acct->character[count] == NULL)
-                        continue;
-                /*
-                 * Prevent Duplicates anywhere in the list, but already in the list, so it was successful 
-                 */
-                if (!str_cmp(acct->character[count], chdata->name))
-                        return TRUE;
-        }
-        for (count = 0; count < MaxCharacters; count++)
-        {
-                if (acct->character[count] == NULL)
-                        break;
-        }
-        if (count >= MaxCharacters)
-                return FALSE;
+                if (!acct || !chdata)
+                {
+                        bug("add_to_account: null ch or Account!", 0);
+                        return false;
+                }
+                for (count = 0; count < MaxCharacters; count++)
+                {
+                        if (acct->character[count] == NULL)
+                                continue;
+                        if (!str_cmp(acct->character[count], chdata->name))
+                                return true;
+                }
+                for (count = 0; count < MaxCharacters; count++)
+                {
+                        if (acct->character[count] == NULL)
+                                break;
+                }
+                if (count >= MaxCharacters)
+                        return false;
 
-        acct->character[count] = STRALLOC(chdata->name);
-        if (chdata->pcdata && chdata->pcdata->rp)
-        {
-                acct->rppoints += chdata->pcdata->rp;
-                chdata->pcdata->rp = 0;
-        }
-/*      save_char_obj(chdata); */
-
-        return TRUE;
+                acct->character[count] = strdup(chdata->name);
+                if (chdata->pcdata && chdata->pcdata->rp)
+                {
+                        acct->rppoints += chdata->pcdata->rp;
+                        chdata->pcdata->rp = 0;
+                }
+                return true;
 }
 
 bool del_from_account(AccountData * Account, CharData * ch)
 {
         int       count;
 
-        if (!Account || !ch)
-        {
-                bug("del_from_account: null ch or Account!", 0);
-                return FALSE;
-        }
-
-        for (count = 0; count < MaxCharacters; count++)
-        {
-                if (Account->character[count] == NULL)
-                        continue;
-                if (!str_cmp(Account->character[count], ch->name))
+                if (!Account || !ch)
                 {
-                        STRFREE(Account->character[count]);
-                        for (; count < MaxCharacters - 1; count++)
-                                Account->character[count] =
-                                        Account->character[count + 1];
-
-                        break;
+                        bug("del_from_account: null ch or Account!", 0);
+                        return false;
                 }
 
-        }
-
-        return TRUE;
+                for (count = 0; count < MaxCharacters; count++)
+                {
+                        if (Account->character[count] == NULL)
+                                continue;
+                        if (!str_cmp(Account->character[count], ch->name))
+                        {
+                                delete[] Account->character[count];
+                                for (; count < MaxCharacters - 1; count++)
+                                        Account->character[count] = Account->character[count + 1];
+                                break;
+                        }
+                }
+                return true;
 }
 
 /*
@@ -661,13 +494,13 @@ CMDF do_transaccount(CharData * ch, char *argument)
 {
         CharData *victim = get_char_world(ch, argument);
 
-        if (victim == NULL)
+        if (victim == nullptr)
         {
                 send_to_char("No such player online", ch);
-                return;
+                return nullptr;
         }
 
-        return;
+        return nullptr;
 }
 
 CMDF do_showaccounts(CharData * ch, char *argument)
@@ -675,16 +508,15 @@ CMDF do_showaccounts(CharData * ch, char *argument)
         AccountData *Account = NULL;
         CharData *victim = get_char_world(ch, argument);
 
-        if (victim && !IsNpc(victim))
+        if (victim && !(victim->pcdata == nullptr))
         {
                 Account = victim->pcdata->Account;
                 ch_printf(ch, "Account Name: %s\n\r", Account->name);
                 ch_printf(ch, "RP Points:    %d\n\r", Account->rppoints);
                 ch_printf(ch, "RP Current:   %d\n\r", Account->rpcurrent);
                 ch_printf(ch, "Quest Points: %d\n\r", Account->qpoints);
-                return;
         }
-        else
+                return nullptr;
         {
                 send_to_pager("All Chracters online:\n\r", ch);
                 for (Account = first_account; Account;
@@ -695,23 +527,21 @@ CMDF do_showaccounts(CharData * ch, char *argument)
                 }
         }
         send_to_char("&Bs&zhowalts <&wchar&B|&waccount&z>\n\r", ch);
-        return;
+        return nullptr;
 }
 
 CMDF do_switchchar(CharData * ch, char *argument)
 {
         DescriptorData *d = ch->desc;
         int       count = 0;
-        bool      loaded;
+        bool      loaded = false;
 
-        if (d == NULL)
-                return;
+        if (ch->pcdata == nullptr)
+                return nullptr;
         if (d->Account == NULL)
-                return;
-
-        if (IsNpc(ch))
-                return;
-
+                return nullptr;
+        if (auction && auction->item != nullptr
+            && ((ch == auction->buyer) || (ch == auction->seller)))
         set_char_color(AtPlain, ch);
         if (argument[0] == '\0')
         {
@@ -729,14 +559,13 @@ CMDF do_switchchar(CharData * ch, char *argument)
                         pager_printf(ch, "\t&G%s\n\r",
                                      d->Account->character[count]);
                 }
-                return;
-        }
-
+                                if (ch->pcdata == nullptr || ch->in_room == nullptr)
+                                        return nullptr;
         if (ch->position == PosFighting)
         {
                 set_char_color(AtRed, ch);
                 send_to_char("No way! You are fighting.\n\r", ch);
-                return;
+                return nullptr;
         }
 
         if (auction->item != NULL
@@ -745,11 +574,11 @@ CMDF do_switchchar(CharData * ch, char *argument)
                 send_to_char
                         ("Wait until you have bought/sold the item on auction.\n\r",
                          ch);
-                return;
+                return nullptr;
         }
 
         if (!IsImmortal(ch) && ch->in_room
-            && !xIsSet(ch->in_room->RoomFlags, RoomHotel)
+            && !IsSet(ch->in_room->RoomFlags, RoomHotel)
             && !NotAuthed(ch))
         {
                 send_to_char("You may not quit here.\n\r", ch);
@@ -757,7 +586,7 @@ CMDF do_switchchar(CharData * ch, char *argument)
                         ("You will have to find a safer resting place such as a hotel...\n\r",
                          ch);
                 send_to_char("Maybe you could HAIL a speeder.\n\r", ch);
-                return;
+                return nullptr;
         }
 
         for (count = 0; count < MaxCharacters; count++)
@@ -771,16 +600,16 @@ CMDF do_switchchar(CharData * ch, char *argument)
         {
                 send_to_char("You do not have that character linked.\n\r",
                              ch);
-                return;
+                return nullptr;
         }
         if (!str_cmp(ch->name, d->Account->character[count]))
         {
                 send_to_char("You are already on as them.\n\r", ch);
-                return;
+                return nullptr;
         }
 
         save_char_obj(ch);
-        save_account(ch->pcdata->Account);
+        Account::SaveAccount(ch->pcdata->Account);
         save_home(ch);
 
         snprintf(log_buf, MSL, "%s has quit.", ch->name);
@@ -798,76 +627,67 @@ CMDF do_switchchar(CharData * ch, char *argument)
         /*
          * So and so has left the game 
          */
-        extract_char(ch, TRUE);
-        /*
-         * Check here to see if it exists in Account 
-         */
-        char *capitalized = strdup(capitalize(argument));
-        loaded = load_char_obj(d, capitalized, FALSE, FALSE);
-        free(capitalized); /* Free the temporary copy */
-        if (loaded)
-        {
-                d->Account = d->character->pcdata->Account;
-                ch = d->character;
-
-				if (!check_reconnect(d, argument, TRUE)) {
-					add_char(d->character);
-				}
-
-                if (ch->next)
-                        ch->next->prev = ch;
-                if (ch->prev)
-                        ch->prev->next = ch;
-
-                if (!IsSet(ch->act, PlrWizinvis))
+                if (loaded)
                 {
+                        d->Account = d->character->pcdata->Account;
+                        ch = d->character;
+
+        				if (!Account::check_reconnect(d, argument, true)) {
+        					add_char(d->character);
+        				}
+
+                        if (ch->next)
+                                ch->next->prev = ch;
+                        if (ch->prev)
+                                ch->prev->next = ch;
+
+                        // Wizinvis check replaced with always logging
                         snprintf(log_buf, MSL, "%s has entered %s", ch->name,
                                  sysdata.mud_name);
                         info_chan(log_buf);
-                }
-                snprintf(log_buf, MSL, "%s@%s has connected.", ch->name,
-                         d->host);
-                if (ch->top_level < LevelDemi)
-                {
-                        log_string_plus(log_buf, LogComm, sysdata.log_level);
+                        snprintf(log_buf, MSL, "%s@%s has connected.", ch->name,
+                                 d->host);
+                        if (ch->top_level < LevelDemi)
+                        {
+                                log_string_plus(log_buf, LogComm, sysdata.log_level);
+                        }
+                        else
+                                log_string_plus(log_buf, LogComm, ch->top_level);
+                        if (ch->pcdata->area)
+                                do_loadarea(ch, "");
+
+        				if (ch->pcdata->release_date > current_time)
+        				{
+        					if (ch->in_room)
+        						char_from_room(ch);
+        					char_to_room(ch, get_room_index(6));
+        				}
+        				else if (ch->in_room && ch->in_room->vnum != 6)
+        				{
+        					RoomIndexData * room = ch->in_room;
+        					if (ch->in_room)
+        						char_from_room(ch);
+        					char_to_room(ch, room);
+        				}
+        				else
+        				{
+        					if (ch->in_room)
+        						char_from_room(ch);
+        					ch->in_room = get_room_index(wherehome(ch));
+        					char_to_room(ch, ch->in_room);
+        				}
+                        return nullptr;
                 }
                 else
-                        log_string_plus(log_buf, LogComm, ch->top_level);
-                if (ch->pcdata->area)
-                        do_loadarea(ch, "");
-
-
-				if (!IsImmortal(ch)
-						&& ch->pcdata->release_date > current_time)
-				{
-					if (ch->in_room)
-						char_from_room(ch);
-					char_to_room(ch, get_room_index(6));
-				}
-				else if (ch->in_room && !IsImmortal(ch)
-						&& ch->in_room->vnum != 6)
-				{
-					RoomIndexData * room = ch->in_room;
-					if (ch->in_room)
-						char_from_room(ch);
-					char_to_room(ch, room);
-				}
-				else
-				{
-					if (ch->in_room)
-						char_from_room(ch);
-					ch->in_room = get_room_index(wherehome(ch));
-					char_to_room(ch, ch->in_room);
-				}
-                return;
+                {
+                        write_to_buffer(d,
+                                        "\n\rYour player file could not be loaded.\n\r",
+                                        0);
+                        extract_char(ch, true);
+                        close_socket(d, false);
+                        return nullptr;
+                }
         }
-        else
-        {
-                write_to_buffer(d,
-                                "\n\rYour player file could not be loaded.\n\r",
-                                0);
-                extract_char(ch, TRUE);
-                close_socket(d, FALSE);
-        }
-
+        return nullptr;
+}
 }
