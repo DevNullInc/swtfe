@@ -114,4 +114,11 @@ void SaveAccount(AccountData *Account);
 void show_account_characters(DescriptorData *d);
 void show_account_characters(std::shared_ptr<DescriptorData> d);
 void free_account(AccountData *Account);
-void fread_account(AccountData *Account, FILE *fp);
+namespace Account {
+        /**
+         * @brief Reads account data from a file pointer into an AccountData structure.
+         * @param Account Pointer to AccountData to populate.
+         * @param fp Open file pointer to read from.
+         */
+        void fread_account(AccountData *Account, FILE *fp);
+}

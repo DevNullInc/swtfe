@@ -59,7 +59,7 @@ constexpr char MXP_AMPc = '\x05'; // becomes &
 inline std::string MXPTAG(const std::string& arg) { return MxpBeg + arg + MxpEnd; } // for <tag>
 
 constexpr auto ESC = "\x1B"; // esc character
-inline std::string MXPMODE(const std::string& arg) { return ESC + "[" + arg + "z"; } // for setting modes
+inline std::string MXPMODE(const std::string& arg) { return std::string(ESC) + "[" + arg + "z"; } // for setting modes
 
 /* flags for show_list_to_char */
 
@@ -85,5 +85,5 @@ void send_mxp_stylesheet(DescriptorData* d); // send the MXP stylesheet to the C
 constexpr auto MxpStylesheetFile = "../system/mxp.style";
 
 inline bool IsMxp(const CharData* ch) { // is the character using MXP?
-        return ch && IsSet(ch->act, PlrMxp) && ch->desc && ch->desc->MxpDetected == TRUE; // and the Client supports it
+        return ch && IsSet(ch->act, PlrMxp) && ch->desc && ch->desc->MxpDetected == True; // and the Client supports it
 }
