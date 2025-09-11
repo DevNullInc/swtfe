@@ -51,7 +51,7 @@ public:
         int last_heard;
         std::string remembered_name;
         std::string key;
-        std::string char_name;
+        std::string CharName;
 };
 
 using GREET_MAP = std::map<std::string, std::shared_ptr<GREET_INFO>>;

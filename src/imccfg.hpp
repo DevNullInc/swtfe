@@ -74,7 +74,7 @@ extern social_messg* soc_mess_list;
 social_messg* find_social(const std::string& name);
 
 using SOCIAL_DATA = social_messg;
-using CharData = char_data;
+using CharData = CharData;
 using DescriptorData = DescriptorData;
 
 extern const char* class_abbrevs[];

@@ -1775,7 +1775,7 @@ SPECF spec_questmaster(CharData * ch)
  * Decided that its a per mob list
  * map<vnum> => list
  *
- * @param npc -> char_data pointer to the npc with the spec flagged turned on
+ * @param npc -> CharData pointer to the npc with the spec flagged turned on
  */
 SPECF spec_bountyhunter(CharData * npc)
 {

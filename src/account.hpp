@@ -65,8 +65,8 @@ constexpr const char* ACCOUNT_DIR = "../Account/";
 
 struct account_data;
 using ACCOUNT_DATA = account_data;
-struct char_data;
-using CharData = char_data;
+struct CharData;
+using CharData = CharData;
 struct DescriptorData;
 using DescriptorData = DescriptorData;
 

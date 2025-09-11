@@ -216,7 +216,7 @@ void add_greet_to_char(CharData * ch, CharData * victim, char * name)
         greetinfo = new GREET_INFO;
         greetinfo->remembered_name = STRALLOC(name);
         greetinfo->key = STRALLOC(victim->name);
-        greetinfo->char_name = STRALLOC(victim->name);
+        greetinfo->CharName = STRALLOC(victim->name);
         ch->pcdata->greet_info->greet_info.insert(std::make_pair(victim->name, greetinfo));
         return;
 }
@@ -237,7 +237,7 @@ void fwrite_greet(CharData * ch, FILE * fp)
                 fprintf(fp, "LastSeen   %d\n", info->last_seen);
                 fprintf(fp, "LastHeard  %d\n", info->last_heard);
                 fprintf(fp, "Key        %s~\n", key);
-                fprintf(fp, "CharName   %s~\n", info->char_name);
+                fprintf(fp, "CharName   %s~\n", info->CharName);
                 fprintf(fp, "RememberedName   %s~\n", info->remembered_name);
                 fprintf(fp, "End\n\n");
         }
@@ -289,7 +289,7 @@ void fread_greet(CharData * ch, FILE * fp)
                                 greetinfo->last_heard = lastheard;
                                 greetinfo->remembered_name = rememberedname;
                                 greetinfo->key = key;
-                                greetinfo->char_name = charname;
+                                greetinfo->CharName = charname;
                                 ch->pcdata->greet_info->greet_info.insert(std::make_pair(key, greetinfo));
                                 return;
                                 // Free if not used

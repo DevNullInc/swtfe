@@ -39,7 +39,7 @@
 #include "imccfg.hpp"
 
 /* Forward declarations to avoid circular dependencies */
-struct char_data;
+struct CharData;
 struct FBFILE;
 
 #define IMC_BUFF_SIZE 16384

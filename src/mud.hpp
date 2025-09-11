@@ -2726,7 +2726,7 @@ struct ObjData
 /*
  * Exit data.
  */
-struct exit_data
+struct ExitData
 {
         ExitData *prev;    /* previous exit in linked list */
         ExitData *next;    /* next exit in linked list */
