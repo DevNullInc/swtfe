@@ -721,7 +721,7 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
         ObjData *questitem;
         char      buf[MaxStringLength];
         long      mcounter;
-        int       level_diff, mob_vnum;
+        int       level_diff, MobVnum;
 
         /*
          * Randomly selects a mob from the world mob list. If you don't
@@ -734,9 +734,9 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
 
         for (mcounter = 0; mcounter < 99999; mcounter++)
         {
-                mob_vnum = number_range(50, 43000);
+                MobVnum = number_range(50, 43000);
 
-                if ((vsearch = get_mob_index(mob_vnum)) != NULL)
+                if ((vsearch = get_mob_index(MobVnum)) != NULL)
                 {
                         level_diff = vsearch->level - ch->top_level;
 
