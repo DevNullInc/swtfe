@@ -225,7 +225,7 @@ inline ExitData *get_exit_num(RoomIndexData *room, int dir) { return get_exit_nu
 inline ExitData *get_exit_to(RoomIndexData *room, int dir, int vnum) { return get_exit_to(room, to_shint(dir), vnum); }
 inline ExitData *make_exit(RoomIndexData *from, RoomIndexData *to, int dir) { return make_exit(from, to, to_shint(dir)); }
 
-const char *const cargo_names[CONTRABAND_MAX] = {
+const char *const cargo_names[ContrabandMax] = {
         "none", "Ore", "Produce", "Meat", "Metal", "Minerals", "Components",
         "Fuel_cells", "Tabanna", "Cultured", "Processed", "Duracrete",
         "Durasteel",
@@ -471,9 +471,9 @@ const char *const mprog_flags[] = {
 
 int get_commandflag args((char *flag));
 int get_godflags args((char *flag));
-extern RoomIndexData *room_index_hash[MAX_KEY_HASH];
-extern MobIndexData *mob_index_hash[MAX_KEY_HASH];
-extern ObjIndexData *obj_index_hash[MAX_KEY_HASH];
+extern RoomIndexData *room_index_hash[MaxKeyHash];
+extern MobIndexData *mob_index_hash[MaxKeyHash];
+extern ObjIndexData *obj_index_hash[MaxKeyHash];
 
 // Match declaration in mud.hpp
 char *flag_string(int bitvector, const char *const flagarray[])
@@ -482,7 +482,7 @@ char *flag_string(int bitvector, const char *const flagarray[])
         buf[0] = '\0';
         for (int i = 0; i < 32; ++i)
         {
-                if (IS_SET(bitvector, 1 << i))
+                if (IsSet(bitvector, 1 << i))
                 {
                         mudstrlcat(buf, flagarray[i], MSL);
                         mudstrlcat(buf, ", ", MSL);
@@ -499,7 +499,7 @@ bool can_rmodify(CharData * ch, RoomIndexData * room)
         int       vnum = room->vnum;
         AreaData *pArea;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return FALSE;
         if (get_trust(ch) >= sysdata.level_modify_proto)
                 return TRUE;
@@ -522,7 +522,7 @@ bool can_omodify(CharData * ch, ObjData * obj)
         int       vnum = obj->pIndexData->vnum;
         AreaData *pArea;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return FALSE;
         if (get_trust(ch) >= sysdata.level_modify_proto)
                 return TRUE;
@@ -545,7 +545,7 @@ bool can_oedit(CharData * ch, ObjIndexData * obj)
         int       vnum = obj->vnum;
         AreaData *pArea;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return FALSE;
         if (get_trust(ch) >= LevelGod)
                 return TRUE;
@@ -572,7 +572,7 @@ bool can_mmodify(CharData * ch, CharData * mob)
         if (mob == ch)
                 return TRUE;
 
-        if (!IS_NPC(mob))
+        if (!IsNpc(mob))
         {
                 if (get_trust(ch) >= sysdata.level_modify_proto
                     && get_trust(ch) > get_trust(mob))
@@ -584,7 +584,7 @@ bool can_mmodify(CharData * ch, CharData * mob)
 
         vnum = mob->pIndexData->vnum;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return FALSE;
         if (get_trust(ch) >= sysdata.level_modify_proto)
                 return TRUE;
@@ -607,7 +607,7 @@ bool can_medit(CharData * ch, MobIndexData * mob)
         int       vnum = mob->vnum;
         AreaData *pArea;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return FALSE;
         if (get_trust(ch) >= LevelGod)
                 return TRUE;
@@ -680,7 +680,7 @@ int get_wearloc(char *type)
 {
         int       x;
 
-        for (x = 0; x < MAX_WEAR; x++)
+        for (x = 0; x < MaxWear; x++)
                 if (!str_cmp(type, wear_locs[x]))
                         return x;
         return -1;
@@ -690,7 +690,7 @@ int get_exflag(char *flag)
 {
         int       x;
 
-        for (x = 0; x <= MAX_EXFLAG; x++)
+        for (x = 0; x <= MaxExflag; x++)
                 if (!str_cmp(flag, ex_flags[x]))
                         return x;
         return -1;
@@ -700,7 +700,7 @@ int get_rflag(char *flag)
 {
         int       x;
 
-        for (x = 0; x < MAX_ROOM_FLAG; x++)
+        for (x = 0; x < MaxRoomFlag; x++)
                 if (!str_cmp(flag, r_flags[x]))
                         return x;
         return -1;
@@ -879,7 +879,7 @@ CMDF do_goto(CharData * ch, const char *argument)
                         return;
                 }
 
-                if (vnum < 1 || IS_NPC(ch) || !ch->pcdata->area)
+                if (vnum < 1 || IsNpc(ch) || !ch->pcdata->area)
                 {
                         send_to_char("No such location.\n\r", ch);
                         return;
@@ -908,7 +908,7 @@ CMDF do_goto(CharData * ch, const char *argument)
                         bug("Goto: make_room failed", 0);
                         return;
                 }
-                set_char_color(AT_WHITE, ch);
+                set_char_color(AtWhite, ch);
                 send_to_char
                         ("Waving your hand, you form order from swirling chaos,\n\rand step into a new reality...\n\r",
                          ch);
@@ -952,7 +952,7 @@ CMDF do_goto(CharData * ch, const char *argument)
 
                 if ((ch->in_room->vnum < pArea->low_r_vnum
                      || ch->in_room->vnum > pArea->hi_r_vnum)
-                    && !xIS_SET(ch->in_room->RoomFlags, ROOM_HOTEL))
+                    && !xIS_SET(ch->in_room->RoomFlags, RoomHotel))
                 {
                         send_to_char
                                 ("Builders can only use goto from a hotel or in their zone.\n\r",
@@ -966,14 +966,14 @@ CMDF do_goto(CharData * ch, const char *argument)
         if (ch->fighting)
                 stop_fighting(ch, TRUE);
 
-        if (!IS_SET(ch->act, PLR_WIZINVIS))
+        if (!IsSet(ch->act, PlrWizinvis))
         {
                 if (ch->pcdata && ch->pcdata->bamfout[0] != '\0')
-                        act(AT_IMMORT, "$T", ch, NULL, ch->pcdata->bamfout,
-                            TO_ROOM);
+                        act(AtImmort, "$T", ch, NULL, ch->pcdata->bamfout,
+                            ToRoom);
                 else {
                         static const char bamfout_msg[] = "leaves in a swirl of the Force.";
-                        act(AT_IMMORT, "$n $T", ch, NULL, const_cast<char*>(bamfout_msg), TO_ROOM);
+                        act(AtImmort, "$n $T", ch, NULL, const_cast<char*>(bamfout_msg), ToRoom);
                 }
         }
 
@@ -986,14 +986,14 @@ CMDF do_goto(CharData * ch, const char *argument)
         }
         char_to_room(ch, location);
 
-        if (!IS_SET(ch->act, PLR_WIZINVIS))
+        if (!IsSet(ch->act, PlrWizinvis))
         {
                 if (ch->pcdata && ch->pcdata->bamfin[0] != '\0')
-                        act(AT_IMMORT, "$T", ch, NULL, ch->pcdata->bamfin,
-                            TO_ROOM);
+                        act(AtImmort, "$T", ch, NULL, ch->pcdata->bamfin,
+                            ToRoom);
                 else {
                         static const char bamfin_msg[] = "enters in a swirl of the Force.";
-                        act(AT_IMMORT, "$n $T", ch, NULL, const_cast<char*>(bamfin_msg), TO_ROOM);
+                        act(AtImmort, "$n $T", ch, NULL, const_cast<char*>(bamfin_msg), ToRoom);
                 }
         }
 
@@ -1005,10 +1005,10 @@ CMDF do_goto(CharData * ch, const char *argument)
         for (fch = in_room->first_person; fch; fch = fch_next)
         {
                 fch_next = fch->next_in_room;
-                if (fch->master == ch && IS_IMMORTAL(fch))
+                if (fch->master == ch && IsImmortal(fch))
                 {
-                        act(AT_ACTION, "You follow $N.", fch, NULL, ch,
-                            TO_CHAR);
+                        act(AtAction, "You follow $N.", fch, NULL, ch,
+                            ToChar);
                         do_goto(fch, argument);
                 }
         }
@@ -1030,7 +1030,7 @@ CMDF do_mset(CharData * ch, char *argument)
         bool      lockvictim;
 
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mob's can't mset\n\r", ch);
                 return;
@@ -1064,7 +1064,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 }
                 STRFREE(victim->description);
                 victim->description = copy_buffer(ch);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                 {
                         STRFREE(victim->pIndexData->description);
                         victim->pIndexData->description =
@@ -1150,13 +1150,13 @@ CMDF do_mset(CharData * ch, char *argument)
                 }
         }
 
-        if (get_trust(ch) <= LevelImmortal && !IS_NPC(victim))
+        if (get_trust(ch) <= LevelImmortal && !IsNpc(victim))
         {
                 send_to_char("You can't do that!\n\r", ch);
                 ch->dest_buf = NULL;
                 return;
         }
-        if (get_trust(ch) < get_trust(victim) && !IS_NPC(victim))
+        if (get_trust(ch) < get_trust(victim) && !IsNpc(victim))
         {
                 send_to_char("You can't do that!\n\r", ch);
                 ch->dest_buf = NULL;
@@ -1165,7 +1165,7 @@ CMDF do_mset(CharData * ch, char *argument)
         if (lockvictim)
                 ch->dest_buf = victim;
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 minattr = 1;
                 maxattr = 30;
@@ -1198,7 +1198,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->perm_str = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->perm_str = to_shint(value);
                 return;
         }
@@ -1214,7 +1214,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->perm_int = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->perm_int = to_shint(value);
                 return;
         }
@@ -1230,7 +1230,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->perm_wis = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->perm_wis = to_shint(value);
                 return;
         }
@@ -1246,7 +1246,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->perm_dex = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->perm_dex = to_shint(value);
                 return;
         }
@@ -1262,7 +1262,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->perm_con = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->perm_con = to_shint(value);
                 return;
         }
@@ -1278,7 +1278,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->perm_cha = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->perm_cha = to_shint(value);
                 return;
         }
@@ -1299,7 +1299,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->perm_lck = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->perm_lck = to_shint(value);
                 return;
         }
@@ -1308,7 +1308,7 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("You cannot set the home for a mob!",
                                      ch);
@@ -1338,7 +1338,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->perm_frc = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->perm_frc = to_shint(value);
                 return;
         }
@@ -1355,7 +1355,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->SavingPoisonDeath = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->SavingPoisonDeath = to_shint(value);
                 return;
         }
@@ -1372,7 +1372,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->SavingWand = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->SavingWand = to_shint(value);
                 return;
         }
@@ -1389,7 +1389,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->SavingParaPetri = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->SavingParaPetri = to_shint(value);
                 return;
         }
@@ -1406,7 +1406,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->SavingBreath = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->SavingBreath = to_shint(value);
                 return;
         }
@@ -1423,7 +1423,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->SavingSpellStaff = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->SavingSpellStaff = to_shint(value);
                 return;
         }
@@ -1438,7 +1438,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->sex = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->sex = to_shint(value);
                 return;
         }
@@ -1496,7 +1496,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
                 if (!can_mmodify(ch, victim))
                         return;
-                if ((bind = get_eq_char(victim, ITEM_WEAR_BINDING)) != NULL)
+                if ((bind = get_eq_char(victim, ItemWearBinding)) != NULL)
                 {
                         send_to_char
                                 ("You should remove their bindings first.\n\r",
@@ -1518,7 +1518,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
                 if (!can_mmodify(ch, victim))
                         return;
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("You cannot modify that on mobs.", ch);
                         return;
@@ -1550,7 +1550,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("That is not a Valid race.", ch);
                         return;
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->race = get_race(arg3);
                 return;
         }
@@ -1565,7 +1565,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->Armor = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->ac = to_shint(value);
                 return;
         }
@@ -1574,7 +1574,7 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Not on PC's.\n\r", ch);
                         return;
@@ -1596,7 +1596,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 victim->Armor = to_shint(static_cast<int>(100 - value * 2.5));
                 victim->Hitroll = to_shint(value / 5);
                 victim->Damroll = to_shint(value / 5);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                 {
                         victim->pIndexData->level = to_shint(value);
                         victim->pIndexData->ac = to_shint(static_cast<int>(100 - value * 2.5));
@@ -1623,7 +1623,7 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Not on PC's.\n\r", ch);
                         return;
@@ -1635,7 +1635,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->numattacks = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->numattacks = to_shint(value);
                 return;
         }
@@ -1645,7 +1645,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
                 victim->gold = value;
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->gold = value < 0 ? 0u : static_cast<unsigned int>(value);
                 return;
         }
@@ -1654,7 +1654,7 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                if (IS_NPC(victim) || !victim->pcdata)
+                if (IsNpc(victim) || !victim->pcdata)
                 {
                         send_to_char("Not on NPCs.\n\r", ch);
                         return;
@@ -1668,7 +1668,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
                 victim->Hitroll = to_shint(URANGE(0, value, 85));
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->Hitroll = victim->Hitroll;
                 return;
         }
@@ -1678,7 +1678,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
                 victim->Damroll = to_shint(URANGE(0, value, 65));
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->Damroll = victim->Damroll;
                 return;
         }
@@ -1695,7 +1695,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->max_hit = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->max_hit = victim->max_hit;
                 return;
         }
@@ -1726,7 +1726,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
                 victim->alignment = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->alignment = to_shint(value);
                 return;
         }
@@ -1740,7 +1740,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("You can't do that.\n\r", ch);
                         return;
                 }
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Mobs don't have passwords.\n\r", ch);
                         return;
@@ -1773,7 +1773,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
                 DISPOSE(victim->pcdata->pwd);
                 victim->pcdata->pwd = str_dup(new_hash.c_str());
-                if (IS_SET(sysdata.save_flags, SV_PASSCHG))
+                if (IsSet(sysdata.save_flags, SvPasschg))
                         save_char_obj(victim);
                 send_to_char("Ok.\n\r", ch);
                 ch_printf(victim, "Your password has been changed by %s.\n\r",
@@ -1783,7 +1783,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "quest"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -1803,7 +1803,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "qpa"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -1815,7 +1815,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "qp"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -1861,7 +1861,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "thirst"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -1873,13 +1873,13 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[COND_THIRST] = to_shint(value);
+                victim->pcdata->condition[CondThirst] = to_shint(value);
                 return;
         }
 
         if (!str_cmp(arg2, "drunk"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -1891,13 +1891,13 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[COND_DRUNK] = to_shint(value);
+                victim->pcdata->condition[CondDrunk] = to_shint(value);
                 return;
         }
 
         if (!str_cmp(arg2, "full"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -1909,7 +1909,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[COND_FULL] = to_shint(value);
+                victim->pcdata->condition[CondFull] = to_shint(value);
                 return;
         }
 
@@ -1917,15 +1917,15 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                if (!IS_NPC(victim) && get_trust(ch) < LevelSupreme)
+                if (!IsNpc(victim) && get_trust(ch) < LevelSupreme)
                 {
                         send_to_char("Not on PC's.\n\r", ch);
                         return;
                 }
-                snprintf(buf, MSL, "%s%c/%s", PLAYER_DIR, tolower(arg3[0]),
+                snprintf(buf, MSL, "%s%c/%s", PlayerDir, tolower(arg3[0]),
                          capitalize(arg3));
 
-                if (!IS_NPC(victim) && file_exist(buf))
+                if (!IsNpc(victim) && file_exist(buf))
                 {
                         send_to_char
                                 ("That would overwrite someone pfile.\n\r",
@@ -1935,7 +1935,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
                 STRFREE(victim->name);
                 victim->name = STRALLOC(arg3);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                 {
                         STRFREE(victim->pIndexData->PlayerName);
                         victim->pIndexData->PlayerName =
@@ -1951,7 +1951,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("You can't do that.\n\r", ch);
                         return;
                 }
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -1972,7 +1972,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("You can't do that.\n\r", ch);
                         return;
                 }
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         if (arg3[0] == '\0')
                         {
@@ -1990,8 +1990,8 @@ CMDF do_mset(CharData * ch, char *argument)
                         }
                         STRFREE(victim->mob_clan);
                         victim->mob_clan = QUICKLINK(clan->name);
-                        if (IS_NPC(victim)
-                            && IS_SET(victim->act, ACT_PROTOTYPE))
+                        if (IsNpc(victim)
+                            && IsSet(victim->act, ActPrototype))
                                 STRFREE(victim->pIndexData->mob_clan);
                         victim->pIndexData->mob_clan = QUICKLINK(clan->name);
                         send_to_char("Clan set.\n\r", ch);
@@ -2041,7 +2041,7 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 STRFREE(victim->short_descr);
                 victim->short_descr = STRALLOC(arg3);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                 {
                         STRFREE(victim->pIndexData->short_descr);
                         victim->pIndexData->short_descr =
@@ -2056,7 +2056,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 mudstrlcpy(buf, arg3, MSL);
                 mudstrlcat(buf, "\n\r", MSL);
                 victim->long_descr = STRALLOC(buf);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                 {
                         STRFREE(victim->pIndexData->long_descr);
                         victim->pIndexData->long_descr =
@@ -2071,8 +2071,8 @@ CMDF do_mset(CharData * ch, char *argument)
                 {
                         STRFREE(victim->description);
                         victim->description = STRALLOC(arg3);
-                        if (IS_NPC(victim)
-                            && IS_SET(victim->act, ACT_PROTOTYPE))
+                        if (IsNpc(victim)
+                            && IsSet(victim->act, ActPrototype))
                         {
                                 STRFREE(victim->pIndexData->description);
                                 victim->pIndexData->description =
@@ -2088,7 +2088,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "title"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -2099,7 +2099,7 @@ CMDF do_mset(CharData * ch, char *argument)
         }
         if (!str_cmp(arg2, "rank"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -2116,7 +2116,7 @@ CMDF do_mset(CharData * ch, char *argument)
         }
         if (!str_cmp(arg2, "spouse"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -2134,7 +2134,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "age"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
@@ -2150,7 +2150,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Not on PC's.\n\r", ch);
                         return;
@@ -2185,8 +2185,8 @@ CMDF do_mset(CharData * ch, char *argument)
                         victim->spec_fun = NULL;
                         STRFREE(victim->spec_funname);
                         send_to_char("Special function removed.\n\r", ch);
-                        if (IS_NPC(victim)
-                            && IS_SET(victim->act, ACT_PROTOTYPE))
+                        if (IsNpc(victim)
+                            && IsSet(victim->act, ActPrototype))
                         {
                                 victim->pIndexData->spec_fun = NULL;
                                 STRFREE(victim->pIndexData->spec_funname);
@@ -2211,7 +2211,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 victim->spec_fun = specfun;
                 STRFREE(victim->spec_funname);
                 victim->spec_funname = STRALLOC(arg3);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                 {
                         victim->pIndexData->spec_fun = victim->spec_fun;
                         STRFREE(victim->pIndexData->spec_funname);
@@ -2228,7 +2228,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Not on PC's.\n\r", ch);
                         return;
@@ -2263,8 +2263,8 @@ CMDF do_mset(CharData * ch, char *argument)
                         victim->spec_2 = NULL;
                         STRFREE(victim->spec2_funname);
                         send_to_char("Special function removed.\n\r", ch);
-                        if (IS_NPC(victim)
-                            && IS_SET(victim->act, ACT_PROTOTYPE))
+                        if (IsNpc(victim)
+                            && IsSet(victim->act, ActPrototype))
                         {
                                 victim->pIndexData->spec_fun = NULL;
                                 STRFREE(victim->pIndexData->spec2_funname);
@@ -2289,7 +2289,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 victim->spec_2 = specfun;
                 STRFREE(victim->spec2_funname);
                 victim->spec2_funname = STRALLOC(arg3);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                 {
                         victim->pIndexData->spec_2 = victim->spec_2;
                         STRFREE(victim->pIndexData->spec2_funname);
@@ -2303,8 +2303,8 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 bool      pcflag;
 
-                if (!IS_NPC(victim)
-                    && (!IS_SET(ch->pcdata->flags, IMM_ADMIN)
+                if (!IsNpc(victim)
+                    && (!IsSet(ch->pcdata->flags, ImmAdmin)
                         && ch->top_level != MaxLevel))
                 {
                         send_to_char
@@ -2320,7 +2320,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char
                                 ("Usage: mset <victim> flags <flag> [flag]...\n\r",
                                  ch);
-                        if (IS_NPC(victim))
+                        if (IsNpc(victim))
                                 send_to_char(wordwrap(show_ext_flag_string
                                                       (NUMITEMS(act_flags),
                                                        act_flags), 78), ch);
@@ -2345,10 +2345,10 @@ CMDF do_mset(CharData * ch, char *argument)
                 {
                         pcflag = FALSE;
                         argument = one_argument(argument, arg3);
-                        value = IS_NPC(victim) ? get_actflag(arg3) :
+                        value = IsNpc(victim) ? get_actflag(arg3) :
                                 get_plrflag(arg3);
 
-                        if (!IS_NPC(victim) && (value < 0 || value > 31))
+                        if (!IsNpc(victim) && (value < 0 || value > 31))
                         {
                                 pcflag = TRUE;
                                 value = get_pcflag(arg3);
@@ -2357,31 +2357,31 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
                         {
-                                if (IS_NPC(victim)
-                                    && 1 << value == ACT_IS_NPC)
+                                if (IsNpc(victim)
+                                    && 1 << value == ActIsNpc)
                                         send_to_char
                                                 ("If that could be changed, it would cause many problems.\n\r",
                                                  ch);
-                                else if (IS_NPC(victim)
-                                         && 1 << value == ACT_POLYMORPHED)
+                                else if (IsNpc(victim)
+                                         && 1 << value == ActPolymorphed)
                                         send_to_char
                                                 ("Changing that would be a _bad_ thing.\n\r",
                                                  ch);
                                 else
                                 {
                                         if (pcflag)
-                                                TOGGLE_BIT(victim->pcdata->
+                                                ToggleBit(victim->pcdata->
                                                            flags, 1 << value);
                                         else
                                         {
-                                                TOGGLE_BIT(victim->act,
+                                                ToggleBit(victim->act,
                                                            1 << value);
                                                 /*
                                                  * NPC check added by Gorog 
                                                  */
-                                                if (IS_NPC(victim)
+                                                if (IsNpc(victim)
                                                     && (1 << value ==
-                                                        ACT_PROTOTYPE))
+                                                        ActPrototype))
                                                         victim->pIndexData->
                                                                 act =
                                                                 victim->act;
@@ -2389,7 +2389,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 }
                         }
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->act = victim->act;
                 return;
         }
@@ -2412,7 +2412,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_NPC(ch) || !ch->pcdata)
+                if (IsNpc(ch) || !ch->pcdata)
                 {
                         send_to_char("Not on NPC's\n\r", ch);
                         return;
@@ -2427,14 +2427,14 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ch_printf(ch, "Unknown flag: %s\n\r", godflags_arg);
                                 return;
                         }
-                        TOGGLE_BIT(victim->pcdata->godflags, 1 << to_shint(tempnum));
+                        ToggleBit(victim->pcdata->godflags, 1 << to_shint(tempnum));
                 }
                 send_to_char("Done.\n\r", ch);
                 return;
         }
         if (!str_cmp(arg2, "wanted"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Wanted flags are for players only.\n\r",
                                      ch);
@@ -2468,7 +2468,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "affected"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's flags.\n\r",
@@ -2496,9 +2496,9 @@ CMDF do_mset(CharData * ch, char *argument)
                         if (value < 0 || value > 31)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                TOGGLE_BIT(victim->affected_by, 1 << value);
+                                ToggleBit(victim->affected_by, 1 << value);
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->affected_by = victim->affected_by;
                 return;
         }
@@ -2508,7 +2508,7 @@ CMDF do_mset(CharData * ch, char *argument)
          */
         if (!str_cmp(arg2, "r"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2524,7 +2524,7 @@ CMDF do_mset(CharData * ch, char *argument)
         }
         if (!str_cmp(arg2, "i"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2541,7 +2541,7 @@ CMDF do_mset(CharData * ch, char *argument)
         }
         if (!str_cmp(arg2, "s"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2557,7 +2557,7 @@ CMDF do_mset(CharData * ch, char *argument)
         }
         if (!str_cmp(arg2, "ri"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2576,7 +2576,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "rs"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2594,7 +2594,7 @@ CMDF do_mset(CharData * ch, char *argument)
         }
         if (!str_cmp(arg2, "is"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2612,7 +2612,7 @@ CMDF do_mset(CharData * ch, char *argument)
         }
         if (!str_cmp(arg2, "ris"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2633,7 +2633,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "resistant"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's resistancies.\n\r",
@@ -2660,16 +2660,16 @@ CMDF do_mset(CharData * ch, char *argument)
                         if (value < 0 || value > 31)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                TOGGLE_BIT(victim->resistant, 1 << value);
+                                ToggleBit(victim->resistant, 1 << value);
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->resistant = victim->resistant;
                 return;
         }
 
         if (!str_cmp(arg2, "immune"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's immunities.\n\r",
@@ -2697,16 +2697,16 @@ CMDF do_mset(CharData * ch, char *argument)
                         if (value < 0 || value > 31)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                TOGGLE_BIT(victim->immune, 1 << value);
+                                ToggleBit(victim->immune, 1 << value);
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->immune = victim->immune;
                 return;
         }
 
         if (!str_cmp(arg2, "susceptible"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
+                if (!IsNpc(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's susceptibilities.\n\r",
@@ -2734,9 +2734,9 @@ CMDF do_mset(CharData * ch, char *argument)
                         if (value < 0 || value > 31)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                TOGGLE_BIT(victim->susceptible, 1 << value);
+                                ToggleBit(victim->susceptible, 1 << value);
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->susceptible = victim->susceptible;
                 return;
         }
@@ -2766,14 +2766,14 @@ CMDF do_mset(CharData * ch, char *argument)
                         else
                                 xTOGGLE_BIT(victim->xflags, value);
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->xflags = victim->xflags;
                 return;
         }
 
         if (!str_cmp(arg2, "attack"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char
                                 ("You can only modify a mobile's attacks.\n\r",
@@ -2801,16 +2801,16 @@ CMDF do_mset(CharData * ch, char *argument)
                         if (value < 0 || value > 31)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                TOGGLE_BIT(victim->attacks, 1 << value);
+                                ToggleBit(victim->attacks, 1 << value);
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->attacks = victim->attacks;
                 return;
         }
 
         if (!str_cmp(arg2, "defense"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char
                                 ("You can only modify a mobile's defenses.\n\r",
@@ -2834,30 +2834,30 @@ CMDF do_mset(CharData * ch, char *argument)
                         if (value < 0 || value > 31)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                TOGGLE_BIT(victim->defenses, 1 << value);
+                                ToggleBit(victim->defenses, 1 << value);
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->defenses = victim->defenses;
                 return;
         }
 
         if (!str_cmp(arg2, "pos"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
                 }
                 if (!can_mmodify(ch, victim))
                         return;
-                if (value < 0 || value > POS_STANDING)
+                if (value < 0 || value > PosStanding)
                 {
                         ch_printf(ch, "Position range is 0 to %d.\n\r",
-                                  POS_STANDING);
+                                  PosStanding);
                         return;
                 }
                 victim->position = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->position = to_shint(victim->position);
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -2865,21 +2865,21 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "defpos"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
                 }
                 if (!can_mmodify(ch, victim))
                         return;
-                if (value < 0 || value > POS_STANDING)
+                if (value < 0 || value > PosStanding)
                 {
                         ch_printf(ch, "Position range is 0 to %d.\n\r",
-                                  POS_STANDING);
+                                  PosStanding);
                         return;
                 }
                 victim->defposition = to_shint(value);
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->defposition = to_shint(victim->defposition);
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -2890,7 +2890,7 @@ CMDF do_mset(CharData * ch, char *argument)
          */
         if (!str_cmp(arg2, "hitdie"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
@@ -2915,7 +2915,7 @@ CMDF do_mset(CharData * ch, char *argument)
          */
         if (!str_cmp(arg2, "damdie"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
@@ -2936,7 +2936,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "hitnumdie"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
@@ -2950,7 +2950,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->hitnodice = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -2958,7 +2958,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "hitsizedie"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
@@ -2972,7 +2972,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->hitsizedice = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -2980,7 +2980,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "hitplus"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
@@ -2994,7 +2994,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->hitplus = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -3002,7 +3002,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "damnumdie"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
@@ -3016,7 +3016,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->damnodice = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -3024,7 +3024,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "damsizedie"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
@@ -3038,7 +3038,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->damsizedice = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -3046,7 +3046,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "damplus"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char("Mobiles only.\n\r", ch);
                         return;
@@ -3060,7 +3060,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->damplus = to_shint(value);
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -3070,7 +3070,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "aloaded"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Player Characters only.\n\r", ch);
                         return;
@@ -3087,9 +3087,9 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                if (!IS_SET(victim->pcdata->area->status, AREA_LOADED))
+                if (!IsSet(victim->pcdata->area->status, AreaLoaded))
                 {
-                        SET_BIT(victim->pcdata->area->status, AREA_LOADED);
+                        SetBit(victim->pcdata->area->status, AreaLoaded);
                         send_to_char("Your area set to LOADED!\n\r", victim);
                         if (ch != victim)
                                 send_to_char("Area set to LOADED!\n\r", ch);
@@ -3097,7 +3097,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 }
                 else
                 {
-                        REMOVE_BIT(victim->pcdata->area->status, AREA_LOADED);
+                        RemoveBit(victim->pcdata->area->status, AreaLoaded);
                         send_to_char("Your area set to NOT-LOADED!\n\r",
                                      victim);
                         if (ch != victim)
@@ -3110,16 +3110,16 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "illness"))
         {
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Mobiles cannot have diseases.\n\r", ch);
                         return;
                 }
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         int illness_value;
                         if (!BuildUtils::safe_atoi(argument, illness_value) ||
-                            illness_value > ILLNESS_MAX || illness_value < 0)
+                            illness_value > IllnessMax || illness_value < 0)
                         {
                                 send_to_char
                                         ("Value is outside of illness range.\n\r",
@@ -3135,7 +3135,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "speaking"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char
                                 ("Players must choose the language they speak themselves.\n\r",
@@ -3153,7 +3153,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 }
                 while (argument[0] != '\0')
                 {
-                        LANGUAGE_DATA *lang;
+                        LanguageData *lang;
 
                         argument = one_argument(argument, arg3);
                         if ((lang = get_language(arg3)) != NULL)
@@ -3162,7 +3162,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ch_printf(ch, "Unknown language: %s\n\r",
                                           arg3);
                 }
-                if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
+                if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->speaking = victim->speaking;
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -3170,7 +3170,7 @@ CMDF do_mset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "bounty"))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                 {
                         send_to_char
                                 ("You cannot set bounties onto players.\n\r",
@@ -3217,7 +3217,7 @@ CMDF do_oset(CharData * ch, char *argument)
 
         int       value, tmp;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mob's can't oset\n\r", ch);
                 return;
@@ -3276,7 +3276,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 }
                 STRFREE(obj->description);
                 obj->description = copy_buffer(ch);
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                 {
                         STRFREE(obj->pIndexData->description);
                         obj->pIndexData->description =
@@ -3386,7 +3386,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->value[0] = value;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->value[0] = value;
                 return;
         }
@@ -3396,7 +3396,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->value[1] = value;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->value[1] = value;
                 return;
         }
@@ -3406,10 +3406,10 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->value[2] = value;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                 {
                         obj->pIndexData->value[2] = value;
-                        if (obj->item_type == ITEM_WEAPON && value != 0)
+                        if (obj->item_type == ItemWeapon && value != 0)
                                 obj->value[2] =
                                         obj->pIndexData->value[1] *
                                         obj->pIndexData->value[2];
@@ -3422,7 +3422,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->value[3] = value;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->value[3] = value;
                 return;
         }
@@ -3432,7 +3432,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->value[4] = value;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->value[4] = value;
                 return;
         }
@@ -3442,7 +3442,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->value[5] = value;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->value[5] = value;
                 return;
         }
@@ -3469,7 +3469,7 @@ CMDF do_oset(CharData * ch, char *argument)
                         return;
                 }
                 obj->item_type = static_cast<sh_int>(value);
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->item_type = obj->item_type;
                 return;
         }
@@ -3498,13 +3498,13 @@ CMDF do_oset(CharData * ch, char *argument)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
                         {
-                                TOGGLE_BIT(obj->extra_flags, 1 << value);
-                                if (1 << value == ITEM_PROTOTYPE)
+                                ToggleBit(obj->extra_flags, 1 << value);
+                                if (1 << value == ItemPrototype)
                                         obj->pIndexData->extra_flags =
                                                 obj->extra_flags;
                         }
                 }
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->extra_flags = obj->extra_flags;
                 return;
         }
@@ -3533,10 +3533,10 @@ CMDF do_oset(CharData * ch, char *argument)
                         if (value < 0 || value > 31)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                TOGGLE_BIT(obj->wear_flags, 1 << value);
+                                ToggleBit(obj->wear_flags, 1 << value);
                 }
 
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->wear_flags = obj->wear_flags;
                 return;
         }
@@ -3554,7 +3554,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->weight = to_shint(value);
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->weight = to_shint(value);
                 return;
         }
@@ -3564,7 +3564,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->cost = value;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->cost = value;
                 return;
         }
@@ -3573,7 +3573,7 @@ CMDF do_oset(CharData * ch, char *argument)
         {
                 if (!can_omodify(ch, obj))
                         return;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->rent = value;
                 else
                         send_to_char
@@ -3586,7 +3586,7 @@ CMDF do_oset(CharData * ch, char *argument)
         {
                 if (!can_omodify(ch, obj))
                         return;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->layers = to_shint(value);
                 else
                         send_to_char
@@ -3609,7 +3609,7 @@ CMDF do_oset(CharData * ch, char *argument)
                         return;
                 STRFREE(obj->name);
                 obj->name = STRALLOC(arg3);
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                 {
                         STRFREE(obj->pIndexData->name);
                         obj->pIndexData->name = QUICKLINK(obj->name);
@@ -3621,7 +3621,7 @@ CMDF do_oset(CharData * ch, char *argument)
         {
                 STRFREE(obj->short_descr);
                 obj->short_descr = STRALLOC(arg3);
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                 {
                         STRFREE(obj->pIndexData->short_descr);
                         obj->pIndexData->short_descr =
@@ -3655,7 +3655,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 }
                 STRFREE(obj->action_desc);
                 obj->action_desc = STRALLOC(arg3);
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                 {
                         STRFREE(obj->pIndexData->action_desc);
                         obj->pIndexData->action_desc =
@@ -3670,7 +3670,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 {
                         STRFREE(obj->description);
                         obj->description = STRALLOC(arg3);
-                        if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                        if (IsObjStat(obj, ItemPrototype))
                         {
                                 STRFREE(obj->pIndexData->description);
                                 obj->pIndexData->description =
@@ -3714,13 +3714,13 @@ CMDF do_oset(CharData * ch, char *argument)
                         ch_printf(ch, "Unknown field: %s\n\r", arg2);
                         return;
                 }
-                if (loc >= APPLY_AFFECT && loc < APPLY_WEAPONSPELL)
+                if (loc >= ApplyAffect && loc < ApplyWeaponspell)
                 {
                         bitv = 0;
                         while (argument[0] != '\0')
                         {
                                 argument = one_argument(argument, arg3);
-                                if (loc == APPLY_AFFECT)
+                                if (loc == ApplyAffect)
                                         value = get_aflag(arg3);
                                 else
                                         value = get_risflag(arg3);
@@ -3728,7 +3728,7 @@ CMDF do_oset(CharData * ch, char *argument)
                                         ch_printf(ch, "Unknown flag: %s\n\r",
                                                   arg3);
                                 else
-                                        SET_BIT(bitv, 1 << value);
+                                        SetBit(bitv, 1 << value);
                         }
                         if (!bitv)
                                 return;
@@ -3750,7 +3750,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 paf->modifier = value;
                 paf->bitvector = 0;
                 paf->next = NULL;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         LINK(paf, obj->pIndexData->first_affect,
                              obj->pIndexData->last_affect, next, prev);
                 else
@@ -3783,7 +3783,7 @@ CMDF do_oset(CharData * ch, char *argument)
 
                 count = 0;
 
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                 {
                         ObjIndexData *pObjIndex;
 
@@ -3833,7 +3833,7 @@ CMDF do_oset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                CHECK_SUBRESTRICTED(ch);
+                CheckSubrestricted(ch);
                 if (obj->timer)
                 {
                         send_to_char
@@ -3841,14 +3841,14 @@ CMDF do_oset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (obj->item_type == ITEM_PAPER)
+                if (obj->item_type == ItemPaper)
                 {
                         send_to_char
                                 ("You can not add an extra description to a note paper at the moment.\n\r",
                                  ch);
                         return;
                 }
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         ed = SetOExtraProto(obj->pIndexData, arg3);
                 else
                         ed = SetOExtra(obj, arg3);
@@ -3865,7 +3865,7 @@ CMDF do_oset(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "desc"))
         {
-                CHECK_SUBRESTRICTED(ch);
+                CheckSubrestricted(ch);
                 if (obj->timer)
                 {
                         send_to_char
@@ -3873,14 +3873,14 @@ CMDF do_oset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (obj->item_type == ITEM_PAPER)
+                if (obj->item_type == ItemPaper)
                 {
                         send_to_char
                                 ("You can not add a description to a note paper at the moment.\n\r",
                                  ch);
                         return;
                 }
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         ed = SetOExtraProto(obj->pIndexData, obj->name);
                 else
                         ed = SetOExtra(obj, obj->name);
@@ -3906,7 +3906,7 @@ CMDF do_oset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                 {
                         if (DelOExtraProto(obj->pIndexData, arg3))
                                 send_to_char("Deleted.\n\r", ch);
@@ -3988,7 +3988,7 @@ CMDF do_oset(CharData * ch, char *argument)
         tmp = -1;
         switch (obj->item_type)
         {
-        case ITEM_WEAPON:
+        case ItemWeapon:
                 if (!str_cmp(arg2, "weapontype"))
                 {
                         value = -1;
@@ -4022,21 +4022,21 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "maxcharge"))
                         tmp = 5;
                 break;
-        case ITEM_BOLT:
-        case ITEM_AMMO:
+        case ItemBolt:
+        case ItemAmmo:
                 if (!str_cmp(arg2, "charges"))
                         tmp = 0;
                 if (!str_cmp(arg2, "charge"))
                         tmp = 0;
                 break;
-        case ITEM_BATTERY:
+        case ItemBattery:
                 if (!str_cmp(arg2, "charges"))
                         tmp = 0;
                 if (!str_cmp(arg2, "charge"))
                         tmp = 0;
                 break;
-        case ITEM_RAWSPICE:
-        case ITEM_SPICE:
+        case ItemRawspice:
+        case ItemSpice:
                 if (!str_cmp(arg2, "grade"))
                         tmp = 1;
                 if (!str_cmp(arg2, "spicetype"))
@@ -4058,7 +4058,7 @@ CMDF do_oset(CharData * ch, char *argument)
                         break;
                 }
                 break;
-        case ITEM_CRYSTAL:
+        case ItemCrystal:
                 if (!str_cmp(arg2, "gemtype"))
                 {
                         value = -1;
@@ -4082,13 +4082,13 @@ CMDF do_oset(CharData * ch, char *argument)
                         break;
                 }
                 break;
-        case ITEM_ARMOR:
+        case ItemArmor:
                 if (!str_cmp(arg2, "condition"))
                         tmp = 0;
                 if (!str_cmp(arg2, "ac"))
                         tmp = 1;
                 break;
-        case ITEM_SALVE:
+        case ItemSalve:
                 if (!str_cmp(arg2, "slevel"))
                         tmp = 0;
                 if (!str_cmp(arg2, "maxdoses"))
@@ -4104,8 +4104,8 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (tmp >= 4 && tmp <= 5)
                         value = skill_lookup(arg3);
                 break;
-        case ITEM_POTION:
-        case ITEM_PILL:
+        case ItemPotion:
+        case ItemPill:
                 if (!str_cmp(arg2, "slevel"))
                         tmp = 0;
                 if (!str_cmp(arg2, "spell1"))
@@ -4117,7 +4117,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (tmp >= 1 && tmp <= 3)
                         value = skill_lookup(arg3);
                 break;
-        case ITEM_DEVICE:
+        case ItemDevice:
                 if (!str_cmp(arg2, "slevel"))
                         tmp = 0;
                 if (!str_cmp(arg2, "spell"))
@@ -4130,7 +4130,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "charges"))
                         tmp = 2;
                 break;
-        case ITEM_CONTAINER:
+        case ItemContainer:
                 if (!str_cmp(arg2, "capacity"))
                         tmp = 0;
                 if (!str_cmp(arg2, "cflags"))
@@ -4138,9 +4138,9 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "key"))
                         tmp = 2;
                 break;
-        case ITEM_SWITCH:
-        case ITEM_LEVER:
-        case ITEM_BUTTON:
+        case ItemSwitch:
+        case ItemLever:
+        case ItemButton:
                 if (!str_cmp(arg2, "tflags"))
                 {
                         tmp = 0;
@@ -4153,7 +4153,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!can_omodify(ch, obj))
                         return;
                 obj->value[tmp] = value;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         obj->pIndexData->value[tmp] = value;
                 return;
         }
@@ -4212,13 +4212,13 @@ CMDF do_rset(CharData * ch, char *argument)
                 /*
                  * Protect from messing up prototype flag
                  */
-                if (xIS_SET(location->RoomFlags, ROOM_PROTOTYPE))
+                if (xIS_SET(location->RoomFlags, RoomPrototype))
                         proto = TRUE;
                 else
                         proto = FALSE;
                 location->RoomFlags = meb(value);
                 if (proto)
-                        xSET_BIT(location->RoomFlags, ROOM_PROTOTYPE);
+                        xSET_BIT(location->RoomFlags, RoomPrototype);
                 return;
         }
 
@@ -4245,13 +4245,13 @@ int get_dir(char *txt)
         char      c1, c2;
 
         if (!str_cmp(txt, "northeast"))
-                return DIR_NORTHEAST;
+                return DirNortheast;
         if (!str_cmp(txt, "northwest"))
-                return DIR_NORTHWEST;
+                return DirNorthwest;
         if (!str_cmp(txt, "southeast"))
-                return DIR_SOUTHEAST;
+                return DirSoutheast;
         if (!str_cmp(txt, "southwest"))
-                return DIR_SOUTHWEST;
+                return DirSouthwest;
         if (!str_cmp(txt, "somewhere"))
                 return 10;
 
@@ -4356,7 +4356,7 @@ char *sprint_reset(CharData *ch, ResetData *pReset, sh_int num, bool rlist)
                 mudstrlcpy(roomname, roomsr, MSL);
                 append("%2d) %s (%d) -> %s (%d) [%d]\n\r", num, mobname, pReset->arg1, roomname, pReset->arg3, pReset->arg2);
                 break; }
-        case 'E': if (!mob) mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL); if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) %s (%d) -> %s (%s) [%d]\n\r", num, objname, pReset->arg1, mobname, wear_locs[URANGE(0,pReset->arg3,MAX_WEAR)], pReset->arg2); break;
+        case 'E': if (!mob) mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL); if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) %s (%d) -> %s (%s) [%d]\n\r", num, objname, pReset->arg1, mobname, wear_locs[URANGE(0,pReset->arg3,MaxWear)], pReset->arg2); break;
         case 'H': if (pReset->arg1 > 0 && (obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else if (!obj) mudstrlcpy(objname, "Object: *NULL obj*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) Hide %s (%d)\n\r", num, objname, obj ? obj->vnum : pReset->arg1); break;
         case 'G': if (!mob) mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL); if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) %s (%d) -> %s (carry) [%d]\n\r", num, objname, pReset->arg1, mobname, pReset->arg2); break;
         case 'O': {
@@ -4374,7 +4374,7 @@ char *sprint_reset(CharData *ch, ResetData *pReset, sh_int num, bool rlist)
                 append("%2d) (Put) %s (%d) -> %s (%d) [%d]\n\r", num, objname, pReset->arg1, roomname, obj ? obj->vnum : pReset->arg3, pReset->arg2);
                 break; }
         case 'D': {
-                if (pReset->arg2 < 0 || pReset->arg2 > MAX_DIR + 1) pReset->arg2 = 0; 
+                if (pReset->arg2 < 0 || pReset->arg2 > MaxDir + 1) pReset->arg2 = 0; 
                 if ((room = get_room_index(pReset->arg1)) == NULL) { 
                         mudstrlcpy(roomname, "Room: *BAD VNUM*", MSL); 
                         snprintf(objname, MSL, "%s (no exit)", dir_name[pReset->arg2]); 
@@ -4529,7 +4529,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                         send_to_char("You must supply keyword(s).\n\r", ch);
                         return;
                 }
-                CHECK_SUBRESTRICTED(ch);
+                CheckSubrestricted(ch);
                 ed = SetRExtra(location, work);
                 ch->tempnum = SubNone;
                 ch->substate = SubRoomExtra;
@@ -4601,7 +4601,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                         value = get_rflag(arg2);
                         if (value < 0 || value > MaxBits)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg2);
-                        else if (1 << value == ROOM_PLR_HOME
+                        else if (1 << value == RoomPlrHome
                                  && get_trust(ch) < LevelSupreme)
                                 send_to_char
                                         ("If you want to build a player home use the 'empty_home' flag instead.\n\r",
@@ -4633,7 +4633,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                 }
                 int sector_value;
                 if (!BuildUtils::safe_atoi(work, sector_value) || 
-                    sector_value < 0 || sector_value >= SECT_MAX)
+                    sector_value < 0 || sector_value >= SectMax)
                 {
                         send_to_char("Invalid sector type. Please enter a Valid sector number (0-14).\n\r", ch);
                         return;
@@ -4659,7 +4659,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                         {
                                         const char* dirDigits = arg2 + 1;
                                         int parsedDir = -1;
-                                        if (!BuildUtils::safe_atoi(std::string(dirDigits), parsedDir) || parsedDir < 0 || parsedDir >= MAX_DIR)
+                                        if (!BuildUtils::safe_atoi(std::string(dirDigits), parsedDir) || parsedDir < 0 || parsedDir >= MaxDir)
                                         {
                                                         send_to_char("Invalid exit direction number.\n\r", ch);
                                                         return;
@@ -4763,9 +4763,9 @@ CMDF do_redit(CharData * ch, const char *argument)
                         snprintf(buf, MSL,
                                  "Flags for exit direction: %d  Keywords: %s  Key: %d\n\r[ ",
                                  xit->vdir, xit->keyword, xit->key);
-                        for (value = 0; value <= MAX_EXFLAG; value++)
+                        for (value = 0; value <= MaxExflag; value++)
                         {
-                                if (IS_SET(xit->exit_info, 1 << value))
+                                if (IsSet(xit->exit_info, 1 << value))
                                 {
                                         mudstrlcat(buf, ex_flags[value], MSL);
                                         mudstrlcat(buf, " ", MSL);
@@ -4779,10 +4779,10 @@ CMDF do_redit(CharData * ch, const char *argument)
                 {
                         work = one_argument(work, arg2);
                         value = get_exflag(arg2);
-                        if (value < 0 || value > MAX_EXFLAG)
+                        if (value < 0 || value > MaxExflag)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg2);
                         else
-                                TOGGLE_BIT(xit->exit_info, 1 << value);
+                                ToggleBit(xit->exit_info, 1 << value);
                 }
                 return;
         }
@@ -4825,9 +4825,9 @@ CMDF do_redit(CharData * ch, const char *argument)
                         snprintf(buf, MSL,
                                  "Flags for exit direction: %d  Keywords: %s  Key: %d\n\r[ ",
                                  xit->vdir, xit->keyword, xit->key);
-                        for (value = 0; value <= MAX_EXFLAG; value++)
+                        for (value = 0; value <= MaxExflag; value++)
                         {
-                                if (IS_SET(xit->exit_info, 1 << value))
+                                if (IsSet(xit->exit_info, 1 << value))
                                 {
                                         mudstrlcat(buf, ex_flags[value], MSL);
                                         mudstrlcat(buf, " ", MSL);
@@ -4841,7 +4841,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                 {
                         work = one_argument(work, arg2);
                         value = get_exflag(arg2);
-                        if (value < 0 || value > MAX_EXFLAG)
+                        if (value < 0 || value > MaxExflag)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg2);
                         else
                                 toggle_bexit_flag(xit, 1 << value);
@@ -4867,7 +4867,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                         do_redit(ch, buf);
                         xit = get_exit(location, edir);
                 }
-                TOGGLE_BIT(xit->exit_info, value);
+                ToggleBit(xit->exit_info, value);
                 return;
         }
 
@@ -4998,12 +4998,12 @@ CMDF do_redit(CharData * ch, const char *argument)
                         xit->description = STRALLOC(empty_string);
                         xit->key = -1;
                         xit->exit_info = 0;
-                        act(AT_IMMORT, "$n reveals a hidden passage!", ch,
-                            NULL, NULL, TO_ROOM);
+                        act(AtImmort, "$n reveals a hidden passage!", ch,
+                            NULL, NULL, ToRoom);
                 }
                 else
-                        act(AT_IMMORT, "Something is different...", ch, NULL,
-                            NULL, TO_ROOM);
+                        act(AtImmort, "Something is different...", ch, NULL,
+                            NULL, ToRoom);
                 if (xit->to_room != tmp)
                 {
                         xit->to_room = tmp;
@@ -5190,7 +5190,7 @@ CMDF do_ocreate(CharData * ch, char *argument)
         char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mobiles cannot create.\n\r", ch);
                 return;
@@ -5232,7 +5232,7 @@ CMDF do_ocreate(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
         if (get_trust(ch) <= LevelImmortal)
         {
@@ -5263,12 +5263,12 @@ CMDF do_ocreate(CharData * ch, char *argument)
         }
         obj = create_object(pObjIndex, get_trust(ch));
         obj_to_char(obj, ch);
-        act(AT_IMMORT,
+        act(AtImmort,
             "$n makes some ancient arcane gestures, and opens $s hands to reveal $p!",
-            ch, obj, NULL, TO_ROOM);
-        act(AT_IMMORT,
+            ch, obj, NULL, ToRoom);
+        act(AtImmort,
             "You make some ancient arcane gestures, and open your hands to reveal $p!",
-            ch, obj, NULL, TO_CHAR);
+            ch, obj, NULL, ToChar);
 }
 
 CMDF do_mcreate(CharData * ch, char *argument)
@@ -5282,7 +5282,7 @@ CMDF do_mcreate(CharData * ch, char *argument)
         char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mobiles cannot create.\n\r", ch);
                 return;
@@ -5324,7 +5324,7 @@ CMDF do_mcreate(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
         if (get_trust(ch) <= LevelImmortal)
         {
@@ -5355,12 +5355,12 @@ CMDF do_mcreate(CharData * ch, char *argument)
         }
         mob = create_mobile(pMobIndex);
         char_to_room(mob, ch->in_room);
-        act(AT_IMMORT,
+        act(AtImmort,
             "$n waves $s arms about, and $N appears at $s command!", ch, NULL,
-            mob, TO_ROOM);
-        act(AT_IMMORT,
+            mob, ToRoom);
+        act(AtImmort,
             "You wave your arms about, and $N appears at your command!", ch,
-            NULL, mob, TO_CHAR);
+            NULL, mob, ToChar);
 }
 
 
@@ -5377,7 +5377,7 @@ void free_area(AreaData * are)
         MobIndexData *mid, *mid_next;
         int       icnt;
 
-        for (icnt = 0; icnt < MAX_KEY_HASH; icnt++)
+        for (icnt = 0; icnt < MaxKeyHash; icnt++)
         {
                 for (rid = room_index_hash[icnt]; rid; rid = rid_next)
                 {
@@ -5428,7 +5428,7 @@ void assign_area(CharData * ch)
         AreaData *tarea, *tmp;
         bool      created = FALSE;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
         if (get_trust(ch) >= LevelAvatar
             && ch->pcdata->r_range_lo && ch->pcdata->r_range_hi)
@@ -5448,7 +5448,7 @@ void assign_area(CharData * ch)
                 {
                         snprintf(buf, sizeof(buf), "Creating area entry for %s",
                                  ch->name);
-                        log_string_plus(buf, LOG_NORMAL, ch->top_level);
+                        log_string_plus(buf, LogNormal, ch->top_level);
                         CREATE(tarea, AreaData, 1);
                         LINK(tarea, first_build, last_build, next, prev);
                         tarea->first_reset = NULL;
@@ -5468,7 +5468,7 @@ void assign_area(CharData * ch)
                 {
                         snprintf(buf, sizeof(buf), "Updating area entry for %s",
                                  ch->name);
-                        log_string_plus(buf, LOG_NORMAL, ch->top_level);
+                        log_string_plus(buf, LogNormal, ch->top_level);
                 }
                 tarea->low_r_vnum = ch->pcdata->r_range_lo;
                 tarea->low_o_vnum = ch->pcdata->o_range_lo;
@@ -5487,7 +5487,7 @@ CMDF do_aassign(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         AreaData *tarea, *tmp;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!str_cmp("none", argument)
@@ -5697,7 +5697,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
         if (dolog)
         {
                 snprintf(buf, MSL, "Saving %s...", tarea->filename);
-                log_string_plus(buf, LOG_NORMAL, LevelGreater);
+                log_string_plus(buf, LogNormal, LevelGreater);
         }
 
         snprintf(buf, MSL, "%s.bak", filename);
@@ -5707,14 +5707,14 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
         {
                 bug("fold_area: fopen", 0);
                 perror(filename);
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
                 return;
         }
         if( install )
-            REMOVE_BIT( tarea->flags, AFLAG_PROTOTYPE );
+            RemoveBit( tarea->flags, AflagPrototype );
 
         fprintf(fpout, "#AREA   %s~\n\n\n\n", tarea->name);
-        fprintf(fpout, "#VERSION %d\n\n", AREA_VERSION);
+        fprintf(fpout, "#VERSION %d\n\n", AreaVersion);
         fprintf(fpout, "#AUTHOR %s~\n\n", tarea->author);
         fprintf(fpout, "#RANGES\n");
         fprintf(fpout, "%d %d %d %d\n", tarea->low_soft_range,
@@ -5741,7 +5741,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                 if ((pMobIndex = get_mob_index(vnum)) == NULL)
                         continue;
                 if (install)
-                        REMOVE_BIT(pMobIndex->act, ACT_PROTOTYPE);
+                        RemoveBit(pMobIndex->act, ActPrototype);
                 if (pMobIndex->perm_str != 13 || pMobIndex->perm_int != 13
                     || pMobIndex->perm_wis != 13 || pMobIndex->perm_dex != 13
                     || pMobIndex->perm_con != 13 || pMobIndex->perm_cha != 13
@@ -5849,7 +5849,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                 if ((pObjIndex = get_obj_index(vnum)) == NULL)
                         continue;
                 if (install)
-                        REMOVE_BIT(pObjIndex->extra_flags, ITEM_PROTOTYPE);
+                        RemoveBit(pObjIndex->extra_flags, ItemPrototype);
                 fprintf(fpout, "#%d\n", vnum);
                 fprintf(fpout, "%s~\n", pObjIndex->name);
                 fprintf(fpout, "%s~\n", pObjIndex->short_descr);
@@ -5872,24 +5872,24 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                 val5 = pObjIndex->value[5];
                 switch (pObjIndex->item_type)
                 {
-                case ITEM_PILL:
-                case ITEM_POTION:
-                case ITEM_SCROLL:
-                        if (IS_VALID_SN(val1))
+                case ItemPill:
+                case ItemPotion:
+                case ItemScroll:
+                        if (IsValidSn(val1))
                                 val1 = skill_table[val1]->slot;
-                        if (IS_VALID_SN(val2))
+                        if (IsValidSn(val2))
                                 val2 = skill_table[val2]->slot;
-                        if (IS_VALID_SN(val3))
+                        if (IsValidSn(val3))
                                 val3 = skill_table[val3]->slot;
                         break;
-                case ITEM_DEVICE:
-                        if (IS_VALID_SN(val3))
+                case ItemDevice:
+                        if (IsValidSn(val3))
                                 val3 = skill_table[val3]->slot;
                         break;
-                case ITEM_SALVE:
-                        if (IS_VALID_SN(val4))
+                case ItemSalve:
+                        if (IsValidSn(val4))
                                 val4 = skill_table[val4]->slot;
-                        if (IS_VALID_SN(val5))
+                        if (IsValidSn(val5))
                                 val5 = skill_table[val5]->slot;
                         break;
                 }
@@ -5911,11 +5911,11 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
 
                 for (paf = pObjIndex->first_affect; paf; paf = paf->next)
                         fprintf(fpout, "A\n%d %d\n", paf->location,
-                                ((paf->location == APPLY_WEAPONSPELL
-                                  || paf->location == APPLY_WEARSPELL
-                                  || paf->location == APPLY_REMOVESPELL
-                                  || paf->location == APPLY_STRIPSN)
-                                 && IS_VALID_SN(paf->modifier))
+                                ((paf->location == ApplyWeaponspell
+                                  || paf->location == ApplyWearspell
+                                  || paf->location == ApplyRemovespell
+                                  || paf->location == ApplyStripsn)
+                                 && IsValidSn(paf->modifier))
                                 ? skill_table[paf->modifier]->slot : paf->
                                 modifier);
 
@@ -5950,7 +5950,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                         /*
                          * remove prototype flag from room 
                          */
-                        xREMOVE_BIT(room->RoomFlags, ROOM_PROTOTYPE);
+                        xREMOVE_BIT(room->RoomFlags, RoomPrototype);
                         /*
                          * purge room of (prototyped) mobiles 
                          */
@@ -5958,7 +5958,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                              victim = vnext)
                         {
                                 vnext = victim->next_in_room;
-                                if (IS_NPC(victim))
+                                if (IsNpc(victim))
                                         extract_char(victim, TRUE);
                         }
                         /*
@@ -5983,13 +5983,13 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                                 room->sector_type);
                 for (xit = room->first_exit; xit; xit = xit->next)
                 {
-                        if (IS_SET(xit->exit_info, EX_PORTAL))  /* don't fold portals */
+                        if (IsSet(xit->exit_info, ExPortal))  /* don't fold portals */
                                 continue;
                         fprintf(fpout, "D%d\n", xit->vdir);
                         fprintf(fpout, "%s~\n", strip_cr(xit->description));
                         fprintf(fpout, "%s~\n", strip_cr(xit->keyword));
                         fprintf(fpout, "%d %d %d\n",
-                                xit->exit_info & ~EX_BASHED, xit->key,
+                                xit->exit_info & ~ExBashed, xit->key,
                                 xit->vnum);
                 }
                 for (ed = room->first_extradesc; ed; ed = ed->next)
@@ -6130,7 +6130,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
          */
         fprintf(fpout, "#$\n");
         FCLOSE(fpout);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -6139,7 +6139,7 @@ CMDF do_savearea(CharData * ch, const char *argument)
         AreaData *tarea;
         char      filename[256];
 
-        if (IS_NPC(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
+        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
             || (argument[0] == '\0' && !ch->pcdata->area))
         {
                 send_to_char("You don't have an assigned area to save.\n\r",
@@ -6180,13 +6180,13 @@ CMDF do_savearea(CharData * ch, const char *argument)
         }
 
 /* Ensure not wiping out their area with save before load - Scryn 8/11 */
-        if (!IS_SET(tarea->status, AREA_LOADED))
+        if (!IsSet(tarea->status, AreaLoaded))
         {
                 send_to_char("Your area is not loaded!\n\r", ch);
                 return;
         }
 
-        snprintf(filename, MFL, "%s%s", BUILD_DIR, tarea->filename);
+        snprintf(filename, MFL, "%s%s", BuildDir, tarea->filename);
         ::fold_area(tarea, filename, FALSE, TRUE);
         send_to_char("Done.\n\r", ch);
 }
@@ -6197,7 +6197,7 @@ CMDF do_loadarea(CharData * ch, const char *argument)
         char      filename[256];
         int       tmp;
 
-        if (IS_NPC(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
+        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
             || (argument[0] == '\0' && !ch->pcdata->area))
         {
                 send_to_char("You don't have an assigned area to load.\n\r",
@@ -6238,12 +6238,12 @@ CMDF do_loadarea(CharData * ch, const char *argument)
         }
 
 /* Stops char from loading when already loaded - Scryn 8/11 */
-        if (IS_SET(tarea->status, AREA_LOADED))
+        if (IsSet(tarea->status, AreaLoaded))
         {
                 send_to_char("Your area is already loaded.\n\r", ch);
                 return;
         }
-        snprintf(filename, MFL, "%s%s", BUILD_DIR, tarea->filename);
+        snprintf(filename, MFL, "%s%s", BuildDir, tarea->filename);
         send_to_char("Loading...\n\r", ch);
         load_area_file(tarea, filename);
         send_to_char("Linking exits...\n\r", ch);
@@ -6320,7 +6320,7 @@ void write_area_list(void)
         AreaData *tarea;
         FILE     *fpout;
 
-        fpout = fopen(FILE_AREA_LIST, "w");
+        fpout = fopen(FileAreaList, "w");
         if (!fpout)
         {
                 bug("FATAL: cannot open area.lst for writing!\n\r", 0);
@@ -6415,9 +6415,9 @@ CMDF do_installarea(CharData * ch, char *argument)
                         tarea->nplayer = to_shint(num);
                         send_to_char("Renaming author's building file.\n\r",
                                      ch);
-                        snprintf(buf, sizeof(buf), "%s%s.installed", BUILD_DIR,
+                        snprintf(buf, sizeof(buf), "%s%s.installed", BuildDir,
                                  tarea->filename);
-                        snprintf(arg, sizeof(arg), "%s%s", BUILD_DIR,
+                        snprintf(arg, sizeof(arg), "%s%s", BuildDir,
                                  tarea->filename);
                         rename(arg, buf);
                         send_to_char("Done.\n\r", ch);
@@ -6561,7 +6561,7 @@ ResetData *parse_reset(AreaData * tarea, char *argument, CharData * ch)
                 }
                 if (!is_number(arg3))
                         val2 = get_wearloc(arg3);
-                if (val2 < 0 || val2 >= MAX_WEAR)
+                if (val2 < 0 || val2 >= MaxWear)
                 {
                         send_to_char
                                 ("Reset: EQUIP: invalid wear location\n\r",
@@ -6605,7 +6605,7 @@ ResetData *parse_reset(AreaData * tarea, char *argument, CharData * ch)
                         return NULL;
                 }
                 if ((pexit = get_exit(room, to_shint(val2))) == NULL
-                    || !IS_SET(pexit->exit_info, EX_ISDOOR))
+                    || !IsSet(pexit->exit_info, ExIsdoor))
                 {
                         send_to_char("Reset: DOOR: no such door\n\r", ch);
                         return NULL;
@@ -6640,7 +6640,7 @@ ResetData *parse_reset(AreaData * tarea, char *argument, CharData * ch)
         }
         else if (!str_cmp(arg1, "trap"))
         {
-                if (val2 < 1 || val2 > MAX_TRAPTYPE)
+                if (val2 < 1 || val2 > MaxTraptype)
                 {
                         send_to_char("Reset: TRAP: invalid trap type\n\r",
                                      ch);
@@ -6657,32 +6657,32 @@ ResetData *parse_reset(AreaData * tarea, char *argument, CharData * ch)
                         work = one_argument(work, arg4);
                         value = get_trapflag(arg4);
                         if (value >= 0 || value < 32)
-                                SET_BIT(extra, 1 << value);
+                                SetBit(extra, 1 << value);
                         else
                         {
                                 send_to_char("Reset: TRAP: bad flag\n\r", ch);
                                 return NULL;
                         }
                 }
-                if (IS_SET(extra, TRAP_ROOM) && IS_SET(extra, TRAP_OBJ))
+                if (IsSet(extra, TrapRoom) && IsSet(extra, TrapObj))
                 {
                         send_to_char
                                 ("Reset: TRAP: Must specify room OR object, not both!\n\r",
                                  ch);
                         return NULL;
                 }
-                if (IS_SET(extra, TRAP_ROOM) && !get_room_index(val1))
+                if (IsSet(extra, TrapRoom) && !get_room_index(val1))
                 {
                         send_to_char("Reset: TRAP: no such room\n\r", ch);
                         return NULL;
                 }
-                if (IS_SET(extra, TRAP_OBJ) && val1 > 0
+                if (IsSet(extra, TrapObj) && val1 > 0
                     && !get_obj_index(val1))
                 {
                         send_to_char("Reset: TRAP: no such object\n\r", ch);
                         return NULL;
                 }
-                if (!IS_SET(extra, TRAP_ROOM) && !IS_SET(extra, TRAP_OBJ))
+                if (!IsSet(extra, TrapRoom) && !IsSet(extra, TrapObj))
                 {
                         send_to_char
                                 ("Reset: TRAP: Must specify ROOM or OBJECT\n\r",
@@ -6709,7 +6709,7 @@ CMDF do_astat(CharData * ch, char *argument)
         CharData *vch;
         bool      proto, found;
 
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
 
         found = FALSE;
         proto = FALSE;
@@ -7077,10 +7077,10 @@ CMDF do_aset(CharData * ch, char *argument)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
                         {
-                                if (IS_SET(tarea->flags, 1 << value))
-                                        REMOVE_BIT(tarea->flags, 1 << value);
+                                if (IsSet(tarea->flags, 1 << value))
+                                        RemoveBit(tarea->flags, 1 << value);
                                 else
-                                        SET_BIT(tarea->flags, 1 << value);
+                                        SetBit(tarea->flags, 1 << value);
                         }
                 }
                 return;
@@ -7105,7 +7105,7 @@ CMDF do_rlist(CharData * ch, char *argument)
         char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
-        if (IS_NPC(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
+        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
             || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
@@ -7147,7 +7147,7 @@ CMDF do_rlist(CharData * ch, char *argument)
         {
                 if ((room = get_room_index(vnum)) == NULL)
                         continue;
-                if (xIS_SET(room->RoomFlags, ROOM_PROTOTYPE))
+                if (xIS_SET(room->RoomFlags, RoomPrototype))
                         pager_printf(ch, "%5d) %s   &R(Proto)&R&W\n\r", vnum,
                                      room->name);
                 else
@@ -7169,7 +7169,7 @@ CMDF do_olist(CharData * ch, char *argument)
         /*
          * Greater+ can list out of assigned range - Tri (mlist/rlist as well)
          */
-        if (IS_NPC(ch) || get_trust(ch) < LevelCreator || !ch->pcdata
+        if (IsNpc(ch) || get_trust(ch) < LevelCreator || !ch->pcdata
             || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
@@ -7210,7 +7210,7 @@ CMDF do_olist(CharData * ch, char *argument)
         {
                 if ((obj = get_obj_index(vnum)) == NULL)
                         continue;
-                if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+                if (IsObjStat(obj, ItemPrototype))
                         ch_printf(ch, "%5d) %-20s (%s) &R[Proto]&R&W\n\r",
                                   vnum, obj->name, obj->short_descr);
                 else
@@ -7230,7 +7230,7 @@ CMDF do_mlist(CharData * ch, char *argument)
         int       lrange;
         int       trange;
 
-        if (IS_NPC(ch) || get_trust(ch) < LevelCreator || !ch->pcdata
+        if (IsNpc(ch) || get_trust(ch) < LevelCreator || !ch->pcdata
             || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
@@ -7273,7 +7273,7 @@ CMDF do_mlist(CharData * ch, char *argument)
                 if ((mob = get_mob_index(vnum)) == NULL)
                         continue;
 
-                if (IS_SET(mob->act, ACT_PROTOTYPE))
+                if (IsSet(mob->act, ActPrototype))
                         ch_printf(ch, "%5d) %-20s '%s &R(Proto)&R&W'\n\r",
                                   vnum, mob->PlayerName, mob->short_descr);
 
@@ -7313,7 +7313,7 @@ CMDF do_mpedit(CharData * ch, char *argument)
         MProgData *mprog, *mprg, *mprg_next = NULL;
         int       value, mptype = 0, cnt;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mob's can't mpedit\n\r", ch);
                 return;
@@ -7389,7 +7389,7 @@ CMDF do_mpedit(CharData * ch, char *argument)
                 }
         }
 
-        if (get_trust(ch) < get_trust(victim) || !IS_NPC(victim))
+        if (get_trust(ch) < get_trust(victim) || !IsNpc(victim))
         {
                 send_to_char("You can't do that!\n\r", ch);
                 return;
@@ -7398,7 +7398,7 @@ CMDF do_mpedit(CharData * ch, char *argument)
         if (!can_mmodify(ch, victim))
                 return;
 
-        if (!IS_SET(victim->act, ACT_PROTOTYPE))
+        if (!IsSet(victim->act, ActPrototype))
         {
                 send_to_char
                         ("A mobile must have a prototype flag to be mpset.\n\r",
@@ -7408,7 +7408,7 @@ CMDF do_mpedit(CharData * ch, char *argument)
 
         mprog = victim->pIndexData->mudprogs;
 
-        set_char_color(AT_GREEN, ch);
+        set_char_color(AtGreen, ch);
 
         if (!str_cmp(arg2, "list"))
         {
@@ -7504,7 +7504,7 @@ CMDF do_mpedit(CharData * ch, char *argument)
                 }
                 cnt = num = 0;
                 for (mprg = mprog; mprg; mprg = mprg->next)
-                        if (IS_SET(mprg->type, mptype))
+                        if (IsSet(mprg->type, mptype))
                                 num++;
                 if (value == 1)
                 {
@@ -7525,7 +7525,7 @@ CMDF do_mpedit(CharData * ch, char *argument)
                 STRFREE(mprg_next->comlist);
                 DISPOSE(mprg_next);
                 if (num <= 1)
-                        REMOVE_BIT(victim->pIndexData->progtypes, mptype);
+                        RemoveBit(victim->pIndexData->progtypes, mptype);
                 send_to_char("Program removed.\n\r", ch);
                 return;
         }
@@ -7614,7 +7614,7 @@ CMDF do_opedit(CharData * ch, char *argument)
         MProgData *mprog, *mprg, *mprg_next = NULL;
         int       value, mptype = 0, cnt;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mob's can't opedit\n\r", ch);
                 return;
@@ -7698,7 +7698,7 @@ CMDF do_opedit(CharData * ch, char *argument)
         if (!can_omodify(ch, obj))
                 return;
 
-        if (!IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+        if (!IsObjStat(obj, ItemPrototype))
         {
                 send_to_char
                         ("An object must have a prototype flag to be opset.\n\r",
@@ -7708,7 +7708,7 @@ CMDF do_opedit(CharData * ch, char *argument)
 
         mprog = obj->pIndexData->mudprogs;
 
-        set_char_color(AT_GREEN, ch);
+        set_char_color(AtGreen, ch);
 
         if (!str_cmp(arg2, "list"))
         {
@@ -7804,7 +7804,7 @@ CMDF do_opedit(CharData * ch, char *argument)
                 }
                 cnt = num = 0;
                 for (mprg = mprog; mprg; mprg = mprg->next)
-                        if (IS_SET(mprg->type, mptype))
+                        if (IsSet(mprg->type, mptype))
                                 num++;
                 if (value == 1)
                 {
@@ -7825,7 +7825,7 @@ CMDF do_opedit(CharData * ch, char *argument)
                 STRFREE(mprg_next->comlist);
                 DISPOSE(mprg_next);
                 if (num <= 1)
-                        REMOVE_BIT(obj->pIndexData->progtypes, mptype);
+                        RemoveBit(obj->pIndexData->progtypes, mptype);
                 send_to_char("Program removed.\n\r", ch);
                 return;
         }
@@ -7930,7 +7930,7 @@ CMDF do_rpedit(CharData * ch, char *argument)
         MProgData *mprog, *mprg, *mprg_next = NULL;
         int       value, mptype = 0, cnt;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mob's can't rpedit\n\r", ch);
                 return;
@@ -7996,7 +7996,7 @@ CMDF do_rpedit(CharData * ch, char *argument)
 
         mprog = ch->in_room->mudprogs;
 
-        set_char_color(AT_GREEN, ch);
+        set_char_color(AtGreen, ch);
 
         if (!str_cmp(arg1, "list"))
         {
@@ -8091,7 +8091,7 @@ CMDF do_rpedit(CharData * ch, char *argument)
                 }
                 cnt = num = 0;
                 for (mprg = mprog; mprg; mprg = mprg->next)
-                        if (IS_SET(mprg->type, mptype))
+                        if (IsSet(mprg->type, mptype))
                                 num++;
                 if (value == 1)
                 {
@@ -8112,7 +8112,7 @@ CMDF do_rpedit(CharData * ch, char *argument)
                 STRFREE(mprg_next->comlist);
                 DISPOSE(mprg_next);
                 if (num <= 1)
-                        REMOVE_BIT(ch->in_room->progtypes, mptype);
+                        RemoveBit(ch->in_room->progtypes, mptype);
                 send_to_char("Program removed.\n\r", ch);
                 return;
         }
@@ -8231,8 +8231,8 @@ CMDF do_rdelete(CharData * ch, char *argument)
         for (victim = roomnum->first_person; victim; victim = vnext)
         {
                         vnext = victim->next_in_room;
-                        if (IS_NPC(victim) && victim != ch
-                            && !IS_SET(victim->act, ACT_POLYMORPHED))
+                        if (IsNpc(victim) && victim != ch
+                            && !IsSet(victim->act, ActPolymorphed))
                                 extract_char(victim, TRUE);
         }
 
@@ -8332,7 +8332,7 @@ CMDF do_mdelete(CharData * ch, char *argument)
          */
         if (!(mob = get_mob_index(atoi(arg))))
         {
-                if (!(temp = get_char_room(ch, arg)) || !IS_NPC(temp))
+                if (!(temp = get_char_room(ch, arg)) || !IsNpc(temp))
                 {
                         send_to_char("No such mob.\n\r", ch);
                         return;
@@ -8418,7 +8418,7 @@ CMDF do_ropen(CharData * ch, char *argument)
                         return;
                 }
         }
-        set_char_color(AT_WHITE, ch);
+        set_char_color(AtWhite, ch);
         send_to_char
                 ("Waving your hand, you form order from swirling chaos,\n\rand step into a new reality...\n\r",
                  ch);

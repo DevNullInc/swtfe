@@ -81,7 +81,7 @@ void save_timedata(void)
         FILE     *fp;
         char      filename[MIL];
 
-        snprintf(filename, MSL, "%stime.dat", SYSTEM_DIR);
+        snprintf(filename, MSL, "%stime.dat", SystemDir);
 
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) == NULL)
@@ -97,7 +97,7 @@ void save_timedata(void)
                 fprintf(fp, "%s", "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -144,7 +144,7 @@ bool load_timedata(void)
         bool      found;
 
         found = FALSE;
-        snprintf(filename, MSL, "%stime.dat", SYSTEM_DIR);
+        snprintf(filename, MSL, "%stime.dat", SystemDir);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -243,7 +243,7 @@ sh_int    days = 0;
  */
 void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
 {
-        ACCOUNT_DATA *Account = NULL;
+        AccountData *Account = NULL;
         char     *word;
         char     *name = NULL;
         char     *clan = NULL;
@@ -324,7 +324,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
 
         }
 
-        if (count == FALSE && !IS_SET(pact, PCFLAG_EXEMPT))
+        if (count == FALSE && !IsSet(pact, PcflagExempt))
         {
                 if ((level < 10 && tdiff > sysdata.newbie_purge)
                     || (level < LevelImmortal
@@ -334,16 +334,16 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
                                 bug("pfiles: File %s not found.", fname);
                         else
                         {
-                                snprintf(buf, MSL, "%s%c/%s.F", PLAYER_DIR,
+                                snprintf(buf, MSL, "%s%c/%s.F", PlayerDir,
                                          tolower(name[0]), capitalize(name));
                                 if (access(buf, F_OK) == 0)
                                         unlink(buf);
-                                snprintf(buf, MSL, "%s%c/%s.home", PLAYER_DIR,
+                                snprintf(buf, MSL, "%s%c/%s.home", PlayerDir,
                                          tolower(name[0]), capitalize(name));
                                 if (access(buf, F_OK) == 0)
                                         unlink(buf);
                                 snprintf(buf, MSL, "%s%c/%s.clone",
-                                         PLAYER_DIR, tolower(name[0]),
+                                         PlayerDir, tolower(name[0]),
                                          capitalize(name));
                                 if (access(buf, F_OK) == 0)
                                         unlink(buf);
@@ -374,7 +374,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
                                         log_string
                                                 ("Email Notification was send");
                                 }
-#ifdef AUTO_AUTH
+#ifdef AutoAuth
                                 remove_from_auth(name);
 #endif
 #ifdef ACCOUNT
@@ -399,7 +399,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
                                         {
                                                 snprintf(accountfile, 255,
                                                          "%s%c/%s.Account",
-                                                         ACCOUNT_DIR,
+                                                         AccountDir,
                                                          tolower(Account->
                                                                  name[0]),
                                                          capitalize(Account->
@@ -566,7 +566,7 @@ void pfile_scan(bool count)
 
         for (alpha_loop = 0; alpha_loop <= 25; alpha_loop++)
         {
-                snprintf(directory_name, MSL, "%s%c", PLAYER_DIR,
+                snprintf(directory_name, MSL, "%s%c", PlayerDir,
                          'a' + alpha_loop);
                 /*
                  * log_string( directory_name ); 
@@ -680,7 +680,7 @@ CMDF do_pfiles(CharData * ch, char *argument)
 {
         char      buf[MSL];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mobs cannot use this command!\n\r", ch);
                 return;
@@ -691,8 +691,8 @@ CMDF do_pfiles(CharData * ch, char *argument)
                 /*
                  * Makes a backup copy of existing pfiles just in case - Samson 
                  */
-                snprintf(buf, MSL, "tar -czf %spfiles.tgz %s*", PLAYER_DIR,
-                         PLAYER_DIR);
+                snprintf(buf, MSL, "tar -czf %spfiles.tgz %s*", PlayerDir,
+                         PlayerDir);
 
                 /*
                  * GAH, the shell pipe won't Process the command that gets pieced
@@ -756,7 +756,7 @@ void check_pfiles(time_t reset)
                          * Makes a backup copy of existing pfiles just in case - Samson 
                          */
                         snprintf(buf, MSL, "tar -cf %spfiles.tar %s*",
-                                 PLAYER_DIR, PLAYER_DIR);
+                                 PlayerDir, PlayerDir);
 
                         /*
                          * Would use the shell pipe for this, but alas, it requires a ch in order
@@ -820,7 +820,7 @@ bool notify_deletion(char *email)
 
         mudstrlcpy(sendstring, "", 1000);
 
-        fp = fopen(EMAIL_FILE, "w");
+        fp = fopen(EmailFile, "w");
         fprintf(fp,
                 "This is an automated message from Dark Warriors mud notifying you about the deletion\n");
         fprintf(fp,
@@ -839,7 +839,7 @@ bool notify_deletion(char *email)
 
         snprintf(sendstring, MSL, "%s -s \"%s: %s\" \"%s\" < %s",
                  sysdata.mail_path, "Automated Email",
-                 "Dark Warriors Player File", email, EMAIL_FILE);
+                 "Dark Warriors Player File", email, EmailFile);
         log_string(sendstring);
         if ((mfp = popen(sendstring, "w")) == NULL)
         {
@@ -847,6 +847,6 @@ bool notify_deletion(char *email)
                 return FALSE;
         }
         pclose(mfp);
-        remove(EMAIL_FILE);
+        remove(EmailFile);
         return TRUE;
 }

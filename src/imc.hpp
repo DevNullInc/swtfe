@@ -16,24 +16,24 @@
  * This name was chosen to represent the ideals of not only the code, but of the
  * network which spawned it.
  */
-#define IMC_VERSION_STRING "IMC2 Renegade CL-2d " // Version 2d - September 2025
-#define IMC_VERSION 2
+#define ImcVersionString "IMC2 Renegade CL-2d " // Version 2d - September 2025
+#define ImcVersion 2
 
 /* Number of entries to keep in the channel histories */
-#define MAX_IMCHISTORY 20
-#define MAX_IMCTELLHISTORY 20
+#define MaxImchistory 20
+#define MaxImctellhistory 20
 
 /* Remcon: Ask and ye shall receive. */
-#define IMC_DIR          "../imc/"
+#define ImcDir          "../imc/"
 
-#define IMC_CHANNEL_FILE IMC_DIR "imc.channels"
-#define IMC_CONFIG_FILE  IMC_DIR "imc.config"
-#define IMC_BAN_FILE     IMC_DIR "imc.ignores"
-#define IMC_UCACHE_FILE  IMC_DIR "imc.ucache"
-#define IMC_COLOR_FILE   IMC_DIR "imc.color"
-#define IMC_HELP_FILE    IMC_DIR "imc.help"
-#define IMC_CMD_FILE     IMC_DIR "imc.commands"
-#define IMC_HOTBOOT_FILE IMC_DIR "imc.hotboot"
+#define ImcChannelFile ImcDir "imc.channels"
+#define ImcConfigFile  ImcDir "imc.config"
+#define ImcBanFile     ImcDir "imc.ignores"
+#define ImcUcacheFile  ImcDir "imc.ucache"
+#define ImcColorFile   ImcDir "imc.color"
+#define ImcHelpFile    ImcDir "imc.help"
+#define ImcCmdFile     ImcDir "imc.commands"
+#define ImcHotbootFile ImcDir "imc.hotboot"
 
 /* Make sure you set the macros in the imccfg.h file properly or things get ugly from here. */
 #include "imccfg.hpp"
@@ -42,59 +42,59 @@
 struct CharData;
 struct FBFILE;
 
-#define IMC_BUFF_SIZE 16384
+#define ImcBuffSize 16384
 
 /* Connection states stuff */
 enum imc_constates
 {
-        IMC_OFFLINE, IMC_AUTH1, IMC_AUTH2, IMC_ONLINE
+        ImcOffline, ImcAuth1, ImcAuth2, ImcOnline
 };
 
 typedef enum
 {
-        IMCPERM_NOTSET, IMCPERM_NONE, IMCPERM_MORT, IMCPERM_IMM,
-        IMCPERM_ADMIN, IMCPERM_IMP
+        ImcpermNotset, ImcpermNone, ImcpermMort, ImcpermImm,
+        ImcpermAdmin, ImcpermImp
 } imc_permissions;
 
 /* Flag macros */
-#define IMCIS_SET(var, bit)         ((var) & (bit))
-#define IMCSET_BIT(var, bit)        ((var) |= (bit))
-#define IMCREMOVE_BIT(var, bit)     ((var) &= ~(bit))
+#define ImcisSet(var, bit)         ((var) & (bit))
+#define ImcsetBit(var, bit)        ((var) |= (bit))
+#define ImcremoveBit(var, bit)     ((var) &= ~(bit))
 
 /* Channel flags, only one so far, but you never know when more might be useful */
-#define IMCCHAN_LOG      (1 <<  0)
+#define ImcchanLog      (1 <<  0)
 
 /* Player flags */
-#define IMC_TELL         (1 <<  0)
-#define IMC_DENYTELL     (1 <<  1)
-#define IMC_BEEP         (1 <<  2)
-#define IMC_DENYBEEP     (1 <<  3)
-#define IMC_INVIS        (1 <<  4)
-#define IMC_PRIVACY      (1 <<  5)
-#define IMC_DENYFINGER   (1 <<  6)
-#define IMC_AFK          (1 <<  7)
-#define IMC_COLORFLAG    (1 <<  8)
-#define IMC_PERMOVERRIDE (1 <<  9)
-#define IMC_NOTIFY       (1 << 10)
+#define ImcTell         (1 <<  0)
+#define ImcDenytell     (1 <<  1)
+#define ImcBeep         (1 <<  2)
+#define ImcDenybeep     (1 <<  3)
+#define ImcInvis        (1 <<  4)
+#define ImcPrivacy      (1 <<  5)
+#define ImcDenyfinger   (1 <<  6)
+#define ImcAfk          (1 <<  7)
+#define ImcColorflag    (1 <<  8)
+#define ImcPermoverride (1 <<  9)
+#define ImcNotify       (1 << 10)
 
-#define IMCPERM(ch)           (CH_IMCDATA((ch))->imcperm)
-#define IMCFLAG(ch)           (CH_IMCDATA((ch))->imcflag)
-#define FIRST_IMCIGNORE(ch)   (CH_IMCDATA((ch))->imcfirst_ignore)
-#define LAST_IMCIGNORE(ch)    (CH_IMCDATA((ch))->imclast_ignore)
-#define IMC_LISTEN(ch)        (CH_IMCDATA((ch))->imc_listen)
-#define IMC_DENY(ch)          (CH_IMCDATA((ch))->imc_denied)
-#define IMC_RREPLY(ch)        (CH_IMCDATA((ch))->rreply)
-#define IMC_RREPLY_NAME(ch)   (CH_IMCDATA((ch))->rreply_name)
-#define IMC_EMAIL(ch)         (CH_IMCDATA((ch))->email)
-#define IMC_HOMEPAGE(ch)      (CH_IMCDATA((ch))->homepage)
-#define IMC_AIM(ch)           (CH_IMCDATA((ch))->aim)
-#define IMC_ICQ(ch)           (CH_IMCDATA((ch))->icq)
-#define IMC_YAHOO(ch)         (CH_IMCDATA((ch))->yahoo)
-#define IMC_MSN(ch)           (CH_IMCDATA((ch))->msn)
-#define IMC_COMMENT(ch)       (CH_IMCDATA((ch))->comment)
-#define IMCTELLHISTORY(ch,x)  (CH_IMCDATA((ch))->imc_tellhistory[(x)])
-#define IMCISINVIS(ch)        ( IMCIS_SET( IMCFLAG((ch)), IMC_INVIS ) || IS_SET((ch)->act, PLR_WIZINVIS) )
-#define IMCAFK(ch)            ( IMCIS_SET( IMCFLAG((ch)), IMC_AFK ) || IS_SET(ch->act, PLR_AFK) )
+#define IMCPERM(ch)           (ChImcdata((ch))->imcperm)
+#define IMCFLAG(ch)           (ChImcdata((ch))->imcflag)
+#define FirstImcignore(ch)   (ChImcdata((ch))->imcfirst_ignore)
+#define LastImcignore(ch)    (ChImcdata((ch))->imclast_ignore)
+#define ImcListen(ch)        (ChImcdata((ch))->imc_listen)
+#define ImcDeny(ch)          (ChImcdata((ch))->imc_denied)
+#define ImcRreply(ch)        (ChImcdata((ch))->rreply)
+#define ImcRreplyName(ch)   (ChImcdata((ch))->rreply_name)
+#define ImcEmail(ch)         (ChImcdata((ch))->email)
+#define ImcHomepage(ch)      (ChImcdata((ch))->homepage)
+#define ImcAim(ch)           (ChImcdata((ch))->aim)
+#define ImcIcq(ch)           (ChImcdata((ch))->icq)
+#define ImcYahoo(ch)         (ChImcdata((ch))->yahoo)
+#define ImcMsn(ch)           (ChImcdata((ch))->msn)
+#define ImcComment(ch)       (ChImcdata((ch))->comment)
+#define IMCTELLHISTORY(ch,x)  (ChImcdata((ch))->imc_tellhistory[(x)])
+#define IMCISINVIS(ch)        ( ImcisSet( IMCFLAG((ch)), ImcInvis ) || IsSet((ch)->act, PlrWizinvis) )
+#define IMCAFK(ch)            ( ImcisSet( IMCFLAG((ch)), ImcAfk ) || IsSet(ch->act, PlrAfk) )
 
 /* Should not need to edit anything below this point */
 
@@ -130,23 +130,23 @@ struct imc_help_table;
 struct imc_cmd_alias;
 struct imc_packet_handler;
 
-using IMC_CHANNEL = imc_channel;
-using IMC_PACKET = imc_packet;
-using IMC_PDATA = imc_packet_data;
+using ImcChannel = imc_channel;
+using ImcPacket = imc_packet;
+using ImcPdata = imc_packet_data;
 using SITEINFO = imc_siteinfo;
 using REMOTEINFO = imc_remoteinfo;
-using IMC_BAN = imc_ban_data;
-using IMC_CHARDATA = imcchar_data;
-using IMC_IGNORE = imc_ignore;
-using IMCUCACHE_DATA = imcucache_data;
-using IMC_COLOR = imc_color_table;
-using IMC_CMD_DATA = imc_command_table;
-using IMC_HELP_DATA = imc_help_table;
-using IMC_ALIAS = imc_cmd_alias;
-using IMC_PHANDLER = imc_packet_handler;
+using ImcBan = imc_ban_data;
+using ImcChardata = imcchar_data;
+using ImcIgnore = imc_ignore;
+using ImcucacheData = imcucache_data;
+using ImcColor = imc_color_table;
+using ImcCmdData = imc_command_table;
+using ImcHelpData = imc_help_table;
+using ImcAlias = imc_cmd_alias;
+using ImcPhandler = imc_packet_handler;
 
-using IMC_FUN = void(CharData*, const std::string&);
-using PACKET_FUN = void(IMC_PACKET*, const std::string&);
+using ImcFun = void(CharData*, const std::string&);
+using PacketFun = void(ImcPacket*, const std::string&);
 
 extern REMOTEINFO *first_rinfo;
 extern REMOTEINFO *last_rinfo;
@@ -157,18 +157,18 @@ extern SITEINFO *this_imcmud;
  */
 struct imc_cmd_alias
 {
-        IMC_ALIAS *next;
-        IMC_ALIAS *prev;
+        ImcAlias *next;
+        ImcAlias *prev;
    std::string name;
 };
 
 struct imc_command_table
 {
-        IMC_CMD_DATA *next;
-        IMC_CMD_DATA *prev;
-        IMC_ALIAS *first_alias;
-        IMC_ALIAS *last_alias;
-        IMC_FUN  *function;
+        ImcCmdData *next;
+        ImcCmdData *prev;
+        ImcAlias *first_alias;
+        ImcAlias *last_alias;
+        ImcFun  *function;
    std::string name;
         int       level;
         bool      connected;
@@ -176,8 +176,8 @@ struct imc_command_table
 
 struct imc_help_table
 {
-        IMC_HELP_DATA *next;
-        IMC_HELP_DATA *prev;
+        ImcHelpData *next;
+        ImcHelpData *prev;
         int       level;
    std::string name;
    std::string text;
@@ -185,8 +185,8 @@ struct imc_help_table
 
 struct imc_color_table
 {
-        IMC_COLOR *next;
-        IMC_COLOR *prev;
+        ImcColor *next;
+        ImcColor *prev;
    std::string name;
    std::string mudtag;
    std::string imctag;
@@ -194,15 +194,15 @@ struct imc_color_table
 
 struct imc_ignore
 {
-        IMC_IGNORE *next;
-        IMC_IGNORE *prev;
+        ImcIgnore *next;
+        ImcIgnore *prev;
    std::string name;
 };
 
 struct imcucache_data
 {
-        IMCUCACHE_DATA *next;
-        IMCUCACHE_DATA *prev;
+        ImcucacheData *next;
+        ImcucacheData *prev;
         time_t    time;
         int       gender;
    std::string name;
@@ -210,13 +210,13 @@ struct imcucache_data
 
 struct imcchar_data
 {
-        IMC_IGNORE *imcfirst_ignore;    /* List of ignored people */
-        IMC_IGNORE *imclast_ignore;
+        ImcIgnore *imcfirst_ignore;    /* List of ignored people */
+        ImcIgnore *imclast_ignore;
    std::string rreply;
    std::string rreply_name;
    std::string imc_listen;
    std::string imc_denied;
-   std::vector<std::string> imc_tellhistory = std::vector<std::string>(MAX_IMCTELLHISTORY);
+   std::vector<std::string> imc_tellhistory = std::vector<std::string>(MaxImctellhistory);
    std::string email;
    std::string homepage;
    std::string aim;
@@ -230,8 +230,8 @@ struct imcchar_data
 
 struct imc_channel
 {
-        IMC_CHANNEL *next;
-        IMC_CHANNEL *prev;
+        ImcChannel *next;
+        ImcChannel *prev;
         long      flags;
         short     level;
         bool      open;
@@ -245,20 +245,20 @@ struct imc_channel
    std::string regformat;
    std::string emoteformat;
    std::string socformat;
-   std::vector<std::string> history = std::vector<std::string>(MAX_IMCHISTORY);
+   std::vector<std::string> history = std::vector<std::string>(MaxImchistory);
 };
 
 struct imc_packet_data
 {
-        IMC_PDATA *next;
-        IMC_PDATA *prev;
+        ImcPdata *next;
+        ImcPdata *prev;
    std::string field;
 };
 
 struct imc_packet
 {
-   IMC_PDATA *first_data;
-   IMC_PDATA *last_data;
+   ImcPdata *first_data;
+   ImcPdata *last_data;
    std::string from;
    std::string to;
    std::string type;
@@ -293,8 +293,8 @@ struct imc_siteinfo
         /*
          * Conection parameters - These don't save in the config file 
          */
-        char      InBuf[IMC_BUFF_SIZE]; /* input buffer */
-        char      InComm[IMC_BUFF_SIZE];
+        char      InBuf[ImcBuffSize]; /* input buffer */
+        char      InComm[ImcBuffSize];
         char     *OutBuf;   /* output buffer */
         char     *versionid;    /* Transient version id for the imclist */
         unsigned long OutSize;
@@ -318,16 +318,16 @@ struct imc_remoteinfo
 /* A mudwide ban */
 struct imc_ban_data
 {
-        IMC_BAN  *next;
-        IMC_BAN  *prev;
+        ImcBan  *next;
+        ImcBan  *prev;
    std::string name;
 };
 
 struct imc_packet_handler
 {
-        IMC_PHANDLER *next;
-        IMC_PHANDLER *prev;
-        PACKET_FUN *func;
+        ImcPhandler *next;
+        ImcPhandler *prev;
+        PacketFun *func;
    std::string name;
 };
 
@@ -340,10 +340,10 @@ bool imc_loadchar(CharData* ch, FILE* fp, const std::string& word);
 void imc_savechar(CharData* ch, FILE* fp);
 void imc_freechardata(CharData* ch);
 void imc_loop();
-IMC_CHANNEL* imc_findchannel(const std::string& name); // Externalized for comm.c spamguard checks
-void imc_register_packet_handler(const std::string& name, PACKET_FUN* func);
-std::string imc_funcname(IMC_FUN* func);
-IMC_FUN* imc_function(const std::string& func);
+ImcChannel* imc_findchannel(const std::string& name); // Externalized for comm.c spamguard checks
+void imc_register_packet_handler(const std::string& name, PacketFun* func);
+std::string imc_funcname(ImcFun* func);
+ImcFun* imc_function(const std::string& func);
 
 #if defined(_DISKIO_H_)
 void imc_load_pfile(CharData* ch, const std::string& tag, int num, const std::string& line);

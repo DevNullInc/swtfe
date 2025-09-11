@@ -67,7 +67,7 @@
 
 namespace shell {
 	// Change this to update the base directory everywhere
-	inline constexpr std::string_view BASE_DIR = "/workspaces/swtfe/tfeadmins/";
+	inline constexpr std::string_view BaseDir = "/workspaces/swtfe/tfeadmins/";
 	inline constexpr std::string_view BINARYFILE = "swr";
 
 	inline constexpr std::string_view CODEZONEDIR    = "/workspaces/swtfe/tfeadmins/dist3/area/";
@@ -85,16 +85,16 @@ namespace shell {
 	inline constexpr std::string_view CODERACEDIR    = "/workspaces/swtfe/tfeadmins/dist3/races/";
 	inline constexpr std::string_view BUILDRACEDIR   = "/workspaces/swtfe/tfeadmins/dist2/races/";
 	inline constexpr std::string_view MAINRACEDIR    = "/workspaces/swtfe/tfeadmins/dist/races/";
-	inline constexpr std::string_view MAIN_STARTUP   = "swr";
-	inline constexpr std::string_view PORT_STARTUP   = "startup";
-	inline constexpr std::string_view MAIN_PORT      = "/workspaces/swtfe/tfeadmins/";
-	inline constexpr std::string_view CODING_PORT    = "/workspaces/swtfe/tfeadmins/port/";
-	inline constexpr std::string_view SOURCE_DIR     = "/workspaces/swtfe/tfeadmins/src/";
+	inline constexpr std::string_view MainStartup   = "swr";
+	inline constexpr std::string_view PortStartup   = "startup";
+	inline constexpr std::string_view MainPort      = "/workspaces/swtfe/tfeadmins/";
+	inline constexpr std::string_view CodingPort    = "/workspaces/swtfe/tfeadmins/port/";
+	inline constexpr std::string_view SourceDir     = "/workspaces/swtfe/tfeadmins/src/";
 
 #ifdef OVERLANDCODE
-	inline constexpr std::string_view MAINMAPDIR    = BASE_DIR + std::string_view{"dist/maps/"};
-	inline constexpr std::string_view BUILDMAPDIR   = BASE_DIR + std::string_view{"dist2/maps/"};
-	inline constexpr std::string_view CODEMAPDIR    = BASE_DIR + std::string_view{"dist3/maps/"};
+	inline constexpr std::string_view MAINMAPDIR    = BaseDir + std::string_view{"dist/maps/"};
+	inline constexpr std::string_view BUILDMAPDIR   = BaseDir + std::string_view{"dist2/maps/"};
+	inline constexpr std::string_view CODEMAPDIR    = BaseDir + std::string_view{"dist3/maps/"};
 #endif
 
 

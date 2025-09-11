@@ -46,10 +46,10 @@
 #include <time.h>
 #include "mud.hpp"
 
-#define WEB_ROOMS "../webrooms/"   /* Directory to store room HTML files */
+#define WebRooms "../webrooms/"   /* Directory to store room HTML files */
 
 void room_to_html args((RoomIndexData * room, bool complete));
-extern RoomIndexData *room_index_hash[MAX_KEY_HASH];
+extern RoomIndexData *room_index_hash[MaxKeyHash];
 
 CMDF do_webroom(char *argument)
 {
@@ -61,7 +61,7 @@ CMDF do_webroom(char *argument)
         if (!str_cmp(argument, "complete"))
                 complete = TRUE;
 
-        for (hash = 0; hash < MAX_KEY_HASH; hash++)
+        for (hash = 0; hash < MaxKeyHash; hash++)
                 for (room = room_index_hash[hash]; room; room = room->next)
                 {
                         if ((room->vnum >= 300 && room->vnum <= 499)
@@ -85,7 +85,7 @@ void room_to_html(RoomIndexData * room, bool complete)
         if (!room)
                 return;
 
-        snprintf(filename, 256, "%s%d.html", WEB_ROOMS, room->vnum);
+        snprintf(filename, 256, "%s%d.html", WebRooms, room->vnum);
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) != NULL)
         {
@@ -145,7 +145,7 @@ void room_to_html(RoomIndexData * room, bool complete)
                         for (rch = room->first_person; rch;
                              rch = rch->next_in_room)
                         {
-                                if (IS_NPC(rch))
+                                if (IsNpc(rch))
                                         snprintf(buf, MSL,
                                                  "<FONT color=#FF00FF font=Courier>%s<BR><FONT color=#000000 font=Courier>",
                                                  rch->long_descr);
@@ -164,6 +164,6 @@ void room_to_html(RoomIndexData * room, bool complete)
         {
                 bug("Error Opening room to html index stream!", 0);
         }
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }

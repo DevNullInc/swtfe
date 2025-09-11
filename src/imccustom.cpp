@@ -66,7 +66,7 @@ CMDF do_doublexp(CharData *ch, char *argument)
 /* do_gpoint: allows immortals to set a personal goto point, or clear it */
 CMDF do_gpoint(CharData *ch, char *argument)
 {
-    if (IS_NPC(ch))
+    if (IsNpc(ch))
         return;
 
     if (!argument || argument[0] == '\0') {

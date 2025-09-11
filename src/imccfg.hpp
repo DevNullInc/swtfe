@@ -9,46 +9,46 @@
 
 #if !defined(IMCCIRCLE) && !defined(IMCSTANDALONE)
 // Modernized: prefer inline functions for type safety
-inline auto CH_IMCDATA(auto ch) { return ch->pcdata->imcchardata; }
-inline auto CH_IMCLEVEL(auto ch) { return ch->top_level; }
-inline std::string CH_IMCNAME(auto ch) { return ch->name; }
-inline auto CH_IMCSEX(auto ch) { return ch->sex; }
-inline std::string CH_IMCTITLE(auto ch) { return ch->pcdata->title; }
+inline auto ChImcdata(auto ch) { return ch->pcdata->imcchardata; }
+inline auto ChImclevel(auto ch) { return ch->top_level; }
+inline std::string ChImcname(auto ch) { return ch->name; }
+inline auto ChImcsex(auto ch) { return ch->sex; }
+inline std::string ChImctitle(auto ch) { return ch->pcdata->title; }
 #endif
 
 
 #if defined(IMCSMAUG) || defined(IMCCHRONICLES)
 #define SMAUGSOCIAL
-using SOCIAL_DATA = SocialType;
-inline auto CH_IMCRANK(auto ch) { return ch->pcdata->rank; }
+using SocialData = SocialType;
+inline auto ChImcrank(auto ch) { return ch->pcdata->rank; }
 #endif
 
 
 #if defined(IMCROM)
 inline auto first_descriptor() { return descriptor_list; }
-inline std::string CH_IMCRANK(auto ch) { return title_table[ch->class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]; }
+inline std::string ChImcrank(auto ch) { return title_table[ch->class][ch->level][ch->sex == SexFemale ? 1 : 0]; }
 #endif
 
 
 #if defined(IMCMERC)
 inline auto first_descriptor() { return descriptor_list; }
-inline std::string CH_IMCRANK(auto ch) { return title_table[ch->class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]; }
+inline std::string ChImcrank(auto ch) { return title_table[ch->class][ch->level][ch->sex == SexFemale ? 1 : 0]; }
 #endif
 
 
 #if defined(IMCACK)
 inline auto first_descriptor() { return first_desc; }
-inline std::string CH_IMCRANK(auto ch) { return class_table[ch->class].who_name; }
+inline std::string ChImcrank(auto ch) { return class_table[ch->class].who_name; }
 #endif
 
 
 #if defined(IMCUENVY)
 #define SMAUGSOCIAL
-using SOCIAL_DATA = SOC_INDEX_DATA;
-SOC_INDEX_DATA* find_social(const std::string& command);
+using SocialData = SocIndexData;
+SocIndexData* find_social(const std::string& command);
 
 inline auto first_descriptor() { return descriptor_list; }
-inline std::string CH_IMCRANK(auto ch) { return title_table[ch->class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]; }
+inline std::string ChImcrank(auto ch) { return title_table[ch->class][ch->level][ch->sex == SexFemale ? 1 : 0]; }
 #endif
 
 /* Blasted circle, always gotta do thing the hard way! */
@@ -73,7 +73,7 @@ struct social_messg {
 extern social_messg* soc_mess_list;
 social_messg* find_social(const std::string& name);
 
-using SOCIAL_DATA = social_messg;
+using SocialData = social_messg;
 using CharData = CharData;
 using DescriptorData = DescriptorData;
 
@@ -84,12 +84,12 @@ inline std::string title_male(int chclass, int level);
 
 inline auto first_descriptor() { return descriptor_list; }
 inline int URANGE(int a, int b, int c) { return (b < a ? a : (b > c ? c : b)); }
-inline auto CH_IMCDATA(auto ch) { return ch->player_specials->imcchardata; }
-inline auto CH_IMCLEVEL(auto ch) { return GET_LEVEL(ch); }
-inline std::string CH_IMCNAME(auto ch) { return GET_NAME(ch); }
-inline std::string CH_IMCTITLE(auto ch) { return GET_TITLE(ch); }
-inline std::string CH_IMCRANK(auto ch) { return GET_SEX(ch) == SEX_FEMALE ? title_female(GET_CLASS(ch), GET_LEVEL(ch)) : title_male(GET_CLASS(ch), GET_LEVEL(ch)); }
-inline auto CH_IMCSEX(auto ch) { return GET_SEX(ch); }
+inline auto ChImcdata(auto ch) { return ch->player_specials->imcchardata; }
+inline auto ChImclevel(auto ch) { return GetLevel(ch); }
+inline std::string ChImcname(auto ch) { return GetName(ch); }
+inline std::string ChImctitle(auto ch) { return GetTitle(ch); }
+inline std::string ChImcrank(auto ch) { return GetSex(ch) == SexFemale ? title_female(GetClass(ch), GetLevel(ch)) : title_male(GetClass(ch), GetLevel(ch)); }
+inline auto ChImcsex(auto ch) { return GetSex(ch); }
 #endif
 
 #if defined(IMCSTANDALONE)
@@ -104,14 +104,14 @@ constexpr int FALSE = 0;
 constexpr int TRUE = 1;
 #endif
 
-inline auto CH_IMCDATA(auto ch) { return ch->imcchardata; }
-inline auto CH_IMCLEVEL(auto ch) { return ch->top_level; }
-inline std::string CH_IMCNAME(auto ch) { return ch->name; }
-inline auto CH_IMCSEX(auto ch) { return ch->sex; }
-inline std::string CH_IMCTITLE(auto) { return "User"; }
-inline std::string CH_IMCRANK(auto) { return "User"; }
+inline auto ChImcdata(auto ch) { return ch->imcchardata; }
+inline auto ChImclevel(auto ch) { return ch->top_level; }
+inline std::string ChImcname(auto ch) { return ch->name; }
+inline auto ChImcsex(auto ch) { return ch->sex; }
+inline std::string ChImctitle(auto) { return "User"; }
+inline std::string ChImcrank(auto) { return "User"; }
 
-enum class genders { SEX_NEUTRAL, SEX_MALE, SEX_FEMALE };
+enum class genders { SexNeutral, SexMale, SexFemale };
 
 constexpr int ConPlaying = 1;
 inline char LOWER(char c) { return (c >= 'A' && c <= 'Z' ? c + 'a' - 'A' : c); }

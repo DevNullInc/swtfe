@@ -53,11 +53,11 @@
 // Betting System Constants
 // ============================================================================
 namespace BettingSystem {
-    constexpr int DEFAULT_PERCENTAGE_INCREASE = 25;     // Default +% increase
-    constexpr int DEFAULT_MULTIPLIER = 2;               // Default multiplier (x2)
-    constexpr int MAX_PERCENTAGE = 10000;               // Maximum percentage (100x)
-    constexpr int MAX_MULTIPLIER = 1000;                // Maximum multiplier
-    constexpr int OVERFLOW_SAFETY_DIVISOR = 10;         // Safety margin for overflow checks
+    constexpr int DefaultPercentageIncrease = 25;     // Default +% increase
+    constexpr int DefaultMultiplier = 2;               // Default multiplier (x2)
+    constexpr int MaxPercentage = 10000;               // Maximum percentage (100x)
+    constexpr int MaxMultiplier = 1000;                // Maximum multiplier
+    constexpr int OverflowSafetyDivisor = 10;         // Safety margin for overflow checks
 }
 
 // ============================================================================

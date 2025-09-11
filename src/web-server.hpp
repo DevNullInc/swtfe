@@ -45,10 +45,10 @@
 namespace web_server {
 
 // HTML Directories
-constexpr std::string_view HTML_DIR = "../public_html/";
-constexpr std::string_view HTML_MUDINFO_WRITE_DIR = "../public_html/mudinfo/";
-constexpr std::string_view WEBCHANGES_FILE = "../public_html/mudinfo/changes.html";
-constexpr std::string_view WHO_FILE = "../public_html/mudinfo/wholist.html";
+constexpr std::string_view HtmlDir = "../public_html/";
+constexpr std::string_view HtmlMudinfoWriteDir = "../public_html/mudinfo/";
+constexpr std::string_view WebchangesFile = "../public_html/mudinfo/changes.html";
+constexpr std::string_view WhoFile = "../public_html/mudinfo/wholist.html";
 
 // HTTP Request End Marker
 constexpr std::array<char, 5> ENDREQUEST = { 13, 10, 13, 10, 0 }; // (CRLFCRLF)

@@ -53,9 +53,9 @@ class ShipData;
 class MissileData;
 
 namespace space2 {
-        inline constexpr std::string_view DOCK_DIR = "../dock/";
-        inline constexpr std::string_view FILE_DOCK_LIST = "dock.lst";
-        inline constexpr std::string_view SHIPIMAGE_DIR = "../shipimages/";
+        inline constexpr std::string_view DockDir = "../dock/";
+        inline constexpr std::string_view FileDockList = "dock.lst";
+        inline constexpr std::string_view ShipimageDir = "../shipimages/";
 
         class Dock {
         public:

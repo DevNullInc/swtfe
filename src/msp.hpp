@@ -45,7 +45,7 @@
 #include <string>
 #include <array>
 
-constexpr int TELOPT_MSP = 90;
+constexpr int TeloptMsp = 90;
 
 extern const std::array<unsigned char, 3> will_msp_str;
 extern const std::array<unsigned char, 3> start_msp_str;

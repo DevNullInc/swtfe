@@ -44,87 +44,87 @@
 
 /* Only need to define functions that other functions call */
 
-#define DECLARE_DO_FUN( fun ) CMDFV (fun)( CharData * ch, const char * argument)
-#define DECLARE_SPELL_FUN( fun ) SPELLF (fun)( int sn, int level, CharData *ch, void *vo )
+#define DeclareDoFun( fun ) CMDFV (fun)( CharData * ch, const char * argument)
+#define DeclareSpellFun( fun ) SPELLF (fun)( int sn, int level, CharData *ch, void *vo )
 
-DECLARE_DO_FUN(skill_notfound);
+DeclareDoFun(skill_notfound);
 
-DECLARE_DO_FUN(do_at);
-DECLARE_DO_FUN(do_auction);
-DECLARE_DO_FUN(do_board);
-DECLARE_DO_FUN(do_boardlook);
-DECLARE_DO_FUN(do_cedit);
-DECLARE_DO_FUN(do_closehatch);
-DECLARE_DO_FUN(do_command);
-DECLARE_DO_FUN(do_exits);
-DECLARE_DO_FUN(do_get);
-DECLARE_DO_FUN(do_glance);
-DECLARE_DO_FUN(do_goto);
-DECLARE_DO_FUN(do_hail);
-DECLARE_DO_FUN(do_help);
-DECLARE_DO_FUN(do_leaveship);
-DECLARE_DO_FUN(do_loadarea);
-DECLARE_DO_FUN(do_look);
-DECLARE_DO_FUN(do_ls);
-DECLARE_DO_FUN(do_memory);
-DECLARE_DO_FUN(do_openhatch);
-DECLARE_DO_FUN(do_quit);
-DECLARE_DO_FUN(do_recall);
-DECLARE_DO_FUN(do_remove);
-DECLARE_DO_FUN(do_restoretime);
-DECLARE_DO_FUN(do_return);
-DECLARE_DO_FUN(do_return);
-DECLARE_DO_FUN(do_revert);
-DECLARE_DO_FUN(do_sacrifice);
-DECLARE_DO_FUN(do_say);
-DECLARE_DO_FUN(do_sit);
-DECLARE_DO_FUN(do_split);
-DECLARE_DO_FUN(do_save);
-DECLARE_DO_FUN(do_quaff);
-DECLARE_DO_FUN(do_takedrug);
-DECLARE_DO_FUN(do_oldscore);
-DECLARE_DO_FUN(do_rreset);
-DECLARE_DO_FUN(do_reset);
-DECLARE_DO_FUN(do_yell);
-DECLARE_DO_FUN(do_hide);
-DECLARE_DO_FUN(do_emote);
-DECLARE_DO_FUN(do_sleep);
-DECLARE_DO_FUN(do_setblaster);
-DECLARE_DO_FUN(do_pick);
-DECLARE_DO_FUN(do_makeshop);
-DECLARE_DO_FUN(do_redit);
-DECLARE_DO_FUN(do_backup);
-DECLARE_DO_FUN(do_wake);
-DECLARE_DO_FUN(do_comment);
-DECLARE_DO_FUN(do_affected);
-DECLARE_DO_FUN(do_immscore);
-DECLARE_DO_FUN(do_who);
-DECLARE_DO_FUN(do_train);
-DECLARE_DO_FUN(do_savearea);
+DeclareDoFun(do_at);
+DeclareDoFun(do_auction);
+DeclareDoFun(do_board);
+DeclareDoFun(do_boardlook);
+DeclareDoFun(do_cedit);
+DeclareDoFun(do_closehatch);
+DeclareDoFun(do_command);
+DeclareDoFun(do_exits);
+DeclareDoFun(do_get);
+DeclareDoFun(do_glance);
+DeclareDoFun(do_goto);
+DeclareDoFun(do_hail);
+DeclareDoFun(do_help);
+DeclareDoFun(do_leaveship);
+DeclareDoFun(do_loadarea);
+DeclareDoFun(do_look);
+DeclareDoFun(do_ls);
+DeclareDoFun(do_memory);
+DeclareDoFun(do_openhatch);
+DeclareDoFun(do_quit);
+DeclareDoFun(do_recall);
+DeclareDoFun(do_remove);
+DeclareDoFun(do_restoretime);
+DeclareDoFun(do_return);
+DeclareDoFun(do_return);
+DeclareDoFun(do_revert);
+DeclareDoFun(do_sacrifice);
+DeclareDoFun(do_say);
+DeclareDoFun(do_sit);
+DeclareDoFun(do_split);
+DeclareDoFun(do_save);
+DeclareDoFun(do_quaff);
+DeclareDoFun(do_takedrug);
+DeclareDoFun(do_oldscore);
+DeclareDoFun(do_rreset);
+DeclareDoFun(do_reset);
+DeclareDoFun(do_yell);
+DeclareDoFun(do_hide);
+DeclareDoFun(do_emote);
+DeclareDoFun(do_sleep);
+DeclareDoFun(do_setblaster);
+DeclareDoFun(do_pick);
+DeclareDoFun(do_makeshop);
+DeclareDoFun(do_redit);
+DeclareDoFun(do_backup);
+DeclareDoFun(do_wake);
+DeclareDoFun(do_comment);
+DeclareDoFun(do_affected);
+DeclareDoFun(do_immscore);
+DeclareDoFun(do_who);
+DeclareDoFun(do_train);
+DeclareDoFun(do_savearea);
 
 /*
  * Fight Commands
  */
-DECLARE_DO_FUN(do_bite);
-DECLARE_DO_FUN(do_claw);
-DECLARE_DO_FUN(do_flee);
-DECLARE_DO_FUN(do_kick);
-DECLARE_DO_FUN(do_punch);
-DECLARE_DO_FUN(do_shout);
-DECLARE_DO_FUN(do_sting);
-DECLARE_DO_FUN(do_tail);
+DeclareDoFun(do_bite);
+DeclareDoFun(do_claw);
+DeclareDoFun(do_flee);
+DeclareDoFun(do_kick);
+DeclareDoFun(do_punch);
+DeclareDoFun(do_shout);
+DeclareDoFun(do_sting);
+DeclareDoFun(do_tail);
 
 
 
 /* MXP */
-DECLARE_DO_FUN(do_mxp);
+DeclareDoFun(do_mxp);
 
 /* Spells */
-DECLARE_SPELL_FUN(spell_notfound);
-DECLARE_SPELL_FUN(spell_smaug);
-DECLARE_SPELL_FUN(spell_null);
-DECLARE_SPELL_FUN(spell_fireball);
-DECLARE_SPELL_FUN(spell_lightning_bolt);
-DECLARE_SPELL_FUN(spell_cure_poison);
-DECLARE_SPELL_FUN(spell_poison);
-DECLARE_SPELL_FUN(spell_cure_blindness);
+DeclareSpellFun(spell_notfound);
+DeclareSpellFun(spell_smaug);
+DeclareSpellFun(spell_null);
+DeclareSpellFun(spell_fireball);
+DeclareSpellFun(spell_lightning_bolt);
+DeclareSpellFun(spell_cure_poison);
+DeclareSpellFun(spell_poison);
+DeclareSpellFun(spell_cure_blindness);

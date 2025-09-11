@@ -77,7 +77,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
                 checkbatt = FALSE;
                 Bonus = 0;
 
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomFactory))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -87,14 +87,14 @@ CMDF do_craftpike(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_DURASTEEL)
+                        if (obj->item_type == ItemDurasteel)
                                 checksteel = TRUE;
-                        if (obj->item_type == ITEM_DURAPLAST)
+                        if (obj->item_type == ItemDuraplast)
                                 checkplast = TRUE;
 
-                        if (obj->item_type == ITEM_OVEN)
+                        if (obj->item_type == ItemOven)
                                 checkoven = TRUE;
                 }
 
@@ -128,17 +128,17 @@ CMDF do_craftpike(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_craftpike]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou begin the long Process of crafting a pike.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s tools and a small oven and begins to work on something.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 25, do_craftpike, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 25, do_craftpike, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -166,7 +166,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_craftpike]);
         vnum = 10435;
 
@@ -186,25 +186,25 @@ CMDF do_craftpike(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_OVEN)
+                if (obj->item_type == ItemOven)
                         checkoven = TRUE;
-                if (obj->item_type == ITEM_DURASTEEL && checksteel == FALSE)
+                if (obj->item_type == ItemDurasteel && checksteel == FALSE)
                 {
                         checksteel = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_DURAPLAST && checkplast == FALSE)
+                if (obj->item_type == ItemDuraplast && checkplast == FALSE)
                 {
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                         checkplast = TRUE;
                 }
-                if (obj->item_type == ITEM_BATTERY && checkbatt == FALSE)
+                if (obj->item_type == ItemBattery && checkbatt == FALSE)
                 {
                         separate_obj(obj);
                         obj_from_char(obj);
@@ -215,7 +215,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
 
         }
 
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_craftpike]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checksteel)
@@ -234,9 +234,9 @@ CMDF do_craftpike(CharData * ch, char *argument)
 
         obj = create_object(pObjIndex, level);
 
-        obj->item_type = ITEM_WEAPON;
-        SET_BIT(obj->wear_flags, ITEM_WIELD);
-        SET_BIT(obj->wear_flags, ITEM_TAKE);
+        obj->item_type = ItemWeapon;
+        SetBit(obj->wear_flags, ItemWield);
+        SetBit(obj->wear_flags, ItemTake);
         obj->level = level;
         obj->weight = 15;
         STRFREE(obj->name);
@@ -267,7 +267,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
         paf2->next = NULL;
         LINK(paf2, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        obj->value[0] = INIT_WEAPON_CONDITION;
+        obj->value[0] = InitWeaponCondition;
         obj->value[1] = (int) (level / 10 + 10 + Bonus);    /* min dmg  */
         obj->value[2] = (int) (level / 5 + 20 + Bonus); /* max dmg */
         obj->value[3] = 11;
@@ -278,18 +278,18 @@ CMDF do_craftpike(CharData * ch, char *argument)
         send_to_char
                 ("&GYou finish your work and hold up your newly created pike.&w\n\r",
                  ch);
-        act(AT_PLAIN, "$n finishes crafting a pike.", ch, NULL, argument,
-            TO_ROOM);
+        act(AtPlain, "$n finishes crafting a pike.", ch, NULL, argument,
+            ToRoom);
 
         {
                 long      xpgain;
 
                 xpgain = UMIN(obj->cost * 200,
                               (exp_level
-                               (ch->skill_level[ENGINEERING_ABILITY] + 1) -
+                               (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[ENGINEERING_ABILITY])));
-                gain_exp(ch, xpgain, ENGINEERING_ABILITY);
+                                         skill_level[EngineeringAbility])));
+                gain_exp(ch, xpgain, EngineeringAbility);
                 ch_printf(ch, "You gain %d engineering experience.", xpgain);
         }
 
@@ -324,7 +324,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
                 checkplast = FALSE;
                 checkoven = FALSE;
 
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomFactory))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -334,14 +334,14 @@ CMDF do_craftknife(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_DURASTEEL)
+                        if (obj->item_type == ItemDurasteel)
                                 checksteel = TRUE;
-                        if (obj->item_type == ITEM_DURAPLAST)
+                        if (obj->item_type == ItemDuraplast)
                                 checkplast = TRUE;
 
-                        if (obj->item_type == ITEM_OVEN)
+                        if (obj->item_type == ItemOven)
                                 checkoven = TRUE;
                 }
 
@@ -376,17 +376,17 @@ CMDF do_craftknife(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_craftknife]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou begin the long Process of crafting a knife.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s tools and a small oven and begins to work on something.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 25, do_craftknife, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 25, do_craftknife, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -414,7 +414,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_craftknife]);
         vnum = 10434;
 
@@ -433,18 +433,18 @@ CMDF do_craftknife(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_OVEN)
+                if (obj->item_type == ItemOven)
                         checkoven = TRUE;
-                if (obj->item_type == ITEM_DURASTEEL && checksteel == FALSE)
+                if (obj->item_type == ItemDurasteel && checksteel == FALSE)
                 {
                         checksteel = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_DURAPLAST && checkplast == FALSE)
+                if (obj->item_type == ItemDuraplast && checkplast == FALSE)
                 {
                         separate_obj(obj);
                         obj_from_char(obj);
@@ -453,7 +453,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
                 }
         }
 
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_craftknife]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checksteel)
@@ -472,9 +472,9 @@ CMDF do_craftknife(CharData * ch, char *argument)
 
         obj = create_object(pObjIndex, level);
 
-        obj->item_type = ITEM_WEAPON;
-        SET_BIT(obj->wear_flags, ITEM_WIELD);
-        SET_BIT(obj->wear_flags, ITEM_TAKE);
+        obj->item_type = ItemWeapon;
+        SetBit(obj->wear_flags, ItemWield);
+        SetBit(obj->wear_flags, ItemTake);
         obj->level = level;
         obj->weight = 3;
         STRFREE(obj->name);
@@ -505,7 +505,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
         paf2->next = NULL;
         LINK(paf2, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        obj->value[0] = INIT_WEAPON_CONDITION;
+        obj->value[0] = InitWeaponCondition;
         obj->value[1] = (int) (level / 10 + 10);    /* min dmg  */
         obj->value[2] = (int) (level / 5 + 20); /* max dmg */
         obj->value[3] = 5;
@@ -516,18 +516,18 @@ CMDF do_craftknife(CharData * ch, char *argument)
         send_to_char
                 ("&GYou finish your work and hold up your newly created knife.&w\n\r",
                  ch);
-        act(AT_PLAIN, "$n finishes crafting a knife.", ch, NULL, argument,
-            TO_ROOM);
+        act(AtPlain, "$n finishes crafting a knife.", ch, NULL, argument,
+            ToRoom);
 
         {
                 long      xpgain;
 
                 xpgain = UMIN(obj->cost * 200,
                               (exp_level
-                               (ch->skill_level[ENGINEERING_ABILITY] + 1) -
+                               (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[ENGINEERING_ABILITY])));
-                gain_exp(ch, xpgain, ENGINEERING_ABILITY);
+                                         skill_level[EngineeringAbility])));
+                gain_exp(ch, xpgain, EngineeringAbility);
                 ch_printf(ch, "You gain %d engineering experience.", xpgain);
         }
 
@@ -569,18 +569,18 @@ CMDF do_fixship(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_systemmaintenance]);
                 if (number_percent() < percentage)
                 {
                         send_to_char("&GYou begin your fix\n\r", ch);
-                        act(AT_PLAIN, "$n begins fixing the ships $T.", ch,
-                            NULL, argument, TO_ROOM);
+                        act(AtPlain, "$n begins fixing the ships $T.", ch,
+                            NULL, argument, ToRoom);
                         if (!str_cmp(arg, "hull"))
-                                add_timer(ch, TIMER_DO_FUN, 15, do_fixship,
+                                add_timer(ch, TimerDoFun, 15, do_fixship,
                                           1);
                         else
-                                add_timer(ch, TIMER_DO_FUN, 5, do_fixship, 1);
+                                add_timer(ch, TimerDoFun, 5, do_fixship, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -635,37 +635,37 @@ CMDF do_fixship(CharData * ch, char *argument)
         if (!str_cmp(arg, "drive"))
         {
                 if (ship->location == ship->lastdoc)
-                        ship->shipstate = SHIP_DOCKED;
+                        ship->shipstate = ShipDocked;
                 else
-                        ship->shipstate = SHIP_READY;
+                        ship->shipstate = ShipReady;
                 send_to_char("&GShips drive fixed.\n\r", ch);
         }
 
         if (!str_cmp(arg, "launcher"))
         {
-                ship->missilestate = MISSILE_READY;
+                ship->missilestate = MissileReady;
                 send_to_char("&GMissile launcher fixed.\n\r", ch);
         }
 
         if (!str_cmp(arg, "laser"))
         {
-                ship->statet0 = LASER_READY;
+                ship->statet0 = LaserReady;
                 send_to_char("&GMain laser fixed.\n\r", ch);
         }
 
         if (!str_cmp(arg, "turret 1"))
         {
-                ship->statet1 = LASER_READY;
+                ship->statet1 = LaserReady;
                 send_to_char("&GLaser Turret 1 fixed.\n\r", ch);
         }
 
         if (!str_cmp(arg, "turret 2"))
         {
-                ship->statet2 = LASER_READY;
+                ship->statet2 = LaserReady;
                 send_to_char("&Laser Turret 2 fixed.\n\r", ch);
         }
 
-        act(AT_PLAIN, "$n finishes the fix.", ch, NULL, argument, TO_ROOM);
+        act(AtPlain, "$n finishes the fix.", ch, NULL, argument, ToRoom);
 
         learn_from_success(ch, gsn_systemmaintenance);
 
@@ -679,7 +679,7 @@ CMDF do_jab(CharData * ch, char *argument)
         ObjData *obj;
         int       percent;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't do that right now.\n\r", ch);
                 return;
@@ -718,8 +718,8 @@ CMDF do_jab(CharData * ch, char *argument)
         /*
          * Added stabbing weapon. -Narn 
          */
-        if ((obj = get_eq_char(ch, WEAR_WIELD)) == NULL
-            || (obj->value[3] != WEAPON_KNIFE))
+        if ((obj = get_eq_char(ch, WearWield)) == NULL
+            || (obj->value[3] != WeaponKnife))
         {
                 send_to_char("You need to wield a stabbing weapon.\n\r", ch);
                 return;
@@ -735,20 +735,20 @@ CMDF do_jab(CharData * ch, char *argument)
         /*
          * Can backstab a char even if it's hurt as long as it's sleeping. -Narn 
          */
-        if (victim->hit < victim->max_hit && IS_AWAKE(victim))
+        if (victim->hit < victim->max_hit && IsAwake(victim))
         {
-                act(AT_PLAIN,
+                act(AtPlain,
                     "$N is hurt and suspicious ... you can't sneak up.", ch,
-                    NULL, victim, TO_CHAR);
+                    NULL, victim, ToChar);
                 return;
         }
 
         percent = number_percent() - (get_curr_lck(ch) - 14)
                 + (get_curr_lck(victim) - 13);
 
-        WAIT_STATE(ch, skill_table[gsn_jab]->beats);
-        if (!IS_AWAKE(victim)
-            || IS_NPC(ch) || percent < ch->pcdata->learned[gsn_jab])
+        WaitState(ch, skill_table[gsn_jab]->beats);
+        if (!IsAwake(victim)
+            || IsNpc(ch) || percent < ch->pcdata->learned[gsn_jab])
         {
                 learn_from_success(ch, gsn_jab);
                 global_retcode = multi_hit(ch, victim, gsn_jab);
@@ -768,7 +768,7 @@ CMDF do_gowithout(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (ch->position == POS_FIGHTING)
+        if (ch->position == PosFighting)
         {
                 send_to_char("Interesting combat technique.\n\r", ch);
                 return;
@@ -781,20 +781,20 @@ CMDF do_gowithout(CharData * ch, char *argument)
         }
 
         percentage = number_percent() - get_curr_con(ch);
-        WAIT_STATE(ch, skill_table[gsn_gowithout]->beats);
-        if (IS_NPC(ch) || percentage < ch->pcdata->learned[gsn_gowithout])
+        WaitState(ch, skill_table[gsn_gowithout]->beats);
+        if (IsNpc(ch) || percentage < ch->pcdata->learned[gsn_gowithout])
         {
                 learn_from_success(ch, gsn_gowithout);
 
-                condition = ch->pcdata->condition[COND_FULL];
+                condition = ch->pcdata->condition[CondFull];
                 amount = 40 - condition;
 
-                gain_condition(ch, COND_FULL, amount);
+                gain_condition(ch, CondFull, amount);
 
-                condition = ch->pcdata->condition[COND_THIRST];
+                condition = ch->pcdata->condition[CondThirst];
                 amount = 40 - condition;
 
-                gain_condition(ch, COND_THIRST, amount);
+                gain_condition(ch, CondThirst, amount);
                 send_to_char
                         ("You steel your body against the need for food or drink!\n\r",
                          ch);
@@ -820,7 +820,7 @@ CMDF do_cajole(CharData * ch, char *argument)
         ClanData *clan;
         int       percent = 0;
 
-        if (IS_NPC(ch) || !ch->pcdata || !ch->pcdata->clan
+        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
             || !ch->in_room->area || !ch->in_room->area->planet)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
@@ -853,39 +853,39 @@ CMDF do_cajole(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
         {
-                set_char_color(AT_MAGIC, ch);
+                set_char_color(AtMagic, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
                 return;
         }
 
-        if (ch->position == POS_FIGHTING)
+        if (ch->position == PosFighting)
         {
                 send_to_char("Interesting combat technique.\n\r", ch);
                 return;
         }
 
-        if (victim->position == POS_FIGHTING)
+        if (victim->position == PosFighting)
         {
                 send_to_char("They're a little busy right now.\n\r", ch);
                 return;
         }
 
 
-        if (IS_SET(victim->act, ACT_CITIZEN))
+        if (IsSet(victim->act, ActCitizen))
         {
                 send_to_char("Diplomacy would be wasted on them.\n\r", ch);
                 return;
         }
 
-        if (ch->position <= POS_SLEEPING)
+        if (ch->position <= PosSleeping)
         {
                 send_to_char("In your dreams or what?\n\r", ch);
                 return;
         }
 
-        if (victim->position <= POS_SLEEPING)
+        if (victim->position <= PosSleeping)
         {
                 send_to_char("You might want to wake them first...\n\r", ch);
                 return;
@@ -902,12 +902,12 @@ CMDF do_cajole(CharData * ch, char *argument)
         ch_printf(ch, "You speak to them about the benifits of the %s%s.\n\r",
                   ch->pcdata->clan->name,
                   planet->governed_by == clan ? "" : buf);
-        act(AT_ACTION, "$n speaks about his organization.\n\r", ch, NULL,
-            victim, TO_VICT);
-        act(AT_ACTION, "$n tells $N about their organization.\n\r", ch, NULL,
-            victim, TO_NOTVICT);
+        act(AtAction, "$n speaks about his organization.\n\r", ch, NULL,
+            victim, ToVict);
+        act(AtAction, "$n tells $N about their organization.\n\r", ch, NULL,
+            victim, ToNotvict);
 
-        WAIT_STATE(ch, skill_table[gsn_cajole]->beats);
+        WaitState(ch, skill_table[gsn_cajole]->beats);
 
         if (percent - get_curr_cha(ch) + victim->top_level >
             ch->pcdata->learned[gsn_cajole])
@@ -918,7 +918,7 @@ CMDF do_cajole(CharData * ch, char *argument)
                         command_printf(victim, "yell %s is a traitor!",
                                        ch->name);
                         global_retcode =
-                                multi_hit(victim, ch, TYPE_UNDEFINED);
+                                multi_hit(victim, ch, TypeUndefined);
                 }
 
                 return;
@@ -939,7 +939,7 @@ CMDF do_cajole(CharData * ch, char *argument)
                          ch);
         }
 
-        gain_exp(ch, victim->top_level * 100, DIPLOMACY_ABILITY);
+        gain_exp(ch, victim->top_level * 100, DiplomacyAbility);
         ch_printf(ch, "You gain %d diplomacy experience.\n\r",
                   victim->top_level * 100);
 
@@ -956,10 +956,10 @@ CMDF do_pretend(CharData * ch, char *argument)
 {
         int       percentage;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if (IS_SET(ch->pcdata->flags, PCFLAG_NOTITLE))
+        if (IsSet(ch->pcdata->flags, PcflagNotitle))
         {
                 send_to_char("You try but the Force resists you.\n\r", ch);
                 return;

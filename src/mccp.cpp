@@ -220,13 +220,13 @@ bool compressEnd(DescriptorData * d)
 
 CMDF do_compress(CharData * ch, char *argument)
 {
-        if (IS_NPC(ch) || !ch->desc)
+        if (IsNpc(ch) || !ch->desc)
         {
                 send_to_char("What descriptor?!\n", ch);
                 return;
         }
 
-        if (!str_cmp(argument, "all") && IS_IMMORTAL(ch))
+        if (!str_cmp(argument, "all") && IsImmortal(ch))
         {
                 char      buf[MSL];
                 CharData *vch;
@@ -234,7 +234,7 @@ CMDF do_compress(CharData * ch, char *argument)
                 send_to_pager("Compression Info:\n", ch);
                 for (vch = first_char; vch; vch = vch->next)
                 {
-                        if (vch->desc == NULL || !IS_PLAYING(vch->desc))
+                        if (vch->desc == NULL || !IsPlaying(vch->desc))
                                 continue;
                         snprintf(buf, MSL, "%s: &B[&w%s&B]&w\n", vch->name,
                                  vch->desc->Compressing ? "ON " : "OFF");
@@ -274,10 +274,10 @@ CMDF do_compress(CharData * ch, char *argument)
         }
         else
         {
-                set_char_color(AT_GREEN, ch);
+                set_char_color(AtGreen, ch);
                 send_to_char("Compression Info:\n\r", ch);
                 send_to_char("Compression: &B[&w", ch);
-                if (IS_MXP(ch))
+                if (IsMxp(ch))
                         send_to_char(MXPTAG("mxptoggle compress"), ch);
                 if (ch->desc->Compressing)
                         send_to_char("ON ", ch);
@@ -285,7 +285,7 @@ CMDF do_compress(CharData * ch, char *argument)
                 {
                         send_to_char("OFF", ch);
                 }
-                if (IS_MXP(ch))
+                if (IsMxp(ch))
                         send_to_char(MXPTAG("/mxptoggle"), ch);
                 send_to_char("&B]&D\n\r", ch);
                 if (ch->desc->OutCompress

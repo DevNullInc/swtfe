@@ -210,10 +210,10 @@ void save_skill_table()
         int       x;
         FILE     *fpout;
 
-        if ((fpout = fopen(SKILL_FILE, "w")) == NULL)
+        if ((fpout = fopen(SkillFile, "w")) == NULL)
         {
                 bug("Cannot open skills.dat for writting", 0);
-                perror(SKILL_FILE);
+                perror(SkillFile);
                 return;
         }
 
@@ -237,10 +237,10 @@ void save_socials()
         SocialType *social;
         int       x;
 
-        if ((fpout = fopen(SOCIAL_FILE, "w")) == NULL)
+        if ((fpout = fopen(SocialFile, "w")) == NULL)
         {
                 bug("Cannot open socials.dat for writting", 0);
-                perror(SOCIAL_FILE);
+                perror(SocialFile);
                 return;
         }
 
@@ -296,14 +296,14 @@ void save_socials()
 int get_skill(char *skilltype)
 {
         if (!str_cmp(skilltype, "Spell"))
-                return SKILL_SPELL;
+                return SkillSpell;
         if (!str_cmp(skilltype, "Skill"))
-                return SKILL_SKILL;
+                return SkillSkill;
         if (!str_cmp(skilltype, "Weapon"))
-                return SKILL_WEAPON;
+                return SkillWeapon;
         if (!str_cmp(skilltype, "Tongue"))
-                return SKILL_TONGUE;
-        return SKILL_UNKNOWN;
+                return SkillTongue;
+        return SkillUnknown;
 }
 
 /*
@@ -315,10 +315,10 @@ void save_commands()
         CMDType  *command;
         int       x;
 
-        if ((fpout = fopen(COMMAND_FILE, "w")) == NULL)
+        if ((fpout = fopen(CommandFile, "w")) == NULL)
         {
                 bug("Cannot open commands.dat for writing", 0);
-                perror(COMMAND_FILE);
+                perror(CommandFile);
                 return;
         }
 
@@ -538,7 +538,7 @@ void load_skill_table()
 {
         FILE     *fp;
 
-        if ((fp = fopen(SKILL_FILE, "r")) != NULL)
+        if ((fp = fopen(SkillFile, "r")) != NULL)
         {
                 top_sn = 0;
                 for (;;)
@@ -684,7 +684,7 @@ void load_socials()
 {
         FILE     *fp;
 
-        if ((fp = fopen(SOCIAL_FILE, "r")) != NULL)
+        if ((fp = fopen(SocialFile, "r")) != NULL)
         {
                 top_sn = 0;
                 for (;;)
@@ -794,7 +794,7 @@ void fread_command(FILE * fp)
                         if (!str_cmp(word, "held"))
                         {
                                 fread_number(fp);
-                                SET_BIT(command->flags, CMD_HELD);
+                                SetBit(command->flags, CmdHeld);
                                 fMatch = TRUE;
                                 break;
                         }
@@ -813,7 +813,7 @@ void fread_command(FILE * fp)
                         if (!str_cmp(word, "ooc"))
                         {
                                 fread_number(fp);
-                                SET_BIT(command->flags, CMD_OOC);
+                                SetBit(command->flags, CmdOoc);
                                 fMatch = TRUE;
                                 break;
                         }
@@ -839,7 +839,7 @@ void load_commands()
 {
         FILE     *fp;
 
-        if ((fp = fopen(COMMAND_FILE, "r")) != NULL)
+        if ((fp = fopen(CommandFile, "r")) != NULL)
         {
                 top_sn = 0;
                 for (;;)

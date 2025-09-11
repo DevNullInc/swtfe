@@ -75,9 +75,9 @@ char     *strip_cr(char *str)
         return newstr;
 }
 
-DOCK_DATA *dock_from_room(int vnum)
+DockData *dock_from_room(int vnum)
 {
-        DOCK_DATA *dock;
+        DockData *dock;
 
         for (dock = first_dock; dock; dock = dock->next)
                 if (vnum == dock->vnum)
@@ -85,9 +85,9 @@ DOCK_DATA *dock_from_room(int vnum)
         return NULL;
 }
 
-DOCK_DATA *get_dock(char *name)
+DockData *get_dock(char *name)
 {
-        DOCK_DATA *dock;
+        DockData *dock;
 
         for (dock = first_dock; dock; dock = dock->next)
                 if (!str_cmp(name, dock->name))
@@ -98,9 +98,9 @@ DOCK_DATA *get_dock(char *name)
         return NULL;
 }
 
-DOCK_DATA *get_dock_isname(ShipData * ship, char *name)
+DockData *get_dock_isname(ShipData * ship, char *name)
 {
-        DOCK_DATA *dock = NULL;
+        DockData *dock = NULL;
         BodyData *body = NULL;
 
         if (name == NULL)
@@ -112,16 +112,16 @@ DOCK_DATA *get_dock_isname(ShipData * ship, char *name)
         if (!ship->starsystem)
                 return NULL;
 
-        FOR_EACH_LIST(BodyList, ship->starsystem->bodies, body)
+        ForEachList(BodyList, ship->starsystem->bodies, body)
         {
-                FOR_EACH_LIST(DOCK_LIST, body->docks(), dock)
+                ForEachList(DockList, body->docks(), dock)
                         if (!str_cmp(name, dock->name))
                         return dock;
         }
 
-        FOR_EACH_LIST(BodyList, ship->starsystem->bodies, body)
+        ForEachList(BodyList, ship->starsystem->bodies, body)
         {
-                FOR_EACH_LIST(DOCK_LIST, body->docks(), dock)
+                ForEachList(DockList, body->docks(), dock)
                         if (nifty_is_name_prefix(name, dock->name))
                         return dock;
         }
@@ -179,11 +179,11 @@ void write_dock_list()
         bug("Still calling write_dock_list");
         return;
 #if 0
-        DOCK_DATA *tdock;
+        DockData *tdock;
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, 256, "%s%s", DOCK_DIR, DOCK_LIST);
+        snprintf(filename, 256, "%s%s", DockDir, DockList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -197,7 +197,7 @@ void write_dock_list()
 #endif
 }
 
-void fwrite_dock(FILE * fp, DOCK_DATA * dock)
+void fwrite_dock(FILE * fp, DockData * dock)
 {
         if (!dock || !fp)
         {
@@ -215,7 +215,7 @@ void fwrite_dock(FILE * fp, DOCK_DATA * dock)
         return;
 }
 
-void fread_dock(DOCK_DATA * dock, FILE * fp)
+void fread_dock(DockData * dock, FILE * fp)
 {
         const char *word;
         bool      fMatch;
@@ -274,14 +274,14 @@ void fread_dock(DOCK_DATA * dock, FILE * fp)
 bool load_dock_file(char *dockfile)
 {
         char      filename[256];
-        DOCK_DATA *dock;
+        DockData *dock;
         FILE     *fp;
         bool      found;
 
-        CREATE(dock, DOCK_DATA, 1);
+        CREATE(dock, DockData, 1);
 
         found = FALSE;
-        snprintf(filename, 256, "%s%s", DOCK_DIR, dockfile);
+        snprintf(filename, 256, "%s%s", DockDir, dockfile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -352,11 +352,11 @@ void load_docks()
         const char *filename;
         char      docklist[256];
 
-        snprintf(docklist, 256, "%s%s", DOCK_DIR, FILE_DOCK_LIST);
+        snprintf(docklist, 256, "%s%s", DockDir, FileDockList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(docklist, "r")) == NULL)
         {
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
                 perror(docklist);
                 return;
         }
@@ -375,14 +375,14 @@ void load_docks()
         remove(docklist);   /* To prevent Double Loading ? */
         FCLOSE(fpList);
         boot_log(" Done docks ");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
 CMDF do_makedock(CharData * ch, char *argument)
 {
         char      arg[MIL];
-        DOCK_DATA *dock;
+        DockData *dock;
         BodyData *body = NULL;
 
         argument = one_argument(argument, arg);
@@ -398,7 +398,7 @@ CMDF do_makedock(CharData * ch, char *argument)
                 return;
         }
 
-        CREATE(dock, DOCK_DATA, 1);
+        CREATE(dock, DockData, 1);
         dock->body = body;
         body->add_dock(dock);
         dock->name = STRALLOC(argument);
@@ -410,14 +410,14 @@ CMDF do_makedock(CharData * ch, char *argument)
                   dock->name);
 }
 
-void makedock(INSTALLATION_DATA * installation)
+void makedock(InstallationData * installation)
 {
         char      buf[MSL];
-        DOCK_DATA *dock;
+        DockData *dock;
 
 
         snprintf(buf, MSL, "Ship Yard %d", installation->first_room);
-        CREATE(dock, DOCK_DATA, 1);
+        CREATE(dock, DockData, 1);
         dock->clan = installation->clan;
         dock->body = installation->planet->body;
         dock->body->add_dock(dock);
@@ -463,9 +463,9 @@ CMDF do_setdock(CharData * ch, char *argument)
         char      arg1[MaxInputLength];
         char      arg2[MaxInputLength];
         char      arg3[MaxInputLength];
-        DOCK_DATA *dock;
+        DockData *dock;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -581,7 +581,7 @@ CMDF do_setbody(CharData * ch, char *argument)
         char      arg3[MaxInputLength];
         BodyData *body;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -780,19 +780,19 @@ CMDF do_setbody(CharData * ch, char *argument)
         if (!str_cmp(arg2, "type"))
         {
                 if (!str_cmp(arg3, "star"))
-                        body->type(STAR_BODY);
+                        body->type(StarBody);
                 else if (!str_cmp(arg3, "planet"))
-                        body->type(PLANET_BODY);
+                        body->type(PlanetBody);
                 else if (!str_cmp(arg3, "moon"))
-                        body->type(MOON_BODY);
+                        body->type(MoonBody);
                 else if (!str_cmp(arg3, "comet"))
-                        body->type(COMET_BODY);
+                        body->type(CometBody);
                 else if (!str_cmp(arg3, "asteroid"))
-                        body->type(ASTEROID_BODY);
+                        body->type(AsteroidBody);
                 else if (!str_cmp(arg3, "blackhole"))
-                        body->type(BLACKHOLE_BODY);
+                        body->type(BlackholeBody);
                 else if (!str_cmp(arg3, "nebula"))
-                        body->type(NEBULA_BODY);
+                        body->type(NebulaBody);
                 else
                 {
                         send_to_char
@@ -811,9 +811,9 @@ CMDF do_setbody(CharData * ch, char *argument)
 
 CMDF do_showdock(CharData * ch, char *argument)
 {
-        DOCK_DATA *dock;
+        DockData *dock;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -851,7 +851,7 @@ CMDF do_showbody(CharData * ch, char *argument)
         BodyData *body = NULL;
         AreaData *area = NULL;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (argument[0] == '\0')
@@ -888,7 +888,7 @@ CMDF do_showbody(CharData * ch, char *argument)
         ch_printf(ch, "&WOrbit Tick:  &G%d\n\r", body->orbitcount());
         ch_printf(ch, "&WType:        &G%s\n\r", body->type_name());
         send_to_char("&WAreas:       &G", ch);
-        FOR_EACH_LIST(AreaList, body->areas(), area)
+        ForEachList(AreaList, body->areas(), area)
                 ch_printf(ch, "%s, ", area->filename);
         send_to_char("\n\r", ch);
         return;
@@ -897,7 +897,7 @@ CMDF do_showbody(CharData * ch, char *argument)
 
 CMDF do_listdock(CharData * ch, char *argument)
 {
-        DOCK_DATA *tdock;
+        DockData *tdock;
 
         argument = NULL;
 
@@ -913,7 +913,7 @@ CMDF do_listbody(CharData * ch, char *argument)
 
         argument = NULL;
 
-        FOR_EACH_LIST(BodyList, bodies, tbody)
+        ForEachList(BodyList, bodies, tbody)
                 ch_printf(ch, "%-25s - %s\n\r", tbody->name(),
                           tbody->filename());
         return;
@@ -925,7 +925,7 @@ CMDF do_resetbody(CharData * ch, char *argument)
 
         argument = NULL;
 
-        FOR_EACH_LIST(BodyList, bodies, tbody)
+        ForEachList(BodyList, bodies, tbody)
         {
                 tbody->xpos(tbody->centerx() - (tbody->xmove() * 0));
                 tbody->ypos(tbody->centery() - (tbody->ymove() * 0));
@@ -946,7 +946,7 @@ CMDF do_placebody(CharData * ch, char *argument)
         char      arg1[MaxInputLength];
         BodyData *body;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -997,7 +997,7 @@ void update_orbit(void)
         BodyData *body = NULL;
         int       phaze = 0, xtravel, ytravel, ztravel;
 
-        FOR_EACH_LIST(BodyList, bodies, body)
+        ForEachList(BodyList, bodies, body)
         {
                 if (!body->starsystem())
                         continue;
@@ -1110,8 +1110,8 @@ void update_orbit(void)
                              ship = ship->next_in_starsystem)
                         {
                                 if (body->distance(ship) < body->gravity()
-                                    && (body->type() == PLANET_BODY
-                                        || body->type() == MOON_BODY))
+                                    && (body->type() == PlanetBody
+                                        || body->type() == MoonBody))
                                 {
                                         ship->vx += xtravel;
                                         ship->vy += ytravel;
@@ -1134,19 +1134,19 @@ void update_orbit(void)
                 /*
                  * Send a message to imms if planet is too close to sun 
                  */
-                FOR_EACH_LIST(BodyList, body->starsystem()->bodies, tbody)
+                ForEachList(BodyList, body->starsystem()->bodies, tbody)
                 {
                         if (tbody == body)
                                 continue;
-                        if ((body->type() == PLANET_BODY
-                             && tbody->type() == PLANET_BODY)
-                            || (body->type() == STAR_BODY
-                                && tbody->type() == STAR_BODY)
-                            || (body->type() == STAR_BODY)
-                            || (body->type() == ASTEROID_BODY)
-                            || (body->type() == NEBULA_BODY)
-                            || (tbody->type() == ASTEROID_BODY)
-                            || (tbody->type() == NEBULA_BODY))
+                        if ((body->type() == PlanetBody
+                             && tbody->type() == PlanetBody)
+                            || (body->type() == StarBody
+                                && tbody->type() == StarBody)
+                            || (body->type() == StarBody)
+                            || (body->type() == AsteroidBody)
+                            || (body->type() == NebulaBody)
+                            || (tbody->type() == AsteroidBody)
+                            || (tbody->type() == NebulaBody))
                                 continue;
                         if ((body->distance(tbody)) <
                             ((tbody->gravity()) + (100)))
@@ -1180,7 +1180,7 @@ CMDF do_adjship(CharData * ch, char *argument)
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1233,7 +1233,7 @@ CMDF do_adjship(CharData * ch, char *argument)
                 if (!str_cmp(argument, "disable"))
                 {
                         ship->shield = 0;
-                        echo_to_cockpit(AT_BLOOD, ship, "Shields down...");
+                        echo_to_cockpit(AtBlood, ship, "Shields down...");
                         send_to_char("&R Ship Shields Disabled", ch);
                         save_ship(ship);
                         return;
@@ -1241,7 +1241,7 @@ CMDF do_adjship(CharData * ch, char *argument)
                 if (!str_cmp(argument, "enable"))
                 {
                         ship->shield = (ship->maxshield * 1);
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        echo_to_cockpit(AtBlood, ship,
                                         "The shields re-initialize themselves");
                         send_to_char("&R Ship Shields Enabled", ch);
                         save_ship(ship);
@@ -1253,8 +1253,8 @@ CMDF do_adjship(CharData * ch, char *argument)
         {
                 if (!str_cmp(argument, "disable"))
                 {
-                        ship->shipstate = SHIP_DISABLED;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->shipstate = ShipDisabled;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Ships drive disabled...");
                         send_to_char("&R Ship Drive Disabled", ch);
                         save_ship(ship);
@@ -1262,8 +1262,8 @@ CMDF do_adjship(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "enable"))
                 {
-                        ship->shipstate = SHIP_READY;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->shipstate = ShipReady;
+                        echo_to_cockpit(AtBlood, ship,
                                         "The drive restores itself");
                         send_to_char("&R Ship Drive Enabled", ch);
                         save_ship(ship);
@@ -1275,8 +1275,8 @@ CMDF do_adjship(CharData * ch, char *argument)
         {
                 if (!str_cmp(argument, "disable"))
                 {
-                        ship->missilestate = MISSILE_DAMAGED;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->missilestate = MissileDamaged;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Ships missiles damaged...");
                         send_to_char("&R Ship Missile Launchers Disabled",
                                      ch);
@@ -1285,8 +1285,8 @@ CMDF do_adjship(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "enable"))
                 {
-                        ship->missilestate = MISSILE_READY;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->missilestate = MissileReady;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Missile launchers repaired");
                         send_to_char("&R Ship Missiles Launchers Enabled",
                                      ch);
@@ -1299,8 +1299,8 @@ CMDF do_adjship(CharData * ch, char *argument)
         {
                 if (!str_cmp(argument, "disable"))
                 {
-                        ship->statet0 = LASER_DAMAGED;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet0 = LaserDamaged;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Ships lasers damaged...");
                         send_to_char("&R Ship Lasers Disabled", ch);
                         save_ship(ship);
@@ -1308,8 +1308,8 @@ CMDF do_adjship(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "enable"))
                 {
-                        ship->statet0 = LASER_READY;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet0 = LaserReady;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Ship lasers repaired");
                         send_to_char("&R Ship Lasers Enabled", ch);
                         save_ship(ship);
@@ -1321,8 +1321,8 @@ CMDF do_adjship(CharData * ch, char *argument)
         {
                 if (!str_cmp(argument, "disable"))
                 {
-                        ship->statet0i = LASER_DAMAGED;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet0i = LaserDamaged;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Ships ion cannons damaged...");
                         send_to_char("&R Ship Ion Cannons Disabled", ch);
                         save_ship(ship);
@@ -1330,8 +1330,8 @@ CMDF do_adjship(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "enable"))
                 {
-                        ship->statet0i = LASER_READY;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet0i = LaserReady;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Ship ion cannons repaired");
                         send_to_char("&R Ship Ions Enabled", ch);
                         save_ship(ship);
@@ -1343,8 +1343,8 @@ CMDF do_adjship(CharData * ch, char *argument)
         {
                 if (!str_cmp(argument, "disable"))
                 {
-                        ship->statet1 = LASER_DAMAGED;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet1 = LaserDamaged;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Turret one damaged...");
                         send_to_char("&R Ship Turret One Disabled", ch);
                         save_ship(ship);
@@ -1352,8 +1352,8 @@ CMDF do_adjship(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "enable"))
                 {
-                        ship->statet1 = LASER_READY;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet1 = LaserReady;
+                        echo_to_cockpit(AtBlood, ship,
                                         "First turret repaired");
                         send_to_char("&R Ship Turret One Enabled", ch);
                         save_ship(ship);
@@ -1365,8 +1365,8 @@ CMDF do_adjship(CharData * ch, char *argument)
         {
                 if (!str_cmp(argument, "disable"))
                 {
-                        ship->statet2 = LASER_DAMAGED;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet2 = LaserDamaged;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Turret two damaged...");
                         send_to_char("&R Ship Turret Two Disabled", ch);
                         save_ship(ship);
@@ -1374,8 +1374,8 @@ CMDF do_adjship(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "enable"))
                 {
-                        ship->statet2 = LASER_READY;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet2 = LaserReady;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Second turret repaired");
                         send_to_char("&R Ship Turret Two Enabled", ch);
                         save_ship(ship);
@@ -1388,7 +1388,7 @@ CMDF do_adjship(CharData * ch, char *argument)
                 if (!str_cmp(argument, "disable"))
                 {
                         ship->energy = (ship->maxenergy / 10);
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        echo_to_cockpit(AtBlood, ship,
                                         "WARNING: ENERGY DEPLETED...");
                         send_to_char
                                 ("&R Energy Depleted (Warning: can cause ship destruction)",
@@ -1399,7 +1399,7 @@ CMDF do_adjship(CharData * ch, char *argument)
                 if (!str_cmp(argument, "enable"))
                 {
                         ship->energy = ship->maxenergy;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        echo_to_cockpit(AtBlood, ship,
                                         "The ships energy is restored");
                         send_to_char("&R Ship Energy Restored", ch);
                         save_ship(ship);
@@ -1412,7 +1412,7 @@ CMDF do_adjship(CharData * ch, char *argument)
                 if (!str_cmp(argument, "disable"))
                 {
                         ship->hull = (ship->maxhull / 10);
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        echo_to_cockpit(AtBlood, ship,
                                         "WARNING: HULL DAMAGED...");
                         send_to_char
                                 ("&R Hull Damaged (Warning: can cause ship destruction)",
@@ -1423,7 +1423,7 @@ CMDF do_adjship(CharData * ch, char *argument)
                 if (!str_cmp(argument, "enable"))
                 {
                         ship->hull = ship->maxhull;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        echo_to_cockpit(AtBlood, ship,
                                         "The ships hull is restored");
                         send_to_char("&R Ship Hull Restored", ch);
                         save_ship(ship);
@@ -1435,13 +1435,13 @@ CMDF do_adjship(CharData * ch, char *argument)
         {
                 if (!str_cmp(argument, "disable"))
                 {
-                        ship->statet2 = LASER_DAMAGED;
-                        ship->statet1 = LASER_DAMAGED;
-                        ship->statet0i = LASER_DAMAGED;
-                        ship->statet0 = LASER_DAMAGED;
-                        ship->missilestate = MISSILE_DAMAGED;
-                        ship->shipstate = SHIP_DISABLED;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet2 = LaserDamaged;
+                        ship->statet1 = LaserDamaged;
+                        ship->statet0i = LaserDamaged;
+                        ship->statet0 = LaserDamaged;
+                        ship->missilestate = MissileDamaged;
+                        ship->shipstate = ShipDisabled;
+                        echo_to_cockpit(AtBlood, ship,
                                         "Your ship suddenly loses all function");
                         send_to_char("&R Ship Disabled", ch);
                         save_ship(ship);
@@ -1449,13 +1449,13 @@ CMDF do_adjship(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "enable"))
                 {
-                        ship->statet2 = LASER_READY;
-                        ship->statet1 = LASER_READY;
-                        ship->statet0i = LASER_READY;
-                        ship->statet0 = LASER_READY;
-                        ship->missilestate = MISSILE_READY;
-                        ship->shipstate = SHIP_READY;
-                        echo_to_cockpit(AT_BLOOD, ship,
+                        ship->statet2 = LaserReady;
+                        ship->statet1 = LaserReady;
+                        ship->statet0i = LaserReady;
+                        ship->statet0 = LaserReady;
+                        ship->missilestate = MissileReady;
+                        ship->shipstate = ShipReady;
+                        echo_to_cockpit(AtBlood, ship,
                                         "The ship suddenly regains function");
                         send_to_char("&R Ship Enabled", ch);
                         save_ship(ship);
@@ -1599,7 +1599,7 @@ AreaData *create_auto_area(int low_vnum, int high_vnum, BodyData * body)
         pArea->low_economy = 0;
         pArea->reset_frequency = 10;
         pArea->resetmsg = str_dup("You hear a buzzing sound in the distance");
-        SET_BIT(pArea->status, AREA_LOADED);
+        SetBit(pArea->status, AreaLoaded);
         pArea->low_soft_range = 0;
         pArea->hi_soft_range = MaxLevel;
         pArea->low_hard_range = 0;
@@ -1723,7 +1723,7 @@ AreaData *create_auto_area(int low_vnum, int high_vnum, BodyData * body)
         return pArea;
 }
 
-void free_dock(DOCK_DATA * dock)
+void free_dock(DockData * dock)
 {
         if (dock == NULL)
                 return;
@@ -1762,7 +1762,7 @@ void generate_exits(int x, AreaData * area)
                 if (vnum >= (first + x))    // Top row
                 {
                         toroom = get_room_index(vnum - x);  //Room directly above
-                        pexit = make_exit(room, toroom, DIR_NORTH);
+                        pexit = make_exit(room, toroom, DirNorth);
                         pexit->keyword = STRALLOC("");
                         pexit->description = STRALLOC("");
                         pexit->key = -1;
@@ -1774,7 +1774,7 @@ void generate_exits(int x, AreaData * area)
                 if (vnum <= (last - x)) // Bottom row
                 {
                         toroom = get_room_index(vnum + x);  //Room directly below
-                        pexit = make_exit(room, toroom, DIR_SOUTH);
+                        pexit = make_exit(room, toroom, DirSouth);
                         pexit->keyword = STRALLOC("");
                         pexit->description = STRALLOC("");
                         pexit->key = -1;
@@ -1788,7 +1788,7 @@ void generate_exits(int x, AreaData * area)
                         bug(" Vnum: %d first: %d x: %d row: %d column: %d",
                             vnum, first, x, row, column);
                         toroom = get_room_index(vnum - 1);  //Room directlyleft
-                        pexit = make_exit(room, toroom, DIR_WEST);
+                        pexit = make_exit(room, toroom, DirWest);
                         pexit->keyword = STRALLOC("");
                         pexit->description = STRALLOC("");
                         pexit->key = -1;
@@ -1800,7 +1800,7 @@ void generate_exits(int x, AreaData * area)
                 if (vnum != (first + ((x * (row + 1)) - 1)))    // Right column
                 {
                         toroom = get_room_index(vnum + 1);  //Room directly right
-                        pexit = make_exit(room, toroom, DIR_EAST);
+                        pexit = make_exit(room, toroom, DirEast);
                         pexit->keyword = STRALLOC("");
                         pexit->description = STRALLOC("");
                         pexit->key = -1;
@@ -1848,7 +1848,7 @@ CMDF do_testexits(CharData * ch, char *argument)
 void do_fastship(CharData * ch, char *argument)
 {
         ShipData *ship = NULL;
-        PROTOSHIP_DATA *proto = NULL;
+        ProtoshipData *proto = NULL;
         char      arg1[MaxStringLength];
         char      arg2[MaxStringLength];
 
@@ -1972,7 +1972,7 @@ void do_viewship(CharData * ch, char *argument)
                           ship->realspeed, ship->hyperspeed, ship->manuever);
                 ch_printf(ch, "&zCloaking Device: %s\n\r",
                           ship->cloakstatus !=
-                          CLOAK_NONE ? "&CInstalled" : "&zNot Installed");
+                          CloakNone ? "&CInstalled" : "&zNot Installed");
 
                 /*
                  * Junk it 
@@ -2010,11 +2010,11 @@ void finish_ship(CharData * ch, ShipData * ship)
         ship->torpedos = ship->maxtorpedos;
         ship->rockets = ship->maxrockets;
         ship->pulses = ship->maxpulses;
-        ship->ion_state = ION_READY;
-        ship->statet0 = LASER_READY;
-        ship->statet1 = LASER_READY;
-        ship->statet2 = LASER_READY;
-        ship->missilestate = LASER_READY;
+        ship->ion_state = IonReady;
+        ship->statet0 = LaserReady;
+        ship->statet1 = LaserReady;
+        ship->statet2 = LaserReady;
+        ship->missilestate = LaserReady;
         ship->cloakstatus = 0;
         ship->currjump = NULL;
         ship->target0 = NULL;
@@ -2032,11 +2032,11 @@ void finish_ship(CharData * ch, ShipData * ship)
         ship->create_date = time(0);
 
         if (ch == NULL)
-                dock = g_r_i(ROOM_LIMBO_SHIPYARD);
+                dock = g_r_i(RoomLimboShipyard);
         else if (!ch->in_room)
-                dock = g_r_i(ROOM_LIMBO_SHIPYARD);
-        else if (!xIS_SET(ch->in_room->RoomFlags, ROOM_CAN_FLY))
-                dock = g_r_i(ROOM_LIMBO_SHIPYARD);
+                dock = g_r_i(RoomLimboShipyard);
+        else if (!xIS_SET(ch->in_room->RoomFlags, RoomCanFly))
+                dock = g_r_i(RoomLimboShipyard);
         else
                 dock = ch->in_room;
 
@@ -2124,11 +2124,11 @@ RoomIndexData *make_ship_room(ShipData * ship, int svnum)
                         rFound = TRUE;
                         pRoom = make_room(vnum);
                         pRoom->area = sArea;
-                        xSET_BIT(pRoom->RoomFlags, ROOM_SPACECRAFT);
+                        xSET_BIT(pRoom->RoomFlags, RoomSpacecraft);
                         /*
-                         * xSET_BIT( pRoom->RoomFlags, ROOM_INDOORS ); 
+                         * xSET_BIT( pRoom->RoomFlags, RoomIndoors ); 
                          */
-                        xREMOVE_BIT(pRoom->RoomFlags, ROOM_PROTOTYPE);
+                        xREMOVE_BIT(pRoom->RoomFlags, RoomPrototype);
                 }
         }
 
@@ -2223,7 +2223,7 @@ void fold_vships(void)
         return;
 }
 
-ShipData *make_ship(CharData * ch, PROTOSHIP_DATA * proto, char *arg2)
+ShipData *make_ship(CharData * ch, ProtoshipData * proto, char *arg2)
 {
         FILE     *fp;
         ShipData *ship;
@@ -2249,7 +2249,7 @@ ShipData *make_ship(CharData * ch, PROTOSHIP_DATA * proto, char *arg2)
         ship->target0 = NULL;
         ship->target1 = NULL;
         ship->target2 = NULL;
-        ship->cloakstatus = CLOAK_NONE;
+        ship->cloakstatus = CloakNone;
         ship->lasers = 0;
         ship->turbolasers = 0;
         ship->blasters = 0;
@@ -2261,7 +2261,7 @@ ShipData *make_ship(CharData * ch, PROTOSHIP_DATA * proto, char *arg2)
         /*
          * Now we have a ship. Now the scary part --- Start loading the shipimage
          */
-        sprintf(filename, "%s%s", SHIPIMMAGE_DIR, protoship->shipclass);
+        sprintf(filename, "%s%s", ShipimmageDir, protoship->shipclass);
         if ((fp = fopen(filename, "r")) != NULL)
         {
                 for (;;)
@@ -2356,7 +2356,7 @@ ShipData *view_ship(char *arg1)
         ship->target0 = NULL;
         ship->target1 = NULL;
         ship->target2 = NULL;
-        ship->cloakstatus = CLOAK_NONE;
+        ship->cloakstatus = CloakNone;
         ship->lasers = 0;
         ship->turbolasers = 0;
         ship->blasters = 0;
@@ -2368,7 +2368,7 @@ ShipData *view_ship(char *arg1)
         /*
          * Now we have a ship. Now the scary part --- Start loading the shipimage
          */
-        sprintf(filename, "%s%s", SHIPIMMAGE_DIR, arg1);
+        sprintf(filename, "%s%s", ShipimmageDir, arg1);
         if ((fp = fopen(filename, "r")) != NULL)
         {
                 for (;;)
@@ -2432,11 +2432,11 @@ ShipData *view_ship(char *arg1)
         ship->torpedos = ship->maxtorpedos;
         ship->rockets = ship->maxrockets;
         ship->pulses = ship->maxpulses;
-        ship->ion_state = ION_READY;
-        ship->statet0 = LASER_READY;
-        ship->statet1 = LASER_READY;
-        ship->statet2 = LASER_READY;
-        ship->missilestate = LASER_READY;
+        ship->ion_state = IonReady;
+        ship->statet0 = LaserReady;
+        ship->statet1 = LaserReady;
+        ship->statet2 = LaserReady;
+        ship->missilestate = LaserReady;
         ship->cloakstatus = 0;
         ship->currjump = NULL;
         ship->target0 = NULL;
@@ -2566,10 +2566,10 @@ bool save_shipimage(ShipData * ship, char *fname)
         /*
          * char buf[MaxStringLength]; 
          */
-        TURRET_DATA *turret;
-        HANGAR_DATA *hangar;
-        ESCAPE_DATA *escape;
-        CARGO_DATA *cargo;
+        TurretData *turret;
+        HangarData *hangar;
+        EscapeData *escape;
+        CargoData *cargo;
         RoomIndexData *room = NULL;
         ExitData *pexit = NULL;
         int       vnum;
@@ -2586,7 +2586,7 @@ bool save_shipimage(ShipData * ship, char *fname)
                 return FALSE;
         }
 
-        sprintf(filename, "%s%s.img", SHIPIMAGE_DIR, fname);
+        sprintf(filename, "%s%s.img", ShipimageDir, fname);
 
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) == NULL)
@@ -2688,7 +2688,7 @@ bool save_shipimage(ShipData * ship, char *fname)
                 fprintf(fp, "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return TRUE;
 }
 
@@ -2834,10 +2834,10 @@ void fread_shipimage(ShipData * ship, FILE * fp)
                                         ship->maxcharge =
                                                 10 * (ship->class + 1);
 
-                                if (ship->dock_state != DOCK_NONE)
+                                if (ship->dock_state != DockNone)
                                 {
                                         ship->dock_install = TRUE;
-                                        ship->dock_state = DOCK_READY;
+                                        ship->dock_state = DockReady;
                                 }
 
                                 if (ship->missiletubes <= 0)
@@ -2849,20 +2849,20 @@ void fread_shipimage(ShipData * ship, FILE * fp)
                                                 ship->missiletubes = 1;
                                 }
 
-                                if (ship->shipstate != SHIP_DISABLED)
-                                        ship->shipstate = SHIP_DOCKED;
-                                if (ship->ion_state != ION_DAMAGED)
-                                        ship->ion_state = ION_READY;
-                                if (ship->statet0 != LASER_DAMAGED)
-                                        ship->statet0 = LASER_READY;
-                                if (ship->statet1 != LASER_DAMAGED)
-                                        ship->statet1 = LASER_READY;
-                                if (ship->statet2 != LASER_DAMAGED)
-                                        ship->statet2 = LASER_READY;
-                                if (ship->missilestate != MISSILE_DAMAGED)
-                                        ship->missilestate = MISSILE_READY;
+                                if (ship->shipstate != ShipDisabled)
+                                        ship->shipstate = ShipDocked;
+                                if (ship->ion_state != IonDamaged)
+                                        ship->ion_state = IonReady;
+                                if (ship->statet0 != LaserDamaged)
+                                        ship->statet0 = LaserReady;
+                                if (ship->statet1 != LaserDamaged)
+                                        ship->statet1 = LaserReady;
+                                if (ship->statet2 != LaserDamaged)
+                                        ship->statet2 = LaserReady;
+                                if (ship->missilestate != MissileDamaged)
+                                        ship->missilestate = MissileReady;
                                 if (ship->shipyard <= 0)
-                                        ship->shipyard = ROOM_LIMBO_SHIPYARD;
+                                        ship->shipyard = RoomLimboShipyard;
                                 if (ship->lastdoc <= 0)
                                         ship->lastdoc = ship->shipyard;
                                 ship->autopilot = FALSE;
@@ -2944,7 +2944,7 @@ void fread_shipimage(ShipData * ship, FILE * fp)
 
                 case 'M':
                         KEY("Manuever", ship->manuever, fread_number(fp));
-                        KEY("Magnetic", ship->mines[MAGNETIC_MINE],
+                        KEY("Magnetic", ship->mines[MagneticMine],
                             fread_number(fp));
                         KEY("Missiletubes", ship->missiletubes,
                             fread_number(fp));
@@ -2970,7 +2970,7 @@ void fread_shipimage(ShipData * ship, FILE * fp)
                 case 'P':
                         KEY("Pilotseat", ship->pilotseat,
                             fread_number(fp) + fRm);
-                        KEY("Proximity", ship->mines[PROXIMITY_MINE],
+                        KEY("Proximity", ship->mines[ProximityMine],
                             fread_number(fp));
                         break;
 
@@ -3050,7 +3050,7 @@ void fread_shipimage(ShipData * ship, FILE * fp)
 
                 case 'S':
                         KEY("Sensor", ship->sensor, fread_number(fp));
-                        KEY("Seeker", ship->mines[SEEKER_MINE],
+                        KEY("Seeker", ship->mines[SeekerMine],
                             fread_number(fp));
                         break;
 
@@ -3229,10 +3229,10 @@ void fread_viewshipimage(ShipData * ship, FILE * fp)
                                         ship->maxcharge =
                                                 10 * (ship->class + 1);
 
-                                if (ship->dock_state != DOCK_NONE)
+                                if (ship->dock_state != DockNone)
                                 {
                                         ship->dock_install = TRUE;
-                                        ship->dock_state = DOCK_READY;
+                                        ship->dock_state = DockReady;
                                 }
 
                                 if (ship->missiletubes <= 0)
@@ -3244,20 +3244,20 @@ void fread_viewshipimage(ShipData * ship, FILE * fp)
                                                 ship->missiletubes = 1;
                                 }
 
-                                if (ship->shipstate != SHIP_DISABLED)
-                                        ship->shipstate = SHIP_DOCKED;
-                                if (ship->ion_state != ION_DAMAGED)
-                                        ship->ion_state = ION_READY;
-                                if (ship->statet0 != LASER_DAMAGED)
-                                        ship->statet0 = LASER_READY;
-                                if (ship->statet1 != LASER_DAMAGED)
-                                        ship->statet1 = LASER_READY;
-                                if (ship->statet2 != LASER_DAMAGED)
-                                        ship->statet2 = LASER_READY;
-                                if (ship->missilestate != MISSILE_DAMAGED)
-                                        ship->missilestate = MISSILE_READY;
+                                if (ship->shipstate != ShipDisabled)
+                                        ship->shipstate = ShipDocked;
+                                if (ship->ion_state != IonDamaged)
+                                        ship->ion_state = IonReady;
+                                if (ship->statet0 != LaserDamaged)
+                                        ship->statet0 = LaserReady;
+                                if (ship->statet1 != LaserDamaged)
+                                        ship->statet1 = LaserReady;
+                                if (ship->statet2 != LaserDamaged)
+                                        ship->statet2 = LaserReady;
+                                if (ship->missilestate != MissileDamaged)
+                                        ship->missilestate = MissileReady;
                                 if (ship->shipyard <= 0)
-                                        ship->shipyard = ROOM_LIMBO_SHIPYARD;
+                                        ship->shipyard = RoomLimboShipyard;
                                 if (ship->lastdoc <= 0)
                                         ship->lastdoc = ship->shipyard;
                                 ship->autopilot = FALSE;
@@ -3330,7 +3330,7 @@ void fread_viewshipimage(ShipData * ship, FILE * fp)
 
                 case 'M':
                         KEY("Manuever", ship->manuever, fread_number(fp));
-                        KEY("Magnetic", ship->mines[MAGNETIC_MINE],
+                        KEY("Magnetic", ship->mines[MagneticMine],
                             fread_number(fp));
                         KEY("Missiletubes", ship->missiletubes,
                             fread_number(fp));
@@ -3356,7 +3356,7 @@ void fread_viewshipimage(ShipData * ship, FILE * fp)
                 case 'P':
                         KEY("Pilotseat", ship->pilotseat,
                             fread_number(fp) + fRm);
-                        KEY("Proximity", ship->mines[PROXIMITY_MINE],
+                        KEY("Proximity", ship->mines[ProximityMine],
                             fread_number(fp));
                         break;
 
@@ -3412,7 +3412,7 @@ void fread_viewshipimage(ShipData * ship, FILE * fp)
 
                 case 'S':
                         KEY("Sensor", ship->sensor, fread_number(fp));
-                        KEY("Seeker", ship->mines[SEEKER_MINE],
+                        KEY("Seeker", ship->mines[SeekerMine],
                             fread_number(fp));
                         break;
 
@@ -3460,7 +3460,7 @@ bool shipimage_exist(char *name)
          * FILE *fp; 
          */
 
-        sprintf(strsave, "%s/%s", SHIPIMAGE_DIR, name);
+        sprintf(strsave, "%s/%s", ShipimageDir, name);
 
         return file_exist(strsave);
 }
@@ -3478,7 +3478,7 @@ void do_images(CharData * ch, char *argument)
         /*
          * Open the directory based on image directory 
          */
-        directory = opendir(SHIPIMAGE_DIR);
+        directory = opendir(ShipimageDir);
 
         /*
          * Set the structure based directory, so we can target files individually 

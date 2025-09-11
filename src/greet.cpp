@@ -63,7 +63,7 @@
 #include "greet.hpp"
 #include "races.hpp"
 
-GREET_INFO * get_greet(CharData * ch, CharData * victim);
+GreetInfo * get_greet(CharData * ch, CharData * victim);
 bool isavowel(char letter);
 char     *aoran(const char *str);
 
@@ -103,9 +103,9 @@ char * get_char_desc(CharData * ch, CharData * looker)
         int str =  get_curr_str(ch);
 
         // DISABLE IT
-        if (!sysdata.GREET || IS_IMMORTAL(looker) || IS_NPC(ch))
+        if (!sysdata.GREET || IsImmortal(looker) || IsNpc(ch))
         {
-                strcpy(desc, IS_NPC(ch) ? ch->name : ch->pcdata->full_name);
+                strcpy(desc, IsNpc(ch) ? ch->name : ch->pcdata->full_name);
                 return desc;
         }
         /* Hash name + Hash toplayer of clothing (ordering?) 
@@ -116,8 +116,8 @@ char * get_char_desc(CharData * ch, CharData * looker)
 
         temp_desc[0] = desc[0] = '\0';
         cha_desc[0] = str_desc[0] = '\0';
-        if (looker && !IS_NPC(looker)) {
-                GREET_INFO * info = get_greet(looker, ch);
+        if (looker && !IsNpc(looker)) {
+                GreetInfo * info = get_greet(looker, ch);
                 if (info)
                 {
                         strcpy(desc, info->remembered_name);
@@ -167,7 +167,7 @@ char * get_char_desc(CharData * ch, CharData * looker)
         if (temp_desc[0] != '\0') 
                 strcat(temp_desc, " ");
 
-        if (ch->sex >= 0 && ch->sex < SEX_MAX)
+        if (ch->sex >= 0 && ch->sex < SexMax)
                 strcat(temp_desc, strlower(npc_sex[ch->sex]));
         strcat(temp_desc, " ");
         strcat(temp_desc, strlower(ch->race->name()));
@@ -176,12 +176,12 @@ char * get_char_desc(CharData * ch, CharData * looker)
         return desc;
 }
 
-GREET_INFO * get_greet(CharData * ch, CharData * victim)
+GreetInfo * get_greet(CharData * ch, CharData * victim)
 {
         if (!ch->pcdata->greet_info)
                 ch->pcdata->greet_info = new temp_greet_ptr;
         else {
-                GREET_MAP::iterator i = ch->pcdata->greet_info->greet_info.find(victim->name);
+                GreetMap::iterator i = ch->pcdata->greet_info->greet_info.find(victim->name);
                 if ( i != ch->pcdata->greet_info->greet_info.end())
                         return (i->second);
         }
@@ -198,7 +198,7 @@ bool has_greet(CharData * ch, CharData * victim)
 /* should be CharData->add_greet */
 void add_greet_to_char(CharData * ch, CharData * victim, char * name) 
 {
-        GREET_INFO * greetinfo;
+        GreetInfo * greetinfo;
         if (!ch->pcdata->greet_info)
                 ch->pcdata->greet_info = new temp_greet_ptr;
 
@@ -209,11 +209,11 @@ void add_greet_to_char(CharData * ch, CharData * victim, char * name)
         // key is char->name or new identity
         if (has_greet(ch, victim))
         {
-                GREET_MAP::iterator i = ch->pcdata->greet_info->greet_info.find(victim->name);
+                GreetMap::iterator i = ch->pcdata->greet_info->greet_info.find(victim->name);
 
                 return;
         }
-        greetinfo = new GREET_INFO;
+        greetinfo = new GreetInfo;
         greetinfo->remembered_name = STRALLOC(name);
         greetinfo->key = STRALLOC(victim->name);
         greetinfo->CharName = STRALLOC(victim->name);
@@ -226,8 +226,8 @@ void fwrite_greet(CharData * ch, FILE * fp)
         if (!ch->pcdata->greet_info)
                 return;
 
-        GREET_MAP::iterator i;
-        GREET_INFO * info;
+        GreetMap::iterator i;
+        GreetInfo * info;
 
         for( i = ch->pcdata->greet_info->greet_info.begin(); i != ch->pcdata->greet_info->greet_info.end(); ++i)
         {
@@ -284,7 +284,7 @@ void fread_greet(CharData * ch, FILE * fp)
                 case 'E':
                         if (!str_cmp(word, "End")) {
                                 // create and add greet info
-                                GREET_INFO * greetinfo = new GREET_INFO;
+                                GreetInfo * greetinfo = new GreetInfo;
                                 greetinfo->last_seen = lastseen;
                                 greetinfo->last_heard = lastheard;
                                 greetinfo->remembered_name = rememberedname;

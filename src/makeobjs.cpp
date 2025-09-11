@@ -51,7 +51,7 @@ void make_fire(RoomIndexData * in_room, sh_int timer)
 {
         ObjData *fire;
 
-        fire = create_object(get_obj_index(OBJ_VNUM_FIRE), 0);
+        fire = create_object(get_obj_index(ObjVnumFire), 0);
         fire->timer = number_fuzzy(timer);
         obj_to_room(fire, in_room);
         return;
@@ -64,7 +64,7 @@ ObjData *make_trap(int v0, int v1, int v2, int v3)
 {
         ObjData *trap;
 
-        trap = create_object(get_obj_index(OBJ_VNUM_TRAP), 0);
+        trap = create_object(get_obj_index(ObjVnumTrap), 0);
         trap->timer = 0;
         trap->value[0] = v0;
         trap->value[1] = v1;
@@ -83,13 +83,13 @@ void make_scraps(ObjData * obj)
         CharData *ch = NULL;
 
         separate_obj(obj);
-        scraps = create_object(get_obj_index(OBJ_VNUM_SCRAPS), 0);
+        scraps = create_object(get_obj_index(ObjVnumScraps), 0);
         scraps->timer = number_range(5, 15);
 
         /*
          * don't make scraps of scraps of scraps of ... 
          */
-        if (obj->pIndexData->vnum == OBJ_VNUM_SCRAPS)
+        if (obj->pIndexData->vnum == ObjVnumScraps)
         {
                 STRFREE(scraps->short_descr);
                 scraps->short_descr = STRALLOC("some debris");
@@ -107,13 +107,13 @@ void make_scraps(ObjData * obj)
 
         if (obj->carried_by)
         {
-                act(AT_OBJECT, "$p falls to the ground in scraps!",
-                    obj->carried_by, obj, NULL, TO_CHAR);
-                if (obj == get_eq_char(obj->carried_by, WEAR_WIELD)
+                act(AtObject, "$p falls to the ground in scraps!",
+                    obj->carried_by, obj, NULL, ToChar);
+                if (obj == get_eq_char(obj->carried_by, WearWield)
                     && (tmpobj =
                         get_eq_char(obj->carried_by,
-                                    WEAR_DUAL_WIELD)) != NULL)
-                        tmpobj->wear_loc = WEAR_WIELD;
+                                    WearDualWield)) != NULL)
+                        tmpobj->wear_loc = WearWield;
 
                 obj_to_room(scraps, obj->carried_by->in_room);
         }
@@ -121,27 +121,27 @@ void make_scraps(ObjData * obj)
         {
                 if ((ch = obj->in_room->first_person) != NULL)
                 {
-                        act(AT_OBJECT,
+                        act(AtObject,
                             "$p is reduced to little more than scraps.", ch,
-                            obj, NULL, TO_ROOM);
-                        act(AT_OBJECT,
+                            obj, NULL, ToRoom);
+                        act(AtObject,
                             "$p is reduced to little more than scraps.", ch,
-                            obj, NULL, TO_CHAR);
+                            obj, NULL, ToChar);
                 }
                 obj_to_room(scraps, obj->in_room);
         }
-        if ((obj->item_type == ITEM_CONTAINER
-             || obj->item_type == ITEM_HOLSTER
-             || obj->item_type == ITEM_CORPSE_PC) && obj->first_content)
+        if ((obj->item_type == ItemContainer
+             || obj->item_type == ItemHolster
+             || obj->item_type == ItemCorpsePc) && obj->first_content)
         {
                 if (ch && ch->in_room)
                 {
-                        act(AT_OBJECT,
+                        act(AtObject,
                             "The contents of $p fall to the ground.", ch, obj,
-                            NULL, TO_ROOM);
-                        act(AT_OBJECT,
+                            NULL, ToRoom);
+                        act(AtObject,
                             "The contents of $p fall to the ground.", ch, obj,
-                            NULL, TO_CHAR);
+                            NULL, ToChar);
                 }
                 if (obj->carried_by)
                         empty_obj(obj, NULL, obj->carried_by->in_room);
@@ -164,15 +164,15 @@ void make_corpse(CharData * ch, CharData * killer)
         ObjData *obj_next;
         char     *name;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 name = ch->short_descr;
-                if (IS_SET(ch->act, ACT_DROID))
+                if (IsSet(ch->act, ActDroid))
                         corpse = create_object(get_obj_index
-                                               (OBJ_VNUM_DROID_CORPSE), 0);
+                                               (ObjVnumDroidCorpse), 0);
                 else
                         corpse = create_object(get_obj_index
-                                               (OBJ_VNUM_CORPSE_NPC), 0);
+                                               (ObjVnumCorpseNpc), 0);
                 corpse->timer = 6;
                 if (ch->gold > 0)
                 {
@@ -191,7 +191,7 @@ void make_corpse(CharData * ch, CharData * killer)
         else
         {
                 name = ch->name;
-                corpse = create_object(get_obj_index(OBJ_VNUM_CORPSE_PC), 0);
+                corpse = create_object(get_obj_index(ObjVnumCorpsePc), 0);
                 corpse->timer = 40;
                 corpse->value[2] = (int) (corpse->timer / 8);
                 corpse->value[3] = 0;
@@ -219,8 +219,8 @@ void make_corpse(CharData * ch, CharData * killer)
         {
                 obj_next = obj->next_content;
                 obj_from_char(obj);
-                if (IS_OBJ_STAT(obj, ITEM_INVENTORY)
-                    || IS_OBJ_STAT(obj, ITEM_DEATHROT))
+                if (IsObjStat(obj, ItemInventory)
+                    || IsObjStat(obj, ItemDeathrot))
                         extract_obj(obj);
                 else
                         obj_to_obj(obj, corpse);
@@ -235,7 +235,7 @@ void make_blood(CharData * ch)
 {
         ObjData *obj;
 
-        obj = create_object(get_obj_index(OBJ_VNUM_BLOOD), 0);
+        obj = create_object(get_obj_index(ObjVnumBlood), 0);
         obj->timer = number_range(2, 4);
         obj->value[1] = number_range(3, UMIN(5, ch->top_level));
         obj_to_room(obj, ch->in_room);
@@ -246,7 +246,7 @@ void make_bloodstain(CharData * ch)
 {
         ObjData *obj;
 
-        obj = create_object(get_obj_index(OBJ_VNUM_BLOODSTAIN), 0);
+        obj = create_object(get_obj_index(ObjVnumBloodstain), 0);
         obj->timer = number_range(1, 2);
         obj_to_room(obj, ch->in_room);
 }
@@ -267,11 +267,11 @@ ObjData *create_money(int amount)
 
         if (amount == 1)
         {
-                obj = create_object(get_obj_index(OBJ_VNUM_MONEY_ONE), 0);
+                obj = create_object(get_obj_index(ObjVnumMoneyOne), 0);
         }
         else
         {
-                obj = create_object(get_obj_index(OBJ_VNUM_MONEY_SOME), 0);
+                obj = create_object(get_obj_index(ObjVnumMoneySome), 0);
                 stralloc_printf(&obj->short_descr, obj->short_descr, amount);
                 obj->value[0] = amount;
         }

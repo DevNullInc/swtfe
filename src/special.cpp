@@ -52,7 +52,7 @@
 
 /* jails for wanted flags */
 
-#define ROOM_JAIL_CORUSCANT        0
+#define RoomJailCoruscant        0
 
 SpecList *first_specfun;
 SpecList *last_specfun;
@@ -71,7 +71,7 @@ void load_specfuns(void)
         first_specfun = NULL;
         last_specfun = NULL;
 
-        snprintf(filename, 256, "%sspecfuns.dat", SYSTEM_DIR);
+        snprintf(filename, 256, "%sspecfuns.dat", SystemDir);
         if (!(fp = fopen(filename, "r")))
         {
                 bug("%s",
@@ -151,12 +151,12 @@ SPECF spec_newbie_pilot(CharData * ch)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || victim->position == POS_FIGHTING)
+                if (IsNpc(victim) || victim->position == PosFighting)
                         continue;
 
                 for (obj = victim->last_carrying; obj;
                      obj = obj->prev_content)
-                        if (obj->pIndexData->vnum == OBJ_VNUM_SCHOOL_DIPLOMA)
+                        if (obj->pIndexData->vnum == ObjVnumSchoolDiploma)
                                 diploma = TRUE;
 
                 if (!diploma)
@@ -179,7 +179,7 @@ SPECF spec_newbie_pilot(CharData * ch)
                                          "After a brief journey you arrive at %s's spaceport.",
                                          room->name);
                         }
-                        echo_to_room(AT_ACTION, ch->in_room, buf);
+                        echo_to_room(AtAction, ch->in_room, buf);
                 }
                 else
                 {
@@ -190,7 +190,7 @@ SPECF spec_newbie_pilot(CharData * ch)
                         do_say(ch,
                                "You're home planet is a little hard to get to right now.");
                         do_say(ch, "I'll take you to the Pluogus instead.");
-                        echo_to_room(AT_ACTION, ch->in_room,
+                        echo_to_room(AtAction, ch->in_room,
                                      "After a brief journey the shuttle docks with the Serin Pluogus.\n\r\n\r");
                 }
                 char_from_room(victim);
@@ -201,7 +201,7 @@ SPECF spec_newbie_pilot(CharData * ch)
                 snprintf(buf, MSL,
                          "%s steps out and the shuttle quickly returns to the academy.\n\r",
                          victim->name);
-                echo_to_room(AT_ACTION, ch->in_room, buf);
+                echo_to_room(AtAction, ch->in_room, buf);
         }
 
         return FALSE;
@@ -212,7 +212,7 @@ SPECF spec_player_elite_guard(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         if (!get_clan(ch->mob_clan))
@@ -223,12 +223,12 @@ SPECF spec_player_elite_guard(CharData * ch)
                 v_next = victim->next_in_room;
                 if (!can_see(ch, victim))
                         continue;
-                if (get_timer(victim, TIMER_RECENTFIGHT) > 0)
+                if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
                 if (!is_clan_enemy(ch, victim))
                         continue;
                 do_say(ch, "Hey you're not allowed in here!");
-                multi_hit(ch, victim, TYPE_UNDEFINED);
+                multi_hit(ch, victim, TypeUndefined);
                 return TRUE;
         }
         return FALSE;
@@ -239,7 +239,7 @@ SPECF spec_installation_guard(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         if (!get_clan(ch->mob_clan))
@@ -250,7 +250,7 @@ SPECF spec_installation_guard(CharData * ch)
                 v_next = victim->next_in_room;
                 if (!can_see(ch, victim))
                         continue;
-                if (get_timer(victim, TIMER_RECENTFIGHT) > 0)
+                if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
 
                 if (is_clan_ally(ch, victim))
@@ -260,7 +260,7 @@ SPECF spec_installation_guard(CharData * ch)
                         continue;
 
                 do_say(ch, "Hey you're not allowed in here!");
-                multi_hit(ch, victim, TYPE_UNDEFINED);
+                multi_hit(ch, victim, TypeUndefined);
                 return TRUE;
         }
         return FALSE;
@@ -270,18 +270,18 @@ SPECF spec_installation_entrance_guard(CharData * ch)
 {
         CharData *victim;
         CharData *v_next;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         ExitData *pexit;
 
 
-        if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
+        if (!IsAwake(ch) || ch->position == PosFighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || victim->position == POS_FIGHTING)
+                if (IsNpc(victim) || victim->position == PosFighting)
                         continue;
 
 				if (!can_see(ch, victim))
@@ -317,17 +317,17 @@ SPECF spec_installation_doctor(CharData * ch)
 {
         CharData *victim;
         CharData *v_next;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
 
 
-        if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
+        if (!IsAwake(ch) || ch->position == PosFighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || victim->position == POS_FIGHTING)
+                if (IsNpc(victim) || victim->position == PosFighting)
                         continue;
 
                 if (!is_clan_ally(ch, victim))
@@ -367,7 +367,7 @@ SPECF spec_clan_guard(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
         if (!get_clan(ch->mob_clan))
                 return FALSE;
@@ -377,7 +377,7 @@ SPECF spec_clan_guard(CharData * ch)
                 v_next = victim->next_in_room;
                 if (!can_see(ch, victim))
                         continue;
-                if (get_timer(victim, TIMER_RECENTFIGHT) > 0)
+                if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
 
                 if (!is_clan_enemy(ch, victim))
@@ -385,7 +385,7 @@ SPECF spec_clan_guard(CharData * ch)
                 if (is_same_clan(ch, victim))
                         continue;
                 do_say(ch, "Hey you're not allowed in here!");
-                multi_hit(ch, victim, TYPE_UNDEFINED);
+                multi_hit(ch, victim, TypeUndefined);
                 return TRUE;
         }
 
@@ -397,7 +397,7 @@ SPECF spec_player_guard(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
@@ -405,13 +405,13 @@ SPECF spec_player_guard(CharData * ch)
                 v_next = victim->next_in_room;
                 if (!can_see(ch, victim))
                         continue;
-                if (get_timer(victim, TIMER_RECENTFIGHT) > 0)
+                if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
-                if (!IS_NPC(victim) && victim->pcdata && IS_AWAKE(victim)
+                if (!IsNpc(victim) && victim->pcdata && IsAwake(victim)
                     && str_cmp(ch->leader->name, victim->name))
                 {
                         do_say(ch, "Hey you're not allowed in here!");
-                        multi_hit(ch, victim, TYPE_UNDEFINED);
+                        multi_hit(ch, victim, TypeUndefined);
                         return TRUE;
                 }
         }
@@ -424,7 +424,7 @@ SPECF spec_clan_patrol(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         if (!get_clan(ch->mob_clan))
@@ -435,10 +435,10 @@ SPECF spec_clan_patrol(CharData * ch)
                 v_next = victim->next_in_room;
                 if (!can_see(ch, victim))
                         continue;
-                if (get_timer(victim, TIMER_RECENTFIGHT) > 0)
+                if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
-                if (!IS_NPC(victim) && victim->pcdata && victim->pcdata->clan
-                    && IS_AWAKE(victim) && (victim->top_level > 29))
+                if (!IsNpc(victim) && victim->pcdata && victim->pcdata->clan
+                    && IsAwake(victim) && (victim->top_level > 29))
                 {
                         if (victim->pcdata->clan->mainclan
                             && get_clan(ch->mob_clan)->mainclan)
@@ -472,7 +472,7 @@ SPECF spec_clan_patrol(CharData * ch)
 
 
                         do_say(ch, "Hey you're not allowed around here!");
-                        multi_hit(ch, victim, TYPE_UNDEFINED);
+                        multi_hit(ch, victim, TypeUndefined);
                         return TRUE;
                 }
         }
@@ -485,7 +485,7 @@ SPECF spec_player_patrol(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
@@ -493,14 +493,14 @@ SPECF spec_player_patrol(CharData * ch)
                 v_next = victim->next_in_room;
                 if (!can_see(ch, victim))
                         continue;
-                if (get_timer(victim, TIMER_RECENTFIGHT) > 0)
+                if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
-                if (!IS_NPC(victim) && victim->pcdata && IS_AWAKE(victim)
+                if (!IsNpc(victim) && victim->pcdata && IsAwake(victim)
                     && (victim->top_level > 29)
                     && str_cmp(ch->leader->name, victim->name))
                 {
                         do_say(ch, "Hey you're not allowed around here!");
-                        multi_hit(ch, victim, TYPE_UNDEFINED);
+                        multi_hit(ch, victim, TypeUndefined);
                         return TRUE;
                 }
         }
@@ -518,20 +518,20 @@ SPECF spec_customs_smut(CharData * ch)
         char      buf[MaxStringLength];
         long      ch_exp;
 
-        if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
+        if (!IsAwake(ch) || ch->position == PosFighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || victim->position == POS_FIGHTING)
+                if (IsNpc(victim) || victim->position == PosFighting)
                         continue;
 
                 for (obj = victim->last_carrying; obj;
                      obj = obj->prev_content)
                 {
-                        if (obj->pIndexData->item_type == ITEM_SMUT)
+                        if (obj->pIndexData->item_type == ItemSmut)
                         {
                                 if (victim != ch && can_see(ch, victim)
                                     && can_see_obj(ch, obj))
@@ -540,91 +540,91 @@ SPECF spec_customs_smut(CharData * ch)
                                                  "%s is illegal contraband. I'm going to have to confiscate that.",
                                                  obj->short_descr);
                                         do_say(ch, buf);
-                                        if (obj->wear_loc != WEAR_NONE)
+                                        if (obj->wear_loc != WearNone)
                                                 remove_obj(victim,
                                                            obj->wear_loc,
                                                            TRUE);
                                         separate_obj(obj);
                                         obj_from_char(obj);
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n confiscates $p from $N.", ch,
-                                            obj, victim, TO_NOTVICT);
-                                        act(AT_ACTION,
+                                            obj, victim, ToNotvict);
+                                        act(AtAction,
                                             "$n takes $p from you.", ch, obj,
-                                            victim, TO_VICT);
+                                            victim, ToVict);
                                         obj = obj_to_char(obj, ch);
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You lose %ld experience.\n\r ",
                                                   ch_exp);
                                         gain_exp(victim, 0 - ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
                                         return TRUE;
                                 }
                                 else if (can_see(ch, victim)
-                                         && !IS_SET(obj->extra_flags,
-                                                    ITEM_CONTRABAND))
+                                         && !IsSet(obj->extra_flags,
+                                                    ItemContraband))
                                 {
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You receive %ld experience for smuggling %s.\n\r ",
                                                   ch_exp, obj->short_descr);
                                         gain_exp(victim, ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
 
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n looks at $N suspiciously.",
-                                            ch, NULL, victim, TO_NOTVICT);
-                                        act(AT_ACTION,
+                                            ch, NULL, victim, ToNotvict);
+                                        act(AtAction,
                                             "$n look at you suspiciously.",
-                                            ch, NULL, victim, TO_VICT);
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                            ch, NULL, victim, ToVict);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
 
                                         return TRUE;
                                 }
-                                else if (!IS_SET
-                                         (obj->extra_flags, ITEM_CONTRABAND))
+                                else if (!IsSet
+                                         (obj->extra_flags, ItemContraband))
                                 {
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You receive %ld experience for smuggling %s.\n\r ",
                                                   ch_exp, obj->short_descr);
                                         gain_exp(victim, ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
 
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
                                         return TRUE;
                                 }
                         }
-                        else if (obj->item_type == ITEM_CONTAINER)
+                        else if (obj->item_type == ItemContainer)
                         {
                                 ObjData *content;
 
@@ -632,30 +632,30 @@ SPECF spec_customs_smut(CharData * ch)
                                      content = content->next_content)
                                 {
                                         if (content->pIndexData->item_type ==
-                                            ITEM_SMUT
-                                            && !IS_SET(content->extra_flags,
-                                                       ITEM_CONTRABAND))
+                                            ItemSmut
+                                            && !IsSet(content->extra_flags,
+                                                       ItemContraband))
                                         {
                                                 ch_exp = UMIN(content->cost *
                                                               10,
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY]
+                                                                [SmugglingAbility]
                                                                 + 1) -
                                                                exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY])));
+                                                                [SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You receive %ld experience for smuggling %s.\n\r ",
                                                           ch_exp,
                                                           content->
                                                           short_descr);
                                                 gain_exp(victim, ch_exp,
-                                                         SMUGGLING_ABILITY);
-                                                SET_BIT(content->extra_flags,
-                                                        ITEM_CONTRABAND);
+                                                         SmugglingAbility);
+                                                SetBit(content->extra_flags,
+                                                        ItemContraband);
                                                 return TRUE;
                                         }
                                 }
@@ -676,7 +676,7 @@ SPECF spec_customs_weapons(CharData * ch)
         char      buf[MaxStringLength];
         long      ch_exp;
 
-        if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
+        if (!IsAwake(ch) || ch->position == PosFighting)
                 return FALSE;
 
         mob_clan = ch->mob_clan;
@@ -687,7 +687,7 @@ SPECF spec_customs_weapons(CharData * ch)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || victim->position == POS_FIGHTING)
+                if (IsNpc(victim) || victim->position == PosFighting)
                         continue;
 
                 if (is_clan_ally(ch, victim))
@@ -697,11 +697,11 @@ SPECF spec_customs_weapons(CharData * ch)
                 {
                         obj_prev = obj->prev_content;
 
-                        if (obj->item_type == ITEM_HOLSTER && obj->first_content != NULL)
+                        if (obj->item_type == ItemHolster && obj->first_content != NULL)
                              obj = obj->first_content;
 
-                        if (obj->pIndexData->item_type == ITEM_WEAPON
-                            || obj->pIndexData->item_type == ITEM_GRENADE)
+                        if (obj->pIndexData->item_type == ItemWeapon
+                            || obj->pIndexData->item_type == ItemGrenade)
                         {
                                 if (victim != ch && can_see(ch, victim)
                                     && can_see_obj(ch, obj))
@@ -710,7 +710,7 @@ SPECF spec_customs_weapons(CharData * ch)
                                                  "Weapons are banned from non-military usage. I'm going to have to confiscate %s.",
                                                  obj->short_descr);
                                         do_say(ch, buf);
-                                        if (obj->wear_loc != WEAR_NONE)
+                                        if (obj->wear_loc != WearNone)
                                                 remove_obj(victim,
                                                            obj->wear_loc,
                                                            TRUE);
@@ -719,89 +719,89 @@ SPECF spec_customs_weapons(CharData * ch)
                                                 obj_from_obj(obj);
                                         else 
                                                 obj_from_char(obj);
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n confiscates $p from $N.", ch,
-                                            obj, victim, TO_NOTVICT);
-                                        act(AT_ACTION,
+                                            obj, victim, ToNotvict);
+                                        act(AtAction,
                                             "$n takes $p from you.", ch, obj,
-                                            victim, TO_VICT);
+                                            victim, ToVict);
                                         obj = obj_to_char(obj, ch);
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You lose %ld experience.\n\r ",
                                                   ch_exp);
                                         gain_exp(victim, 0 - ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
 										ch->mob_clan = mob_clan;
                                         return TRUE;
                                 }
                                 else if (can_see(ch, victim)
-                                         && !IS_SET(obj->extra_flags,
-                                                    ITEM_CONTRABAND))
+                                         && !IsSet(obj->extra_flags,
+                                                    ItemContraband))
                                 {
                                         separate_obj(obj);
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You receive %ld experience for smuggling %d.\n\r ",
                                                   ch_exp, obj->short_descr);
                                         gain_exp(victim, ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
 
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n looks at $N suspiciously.",
-                                            ch, NULL, victim, TO_NOTVICT);
-                                        act(AT_ACTION,
+                                            ch, NULL, victim, ToNotvict);
+                                        act(AtAction,
                                             "$n look at you suspiciously.",
-                                            ch, NULL, victim, TO_VICT);
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                            ch, NULL, victim, ToVict);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
 										ch->mob_clan = mob_clan;
                                         return TRUE;
                                 }
-                                else if (!IS_SET
-                                         (obj->extra_flags, ITEM_CONTRABAND))
+                                else if (!IsSet
+                                         (obj->extra_flags, ItemContraband))
                                 {
                                         separate_obj(obj);
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You receive %ld experience for smuggling %s.\n\r ",
                                                   ch_exp, obj->short_descr);
                                         gain_exp(victim, ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
 
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
 										ch->mob_clan = mob_clan;
                                         return TRUE;
                                 }
                         }
-                        else if (obj->item_type == ITEM_CONTAINER)
+                        else if (obj->item_type == ItemContainer)
                         {
                                 ObjData *content;
 
@@ -809,11 +809,11 @@ SPECF spec_customs_weapons(CharData * ch)
                                      content = content->next_content)
                                 {
                                         if ((content->pIndexData->item_type ==
-                                             ITEM_WEAPON
+                                             ItemWeapon
                                              || content->pIndexData->
-                                             item_type == ITEM_GRENADE)
-                                            && !IS_SET(content->extra_flags,
-                                                       ITEM_CONTRABAND))
+                                             item_type == ItemGrenade)
+                                            && !IsSet(content->extra_flags,
+                                                       ItemContraband))
                                         {
                                                 separate_obj(content);
                                                 ch_exp = UMIN(content->cost *
@@ -821,21 +821,21 @@ SPECF spec_customs_weapons(CharData * ch)
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY]
+                                                                [SmugglingAbility]
                                                                 + 1) -
                                                                exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY])));
+                                                                [SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You receive %ld experience for smuggling %s.\n\r ",
                                                           ch_exp,
                                                           content->
                                                           short_descr);
                                                 gain_exp(victim, ch_exp,
-                                                         SMUGGLING_ABILITY);
-                                                SET_BIT(content->extra_flags,
-                                                        ITEM_CONTRABAND);
+                                                         SmugglingAbility);
+                                                SetBit(content->extra_flags,
+                                                        ItemContraband);
 												ch->mob_clan = mob_clan;
                                                 return TRUE;
                                         }
@@ -857,25 +857,25 @@ SPECF spec_customs_alcohol(CharData * ch)
         int       liquid;
         long      ch_exp;
 
-        if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
+        if (!IsAwake(ch) || ch->position == PosFighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || victim->position == POS_FIGHTING)
+                if (IsNpc(victim) || victim->position == PosFighting)
                         continue;
 
                 for (obj = victim->last_carrying; obj;
                      obj = obj->prev_content)
                 {
-                        if (obj->pIndexData->item_type == ITEM_DRINK_CON)
+                        if (obj->pIndexData->item_type == ItemDrinkCon)
                         {
-                                if ((liquid = obj->value[2]) >= LIQ_MAX)
+                                if ((liquid = obj->value[2]) >= LiqMax)
                                         liquid = obj->value[2] = 0;
 
-                                if (liq_table[liquid].liq_affect[COND_DRUNK] >
+                                if (liq_table[liquid].liq_affect[CondDrunk] >
                                     0)
                                 {
                                         if (victim != ch
@@ -887,101 +887,101 @@ SPECF spec_customs_alcohol(CharData * ch)
                                                          obj->short_descr);
                                                 do_say(ch, buf);
                                                 if (obj->wear_loc !=
-                                                    WEAR_NONE)
+                                                    WearNone)
                                                         remove_obj(victim,
                                                                    obj->
                                                                    wear_loc,
                                                                    TRUE);
                                                 separate_obj(obj);
                                                 obj_from_char(obj);
-                                                act(AT_ACTION,
+                                                act(AtAction,
                                                     "$n confiscates $p from $N.",
                                                     ch, obj, victim,
-                                                    TO_NOTVICT);
-                                                act(AT_ACTION,
+                                                    ToNotvict);
+                                                act(AtAction,
                                                     "$n takes $p from you.",
-                                                    ch, obj, victim, TO_VICT);
+                                                    ch, obj, victim, ToVict);
                                                 obj = obj_to_char(obj, ch);
-                                                SET_BIT(obj->extra_flags,
-                                                        ITEM_CONTRABAND);
+                                                SetBit(obj->extra_flags,
+                                                        ItemContraband);
                                                 ch_exp = UMIN(obj->cost * 10,
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY]
+                                                                [SmugglingAbility]
                                                                 + 1) -
                                                                exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY])));
+                                                                [SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You lose %ld experience. \n\r",
                                                           ch_exp);
                                                 gain_exp(victim, 0 - ch_exp,
-                                                         SMUGGLING_ABILITY);
+                                                         SmugglingAbility);
                                                 return TRUE;
                                         }
                                         else if (can_see(ch, victim)
-                                                 && !IS_SET(obj->extra_flags,
-                                                            ITEM_CONTRABAND))
+                                                 && !IsSet(obj->extra_flags,
+                                                            ItemContraband))
                                         {
                                                 ch_exp = UMIN(obj->cost * 10,
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY]
+                                                                [SmugglingAbility]
                                                                 + 1) -
                                                                exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY])));
+                                                                [SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You receive %ld experience for smuggling %d. \n\r",
                                                           ch_exp,
                                                           obj->short_descr);
                                                 gain_exp(victim, ch_exp,
-                                                         SMUGGLING_ABILITY);
+                                                         SmugglingAbility);
 
-                                                act(AT_ACTION,
+                                                act(AtAction,
                                                     "$n looks at $N suspiciously.",
                                                     ch, NULL, victim,
-                                                    TO_NOTVICT);
-                                                act(AT_ACTION,
+                                                    ToNotvict);
+                                                act(AtAction,
                                                     "$n look at you suspiciously.",
                                                     ch, NULL, victim,
-                                                    TO_VICT);
-                                                SET_BIT(obj->extra_flags,
-                                                        ITEM_CONTRABAND);
+                                                    ToVict);
+                                                SetBit(obj->extra_flags,
+                                                        ItemContraband);
                                                 return TRUE;
                                         }
-                                        else if (!IS_SET
+                                        else if (!IsSet
                                                  (obj->extra_flags,
-                                                  ITEM_CONTRABAND))
+                                                  ItemContraband))
                                         {
                                                 ch_exp = UMIN(obj->cost * 10,
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY]
+                                                                [SmugglingAbility]
                                                                 + 1) -
                                                                exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY])));
+                                                                [SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You receive %ld experience for smuggling %d. \n\r",
                                                           ch_exp,
                                                           obj->short_descr);
                                                 gain_exp(victim, ch_exp,
-                                                         SMUGGLING_ABILITY);
+                                                         SmugglingAbility);
 
-                                                SET_BIT(obj->extra_flags,
-                                                        ITEM_CONTRABAND);
+                                                SetBit(obj->extra_flags,
+                                                        ItemContraband);
                                                 return TRUE;
                                         }
                                 }
                         }
-                        else if (obj->item_type == ITEM_CONTAINER)
+                        else if (obj->item_type == ItemContainer)
                         {
                                 ObjData *content;
 
@@ -989,17 +989,17 @@ SPECF spec_customs_alcohol(CharData * ch)
                                      content = content->next_content)
                                 {
                                         if (content->pIndexData->item_type ==
-                                            ITEM_DRINK_CON
-                                            && !IS_SET(content->extra_flags,
-                                                       ITEM_CONTRABAND))
+                                            ItemDrinkCon
+                                            && !IsSet(content->extra_flags,
+                                                       ItemContraband))
                                         {
                                                 if ((liquid =
                                                      obj->value[2]) >=
-                                                    LIQ_MAX)
+                                                    LiqMax)
                                                         liquid = obj->
                                                                 value[2] = 0;
                                                 if (liq_table[liquid].
-                                                    liq_affect[COND_DRUNK] <=
+                                                    liq_affect[CondDrunk] <=
                                                     0)
                                                         continue;
                                                 ch_exp = UMIN(content->cost *
@@ -1007,21 +1007,21 @@ SPECF spec_customs_alcohol(CharData * ch)
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY]
+                                                                [SmugglingAbility]
                                                                 + 1) -
                                                                exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY])));
+                                                                [SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You receive %ld experience for smuggling %d.\n\r ",
                                                           ch_exp,
                                                           content->
                                                           short_descr);
                                                 gain_exp(victim, ch_exp,
-                                                         SMUGGLING_ABILITY);
-                                                SET_BIT(content->extra_flags,
-                                                        ITEM_CONTRABAND);
+                                                         SmugglingAbility);
+                                                SetBit(content->extra_flags,
+                                                        ItemContraband);
                                                 return TRUE;
                                         }
                                 }
@@ -1041,21 +1041,21 @@ SPECF spec_customs_spice(CharData * ch)
         char      buf[MaxStringLength];
         long      ch_exp;
 
-        if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
+        if (!IsAwake(ch) || ch->position == PosFighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || victim->position == POS_FIGHTING)
+                if (IsNpc(victim) || victim->position == PosFighting)
                         continue;
 
                 for (obj = victim->last_carrying; obj;
                      obj = obj->prev_content)
                 {
-                        if (obj->pIndexData->item_type == ITEM_SPICE
-                            || obj->pIndexData->item_type == ITEM_RAWSPICE)
+                        if (obj->pIndexData->item_type == ItemSpice
+                            || obj->pIndexData->item_type == ItemRawspice)
                         {
                                 if (victim != ch && can_see(ch, victim)
                                     && can_see_obj(ch, obj))
@@ -1064,90 +1064,90 @@ SPECF spec_customs_spice(CharData * ch)
                                                  "%s is illegal contraband. I'm going to have to confiscate that.",
                                                  obj->short_descr);
                                         do_say(ch, buf);
-                                        if (obj->wear_loc != WEAR_NONE)
+                                        if (obj->wear_loc != WearNone)
                                                 remove_obj(victim,
                                                            obj->wear_loc,
                                                            TRUE);
                                         separate_obj(obj);
                                         obj_from_char(obj);
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n confiscates $p from $N.", ch,
-                                            obj, victim, TO_NOTVICT);
-                                        act(AT_ACTION,
+                                            obj, victim, ToNotvict);
+                                        act(AtAction,
                                             "$n takes $p from you.", ch, obj,
-                                            victim, TO_VICT);
+                                            victim, ToVict);
                                         obj = obj_to_char(obj, ch);
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You lose %ld experience. \n\r",
                                                   ch_exp);
                                         gain_exp(victim, 0 - ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
                                         return TRUE;
                                 }
                                 else if (can_see(ch, victim)
-                                         && !IS_SET(obj->extra_flags,
-                                                    ITEM_CONTRABAND))
+                                         && !IsSet(obj->extra_flags,
+                                                    ItemContraband))
                                 {
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You receive %ld experience for smuggling %s. \n\r",
                                                   ch_exp, obj->short_descr);
                                         gain_exp(victim, ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
 
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n looks at $N suspiciously.",
-                                            ch, NULL, victim, TO_NOTVICT);
-                                        act(AT_ACTION,
+                                            ch, NULL, victim, ToNotvict);
+                                        act(AtAction,
                                             "$n look at you suspiciously.",
-                                            ch, NULL, victim, TO_VICT);
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                            ch, NULL, victim, ToVict);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
                                         return TRUE;
                                 }
-                                else if (!IS_SET
-                                         (obj->extra_flags, ITEM_CONTRABAND))
+                                else if (!IsSet
+                                         (obj->extra_flags, ItemContraband))
                                 {
                                         ch_exp = UMIN(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
-                                                        [SMUGGLING_ABILITY] +
+                                                        [SmugglingAbility] +
                                                         1) -
                                                        exp_level(victim->
                                                                  skill_level
-                                                                 [SMUGGLING_ABILITY])));
+                                                                 [SmugglingAbility])));
                                         ch_printf(victim,
                                                   "You receive %ld experience for smuggling %s. \n\r",
                                                   ch_exp, obj->short_descr);
                                         gain_exp(victim, ch_exp,
-                                                 SMUGGLING_ABILITY);
+                                                 SmugglingAbility);
 
-                                        SET_BIT(obj->extra_flags,
-                                                ITEM_CONTRABAND);
+                                        SetBit(obj->extra_flags,
+                                                ItemContraband);
                                         return TRUE;
                                 }
                         }
-                        else if (obj->item_type == ITEM_CONTAINER)
+                        else if (obj->item_type == ItemContainer)
                         {
                                 ObjData *content;
 
@@ -1155,30 +1155,30 @@ SPECF spec_customs_spice(CharData * ch)
                                      content = content->next_content)
                                 {
                                         if (content->pIndexData->item_type ==
-                                            ITEM_SPICE
-                                            && !IS_SET(content->extra_flags,
-                                                       ITEM_CONTRABAND))
+                                            ItemSpice
+                                            && !IsSet(content->extra_flags,
+                                                       ItemContraband))
                                         {
                                                 ch_exp = UMIN(content->cost *
                                                               10,
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY]
+                                                                [SmugglingAbility]
                                                                 + 1) -
                                                                exp_level
                                                                (victim->
                                                                 skill_level
-                                                                [SMUGGLING_ABILITY])));
+                                                                [SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You receive %ld experience for smuggling %s.\n\r ",
                                                           ch_exp,
                                                           content->
                                                           short_descr);
                                                 gain_exp(victim, ch_exp,
-                                                         SMUGGLING_ABILITY);
-                                                SET_BIT(content->extra_flags,
-                                                        ITEM_CONTRABAND);
+                                                         SmugglingAbility);
+                                                SetBit(content->extra_flags,
+                                                        ItemContraband);
                                                 return TRUE;
                                         }
                                 }
@@ -1197,7 +1197,7 @@ SPECF spec_police(CharData * ch)
         CharData *v_next;
         char      buf[MaxStringLength];
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         if (!ch->in_room || !ch->in_room->area || !ch->in_room->area->planet)
@@ -1213,7 +1213,7 @@ SPECF spec_police(CharData * ch)
         for (victim = ch->in_room->first_person; victim; victim = v_next)
         {
                 v_next = victim->next_in_room;
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                         continue;
                 if (!can_see(ch, victim))
                         continue;
@@ -1231,14 +1231,14 @@ SPECF spec_police(CharData * ch)
                          */
 
                         if (jail
-                            && (victim->position == POS_INCAP
-                                || victim->position == POS_STUNNED
-                                || victim->position == POS_SLEEPING))
+                            && (victim->position == PosIncap
+                                || victim->position == PosStunned
+                                || victim->position == PosSleeping))
                         {
-                                act(AT_ACTION, "$n ushers $N off to jail.",
-                                    ch, NULL, victim, TO_NOTVICT);
-                                act(AT_ACTION, "$n escorts you to jail.", ch,
-                                    NULL, victim, TO_VICT);
+                                act(AtAction, "$n ushers $N off to jail.",
+                                    ch, NULL, victim, ToNotvict);
+                                act(AtAction, "$n escorts you to jail.", ch,
+                                    NULL, victim, ToVict);
                                 char_from_room(victim);
                                 char_to_room(victim, jail);
                                 remove_wanted_planet(victim,
@@ -1247,14 +1247,14 @@ SPECF spec_police(CharData * ch)
                         }
                         else if (ch->top_level >= victim->top_level
                                  && !xIS_SET(ch->in_room->RoomFlags,
-                                             ROOM_SAFE))
+                                             RoomSafe))
                         {
                                 command_printf(ch,
                                                "yell Hey %s is wanted on %s!",
                                                victim->name,
                                                ch->in_room->area->planet->
                                                name);
-                                multi_hit(ch, victim, TYPE_UNDEFINED);
+                                multi_hit(ch, victim, TypeUndefined);
                                 /*
                                  * remove_wanted_planet(victim,
                                  * ch->in_room->area->
@@ -1263,12 +1263,12 @@ SPECF spec_police(CharData * ch)
                         }
                         else
                         {
-                                act(AT_ACTION,
+                                act(AtAction,
                                     "$n fines $N an enormous amount of money.",
-                                    ch, NULL, victim, TO_NOTVICT);
-                                act(AT_ACTION,
+                                    ch, NULL, victim, ToNotvict);
+                                act(AtAction,
                                     "$n fines you an enourmous amount of money.",
-                                    ch, NULL, victim, TO_VICT);
+                                    ch, NULL, victim, ToVict);
                                 victim->gold *= 9;
                                 victim->gold /= 10;
                                 remove_wanted_planet(victim,
@@ -1288,7 +1288,7 @@ SPECF spec_jedi_healer(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch))
+        if (!IsAwake(ch))
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
@@ -1305,42 +1305,42 @@ SPECF spec_jedi_healer(CharData * ch)
         switch (number_bits(12))
         {
         case 0:
-                act(AT_MAGIC, "$n pauses and concentrates for a moment.", ch,
-                    NULL, NULL, TO_ROOM);
+                act(AtMagic, "$n pauses and concentrates for a moment.", ch,
+                    NULL, NULL, ToRoom);
                 spell_smaug(skill_lookup("Armor"), ch->top_level, ch, victim);
                 return TRUE;
 
         case 1:
-                act(AT_MAGIC, "$n pauses and concentrates for a moment.", ch,
-                    NULL, NULL, TO_ROOM);
+                act(AtMagic, "$n pauses and concentrates for a moment.", ch,
+                    NULL, NULL, ToRoom);
                 spell_smaug(skill_lookup("good fortune"), ch->top_level, ch,
                             victim);
                 return TRUE;
 
         case 2:
-                act(AT_MAGIC, "$n pauses and concentrates for a moment.", ch,
-                    NULL, NULL, TO_ROOM);
+                act(AtMagic, "$n pauses and concentrates for a moment.", ch,
+                    NULL, NULL, ToRoom);
                 spell_cure_blindness(skill_lookup("cure blindness"),
                                      ch->top_level, ch, victim);
                 return TRUE;
 
         case 3:
-                act(AT_MAGIC, "$n pauses and concentrates for a moment.", ch,
-                    NULL, NULL, TO_ROOM);
+                act(AtMagic, "$n pauses and concentrates for a moment.", ch,
+                    NULL, NULL, ToRoom);
                 spell_smaug(skill_lookup("cure light"), ch->top_level, ch,
                             victim);
                 return TRUE;
 
         case 4:
-                act(AT_MAGIC, "$n pauses and concentrates for a moment.", ch,
-                    NULL, NULL, TO_ROOM);
+                act(AtMagic, "$n pauses and concentrates for a moment.", ch,
+                    NULL, NULL, ToRoom);
                 spell_cure_poison(skill_lookup("cure poison"), ch->top_level,
                                   ch, victim);
                 return TRUE;
 
         case 5:
-                act(AT_MAGIC, "$n pauses and concentrates for a moment.", ch,
-                    NULL, NULL, TO_ROOM);
+                act(AtMagic, "$n pauses and concentrates for a moment.", ch,
+                    NULL, NULL, ToRoom);
                 spell_smaug(skill_lookup("refresh"), ch->top_level, ch,
                             victim);
                 return TRUE;
@@ -1360,7 +1360,7 @@ SPECF spec_dark_jedi(CharData * ch)
         int       sn;
 
 
-        if (ch->position != POS_FIGHTING)
+        if (ch->position != PosFighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
@@ -1442,17 +1442,17 @@ SPECF spec_fido(CharData * ch)
         ObjData *obj;
         ObjData *obj_next;
 
-        if (!IS_AWAKE(ch))
+        if (!IsAwake(ch))
                 return FALSE;
 
         for (corpse = ch->in_room->first_content; corpse; corpse = c_next)
         {
                 c_next = corpse->next_content;
-                if (corpse->item_type != ITEM_CORPSE_NPC)
+                if (corpse->item_type != ItemCorpseNpc)
                         continue;
 
-                act(AT_ACTION, "$n savagely devours a corpse.", ch, NULL,
-                    NULL, TO_ROOM);
+                act(AtAction, "$n savagely devours a corpse.", ch, NULL,
+                    NULL, ToRoom);
                 for (obj = corpse->first_content; obj; obj = obj_next)
                 {
                         obj_next = obj->next_content;
@@ -1471,7 +1471,7 @@ SPECF spec_stormtrooper(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
@@ -1479,17 +1479,17 @@ SPECF spec_stormtrooper(CharData * ch)
                 v_next = victim->next_in_room;
                 if (!can_see(ch, victim))
                         continue;
-                if (get_timer(victim, TIMER_RECENTFIGHT) > 0)
+                if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
-                if ((IS_NPC(victim) && nifty_is_name("republic", victim->name)
+                if ((IsNpc(victim) && nifty_is_name("republic", victim->name)
                      && victim->fighting && who_fighting(victim) != ch) ||
-                    (!IS_NPC(victim) && victim->pcdata && victim->pcdata->clan
-                     && IS_AWAKE(victim)
+                    (!IsNpc(victim) && victim->pcdata && victim->pcdata->clan
+                     && IsAwake(victim)
                      && nifty_is_name("republic",
                                       victim->pcdata->clan->name)))
                 {
                         do_say(ch, "Die Rebel Scum!");
-                        multi_hit(ch, victim, TYPE_UNDEFINED);
+                        multi_hit(ch, victim, TypeUndefined);
                         return TRUE;
                 }
 
@@ -1504,7 +1504,7 @@ SPECF spec_new_republic_trooper(CharData * ch)
         CharData *victim;
         CharData *v_next;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
@@ -1512,16 +1512,16 @@ SPECF spec_new_republic_trooper(CharData * ch)
                 v_next = victim->next_in_room;
                 if (!can_see(ch, victim))
                         continue;
-                if (get_timer(victim, TIMER_RECENTFIGHT) > 0)
+                if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
-                if ((IS_NPC(victim) && nifty_is_name("imperial", victim->name)
+                if ((IsNpc(victim) && nifty_is_name("imperial", victim->name)
                      && victim->fighting && who_fighting(victim) != ch) ||
-                    (!IS_NPC(victim) && victim->pcdata && victim->pcdata->clan
-                     && IS_AWAKE(victim)
+                    (!IsNpc(victim) && victim->pcdata && victim->pcdata->clan
+                     && IsAwake(victim)
                      && nifty_is_name("empire", victim->pcdata->clan->name)))
                 {
                         do_say(ch, "Long live the New Republic!");
-                        multi_hit(ch, victim, TYPE_UNDEFINED);
+                        multi_hit(ch, victim, TypeUndefined);
                         return TRUE;
                 }
 
@@ -1541,7 +1541,7 @@ SPECF spec_guardian(CharData * ch)
         char     *crime;
         int       max_evil;
 
-        if (!IS_AWAKE(ch) || ch->fighting)
+        if (!IsAwake(ch) || ch->fighting)
                 return FALSE;
 
         max_evil = 300;
@@ -1560,7 +1560,7 @@ SPECF spec_guardian(CharData * ch)
                 }
         }
 
-        if (victim && xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
+        if (victim && xIS_SET(ch->in_room->RoomFlags, RoomSafe))
         {
                 snprintf(buf, MSL, "%s is a %s!  As well as a COWARD!",
                          victim->name, crime);
@@ -1573,15 +1573,15 @@ SPECF spec_guardian(CharData * ch)
                 snprintf(buf, MSL, "%s is a %s!  PROTECT THE INNOCENT!!",
                          victim->name, crime);
                 do_shout(ch, buf);
-                multi_hit(ch, victim, TYPE_UNDEFINED);
+                multi_hit(ch, victim, TypeUndefined);
                 return TRUE;
         }
 
         if (ech)
         {
-                act(AT_YELL, "$n screams 'PROTECT THE INNOCENT!!",
-                    ch, NULL, NULL, TO_ROOM);
-                multi_hit(ch, ech, TYPE_UNDEFINED);
+                act(AtYell, "$n screams 'PROTECT THE INNOCENT!!",
+                    ch, NULL, NULL, ToRoom);
+                multi_hit(ch, ech, TypeUndefined);
                 return TRUE;
         }
 
@@ -1595,23 +1595,23 @@ SPECF spec_janitor(CharData * ch)
         ObjData *trash;
         ObjData *trash_next;
 
-        if (!IS_AWAKE(ch))
+        if (!IsAwake(ch))
                 return FALSE;
 
         for (trash = ch->in_room->first_content; trash; trash = trash_next)
         {
                 trash_next = trash->next_content;
-                if (!IS_SET(trash->wear_flags, ITEM_TAKE)
-                    || IS_OBJ_STAT(trash, ITEM_BURRIED))
+                if (!IsSet(trash->wear_flags, ItemTake)
+                    || IsObjStat(trash, ItemBurried))
                         continue;
-                if (trash->item_type == ITEM_DRINK_CON
-                    || trash->item_type == ITEM_TRASH
+                if (trash->item_type == ItemDrinkCon
+                    || trash->item_type == ItemTrash
                     || trash->cost < 10
-                    || (trash->pIndexData->vnum == OBJ_VNUM_SHOPPING_BAG
+                    || (trash->pIndexData->vnum == ObjVnumShoppingBag
                         && !trash->first_content))
                 {
-                        act(AT_ACTION, "$n picks up some trash.", ch, NULL,
-                            NULL, TO_ROOM);
+                        act(AtAction, "$n picks up some trash.", ch, NULL,
+                            NULL, ToRoom);
                         obj_from_room(trash);
                         obj_to_char(trash, ch);
                         return TRUE;
@@ -1627,14 +1627,14 @@ SPECF spec_poison(CharData * ch)
 {
         CharData *victim;
 
-        if (ch->position != POS_FIGHTING
+        if (ch->position != PosFighting
             || (victim = who_fighting(ch)) == NULL
             || number_percent() > 2 * ch->top_level)
                 return FALSE;
 
-        act(AT_HIT, "You bite $N!", ch, NULL, victim, TO_CHAR);
-        act(AT_ACTION, "$n bites $N!", ch, NULL, victim, TO_NOTVICT);
-        act(AT_POISON, "$n bites you!", ch, NULL, victim, TO_VICT);
+        act(AtHit, "You bite $N!", ch, NULL, victim, ToChar);
+        act(AtAction, "$n bites $N!", ch, NULL, victim, ToNotvict);
+        act(AtPoison, "$n bites you!", ch, NULL, victim, ToVict);
         spell_poison(gsn_poison, ch->top_level, ch, victim);
         return TRUE;
 }
@@ -1647,24 +1647,24 @@ SPECF spec_thief(CharData * ch)
         CharData *v_next;
         int       gold, maxgold;
 
-        if (ch->position != POS_STANDING)
+        if (ch->position != PosStanding)
                 return FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || get_trust(victim) >= LevelImmortal || number_bits(2) != 0 || !can_see(ch, victim))   /* Thx Glop */
+                if (IsNpc(victim) || get_trust(victim) >= LevelImmortal || number_bits(2) != 0 || !can_see(ch, victim))   /* Thx Glop */
                         continue;
 
-                if (IS_AWAKE(victim) && number_range(0, ch->top_level) == 0)
+                if (IsAwake(victim) && number_range(0, ch->top_level) == 0)
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "You discover $n's hands in your wallet!", ch,
-                            NULL, victim, TO_VICT);
-                        act(AT_ACTION,
+                            NULL, victim, ToVict);
+                        act(AtAction,
                             "$N discovers $n's hands in $S wallet!", ch, NULL,
-                            victim, TO_NOTVICT);
+                            victim, ToNotvict);
                         return TRUE;
                 }
                 else
@@ -1701,7 +1701,7 @@ SPECF spec_auth(CharData * ch)
         for (victim = ch->in_room->first_person; victim; victim = v_next)
         {
                 v_next = victim->next_in_room;
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                         continue;
 
                 /*
@@ -1709,16 +1709,16 @@ SPECF spec_auth(CharData * ch)
                  */
                 if (victim->pcdata->AuthState == 2)
                         continue;
-                if (!IS_NPC(victim)
+                if (!IsNpc(victim)
                     && (pObjIndex =
-                        get_obj_index(OBJ_VNUM_SCHOOL_DIPLOMA)) != NULL)
+                        get_obj_index(ObjVnumSchoolDiploma)) != NULL)
                 {
                         hasdiploma = FALSE;
 
                         for (obj = victim->last_carrying; obj;
                              obj = obj->prev_content)
                                 if (obj->pIndexData ==
-                                    get_obj_index(OBJ_VNUM_SCHOOL_DIPLOMA))
+                                    get_obj_index(ObjVnumSchoolDiploma))
                                         hasdiploma = TRUE;
 
                         if (!hasdiploma)
@@ -1731,12 +1731,12 @@ SPECF spec_auth(CharData * ch)
                         }
                 }
 
-                if (IS_NPC(victim)
-                    || !IS_SET(victim->pcdata->flags, PCFLAG_UNAUTHED))
+                if (IsNpc(victim)
+                    || !IsSet(victim->pcdata->flags, PcflagUnauthed))
                         continue;
 
                 victim->pcdata->AuthState = 3;
-                REMOVE_BIT(victim->pcdata->flags, PCFLAG_UNAUTHED);
+                RemoveBit(victim->pcdata->flags, PcflagUnauthed);
                 if (victim->pcdata->authed_by)
                         STRFREE(victim->pcdata->authed_by);
                 victim->pcdata->authed_by = QUICKLINK(ch->name);
@@ -1751,7 +1751,7 @@ SPECF spec_auth(CharData * ch)
 
 SPECF spec_questmaster(CharData * ch)
 {
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
                 return FALSE;
         else
                 return TRUE;
@@ -1781,7 +1781,7 @@ SPECF spec_bountyhunter(CharData * npc)
 {
         CharData *victim;
         CharData *v_next = NULL;
-        OLC_BOUNTY_DATA *bounty;
+        OlcBountyData *bounty;
         CharData *imob;
         char      buf[MSL];
 
@@ -1796,11 +1796,11 @@ SPECF spec_bountyhunter(CharData * npc)
                 v_next = victim->next_in_room;
                 if (victim->holding == NULL)
                         continue;
-                if (!IS_NPC(victim->holding))
+                if (!IsNpc(victim->holding))
                         continue;
                 if ((bounty = has_olc_bounty(victim->holding)) == NULL)
                         continue;
-                if (bounty->type() == BOUNTY_ALIVE)
+                if (bounty->type() == BountyAlive)
                 {
                         imob = victim->holding;
                         do_release(victim, "");
@@ -1808,17 +1808,17 @@ SPECF spec_bountyhunter(CharData * npc)
                                        "sayto %s Well done %s, you've captured %s.",
                                        victim->name, victim->race->name(),
                                        imob->short_descr);
-                        act(AT_ACTION, "$n ushers $N off to be processed.",
-                            npc, NULL, imob, TO_ROOM);
+                        act(AtAction, "$n ushers $N off to be processed.",
+                            npc, NULL, imob, ToRoom);
                         command_printf(npc,
                                        "sayto %s Here is the payment for the capture.",
                                        victim->name);
                         sprintf(buf, "$n give you %d credits.",
                                 bounty->amount());
-                        act(AT_ACTION, buf, npc, NULL, victim, TO_VICT);
+                        act(AtAction, buf, npc, NULL, victim, ToVict);
                         victim->gold += bounty->amount();
                         gain_exp(victim, bounty->experience(),
-                                 HUNTING_ABILITY);
+                                 HuntingAbility);
                         ch_printf(victim,
                                   "You gain %d bounty hunting experience.",
                                   bounty->experience());
@@ -1831,29 +1831,29 @@ SPECF spec_bountyhunter(CharData * npc)
 
 bool obj_is_contraband(ObjData * obj) 
 {
-        if (obj->pIndexData->item_type == ITEM_SMUT) {
+        if (obj->pIndexData->item_type == ItemSmut) {
                 return TRUE;
         }
 
-        if (obj->pIndexData->item_type == ITEM_DRINK_CON)
+        if (obj->pIndexData->item_type == ItemDrinkCon)
         {
                 int liquid;
-                if ((liquid = obj->value[2]) >= LIQ_MAX)
+                if ((liquid = obj->value[2]) >= LiqMax)
                         liquid = obj->value[2] = 0;
                 
-                if (liq_table[liquid].liq_affect[COND_DRUNK] > 0)
+                if (liq_table[liquid].liq_affect[CondDrunk] > 0)
                 {
                         // Put message here
                         return TRUE;
                 }
         }
 
-        if (obj->pIndexData->item_type == ITEM_SPICE || obj->pIndexData->item_type == ITEM_RAWSPICE)
+        if (obj->pIndexData->item_type == ItemSpice || obj->pIndexData->item_type == ItemRawspice)
         {
                 return TRUE;
         }
 
-        if (obj->pIndexData->item_type == ITEM_WEAPON || obj->pIndexData->item_type == ITEM_GRENADE)
+        if (obj->pIndexData->item_type == ItemWeapon || obj->pIndexData->item_type == ItemGrenade)
         {
                 return TRUE;
         }
@@ -1869,7 +1869,7 @@ SPECF spec_customs(CharData * ch)
         char      buf[MaxStringLength];
         long      ch_exp;
 
-        if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
+        if (!IsAwake(ch) || ch->position == PosFighting)
                 return FALSE;
 
         mob_clan = ch->mob_clan;
@@ -1880,7 +1880,7 @@ SPECF spec_customs(CharData * ch)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || victim->position == POS_FIGHTING)
+                if (IsNpc(victim) || victim->position == PosFighting)
                         continue;
 
                 if (is_clan_ally(ch, victim))
@@ -1890,7 +1890,7 @@ SPECF spec_customs(CharData * ch)
                 {
                         obj_prev = obj->prev_content;
 
-                        if (obj->item_type == ITEM_HOLSTER && obj->first_content != NULL)
+                        if (obj->item_type == ItemHolster && obj->first_content != NULL)
                              obj = obj->first_content;
                         
                         if (obj_is_contraband(obj)) {
@@ -1907,64 +1907,64 @@ SPECF spec_customs(CharData * ch)
                                                          capitalize(o_types[obj->item_type]), obj->short_descr);
                                         }
                                         do_say(ch, buf);
-                                        if (obj->wear_loc != WEAR_NONE)
+                                        if (obj->wear_loc != WearNone)
                                                 remove_obj(victim,obj->wear_loc,TRUE);
                                         separate_obj(obj);
                                         if (obj->in_obj) 
                                                 obj_from_obj(obj);
                                         else 
                                                 obj_from_char(obj);
-                                        act(AT_ACTION,"$n confiscates $p from $N.", ch,obj, victim, TO_NOTVICT);
-                                        act(AT_ACTION,"$n takes $p from you.", ch, obj,victim, TO_VICT);
+                                        act(AtAction,"$n confiscates $p from $N.", ch,obj, victim, ToNotvict);
+                                        act(AtAction,"$n takes $p from you.", ch, obj,victim, ToVict);
                                         obj = obj_to_char(obj, ch);
-                                        SET_BIT(obj->extra_flags,ITEM_CONTRABAND);
-                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SMUGGLING_ABILITY] +1) -exp_level(victim->skill_level[SMUGGLING_ABILITY])));
+                                        SetBit(obj->extra_flags,ItemContraband);
+                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
                                         ch_printf(victim,"You lose %ld experience.\n\r ",ch_exp);
-                                        gain_exp(victim, 0 - ch_exp,SMUGGLING_ABILITY);
+                                        gain_exp(victim, 0 - ch_exp,SmugglingAbility);
                                         ch->mob_clan = mob_clan;
                                         return TRUE;
                                 }
-                                else if (can_see(ch, victim)&& !IS_SET(obj->extra_flags,ITEM_CONTRABAND))
+                                else if (can_see(ch, victim)&& !IsSet(obj->extra_flags,ItemContraband))
                                 {
                                         separate_obj(obj);
-                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SMUGGLING_ABILITY] +1) -exp_level(victim->skill_level[SMUGGLING_ABILITY])));
+                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
                                         ch_printf(victim,"You receive %ld experience for smuggling %d.\n\r ",ch_exp, obj->short_descr);
-                                        gain_exp(victim, ch_exp,SMUGGLING_ABILITY);
+                                        gain_exp(victim, ch_exp,SmugglingAbility);
 
-                                        act(AT_ACTION,"$n looks at $N suspiciously.",ch, NULL, victim, TO_NOTVICT);
-                                        act(AT_ACTION,"$n look at you suspiciously.",ch, NULL, victim, TO_VICT);
-                                        SET_BIT(obj->extra_flags,ITEM_CONTRABAND);
+                                        act(AtAction,"$n looks at $N suspiciously.",ch, NULL, victim, ToNotvict);
+                                        act(AtAction,"$n look at you suspiciously.",ch, NULL, victim, ToVict);
+                                        SetBit(obj->extra_flags,ItemContraband);
                                         ch->mob_clan = mob_clan;
                                         return TRUE;
                                 }
-                                else if (!IS_SET(obj->extra_flags, ITEM_CONTRABAND))
+                                else if (!IsSet(obj->extra_flags, ItemContraband))
                                 {
                                         separate_obj(obj);
-                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SMUGGLING_ABILITY] +1) -exp_level(victim->skill_level[SMUGGLING_ABILITY])));
+                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
                                         ch_printf(victim,"You receive %ld experience for smuggling %s.\n\r ",ch_exp, obj->short_descr);
-                                        gain_exp(victim, ch_exp,SMUGGLING_ABILITY);
+                                        gain_exp(victim, ch_exp,SmugglingAbility);
 
-                                        SET_BIT(obj->extra_flags,ITEM_CONTRABAND);
+                                        SetBit(obj->extra_flags,ItemContraband);
                                         ch->mob_clan = mob_clan;
                                         return TRUE;
                                 }
                         }
-                        else if (obj->item_type == ITEM_CONTAINER)
+                        else if (obj->item_type == ItemContainer)
                         {
                                 ObjData *content;
 
                                 for (content = obj->first_content; content; content = content->next_content)
                                 {
-                                        if (obj_is_contraband(content) && !IS_SET(content->extra_flags, ITEM_CONTRABAND))
+                                        if (obj_is_contraband(content) && !IsSet(content->extra_flags, ItemContraband))
                                         {
                                                 separate_obj(content);
-                                                ch_exp = UMIN(content->cost *10,(exp_level(victim->skill_level[SMUGGLING_ABILITY] + 1) -
-                                                               exp_level(victim->skill_level[SMUGGLING_ABILITY])));
+                                                ch_exp = UMIN(content->cost *10,(exp_level(victim->skill_level[SmugglingAbility] + 1) -
+                                                               exp_level(victim->skill_level[SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You receive %ld experience for smuggling %s.\n\r ",
                                                           ch_exp,content->short_descr);
-                                                gain_exp(victim, ch_exp,SMUGGLING_ABILITY);
-                                                SET_BIT(content->extra_flags,ITEM_CONTRABAND);
+                                                gain_exp(victim, ch_exp,SmugglingAbility);
+                                                SetBit(content->extra_flags,ItemContraband);
                                                 ch->mob_clan = mob_clan;
                                                 return TRUE;
                                         }

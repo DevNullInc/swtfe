@@ -70,7 +70,7 @@ CharData *find_keeper(CharData * ch)
         pShop = NULL;
         for (keeper = ch->in_room->first_person;
              keeper; keeper = keeper->next_in_room)
-                if (IS_NPC(keeper)
+                if (IsNpc(keeper)
                     && (pShop = keeper->pIndexData->pShop) != NULL)
                         break;
 
@@ -118,7 +118,7 @@ CharData *find_keepernotext(CharData * ch)
         pShop = NULL;
         for (keeper = ch->in_room->first_person;
              keeper; keeper = keeper->next_in_room)
-                if (IS_NPC(keeper)
+                if (IsNpc(keeper)
                     && (pShop = keeper->pIndexData->pShop) != NULL)
                         break;
 
@@ -160,7 +160,7 @@ CharData *find_fixer(CharData * ch)
         rShop = NULL;
         for (keeper = ch->in_room->first_person;
              keeper; keeper = keeper->next_in_room)
-                if (IS_NPC(keeper)
+                if (IsNpc(keeper)
                     && (rShop = keeper->pIndexData->rShop) != NULL)
                         break;
 
@@ -231,7 +231,7 @@ int get_cost(CharData * ch, CharData * keeper, ObjData * obj, bool fBuy)
 
                 profitmod = get_curr_cha(ch) - 13 - (richcustomer ? 15 : 0);
                 cost = 0;
-                for (itype = 0; itype < MAX_TRADE; itype++)
+                for (itype = 0; itype < MaxTrade; itype++)
                 {
                         if (obj->item_type == pShop->buy_type[itype])
                         {
@@ -257,7 +257,7 @@ int get_cost(CharData * ch, CharData * keeper, ObjData * obj, bool fBuy)
         }
 
 
-        if (obj->item_type == ITEM_DEVICE)
+        if (obj->item_type == ItemDevice)
                 cost = (int) (cost * obj->value[2] / obj->value[1]);
 
         return cost;
@@ -275,7 +275,7 @@ int get_repaircost(CharData * keeper, ObjData * obj)
 
         cost = 0;
         found = FALSE;
-        for (itype = 0; itype < MAX_FIX; itype++)
+        for (itype = 0; itype < MaxFix; itype++)
         {
                 if (obj->item_type == rShop->fix_type[itype])
                 {
@@ -295,20 +295,20 @@ int get_repaircost(CharData * keeper, ObjData * obj)
         {
                 switch (obj->item_type)
                 {
-                case ITEM_ARMOR:
+                case ItemArmor:
                         if (obj->value[0] >= obj->value[1])
                                 cost = -2;
                         else
                                 cost *= (obj->value[1] - obj->value[0]);
                         break;
-                case ITEM_WEAPON:
-                        if (INIT_WEAPON_CONDITION == obj->value[0])
+                case ItemWeapon:
+                        if (InitWeaponCondition == obj->value[0])
                                 cost = -2;
                         else
-                                cost *= (INIT_WEAPON_CONDITION -
+                                cost *= (InitWeaponCondition -
                                          obj->value[0]);
                         break;
-                case ITEM_DEVICE:
+                case ItemDevice:
                         if (obj->value[2] >= obj->value[1])
                                 cost = -2;
                         else
@@ -334,14 +334,14 @@ CMDF do_buy(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_PET_SHOP))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomPetShop))
         {
                 char      buf[MaxStringLength];
                 CharData *pet;
                 RoomIndexData *pRoomIndexNext;
                 RoomIndexData *in_room;
 
-                if (IS_NPC(ch))
+                if (IsNpc(ch))
                         return;
 
                 pRoomIndexNext = get_room_index(ch->in_room->vnum + 1);
@@ -359,14 +359,14 @@ CMDF do_buy(CharData * ch, char *argument)
                 pet = get_char_room(ch, arg);
                 ch->in_room = in_room;
 
-                if (pet == NULL || !IS_NPC(pet) || !IS_SET(pet->act, ACT_PET))
+                if (pet == NULL || !IsNpc(pet) || !IsSet(pet->act, ActPet))
                 {
                         send_to_char("Sorry, you can't buy that here.\n\r",
                                      ch);
                         return;
                 }
 
-                if (IS_SET(ch->act, PLR_BOUGHT_PET))
+                if (IsSet(ch->act, PlrBoughtPet))
                 {
                         send_to_char
                                 ("You already bought one pet this level.\n\r",
@@ -393,9 +393,9 @@ CMDF do_buy(CharData * ch, char *argument)
                 ch->gold -= maxgold;
                 boost_economy(ch->in_room->area, maxgold);
                 pet = create_mobile(pet->pIndexData);
-                SET_BIT(ch->act, PLR_BOUGHT_PET);
-                SET_BIT(pet->act, ACT_PET);
-                SET_BIT(pet->affected_by, AFF_CHARM);
+                SetBit(ch->act, PlrBoughtPet);
+                SetBit(pet->act, ActPet);
+                SetBit(pet->affected_by, AffCharm);
 
                 argument = one_argument(argument, arg);
                 if (arg[0] != '\0')
@@ -413,8 +413,8 @@ CMDF do_buy(CharData * ch, char *argument)
                 char_to_room(pet, ch->in_room);
                 add_follower(pet, ch);
                 send_to_char("Enjoy your pet.\n\r", ch);
-                act(AT_ACTION, "$n bought $N as a pet.", ch, NULL, pet,
-                    TO_ROOM);
+                act(AtAction, "$n bought $N as a pet.", ch, NULL, pet,
+                    ToRoom);
                 return;
         }
         else
@@ -436,9 +436,9 @@ CMDF do_buy(CharData * ch, char *argument)
                         argument = one_argument(argument, arg);
                         if (noi > mnoi)
                         {
-                                act(AT_TELL,
+                                act(AtTell,
                                     "$n tells you 'I don't sell that many items at"
-                                    " once.'", keeper, NULL, ch, TO_VICT);
+                                    " once.'", keeper, NULL, ch, ToVict);
                                 ch->reply = keeper;
                                 return;
                         }
@@ -456,7 +456,7 @@ CMDF do_buy(CharData * ch, char *argument)
                         for (obj = keeper->last_carrying; obj;
                              obj = obj->prev_content)
                         {
-                                if (obj->wear_loc == WEAR_NONE
+                                if (obj->wear_loc == WearNone
                                     && can_see_obj(ch, obj))
                                         onum++;
 
@@ -476,9 +476,9 @@ CMDF do_buy(CharData * ch, char *argument)
 
                 if (cost <= 0 || !can_see_obj(ch, obj))
                 {
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'I don't sell that -- try 'list'.'",
-                            keeper, NULL, ch, TO_VICT);
+                            keeper, NULL, ch, ToVict);
                         ch->reply = keeper;
                         return;
                 }
@@ -486,32 +486,32 @@ CMDF do_buy(CharData * ch, char *argument)
                 if ((keeper->home != NULL) && obj->cost > 0)
                         cost = obj->cost;
 
-                if (!IS_OBJ_STAT(obj, ITEM_INVENTORY) && (noi > 1))
+                if (!IsObjStat(obj, ItemInventory) && (noi > 1))
                 {
                         interpret(keeper, "laugh");
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'I don't have enough of those in stock"
                             " to sell more than one at a time.'", keeper,
-                            NULL, ch, TO_VICT);
+                            NULL, ch, ToVict);
                         ch->reply = keeper;
                         return;
                 }
 
                 if (ch->gold < cost)
                 {
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'You can't afford to buy $p.'",
-                            keeper, obj, ch, TO_VICT);
+                            keeper, obj, ch, ToVict);
                         ch->reply = keeper;
                         return;
                 }
 
-                if (IS_SET(obj->extra_flags, ITEM_PROTOTYPE)
+                if (IsSet(obj->extra_flags, ItemPrototype)
                     && get_trust(ch) < LevelImmortal)
                 {
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'This is a only a prototype!  I can't sell you that...'",
-                            keeper, NULL, ch, TO_VICT);
+                            keeper, NULL, ch, ToVict);
                         ch->reply = keeper;
                         return;
                 }
@@ -533,10 +533,10 @@ CMDF do_buy(CharData * ch, char *argument)
 
                 if (noi == 1)
                 {
-                        if (!IS_OBJ_STAT(obj, ITEM_INVENTORY))
+                        if (!IsObjStat(obj, ItemInventory))
                                 separate_obj(obj);
-                        act(AT_ACTION, "$n buys $p.", ch, obj, NULL, TO_ROOM);
-                        act(AT_ACTION, "You buy $p.", ch, obj, NULL, TO_CHAR);
+                        act(AtAction, "$n buys $p.", ch, obj, NULL, ToRoom);
+                        act(AtAction, "You buy $p.", ch, obj, NULL, ToChar);
                 }
                 else
                 {
@@ -544,15 +544,15 @@ CMDF do_buy(CharData * ch, char *argument)
                                  (obj->
                                   short_descr[strlen(obj->short_descr) - 1] ==
                                   's' ? "" : "s"));
-                        act(AT_ACTION, arg, ch, obj, NULL, TO_ROOM);
+                        act(AtAction, arg, ch, obj, NULL, ToRoom);
                         snprintf(arg, MSL, "You buy %d $p%s.", noi,
                                  (obj->
                                   short_descr[strlen(obj->short_descr) - 1] ==
                                   's' ? "" : "s"));
-                        act(AT_ACTION, arg, ch, obj, NULL, TO_CHAR);
-                        act(AT_ACTION,
+                        act(AtAction, arg, ch, obj, NULL, ToChar);
+                        act(AtAction,
                             "$N puts them into a bag and hands it to you.",
-                            ch, NULL, keeper, TO_CHAR);
+                            ch, NULL, keeper, ToChar);
                 }
 
                 ch->gold -= cost;
@@ -564,12 +564,12 @@ CMDF do_buy(CharData * ch, char *argument)
                                 boost_economy(keeper->in_room->area,
                                               keeper->gold - maxgold / 2);
                                 keeper->gold = maxgold / 2;
-                                act(AT_ACTION,
+                                act(AtAction,
                                     "$n puts some credits into a large safe.",
-                                    keeper, NULL, NULL, TO_ROOM);
+                                    keeper, NULL, NULL, ToRoom);
                         }
 
-                if (IS_OBJ_STAT(obj, ITEM_INVENTORY))
+                if (IsObjStat(obj, ItemInventory))
                 {
                         ObjData *buy_obj, *bag;
 
@@ -584,7 +584,7 @@ CMDF do_buy(CharData * ch, char *argument)
                         if (noi > 1)
                         {
                                 bag = create_object(get_obj_index
-                                                    (OBJ_VNUM_SHOPPING_BAG),
+                                                    (ObjVnumShoppingBag),
                                                     1);
                                 /*
                                  * perfect size bag ;) 
@@ -628,7 +628,7 @@ CMDF do_buy(CharData * ch, char *argument)
 
 CMDF do_list(CharData * ch, char *argument)
 {
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_PET_SHOP))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomPetShop))
         {
                 RoomIndexData *pRoomIndexNext;
                 CharData *pet;
@@ -647,7 +647,7 @@ CMDF do_list(CharData * ch, char *argument)
                 for (pet = pRoomIndexNext->first_person; pet;
                      pet = pet->next_in_room)
                 {
-                        if (IS_SET(pet->act, ACT_PET) && IS_NPC(pet))
+                        if (IsSet(pet->act, ActPet) && IsNpc(pet))
                         {
                                 if (!found)
                                 {
@@ -685,7 +685,7 @@ CMDF do_list(CharData * ch, char *argument)
                 for (obj = keeper->last_carrying; obj;
                      obj = obj->prev_content)
                 {
-                        if (obj->wear_loc == WEAR_NONE
+                        if (obj->wear_loc == WearNone
                             && can_see_obj(ch, obj))
                         {
                                 oref++;
@@ -705,20 +705,20 @@ CMDF do_list(CharData * ch, char *argument)
                                         }
                                         ch_printf(ch, "[%5d] {%3d} %s%s.\n\r", cost, oref,  /*capitalize( */
                                                   obj->short_descr /*) */ ,
-                                                  IS_SET(obj->extra_flags,
-                                                         ITEM_HUTT_SIZE) ?
+                                                  IsSet(obj->extra_flags,
+                                                         ItemHuttSize) ?
                                                   " (hutt size)"
-                                                  : (IS_SET
+                                                  : (IsSet
                                                      (obj->extra_flags,
-                                                      ITEM_LARGE_SIZE) ?
+                                                      ItemLargeSize) ?
                                                      " (large)"
-                                                     : (IS_SET
+                                                     : (IsSet
                                                         (obj->extra_flags,
-                                                         ITEM_HUMAN_SIZE) ?
+                                                         ItemHumanSize) ?
                                                         " (medium)"
-                                                        : (IS_SET
+                                                        : (IsSet
                                                            (obj->extra_flags,
-                                                            ITEM_SMALL_SIZE) ?
+                                                            ItemSmallSize) ?
                                                            " (small)" :
                                                            ""))));
                                 }
@@ -761,8 +761,8 @@ CMDF do_sell(CharData * ch, char *argument)
 
         if ((obj = get_obj_carry(ch, arg)) == NULL)
         {
-                act(AT_TELL, "$n tells you 'You don't have that item.'",
-                    keeper, NULL, ch, TO_VICT);
+                act(AtTell, "$n tells you 'You don't have that item.'",
+                    keeper, NULL, ch, ToVict);
                 ch->reply = keeper;
                 return;
         }
@@ -775,64 +775,64 @@ CMDF do_sell(CharData * ch, char *argument)
 
         if (obj->timer > 0)
         {
-                act(AT_TELL,
+                act(AtTell,
                     "$n tells you, '$p is depreciating in value too quickly...'",
-                    keeper, obj, ch, TO_VICT);
+                    keeper, obj, ch, ToVict);
                 return;
         }
 
         if ((cost = get_cost(ch, keeper, obj, FALSE)) <= 0)
         {
-                act(AT_ACTION, "$n looks uninterested in $p.", keeper, obj,
-                    ch, TO_VICT);
+                act(AtAction, "$n looks uninterested in $p.", keeper, obj,
+                    ch, ToVict);
                 return;
         }
 
         if (cost > keeper->gold)
         {
-                act(AT_TELL, "$n makes a credit transaction.", keeper, obj,
-                    ch, TO_VICT);
+                act(AtTell, "$n makes a credit transaction.", keeper, obj,
+                    ch, ToVict);
                 lower_economy(ch->in_room->area, cost - keeper->gold);
         }
 
         separate_obj(obj);
-        act(AT_ACTION, "$n sells $p.", ch, obj, NULL, TO_ROOM);
+        act(AtAction, "$n sells $p.", ch, obj, NULL, ToRoom);
         snprintf(buf, MSL, "You sell $p for %d credit%s.",
                  cost, cost == 1 ? "" : "s");
-        act(AT_ACTION, buf, ch, obj, NULL, TO_CHAR);
+        act(AtAction, buf, ch, obj, NULL, ToChar);
         ch->gold += cost;
         keeper->gold -= cost;
         if (keeper->gold < 0)
                 keeper->gold = 0;
 
-        if (obj->item_type == ITEM_TRASH)
+        if (obj->item_type == ItemTrash)
                 extract_obj(obj);
-        else if (IS_SET(obj->extra_flags, ITEM_CONTRABAND))
+        else if (IsSet(obj->extra_flags, ItemContraband))
         {
                 long      ch_exp;
 
                 ch_exp = UMIN(obj->cost * 10,
                               (exp_level
-                               (ch->skill_level[SMUGGLING_ABILITY] + 1) -
+                               (ch->skill_level[SmugglingAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[SMUGGLING_ABILITY])) /
+                                         skill_level[SmugglingAbility])) /
                               10);
                 ch_printf(ch,
                           "You receive %ld smuggling experience for unloading your contraband.\n\r ",
                           ch_exp);
-                gain_exp(ch, ch_exp, SMUGGLING_ABILITY);
-                if (obj->item_type == ITEM_SPICE
-                    || obj->item_type == ITEM_RAWSPICE)
+                gain_exp(ch, ch_exp, SmugglingAbility);
+                if (obj->item_type == ItemSpice
+                    || obj->item_type == ItemRawspice)
                         extract_obj(obj);
                 else
                 {
-                        REMOVE_BIT(obj->extra_flags, ITEM_CONTRABAND);
+                        RemoveBit(obj->extra_flags, ItemContraband);
                         obj_from_char(obj);
                         obj_to_char(obj, keeper);
                 }
         }
-        else if (obj->item_type == ITEM_SPICE
-                 || obj->item_type == ITEM_RAWSPICE)
+        else if (obj->item_type == ItemSpice
+                 || obj->item_type == ItemRawspice)
                 extract_obj(obj);
         else
         {
@@ -863,8 +863,8 @@ CMDF do_value(CharData * ch, char *argument)
 
         if ((obj = get_obj_carry(ch, argument)) == NULL)
         {
-                act(AT_TELL, "$n tells you 'You don't have that item.'",
-                    keeper, NULL, ch, TO_VICT);
+                act(AtTell, "$n tells you 'You don't have that item.'",
+                    keeper, NULL, ch, ToVict);
                 ch->reply = keeper;
                 return;
         }
@@ -877,14 +877,14 @@ CMDF do_value(CharData * ch, char *argument)
 
         if ((cost = get_cost(ch, keeper, obj, FALSE)) <= 0)
         {
-                act(AT_ACTION, "$n looks uninterested in $p.", keeper, obj,
-                    ch, TO_VICT);
+                act(AtAction, "$n looks uninterested in $p.", keeper, obj,
+                    ch, ToVict);
                 return;
         }
 
         snprintf(buf, MSL, "$n tells you 'I'll give you %d credits for $p.'",
                  cost);
-        act(AT_TELL, buf, keeper, obj, ch, TO_VICT);
+        act(AtTell, buf, keeper, obj, ch, ToVict);
         ch->reply = keeper;
 
         return;
@@ -904,12 +904,12 @@ void repair_one_obj(CharData * ch, CharData * keeper, ObjData * obj,
         else if ((cost = get_repaircost(keeper, obj)) < 0)
         {
                 if (cost != -2)
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you, 'Sorry, I can't do anything with $p.'",
-                            keeper, obj, ch, TO_VICT);
+                            keeper, obj, ch, ToVict);
                 else
-                        act(AT_TELL, "$n tells you, '$p looks fine to me!'",
-                            keeper, obj, ch, TO_VICT);
+                        act(AtTell, "$n tells you, '$p looks fine to me!'",
+                            keeper, obj, ch, ToVict);
         }
         /*
          * "repair all" gets a 10% surcharge - Gorog 
@@ -921,18 +921,18 @@ void repair_one_obj(CharData * ch, CharData * keeper, ObjData * obj,
                 snprintf(buf, MSL,
                          "$N tells you, 'It will cost %d credit%s to %s %s...'",
                          cost, cost == 1 ? "" : "s", fixstr, obj->name);
-                act(AT_TELL, buf, ch, NULL, keeper, TO_CHAR);
-                act(AT_TELL, "$N tells you, 'Which I see you can't afford.'",
-                    ch, NULL, keeper, TO_CHAR);
+                act(AtTell, buf, ch, NULL, keeper, ToChar);
+                act(AtTell, "$N tells you, 'Which I see you can't afford.'",
+                    ch, NULL, keeper, ToChar);
         }
         else
         {
                 snprintf(buf, MSL, "$n gives $p to $N, who quickly %s it.",
                          fixstr2);
-                act(AT_ACTION, buf, ch, obj, keeper, TO_ROOM);
+                act(AtAction, buf, ch, obj, keeper, ToRoom);
                 snprintf(buf, MSL, "$N charges you %d credit%s to %s $p.",
                          cost, cost == 1 ? "" : "s", fixstr);
-                act(AT_ACTION, buf, ch, obj, keeper, TO_CHAR);
+                act(AtAction, buf, ch, obj, keeper, ToChar);
                 ch->gold -= cost;
                 keeper->gold += cost;
                 if (keeper->gold < 0)
@@ -942,9 +942,9 @@ void repair_one_obj(CharData * ch, CharData * keeper, ObjData * obj,
                         boost_economy(keeper->in_room->area,
                                       keeper->gold - maxgold / 2);
                         keeper->gold = maxgold / 2;
-                        act(AT_ACTION,
+                        act(AtAction,
                             "$n puts some credits into a large safe.", keeper,
-                            NULL, NULL, TO_ROOM);
+                            NULL, NULL, ToRoom);
                 }
 
                 switch (obj->item_type)
@@ -954,13 +954,13 @@ void repair_one_obj(CharData * ch, CharData * keeper, ObjData * obj,
                                 ("For some reason, you think you got ripped off...\n\r",
                                  ch);
                         break;
-                case ITEM_ARMOR:
+                case ItemArmor:
                         obj->value[0] = obj->value[1];
                         break;
-                case ITEM_WEAPON:
-                        obj->value[0] = INIT_WEAPON_CONDITION;
+                case ItemWeapon:
+                        obj->value[0] = InitWeaponCondition;
                         break;
-                case ITEM_DEVICE:
+                case ItemDevice:
                         obj->value[2] = obj->value[1];
                         break;
                 }
@@ -990,11 +990,11 @@ CMDF do_repair(CharData * ch, char *argument)
         switch (keeper->pIndexData->rShop->shop_type)
         {
         default:
-        case SHOP_FIX:
+        case ShopFix:
                 fixstr = "repair";
                 fixstr2 = "repairs";
                 break;
-        case SHOP_RECHARGE:
+        case ShopRecharge:
                 fixstr = "recharge";
                 fixstr2 = "recharges";
                 break;
@@ -1004,11 +1004,11 @@ CMDF do_repair(CharData * ch, char *argument)
         {
                 for (obj = ch->first_carrying; obj; obj = obj->next_content)
                 {
-                        if (obj->wear_loc == WEAR_NONE
+                        if (obj->wear_loc == WearNone
                             && can_see_obj(ch, obj)
-                            && (obj->item_type == ITEM_ARMOR
-                                || obj->item_type == ITEM_WEAPON
-                                || obj->item_type == ITEM_DEVICE))
+                            && (obj->item_type == ItemArmor
+                                || obj->item_type == ItemWeapon
+                                || obj->item_type == ItemDevice))
                                 repair_one_obj(ch, keeper, obj, argument,
                                                maxgold, fixstr, fixstr2);
                 }
@@ -1017,8 +1017,8 @@ CMDF do_repair(CharData * ch, char *argument)
 
         if ((obj = get_obj_carry(ch, argument)) == NULL)
         {
-                act(AT_TELL, "$n tells you 'You don't have that item.'",
-                    keeper, NULL, ch, TO_VICT);
+                act(AtTell, "$n tells you 'You don't have that item.'",
+                    keeper, NULL, ch, ToVict);
                 ch->reply = keeper;
                 return;
         }
@@ -1034,11 +1034,11 @@ void appraise_all(CharData * ch, CharData * keeper, char *fixstr)
 
         for (obj = ch->first_carrying; obj != NULL; obj = obj->next_content)
         {
-                if (obj->wear_loc == WEAR_NONE
+                if (obj->wear_loc == WearNone
                     && can_see_obj(ch, obj)
-                    && (obj->item_type == ITEM_ARMOR
-                        || obj->item_type == ITEM_WEAPON
-                        || obj->item_type == ITEM_DEVICE))
+                    && (obj->item_type == ItemArmor
+                        || obj->item_type == ItemWeapon
+                        || obj->item_type == ItemDevice))
                 {
                         if (!can_drop_obj(ch, obj))
                                 ch_printf(ch, "You can't let go of %s.\n\r",
@@ -1046,13 +1046,13 @@ void appraise_all(CharData * ch, CharData * keeper, char *fixstr)
                         else if ((cost = get_repaircost(keeper, obj)) < 0)
                         {
                                 if (cost != -2)
-                                        act(AT_TELL,
+                                        act(AtTell,
                                             "$n tells you, 'Sorry, I can't do anything with $p.'",
-                                            keeper, obj, ch, TO_VICT);
+                                            keeper, obj, ch, ToVict);
                                 else
-                                        act(AT_TELL,
+                                        act(AtTell,
                                             "$n tells you, '$p looks fine to me!'",
-                                            keeper, obj, ch, TO_VICT);
+                                            keeper, obj, ch, ToVict);
                         }
                         else
                         {
@@ -1060,7 +1060,7 @@ void appraise_all(CharData * ch, CharData * keeper, char *fixstr)
                                          "$N tells you, 'It will cost %d credit%s to %s %s'",
                                          cost, cost == 1 ? "" : "s", fixstr,
                                          obj->name);
-                                act(AT_TELL, buf, ch, NULL, keeper, TO_CHAR);
+                                act(AtTell, buf, ch, NULL, keeper, ToChar);
                                 total += cost;
                         }
                 }
@@ -1071,11 +1071,11 @@ void appraise_all(CharData * ch, CharData * keeper, char *fixstr)
                 snprintf(buf, MSL,
                          "$N tells you, 'It will cost %d credit%s in total.'",
                          total, cost == 1 ? "" : "s");
-                act(AT_TELL, buf, ch, NULL, keeper, TO_CHAR);
+                act(AtTell, buf, ch, NULL, keeper, ToChar);
                 mudstrlcpy(pbuf,
                            "$N tells you, 'Remember there is a 10% surcharge for repair all.'",
                            MSL);
-                act(AT_TELL, buf, ch, NULL, keeper, TO_CHAR);
+                act(AtTell, buf, ch, NULL, keeper, ToChar);
         }
 }
 
@@ -1103,10 +1103,10 @@ CMDF do_appraise(CharData * ch, char *argument)
         switch (keeper->pIndexData->rShop->shop_type)
         {
         default:
-        case SHOP_FIX:
+        case ShopFix:
                 fixstr = "repair";
                 break;
-        case SHOP_RECHARGE:
+        case ShopRecharge:
                 fixstr = "recharge";
                 break;
         }
@@ -1119,8 +1119,8 @@ CMDF do_appraise(CharData * ch, char *argument)
 
         if ((obj = get_obj_carry(ch, arg)) == NULL)
         {
-                act(AT_TELL, "$n tells you 'You don't have that item.'",
-                    keeper, NULL, ch, TO_VICT);
+                act(AtTell, "$n tells you 'You don't have that item.'",
+                    keeper, NULL, ch, ToVict);
                 ch->reply = keeper;
                 return;
         }
@@ -1134,22 +1134,22 @@ CMDF do_appraise(CharData * ch, char *argument)
         if ((cost = get_repaircost(keeper, obj)) < 0)
         {
                 if (cost != -2)
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you, 'Sorry, I can't do anything with $p.'",
-                            keeper, obj, ch, TO_VICT);
+                            keeper, obj, ch, ToVict);
                 else
-                        act(AT_TELL, "$n tells you, '$p looks fine to me!'",
-                            keeper, obj, ch, TO_VICT);
+                        act(AtTell, "$n tells you, '$p looks fine to me!'",
+                            keeper, obj, ch, ToVict);
                 return;
         }
 
         snprintf(buf, MSL,
                  "$N tells you, 'It will cost %d credit%s to %s that...'",
                  cost, cost == 1 ? "" : "s", fixstr);
-        act(AT_TELL, buf, ch, NULL, keeper, TO_CHAR);
+        act(AtTell, buf, ch, NULL, keeper, ToChar);
         if (cost > ch->gold)
-                act(AT_TELL, "$N tells you, 'Which I see you can't afford.'",
-                    ch, NULL, keeper, TO_CHAR);
+                act(AtTell, "$N tells you, 'Which I see you can't afford.'",
+                    ch, NULL, keeper, ToChar);
 
         return;
 }
@@ -1247,7 +1247,7 @@ CMDF do_shopset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_otype(argument);
-                if (value < 0 || value > MAX_ITEM_TYPE)
+                if (value < 0 || value > MaxItemType)
                 {
                         send_to_char("Invalid item type!\n\r", ch);
                         return;
@@ -1261,7 +1261,7 @@ CMDF do_shopset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_otype(argument);
-                if (value < 0 || value > MAX_ITEM_TYPE)
+                if (value < 0 || value > MaxItemType)
                 {
                         send_to_char("Invalid item type!\n\r", ch);
                         return;
@@ -1275,7 +1275,7 @@ CMDF do_shopset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_otype(argument);
-                if (value < 0 || value > MAX_ITEM_TYPE)
+                if (value < 0 || value > MaxItemType)
                 {
                         send_to_char("Invalid item type!\n\r", ch);
                         return;
@@ -1289,7 +1289,7 @@ CMDF do_shopset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_otype(argument);
-                if (value < 0 || value > MAX_ITEM_TYPE)
+                if (value < 0 || value > MaxItemType)
                 {
                         send_to_char("Invalid item type!\n\r", ch);
                         return;
@@ -1303,7 +1303,7 @@ CMDF do_shopset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_otype(argument);
-                if (value < 0 || value > MAX_ITEM_TYPE)
+                if (value < 0 || value > MaxItemType)
                 {
                         send_to_char("Invalid item type!\n\r", ch);
                         return;
@@ -1441,7 +1441,7 @@ CMDF do_shops(CharData * ch, char *argument)
                 return;
         }
 
-        set_char_color(AT_NOTE, ch);
+        set_char_color(AtNote, ch);
         for (shop = first_shop; shop; shop = shop->next)
                 ch_printf(ch,
                           "Keeper: %5d Buy: %3d Sell: %3d Open: %2d Close: %2d Buy: %2d %2d %2d %2d %2d\n\r",
@@ -1492,7 +1492,7 @@ CMDF do_makerepair(CharData * ch, char *argument)
         LINK(repair, first_repair, last_repair, next, prev);
         repair->keeper = vnum;
         repair->profit_fix = 100;
-        repair->shop_type = SHOP_FIX;
+        repair->shop_type = ShopFix;
         repair->open_hour = 0;
         repair->close_hour = 23;
         mob->rShop = repair;
@@ -1548,7 +1548,7 @@ CMDF do_repairset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_otype(argument);
-                if (value < 0 || value > MAX_ITEM_TYPE)
+                if (value < 0 || value > MaxItemType)
                 {
                         send_to_char("Invalid item type!\n\r", ch);
                         return;
@@ -1562,7 +1562,7 @@ CMDF do_repairset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_otype(argument);
-                if (value < 0 || value > MAX_ITEM_TYPE)
+                if (value < 0 || value > MaxItemType)
                 {
                         send_to_char("Invalid item type!\n\r", ch);
                         return;
@@ -1576,7 +1576,7 @@ CMDF do_repairset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_otype(argument);
-                if (value < 0 || value > MAX_ITEM_TYPE)
+                if (value < 0 || value > MaxItemType)
                 {
                         send_to_char("Invalid item type!\n\r", ch);
                         return;
@@ -1714,7 +1714,7 @@ CMDF do_repairshops(CharData * ch, char *argument)
                 return;
         }
 
-        set_char_color(AT_NOTE, ch);
+        set_char_color(AtNote, ch);
         for (repair = first_repair; repair; repair = repair->next)
                 ch_printf(ch,
                           "Keeper: %5d Profit: %3d Type: %d Open: %2d Close: %2d Fix: %2d %2d %2d\n\r",

@@ -44,12 +44,12 @@
 #include "restore.hpp"
 #include "editor.hpp"
 
-RESTORE_DATA *first_restore;
-RESTORE_DATA *last_restore;
+RestoreData *first_restore;
+RestoreData *last_restore;
 
-RESTORE_DATA *get_restore(char *name)
+RestoreData *get_restore(char *name)
 {
-        RESTORE_DATA *restore;
+        RestoreData *restore;
 
         for (restore = first_restore; restore; restore = restore->next)
                 if (!str_cmp(name, restore->type))
@@ -71,7 +71,7 @@ RESTORE_DATA *get_restore(char *name)
 
 /* Online editing of restore added by Gavin 5-26-2000 */
 /* Read in an individual restoretype */
-void fread_restore(RESTORE_DATA * restore, FILE * fp)
+void fread_restore(RestoreData * restore, FILE * fp)
 {
         char      buf[MaxStringLength];
         const char *word;
@@ -149,14 +149,14 @@ void fread_restore(RESTORE_DATA * restore, FILE * fp)
 void load_restores()
 {
         char      filename[256];
-        RESTORE_DATA *restore;
+        RestoreData *restore;
         FILE     *fp;
         int       restorecount;
 
         first_restore = NULL;
         last_restore = NULL;
 
-        snprintf(filename, 256, "%s%s", SYSTEM_DIR, RESTORE_FILE);
+        snprintf(filename, 256, "%s%s", SystemDir, RestoreFile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -180,13 +180,13 @@ void load_restores()
                         word = fread_word(fp);
                         if (!str_cmp(word, "RESTORE"))
                         {
-                                if (restorecount >= MAX_RESTORE_TYPES)
+                                if (restorecount >= MaxRestoreTypes)
                                 {
-                                        bug("load_restores: more restoretypes than MAX_RESTORE_TYPES %d", MAX_RESTORE_TYPES);
+                                        bug("load_restores: more restoretypes than MaxRestoreTypes %d", MaxRestoreTypes);
                                         FCLOSE(fp);
                                         return;
                                 }
-                                CREATE(restore, RESTORE_DATA, 1);
+                                CREATE(restore, RestoreData, 1);
                                 fread_restore(restore, fp);
                                 restorecount++;
                                 LINK(restore, first_restore, last_restore,
@@ -214,11 +214,11 @@ void load_restores()
 /* Online restore editing, save the restore table to disk - Gavin 5-26-2000 */
 void save_restores(void)
 {
-        RESTORE_DATA *trestore;
+        RestoreData *trestore;
         FILE     *fp;
         char      filename[256];
 
-        snprintf(filename, 256, "%s%s", SYSTEM_DIR, RESTORE_FILE);
+        snprintf(filename, 256, "%s%s", SystemDir, RestoreFile);
 
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) == NULL)
@@ -245,7 +245,7 @@ void save_restores(void)
                 fprintf(fp, "#END\n");
                 FCLOSE(fp);
         }
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -260,27 +260,27 @@ void save_restores(void)
 
 CMDF do_restore(CharData * ch, char *argument)
 {
-        RESTORE_DATA *restore;
+        RestoreData *restore;
         char      type[MaxInputLength];
         char      who[MaxInputLength];
-        int       color = AT_IMMORT;
+        int       color = AtImmort;
         bool      found = FALSE;
         CharData *victim;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mobs can't use the restore command.\n\r", ch);
                 return;
         }
 
-        set_char_color(AT_IMMORT, ch);
+        set_char_color(AtImmort, ch);
 
         argument = one_argument(argument, who);
         argument = one_argument(argument, type);
 
         if (!str_prefix(who, "list") || who == NULL)
         {
-                set_char_color(AT_GREEN, ch);
+                set_char_color(AtGreen, ch);
                 send_to_char("Syntax: restore <victim/all> [type]\n\r", ch);
                 send_to_char("Where type is one of the above...\n\r", ch);
 
@@ -310,7 +310,7 @@ CMDF do_restore(CharData * ch, char *argument)
 
                 if (get_trust(ch) < LevelNeophyte)
                 {
-                        if (IS_NPC(ch))
+                        if (IsNpc(ch))
                         {
                                 send_to_char("You can't do that.\n\r", ch);
                                 return;
@@ -321,7 +321,7 @@ CMDF do_restore(CharData * ch, char *argument)
                                  * Check if the player did a restore all within the last 18 hours. 
                                  */
                                 if (current_time - last_restore_all_time <
-                                    RESTORE_INTERVAL)
+                                    RestoreInterval)
                                 {
                                         send_to_char
                                                 ("Sorry, you can't do a restore all yet.\n\r",
@@ -339,12 +339,12 @@ CMDF do_restore(CharData * ch, char *argument)
                 {
                         vch_next = vch->next;
 
-                        if (!IS_NPC(vch) && !IS_IMMORTAL(vch))
+                        if (!IsNpc(vch) && !IsImmortal(vch))
                         {
                                 if (type[0] == '\0')
                                 {
-                                        act(AT_IMMORT, "$n has restored you.",
-                                            ch, NULL, vch, TO_VICT);
+                                        act(AtImmort, "$n has restored you.",
+                                            ch, NULL, vch, ToVict);
                                         vch->hit = vch->max_hit;
                                         vch->endurance = vch->max_endurance;
                                         update_pos(vch);
@@ -376,10 +376,10 @@ CMDF do_restore(CharData * ch, char *argument)
                                                         found = TRUE;
                                                         color = restore->
                                                                 color;
-                                                        act(AT_WHITE,
+                                                        act(AtWhite,
                                                             restore->vmsg, ch,
                                                             NULL, vch,
-                                                            TO_VICT);
+                                                            ToVict);
                                                         if (restore->boost !=
                                                             0)
                                                                 vch->hit =
@@ -422,12 +422,12 @@ CMDF do_restore(CharData * ch, char *argument)
 
                 if (type[0] == '\0')
                 {
-                        act(AT_IMMORT, "You restore $N!", ch, NULL, victim,
-                            TO_CHAR);
-                        act(AT_IMMORT, "$n has restored you.", ch, NULL,
-                            victim, TO_VICT);
-                        act(AT_IMMORT, "$n restores $N!", ch, NULL, victim,
-                            TO_NOTVICT);
+                        act(AtImmort, "You restore $N!", ch, NULL, victim,
+                            ToChar);
+                        act(AtImmort, "$n has restored you.", ch, NULL,
+                            victim, ToVict);
+                        act(AtImmort, "$n restores $N!", ch, NULL, victim,
+                            ToNotvict);
                         victim->hit = victim->max_hit;
                         victim->endurance = victim->max_endurance;
                         update_pos(victim);
@@ -447,12 +447,12 @@ CMDF do_restore(CharData * ch, char *argument)
                                 {
                                         found = TRUE;
                                         color = restore->color;
-                                        act(AT_WHITE, restore->cmsg, ch, NULL,
-                                            victim, TO_CHAR);
-                                        act(AT_WHITE, restore->vmsg, ch, NULL,
-                                            victim, TO_VICT);
-                                        act(AT_WHITE, restore->rmsg, ch, NULL,
-                                            victim, TO_NOTVICT);
+                                        act(AtWhite, restore->cmsg, ch, NULL,
+                                            victim, ToChar);
+                                        act(AtWhite, restore->vmsg, ch, NULL,
+                                            victim, ToVict);
+                                        act(AtWhite, restore->rmsg, ch, NULL,
+                                            victim, ToNotvict);
                                         if (restore->boost != 0)
                                                 victim->hit =
                                                         (sh_int) (victim->
@@ -480,9 +480,9 @@ CMDF do_restore(CharData * ch, char *argument)
 /* Create a restoretype online - Gavin 5-26-2000 */
 CMDF do_makerestore(CharData * ch, char *argument)
 {
-        RESTORE_DATA *restore;
+        RestoreData *restore;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -500,11 +500,11 @@ CMDF do_makerestore(CharData * ch, char *argument)
                 return;
         }
 
-        CREATE(restore, RESTORE_DATA, 1);
+        CREATE(restore, RestoreData, 1);
         LINK(restore, first_restore, last_restore, next, prev);
         restore->type = STRALLOC(argument);
         restore->owner = STRALLOC("Any");
-        restore->color = AT_IMMORT;
+        restore->color = AtImmort;
         restore->boost = 1;
         restore->cmsg = STRALLOC("You restore $N!");
         restore->vmsg = STRALLOC("$n has restored you");
@@ -519,9 +519,9 @@ CMDF do_setrestore(CharData * ch, char *argument)
 {
         char      arg1[MaxInputLength];
         char      arg2[MaxInputLength];
-        RESTORE_DATA *restore;
+        RestoreData *restore;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -539,7 +539,7 @@ CMDF do_setrestore(CharData * ch, char *argument)
                 return;
 
         case SubRestoreCMsg:
-                restore = (RESTORE_DATA *) ch->dest_buf;
+                restore = (RestoreData *) ch->dest_buf;
                 STRFREE(restore->cmsg);
                 restore->cmsg = copy_buffer(ch);
                 stop_editing(ch);
@@ -547,7 +547,7 @@ CMDF do_setrestore(CharData * ch, char *argument)
                 return;
 
         case SubRestoreVMsg:
-                restore = (RESTORE_DATA *) ch->dest_buf;
+                restore = (RestoreData *) ch->dest_buf;
                 STRFREE(restore->vmsg);
                 restore->vmsg = copy_buffer(ch);
                 stop_editing(ch);
@@ -555,7 +555,7 @@ CMDF do_setrestore(CharData * ch, char *argument)
                 return;
 
         case SubRestorerMsg:
-                restore = (RESTORE_DATA *) ch->dest_buf;
+                restore = (RestoreData *) ch->dest_buf;
                 STRFREE(restore->rmsg);
                 restore->rmsg = copy_buffer(ch);
                 stop_editing(ch);
@@ -698,9 +698,9 @@ CMDF do_setrestore(CharData * ch, char *argument)
 /* Online restore editor, show details of a restoretype - Gavin 5-26-2000 */
 CMDF do_showrestore(CharData * ch, char *argument)
 {
-        RESTORE_DATA *restore;
+        RestoreData *restore;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -708,7 +708,7 @@ CMDF do_showrestore(CharData * ch, char *argument)
 
         if (argument[0] == '\0')
         {
-                set_char_color(AT_GREEN, ch);
+                set_char_color(AtGreen, ch);
                 send_to_char("Syntax: restore <victim/all> [type]\n\r", ch);
                 send_to_char("Where type is one of the above...\n\r", ch);
 
@@ -746,9 +746,9 @@ CMDF do_showrestore(CharData * ch, char *argument)
 CMDF do_destroyrestore(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
-        RESTORE_DATA *prestore;
+        RestoreData *prestore;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -785,7 +785,7 @@ CMDF do_destroyrestore(CharData * ch, char *argument)
         return;
 }
 
-void free_restore(RESTORE_DATA * restore)
+void free_restore(RestoreData * restore)
 {
         STRFREE(restore->owner);
         STRFREE(restore->type);

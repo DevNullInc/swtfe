@@ -48,21 +48,21 @@
 #include "mud.hpp"
 #include "mxp.hpp"
 
-const unsigned char wont_mxp_str[] = { IAC, WONT, TELOPT_MXP, '\0' };
-const unsigned char will_mxp_str[] = { IAC, WILL, TELOPT_MXP, '\0' };
-const unsigned char start_mxp_str[] = { IAC, SB, TELOPT_MXP, IAC, SE, '\0' };
-const unsigned char do_mxp_str[] = { IAC, DO, TELOPT_MXP, '\0' };
-const unsigned char dont_mxp_str[] = { IAC, DONT, TELOPT_MXP, '\0' };
+const unsigned char wont_mxp_str[] = { IAC, WONT, TeloptMxp, '\0' };
+const unsigned char will_mxp_str[] = { IAC, WILL, TeloptMxp, '\0' };
+const unsigned char start_mxp_str[] = { IAC, SB, TeloptMxp, IAC, SE, '\0' };
+const unsigned char do_mxp_str[] = { IAC, DO, TeloptMxp, '\0' };
+const unsigned char dont_mxp_str[] = { IAC, DONT, TeloptMxp, '\0' };
 
 CMDF do_mxp(CharData * ch, char *argument)
 {
-        if (IS_NPC(ch) || !ch->desc)
+        if (IsNpc(ch) || !ch->desc)
         {
                 send_to_char("What descriptor?!\n", ch);
                 return;
         }
 
-        if (!str_cmp(argument, "all") && IS_IMMORTAL(ch))
+        if (!str_cmp(argument, "all") && IsImmortal(ch))
         {
                 char      buf[MSL];
                 CharData *vch;
@@ -70,10 +70,10 @@ CMDF do_mxp(CharData * ch, char *argument)
                 send_to_pager("MXP Info:\n", ch);
                 for (vch = first_char; vch; vch = vch->next)
                 {
-                        if (vch->desc == NULL || !IS_PLAYING(vch->desc))
+                        if (vch->desc == NULL || !IsPlaying(vch->desc))
                                 continue;
                         snprintf(buf, MSL, "%s: &B[&w%s&B]&w\n", vch->name,
-                                 IS_MXP(vch) ? "ON " : "OFF");
+                                 IsMxp(vch) ? "ON " : "OFF");
                         send_to_pager(buf, ch);
                 }
                 return;
@@ -94,13 +94,13 @@ CMDF do_mxp(CharData * ch, char *argument)
         else if (!str_cmp(argument, "on"))
         {
                 send_to_char("Initalizing MXP.\n\r", ch);
-                SET_BIT(ch->act, PLR_MXP);
+                SetBit(ch->act, PlrMxp);
                 send_mxp_stylesheet(ch->desc);
         }
         else if (!str_cmp(argument, "off"))
         {
                 send_to_char("Terminating MXP.\n\r", ch);
-                REMOVE_BIT(ch->act, PLR_MXP);
+                RemoveBit(ch->act, PlrMxp);
         }
         else if (!str_cmp(argument, "auto"))
         {
@@ -110,15 +110,15 @@ CMDF do_mxp(CharData * ch, char *argument)
         {
                 send_to_char("MXP Info:\n\r", ch);
                 send_to_char("MXP: &B[&w", ch);
-                if (IS_MXP(ch))
+                if (IsMxp(ch))
                         send_to_char(MXPTAG("mxptoggle mxp"), ch);
 
-                if (IS_MXP(ch))
+                if (IsMxp(ch))
                         send_to_char("ON ", ch);
                 else
                         send_to_char("OFF", ch);
 
-                if (IS_MXP(ch))
+                if (IsMxp(ch))
                         send_to_char(MXPTAG("/mxptoggle"), ch);
                 send_to_char("&B]&W\n\r", ch);
                 return;
@@ -142,7 +142,7 @@ int count_mxp_tags(DescriptorData * d, const char *txt, int length)
         bool      bMXP = d->MxpDetected;
 
 /*	if (d->character)
-		bMXP = IS_SET(d->character->act, PLR_MXP); */
+		bMXP = IsSet(d->character->act, PlrMxp); */
 
         for (p = txt, count = 0; length > 0; p++, length--)
         {
@@ -220,7 +220,7 @@ void convert_mxp_tags(DescriptorData * d, char *dest, const char *src,
         bool      bMXP = d->MxpDetected;
 
 /*	if (d->character)
-		bMXP = IS_SET(d->character->act, PLR_MXP);*/
+		bMXP = IsSet(d->character->act, PlrMxp);*/
 
         for (ps = src, pd = dest; length > 0; ps++, length--)
         {
@@ -315,7 +315,7 @@ void send_mxp_stylesheet(DescriptorData * d)
         write_to_buffer(d, MXPMODE(6), 0);  /* permanent secure mode */
         write_to_buffer(d, MXPTAG("!-- Set up MXP elements --"), 0);
 
-        if ((stylesheet_file = fopen(MXP_STYLESHEET_FILE, "r")) != NULL)
+        if ((stylesheet_file = fopen(MxpStylesheetFile, "r")) != NULL)
         {
                 while ((buf[num] = fgetc(stylesheet_file)) != EOF)
                         num++;

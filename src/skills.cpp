@@ -180,7 +180,7 @@ int get_sclass(char *name)
 
 bool is_legal_kill(CharData * ch, CharData * vch)
 {
-        if (IS_NPC(ch) || IS_NPC(vch))
+        if (IsNpc(ch) || IsNpc(vch))
                 return TRUE;
         if (is_safe(ch, vch))
                 return FALSE;
@@ -214,7 +214,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                     && !str_prefix(command, skill_table[sn]->name)
                     && (skill_table[sn]->skill_fun
                         || skill_table[sn]->spell_fun != spell_null)
-                    && (IS_NPC(ch) || (ch->pcdata->learned[sn] > 0)))
+                    && (IsNpc(ch) || (ch->pcdata->learned[sn] > 0)))
                         break;
                 if (first >= top)
                         return FALSE;
@@ -227,21 +227,21 @@ bool check_skill(CharData * ch, char *command, char *argument)
         if (!check_pos(ch, skill_table[sn]->minimum_position))
                 return TRUE;
 
-        if (IS_NPC(ch)
-            && (IS_AFFECTED(ch, AFF_CHARM) || IS_AFFECTED(ch, AFF_POSSESS)))
+        if (IsNpc(ch)
+            && (IsAffected(ch, AffCharm) || IsAffected(ch, AffPossess)))
         {
                 send_to_char
                         ("For some reason, you seem unable to perform that...\n\r",
                          ch);
-                act(AT_GREY, "$n looks around.", ch, NULL, NULL, TO_ROOM);
+                act(AtGrey, "$n looks around.", ch, NULL, NULL, ToRoom);
                 return TRUE;
         }
 
-        if (!IS_IMMORTAL(ch) && ch->race && skill_table[sn]->races
+        if (!IsImmortal(ch) && ch->race && skill_table[sn]->races
             && !is_name(ch->race->name(), skill_table[sn]->races))
         {
                 send_to_char("Not quite able to perform that...\n\r", ch);
-                act(AT_GREY, "$n looks around.", ch, NULL, NULL, TO_ROOM);
+                act(AtGrey, "$n looks around.", ch, NULL, NULL, ToRoom);
                 return TRUE;
         }
         /*
@@ -250,7 +250,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
         if (skill_table[sn]->min_endurance)
         {
                 endurance =
-                        IS_NPC(ch) ? 0 : (skill_table[sn]->alignment > -300
+                        IsNpc(ch) ? 0 : (skill_table[sn]->alignment > -300
                                           && skill_table[sn]->alignment <
                                           300) ? skill_table[sn]->
                         min_endurance
@@ -259,7 +259,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                               ch->alignment) / 100)) +
                            1) * skill_table[sn]->min_endurance;
 
-                if (!IS_NPC(ch) && ch->endurance < endurance)
+                if (!IsNpc(ch) && ch->endurance < endurance)
                 {
                         send_to_char
                                 ("You need to rest before using the Force any more.\n\r",
@@ -291,7 +291,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                         send_to_char("Something went wrong...\n\r", ch);
                         return TRUE;
 
-                case TAR_IGNORE:
+                case TarIgnore:
                         vo = NULL;
                         if (argument[0] == '\0')
                         {
@@ -302,7 +302,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                                 target_name = argument;
                         break;
 
-                case TAR_CHAR_OFFENSIVE:
+                case TarCharOffensive:
                         if (argument[0] == '\0'
                             && (victim = who_fighting(ch)) == NULL)
                         {
@@ -322,7 +322,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                         vo = (void *) victim;
                         break;
 
-                case TAR_CHAR_DEFENSIVE:
+                case TarCharDefensive:
                         if (argument[0] != '\0'
                             && (victim = get_char_room(ch, argument)) == NULL)
                         {
@@ -334,11 +334,11 @@ bool check_skill(CharData * ch, char *command, char *argument)
                         vo = (void *) victim;
                         break;
 
-                case TAR_CHAR_SELF:
+                case TarCharSelf:
                         vo = (void *) ch;
                         break;
 
-                case TAR_OBJ_INV:
+                case TarObjInv:
                         if ((obj = get_obj_carry(ch, argument)) == NULL)
                         {
                                 send_to_char("You can't find that.\n\r", ch);
@@ -351,7 +351,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                 /*
                  * waitstate 
                  */
-                WAIT_STATE(ch, skill_table[sn]->beats);
+                WaitState(ch, skill_table[sn]->beats);
                 /*
                  * check for failure 
                  */
@@ -361,7 +361,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                         if ((percentage =
                              (number_percent() +
                               skill_table[sn]->difficulty * 5)) >
-                            (IS_NPC(ch) ? 75 : ch->pcdata->learned[sn]))
+                            (IsNpc(ch) ? 75 : ch->pcdata->learned[sn]))
                         {
                                 failed_casting(skill_table[sn], ch,
                                                (CharData *) vo, obj);
@@ -398,7 +398,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                 else
                         learn_from_success(ch, sn);
 
-                if (skill_table[sn]->target == TAR_CHAR_OFFENSIVE
+                if (skill_table[sn]->target == TarCharOffensive
                     && victim != ch && !char_died(victim))
                 {
                         CharData *vch;
@@ -413,7 +413,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                                 {
                                         retcode =
                                                 multi_hit(victim, ch,
-                                                          TYPE_UNDEFINED);
+                                                          TypeUndefined);
                                         break;
                                 }
                         }
@@ -465,19 +465,19 @@ CMDF do_slookup(CharData * ch, char *argument)
                                              "Sn: %4d Slot: %4d Skill/spell: '%-20s' Damtype: %s\n\r",
                                              sn, skill_table[sn]->slot,
                                              skill_table[sn]->name,
-                                             spell_damage[SPELL_DAMAGE
+                                             spell_damage[SpellDamage
                                                           (skill_table[sn])]);
                 else if (!str_cmp(arg2, "spells"))
                         for (sn = 0;
                              sn < top_sn && skill_table[sn]
                              && skill_table[sn]->name; sn++)
-                                if (skill_table[sn]->type == SKILL_SPELL)
+                                if (skill_table[sn]->type == SkillSpell)
                                         pager_printf(ch,
                                                      "Sn: %4d Slot: %4d Skill/spell: '%-20s' Damtype: %s\n\r",
                                                      sn,
                                                      skill_table[sn]->slot,
                                                      skill_table[sn]->name,
-                                                     spell_damage[SPELL_DAMAGE
+                                                     spell_damage[SpellDamage
                                                                   (skill_table
                                                                    [sn])]);
                                 else if (!str_cmp(arg2, "skills"))
@@ -485,7 +485,7 @@ CMDF do_slookup(CharData * ch, char *argument)
                                              sn < top_sn && skill_table[sn]
                                              && skill_table[sn]->name; sn++)
                                                 if (skill_table[sn]->type ==
-                                                    SKILL_SKILL)
+                                                    SkillSkill)
                                                         pager_printf(ch,
                                                                      "Sn: %4d Slot: %4d Skill/spell: '%-20s' Damtype: %s\n\r",
                                                                      sn,
@@ -496,7 +496,7 @@ CMDF do_slookup(CharData * ch, char *argument)
                                                                      [sn]->
                                                                      name,
                                                                      spell_damage
-                                                                     [SPELL_DAMAGE
+                                                                     [SpellDamage
                                                                       (skill_table
                                                                        [sn])]);
                                                 else
@@ -518,7 +518,7 @@ CMDF do_slookup(CharData * ch, char *argument)
                                                                          [sn]->
                                                                          name,
                                                                          spell_damage
-                                                                         [SPELL_DAMAGE
+                                                                         [SpellDamage
                                                                           (skill_table
                                                                            [sn])]);
 
@@ -562,13 +562,13 @@ CMDF do_slookup(CharData * ch, char *argument)
 
                         ch_printf(ch,
                                   "Damtype: %s  Acttype: %s   Classtype: %s   Powertype: %s\n\r",
-                                  spell_damage[SPELL_DAMAGE(skill)],
-                                  spell_action[SPELL_ACTION(skill)],
-                                  spell_class[SPELL_CLASS(skill)],
-                                  spell_power[SPELL_POWER(skill)]);
+                                  spell_damage[SpellDamage(skill)],
+                                  spell_action[SpellAction(skill)],
+                                  spell_class[SpellClass(skill)],
+                                  spell_power[SpellPower(skill)]);
                         mudstrlcpy(buf, "Flags:", MSL);
                         for (x = 11; x < 32; x++)
-                                if (SPELL_FLAG(skill, 1 << x))
+                                if (SpellFlag(skill, 1 << x))
                                 {
                                         mudstrlcat(buf, " ", MSL);
                                         mudstrlcat(buf, spell_flag[x - 11],
@@ -588,8 +588,8 @@ CMDF do_slookup(CharData * ch, char *argument)
                           "Type: %s  Target: %s  Minpos: %d  Endurance: %d  Beats: %d\n\r",
                           skill_tname[skill->type],
                           target_type[URANGE
-                                      ((int) TAR_IGNORE, skill->target,
-                                       (int) TAR_OBJ_INV)],
+                                      ((int) TarIgnore, skill->target,
+                                       (int) TarObjInv)],
                           skill->minimum_position, skill->min_endurance,
                           skill->beats);
                 ch_printf(ch, "Flags: %d  Guild: %s  Code: %s\n\r",
@@ -627,7 +627,7 @@ CMDF do_slookup(CharData * ch, char *argument)
                                 mudstrlcat(buf, " modifies ", MSL);
                                 mudstrlcat(buf,
                                            a_types[aff->location %
-                                                   REVERSE_APPLY], MSL);
+                                                   ReverseApply], MSL);
                                 mudstrlcat(buf, " by '", MSL);
                                 mudstrlcat(buf, aff->modifier, MSL);
                                 if (aff->bitvector)
@@ -641,7 +641,7 @@ CMDF do_slookup(CharData * ch, char *argument)
 
                                 mudstrlcat(buf, " applies", MSL);
                                 for (x = 0; x < 32; x++)
-                                        if (IS_SET(aff->bitvector, 1 << x))
+                                        if (IsSet(aff->bitvector, 1 << x))
                                         {
                                                 mudstrlcat(buf, " ", MSL);
                                                 mudstrlcat(buf, a_flags[x],
@@ -655,7 +655,7 @@ CMDF do_slookup(CharData * ch, char *argument)
                                 mudstrlcat(buf, aff->duration, MSL);
                                 mudstrlcat(buf, "' rounds", MSL);
                         }
-                        if (aff->location >= REVERSE_APPLY)
+                        if (aff->location >= ReverseApply)
                                 mudstrlcat(buf, " (affects caster only)",
                                            MSL);
                         mudstrlcat(buf, "\n\r", MSL);
@@ -750,7 +750,7 @@ CMDF do_sset(CharData * ch, char *argument)
                                 ("Affect having the fields: <location> <modfifier> [duration] [bitvector]\n\r",
                                  ch);
                         send_to_char
-                                ("(See AFFECTTYPES for location, and AFFECTED_BY for bitvector)\n\r",
+                                ("(See AFFECTTYPES for location, and AffectedBy for bitvector)\n\r",
                                  ch);
                 }
                 send_to_char("Skill being any skill or spell.\n\r", ch);
@@ -771,7 +771,7 @@ CMDF do_sset(CharData * ch, char *argument)
             && !str_cmp(arg1, "create") && (!str_cmp(arg2, "skill")))
         {
                 struct skill_type *skill;
-                sh_int    type = SKILL_UNKNOWN;
+                sh_int    type = SkillUnknown;
 
                 if (top_sn >= MaxSkill)
                 {
@@ -839,7 +839,7 @@ CMDF do_sset(CharData * ch, char *argument)
                                              ch);
                         else
                         {
-                                SET_SDAM(skill, x);
+                                SetSdam(skill, x);
                                 send_to_char("Ok.\n\r", ch);
                         }
                         return;
@@ -870,7 +870,7 @@ CMDF do_sset(CharData * ch, char *argument)
                                              ch);
                         else
                         {
-                                SET_SACT(skill, x);
+                                SetSact(skill, x);
                                 send_to_char("Ok.\n\r", ch);
                         }
                         return;
@@ -884,7 +884,7 @@ CMDF do_sset(CharData * ch, char *argument)
                                              ch);
                         else
                         {
-                                SET_SCLA(skill, x);
+                                SetScla(skill, x);
                                 send_to_char("Ok.\n\r", ch);
                         }
                         return;
@@ -898,7 +898,7 @@ CMDF do_sset(CharData * ch, char *argument)
                                              ch);
                         else
                         {
-                                SET_SPOW(skill, x);
+                                SetSpow(skill, x);
                                 send_to_char("Ok.\n\r", ch);
                         }
                         return;
@@ -911,7 +911,7 @@ CMDF do_sset(CharData * ch, char *argument)
                                 send_to_char("Not a spell flag.\n\r", ch);
                         else
                         {
-                                TOGGLE_BIT(skill->flags, 1 << (x + 11));
+                                ToggleBit(skill->flags, 1 << (x + 11));
                                 send_to_char("Ok.\n\r", ch);
                         }
                         return;
@@ -987,7 +987,7 @@ CMDF do_sset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "minpos"))
                 {
                         skill->minimum_position =
-                                URANGE(POS_DEAD, atoi(argument), POS_DRAG);
+                                URANGE(PosDead, atoi(argument), PosDrag);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
@@ -1091,11 +1091,11 @@ CMDF do_sset(CharData * ch, char *argument)
                         argument = one_argument(argument, duration);
 
                         if (location[0] == '!')
-                                loc = get_atype(location + 1) + REVERSE_APPLY;
+                                loc = get_atype(location + 1) + ReverseApply;
                         else
                                 loc = get_atype(location);
-                        if ((loc % REVERSE_APPLY) < 0
-                            || (loc % REVERSE_APPLY) >= MAX_APPLY_TYPE)
+                        if ((loc % ReverseApply) < 0
+                            || (loc % ReverseApply) >= MaxApplyType)
                         {
                                 send_to_char
                                         ("Unknown affect location.  See AFFECTTYPES.\n\r",
@@ -1108,7 +1108,7 @@ CMDF do_sset(CharData * ch, char *argument)
                                 argument = one_argument(argument, bitvector);
                                 if ((tmpbit = get_aflag(bitvector)) == -1)
                                         ch_printf(ch,
-                                                  "Unknown bitvector: %s.  See AFFECTED_BY\n\r",
+                                                  "Unknown bitvector: %s.  See AffectedBy\n\r",
                                                   bitvector);
                                 else
                                         bit |= (1 << tmpbit);
@@ -1120,9 +1120,9 @@ CMDF do_sset(CharData * ch, char *argument)
                                 modifier[0] = '\0';
                         aff->duration = str_dup(duration);
                         aff->location = loc;
-                        if (loc == APPLY_AFFECT || loc == APPLY_RESISTANT
-                            || loc == APPLY_IMMUNE
-                            || loc == APPLY_SUSCEPTIBLE)
+                        if (loc == ApplyAffect || loc == ApplyResistant
+                            || loc == ApplyImmune
+                            || loc == ApplySusceptible)
                         {
                                 int       modval = get_aflag(modifier);
 
@@ -1337,7 +1337,7 @@ CMDF do_sset(CharData * ch, char *argument)
                                 for (victim = first_char; victim;
                                      victim = victim->next)
                                 {
-                                        if (IS_NPC(victim))
+                                        if (IsNpc(victim))
                                                 continue;
                                         victim->pcdata->learned[x] =
                                                 victim->pcdata->learned[x +
@@ -1405,7 +1405,7 @@ CMDF do_sset(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("Not on NPC's.\n\r", ch);
                 return;
@@ -1462,7 +1462,7 @@ void learn_from_success(CharData * ch, int sn)
 {
         int       adept, gain, sklvl, learn, percent, percent_chance;
 
-        if (IS_NPC(ch) || ch->pcdata->learned[sn] == 0)
+        if (IsNpc(ch) || ch->pcdata->learned[sn] == 0)
                 return;
 
         if (sn < 0)
@@ -1471,8 +1471,8 @@ void learn_from_success(CharData * ch, int sn)
                 return;
         }
         if (sn == skill_lookup("meditate")
-            && ch->skill_level[FORCE_ABILITY] < 2)
-                gain_exp(ch, 25, FORCE_ABILITY);
+            && ch->skill_level[ForceAbility] < 2)
+                gain_exp(ch, 25, ForceAbility);
 
         sklvl = skill_table[sn]->min_level;
 
@@ -1506,7 +1506,7 @@ void learn_from_success(CharData * ch, int sn)
                 if (ch->pcdata->learned[sn] == 100) /* fully learned! */
                 {
                         gain = 50 * sklvl;
-                        set_char_color(AT_WHITE, ch);
+                        set_char_color(AtWhite, ch);
                         ch_printf(ch,
                                   "You are now an adept of %s!  You gain %d Bonus experience!\n\r",
                                   skill_table[sn]->name, gain);
@@ -1517,7 +1517,7 @@ void learn_from_success(CharData * ch, int sn)
                         if (!ch->fighting && sn != gsn_hide
                             && sn != gsn_sneak)
                         {
-                                set_char_color(AT_WHITE, ch);
+                                set_char_color(AtWhite, ch);
                                 ch_printf(ch,
                                           "You gain %d experience points from your success!\n\r",
                                           gain);
@@ -1543,14 +1543,14 @@ CMDF do_gouge(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
                 return;
         }
 
-        if (!IS_NPC(ch) && !ch->pcdata->learned[gsn_gouge])
+        if (!IsNpc(ch) && !ch->pcdata->learned[gsn_gouge])
         {
                 send_to_char("You do not yet know of this skill.\n\r", ch);
                 return;
@@ -1571,28 +1571,28 @@ CMDF do_gouge(CharData * ch, char *argument)
 
         percent = number_percent() - (get_curr_lck(ch) - 13);
 
-        if (IS_NPC(ch) || percent < ch->pcdata->learned[gsn_gouge])
+        if (IsNpc(ch) || percent < ch->pcdata->learned[gsn_gouge])
         {
-                dam = number_range(1, ch->skill_level[COMBAT_ABILITY]);
+                dam = number_range(1, ch->skill_level[CombatAbility]);
                 global_retcode = damage(ch, victim, dam, gsn_gouge);
                 if (global_retcode == rNONE)
                 {
-                        if (!IS_AFFECTED(victim, AFF_BLIND))
+                        if (!IsAffected(victim, AffBlind))
                         {
                                 af.type = gsn_blindness;
-                                af.location = APPLY_HITROLL;
+                                af.location = ApplyHitroll;
                                 af.modifier = -6;
                                 af.duration =
                                         3 +
-                                        (ch->skill_level[COMBAT_ABILITY] /
+                                        (ch->skill_level[CombatAbility] /
                                          20);
-                                af.bitvector = AFF_BLIND;
+                                af.bitvector = AffBlind;
                                 affect_to_char(victim, &af);
-                                act(AT_SKILL, "You can't see a thing!",
-                                    victim, NULL, NULL, TO_CHAR);
+                                act(AtSkill, "You can't see a thing!",
+                                    victim, NULL, NULL, ToChar);
                         }
-                        WAIT_STATE(ch, PulseViolence);
-                        WAIT_STATE(victim, PulseViolence);
+                        WaitState(ch, PulseViolence);
+                        WaitState(victim, PulseViolence);
                         /*
                          * Taken out by Request - put back in by Thoric
                          * * This is how it was designed.  You'd be a tad stunned
@@ -1601,9 +1601,9 @@ CMDF do_gouge(CharData * ch, char *argument)
                 }
                 else if (global_retcode == rVICT_DIED)
                 {
-                        act(AT_BLOOD,
+                        act(AtBlood,
                             "Your fingers plunge into your victim's brain, causing immediate death!",
-                            ch, NULL, NULL, TO_CHAR);
+                            ch, NULL, NULL, ToChar);
                 }
                 if (global_retcode != rCHAR_DIED
                     && global_retcode != rBOTH_DIED)
@@ -1611,7 +1611,7 @@ CMDF do_gouge(CharData * ch, char *argument)
         }
         else
         {
-                WAIT_STATE(ch, skill_table[gsn_gouge]->beats);
+                WaitState(ch, skill_table[gsn_gouge]->beats);
                 global_retcode = damage(ch, victim, 0, gsn_gouge);
                 learn_from_failure(ch, gsn_gouge);
         }
@@ -1630,7 +1630,7 @@ CMDF do_detrap(CharData * ch, char *argument)
         switch (ch->substate)
         {
         default:
-                if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+                if (IsNpc(ch) && IsAffected(ch, AffCharm))
                 {
                         send_to_char
                                 ("You can't concentrate enough for that.\n\r",
@@ -1638,7 +1638,7 @@ CMDF do_detrap(CharData * ch, char *argument)
                         return;
                 }
                 argument = one_argument(argument, arg);
-                if (!IS_NPC(ch) && !ch->pcdata->learned[gsn_detrap])
+                if (!IsNpc(ch) && !ch->pcdata->learned[gsn_detrap])
                 {
                         send_to_char("You do not yet know of this skill.\n\r",
                                      ch);
@@ -1678,15 +1678,15 @@ CMDF do_detrap(CharData * ch, char *argument)
                         send_to_char("You can't find that here.\n\r", ch);
                         return;
                 }
-                act(AT_ACTION,
+                act(AtAction,
                     "You carefully begin your attempt to remove a trap from $p...",
-                    ch, obj, NULL, TO_CHAR);
-                act(AT_ACTION,
+                    ch, obj, NULL, ToChar);
+                act(AtAction,
                     "$n carefully attempts to remove a trap from $p...", ch,
-                    obj, NULL, TO_ROOM);
+                    obj, NULL, ToRoom);
                 ch->dest_buf = str_dup(obj->name);
-                add_timer(ch, TIMER_DO_FUN, 3, do_detrap, 1);
-/*	    WAIT_STATE( ch, skill_table[gsn_detrap]->beats ); */
+                add_timer(ch, TimerDoFun, 3, do_detrap, 1);
+/*	    WaitState( ch, skill_table[gsn_detrap]->beats ); */
                 return;
         case 1:
                 if (!ch->dest_buf)
@@ -1733,11 +1733,11 @@ CMDF do_detrap(CharData * ch, char *argument)
                 return;
         }
 
-        percent = number_percent() - (ch->skill_level[SMUGGLING_ABILITY] / 20)
+        percent = number_percent() - (ch->skill_level[SmugglingAbility] / 20)
                 - (get_curr_lck(ch) - 16);
 
         separate_obj(obj);
-        if (!IS_NPC(ch) || percent > ch->pcdata->learned[gsn_detrap])
+        if (!IsNpc(ch) || percent > ch->pcdata->learned[gsn_detrap])
         {
                 send_to_char("Ooops!\n\r", ch);
                 spring_trap(ch, trap);
@@ -1763,7 +1763,7 @@ CMDF do_dig(CharData * ch, char *argument)
         switch (ch->substate)
         {
         default:
-                if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+                if (IsNpc(ch) && IsAffected(ch, AffCharm))
                 {
                         send_to_char
                                 ("You can't concentrate enough for that.\n\r",
@@ -1788,8 +1788,8 @@ CMDF do_dig(CharData * ch, char *argument)
                         }
                         if (pexit)
                         {
-                                if (!IS_SET(pexit->exit_info, EX_DIG)
-                                    && !IS_SET(pexit->exit_info, EX_CLOSED))
+                                if (!IsSet(pexit->exit_info, ExDig)
+                                    && !IsSet(pexit->exit_info, ExClosed))
                                 {
                                         send_to_char
                                                 ("There is no need to dig out that exit.\n\r",
@@ -1802,37 +1802,37 @@ CMDF do_dig(CharData * ch, char *argument)
                 {
                         switch (ch->in_room->sector_type)
                         {
-                        case SECT_CITY:
-                        case SECT_INSIDE:
+                        case SectCity:
+                        case SectInside:
                                 send_to_char
                                         ("The floor is too hard to dig through.\n\r",
                                          ch);
                                 return;
-                        case SECT_WATER_SWIM:
-                        case SECT_WATER_NOSWIM:
-                        case SECT_UNDERWATER:
+                        case SectWaterSwim:
+                        case SectWaterNoswim:
+                        case SectUnderwater:
                                 send_to_char("You cannot dig here.\n\r", ch);
                                 return;
-                        case SECT_AIR:
+                        case SectAir:
                                 send_to_char("What?  In the air?!\n\r", ch);
                                 return;
                         }
                 }
-                add_timer(ch, TIMER_DO_FUN,
+                add_timer(ch, TimerDoFun,
                           UMIN(skill_table[gsn_dig]->beats / 10, 3), do_dig,
                           1);
                 ch->dest_buf = str_dup(arg);
                 send_to_char("You begin digging...\n\r", ch);
-                act(AT_PLAIN, "$n begins digging...", ch, NULL, NULL,
-                    TO_ROOM);
+                act(AtPlain, "$n begins digging...", ch, NULL, NULL,
+                    ToRoom);
                 return;
 
         case 1:
                 if (!ch->dest_buf)
                 {
                         send_to_char("Your digging was interrupted!\n\r", ch);
-                        act(AT_PLAIN, "$n's digging was interrupted!", ch,
-                            NULL, NULL, TO_ROOM);
+                        act(AtPlain, "$n's digging was interrupted!", ch,
+                            NULL, NULL, ToRoom);
                         bug("do_dig: dest_buf NULL", 0);
                         return;
                 }
@@ -1844,7 +1844,7 @@ CMDF do_dig(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 ch->substate = SubNone;
                 send_to_char("You stop digging...\n\r", ch);
-                act(AT_PLAIN, "$n stops digging...", ch, NULL, NULL, TO_ROOM);
+                act(AtPlain, "$n stops digging...", ch, NULL, NULL, ToRoom);
                 return;
         }
 
@@ -1855,40 +1855,40 @@ CMDF do_dig(CharData * ch, char *argument)
          */
         shovel = FALSE;
         for (obj = ch->first_carrying; obj; obj = obj->next_content)
-                if (obj->item_type == ITEM_SHOVEL)
+                if (obj->item_type == ItemShovel)
                 {
                         shovel = TRUE;
                         break;
                 }
 
         /*
-         * dig out an EX_DIG exit... 
+         * dig out an ExDig exit... 
          */
         if (arg[0] != '\0')
         {
                 if ((pexit = find_door(ch, arg, TRUE)) != NULL
-                    && IS_SET(pexit->exit_info, EX_DIG)
-                    && IS_SET(pexit->exit_info, EX_CLOSED))
+                    && IsSet(pexit->exit_info, ExDig)
+                    && IsSet(pexit->exit_info, ExClosed))
                 {
                         /*
                          * 4 times harder to dig open a passage without a shovel 
                          */
                         if ((number_percent() * (shovel ? 1 : 4)) <
-                            (IS_NPC(ch) ? 80 : ch->pcdata->learned[gsn_dig]))
+                            (IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_dig]))
                         {
-                                REMOVE_BIT(pexit->exit_info, EX_CLOSED);
+                                RemoveBit(pexit->exit_info, ExClosed);
                                 send_to_char("You dig open a passageway!\n\r",
                                              ch);
-                                act(AT_PLAIN, "$n digs open a passageway!",
-                                    ch, NULL, NULL, TO_ROOM);
+                                act(AtPlain, "$n digs open a passageway!",
+                                    ch, NULL, NULL, ToRoom);
                                 learn_from_success(ch, gsn_dig);
                                 return;
                         }
                 }
                 learn_from_failure(ch, gsn_dig);
                 send_to_char("Your dig did not discover any exit...\n\r", ch);
-                act(AT_PLAIN, "$n's dig did not discover any exit...", ch,
-                    NULL, NULL, TO_ROOM);
+                act(AtPlain, "$n's dig did not discover any exit...", ch,
+                    NULL, NULL, ToRoom);
                 return;
         }
 
@@ -1900,9 +1900,9 @@ CMDF do_dig(CharData * ch, char *argument)
                 /*
                  * twice as hard to find something without a shovel 
                  */
-                if (IS_OBJ_STAT(obj, ITEM_BURRIED)
+                if (IsObjStat(obj, ItemBurried)
                     && (number_percent() * (shovel ? 1 : 2)) <
-                    (IS_NPC(ch) ? 80 : ch->pcdata->learned[gsn_dig]))
+                    (IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_dig]))
                 {
                         found = TRUE;
                         break;
@@ -1912,16 +1912,16 @@ CMDF do_dig(CharData * ch, char *argument)
         if (!found)
         {
                 send_to_char("Your dig uncovered nothing.\n\r", ch);
-                act(AT_PLAIN, "$n's dig uncovered nothing.", ch, NULL, NULL,
-                    TO_ROOM);
+                act(AtPlain, "$n's dig uncovered nothing.", ch, NULL, NULL,
+                    ToRoom);
                 learn_from_failure(ch, gsn_dig);
                 return;
         }
 
         separate_obj(obj);
-        REMOVE_BIT(obj->extra_flags, ITEM_BURRIED);
-        act(AT_SKILL, "Your dig uncovered $p!", ch, obj, NULL, TO_CHAR);
-        act(AT_SKILL, "$n's dig uncovered $p!", ch, obj, NULL, TO_ROOM);
+        RemoveBit(obj->extra_flags, ItemBurried);
+        act(AtSkill, "Your dig uncovered $p!", ch, obj, NULL, ToChar);
+        act(AtSkill, "$n's dig uncovered $p!", ch, obj, NULL, ToRoom);
         learn_from_success(ch, gsn_dig);
 
         return;
@@ -1941,7 +1941,7 @@ CMDF do_search(CharData * ch, char *argument)
         switch (ch->substate)
         {
         default:
-                if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+                if (IsNpc(ch) && IsAffected(ch, AffCharm))
                 {
                         send_to_char
                                 ("You can't concentrate enough for that.\n\r",
@@ -1964,19 +1964,19 @@ CMDF do_search(CharData * ch, char *argument)
                                              ch);
                                 return;
                         }
-                        if (container->item_type != ITEM_CONTAINER)
+                        if (container->item_type != ItemContainer)
                         {
                                 send_to_char("You can't search in that!\n\r",
                                              ch);
                                 return;
                         }
-                        if (IS_SET(container->value[1], CONT_CLOSED))
+                        if (IsSet(container->value[1], ContClosed))
                         {
                                 send_to_char("It is closed.\n\r", ch);
                                 return;
                         }
                 }
-                add_timer(ch, TIMER_DO_FUN,
+                add_timer(ch, TimerDoFun,
                           UMIN(skill_table[gsn_search]->beats / 10, 3),
                           do_search, 1);
                 send_to_char("You begin your search...\n\r", ch);
@@ -2024,7 +2024,7 @@ CMDF do_search(CharData * ch, char *argument)
 
         found = FALSE;
 
-        if ((!startobj && door == -1) || IS_NPC(ch))
+        if ((!startobj && door == -1) || IsNpc(ch))
         {
                 send_to_char("You find nothing.\n\r", ch);
                 learn_from_failure(ch, gsn_search);
@@ -2038,16 +2038,16 @@ CMDF do_search(CharData * ch, char *argument)
                 ExitData *pexit;
 
                 if ((pexit = get_exit(ch->in_room, door)) != NULL
-                    && IS_SET(pexit->exit_info, EX_SECRET)
-                    && IS_SET(pexit->exit_info, EX_xSEARCHABLE)
+                    && IsSet(pexit->exit_info, ExSecret)
+                    && IsSet(pexit->exit_info, EX_xSEARCHABLE)
                     && percent <
-                    (IS_NPC(ch) ? 80 : ch->pcdata->learned[gsn_search]))
+                    (IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_search]))
                 {
-                        act(AT_SKILL, "Your search reveals the $d!", ch, NULL,
-                            pexit->keyword, TO_CHAR);
-                        act(AT_SKILL, "$n finds the $d!", ch, NULL,
-                            pexit->keyword, TO_ROOM);
-                        REMOVE_BIT(pexit->exit_info, EX_SECRET);
+                        act(AtSkill, "Your search reveals the $d!", ch, NULL,
+                            pexit->keyword, ToChar);
+                        act(AtSkill, "$n finds the $d!", ch, NULL,
+                            pexit->keyword, ToRoom);
+                        RemoveBit(pexit->exit_info, ExSecret);
                         learn_from_success(ch, gsn_search);
                         return;
                 }
@@ -2055,7 +2055,7 @@ CMDF do_search(CharData * ch, char *argument)
         else
                 for (obj = startobj; obj; obj = obj->next_content)
                 {
-                        if (IS_OBJ_STAT(obj, ITEM_HIDDEN)
+                        if (IsObjStat(obj, ItemHidden)
                             && percent < ch->pcdata->learned[gsn_search])
                         {
                                 found = TRUE;
@@ -2071,9 +2071,9 @@ CMDF do_search(CharData * ch, char *argument)
         }
 
         separate_obj(obj);
-        REMOVE_BIT(obj->extra_flags, ITEM_HIDDEN);
-        act(AT_SKILL, "Your search reveals $p!", ch, obj, NULL, TO_CHAR);
-        act(AT_SKILL, "$n finds $p!", ch, obj, NULL, TO_ROOM);
+        RemoveBit(obj->extra_flags, ItemHidden);
+        act(AtSkill, "Your search reveals $p!", ch, obj, NULL, ToChar);
+        act(AtSkill, "$n finds $p!", ch, obj, NULL, ToRoom);
         learn_from_success(ch, gsn_search);
         return;
 }
@@ -2117,9 +2117,9 @@ CMDF do_steal(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
         {
-                set_char_color(AT_MAGIC, ch);
+                set_char_color(AtMagic, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
                 return;
         }
@@ -2136,45 +2136,45 @@ CMDF do_steal(CharData * ch, char *argument)
                 return;
         }
 
-        WAIT_STATE(ch, skill_table[gsn_steal]->beats);
-        percent = number_percent() + (IS_AWAKE(victim) ? 10 : -50)
+        WaitState(ch, skill_table[gsn_steal]->beats);
+        percent = number_percent() + (IsAwake(victim) ? 10 : -50)
                 - (get_curr_lck(ch) - 15) + (get_curr_lck(victim) - 13);
 
-        if (victim->position == POS_FIGHTING
-            || percent > (IS_NPC(ch) ? 90 : ch->pcdata->learned[gsn_steal]))
+        if (victim->position == PosFighting
+            || percent > (IsNpc(ch) ? 90 : ch->pcdata->learned[gsn_steal]))
         {
                 /*
                  * Failure.
                  */
                 send_to_char("Oops...\n\r", ch);
-                act(AT_ACTION, "$n tried to steal from you!\n\r", ch, NULL,
-                    victim, TO_VICT);
-                act(AT_ACTION, "$n tried to steal from $N.\n\r", ch, NULL,
-                    victim, TO_NOTVICT);
+                act(AtAction, "$n tried to steal from you!\n\r", ch, NULL,
+                    victim, ToVict);
+                act(AtAction, "$n tried to steal from $N.\n\r", ch, NULL,
+                    victim, ToNotvict);
                 command_printf(victim, "yell %s is a bloody thief!",
                                ch->name);
 
                 learn_from_failure(ch, gsn_steal);
-                if (!IS_NPC(ch))
+                if (!IsNpc(ch))
                 {
                         if (legal_loot(ch, victim))
                         {
                                 global_retcode =
-                                        multi_hit(victim, ch, TYPE_UNDEFINED);
+                                        multi_hit(victim, ch, TypeUndefined);
                         }
                         else
                         {
                                 /*
                                  * log_string( buf ); 
                                  */
-                                if (IS_NPC(ch))
+                                if (IsNpc(ch))
                                 {
                                         if ((mst = ch->master) == NULL)
                                                 return;
                                 }
                                 else
                                         mst = ch;
-                                if (IS_NPC(mst))
+                                if (IsNpc(mst))
                                         return;
 
                         }
@@ -2183,7 +2183,7 @@ CMDF do_steal(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 add_kill(ch, victim);   /* makes it harder to steal from same char */
 
         if (!str_cmp(arg1, "credits")
@@ -2203,16 +2203,16 @@ CMDF do_steal(CharData * ch, char *argument)
                 victim->gold -= amount;
                 ch_printf(ch, "Aha!  You got %d credits.\n\r", amount);
                 learn_from_success(ch, gsn_steal);
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         xp = UMIN(amount * 100,
                                   (exp_level
-                                   (ch->skill_level[PIRACY_ABILITY] + 1) -
+                                   (ch->skill_level[PiracyAbility] + 1) -
                                    exp_level(ch->
-                                             skill_level[PIRACY_ABILITY])) /
+                                             skill_level[PiracyAbility])) /
                                   25);
                         xp = UMIN(xp, xp_compute(ch, victim));
-                        gain_exp(ch, xp, PIRACY_ABILITY);
+                        gain_exp(ch, xp, PiracyAbility);
                         ch_printf(ch, "&WYou gain %ld piracy experience!\n\r",
                                   xp);
                 }
@@ -2221,7 +2221,7 @@ CMDF do_steal(CharData * ch, char *argument)
 
         if ((obj = get_obj_carry(victim, arg1)) == NULL)
         {
-                if (victim->position <= POS_SLEEPING)
+                if (victim->position <= PosSleeping)
                 {
                         if ((obj = get_obj_wear(victim, arg1)) != NULL)
                         {
@@ -2250,8 +2250,8 @@ CMDF do_steal(CharData * ch, char *argument)
         }
 
         if (!can_drop_obj(ch, obj)
-            || IS_OBJ_STAT(obj, ITEM_INVENTORY)
-            || IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+            || IsObjStat(obj, ItemInventory)
+            || IsObjStat(obj, ItemPrototype))
         {
                 send_to_char("You can't manage to pry it away.\n\r", ch);
                 learn_from_failure(ch, gsn_steal);
@@ -2276,13 +2276,13 @@ CMDF do_steal(CharData * ch, char *argument)
 
         send_to_char("Ok.\n\r", ch);
         learn_from_success(ch, gsn_steal);
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 xp = UMIN(obj->cost * 10 + 1000,
-                          (exp_level(ch->skill_level[PIRACY_ABILITY] + 1) -
-                           exp_level(ch->skill_level[PIRACY_ABILITY])) / 10);
+                          (exp_level(ch->skill_level[PiracyAbility] + 1) -
+                           exp_level(ch->skill_level[PiracyAbility])) / 10);
                 xp = UMIN(xp, xp_compute(ch, victim));
-                gain_exp(ch, xp, PIRACY_ABILITY);
+                gain_exp(ch, xp, PiracyAbility);
                 ch_printf(ch, "&WYou gain %ld piracy experience!\n\r", xp);
         }
         separate_obj(obj);
@@ -2300,7 +2300,7 @@ CMDF do_backstab(CharData * ch, char *argument)
 	ObjData *obj;
 	int       percent;
 
-	if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+	if (IsNpc(ch) && IsAffected(ch, AffCharm))
 	{
 		send_to_char("You can't do that right now.\n\r", ch);
 		return;
@@ -2339,30 +2339,30 @@ CMDF do_backstab(CharData * ch, char *argument)
 	/*
 	 * Added stabbing weapon. -Narn 
 	 */
-	obj = get_eq_char(ch, WEAR_WIELD);
-	if (!obj || obj->item_type != ITEM_WEAPON
-			|| obj->value[3] != WEAPON_KNIFE)
+	obj = get_eq_char(ch, WearWield);
+	if (!obj || obj->item_type != ItemWeapon
+			|| obj->value[3] != WeaponKnife)
 	{
-		obj = get_eq_char(ch, WEAR_DUAL_WIELD);
-                if ((!obj || (obj->item_type != ITEM_WEAPON &&
-                                                obj->value[3] !=WEAPON_KNIFE)) &&
-                                !IS_NPC(ch) && IS_SET(ch->pcdata->flags, PCFLAG_AUTODRAW))
+		obj = get_eq_char(ch, WearDualWield);
+                if ((!obj || (obj->item_type != ItemWeapon &&
+                                                obj->value[3] !=WeaponKnife)) &&
+                                !IsNpc(ch) && IsSet(ch->pcdata->flags, PcflagAutodraw))
                 {
-                        ObjData *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
-                                 *holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
+                        ObjData *holster1 = get_eq_char(ch, WearHolsterL),
+                                 *holster2 = get_eq_char(ch, WearHolsterR);
                         if (!obj && holster1 && holster1->first_content) {
-                                if (holster1->first_content->item_type == ITEM_WEAPON &&
-                                                holster1->first_content->value[3] == WEAPON_KNIFE)
+                                if (holster1->first_content->item_type == ItemWeapon &&
+                                                holster1->first_content->value[3] == WeaponKnife)
                                         obj = holster1->first_content; 
                         }
                         if (!obj && holster2 && holster2->first_content) {
-                                if (holster2->first_content->item_type == ITEM_WEAPON &&
-                                                holster2->first_content->value[3] == WEAPON_KNIFE)
+                                if (holster2->first_content->item_type == ItemWeapon &&
+                                                holster2->first_content->value[3] == WeaponKnife)
                                         obj = holster2->first_content; 
                         }
                 }
-		if (!obj || obj->item_type != ITEM_WEAPON ||
-				obj->value[3] != WEAPON_KNIFE)
+		if (!obj || obj->item_type != ItemWeapon ||
+				obj->value[3] != WeaponKnife)
 		{
 			send_to_char
 				("You need to wield a stabbing weapon.\n\r",
@@ -2382,20 +2382,20 @@ CMDF do_backstab(CharData * ch, char *argument)
 	/*
 	 * Can backstab a char even if it's hurt as long as it's sleeping. -Narn 
 	 */
-	if (victim->hit < victim->max_hit && IS_AWAKE(victim))
+	if (victim->hit < victim->max_hit && IsAwake(victim))
 	{
-		act(AT_PLAIN,
+		act(AtPlain,
 				"$N is hurt and suspicious ... you can't sneak up.", ch,
-				NULL, victim, TO_CHAR);
+				NULL, victim, ToChar);
 		return;
 	}
 
 	percent = number_percent() - (get_curr_lck(ch) - 14)
 		+ (get_curr_lck(victim) - 13);
 
-	WAIT_STATE(ch, skill_table[gsn_backstab]->beats);
-	if (!IS_AWAKE(victim)
-			|| IS_NPC(ch) || percent < ch->pcdata->learned[gsn_backstab])
+	WaitState(ch, skill_table[gsn_backstab]->beats);
+	if (!IsAwake(victim)
+			|| IsNpc(ch) || percent < ch->pcdata->learned[gsn_backstab])
 	{
 		learn_from_success(ch, gsn_backstab);
 		global_retcode = multi_hit(ch, victim, gsn_backstab);
@@ -2417,7 +2417,7 @@ CMDF do_rescue(CharData * ch, char *argument)
         CharData *fch;
         int       percent;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -2451,7 +2451,7 @@ CMDF do_rescue(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_NPC(ch) && IS_NPC(victim))
+        if (!IsNpc(ch) && IsNpc(victim))
         {
                 send_to_char("Doesn't need your help!\n\r", ch);
                 return;
@@ -2469,22 +2469,22 @@ CMDF do_rescue(CharData * ch, char *argument)
         percent = number_percent() - (get_curr_lck(ch) - 14)
                 - (get_curr_lck(victim) - 16);
 
-        WAIT_STATE(ch, skill_table[gsn_rescue]->beats);
-        if (!IS_NPC(ch) && percent > ch->pcdata->learned[gsn_rescue])
+        WaitState(ch, skill_table[gsn_rescue]->beats);
+        if (!IsNpc(ch) && percent > ch->pcdata->learned[gsn_rescue])
         {
                 send_to_char("You fail the rescue.\n\r", ch);
-                act(AT_SKILL, "$n tries to rescue you!", ch, NULL, victim,
-                    TO_VICT);
-                act(AT_SKILL, "$n tries to rescue $N!", ch, NULL, victim,
-                    TO_NOTVICT);
+                act(AtSkill, "$n tries to rescue you!", ch, NULL, victim,
+                    ToVict);
+                act(AtSkill, "$n tries to rescue $N!", ch, NULL, victim,
+                    ToNotvict);
                 learn_from_failure(ch, gsn_rescue);
                 return;
         }
 
-        act(AT_SKILL, "You rescue $N!", ch, NULL, victim, TO_CHAR);
-        act(AT_SKILL, "$n rescues you!", ch, NULL, victim, TO_VICT);
-        act(AT_SKILL, "$n moves in front of $N!", ch, NULL, victim,
-            TO_NOTVICT);
+        act(AtSkill, "You rescue $N!", ch, NULL, victim, ToChar);
+        act(AtSkill, "$n rescues you!", ch, NULL, victim, ToVict);
+        act(AtSkill, "$n moves in front of $N!", ch, NULL, victim,
+            ToNotvict);
 
         ch->alignment = ch->alignment + 50;
         ch->alignment = URANGE(-1000, ch->alignment, 1000);
@@ -2511,7 +2511,7 @@ CMDF do_kick(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -2524,14 +2524,14 @@ CMDF do_kick(CharData * ch, char *argument)
                 return;
         }
 
-        WAIT_STATE(ch, skill_table[gsn_kick]->beats);
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_kick])
+        WaitState(ch, skill_table[gsn_kick]->beats);
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_kick])
         {
                 learn_from_success(ch, gsn_kick);
                 global_retcode =
                         damage(ch, victim,
                                number_range(1,
-                                            ch->skill_level[COMBAT_ABILITY]),
+                                            ch->skill_level[CombatAbility]),
                                gsn_kick);
         }
         else
@@ -2548,14 +2548,14 @@ CMDF do_punch(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
                 return;
         }
 
-        if (!IS_NPC(ch) && ch->pcdata->learned[gsn_punch] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_punch] <= 0)
         {
                 send_to_char
                         ("Your mind races as you realize you have no idea how to do that.\n\r",
@@ -2569,14 +2569,14 @@ CMDF do_punch(CharData * ch, char *argument)
                 return;
         }
 
-        WAIT_STATE(ch, skill_table[gsn_punch]->beats);
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_punch])
+        WaitState(ch, skill_table[gsn_punch]->beats);
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_punch])
         {
                 learn_from_success(ch, gsn_punch);
                 global_retcode =
                         damage(ch, victim,
                                number_range(1,
-                                            ch->skill_level[COMBAT_ABILITY]),
+                                            ch->skill_level[CombatAbility]),
                                gsn_punch);
         }
         else
@@ -2594,7 +2594,7 @@ CMDF do_bite(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -2606,13 +2606,13 @@ CMDF do_bite(CharData * ch, char *argument)
                 send_to_char("You aren't fighting anyone.\n\r", ch);
                 return;
         }
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_bite])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_bite])
         {
                 learn_from_success(ch, gsn_bite);
                 global_retcode =
                         damage(ch, victim,
                                number_range(1,
-                                            ch->skill_level[COMBAT_ABILITY]),
+                                            ch->skill_level[CombatAbility]),
                                gsn_bite);
         }
         else
@@ -2630,7 +2630,7 @@ CMDF do_claw(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -2642,13 +2642,13 @@ CMDF do_claw(CharData * ch, char *argument)
                 send_to_char("You aren't fighting anyone.\n\r", ch);
                 return;
         }
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_claw])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_claw])
         {
                 learn_from_success(ch, gsn_claw);
                 global_retcode =
                         damage(ch, victim,
                                number_range(1,
-                                            ch->skill_level[COMBAT_ABILITY]),
+                                            ch->skill_level[CombatAbility]),
                                gsn_claw);
         }
         else
@@ -2666,7 +2666,7 @@ CMDF do_sting(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -2678,13 +2678,13 @@ CMDF do_sting(CharData * ch, char *argument)
                 send_to_char("You aren't fighting anyone.\n\r", ch);
                 return;
         }
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_sting])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_sting])
         {
                 learn_from_success(ch, gsn_sting);
                 global_retcode =
                         damage(ch, victim,
                                number_range(1,
-                                            ch->skill_level[COMBAT_ABILITY]),
+                                            ch->skill_level[CombatAbility]),
                                gsn_sting);
         }
         else
@@ -2702,7 +2702,7 @@ CMDF do_tail(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -2714,13 +2714,13 @@ CMDF do_tail(CharData * ch, char *argument)
                 send_to_char("You aren't fighting anyone.\n\r", ch);
                 return;
         }
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_tail])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_tail])
         {
                 learn_from_success(ch, gsn_tail);
                 global_retcode =
                         damage(ch, victim,
                                number_range(1,
-                                            ch->skill_level[COMBAT_ABILITY]),
+                                            ch->skill_level[CombatAbility]),
                                gsn_tail);
         }
         else
@@ -2739,14 +2739,14 @@ CMDF do_bash(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
                 return;
         }
 
-        if (!IS_NPC(ch) && ch->pcdata->learned[gsn_bash] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_bash] <= 0)
         {
                 send_to_char
                         ("Your mind races as you realize you have no idea how to do that.\n\r",
@@ -2763,12 +2763,12 @@ CMDF do_bash(CharData * ch, char *argument)
         percent_chance = (((get_curr_dex(victim) + get_curr_str(victim))
                            - (get_curr_dex(ch) + get_curr_str(ch))) * 10) +
                 10;
-        if (!IS_NPC(ch) && !IS_NPC(victim))
+        if (!IsNpc(ch) && !IsNpc(victim))
                 percent_chance += 25;
         if (victim->fighting && victim->fighting->who != ch)
                 percent_chance += 19;
-        WAIT_STATE(ch, skill_table[gsn_bash]->beats);
-        if (IS_NPC(ch)
+        WaitState(ch, skill_table[gsn_bash]->beats);
+        if (IsNpc(ch)
             || (number_percent() + percent_chance) <
             ch->pcdata->learned[gsn_bash])
         {
@@ -2776,18 +2776,18 @@ CMDF do_bash(CharData * ch, char *argument)
                 /*
                  * do not change anything here!  -Thoric 
                  */
-                WAIT_STATE(ch, 2 * PulseViolence);
-                WAIT_STATE(victim, 2 * PulseViolence);
-                victim->position = POS_SITTING;
+                WaitState(ch, 2 * PulseViolence);
+                WaitState(victim, 2 * PulseViolence);
+                victim->position = PosSitting;
                 global_retcode =
                         damage(ch, victim,
                                number_range(1,
-                                            ch->skill_level[COMBAT_ABILITY]),
+                                            ch->skill_level[CombatAbility]),
                                gsn_bash);
         }
         else
         {
-                WAIT_STATE(ch, 2 * PulseViolence);
+                WaitState(ch, 2 * PulseViolence);
                 learn_from_failure(ch, gsn_bash);
                 global_retcode = damage(ch, victim, 0, gsn_bash);
         }
@@ -2804,14 +2804,14 @@ CMDF do_stun(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
                 return;
         }
 
-        if (!IS_NPC(ch) && ch->pcdata->learned[gsn_stun] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_stun] <= 0)
         {
                 send_to_char
                         ("Your mind races as you realize you have no idea how to do that.\n\r",
@@ -2827,16 +2827,16 @@ CMDF do_stun(CharData * ch, char *argument)
 
         if (ch->endurance < 16)
         {
-                set_char_color(AT_SKILL, ch);
+                set_char_color(AtSkill, ch);
                 send_to_char("You are far too tired to do that.\n\r", ch);
                 return; /* missing return fixed March 11/96 */
         }
 
-        WAIT_STATE(ch, skill_table[gsn_stun]->beats);
+        WaitState(ch, skill_table[gsn_stun]->beats);
         fail = FALSE;
         percent_chance =
-                ris_save(victim, ch->skill_level[COMBAT_ABILITY],
-                         RIS_PARALYSIS);
+                ris_save(victim, ch->skill_level[CombatAbility],
+                         RisParalysis);
         if (percent_chance == 1000)
                 fail = TRUE;
         else
@@ -2848,12 +2848,12 @@ CMDF do_stun(CharData * ch, char *argument)
         /*
          * harder for player to stun another player 
          */
-        if (!IS_NPC(ch) && !IS_NPC(victim))
+        if (!IsNpc(ch) && !IsNpc(victim))
                 percent_chance += sysdata.stun_plr_vs_plr;
         else
                 percent_chance += sysdata.stun_regular;
         if (!fail
-            && (IS_NPC(ch)
+            && (IsNpc(ch)
                 || (number_percent() + percent_chance) <
                 ch->pcdata->learned[gsn_stun]))
         {
@@ -2862,39 +2862,39 @@ CMDF do_stun(CharData * ch, char *argument)
                  * DO *NOT* CHANGE!    -Thoric    
                  */
                 ch->endurance -= 15;
-                WAIT_STATE(ch, 2 * PulseViolence);
-                WAIT_STATE(victim, PulseViolence);
-                act(AT_SKILL, "$N smashes into you, leaving you stunned!",
-                    victim, NULL, ch, TO_CHAR);
-                act(AT_SKILL, "You smash into $N, leaving $M stunned!", ch,
-                    NULL, victim, TO_CHAR);
-                act(AT_SKILL, "$n smashes into $N, leaving $M stunned!", ch,
-                    NULL, victim, TO_NOTVICT);
-                if (!IS_AFFECTED(victim, AFF_PARALYSIS))
+                WaitState(ch, 2 * PulseViolence);
+                WaitState(victim, PulseViolence);
+                act(AtSkill, "$N smashes into you, leaving you stunned!",
+                    victim, NULL, ch, ToChar);
+                act(AtSkill, "You smash into $N, leaving $M stunned!", ch,
+                    NULL, victim, ToChar);
+                act(AtSkill, "$n smashes into $N, leaving $M stunned!", ch,
+                    NULL, victim, ToNotvict);
+                if (!IsAffected(victim, AffParalysis))
                 {
                         af.type = gsn_stun;
-                        af.location = APPLY_AC;
+                        af.location = ApplyAc;
                         af.modifier = 20;
                         af.duration = 3;
-                        af.bitvector = AFF_PARALYSIS;
+                        af.bitvector = AffParalysis;
                         affect_to_char(victim, &af);
                         update_pos(victim);
                 }
         }
         else
         {
-                WAIT_STATE(ch, 2 * PulseViolence);
+                WaitState(ch, 2 * PulseViolence);
                 ch->endurance -= 5;
                 learn_from_failure(ch, gsn_stun);
-                act(AT_SKILL,
+                act(AtSkill,
                     "$N charges at you screaming, but you dodge out of the way.",
-                    victim, NULL, ch, TO_CHAR);
-                act(AT_SKILL,
+                    victim, NULL, ch, ToChar);
+                act(AtSkill,
                     "Your attempt to stun $N leaves you racing past $E as $e laughs.",
-                    ch, NULL, victim, TO_CHAR);
-                act(AT_SKILL,
+                    ch, NULL, victim, ToChar);
+                act(AtSkill,
                     "$n charges screaming at $N, but keeps going right on past.",
-                    ch, NULL, victim, TO_NOTVICT);
+                    ch, NULL, victim, ToNotvict);
         }
         return;
 }
@@ -2911,20 +2911,20 @@ void disarm(CharData * ch, CharData * victim)
 {
         ObjData *obj, *tmpobj;
 
-        if ((obj = get_eq_char(victim, WEAR_WIELD)) == NULL)
+        if ((obj = get_eq_char(victim, WearWield)) == NULL)
                 return;
 
-        if ((tmpobj = get_eq_char(victim, WEAR_DUAL_WIELD)) != NULL
+        if ((tmpobj = get_eq_char(victim, WearDualWield)) != NULL
             && number_bits(1) == 0)
                 obj = tmpobj;
 
-        if (get_eq_char(ch, WEAR_WIELD) == NULL && number_bits(1) == 0)
+        if (get_eq_char(ch, WearWield) == NULL && number_bits(1) == 0)
         {
                 learn_from_failure(ch, gsn_disarm);
                 return;
         }
 
-        if (IS_NPC(ch) && !can_see_obj(ch, obj) && number_bits(1) == 0)
+        if (IsNpc(ch) && !can_see_obj(ch, obj) && number_bits(1) == 0)
         {
                 learn_from_failure(ch, gsn_disarm);
                 return;
@@ -2936,14 +2936,14 @@ void disarm(CharData * ch, CharData * victim)
                 return;
         }
 
-        act(AT_SKILL, "$n DISARMS you!", ch, NULL, victim, TO_VICT);
-        act(AT_SKILL, "You disarm $N!", ch, NULL, victim, TO_CHAR);
-        act(AT_SKILL, "$n disarms $N!", ch, NULL, victim, TO_NOTVICT);
+        act(AtSkill, "$n DISARMS you!", ch, NULL, victim, ToVict);
+        act(AtSkill, "You disarm $N!", ch, NULL, victim, ToChar);
+        act(AtSkill, "$n disarms $N!", ch, NULL, victim, ToNotvict);
         learn_from_success(ch, gsn_disarm);
 
-        if (obj == get_eq_char(victim, WEAR_WIELD)
-            && (tmpobj = get_eq_char(victim, WEAR_DUAL_WIELD)) != NULL)
-                tmpobj->wear_loc = WEAR_WIELD;
+        if (obj == get_eq_char(victim, WearWield)
+            && (tmpobj = get_eq_char(victim, WearDualWield)) != NULL)
+                tmpobj->wear_loc = WearWield;
 
         obj_from_char(obj);
         if (in_arena(ch)) 
@@ -2963,21 +2963,21 @@ CMDF do_disarm(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
                 return;
         }
 
-        if (!IS_NPC(ch) && ch->pcdata->learned[gsn_disarm] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_disarm] <= 0)
         {
                 send_to_char("You don't know how to disarm opponents.\n\r",
                              ch);
                 return;
         }
 
-        if (get_eq_char(ch, WEAR_WIELD) == NULL)
+        if (get_eq_char(ch, WearWield) == NULL)
         {
                 send_to_char("You must wield a weapon to disarm.\n\r", ch);
                 return;
@@ -2989,21 +2989,21 @@ CMDF do_disarm(CharData * ch, char *argument)
                 return;
         }
 
-        if ((obj = get_eq_char(victim, WEAR_WIELD)) == NULL)
+        if ((obj = get_eq_char(victim, WearWield)) == NULL)
         {
                 send_to_char("Your opponent is not wielding a weapon.\n\r",
                              ch);
                 return;
         }
 
-        WAIT_STATE(ch, skill_table[gsn_disarm]->beats);
+        WaitState(ch, skill_table[gsn_disarm]->beats);
         percent =
-                number_percent() + victim->skill_level[COMBAT_ABILITY] -
-                ch->skill_level[COMBAT_ABILITY] - (get_curr_lck(ch) - 15) +
+                number_percent() + victim->skill_level[CombatAbility] -
+                ch->skill_level[CombatAbility] - (get_curr_lck(ch) - 15) +
                 (get_curr_lck(victim) - 15);
         if (!can_see_obj(ch, obj))
                 percent += 10;
-        if (IS_NPC(ch) || percent < ch->pcdata->learned[gsn_disarm] * 2 / 3)
+        if (IsNpc(ch) || percent < ch->pcdata->learned[gsn_disarm] * 2 / 3)
                 disarm(ch, victim);
         else
         {
@@ -3020,39 +3020,39 @@ CMDF do_disarm(CharData * ch, char *argument)
  */
 void trip(CharData * ch, CharData * victim)
 {
-        if (IS_AFFECTED(victim, AFF_FLYING)
-            || IS_AFFECTED(victim, AFF_FLOATING))
+        if (IsAffected(victim, AffFlying)
+            || IsAffected(victim, AffFloating))
                 return;
         if (victim->mount)
         {
-                if (IS_AFFECTED(victim->mount, AFF_FLYING)
-                    || IS_AFFECTED(victim->mount, AFF_FLOATING))
+                if (IsAffected(victim->mount, AffFlying)
+                    || IsAffected(victim->mount, AffFloating))
                         return;
-                act(AT_SKILL, "$n trips your mount and you fall off!", ch,
-                    NULL, victim, TO_VICT);
-                act(AT_SKILL, "You trip $N's mount and $N falls off!", ch,
-                    NULL, victim, TO_CHAR);
-                act(AT_SKILL, "$n trips $N's mount and $N falls off!", ch,
-                    NULL, victim, TO_NOTVICT);
-                REMOVE_BIT(victim->mount->act, ACT_MOUNTED);
+                act(AtSkill, "$n trips your mount and you fall off!", ch,
+                    NULL, victim, ToVict);
+                act(AtSkill, "You trip $N's mount and $N falls off!", ch,
+                    NULL, victim, ToChar);
+                act(AtSkill, "$n trips $N's mount and $N falls off!", ch,
+                    NULL, victim, ToNotvict);
+                RemoveBit(victim->mount->act, ActMounted);
                 victim->mount = NULL;
-                WAIT_STATE(ch, 2 * PulseViolence);
-                WAIT_STATE(victim, 2 * PulseViolence);
-                victim->position = POS_RESTING;
+                WaitState(ch, 2 * PulseViolence);
+                WaitState(victim, 2 * PulseViolence);
+                victim->position = PosResting;
                 return;
         }
         if (victim->wait == 0)
         {
-                act(AT_SKILL, "$n trips you and you go down!", ch, NULL,
-                    victim, TO_VICT);
-                act(AT_SKILL, "You trip $N and $N goes down!", ch, NULL,
-                    victim, TO_CHAR);
-                act(AT_SKILL, "$n trips $N and $N goes down!", ch, NULL,
-                    victim, TO_NOTVICT);
+                act(AtSkill, "$n trips you and you go down!", ch, NULL,
+                    victim, ToVict);
+                act(AtSkill, "You trip $N and $N goes down!", ch, NULL,
+                    victim, ToChar);
+                act(AtSkill, "$n trips $N and $N goes down!", ch, NULL,
+                    victim, ToNotvict);
 
-                WAIT_STATE(ch, 2 * PulseViolence);
-                WAIT_STATE(victim, 2 * PulseViolence);
-                victim->position = POS_RESTING;
+                WaitState(ch, 2 * PulseViolence);
+                WaitState(victim, 2 * PulseViolence);
+                victim->position = PosResting;
         }
 
         return;
@@ -3067,12 +3067,12 @@ CMDF do_pick(CharData * ch, char *argument)
         ExitData *pexit;
         ShipData *ship;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 return;
         }
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -3096,18 +3096,18 @@ CMDF do_pick(CharData * ch, char *argument)
                 return;
         }
 
-        WAIT_STATE(ch, skill_table[gsn_pick_lock]->beats);
+        WaitState(ch, skill_table[gsn_pick_lock]->beats);
 
         /*
          * look for guards 
          */
         for (gch = ch->in_room->first_person; gch; gch = gch->next_in_room)
         {
-                if (IS_NPC(gch) && IS_AWAKE(gch)
-                    && ch->skill_level[PIRACY_ABILITY] < gch->top_level)
+                if (IsNpc(gch) && IsAwake(gch)
+                    && ch->skill_level[PiracyAbility] < gch->top_level)
                 {
-                        act(AT_PLAIN, "$N is standing too close to the lock.",
-                            ch, NULL, gch, TO_CHAR);
+                        act(AtPlain, "$N is standing too close to the lock.",
+                            ch, NULL, gch, ToChar);
                         return;
                 }
         }
@@ -3125,7 +3125,7 @@ CMDF do_pick(CharData * ch, char *argument)
                  */
                 ExitData *pexit_rev;
 
-                if (!IS_SET(pexit->exit_info, EX_CLOSED))
+                if (!IsSet(pexit->exit_info, ExClosed))
                 {
                         send_to_char("It's not closed.\n\r", ch);
                         return;
@@ -3135,22 +3135,22 @@ CMDF do_pick(CharData * ch, char *argument)
                         send_to_char("It can't be picked.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(pexit->exit_info, EX_LOCKED))
+                if (!IsSet(pexit->exit_info, ExLocked))
                 {
                         send_to_char("It's already unlocked.\n\r", ch);
                         return;
                 }
-                if (IS_SET(pexit->exit_info, EX_PICKPROOF))
+                if (IsSet(pexit->exit_info, ExPickproof))
                 {
                         send_to_char("You failed.\n\r", ch);
                         learn_from_failure(ch, gsn_pick_lock);
                         check_room_for_traps(ch,
-                                             TRAP_PICK | trap_door[pexit->
+                                             TrapPick | trap_door[pexit->
                                                                    vdir]);
                         return;
                 }
 
-                if (!IS_NPC(ch)
+                if (!IsNpc(ch)
                     && number_percent() > ch->pcdata->learned[gsn_pick_lock])
                 {
                         send_to_char("You failed.\n\r", ch);
@@ -3158,19 +3158,19 @@ CMDF do_pick(CharData * ch, char *argument)
                         return;
                 }
 
-                REMOVE_BIT(pexit->exit_info, EX_LOCKED);
+                RemoveBit(pexit->exit_info, ExLocked);
                 send_to_char("*Click*\n\r", ch);
-                act(AT_ACTION, "$n picks the $d.", ch, NULL, pexit->keyword,
-                    TO_ROOM);
+                act(AtAction, "$n picks the $d.", ch, NULL, pexit->keyword,
+                    ToRoom);
                 learn_from_success(ch, gsn_pick_lock);
                 {
                         long      xpgain;
 
                         xpgain = URANGE(500,
                                         (number_percent() *
-                                         (ch->skill_level[PIRACY_ABILITY] *
+                                         (ch->skill_level[PiracyAbility] *
                                           4)), 15000);
-                        gain_exp(ch, xpgain, PIRACY_ABILITY);
+                        gain_exp(ch, xpgain, PiracyAbility);
                         ch_printf(ch, "You gain %d piracy experience.",
                                   xpgain);
                 }
@@ -3180,20 +3180,20 @@ CMDF do_pick(CharData * ch, char *argument)
                 if ((pexit_rev = pexit->rexit) != NULL
                     && pexit_rev->to_room == ch->in_room)
                 {
-                        REMOVE_BIT(pexit_rev->exit_info, EX_LOCKED);
+                        RemoveBit(pexit_rev->exit_info, ExLocked);
                 }
-                check_room_for_traps(ch, TRAP_PICK | trap_door[pexit->vdir]);
+                check_room_for_traps(ch, TrapPick | trap_door[pexit->vdir]);
                 return;
         }
 
         if ((obj = get_obj_here(ch, arg)) != NULL)
         {
-                if (obj->item_type != ITEM_CONTAINER)
+                if (obj->item_type != ItemContainer)
                 {
                         send_to_char("You can't pick that.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(obj->value[1], CONT_CLOSED))
+                if (!IsSet(obj->value[1], ContClosed))
                 {
                         send_to_char("It's not closed.\n\r", ch);
                         return;
@@ -3203,20 +3203,20 @@ CMDF do_pick(CharData * ch, char *argument)
                         send_to_char("It can't be unlocked.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(obj->value[1], CONT_LOCKED))
+                if (!IsSet(obj->value[1], ContLocked))
                 {
                         send_to_char("It's already unlocked.\n\r", ch);
                         return;
                 }
-                if (IS_SET(obj->value[1], CONT_PICKPROOF))
+                if (IsSet(obj->value[1], ContPickproof))
                 {
                         send_to_char("You failed.\n\r", ch);
                         learn_from_failure(ch, gsn_pick_lock);
-                        check_for_trap(ch, obj, TRAP_PICK);
+                        check_for_trap(ch, obj, TrapPick);
                         return;
                 }
 
-                if (!IS_NPC(ch)
+                if (!IsNpc(ch)
                     && number_percent() > ch->pcdata->learned[gsn_pick_lock])
                 {
                         send_to_char("You failed.\n\r", ch);
@@ -3225,25 +3225,25 @@ CMDF do_pick(CharData * ch, char *argument)
                 }
 
                 separate_obj(obj);
-                REMOVE_BIT(obj->value[1], CONT_LOCKED);
+                RemoveBit(obj->value[1], ContLocked);
                 send_to_char("*Click*\n\r", ch);
-                act(AT_ACTION, "$n picks $p.", ch, obj, NULL, TO_ROOM);
+                act(AtAction, "$n picks $p.", ch, obj, NULL, ToRoom);
                 learn_from_success(ch, gsn_pick_lock);
                 {
                         long      xpgain;
 
                         xpgain = UMIN(20,
                                       (exp_level
-                                       (ch->skill_level[PIRACY_ABILITY] + 1) -
+                                       (ch->skill_level[PiracyAbility] + 1) -
                                        exp_level(ch->
                                                  skill_level
-                                                 [PIRACY_ABILITY])));
-                        gain_exp(ch, xpgain, PIRACY_ABILITY);
+                                                 [PiracyAbility])));
+                        gain_exp(ch, xpgain, PiracyAbility);
                         ch_printf(ch, "You gain %d piracy experience.",
                                   xpgain);
                 }
 
-                check_for_trap(ch, obj, TRAP_PICK);
+                check_for_trap(ch, obj, TrapPick);
                 return;
         }
 
@@ -3251,7 +3251,7 @@ CMDF do_pick(CharData * ch, char *argument)
         {
                 char      buf[MaxStringLength];
 
-                if (IS_NPC(ch) || ch->pcdata->learned[gsn_pickshiplock] == 0)
+                if (IsNpc(ch) || ch->pcdata->learned[gsn_pickshiplock] == 0)
                 {
                         send_to_char("Huh?\n\r", ch);
                         return;
@@ -3263,8 +3263,8 @@ CMDF do_pick(CharData * ch, char *argument)
                         return;
                 }
 
-                if (ship->shipstate != SHIP_DOCKED
-                    && ship->shipstate != SHIP_DISABLED)
+                if (ship->shipstate != ShipDocked
+                    && ship->shipstate != ShipDisabled)
                 {
                         send_to_char
                                 ("&RThat ship has already started to launch",
@@ -3272,9 +3272,9 @@ CMDF do_pick(CharData * ch, char *argument)
                         return;
                 }
 
-                WAIT_STATE(ch, 10);
+                WaitState(ch, 10);
 
-                if (IS_NPC(ch) || !ch->pcdata
+                if (IsNpc(ch) || !ch->pcdata
                     || (number_percent() >
                         ch->pcdata->learned[gsn_pickshiplock]
                         && (number_percent() / 2) >
@@ -3284,7 +3284,7 @@ CMDF do_pick(CharData * ch, char *argument)
                         snprintf(buf, MSL,
                                  "[ALARM] %s attempting to pick %s.",
                                  ch->name, ship->name);
-                        echo_to_room(AT_RED, ch->in_room, buf);
+                        echo_to_room(AtRed, ch->in_room, buf);
                         learn_from_failure(ch, gsn_pickshiplock);
                         learn_from_failure(ch, gsn_jimmyshiplock);
                         return;
@@ -3293,12 +3293,12 @@ CMDF do_pick(CharData * ch, char *argument)
                 if (!ship->hatchopen)
                 {
                         ship->hatchopen = TRUE;
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "You pick the lock and open the hatch on $T.", ch,
-                            NULL, ship->name, TO_CHAR);
-                        act(AT_PLAIN, "$n picks open the hatch on $T.", ch,
-                            NULL, ship->name, TO_ROOM);
-                        echo_to_room(AT_YELLOW,
+                            NULL, ship->name, ToChar);
+                        act(AtPlain, "$n picks open the hatch on $T.", ch,
+                            NULL, ship->name, ToRoom);
+                        echo_to_room(AtYellow,
                                      get_room_index(ship->entrance),
                                      "The hatch opens from the outside.");
                         learn_from_success(ch, gsn_pickshiplock);
@@ -3309,12 +3309,12 @@ CMDF do_pick(CharData * ch, char *argument)
                                 xpgain = UMIN(20,
                                               (exp_level
                                                (ch->
-                                                skill_level[PIRACY_ABILITY] +
+                                                skill_level[PiracyAbility] +
                                                 1) -
                                                exp_level(ch->
                                                          skill_level
-                                                         [PIRACY_ABILITY])));
-                                gain_exp(ch, xpgain, PIRACY_ABILITY);
+                                                         [PiracyAbility])));
+                                gain_exp(ch, xpgain, PiracyAbility);
                                 ch_printf(ch,
                                           "You gain %d piracy experience.",
                                           xpgain);
@@ -3336,7 +3336,7 @@ CMDF do_sneak(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -3352,14 +3352,14 @@ CMDF do_sneak(CharData * ch, char *argument)
         send_to_char("You attempt to move silently.\n\r", ch);
         affect_strip(ch, gsn_sneak);
 
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_sneak])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_sneak])
         {
                 af.type = gsn_sneak;
                 af.duration =
-                        (int) (ch->skill_level[SMUGGLING_ABILITY] * DurConv);
-                af.location = APPLY_NONE;
+                        (int) (ch->skill_level[SmugglingAbility] * DurConv);
+                af.location = ApplyNone;
                 af.modifier = 0;
-                af.bitvector = AFF_SNEAK;
+                af.bitvector = AffSneak;
                 affect_to_char(ch, &af);
                 learn_from_success(ch, gsn_sneak);
         }
@@ -3374,7 +3374,7 @@ CMDF do_sneak(CharData * ch, char *argument)
 CMDF do_hide(CharData * ch, char *argument)
 {
         argument = NULL;
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -3389,12 +3389,12 @@ CMDF do_hide(CharData * ch, char *argument)
 
         send_to_char("You attempt to hide.\n\r", ch);
 
-        if (IS_AFFECTED(ch, AFF_HIDE))
-                REMOVE_BIT(ch->affected_by, AFF_HIDE);
+        if (IsAffected(ch, AffHide))
+                RemoveBit(ch->affected_by, AffHide);
 
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_hide])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_hide])
         {
-                SET_BIT(ch->affected_by, AFF_HIDE);
+                SetBit(ch->affected_by, AffHide);
                 learn_from_success(ch, gsn_hide);
         }
         else
@@ -3405,7 +3405,7 @@ CMDF do_hide(CharData * ch, char *argument)
 CMDF do_slight(CharData * ch, char *argument)
 {
         argument = NULL;
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -3420,12 +3420,12 @@ CMDF do_slight(CharData * ch, char *argument)
 
         send_to_char("You attempt to be secretive.\n\r", ch);
 
-        if (IS_SET(ch->act, PLR_SECRETIVE))
-                REMOVE_BIT(ch->act, PLR_SECRETIVE);
+        if (IsSet(ch->act, PlrSecretive))
+                RemoveBit(ch->act, PlrSecretive);
 
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_slight])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_slight])
         {
-                SET_BIT(ch->act, PLR_SECRETIVE);
+                SetBit(ch->act, PlrSecretive);
                 learn_from_success(ch, gsn_slight);
         }
         else
@@ -3444,12 +3444,12 @@ CMDF do_visible(CharData * ch, char *argument)
         affect_strip(ch, gsn_sneak);
         affect_strip(ch, gsn_hide);
         affect_strip(ch, gsn_slight);
-        REMOVE_BIT(ch->act, PLR_SECRETIVE);
-        REMOVE_BIT(ch->affected_by, AFF_HIDE);
+        RemoveBit(ch->act, PlrSecretive);
+        RemoveBit(ch->affected_by, AffHide);
         if (str_cmp(ch->race->name(), "defel")) /* Defel has perm invis */
-                REMOVE_BIT(ch->affected_by, AFF_INVISIBLE);
+                RemoveBit(ch->affected_by, AffInvisible);
         if (str_cmp(ch->race->name(), "noghri"))    /* Noghri has perm sneak */
-                REMOVE_BIT(ch->affected_by, AFF_SNEAK);
+                RemoveBit(ch->affected_by, AffSneak);
         send_to_char("Ok.\n\r", ch);
         return;
 }
@@ -3499,9 +3499,9 @@ CMDF do_recall(CharData * ch, char *argument)
         {
 
                 if (number_bits(1) == 0
-                    || (!IS_NPC(opponent) && number_bits(3) > 1))
+                    || (!IsNpc(opponent) && number_bits(3) > 1))
                 {
-                        WAIT_STATE(ch, 4);
+                        WaitState(ch, 4);
                         ch_printf(ch, "You failed!\n\r");
                         return;
                 }
@@ -3510,8 +3510,8 @@ CMDF do_recall(CharData * ch, char *argument)
                 stop_fighting(ch, TRUE);
         }
 
-        act(AT_ACTION, "$n disappears in a swirl of the Force.", ch, NULL,
-            NULL, TO_ROOM);
+        act(AtAction, "$n disappears in a swirl of the Force.", ch, NULL,
+            NULL, ToRoom);
         char_from_room(ch);
         char_to_room(ch, location);
         if (ch->mount)
@@ -3519,8 +3519,8 @@ CMDF do_recall(CharData * ch, char *argument)
                 char_from_room(ch->mount);
                 char_to_room(ch->mount, location);
         }
-        act(AT_ACTION, "$n appears in a swirl of the Force.", ch, NULL, NULL,
-            TO_ROOM);
+        act(AtAction, "$n appears in a swirl of the Force.", ch, NULL, NULL,
+            ToRoom);
         do_look(ch, "auto");
 
         return;
@@ -3533,7 +3533,7 @@ CMDF do_aid(CharData * ch, char *argument)
         CharData *victim;
         int       percent;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -3565,17 +3565,17 @@ CMDF do_aid(CharData * ch, char *argument)
                 return;
         }
 
-        if (victim->position > POS_STUNNED)
+        if (victim->position > PosStunned)
         {
-                act(AT_PLAIN, "$N doesn't need your help.", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtPlain, "$N doesn't need your help.", ch, NULL, victim,
+                    ToChar);
                 return;
         }
 
         if (victim->hit <= -400)
         {
-                act(AT_PLAIN, "$N's condition is beyond your aiding ability.",
-                    ch, NULL, victim, TO_CHAR);
+                act(AtPlain, "$N's condition is beyond your aiding ability.",
+                    ch, NULL, victim, ToChar);
                 return;
         }
 
@@ -3583,8 +3583,8 @@ CMDF do_aid(CharData * ch, char *argument)
         ch->alignment = URANGE(-1000, ch->alignment, 1000);
 
         percent = number_percent() - (get_curr_lck(ch) - 13);
-        WAIT_STATE(ch, skill_table[gsn_aid]->beats);
-        if (!IS_NPC(ch) && percent > ch->pcdata->learned[gsn_aid])
+        WaitState(ch, skill_table[gsn_aid]->beats);
+        if (!IsNpc(ch) && percent > ch->pcdata->learned[gsn_aid])
         {
                 send_to_char("You fail.\n\r", ch);
                 learn_from_failure(ch, gsn_aid);
@@ -3594,14 +3594,14 @@ CMDF do_aid(CharData * ch, char *argument)
         ch->alignment = ch->alignment + 20;
         ch->alignment = URANGE(-1000, ch->alignment, 1000);
 
-        act(AT_SKILL, "You aid $N!", ch, NULL, victim, TO_CHAR);
-        act(AT_SKILL, "$n aids $N!", ch, NULL, victim, TO_NOTVICT);
+        act(AtSkill, "You aid $N!", ch, NULL, victim, ToChar);
+        act(AtSkill, "$n aids $N!", ch, NULL, victim, ToNotvict);
         learn_from_success(ch, gsn_aid);
         if (victim->hit < 1)
                 victim->hit = 1;
 
         update_pos(victim);
-        act(AT_SKILL, "$n aids you!", ch, NULL, victim, TO_VICT);
+        act(AtSkill, "$n aids you!", ch, NULL, victim, ToVict);
         return;
 }
 
@@ -3610,7 +3610,7 @@ CMDF do_mount(CharData * ch, char *argument)
 {
         CharData *victim;
 
-        if (!IS_NPC(ch) && ch->pcdata->learned[gsn_mount] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_mount] <= 0)
         {
                 send_to_char("I don't think that would be a good idea...\n\r",
                              ch);
@@ -3629,50 +3629,50 @@ CMDF do_mount(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_NPC(victim) || !IS_SET(victim->act, ACT_MOUNTABLE))
+        if (!IsNpc(victim) || !IsSet(victim->act, ActMountable))
         {
                 send_to_char("You can't mount that!\n\r", ch);
                 return;
         }
 
-        if (IS_SET(victim->act, ACT_MOUNTED))
+        if (IsSet(victim->act, ActMounted))
         {
                 send_to_char("That mount already has a rider.\n\r", ch);
                 return;
         }
 
-        if (victim->position < POS_STANDING)
+        if (victim->position < PosStanding)
         {
                 send_to_char("Your mount must be standing.\n\r", ch);
                 return;
         }
 
-        if (victim->position == POS_FIGHTING || victim->fighting)
+        if (victim->position == PosFighting || victim->fighting)
         {
                 send_to_char("Your mount is moving around too much.\n\r", ch);
                 return;
         }
 
-        WAIT_STATE(ch, skill_table[gsn_mount]->beats);
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_mount])
+        WaitState(ch, skill_table[gsn_mount]->beats);
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_mount])
         {
-                SET_BIT(victim->act, ACT_MOUNTED);
+                SetBit(victim->act, ActMounted);
                 ch->mount = victim;
-                act(AT_SKILL, "You mount $N.", ch, NULL, victim, TO_CHAR);
-                act(AT_SKILL, "$n skillfully mounts $N.", ch, NULL, victim,
-                    TO_NOTVICT);
-                act(AT_SKILL, "$n mounts you.", ch, NULL, victim, TO_VICT);
+                act(AtSkill, "You mount $N.", ch, NULL, victim, ToChar);
+                act(AtSkill, "$n skillfully mounts $N.", ch, NULL, victim,
+                    ToNotvict);
+                act(AtSkill, "$n mounts you.", ch, NULL, victim, ToVict);
                 learn_from_success(ch, gsn_mount);
-                ch->position = POS_MOUNTED;
+                ch->position = PosMounted;
         }
         else
         {
-                act(AT_SKILL, "You unsuccessfully try to mount $N.", ch, NULL,
-                    victim, TO_CHAR);
-                act(AT_SKILL, "$n unsuccessfully attempts to mount $N.", ch,
-                    NULL, victim, TO_NOTVICT);
-                act(AT_SKILL, "$n tries to mount you.", ch, NULL, victim,
-                    TO_VICT);
+                act(AtSkill, "You unsuccessfully try to mount $N.", ch, NULL,
+                    victim, ToChar);
+                act(AtSkill, "$n unsuccessfully attempts to mount $N.", ch,
+                    NULL, victim, ToNotvict);
+                act(AtSkill, "$n tries to mount you.", ch, NULL, victim,
+                    ToVict);
                 learn_from_failure(ch, gsn_mount);
         }
         return;
@@ -3691,32 +3691,32 @@ CMDF do_dismount(CharData * ch, char *argument)
                 return;
         }
 
-        WAIT_STATE(ch, skill_table[gsn_mount]->beats);
-        if (IS_NPC(ch) || number_percent() < ch->pcdata->learned[gsn_mount])
+        WaitState(ch, skill_table[gsn_mount]->beats);
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_mount])
         {
-                act(AT_SKILL, "You dismount $N.", ch, NULL, victim, TO_CHAR);
-                act(AT_SKILL, "$n skillfully dismounts $N.", ch, NULL, victim,
-                    TO_NOTVICT);
-                act(AT_SKILL, "$n dismounts you.  Whew!", ch, NULL, victim,
-                    TO_VICT);
-                REMOVE_BIT(victim->act, ACT_MOUNTED);
+                act(AtSkill, "You dismount $N.", ch, NULL, victim, ToChar);
+                act(AtSkill, "$n skillfully dismounts $N.", ch, NULL, victim,
+                    ToNotvict);
+                act(AtSkill, "$n dismounts you.  Whew!", ch, NULL, victim,
+                    ToVict);
+                RemoveBit(victim->act, ActMounted);
                 ch->mount = NULL;
-                ch->position = POS_STANDING;
+                ch->position = PosStanding;
                 learn_from_success(ch, gsn_mount);
         }
         else
         {
-                act(AT_SKILL, "You fall off while dismounting $N.  Ouch!", ch,
-                    NULL, victim, TO_CHAR);
-                act(AT_SKILL, "$n falls off of $N while dismounting.", ch,
-                    NULL, victim, TO_NOTVICT);
-                act(AT_SKILL, "$n falls off your back.", ch, NULL, victim,
-                    TO_VICT);
+                act(AtSkill, "You fall off while dismounting $N.  Ouch!", ch,
+                    NULL, victim, ToChar);
+                act(AtSkill, "$n falls off of $N while dismounting.", ch,
+                    NULL, victim, ToNotvict);
+                act(AtSkill, "$n falls off your back.", ch, NULL, victim,
+                    ToVict);
                 learn_from_failure(ch, gsn_mount);
-                REMOVE_BIT(victim->act, ACT_MOUNTED);
+                RemoveBit(victim->act, ActMounted);
                 ch->mount = NULL;
-                ch->position = POS_SITTING;
-                global_retcode = damage(ch, ch, 1, TYPE_UNDEFINED);
+                ch->position = PosSitting;
+                global_retcode = damage(ch, ch, 1, TypeUndefined);
         }
         return;
 }
@@ -3733,27 +3733,27 @@ bool check_parry(CharData * ch, CharData * victim)
         int       chances;
         ObjData *wield;
 
-        if (!IS_AWAKE(victim))
+        if (!IsAwake(victim))
                 return FALSE;
 
-        if (IS_NPC(victim) && !IS_SET(victim->defenses, DFND_PARRY))
+        if (IsNpc(victim) && !IsSet(victim->defenses, DfndParry))
                 return FALSE;
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 /*
                  * Tuan was here.  :)   *** so was Durga :p *** 
                  */
-                chances = UMIN(60, victim->skill_level[COMBAT_ABILITY]);
+                chances = UMIN(60, victim->skill_level[CombatAbility]);
         }
         else
         {
-                if ((wield = get_eq_char(victim, WEAR_WIELD)) == NULL ||
-                    (wield->value[3] != WEAPON_LIGHTSABER))
+                if ((wield = get_eq_char(victim, WearWield)) == NULL ||
+                    (wield->value[3] != WeaponLightsaber))
                 {
                         if ((wield =
-                             get_eq_char(victim, WEAR_DUAL_WIELD)) == NULL
-                            || (wield->value[3] != WEAPON_LIGHTSABER))
+                             get_eq_char(victim, WearDualWield)) == NULL
+                            || (wield->value[3] != WeaponLightsaber))
                                 return FALSE;
                 }
                 chances = (int) (victim->pcdata->learned[gsn_parry]);
@@ -3766,14 +3766,14 @@ bool check_parry(CharData * ch, CharData * victim)
                 learn_from_failure(victim, gsn_parry);
                 return FALSE;
         }
-        if (!IS_NPC(victim) && !IS_SET(victim->pcdata->flags, PCFLAG_GAG))
-                 /*SB*/ act(AT_PLAIN,
+        if (!IsNpc(victim) && !IsSet(victim->pcdata->flags, PcflagGag))
+                 /*SB*/ act(AtPlain,
                             "&p&PYou parry &O&Y$n's &W&Pattack.&R&W", ch,
-                            NULL, victim, TO_VICT);
+                            NULL, victim, ToVict);
 
-        if (!IS_NPC(ch) && !IS_SET(ch->pcdata->flags, PCFLAG_GAG))  /* SB */
-                act(AT_PLAIN, "&Y$N &W&Pparries your attack.&R&W", ch, NULL,
-                    victim, TO_CHAR);
+        if (!IsNpc(ch) && !IsSet(ch->pcdata->flags, PcflagGag))  /* SB */
+                act(AtPlain, "&Y$N &W&Pparries your attack.&R&W", ch, NULL,
+                    victim, ToChar);
 
         learn_from_success(victim, gsn_parry);
         return TRUE;
@@ -3788,13 +3788,13 @@ bool check_dodge(CharData * ch, CharData * victim)
 {
         int       chances;
 
-        if (!IS_AWAKE(victim))
+        if (!IsAwake(victim))
                 return FALSE;
 
-        if (IS_NPC(victim) && !IS_SET(victim->defenses, DFND_DODGE))
+        if (IsNpc(victim) && !IsSet(victim->defenses, DfndDodge))
                 return FALSE;
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 chances = UMIN(60, victim->top_level);
         else
                 chances = (int) (victim->pcdata->learned[gsn_dodge] / 2);
@@ -3805,13 +3805,13 @@ bool check_dodge(CharData * ch, CharData * victim)
                 return FALSE;
         }
 
-        if (!IS_NPC(victim) && !IS_SET(victim->pcdata->flags, PCFLAG_GAG))
-                act(AT_PLAIN, "&cYou dodge &Y$n's&c attack.&R&W", ch, NULL,
-                    victim, TO_VICT);
+        if (!IsNpc(victim) && !IsSet(victim->pcdata->flags, PcflagGag))
+                act(AtPlain, "&cYou dodge &Y$n's&c attack.&R&W", ch, NULL,
+                    victim, ToVict);
 
-        if (!IS_NPC(ch) && !IS_SET(ch->pcdata->flags, PCFLAG_GAG))
-                act(AT_PLAIN, "&Y$N&c dodges your attack.&R&W", ch, NULL,
-                    victim, TO_CHAR);
+        if (!IsNpc(ch) && !IsSet(ch->pcdata->flags, PcflagGag))
+                act(AtPlain, "&Y$N&c dodges your attack.&R&W", ch, NULL,
+                    victim, ToChar);
 
         learn_from_success(victim, gsn_dodge);
         return TRUE;
@@ -3825,7 +3825,7 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         int       percent;
 
-        if (!IS_NPC(ch) && ch->pcdata->learned[gsn_poison_weapon] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_poison_weapon] <= 0)
         {
                 send_to_char("What do you think you are, a thief?\n\r", ch);
                 return;
@@ -3851,12 +3851,12 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
                 send_to_char("You do not have that weapon.\n\r", ch);
                 return;
         }
-        if (obj->item_type != ITEM_WEAPON)
+        if (obj->item_type != ItemWeapon)
         {
                 send_to_char("That item is not a weapon.\n\r", ch);
                 return;
         }
-        if (IS_OBJ_STAT(obj, ITEM_POISONED))
+        if (IsObjStat(obj, ItemPoisoned))
         {
                 send_to_char("That weapon is already poisoned.\n\r", ch);
                 return;
@@ -3866,7 +3866,7 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
          */
         for (pobj = ch->first_carrying; pobj; pobj = pobj->next_content)
         {
-                if (pobj->pIndexData->vnum == OBJ_VNUM_BLACK_POWDER)
+                if (pobj->pIndexData->vnum == ObjVnumBlackPowder)
                         break;
         }
         if (!pobj)
@@ -3880,7 +3880,7 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
          */
         for (wobj = ch->first_carrying; wobj; wobj = wobj->next_content)
         {
-                if (wobj->item_type == ITEM_DRINK_CON
+                if (wobj->item_type == ItemDrinkCon
                     && wobj->value[1] > 0 && wobj->value[2] == 0)
                         break;
         }
@@ -3893,14 +3893,14 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
         /*
          * And does the thief have steady enough hands? 
          */
-        if (!IS_NPC(ch) && (ch->pcdata->condition[COND_DRUNK] > 0))
+        if (!IsNpc(ch) && (ch->pcdata->condition[CondDrunk] > 0))
         {
                 send_to_char
                         ("Your hands aren't steady enough to properly mix the poison.\n\r",
                          ch);
                 return;
         }
-        WAIT_STATE(ch, skill_table[gsn_poison_weapon]->beats);
+        WaitState(ch, skill_table[gsn_poison_weapon]->beats);
 
         percent = (number_percent() - get_curr_lck(ch) - 14);
 
@@ -3909,17 +3909,17 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
          */
         separate_obj(pobj);
         separate_obj(wobj);
-        if (!IS_NPC(ch) && percent > ch->pcdata->learned[gsn_poison_weapon])
+        if (!IsNpc(ch) && percent > ch->pcdata->learned[gsn_poison_weapon])
         {
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 send_to_char
                         ("You failed and spill some on yourself.  Ouch!\n\r",
                          ch);
-                set_char_color(AT_GREY, ch);
-                damage(ch, ch, ch->skill_level[HUNTING_ABILITY],
+                set_char_color(AtGrey, ch);
+                damage(ch, ch, ch->skill_level[HuntingAbility],
                        gsn_poison_weapon);
-                act(AT_RED, "$n spills the poison all over!", ch, NULL, NULL,
-                    TO_ROOM);
+                act(AtRed, "$n spills the poison all over!", ch, NULL, NULL,
+                    ToRoom);
                 extract_obj(pobj);
                 extract_obj(wobj);
                 learn_from_failure(ch, gsn_poison_weapon);
@@ -3929,34 +3929,34 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
         /*
          * Well, I'm tired of waiting.  Are you? 
          */
-        act(AT_RED, "You mix $p in $P, creating a deadly poison!", ch, pobj,
-            wobj, TO_CHAR);
-        act(AT_RED, "$n mixes $p in $P, creating a deadly poison!", ch, pobj,
-            wobj, TO_ROOM);
-        act(AT_GREEN, "You pour the poison over $p, which glistens wickedly!",
-            ch, obj, NULL, TO_CHAR);
-        act(AT_GREEN, "$n pours the poison over $p, which glistens wickedly!",
-            ch, obj, NULL, TO_ROOM);
-        SET_BIT(obj->extra_flags, ITEM_POISONED);
-        obj->cost *= ch->skill_level[HUNTING_ABILITY] / 2;
+        act(AtRed, "You mix $p in $P, creating a deadly poison!", ch, pobj,
+            wobj, ToChar);
+        act(AtRed, "$n mixes $p in $P, creating a deadly poison!", ch, pobj,
+            wobj, ToRoom);
+        act(AtGreen, "You pour the poison over $p, which glistens wickedly!",
+            ch, obj, NULL, ToChar);
+        act(AtGreen, "$n pours the poison over $p, which glistens wickedly!",
+            ch, obj, NULL, ToRoom);
+        SetBit(obj->extra_flags, ItemPoisoned);
+        obj->cost *= ch->skill_level[HuntingAbility] / 2;
         /*
          * Set an object timer.  Don't want proliferation of poisoned weapons 
          */
-        obj->timer = 10 + ch->skill_level[HUNTING_ABILITY];
+        obj->timer = 10 + ch->skill_level[HuntingAbility];
 
-        if (IS_OBJ_STAT(obj, ITEM_BLESS))
+        if (IsObjStat(obj, ItemBless))
                 obj->timer *= 2;
 
-        if (IS_OBJ_STAT(obj, ITEM_MAGIC))
+        if (IsObjStat(obj, ItemMagic))
                 obj->timer *= 2;
 
         /*
          * WHAT?  All of that, just for that one bit?  How lame. ;) 
          */
-        act(AT_BLUE, "The remainder of the poison eats through $p.", ch, wobj,
-            NULL, TO_CHAR);
-        act(AT_BLUE, "The remainder of the poison eats through $p.", ch, wobj,
-            NULL, TO_ROOM);
+        act(AtBlue, "The remainder of the poison eats through $p.", ch, wobj,
+            NULL, ToChar);
+        act(AtBlue, "The remainder of the poison eats through $p.", ch, wobj,
+            NULL, ToRoom);
         extract_obj(pobj);
         extract_obj(wobj);
         learn_from_success(ch, gsn_poison_weapon);
@@ -3967,13 +3967,13 @@ bool check_grip(CharData * ch, CharData * victim)
 {
         int       percent_chance;
 
-        if (!IS_AWAKE(victim))
+        if (!IsAwake(victim))
                 return FALSE;
 
-        if (IS_NPC(victim) && !IS_SET(victim->defenses, DFND_GRIP))
+        if (IsNpc(victim) && !IsSet(victim->defenses, DfndGrip))
                 return FALSE;
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 percent_chance = UMIN(60, 2 * victim->top_level);
         else
                 percent_chance =
@@ -3990,10 +3990,10 @@ bool check_grip(CharData * ch, CharData * victim)
                 learn_from_failure(victim, gsn_grip);
                 return FALSE;
         }
-        act(AT_SKILL, "You evade $n's attempt to disarm you.", ch, NULL,
-            victim, TO_VICT);
-        act(AT_SKILL, "$N holds $S weapon strongly, and is not disarmed.", ch,
-            NULL, victim, TO_CHAR);
+        act(AtSkill, "You evade $n's attempt to disarm you.", ch, NULL,
+            victim, ToVict);
+        act(AtSkill, "$N holds $S weapon strongly, and is not disarmed.", ch,
+            NULL, victim, ToChar);
         learn_from_success(victim, gsn_grip);
         return TRUE;
 }
@@ -4005,7 +4005,7 @@ CMDF do_circle(CharData * ch, char *argument)
         ObjData *obj;
         int       percent;
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 send_to_char("You can't concentrate enough for that.\n\r",
                              ch);
@@ -4041,13 +4041,13 @@ CMDF do_circle(CharData * ch, char *argument)
         if (is_safe(ch, victim))
                 return;
 
-        obj = get_eq_char(ch, WEAR_WIELD);
-        if (!obj || obj->item_type != ITEM_WEAPON
-            || obj->value[3] != WEAPON_KNIFE)
+        obj = get_eq_char(ch, WearWield);
+        if (!obj || obj->item_type != ItemWeapon
+            || obj->value[3] != WeaponKnife)
         {
-                obj = get_eq_char(ch, WEAR_DUAL_WIELD);
-                if (!obj || obj->item_type != ITEM_WEAPON
-                    || obj->value[3] != WEAPON_KNIFE)
+                obj = get_eq_char(ch, WearDualWield);
+                if (!obj || obj->item_type != ItemWeapon
+                    || obj->value[3] != WeaponKnife)
                 {
                         send_to_char
                                 ("You need to wield a stabbing weapon.\n\r",
@@ -4073,18 +4073,18 @@ CMDF do_circle(CharData * ch, char *argument)
 
         if (victim->num_fighting < 2)
         {
-                act(AT_PLAIN,
+                act(AtPlain,
                     "You can't circle around them without a distraction.", ch,
-                    NULL, victim, TO_CHAR);
+                    NULL, victim, ToChar);
                 return;
         }
 
         percent = number_percent() - (get_curr_lck(ch) - 16)
                 + (get_curr_lck(victim) - 13);
 
-        WAIT_STATE(ch, skill_table[gsn_circle]->beats);
+        WaitState(ch, skill_table[gsn_circle]->beats);
         if (percent <
-            (IS_NPC(ch) ? (ch->skill_level[HUNTING_ABILITY] * 1.5) : ch->
+            (IsNpc(ch) ? (ch->skill_level[HuntingAbility] * 1.5) : ch->
              pcdata->learned[gsn_circle]))
         {
                 learn_from_success(ch, gsn_circle);
@@ -4113,14 +4113,14 @@ CMDF do_berserk(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_AFFECTED(ch, AFF_BERSERK))
+        if (IsAffected(ch, AffBerserk))
         {
                 send_to_char("Your rage is already at its peak!\n\r", ch);
                 return;
         }
 
-        percent = IS_NPC(ch) ? 80 : ch->pcdata->learned[gsn_berserk];
-        WAIT_STATE(ch, skill_table[gsn_berserk]->beats);
+        percent = IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_berserk];
+        WaitState(ch, skill_table[gsn_berserk]->beats);
         if (!chance(ch, percent))
         {
                 send_to_char("You couldn't build up enough rage.\n\r", ch);
@@ -4138,9 +4138,9 @@ CMDF do_berserk(CharData * ch, char *argument)
          * Hmm.. you get stronger when yer really enraged.. mind over matter
          * type thing.. 
          */
-        af.location = APPLY_STR;
+        af.location = ApplyStr;
         af.modifier = 1;
-        af.bitvector = AFF_BERSERK;
+        af.bitvector = AffBerserk;
         affect_to_char(ch, &af);
         send_to_char("You start to lose control..\n\r", ch);
         learn_from_success(ch, gsn_berserk);
@@ -4159,7 +4159,7 @@ CMDF do_hitall(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
         {
                 send_to_char("You cannot do that here.\n\r", ch);
                 return;
@@ -4170,22 +4170,22 @@ CMDF do_hitall(CharData * ch, char *argument)
                 send_to_char("There's no one here!\n\r", ch);
                 return;
         }
-        percent = IS_NPC(ch) ? 80 : ch->pcdata->learned[gsn_hitall];
+        percent = IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_hitall];
         for (vch = ch->in_room->first_person; vch; vch = vch_next)
         {
                 vch_next = vch->next_in_room;
                 if (is_same_group(ch, vch) || !is_legal_kill(ch, vch) ||
                     !can_see(ch, vch) || is_safe(ch, vch))
                         continue;
-                if (++nvict > ch->skill_level[COMBAT_ABILITY] / 5)
+                if (++nvict > ch->skill_level[CombatAbility] / 5)
                         break;
                 if (chance(ch, percent))
                 {
                         nhit++;
-                        global_retcode = one_hit(ch, vch, TYPE_UNDEFINED);
+                        global_retcode = one_hit(ch, vch, TypeUndefined);
                 }
                 else
-                        global_retcode = damage(ch, vch, 0, TYPE_UNDEFINED);
+                        global_retcode = damage(ch, vch, 0, TypeUndefined);
                 /*
                  * Fireshield, etc. could kill ch too.. :>.. -- Altrag 
                  */
@@ -4236,13 +4236,13 @@ CMDF do_scan(CharData * ch, char *argument)
         }
 
         was_in_room = ch->in_room;
-        act(AT_GREY, "Scanning $t...", ch, dir_name[dir], NULL, TO_CHAR);
-        act(AT_GREY, "$n scans $t.", ch, dir_name[dir], NULL, TO_ROOM);
+        act(AtGrey, "Scanning $t...", ch, dir_name[dir], NULL, ToChar);
+        act(AtGrey, "$n scans $t.", ch, dir_name[dir], NULL, ToRoom);
 
-        if (IS_NPC(ch) || (number_percent() > ch->pcdata->learned[gsn_scan]))
+        if (IsNpc(ch) || (number_percent() > ch->pcdata->learned[gsn_scan]))
         {
-                act(AT_GREY, "You stop scanning $t as your vision blurs.", ch,
-                    dir_name[dir], NULL, TO_CHAR);
+                act(AtGrey, "You stop scanning $t as your vision blurs.", ch,
+                    dir_name[dir], NULL, ToChar);
                 learn_from_failure(ch, gsn_scan);
                 return;
         }
@@ -4250,8 +4250,8 @@ CMDF do_scan(CharData * ch, char *argument)
 
         if ((pexit = get_exit(ch->in_room, dir)) == NULL)
         {
-                act(AT_GREY, "You can't see $t.", ch, dir_name[dir], NULL,
-                    TO_CHAR);
+                act(AtGrey, "You can't see $t.", ch, dir_name[dir], NULL,
+                    ToChar);
                 return;
         }
 
@@ -4262,16 +4262,16 @@ CMDF do_scan(CharData * ch, char *argument)
 
         for (dist = 1; dist <= max_dist;)
         {
-                if (IS_SET(pexit->exit_info, EX_CLOSED))
+                if (IsSet(pexit->exit_info, ExClosed))
                 {
-                        if (IS_SET(pexit->exit_info, EX_SECRET))
-                                act(AT_GREY,
+                        if (IsSet(pexit->exit_info, ExSecret))
+                                act(AtGrey,
                                     "Your view $t is blocked by a wall.", ch,
-                                    dir_name[dir], NULL, TO_CHAR);
+                                    dir_name[dir], NULL, ToChar);
                         else
-                                act(AT_GREY,
+                                act(AtGrey,
                                     "Your view $t is blocked by a door.", ch,
-                                    dir_name[dir], NULL, TO_CHAR);
+                                    dir_name[dir], NULL, ToChar);
                         break;
                 }
 
@@ -4285,14 +4285,14 @@ CMDF do_scan(CharData * ch, char *argument)
                 if (room_is_private(ch, to_room)
                     && get_trust(ch) < LevelGreater)
                 {
-                        act(AT_GREY,
+                        act(AtGrey,
                             "Your view $t is blocked by a private room.", ch,
-                            dir_name[dir], NULL, TO_CHAR);
+                            dir_name[dir], NULL, ToChar);
                         break;
                 }
                 char_from_room(ch);
                 char_to_room(ch, to_room);
-                set_char_color(AT_RMNAME, ch);
+                set_char_color(AtRmname, ch);
                 send_to_char(ch->in_room->name, ch);
                 send_to_char("\n\r", ch);
                 show_list_to_char(ch->in_room->first_content, ch, FALSE,
@@ -4304,43 +4304,43 @@ CMDF do_scan(CharData * ch, char *argument)
                 default:
                         dist++;
                         break;
-                case SECT_AIR:
+                case SectAir:
                         if (number_percent() < 80)
                                 dist++;
                         break;
-                case SECT_INSIDE:
-                case SECT_FIELD:
-                case SECT_UNDERGROUND:
+                case SectInside:
+                case SectField:
+                case SectUnderground:
                         dist++;
                         break;
-                case SECT_FOREST:
-                case SECT_CITY:
-                case SECT_DESERT:
-                case SECT_HILLS:
+                case SectForest:
+                case SectCity:
+                case SectDesert:
+                case SectHills:
                         dist += 2;
                         break;
-                case SECT_WATER_SWIM:
-                case SECT_WATER_NOSWIM:
+                case SectWaterSwim:
+                case SectWaterNoswim:
                         dist += 3;
                         break;
-                case SECT_MOUNTAIN:
-                case SECT_UNDERWATER:
-                case SECT_OCEANFLOOR:
+                case SectMountain:
+                case SectUnderwater:
+                case SectOceanfloor:
                         dist += 4;
                         break;
                 }
 
                 if (dist >= max_dist)
                 {
-                        act(AT_GREY,
+                        act(AtGrey,
                             "Your vision blurs with distance and you see no "
-                            "farther $t.", ch, dir_name[dir], NULL, TO_CHAR);
+                            "farther $t.", ch, dir_name[dir], NULL, ToChar);
                         break;
                 }
                 if ((pexit = get_exit(ch->in_room, dir)) == NULL)
                 {
-                        act(AT_GREY, "Your view $t is blocked by a wall.", ch,
-                            dir_name[dir], NULL, TO_CHAR);
+                        act(AtGrey, "Your view $t is blocked by a wall.", ch,
+                            dir_name[dir], NULL, ToChar);
                         break;
                 }
         }
@@ -4379,13 +4379,13 @@ CMDF do_add_teacher(CharData * ch, char *argument)
                 CharData *vch = NULL;
 
                 if ((vch = get_char_world(ch, argument)) == NULL
-                    || !IS_NPC(vch))
+                    || !IsNpc(vch))
                 {
                         send_to_char("Invalid teacher.\n\r", ch);
                         return;
                 }
-                SET_BIT(vch->act, ACT_PRACTICE);
-                SET_BIT(vch->pIndexData->act, ACT_PRACTICE);
+                SetBit(vch->act, ActPractice);
+                SetBit(vch->pIndexData->act, ActPractice);
                 vnum = vch->pIndexData->vnum;
         }
         if ((skill = get_skilltype(sn)) == NULL)
@@ -4439,8 +4439,8 @@ CMDF do_skilllist(CharData * ch, char *argument)
         int       sn, count = 0;
         CharData *vch = NULL;
 
-        if ((vch = get_char_room(ch, argument)) == NULL || !IS_NPC(vch)
-            || !IS_SET(vch->act, ACT_PRACTICE))
+        if ((vch = get_char_room(ch, argument)) == NULL || !IsNpc(vch)
+            || !IsSet(vch->act, ActPractice))
         {
                 send_to_char("Invalid teacher.\n\r", ch);
                 return;

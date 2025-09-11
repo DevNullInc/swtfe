@@ -52,25 +52,25 @@
 #include "editor.hpp"
 #include "boards.hpp"
 
-void free_board args((BOARD_DATA * board));
+void free_board args((BoardData * board));
 
-char     *const board_types[BOARD_MAX] = { const_cast<char*>("Note"), const_cast<char*>("Mail"), const_cast<char*>("Idea"), const_cast<char*>("Global") };
-char     *const vote_types[VOTE_MAX] = { const_cast<char*>("None"), const_cast<char*>("Open"), const_cast<char*>("Closed") };
+char     *const board_types[BoardMax] = { const_cast<char*>("Note"), const_cast<char*>("Mail"), const_cast<char*>("Idea"), const_cast<char*>("Global") };
+char     *const vote_types[VoteMax] = { const_cast<char*>("None"), const_cast<char*>("Open"), const_cast<char*>("Closed") };
 
-BOARD_DATA *first_board;
-BOARD_DATA *last_board;
+BoardData *first_board;
+BoardData *last_board;
 
 int get_boardtypes(char *flag)
 {
         unsigned int x;
 
-        for (x = 0; x < BOARD_MAX; x++)
+        for (x = 0; x < BoardMax; x++)
                 if (!str_cmp(flag, board_types[x]))
                         return static_cast<int>(x);
         return -1;
 }
 
-bool can_remove(CharData * ch, BOARD_DATA * board)
+bool can_remove(CharData * ch, BoardData * board)
 {
         /*
          * If your trust is high enough, you can remove it. 
@@ -86,7 +86,7 @@ bool can_remove(CharData * ch, BOARD_DATA * board)
         return FALSE;
 }
 
-bool can_read(CharData * ch, BOARD_DATA * board)
+bool can_read(CharData * ch, BoardData * board)
 {
         /*
          * If your trust is high enough, you can read it. 
@@ -117,7 +117,7 @@ bool can_read(CharData * ch, BOARD_DATA * board)
         return FALSE;
 }
 
-bool can_post(CharData * ch, BOARD_DATA * board)
+bool can_post(CharData * ch, BoardData * board)
 {
         /*
          * If your trust is high enough, you can post. 
@@ -146,11 +146,11 @@ bool can_post(CharData * ch, BOARD_DATA * board)
  */
 void write_boards_txt(void)
 {
-        BOARD_DATA *tboard;
+        BoardData *tboard;
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, MSL, "%s%s", BOARD_DIR, BOARD_FILE);
+        snprintf(filename, MSL, "%s%s", BoardDir, BoardFile);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -184,9 +184,9 @@ void write_boards_txt(void)
         FCLOSE(fpout);
 }
 
-BOARD_DATA *get_board(ObjData * obj)
+BoardData *get_board(ObjData * obj)
 {
-        BOARD_DATA *board;
+        BoardData *board;
 
         for (board = first_board; board; board = board->next)
                 if (board->board_obj == obj->pIndexData->vnum)
@@ -194,10 +194,10 @@ BOARD_DATA *get_board(ObjData * obj)
         return NULL;
 }
 
-BOARD_DATA *find_board(CharData * ch)
+BoardData *find_board(CharData * ch)
 {
         ObjData *obj;
-        BOARD_DATA *board;
+        BoardData *board;
 
         for (obj = ch->in_room->first_content; obj; obj = obj->next_content)
         {
@@ -208,7 +208,7 @@ BOARD_DATA *find_board(CharData * ch)
         return NULL;
 }
 
-bool is_note_to(CharData * ch, NOTE_DATA * pnote)
+bool is_note_to(CharData * ch, NoteData * pnote)
 {
         if (!ch || !pnote)
                 return FALSE;
@@ -219,12 +219,12 @@ bool is_note_to(CharData * ch, NOTE_DATA * pnote)
         return is_note_to_def(ch, pnote);
 }
 
-bool is_note_to_def(CharData * ch, NOTE_DATA * pnote)
+bool is_note_to_def(CharData * ch, NoteData * pnote)
 {
         if (is_name("all", pnote->to_list))
                 return TRUE;
 
-        if (IS_HERO(ch) && is_name("immortal", pnote->to_list))
+        if (IsHero(ch) && is_name("immortal", pnote->to_list))
                 return TRUE;
 
         if (is_name(ch->name, pnote->to_list))
@@ -237,12 +237,12 @@ bool is_note_to_def(CharData * ch, NOTE_DATA * pnote)
 
 void note_attach(CharData * ch)
 {
-        NOTE_DATA *pnote;
+        NoteData *pnote;
 
         if (ch->pnote)
                 return;
 
-        CREATE(pnote, NOTE_DATA, 1);
+        CREATE(pnote, NoteData, 1);
         pnote->next = NULL;
         pnote->prev = NULL;
         pnote->sender = QUICKLINK(ch->name);
@@ -254,17 +254,17 @@ void note_attach(CharData * ch)
         return;
 }
 
-void write_board(BOARD_DATA * board)
+void write_board(BoardData * board)
 {
         FILE     *fp;
         char      filename[256];
-        NOTE_DATA *pnote;
+        NoteData *pnote;
 
         /*
          * Rewrite entire list. 
          */
         FCLOSE(fpReserve);
-        snprintf(filename, MSL, "%s%s", BOARD_DIR, board->note_file);
+        snprintf(filename, MSL, "%s%s", BoardDir, board->note_file);
         if ((fp = fopen(filename, "w")) == NULL)
         {
                 perror(filename);
@@ -282,12 +282,12 @@ void write_board(BOARD_DATA * board)
                 }
                 FCLOSE(fp);
         }
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
 
-void free_note(NOTE_DATA * pnote)
+void free_note(NoteData * pnote)
 {
 	    if (pnote->text)
             STRFREE(pnote->text);
@@ -308,7 +308,7 @@ void free_note(NOTE_DATA * pnote)
         DISPOSE(pnote);
 }
 
-void note_remove(CharData * ch, BOARD_DATA * board, NOTE_DATA * pnote)
+void note_remove(CharData * ch, BoardData * board, NoteData * pnote)
 {
         (void)ch; // Mark as intentionally unused for now
         if (!board)
@@ -336,7 +336,7 @@ void note_remove(CharData * ch, BOARD_DATA * board, NOTE_DATA * pnote)
 
 CMDF do_noteroom(CharData * ch, char *argument)
 {
-        BOARD_DATA *board;
+        BoardData *board;
 
         if (!str_cmp(argument, "write") ||
             !str_cmp(argument, "show") ||
@@ -357,7 +357,7 @@ CMDF do_noteroom(CharData * ch, char *argument)
                 return;
         }
 
-        if (board->type != BOARD_NOTE && board->type != BOARD_IDEA)
+        if (board->type != BoardNote && board->type != BoardIdea)
         {
                 send_to_char
                         ("You can only use note commands on a message terminal.\n\r",
@@ -370,7 +370,7 @@ CMDF do_noteroom(CharData * ch, char *argument)
 
 CMDF do_mailroom(CharData * ch, char *argument)
 {
-        BOARD_DATA *board;
+        BoardData *board;
 
         if (argument[0] == '\0' && ch->substate != SubWritingNote)
         {
@@ -387,10 +387,10 @@ CMDF do_mailroom(CharData * ch, char *argument)
         }
 
         board = find_board(ch);
-        if (!board || board->type != BOARD_MAIL)
+        if (!board || board->type != BoardMail)
         {
                 for (board = first_board; board; board = board->next)
-                        if (board->board_obj == VNUM_MAIL_BOARD)
+                        if (board->board_obj == VnumMailBoard)
                                 break;
         }
 
@@ -401,7 +401,7 @@ CMDF do_mailroom(CharData * ch, char *argument)
                 return;
         }
 
-        if (board->type != BOARD_MAIL)
+        if (board->type != BoardMail)
         {
                 bug("Mail board has wrong type", 0);
                 send_to_char
@@ -415,9 +415,9 @@ CMDF do_mailroom(CharData * ch, char *argument)
 
 CMDF do_idearoom(CharData * ch, char *argument)
 {
-        BOARD_DATA *board;
+        BoardData *board;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (argument[0] == '\0' && ch->substate != SubWritingNote)
@@ -435,10 +435,10 @@ CMDF do_idearoom(CharData * ch, char *argument)
         }
 
         board = find_board(ch);
-        if (!board || board->type != BOARD_IDEA)
+        if (!board || board->type != BoardIdea)
         {
                 for (board = first_board; board; board = board->next)
-                        if (board->board_obj == VNUM_IDEA_BOARD)
+                        if (board->board_obj == VnumIdeaBoard)
                                 break;
         }
 
@@ -449,7 +449,7 @@ CMDF do_idearoom(CharData * ch, char *argument)
                 return;
         }
 
-        if (board->type != BOARD_IDEA)
+        if (board->type != BoardIdea)
         {
                 bug("Idea board has wrong type", 0);
                 send_to_char
@@ -462,12 +462,12 @@ CMDF do_idearoom(CharData * ch, char *argument)
 }
 
 
-void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
+void note(CharData * ch, char *arg_passed, BoardData * board)
 {
-        bool      IS_MAIL = board ? (board->type == BOARD_MAIL) : FALSE;
+        bool      IsMail = board ? (board->type == BoardMail) : FALSE;
         char      buf[MaxStringLength];
         char      arg[MaxInputLength];
-        NOTE_DATA *pnote;
+        NoteData *pnote;
         int       vnum;
         int       anum;
         int       first_plist;
@@ -479,7 +479,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
         char      keyword_buf[MaxStringLength];
         bool      wasfound = FALSE;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!ch->desc)
@@ -488,15 +488,15 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                 return;
         }
 
-        CHECK_SUBRESTRICTED(ch);
+        CheckSubrestricted(ch);
         switch (ch->substate)
         {
         default:
                 break;
         case SubWritingNote:
                 {
-                        if ((paper = get_eq_char(ch, WEAR_HOLD)) == NULL
-                            || paper->item_type != ITEM_PAPER)
+                        if ((paper = get_eq_char(ch, WearHold)) == NULL
+                            || paper->item_type != ItemPaper)
                         {
                                 bug("do_note: player not holding paper", 0);
                                 stop_editing(ch);
@@ -510,7 +510,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                 }
         }
 
-        set_char_color(AT_NOTE, ch);
+        set_char_color(AtNote, ch);
         arg_passed = one_argument(arg_passed, arg);
         smash_tilde(arg_passed);
 
@@ -534,7 +534,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                 first_plist = atoi(arg_passed);
                 if (first_plist)
                 {
-                        if (IS_MAIL)
+                        if (IsMail)
                         {
                                 send_to_char
                                         ("You cannot use a list number (at this time) with mail.\n\r",
@@ -552,10 +552,10 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                 }
 
                 vnum = 0;
-                set_pager_color(AT_NOTE, ch);
+                set_pager_color(AtNote, ch);
                 for (pnote = board->first_note; pnote; pnote = pnote->next)
                 {
-                        if (IS_MAIL
+                        if (IsMail
                             && (!is_note_to(ch, pnote)
                                 && !(get_trust(ch) > sysdata.read_all_mail)))
                                 continue;
@@ -570,12 +570,12 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                                         pnote) ? ')' : '}',
                                              pnote->sender,
                                              (pnote->voting !=
-                                              VOTE_NONE) ? (pnote->voting ==
-                                                            VOTE_OPEN ? 'V' :
+                                              VoteNone) ? (pnote->voting ==
+                                                            VoteOpen ? 'V' :
                                                             'C') : ':',
                                              pnote->to_list);
 #ifdef MXP
-                                if (IS_MXP(ch))
+                                if (IsMxp(ch))
                                 {
                                         pager_printf(ch,
                                                      MXPTAG("note '%s' '%d'"),
@@ -585,7 +585,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
 #endif
                                 send_to_pager(pnote->subject, ch);
 #ifdef MXP
-                                if (IS_MXP(ch))
+                                if (IsMxp(ch))
                                         send_to_pager(MXPTAG("/note"), ch);
 #endif
                                 send_to_pager("\n\r", ch);
@@ -597,14 +597,14 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                      ch);
                 }
 
-                if (IS_MAIL && vnum == 0)
+                if (IsMail && vnum == 0)
                 {
                         send_to_char("You have no mail.\n\r", ch);
                         return;
                 }
-                if (board->type == BOARD_NOTE)
-                        act(AT_ACTION, "$n glances over the messages.", ch,
-                            NULL, NULL, TO_ROOM);
+                if (board->type == BoardNote)
+                        act(AtAction, "$n glances over the messages.", ch,
+                            NULL, NULL, ToRoom);
                 return;
         }
         else if (!str_cmp(arg, "read"))
@@ -642,11 +642,11 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                         return;
                 }
 
-                set_pager_color(AT_NOTE, ch);
+                set_pager_color(AtNote, ch);
                 vnum = 0;
                 for (pnote = board->first_note; pnote; pnote = pnote->next)
                 {
-                        if (IS_MAIL && !is_note_to(ch, pnote)
+                        if (IsMail && !is_note_to(ch, pnote)
                             && get_trust(ch) < sysdata.read_all_mail)
                                 continue;
 
@@ -654,7 +654,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                         if (vnum == anum || fAll)
                         {
                                 wasfound = TRUE;
-                                if (IS_MAIL
+                                if (IsMail
                                     && get_trust(ch) < sysdata.read_mail_free)
                                 {
                                         if (ch->gold < 10)
@@ -686,9 +686,9 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                                      pnote->novotes,
                                                      pnote->abstentions);
                                 }
-                                if (board->type == BOARD_NOTE)
-                                        act(AT_ACTION, "$n reads a message.",
-                                            ch, NULL, NULL, TO_ROOM);
+                                if (board->type == BoardNote)
+                                        act(AtAction, "$n reads a message.",
+                                            ch, NULL, NULL, ToRoom);
                         }
                 }
                 if (!wasfound)
@@ -716,7 +716,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                  ch);
                         return;
                 }
-                if (IS_MAIL)
+                if (IsMail)
                 {
                         send_to_char("You can not vote on a mail.\n\r", ch);
                         return;
@@ -757,10 +757,10 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                          ch);
                                 return;
                         }
-                        pnote->voting = VOTE_OPEN;
-                        if (board->type == BOARD_NOTE)
-                                act(AT_ACTION, "$n opens voting on a note.",
-                                    ch, NULL, NULL, TO_ROOM);
+                        pnote->voting = VoteOpen;
+                        if (board->type == BoardNote)
+                                act(AtAction, "$n opens voting on a note.",
+                                    ch, NULL, NULL, ToRoom);
                         send_to_char("Voting opened.\n\r", ch);
                         write_board(board);
                         return;
@@ -774,10 +774,10 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                          ch);
                                 return;
                         }
-                        pnote->voting = VOTE_CLOSED;
-                        if (board->type == BOARD_NOTE)
-                                act(AT_ACTION, "$n closes voting on a note.",
-                                    ch, NULL, NULL, TO_ROOM);
+                        pnote->voting = VoteClosed;
+                        if (board->type == BoardNote)
+                                act(AtAction, "$n closes voting on a note.",
+                                    ch, NULL, NULL, ToRoom);
                         send_to_char("Voting closed.\n\r", ch);
                         write_board(board);
                         return;
@@ -786,7 +786,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                 /*
                  * Make sure the note is open for voting before going on. 
                  */
-                if (pnote->voting != VOTE_OPEN)
+                if (pnote->voting != VoteOpen)
                 {
                         send_to_char("Voting is not open on this note.\n\r",
                                      ch);
@@ -833,9 +833,9 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                         note(ch, const_cast<char*>(""), board);
                         return;
                 }
-                if (board->type == BOARD_NOTE)
-                        act(AT_ACTION, "$n votes on a note.", ch, NULL, NULL,
-                            TO_ROOM);
+                if (board->type == BoardNote)
+                        act(AtAction, "$n votes on a note.", ch, NULL, NULL,
+                            ToRoom);
                 send_to_char("Ok.\n\r", ch);
                 write_board(board);
                 return;
@@ -849,8 +849,8 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                  ch);
                         return;
                 }
-                if ((paper = get_eq_char(ch, WEAR_HOLD)) == NULL
-                    || paper->item_type != ITEM_PAPER)
+                if ((paper = get_eq_char(ch, WearHold)) == NULL
+                    || paper->item_type != ItemPaper)
                 {
                         if (get_trust(ch) < sysdata.write_mail_free)
                         {
@@ -859,18 +859,18 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                          ch);
                                 return;
                         }
-                        paper = create_object(get_obj_index(OBJ_VNUM_NOTE),
+                        paper = create_object(get_obj_index(ObjVnumNote),
                                               0);
-                        if ((tmpobj = get_eq_char(ch, WEAR_HOLD)) != NULL)
+                        if ((tmpobj = get_eq_char(ch, WearHold)) != NULL)
                                 unequip_char(ch, tmpobj);
                         paper = obj_to_char(paper, ch);
-                        equip_char(ch, paper, WEAR_HOLD);
-                        act(AT_MAGIC,
+                        equip_char(ch, paper, WearHold);
+                        act(AtMagic,
                             "$n grabs a message disk to record a note.", ch,
-                            NULL, NULL, TO_ROOM);
-                        act(AT_MAGIC,
+                            NULL, NULL, ToRoom);
+                        act(AtMagic,
                             "You get a message disk to record your note.", ch,
-                            NULL, NULL, TO_CHAR);
+                            NULL, NULL, ToChar);
                 }
 
                 if (paper->value[0] < 2)
@@ -898,8 +898,8 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                  ch);
                         return;
                 }
-                if ((paper = get_eq_char(ch, WEAR_HOLD)) == NULL
-                    || paper->item_type != ITEM_PAPER)
+                if ((paper = get_eq_char(ch, WearHold)) == NULL
+                    || paper->item_type != ItemPaper)
                 {
                         if (get_trust(ch) < sysdata.write_mail_free)
                         {
@@ -908,17 +908,17 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                          ch);
                                 return;
                         }
-                        paper = create_object(get_obj_index(OBJ_VNUM_NOTE),
+                        paper = create_object(get_obj_index(ObjVnumNote),
                                               0);
-                        if ((tmpobj = get_eq_char(ch, WEAR_HOLD)) != NULL)
+                        if ((tmpobj = get_eq_char(ch, WearHold)) != NULL)
                                 unequip_char(ch, tmpobj);
                         paper = obj_to_char(paper, ch);
-                        equip_char(ch, paper, WEAR_HOLD);
-                        act(AT_MAGIC, "$n grabs a message disk.",
-                            ch, NULL, NULL, TO_ROOM);
-                        act(AT_MAGIC,
+                        equip_char(ch, paper, WearHold);
+                        act(AtMagic, "$n grabs a message disk.",
+                            ch, NULL, NULL, ToRoom);
+                        act(AtMagic,
                             "You get a message disk to record your note.", ch,
-                            NULL, NULL, TO_CHAR);
+                            NULL, NULL, ToChar);
                 }
                 if (paper->value[1] > 1)
                 {
@@ -946,8 +946,8 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                         send_to_char("Please specify an addressee.\n\r", ch);
                         return;
                 }
-                if ((paper = get_eq_char(ch, WEAR_HOLD)) == NULL
-                    || paper->item_type != ITEM_PAPER)
+                if ((paper = get_eq_char(ch, WearHold)) == NULL
+                    || paper->item_type != ItemPaper)
                 {
                         if (get_trust(ch) < sysdata.write_mail_free)
                         {
@@ -956,18 +956,18 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                          ch);
                                 return;
                         }
-                        paper = create_object(get_obj_index(OBJ_VNUM_NOTE),
+                        paper = create_object(get_obj_index(ObjVnumNote),
                                               0);
-                        if ((tmpobj = get_eq_char(ch, WEAR_HOLD)) != NULL)
+                        if ((tmpobj = get_eq_char(ch, WearHold)) != NULL)
                                 unequip_char(ch, tmpobj);
                         paper = obj_to_char(paper, ch);
-                        equip_char(ch, paper, WEAR_HOLD);
-                        act(AT_MAGIC,
+                        equip_char(ch, paper, WearHold);
+                        act(AtMagic,
                             "$n gets a message disk to record a note.", ch,
-                            NULL, NULL, TO_ROOM);
-                        act(AT_MAGIC,
+                            NULL, NULL, ToRoom);
+                        act(AtMagic,
                             "You grab a message disk to record your note.",
-                            ch, NULL, NULL, TO_CHAR);
+                            ch, NULL, NULL, ToChar);
                 }
 
                 if (paper->value[2] > 1)
@@ -979,10 +979,10 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
 
                 arg_passed[0] = UPPER(arg_passed[0]);
 
-                snprintf(fname, MSL, "%s%c/%s", PLAYER_DIR,
+                snprintf(fname, MSL, "%s%c/%s", PlayerDir,
                          tolower(arg_passed[0]), capitalize(arg_passed));
 
-                if (!IS_MAIL || stat(fname, &fst) != -1
+                if (!IsMail || stat(fname, &fst) != -1
                     || !str_cmp(arg_passed, "all"))
                 {
                         paper->value[2] = 1;
@@ -1005,8 +1005,8 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
         {
                 char     *subject, *to_list, *text;
 
-                if ((paper = get_eq_char(ch, WEAR_HOLD)) == NULL
-                    || paper->item_type != ITEM_PAPER)
+                if ((paper = get_eq_char(ch, WearHold)) == NULL
+                    || paper->item_type != ItemPaper)
                 {
                         send_to_char
                                 ("You are not holding a message disk.\n\r",
@@ -1049,8 +1049,8 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                  ch);
                         return;
                 }
-                if ((paper = get_eq_char(ch, WEAR_HOLD)) == NULL
-                    || paper->item_type != ITEM_PAPER)
+                if ((paper = get_eq_char(ch, WearHold)) == NULL
+                    || paper->item_type != ItemPaper)
                 {
                         send_to_char
                                 ("You are not holding a message disk.\n\r",
@@ -1079,7 +1079,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
 
                 if (paper->value[2] == 0)
                 {
-                        if (IS_MAIL)
+                        if (IsMail)
                         {
                                 send_to_char
                                         ("This message is addressed to no one!\n\r",
@@ -1119,13 +1119,13 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                  * Make sure the note is open for voting before going on. 
                  */
 
-                if (board->type == BOARD_NOTE)
-                        act(AT_ACTION, "$n uploads a message.", ch, NULL,
-                            NULL, TO_ROOM);
+                if (board->type == BoardNote)
+                        act(AtAction, "$n uploads a message.", ch, NULL,
+                            NULL, ToRoom);
 
                 strtime = ctime(&current_time);
                 strtime[strlen(strtime) - 1] = '\0';
-                CREATE(pnote, NOTE_DATA, 1);
+                CREATE(pnote, NoteData, 1);
                 pnote->date = STRALLOC(strtime);
 
                 text = get_extra_descr("_text_", paper->first_extradesc);
@@ -1139,8 +1139,8 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                 pnote->yesvotes = str_dup("");
                 pnote->novotes = str_dup("");
                 pnote->abstentions = str_dup("");
-                if (board->type == BOARD_IDEA)
-                        pnote->voting = VOTE_OPEN;
+                if (board->type == BoardIdea)
+                        pnote->voting = VoteOpen;
 
                 LINK(pnote, board->first_note, board->last_note, next, prev);
                 board->num_posts++;
@@ -1173,7 +1173,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                         take = 1;
                 else if (!str_cmp(arg, "copy"))
                 {
-                        if (!IS_IMMORTAL(ch))
+                        if (!IsImmortal(ch))
                         {
                                 send_to_char
                                         ("Huh?  Type 'help note' for usage.\n\r",
@@ -1195,11 +1195,11 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                 vnum = 0;
                 for (pnote = board->first_note; pnote; pnote = pnote->next)
                 {
-                        if (IS_MAIL && ((is_note_to(ch, pnote))
+                        if (IsMail && ((is_note_to(ch, pnote))
                                         || get_trust(ch) >=
                                         sysdata.take_others_mail))
                                 vnum++;
-                        else if (!IS_MAIL)
+                        else if (!IsMail)
                                 vnum++;
                         if ((is_note_to(ch, pnote)
                              || can_remove(ch, board)) && (vnum == anum))
@@ -1235,7 +1235,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                             sysdata.read_mail_free)
                                                 ch->gold -= 50;
                                         paper = create_object(get_obj_index
-                                                              (OBJ_VNUM_NOTE),
+                                                              (ObjVnumNote),
                                                               0);
                                         ed = SetOExtra(paper, const_cast<char*>("_sender_"));
                                         STRFREE(ed->description);
@@ -1303,21 +1303,21 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                                 send_to_char("Ok.\n\r", ch);
                                 if (take == 1)
                                 {
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n downloads a message.", ch,
-                                            NULL, NULL, TO_ROOM);
+                                            NULL, NULL, ToRoom);
                                         obj_to_char(paper, ch);
                                 }
                                 else if (take == 2)
                                 {
-                                        act(AT_ACTION, "$n copies a message.",
-                                            ch, NULL, NULL, TO_ROOM);
+                                        act(AtAction, "$n copies a message.",
+                                            ch, NULL, NULL, ToRoom);
                                         obj_to_char(paper, ch);
                                 }
                                 else
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n removes a message.", ch, NULL,
-                                            NULL, TO_ROOM);
+                                            NULL, ToRoom);
                                 return;
                         }
                 }
@@ -1330,9 +1330,9 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
         return;
 }
 
-BOARD_DATA *read_board(char * /* boardfile */, FILE * fp)
+BoardData *read_board(char * /* boardfile */, FILE * fp)
 {
-        BOARD_DATA *board;
+        BoardData *board;
         const char *word;
         bool      fMatch;
         char      letter;
@@ -1351,7 +1351,7 @@ BOARD_DATA *read_board(char * /* boardfile */, FILE * fp)
         while (isspace(letter));
         ungetc(letter, fp);
 
-        CREATE(board, BOARD_DATA, 1);
+        CREATE(board, BoardData, 1);
 
         for (;;)
         {
@@ -1440,9 +1440,9 @@ BOARD_DATA *read_board(char * /* boardfile */, FILE * fp)
         return board;
 }
 
-NOTE_DATA *read_note(char * /* notefile */, FILE * fp)
+NoteData *read_note(char * /* notefile */, FILE * fp)
 {
-        NOTE_DATA *pnote;
+        NoteData *pnote;
         char     *word;
 
         // notefile parameter removed as unused
@@ -1463,7 +1463,7 @@ NOTE_DATA *read_note(char * /* notefile */, FILE * fp)
                 while (isspace(letter));
                 ungetc(letter, fp);
 
-                CREATE(pnote, NOTE_DATA, 1);
+                CREATE(pnote, NoteData, 1);
 
                 if (str_cmp(fread_word(fp), "sender"))
                         break;
@@ -1527,22 +1527,22 @@ void load_boards(void)
 {
         FILE     *board_fp;
         FILE     *note_fp;
-        BOARD_DATA *board;
-        NOTE_DATA *pnote;
+        BoardData *board;
+        NoteData *pnote;
         char      boardfile[256];
         char      notefile[256];
 
         first_board = NULL;
         last_board = NULL;
 
-        snprintf(boardfile, MSL, "%s%s", BOARD_DIR, BOARD_FILE);
+        snprintf(boardfile, MSL, "%s%s", BoardDir, BoardFile);
         if ((board_fp = fopen(boardfile, "r")) == NULL)
                 return;
 
         while ((board = read_board(boardfile, board_fp)) != NULL)
         {
                 LINK(board, first_board, last_board, next, prev);
-                snprintf(notefile, MSL, "%s%s", BOARD_DIR, board->note_file);
+                snprintf(notefile, MSL, "%s%s", BoardDir, board->note_file);
                 boot_log(notefile);
                 if ((note_fp = fopen(notefile, "r")) != NULL)
                 {
@@ -1559,7 +1559,7 @@ void load_boards(void)
 
 CMDF do_makeboard(CharData * ch, char *argument)
 {
-        BOARD_DATA *board;
+        BoardData *board;
         char      arg[MaxInputLength];
 
         /*
@@ -1574,7 +1574,7 @@ CMDF do_makeboard(CharData * ch, char *argument)
 
         smash_tilde(arg);
 
-        CREATE(board, BOARD_DATA, 1);
+        CREATE(board, BoardData, 1);
 
         LINK(board, first_board, last_board, next, prev);
         board->note_file = str_dup(strlower(arg));
@@ -1587,7 +1587,7 @@ CMDF do_makeboard(CharData * ch, char *argument)
 
 CMDF do_bset(CharData * ch, char *argument)
 {
-        BOARD_DATA *board;
+        BoardData *board;
         bool      found;
         char      arg1[MaxInputLength];
         char      arg2[MaxInputLength];
@@ -1763,7 +1763,7 @@ CMDF do_bset(CharData * ch, char *argument)
         {
                 if (!is_number(argument))
                         value = get_boardtypes(argument);
-                if (value < 0 || value > BOARD_MAX)
+                if (value < 0 || value > BoardMax)
                 {
                         send_to_char("Value out of range.\n\r", ch);
                         return;
@@ -1785,10 +1785,10 @@ CMDF do_bset(CharData * ch, char *argument)
 
 CMDF do_bstat(CharData * ch, char *argument)
 {
-        BOARD_DATA *board;
+        BoardData *board;
         char      arg[MaxInputLength];
 
-        set_char_color(AT_NOTE, ch);
+        set_char_color(AtNote, ch);
         argument = one_argument(argument, arg);
 
         if (arg[0] == '\0')
@@ -1807,7 +1807,7 @@ CMDF do_bstat(CharData * ch, char *argument)
                 return;
         }
 
-        set_char_color(AT_NOTE, ch);
+        set_char_color(AtNote, ch);
         ch_printf(ch, "Name:            \t%s\n\r"
                   "Filename:        \t%s\n\r"
                   "\tVnum:           %d\n\r"
@@ -1833,7 +1833,7 @@ CMDF do_bstat(CharData * ch, char *argument)
 
 CMDF do_boards(CharData * ch, char * /* argument */)
 {
-        BOARD_DATA *board;
+        BoardData *board;
 
         // argument parameter removed as unused
 
@@ -1843,7 +1843,7 @@ CMDF do_boards(CharData * ch, char * /* argument */)
                 return;
         }
 
-        set_char_color(AT_NOTE, ch);
+        set_char_color(AtNote, ch);
         for (board = first_board; board; board = board->next)
                 ch_printf(ch,
                           "%-16s Vnum: %5d Read: %3d Post: %3d Rmv: %3d Max: %3d Posts: %3d Type: %s\n\r",
@@ -1855,12 +1855,12 @@ CMDF do_boards(CharData * ch, char * /* argument */)
 
 void mail_count(CharData * ch)
 {
-        BOARD_DATA *board;
-        NOTE_DATA *note;
+        BoardData *board;
+        NoteData *note;
         int       cnt = 0;
 
         for (board = first_board; board; board = board->next)
-                if (board->type == BOARD_MAIL && can_read(ch, board))
+                if (board->type == BoardMail && can_read(ch, board))
                         for (note = board->first_note; note;
                              note = note->next)
                                 if (is_note_to_def(ch, note))
@@ -1872,7 +1872,7 @@ void mail_count(CharData * ch)
 
 CMDF do_global(CharData * ch, char *argument)
 {
-        BOARD_DATA *board;
+        BoardData *board;
         char      arg1[MaxInputLength];
 
         if (!str_cmp(argument, "write") ||
@@ -1884,7 +1884,7 @@ CMDF do_global(CharData * ch, char *argument)
                 return;
         }
 
-        set_char_color(AT_NOTE, ch);
+        set_char_color(AtNote, ch);
         if (!first_board)
         {
                 send_to_char("There are no boards.\n\r", ch);
@@ -1901,13 +1901,13 @@ CMDF do_global(CharData * ch, char *argument)
         {
                 int       count = 0;
 
-                set_char_color(AT_PLAIN, ch);
+                set_char_color(AtPlain, ch);
                 send_to_char("Syntax: global <board> <command>\n\r", ch);
                 send_to_char("Choices:\n\r", ch);
-                set_char_color(AT_NOTE, ch);
+                set_char_color(AtNote, ch);
                 for (board = first_board; board; board = board->next)
                 {
-                        if (board->type != BOARD_GLOBAL)
+                        if (board->type != BoardGlobal)
                                 continue;
                         ch_printf(ch, "\t %s\n\r", board->BoardName);
                         count++;
@@ -1939,9 +1939,9 @@ CMDF do_global(CharData * ch, char *argument)
         note(ch, argument, board);
 }
 
-void free_board(BOARD_DATA * board)
+void free_board(BoardData * board)
 {
-        NOTE_DATA *pnote, *note_next;
+        NoteData *pnote, *note_next;
 
         UNLINK(board, first_board, last_board, next, prev);
         DISPOSE(board->note_file);

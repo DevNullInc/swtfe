@@ -51,7 +51,7 @@
 
 void      note_attach(CharData * ch);
 
-void comment_remove(CharData * ch, CharData * victim, NOTE_DATA * pnote)
+void comment_remove(CharData * ch, CharData * victim, NoteData * pnote)
 {
         // Suppress unused parameter warning
         (void)ch;
@@ -100,12 +100,12 @@ CMDF do_comment(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         char      arg[MaxInputLength];
         char      arg1[MaxInputLength];
-        NOTE_DATA *pnote;
+        NoteData *pnote;
         CharData *victim;
         int       vnum;
         int       anum;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mobs can't use the comment command.\n\r", ch);
                 return;
@@ -149,7 +149,7 @@ CMDF do_comment(CharData * ch, char *argument)
                 return;
         }
 
-        set_char_color(AT_NOTE, ch);
+        set_char_color(AtNote, ch);
         argument = one_argument(argument, arg);
         smash_tilde(argument);
 
@@ -162,7 +162,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("No comments about mobs\n\r", ch);
                         return;
@@ -179,7 +179,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("No comments about mobs\n\r", ch);
                         return;
@@ -213,7 +213,7 @@ CMDF do_comment(CharData * ch, char *argument)
                 }
 
                 /*
-                 * act( AT_ACTION, "$n glances over the notes.", ch, NULL, NULL, TO_ROOM ); 
+                 * act( AtAction, "$n glances over the notes.", ch, NULL, NULL, ToRoom ); 
                  */
                 return;
         }
@@ -230,7 +230,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("No comments about mobs\n\r", ch);
                         return;
@@ -283,7 +283,7 @@ CMDF do_comment(CharData * ch, char *argument)
                                 send_to_char(buf, ch);
                                 send_to_char(pnote->text, ch);
                                 /*
-                                 * act( AT_ACTION, "$n reads a note.", ch, NULL, NULL, TO_ROOM ); 
+                                 * act( AtAction, "$n reads a note.", ch, NULL, NULL, ToRoom ); 
                                  */
                                 return;
                         }
@@ -373,7 +373,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("No comments about mobs\n\r", ch);
                         return;
@@ -388,7 +388,7 @@ CMDF do_comment(CharData * ch, char *argument)
                 }
 
                 /*
-                 * act( AT_ACTION, "$n posts a note.", ch, NULL, NULL, TO_ROOM ); 
+                 * act( AtAction, "$n posts a note.", ch, NULL, NULL, ToRoom ); 
                  */
 
                 strtime = ctime(&current_time);
@@ -413,7 +413,7 @@ CMDF do_comment(CharData * ch, char *argument)
 
 #ifdef NOTDEFD
                 FCLOSE(fpReserve);
-                snprintf(notefile, MSL, "%s/%s", BOARD_DIR, board->note_file);
+                snprintf(notefile, MSL, "%s/%s", BoardDir, board->note_file);
                 if ((fp = fopen(notefile, "a")) == NULL)
                 {
                         perror(notefile);
@@ -426,7 +426,7 @@ CMDF do_comment(CharData * ch, char *argument)
                                 pnote->subject, pnote->text);
                         FCLOSE(fp);
                 }
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
 #endif
 
                 send_to_char("Ok.\n\r", ch);
@@ -443,7 +443,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("No comments about mobs\n\r", ch);
                         return;
@@ -478,7 +478,7 @@ CMDF do_comment(CharData * ch, char *argument)
                                 comment_remove(ch, victim, pnote);
                                 send_to_char("Ok.\n\r", ch);
                                 /*
-                                 * act( AT_ACTION, "$n removes a note.", ch, NULL, NULL, TO_ROOM ); 
+                                 * act( AtAction, "$n removes a note.", ch, NULL, NULL, ToRoom ); 
                                  */
                                 return;
                         }
@@ -494,9 +494,9 @@ CMDF do_comment(CharData * ch, char *argument)
 }
 
 
-void fwrite_comments(ACCOUNT_DATA * Account, FILE * fp)
+void fwrite_comments(AccountData * Account, FILE * fp)
 {
-        NOTE_DATA *pnote;
+        NoteData *pnote;
 
         if (!Account->comments)
                 return;
@@ -513,9 +513,9 @@ void fwrite_comments(ACCOUNT_DATA * Account, FILE * fp)
         return;
 }
 
-void fread_comment(ACCOUNT_DATA * Account, FILE * fp)
+void fread_comment(AccountData * Account, FILE * fp)
 {
-        NOTE_DATA *pnote;
+        NoteData *pnote;
 
         for (;;)
         {
@@ -533,7 +533,7 @@ void fread_comment(ACCOUNT_DATA * Account, FILE * fp)
                 while (isspace(letter));
                 ungetc(letter, fp);
 
-                CREATE(pnote, NOTE_DATA, 1);
+                CREATE(pnote, NoteData, 1);
 
                 if (str_cmp(fread_word(fp), "sender"))
                         break;
@@ -602,11 +602,11 @@ There are no relevent comments.
 */
 
 
-void comment_add_comment(CharData * from, ACCOUNT_DATA * Account, char * subject, char * text)
+void comment_add_comment(CharData * from, AccountData * Account, char * subject, char * text)
 {
-	NOTE_DATA * pnote;
+	NoteData * pnote;
 	char     *strtime;
-	CREATE(pnote, NOTE_DATA, 1);
+	CREATE(pnote, NoteData, 1);
 	pnote->sender = STRALLOC(from->name);;
 	pnote->to_list = STRALLOC(const_cast<char*>(""));
 	pnote->subject = STRALLOC(subject);

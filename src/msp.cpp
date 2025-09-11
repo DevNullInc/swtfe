@@ -52,8 +52,8 @@
  */
 
 /* Mud Sound Protocol */
-const unsigned char will_msp_str[] = { IAC, WILL, TELOPT_MSP, '\0' };
-const unsigned char start_msp_str[] = { IAC, SB, TELOPT_MSP, IAC, SE, '\0' };
+const unsigned char will_msp_str[] = { IAC, WILL, TeloptMsp, '\0' };
+const unsigned char start_msp_str[] = { IAC, SB, TeloptMsp, IAC, SE, '\0' };
 
 void start_msp(DescriptorData * d)
 {
@@ -75,10 +75,10 @@ void reset_sound(CharData * ch)
 {
 #ifdef ACCOUNT
         if (ch->pcdata->Account
-            && !IS_SET(ch->pcdata->Account->flags, ACCOUNT_SOUND))
+            && !IsSet(ch->pcdata->Account->flags, AccountSound))
                 return;
 #endif
-        if (!IS_SET(ch->act, PLR_SOUND))
+        if (!IsSet(ch->act, PlrSound))
                 return;
         send_to_char("!!SOUND(Off)\n\r", ch);
 }
@@ -87,10 +87,10 @@ void reset_music(CharData * ch)
 {
 #ifdef ACCOUNT
         if (ch->pcdata->Account
-            && !IS_SET(ch->pcdata->Account->flags, ACCOUNT_SOUND))
+            && !IsSet(ch->pcdata->Account->flags, AccountSound))
                 return;
 #endif
-        if (!IS_SET(ch->act, PLR_SOUND))
+        if (!IsSet(ch->act, PlrSound))
                 return;
         send_to_char("!!MUSIC(Off)\n\r", ch);
 }
@@ -129,14 +129,14 @@ void sound_to_char(CharData * ch, char *sound)
         /*
          * Bit checking is easier than sprintf, so do that first 
          */
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 #ifdef ACCOUNT
         if (ch->pcdata->Account
-            && !IS_SET(ch->pcdata->Account->flags, ACCOUNT_SOUND))
+            && !IsSet(ch->pcdata->Account->flags, AccountSound))
                 return;
 #endif
-        if (!IS_SET(ch->act, PLR_SOUND))
+        if (!IsSet(ch->act, PlrSound))
                 return;
         snprintf(url, 255, "%sdownloads/sounds/", sysdata.mud_url);
 
@@ -146,7 +146,7 @@ void sound_to_char(CharData * ch, char *sound)
 
 CMDF do_sound(CharData * ch, char *argument)
 {
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (argument[0] == '\0')
@@ -156,12 +156,12 @@ CMDF do_sound(CharData * ch, char *argument)
 #ifdef ACCOUNT
                 if (ch->pcdata->Account)
                 {
-                        if (IS_SET(ch->pcdata->Account->flags, ACCOUNT_SOUND))
+                        if (IsSet(ch->pcdata->Account->flags, AccountSound))
                                 sound = TRUE;
                 }
                 else
 #endif
-                if (IS_SET(ch->act, PLR_SOUND))
+                if (IsSet(ch->act, PlrSound))
                         sound = TRUE;
                 ch_printf(ch, "&BS&zound: &B[&w%s&B]\n\r",
                           sound ? "On " : "Off");
@@ -172,11 +172,11 @@ CMDF do_sound(CharData * ch, char *argument)
         {
 #ifdef ACCOUNT
                 if (ch->pcdata->Account)
-                        SET_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
+                        SetBit(ch->pcdata->Account->flags, AccountSound);
                 else
 #endif
-                        SET_BIT(ch->act, PLR_SOUND);
-                set_char_color(AT_WHITE + AT_BLINK, ch);
+                        SetBit(ch->act, PlrSound);
+                set_char_color(AtWhite + AtBlink, ch);
                 send_to_char("SOUND ON!!!\n\r", ch);
                 sound_to_char(ch, "hopeknow");
                 return;
@@ -185,9 +185,9 @@ CMDF do_sound(CharData * ch, char *argument)
         {
 #ifdef ACCOUNT
                 if (ch->pcdata->Account)
-                        REMOVE_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
+                        RemoveBit(ch->pcdata->Account->flags, AccountSound);
 #endif
-                REMOVE_BIT(ch->act, PLR_SOUND);
+                RemoveBit(ch->act, PlrSound);
                 send_to_char("Okay... SOUND support is now off\n\r", ch);
                 return;
         }
@@ -205,10 +205,10 @@ CMDF do_sound(CharData * ch, char *argument)
         {
 #ifdef ACCOUNT
                 if (ch->pcdata->Account)
-                        TOGGLE_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
+                        ToggleBit(ch->pcdata->Account->flags, AccountSound);
                 else
 #endif
-                        TOGGLE_BIT(ch->act, PLR_SOUND);
+                        ToggleBit(ch->act, PlrSound);
                 send_to_char("Okay... SOUND support is now toggled\n\r", ch);
                 return;
         }

@@ -59,10 +59,10 @@ CMDF do_draw(CharData * ch, char *argument)
         if (!strcmp(argument, "-silence"))
                 silent = TRUE;
 
-        holster1 = get_eq_char(ch, WEAR_HOLSTER_L);
+        holster1 = get_eq_char(ch, WearHolsterL);
         if (!holster1)
         {
-                holster1 = get_eq_char(ch, WEAR_HOLSTER_R);
+                holster1 = get_eq_char(ch, WearHolsterR);
                 if (!holster1)
                 {
                         if (!silent)
@@ -73,11 +73,11 @@ CMDF do_draw(CharData * ch, char *argument)
                 }
         }
         else
-                holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
+                holster2 = get_eq_char(ch, WearHolsterR);
 
-        if ((holster1->item_type != ITEM_HOLSTER &&
-             (holster2 && holster2->item_type != ITEM_HOLSTER)) ||
-            (holster1->item_type != ITEM_HOLSTER && !holster2))
+        if ((holster1->item_type != ItemHolster &&
+             (holster2 && holster2->item_type != ItemHolster)) ||
+            (holster1->item_type != ItemHolster && !holster2))
         {
                 if (!silent)
                         send_to_char
@@ -95,8 +95,8 @@ CMDF do_draw(CharData * ch, char *argument)
                 return;
         }
 
-        wield1 = get_eq_char(ch, WEAR_WIELD);
-        wield2 = get_eq_char(ch, WEAR_DUAL_WIELD);
+        wield1 = get_eq_char(ch, WearWield);
+        wield2 = get_eq_char(ch, WearDualWield);
 
         if (wield1 != NULL)
                 unequip_char(ch, wield1);
@@ -115,22 +115,22 @@ CMDF do_draw(CharData * ch, char *argument)
         {
                 obj_from_obj(wield1);
                 wield1 = obj_to_char(wield1, ch);
-                equip_char(ch, wield1, WEAR_WIELD);
-                act(AT_ACTION, "$n draws $p.", ch, wield1, holster1, TO_ROOM);
-                act(AT_ACTION, "You draw $p.", ch, wield1, holster1, TO_CHAR);
+                equip_char(ch, wield1, WearWield);
+                act(AtAction, "$n draws $p.", ch, wield1, holster1, ToRoom);
+                act(AtAction, "You draw $p.", ch, wield1, holster1, ToChar);
         }
 
         if (wield2 != NULL)
         {
-                hold = get_eq_char(ch, WEAR_HOLD);
+                hold = get_eq_char(ch, WearHold);
                 if (hold != NULL)
                         unequip_char(ch, hold);
 
                 obj_from_obj(wield2);
                 wield2 = obj_to_char(wield2, ch);
-                equip_char(ch, wield2, WEAR_DUAL_WIELD);
-                act(AT_ACTION, "$n draws $p.", ch, wield2, holster2, TO_ROOM);
-                act(AT_ACTION, "You draw $p.", ch, wield2, holster2, TO_CHAR);
+                equip_char(ch, wield2, WearDualWield);
+                act(AtAction, "$n draws $p.", ch, wield2, holster2, ToRoom);
+                act(AtAction, "You draw $p.", ch, wield2, holster2, ToChar);
         }
 
         return;
@@ -140,24 +140,24 @@ CMDF do_holster(CharData * ch, char * argument)
 {
         static_cast<void>(argument);    /* Unused parameter */
         
-        ObjData *wield1 = get_eq_char(ch, WEAR_WIELD),
-                *wield2 = get_eq_char(ch, WEAR_DUAL_WIELD);
-        ObjData *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
-                *holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
+        ObjData *wield1 = get_eq_char(ch, WearWield),
+                *wield2 = get_eq_char(ch, WearDualWield);
+        ObjData *holster1 = get_eq_char(ch, WearHolsterL),
+                *holster2 = get_eq_char(ch, WearHolsterR);
 
-        if (!(holster1 = get_eq_char(ch, WEAR_HOLSTER_L)))
+        if (!(holster1 = get_eq_char(ch, WearHolsterL)))
         {
-                if (!(holster1 = get_eq_char(ch, WEAR_HOLSTER_R)))
+                if (!(holster1 = get_eq_char(ch, WearHolsterR)))
                 {
                         send_to_char("You aren't wearing a holster!\n\r", ch);
                         return;
                 }
         }
         else
-                holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
+                holster2 = get_eq_char(ch, WearHolsterR);
 
-        if (holster1->item_type != ITEM_HOLSTER &&
-            (holster2 && holster2->item_type != ITEM_HOLSTER))
+        if (holster1->item_type != ItemHolster &&
+            (holster2 && holster2->item_type != ItemHolster))
         {
                 send_to_char("That's not a holster you're wearing.\n\r", ch);
                 return;
@@ -187,14 +187,14 @@ CMDF do_holster(CharData * ch, char * argument)
                         obj_from_char(wield1);
                         wield1 = obj_to_obj(wield1, holster1);
                         separate_obj(wield1);
-                        if (holster1->wear_loc == WEAR_HOLSTER_L)
+                        if (holster1->wear_loc == WearHolsterL)
                         {
                                 sprintf(buf,
                                         "$n holsters $p in $s left holster.");
                                 sprintf(buf2,
                                         "You holster $p in your left holster.");
                         }
-                        else if (holster1->wear_loc == WEAR_HOLSTER_R)
+                        else if (holster1->wear_loc == WearHolsterR)
                         {
                                 sprintf(buf,
                                         "$n holsters $p in $s right holster.");
@@ -206,8 +206,8 @@ CMDF do_holster(CharData * ch, char * argument)
                                 sprintf(buf, "$n holsters $p in $s holster.");
                                 sprintf(buf2, "You holster $p in a holster.");
                         }
-                        act(AT_ACTION, buf, ch, wield1, holster1, TO_ROOM);
-                        act(AT_ACTION, buf2, ch, wield1, holster1, TO_CHAR);
+                        act(AtAction, buf, ch, wield1, holster1, ToRoom);
+                        act(AtAction, buf2, ch, wield1, holster1, ToChar);
                 }
                 else if (holster2 && !holster2->first_content)
                 {
@@ -215,11 +215,11 @@ CMDF do_holster(CharData * ch, char * argument)
                         obj_from_char(wield1);
                         wield1 = obj_to_obj(wield1, holster2);
                         separate_obj(wield1);
-                        act(AT_ACTION, "$n holsters $p in $s right holster.",
-                            ch, wield1, holster2, TO_ROOM);
-                        act(AT_ACTION,
+                        act(AtAction, "$n holsters $p in $s right holster.",
+                            ch, wield1, holster2, ToRoom);
+                        act(AtAction,
                             "You holster $p in your right holster.", ch,
-                            wield1, holster2, TO_ROOM);
+                            wield1, holster2, ToRoom);
                 }
                 else
                 {
@@ -238,14 +238,14 @@ CMDF do_holster(CharData * ch, char * argument)
                         obj_from_char(wield2);
                         wield2 = obj_to_obj(wield2, holster1);
                         separate_obj(wield2);
-                        if (holster1->wear_loc == WEAR_HOLSTER_L)
+                        if (holster1->wear_loc == WearHolsterL)
                         {
                                 sprintf(buf,
                                         "$n holsters $p in $s left holster.\n\r");
                                 sprintf(buf2,
                                         "You holster $p in your left holster.\n\r");
                         }
-                        else if (holster1->wear_loc == WEAR_HOLSTER_R)
+                        else if (holster1->wear_loc == WearHolsterR)
                         {
                                 sprintf(buf,
                                         "$n holsters $p in $s right holster.\n\r");
@@ -259,8 +259,8 @@ CMDF do_holster(CharData * ch, char * argument)
                                 sprintf(buf2,
                                         "You holster $p in a holster.\n\r");
                         }
-                        act(AT_ACTION, buf, ch, wield2, holster1, TO_ROOM);
-                        act(AT_ACTION, buf2, ch, wield2, holster1, TO_CHAR);
+                        act(AtAction, buf, ch, wield2, holster1, ToRoom);
+                        act(AtAction, buf2, ch, wield2, holster1, ToChar);
                 }
                 else if (holster2 && !holster2->first_content)
                 {
@@ -268,16 +268,16 @@ CMDF do_holster(CharData * ch, char * argument)
                         obj_from_char(wield2);
                         wield2 = obj_to_obj(wield2, holster2);
                         separate_obj(wield2);
-                        act(AT_ACTION, "$n holsters $p in $s right holster.",
-                            ch, wield2, holster2, TO_ROOM);
-                        act(AT_ACTION,
+                        act(AtAction, "$n holsters $p in $s right holster.",
+                            ch, wield2, holster2, ToRoom);
+                        act(AtAction,
                             "You holster $p in your right holster.", ch,
-                            wield2, holster2, TO_CHAR);
+                            wield2, holster2, ToChar);
                 }
                 else
                 {
                         unequip_char(ch, wield2);
-                        equip_char(ch, wield2, WEAR_WIELD);
+                        equip_char(ch, wield2, WearWield);
                         send_to_char("Your holster(s) are full!\n\r", ch);
                         return;
                 }

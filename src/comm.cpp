@@ -73,19 +73,19 @@
 #include <netdb.h>
 
 // GMCP (Generic Mud Communication Protocol) support
-#ifndef TELOPT_GMCP
-#define TELOPT_GMCP 201
+#ifndef TeloptGmcp
+#define TeloptGmcp 201
 #endif
 
 #define TELOPTS
 #define TELCMDS
 
 // Communication constants
-#define GMCP_BUFFER_SIZE    1024
-#define HOSTNAME_SIZE       64
-#define SOCKET_LINGER_TIME  1000
-#define DEFAULT_PORT        4000
-#define MIN_PORT            1024
+#define GmcpBufferSize    1024
+#define HostnameSize       64
+#define SocketLingerTime  1000
+#define DefaultPort        4000
+#define MinPort            1024
 
 // Project includes
 #include "mud.hpp"
@@ -144,15 +144,15 @@ static void copy_and_escape_to_buf(unsigned char *gmcp_buf, int *len, size_t buf
 void send_gmcp_event(DescriptorData *d, const char *event, const char *data) {
         /*
          * Build a GMCP subnegotiation payload according to the common GMCP
-         * convention: "Event.Name <json>". We must frame with IAC SB TELOPT_GMCP
+         * convention: "Event.Name <json>". We must frame with IAC SB TeloptGmcp
          * ... IAC SE and escape any embedded IAC bytes by doubling 0xFF.
          */
-        unsigned char gmcp_buf[GMCP_BUFFER_SIZE];
+        unsigned char gmcp_buf[GmcpBufferSize];
         int len = 0;
         /* Start subnegotiation */
         gmcp_buf[len++] = IAC;
         gmcp_buf[len++] = SB;
-        gmcp_buf[len++] = TELOPT_GMCP;
+        gmcp_buf[len++] = TeloptGmcp;
 
         /* Event name */
         copy_and_escape_to_buf(gmcp_buf, &len, sizeof(gmcp_buf), event);
@@ -179,25 +179,25 @@ void send_gmcp_event(DescriptorData *d, const char *event, const char *data) {
 // =============================================================================
 
 #define IS              static_cast<char>('\x00')
-#define TERMINAL_TYPE   static_cast<char>('\x18')
+#define TerminalType   static_cast<char>('\x18')
 #define SEND            static_cast<char>('\x01')
 
 // Terminal type negotiation
-const unsigned char do_termtype_str[]   = { IAC, DO, TERMINAL_TYPE, '\0' };
-const unsigned char dont_termtype_str[] = { IAC, DONT, TERMINAL_TYPE, '\0' };
-const unsigned char term_call_back_str[] = { IAC, SB, TERMINAL_TYPE, IS };
-const unsigned char req_termtype_str[]  = { IAC, SB, TERMINAL_TYPE, SEND, IAC, SE, '\0' };
+const unsigned char do_termtype_str[]   = { IAC, DO, TerminalType, '\0' };
+const unsigned char dont_termtype_str[] = { IAC, DONT, TerminalType, '\0' };
+const unsigned char term_call_back_str[] = { IAC, SB, TerminalType, IS };
+const unsigned char req_termtype_str[]  = { IAC, SB, TerminalType, SEND, IAC, SE, '\0' };
 
 // Echo control
-const char echo_off_str[]      = { static_cast<char>(IAC), static_cast<char>(WILL), static_cast<char>(TELOPT_ECHO), '\0' };
-const char echo_on_str[]       = { static_cast<char>(IAC), static_cast<char>(WONT), static_cast<char>(TELOPT_ECHO), '\0' };
+const char echo_off_str[]      = { static_cast<char>(IAC), static_cast<char>(WILL), static_cast<char>(TeloptEcho), '\0' };
+const char echo_on_str[]       = { static_cast<char>(IAC), static_cast<char>(WONT), static_cast<char>(TeloptEcho), '\0' };
 
 // End of Record and Go Ahead
 const unsigned char wont_eor_str[]      = { IAC, WONT, EOR, '\0' };
 const char go_ahead_str[]      = { static_cast<char>(IAC), static_cast<char>(GA), '\0' };
 
 // GMCP (Generic Mud Communication Protocol)
-const unsigned char will_gmcp_str[]     = { IAC, WILL, TELOPT_GMCP, '\0' };
+const unsigned char will_gmcp_str[]     = { IAC, WILL, TeloptGmcp, '\0' };
 
 #ifdef MCCP
 // MCCP (Mud Client Compression Protocol)
@@ -221,7 +221,7 @@ const char *gotmail = "[MAIL]";
 // =============================================================================
 
 // System functions
-void save_sysdata args((SYSTEM_DATA sys));
+void save_sysdata args((SystemData sys));
 void shutdown_mud args((char *reason));
 void memory_cleanup args((void));
 int main args((int argc, char **argv));
@@ -272,7 +272,7 @@ static void SegVio(int signum);
 
 // External references
 extern int maxChanges;
-extern CHANGE_DATA *changes_table;
+extern ChangeData *changes_table;
 
 // =============================================================================
 // Global Variables
@@ -317,7 +317,7 @@ int main(int argc, char **argv)
         /*
          * Memory debugging if needed.
          */
-#if defined(MALLOC_DEBUG)
+#if defined(MallocDebug)
         malloc_debug(2);
 #endif
 
@@ -325,8 +325,8 @@ int main(int argc, char **argv)
         num_descriptors = 0;
         first_descriptor = NULL;
         last_descriptor = NULL;
-        sysdata.NO_NAME_RESOLVING = TRUE;
-        sysdata.WAIT_FOR_AUTH = TRUE;
+        sysdata.NoNameResolving = TRUE;
+        sysdata.WaitForAuth = TRUE;
 
         /*
          * Init time.
@@ -378,7 +378,7 @@ int main(int argc, char **argv)
         /*
          * Get the port number.
          */
-        port = DEFAULT_PORT;
+        port = DefaultPort;
         if (argc > 1)
         {
                 if (!is_number(argv[1]))
@@ -386,9 +386,9 @@ int main(int argc, char **argv)
                         fprintf(stderr, "Usage: %s [port #]\n", argv[0]);
                         exit(1);
                 }
-                else if ((port = atoi(argv[1])) <= MIN_PORT)
+                else if ((port = atoi(argv[1])) <= MinPort)
                 {
-                        fprintf(stderr, "Port number must be above %d.\n", MIN_PORT);
+                        fprintf(stderr, "Port number must be above %d.\n", MinPort);
                         exit(1);
                 }
                 if (argv[2] && argv[2][0])
@@ -410,9 +410,9 @@ int main(int argc, char **argv)
         {
                 FILE     *fpid = NULL;
 
-                if ((fpid = fopen(PID_FILE, "w")) == NULL)
+                if ((fpid = fopen(PidFile, "w")) == NULL)
                 {
-                        perror(NULL_FILE);
+                        perror(NullFile);
                         exit(1);
                 }
                 fprintf(fpid, "%d", p);
@@ -427,14 +427,14 @@ int main(int argc, char **argv)
         /*
          * Reserve two channels for our use.
          */
-        if ((fpReserve = fopen(NULL_FILE, "r")) == NULL)
+        if ((fpReserve = fopen(NullFile, "r")) == NULL)
         {
-                perror(NULL_FILE);
+                perror(NullFile);
                 exit(1);
         }
-        if ((fpLOG = fopen(NULL_FILE, "r")) == NULL)
+        if ((fpLOG = fopen(NullFile, "r")) == NULL)
         {
-                perror(NULL_FILE);
+                perror(NullFile);
                 exit(1);
         }
         /*
@@ -495,7 +495,7 @@ int main(int argc, char **argv)
 
 int init_socket(int init_port)
 {
-        char      hostname[HOSTNAME_SIZE];
+        char      hostname[HostnameSize];
         struct sockaddr_in sa;
         struct hostent *hp;
         struct servent *sp;
@@ -510,31 +510,31 @@ int init_socket(int init_port)
         (void)sp;    /* Currently unused */
 
 
-        if ((Fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        if ((Fd = socket(AfInet, SockStream, 0)) < 0)
         {
                 perror("Init_socket: socket");
                 exit(1);
         }
 
-        if (setsockopt(Fd, SOL_SOCKET, SO_REUSEADDR,
+        if (setsockopt(Fd, SolSocket, SoReuseaddr,
                        static_cast<void *>(&x), sizeof(x)) < 0)
         {
-                perror("Init_socket: SO_REUSEADDR");
+                perror("Init_socket: SoReuseaddr");
                 close(Fd);
                 exit(1);
         }
 
-#if defined(SO_DONTLINGER) && !defined(SYSV)
+#if defined(SoDontlinger) && !defined(SYSV)
         {
                 struct linger ld;
 
                 ld.l_onoff = 1;
-                ld.l_linger = SOCKET_LINGER_TIME;
+                ld.l_linger = SocketLingerTime;
 
-                if (setsockopt(Fd, SOL_SOCKET, SO_DONTLINGER,
+                if (setsockopt(Fd, SolSocket, SoDontlinger,
                                static_cast<void *>()&ld, sizeof(ld)) < 0)
                 {
-                        perror("Init_socket: SO_DONTLINGER");
+                        perror("Init_socket: SoDontlinger");
                         close(Fd);
                         exit(1);
                 }
@@ -542,7 +542,7 @@ int init_socket(int init_port)
 #endif
 
         memset(&sa, '\0', sizeof(sa));
-        sa.sin_family = AF_INET;    /* hp->h_addrtype; */
+        sa.sin_family = AfInet;    /* hp->h_addrtype; */
         sa.sin_port = htons(static_cast<uint16_t>(init_port));
 
         if (bind(Fd, reinterpret_cast<struct sockaddr *>(&sa), sizeof(sa)) == -1)
@@ -575,9 +575,9 @@ static void SegVio(int signum)
 
         if (sysdata.PORT)
         {
-                signal(SIGPIPE, SIG_DFL);
-                signal(SIGSEGV, SIG_DFL);
-                signal(SIGTERM, SIG_DFL);
+                signal(SIGPIPE, SigDfl);
+                signal(SIGSEGV, SigDfl);
+                signal(SIGTERM, SigDfl);
                 if ((p = fork()) == 0)
                 {
                         abort();    /* Abort child */
@@ -589,7 +589,7 @@ static void SegVio(int signum)
                         rename("core", buf);
                 }
 
-                signal(SIGPIPE, SIG_IGN);
+                signal(SIGPIPE, SigIgn);
                 signal(SIGSEGV, SegVio);
                 signal(SIGTERM, SigTerm);   /* Catch kill signals */
 
@@ -608,7 +608,7 @@ static void SegVio(int signum)
                 if (crashover == TRUE)
                 {
                         crashover = FALSE;
-                        echo_to_all(AT_RED,
+                        echo_to_all(AtRed,
                                     const_cast<char *>("&RATTENTION!! Crash, Hold on while we try and recover.\a"),
                                     EchoTarAll);
                         for (d = first_descriptor; d; d = d->next)
@@ -630,7 +630,7 @@ void init_crashover(void)
 {
         if (!crashover)
         {
-                log_string_plus("Crashover system is ready.", LOG_COMM, sysdata.log_level);
+                log_string_plus("Crashover system is ready.", LogComm, sysdata.log_level);
                 crashover = TRUE;
         }
 }
@@ -644,10 +644,10 @@ static void SigTerm(int signum)
 
         snprintf(log_buf, MSL, "%s",
                  "&RATTENTION!! Message from game server: &YEmergency shutdown called.\a");
-        echo_to_all(AT_RED, log_buf, EchoTarAll);
+        echo_to_all(AtRed, log_buf, EchoTarAll);
         snprintf(log_buf, MSL, "%s",
                  "Executing emergency shutdown proceedure.");
-        echo_to_all(AT_YELLOW, log_buf, EchoTarAll);
+        echo_to_all(AtYellow, log_buf, EchoTarAll);
         log_string
                 ("Message from server: Executing emergency shutdown proceedure.");
         mudstrlcat(buf, "\n\r", MSL);
@@ -658,7 +658,7 @@ static void SigTerm(int signum)
         log_string("Saving players....");
         for (vch = first_char; vch; vch = vch->next)
         {
-                if (!IS_NPC(vch))
+                if (!IsNpc(vch))
                 {
                         save_char_obj(vch);
                         snprintf(log_buf, MSL, "%s saved.", vch->name);
@@ -709,11 +709,11 @@ static void caught_alarm( void )
     char buf[MaxStringLength];
     bug( "ALARM CLOCK!" );
     mudstrlcpy( buf, "Alas, the hideous malevalent entity known only as 'Lag' rises once more!\n\r",MSL);
-    echo_to_all( AT_IMMORT, buf, EchoTarAll );
+    echo_to_all( AtImmort, buf, EchoTarAll );
     if ( newdesc )
     {
-	FD_CLR( newdesc, &in_set );
-	FD_CLR( newdesc, &out_set );
+	FdClr( newdesc, &in_set );
+	FdClr( newdesc, &out_set );
 	log_string( "clearing newdesc" );
     }
     game_loop( );
@@ -728,10 +728,10 @@ static void caught_alarm( void )
 
 bool check_bad_desc(int desc)
 {
-        if (FD_ISSET(desc, &exc_set))
+        if (FdIsset(desc, &exc_set))
         {
-                FD_CLR(desc, &in_set);
-                FD_CLR(desc, &out_set);
+                FdClr(desc, &in_set);
+                FdClr(desc, &out_set);
                 log_string("Bad FD caught and disposed.");
                 return TRUE;
         }
@@ -797,7 +797,7 @@ void accept_new(int ctrl)
          * int maxdesc; Moved up for use with id.c as extern 
          */
 
-#if defined(MALLOC_DEBUG)
+#if defined(MallocDebug)
         if (malloc_verify() != 1)
                 abort();
 #endif
@@ -806,22 +806,22 @@ void accept_new(int ctrl)
          * Poll all active descriptors.
          */
 
-        FD_ZERO(&in_set);
-        FD_ZERO(&out_set);
-        FD_ZERO(&exc_set);
-        FD_SET(ctrl, &in_set);
+        FdZero(&in_set);
+        FdZero(&out_set);
+        FdZero(&exc_set);
+        FdSet(ctrl, &in_set);
         maxdesc = ctrl;
         newdesc = 0;
         for (d = first_descriptor; d; d = d->next)
         {
                 maxdesc = UMAX(maxdesc, d->descriptor);
-                FD_SET(d->descriptor, &in_set);
-                FD_SET(d->descriptor, &out_set);
-                FD_SET(d->descriptor, &exc_set);
+                FdSet(d->descriptor, &in_set);
+                FdSet(d->descriptor, &out_set);
+                FdSet(d->descriptor, &exc_set);
                 if (d->IFd != -1 && d->IPid != -1)
                 {
                         maxdesc = UMAX(maxdesc, d->IFd);
-                        FD_SET(d->IFd, &in_set);
+                        FdSet(d->IFd, &in_set);
                 }
                 if (d == last_descriptor)
                         break;
@@ -832,13 +832,13 @@ void accept_new(int ctrl)
                 exit(1);
         }
 
-        if (FD_ISSET(ctrl, &exc_set))
+        if (FdIsset(ctrl, &exc_set))
         {
                 bug("Exception raise on controlling descriptor %d", ctrl);
-                FD_CLR(ctrl, &in_set);
-                FD_CLR(ctrl, &out_set);
+                FdClr(ctrl, &in_set);
+                FdClr(ctrl, &out_set);
         }
-        else if (FD_ISSET(ctrl, &in_set))
+        else if (FdIsset(ctrl, &in_set))
         {
                 newdesc = ctrl;
                 new_descriptor(newdesc);
@@ -853,7 +853,7 @@ void game_loop()
 
 /*  time_t	last_check = 0;  */
 
-        signal(SIGPIPE, SIG_IGN);
+        signal(SIGPIPE, SigIgn);
 /*    signal( SIGALRM, caught_alarm ); */
         signal(SIGSEGV, SegVio);
         signal(SIGTERM, SigTerm);   /* Catch kill signals */
@@ -896,10 +896,10 @@ void game_loop()
                                 continue;
 
                         d->idle++;  /* make it so a descriptor can idle out */
-                        if (FD_ISSET(d->descriptor, &exc_set))
+                        if (FdIsset(d->descriptor, &exc_set))
                         {
-                                FD_CLR(d->descriptor, &in_set);
-                                FD_CLR(d->descriptor, &out_set);
+                                FdClr(d->descriptor, &in_set);
+                                FdClr(d->descriptor, &out_set);
                                 if (d->character
                                     && (d->connected == ConPlaying
                                         || d->connected == ConEditing))
@@ -909,8 +909,8 @@ void game_loop()
                                 continue;
                         }
                         else if ((!d->character && d->idle > 360)   /* 2 mins */
-                                 || (!IS_IMMORTAL(d->character) && d->connected != ConPlaying && d->idle > 1200)   /* 5 mins */
-                                 || (!IS_IMMORTAL(d->character) && d->idle > 28800))    /* 2 hrs  */
+                                 || (!IsImmortal(d->character) && d->connected != ConPlaying && d->idle > 1200)   /* 5 mins */
+                                 || (!IsImmortal(d->character) && d->idle > 28800))    /* 2 hrs  */
                         {
                                 write_to_descriptor(d->descriptor,
                                                     const_cast<char *>(const_cast<char *>("Idle timeout... disconnecting.\n\r")),
@@ -923,14 +923,14 @@ void game_loop()
                         {
                                 d->fcommand = FALSE;
 
-                                if (FD_ISSET(d->descriptor, &in_set))
+                                if (FdIsset(d->descriptor, &in_set))
                                 {
                                         d->idle = 0;
                                         if (d->character)
                                                 d->character->timer = 0;
                                         if (!read_from_descriptor(d))
                                         {
-                                                FD_CLR(d->descriptor,
+                                                FdClr(d->descriptor,
                                                        &out_set);
                                                 if (d->character
                                                     && (d->connected ==
@@ -947,7 +947,7 @@ void game_loop()
 
                                 if ((d->connected == ConPlaying
                                      || d->character != NULL) && d->IFd != -1
-                                    && FD_ISSET(d->IFd, &in_set))
+                                    && FdIsset(d->IFd, &in_set))
                                         process_dns(d);
 
                                 if (d->character && d->character->wait > 0)
@@ -1005,7 +1005,7 @@ void game_loop()
                         d_next = d->next;
 
                         if ((d->fcommand || d->OutTop > 0)
-                            && FD_ISSET(d->descriptor, &out_set))
+                            && FdIsset(d->descriptor, &out_set))
                         {
                                 if (d->PagePoint)
                                 {
@@ -1089,7 +1089,7 @@ void game_loop()
                  * Check every 5 seconds...  (don't need it right now)
                  * if ( last_check+5 < current_time )
                  * {
-                 * CHECK_LINKS(first_descriptor, last_descriptor, next, prev,
+                 * CheckLinks(first_descriptor, last_descriptor, next, prev,
                  * DescriptorData);
                  * last_check = current_time;
                  * }
@@ -1188,11 +1188,11 @@ void new_descriptor(int new_desc)
         init_descriptor(dnew, desc);
         // No need to store the result in a variable since we're not using it
         gethostbyaddr(reinterpret_cast<char *>(&sock.sin_addr), sizeof(sock.sin_addr),
-                             AF_INET);
+                             AfInet);
         mudstrlcpy(log_buf, inet_ntoa(sock.sin_addr), MIL * 2);
         dnew->host = STRALLOC(log_buf);
 
-        if (!sysdata.NO_NAME_RESOLVING)
+        if (!sysdata.NoNameResolving)
         {
                 mudstrlcpy(buf, in_dns_cache(log_buf), MSL);
 
@@ -1206,7 +1206,7 @@ void new_descriptor(int new_desc)
         }
 
         snprintf(log_buf, MIL * 2, "Sock.sinaddr:  %s", dnew->host);
-        log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
+        log_string_plus(log_buf, LogComm, sysdata.log_level);
 
         if (check_total_bans(dnew))
         {
@@ -1302,7 +1302,7 @@ void new_descriptor(int new_desc)
                 snprintf(log_buf, MSL,
                          "Broke all-time maximum player record: %d",
                          sysdata.alltimemax);
-                log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
+                log_string_plus(log_buf, LogComm, sysdata.log_level);
                 save_sysdata(sysdata);
         }
         set_alarm(0);
@@ -1434,13 +1434,13 @@ void close_socket(DescriptorData * dclose, bool Force)
         if (dclose->character)
         {
                 snprintf(log_buf, MSL, "Closing link to %s.", ch->name);
-                log_string_plus(log_buf, LOG_COMM,
+                log_string_plus(log_buf, LogComm,
                                 UMAX(sysdata.log_level, ch->top_level));
                 if (dclose->connected == ConPlaying
                     || dclose->connected == ConEditing)
                 {
-                        act(AT_ACTION, "$n has lost $s link.", ch, NULL, NULL,
-                            TO_ROOM);
+                        act(AtAction, "$n has lost $s link.", ch, NULL, NULL,
+                            ToRoom);
                         ch->desc = static_cast<sh_int>(NULL);
                 }
                 else
@@ -1522,7 +1522,7 @@ bool read_from_descriptor(DescriptorData * d)
                 }
                 else if (nRead == 0)
                 {
-                        log_string_plus("EOF encountered on read.", LOG_COMM,
+                        log_string_plus("EOF encountered on read.", LogComm,
                                         sysdata.log_level);
                         return FALSE;
                 }
@@ -1575,7 +1575,7 @@ void read_from_buffer(DescriptorData * d)
                                 unsigned int x = 0;
                                 unsigned char *oldp = p;
 
-                                p += sizeof(term_call_back_str);    /* skip TERMINAL_TYPE / IS characters */
+                                p += sizeof(term_call_back_str);    /* skip TerminalType / IS characters */
 
                                 for (x = 0; x < (sizeof(tmp) - 1) && *p != 0    /* null marks end of buffer */
                                      && *p != IAC;  /* should terminate with IAC */
@@ -1617,11 +1617,11 @@ void read_from_buffer(DescriptorData * d)
 
                         if (d->InBuf[i + temp] == '\0')
                                 mudstrlcat(buf, " NULL", 255);
-                        else if (TELOPT_OK(d->InBuf[i + temp]))
+                        else if (TeloptOk(d->InBuf[i + temp]))
                                 mudstrlcat(buf,
                                            telopts[(unsigned int) d->
                                                    InBuf[i + temp]], 255);
-                        else if (TELCMD_OK(d->InBuf[i + temp]))
+                        else if (TelcmdOk(d->InBuf[i + temp]))
                                 mudstrlcat(buf,
                                            telcmds[((unsigned int) d->
                                                     InBuf[i + temp]) - 236],
@@ -1666,7 +1666,7 @@ void read_from_buffer(DescriptorData * d)
                 else if (iac == 2)
                 {
                         iac = 0;
-                        if (d->InBuf[i] == static_cast<signed char>(TERMINAL_TYPE))
+                        if (d->InBuf[i] == static_cast<signed char>(TerminalType))
                         {
                                 if (d->InBuf[i - 1] == static_cast<signed char>(WILL))
                                         write_to_buffer(d,
@@ -1697,7 +1697,7 @@ void read_from_buffer(DescriptorData * d)
                                         compressEnd(d);
                         }
 #endif
-                        else if (d->InBuf[i] == static_cast<signed char>(TELOPT_MXP))
+                        else if (d->InBuf[i] == static_cast<signed char>(TeloptMxp))
                         {
                                 if (d->InBuf[i - 1] == static_cast<signed char>(DO))
                                 {
@@ -1710,7 +1710,7 @@ void read_from_buffer(DescriptorData * d)
                                          static_cast<signed char>(DONT))
                                         d->MxpDetected = FALSE;
                         }
-                        else if (d->InBuf[i] == static_cast<signed char>(TELOPT_MSP))
+                        else if (d->InBuf[i] == static_cast<signed char>(TeloptMsp))
                         {
                                 if (d->InBuf[i - 1] == static_cast<signed char>(DO))
                                         d->MspDetected = TRUE;
@@ -1855,12 +1855,12 @@ bool flush_buffer(DescriptorData * d, bool fPrompt)
         if (fPrompt && !mud_down && d->connected == ConPlaying)
         {
                 ch = d->original ? d->original : d->character;
-                if (IS_SET(ch->act, PLR_BLANK))
+                if (IsSet(ch->act, PlrBlank))
                         write_to_buffer(d, "\n\r", 2);
 
-                if (IS_SET(ch->act, PLR_PROMPT))
+                if (IsSet(ch->act, PlrPrompt))
                         display_prompt(d);
-                if (IS_SET(ch->act, PLR_TELNET_GA))
+                if (IsSet(ch->act, PlrTelnetGa))
                         write_to_buffer(d, go_ahead_str, 0);
         }
 
@@ -2215,9 +2215,9 @@ void nanny(DescriptorData * d, char *argument)
                                  * New player 
                                  */
                                 /*
-                                 * Don't allow new players if DENY_NEW_PLAYERS is true 
+                                 * Don't allow new players if DenyNewPlayers is true 
                                  */
-                                if (sysdata.DENY_NEW_PLAYERS == TRUE)
+                                if (sysdata.DenyNewPlayers == TRUE)
                                 {
                                         send_to_desc_color
                                                 ("The mud is currently preparing for a reboot.\n\r",
@@ -2599,9 +2599,9 @@ void nanny(DescriptorData * d, char *argument)
                                  * New player 
                                  */
                                 /*
-                                 * Don't allow new players if DENY_NEW_PLAYERS is true 
+                                 * Don't allow new players if DenyNewPlayers is true 
                                  */
-                                if (sysdata.DENY_NEW_PLAYERS == TRUE)
+                                if (sysdata.DenyNewPlayers == TRUE)
                                 {
                                         send_to_desc_color
                                                 ("The mud is currently preparing for a reboot.\n\r",
@@ -2706,7 +2706,7 @@ void nanny(DescriptorData * d, char *argument)
                         close_socket(d, FALSE);
                         return;
                 }
-                else if (check_bans(d->character, BAN_SITE))
+                else if (check_bans(d->character, BanSite))
                 {
                         send_to_desc_color
                                 ("&BY&zour site has been banned from this Mud.\n\r",
@@ -2717,11 +2717,11 @@ void nanny(DescriptorData * d, char *argument)
 
                 ch = d->character;
 
-                if (IS_SET(ch->act, PLR_DENY))
+                if (IsSet(ch->act, PlrDeny))
                 {
                         snprintf(log_buf, MSL, "Denying access to %s@%s.",
                                  argument, d->host);
-                        log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
+                        log_string_plus(log_buf, LogComm, sysdata.log_level);
                         if (d->NewState != 0)
                         {
                                 send_to_desc_color
@@ -2746,7 +2746,7 @@ void nanny(DescriptorData * d, char *argument)
                 }
                 else
                 {
-                        if (wizlock && !IS_IMMORTAL(ch))
+                        if (wizlock && !IsImmortal(ch))
                         {
                                 send_to_desc_color
                                         ("&BT&zhe game is wizlocked.  Only immortals can connect now.\n\r",
@@ -2800,7 +2800,7 @@ void nanny(DescriptorData * d, char *argument)
                         ch = d->character;
                         snprintf(log_buf, MSL, "%s@%s has connected.",
                                  ch->name, d->host);
-                        log_string_plus(log_buf, LOG_COMM, ch->top_level);
+                        log_string_plus(log_buf, LogComm, ch->top_level);
                         show_title(d);
                         if (ch->pcdata->area)
                                 do_loadarea(ch, "");
@@ -2990,9 +2990,9 @@ case ConGetName:
                                  * New player 
                                  */
                                 /*
-                                 * Don't allow new players if DENY_NEW_PLAYERS is true 
+                                 * Don't allow new players if DenyNewPlayers is true 
                                  */
-                                if (sysdata.DENY_NEW_PLAYERS == TRUE)
+                                if (sysdata.DenyNewPlayers == TRUE)
                                 {
                                         write_to_buffer(d,
                                                         "New players are not accepted during this time.\n\r",
@@ -3042,11 +3042,11 @@ case ConGetName:
                 }
                 ch = d->character;
 
-                if (IS_SET(ch->act, PLR_DENY))
+                if (IsSet(ch->act, PlrDeny))
                 {
                         snprintf(log_buf, MSL, "Denying access to %s@%s.",
                                  argument, d->host);
-                        log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
+                        log_string_plus(log_buf, LogComm, sysdata.log_level);
                         if (d->NewState != 0)
                         {
                                 send_to_desc_color
@@ -3069,7 +3069,7 @@ case ConGetName:
                 }
                 else
                 {
-                        if (wizlock && !IS_IMMORTAL(ch))
+                        if (wizlock && !IsImmortal(ch))
                         {
                                 send_to_desc_color
                                         ("&BT&zhe game is wizlocked.  Only immortals can connect now.\n\r",
@@ -3083,7 +3083,7 @@ case ConGetName:
 
                 if (fOld)
                 {
-                        if (check_bans(d->character, BAN_CLASS))
+                        if (check_bans(d->character, BanClass))
                         {
                                 write_to_buffer(d,
                                                 "Your class has been banned from this Mud.\n\r",
@@ -3092,7 +3092,7 @@ case ConGetName:
                                 return;
                         }
 
-                        if (check_bans(d->character, BAN_RACE))
+                        if (check_bans(d->character, BanRace))
                         {
                                 write_to_buffer(d,
                                                 "Your race has been banned from this Mud.\n\r",
@@ -3189,7 +3189,7 @@ case ConGetName:
                 ch = d->character;
                 snprintf(log_buf, MSL, "%s@%s has connected.", ch->name,
                          d->host);
-                log_string_plus(log_buf, LOG_COMM, ch->top_level);
+                log_string_plus(log_buf, LogComm, ch->top_level);
                 show_title(d);
                 if (ch->pcdata->area)
                         do_loadarea(ch, "");
@@ -3323,15 +3323,15 @@ case ConGetName:
                 {
                 case 'm':
                 case 'M':
-                        ch->sex = static_cast<sh_int>(SEX_MALE);
+                        ch->sex = static_cast<sh_int>(SexMale);
                         break;
                 case 'f':
                 case 'F':
-                        ch->sex = static_cast<sh_int>(SEX_FEMALE);
+                        ch->sex = static_cast<sh_int>(SexFemale);
                         break;
                 case 'n':
                 case 'N':
-                        ch->sex = static_cast<sh_int>(SEX_NEUTRAL);
+                        ch->sex = static_cast<sh_int>(SexNeutral);
                         break;
                 default:
                         send_to_desc_color
@@ -3348,7 +3348,7 @@ case ConGetName:
                         ("&z|-----------------------------------------------------------------------|\n\r",
                          d);
                 col = 0;
-                FOR_EACH_LIST(RACE_LIST, races, race)
+                ForEachList(RaceList, races, race)
                 {
                         if (d->Account->rppoints < race->rpneeded())
                                 continue;
@@ -3403,7 +3403,7 @@ case ConGetName:
                 else
                         ch->race = race;
 
-                if (check_bans(ch, BAN_RACE))
+                if (check_bans(ch, BanRace))
                 {
                         send_to_char
                                 ("&BT&zhat race is currently &Rnot avaiable&z.\n\r&BC&zhoice&z:&w ",
@@ -3422,7 +3422,7 @@ case ConGetName:
                 for (iClass = 0; iClass < MaxAbility; iClass++)
                 {
                         if (ch->race
-                            && IS_SET(ch->race->class_restriction(),
+                            && IsSet(ch->race->class_restriction(),
                                       1 << iClass))
                                 continue;
                         if ((iClass == 7 && d->Account->rppoints < 20)
@@ -3472,7 +3472,7 @@ case ConGetName:
                 for (iClass = 0; iClass < MaxAbility; iClass++)
                 {
                         if (ch->race
-                            && IS_SET(ch->race->class_restriction(),
+                            && IsSet(ch->race->class_restriction(),
                                       1 << iClass))
                                 continue;
                         if (toupper(arg[0]) ==
@@ -3495,7 +3495,7 @@ case ConGetName:
                                  d);
                         return;
                 }
-                if (check_bans(ch, BAN_CLASS))
+                if (check_bans(ch, BanClass))
                 {
                         send_to_char
                                 ("&BT&zhat class is currently &Rnot avaiable&z.\n\r&BC&zhoice&z:&w ",
@@ -3599,7 +3599,7 @@ case ConGetName:
                                  UMAX((1 - ch->perm_str),
                                       (3 - ch->perm_str -
                                        ch->race->
-                                       attr_modifier(ATTR_STRENGTH))),
+                                       attr_modifier(AttrStrength))),
                                  (20 - ch->perm_str));
                         send_to_desc_color(buf, d);
                 }
@@ -3609,7 +3609,7 @@ case ConGetName:
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                  UMAX((1 - ch->perm_wis),
                                       (3 - ch->perm_wis -
-                                       ch->race->attr_modifier(ATTR_WISDOM))),
+                                       ch->race->attr_modifier(AttrWisdom))),
                                  (20 - ch->perm_wis));
                         send_to_desc_color(buf, d);
                 }
@@ -3620,7 +3620,7 @@ case ConGetName:
                                  UMAX((1 - ch->perm_int),
                                       (3 - ch->perm_int -
                                        ch->race->
-                                       attr_modifier(ATTR_INTELLIGENCE))),
+                                       attr_modifier(AttrIntelligence))),
                                  (20 - ch->perm_int));
                         send_to_desc_color(buf, d);
                 }
@@ -3631,7 +3631,7 @@ case ConGetName:
                                  UMAX((1 - ch->perm_dex),
                                       (3 - ch->perm_dex -
                                        ch->race->
-                                       attr_modifier(ATTR_DEXTERITY))),
+                                       attr_modifier(AttrDexterity))),
                                  (20 - ch->perm_dex));
                         send_to_desc_color(buf, d);
                 }
@@ -3642,7 +3642,7 @@ case ConGetName:
                                  UMAX((1 - ch->perm_con),
                                       (3 - ch->perm_con -
                                        ch->race->
-                                       attr_modifier(ATTR_CONSTITUTION))),
+                                       attr_modifier(AttrConstitution))),
                                  (20 - ch->perm_con));
                         send_to_desc_color(buf, d);
                 }
@@ -3653,7 +3653,7 @@ case ConGetName:
                                  UMAX((1 - ch->perm_cha),
                                       (3 - ch->perm_cha -
                                        ch->race->
-                                       attr_modifier(ATTR_CHARISMA))),
+                                       attr_modifier(AttrCharisma))),
                                  (20 - ch->perm_cha));
                         send_to_desc_color(buf, d);
                 }
@@ -3684,14 +3684,14 @@ case ConGetName:
                 {
                         if ((i + ch->perm_str) > 20 || (i + ch->perm_str) < 1
                             || (i + ch->perm_str +
-                                ch->race->attr_modifier(ATTR_STRENGTH)) < 3)
+                                ch->race->attr_modifier(AttrStrength)) < 3)
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_str),
                                               (3 - ch->perm_str -
                                                ch->race->
-                                               attr_modifier(ATTR_STRENGTH))),
+                                               attr_modifier(AttrStrength))),
                                          (20 - ch->perm_str));
                                 send_to_desc_color(buf, d);
                                 d->connected = static_cast<sh_int>(ConEditStatNum);
@@ -3704,14 +3704,14 @@ case ConGetName:
                 {
                         if ((i + ch->perm_wis) > 20 || (i + ch->perm_wis) < 1
                             || (i + ch->perm_wis +
-                                ch->race->attr_modifier(ATTR_WISDOM)) < 3)
+                                ch->race->attr_modifier(AttrWisdom)) < 3)
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_wis),
                                               (3 - ch->perm_wis -
                                                ch->race->
-                                               attr_modifier(ATTR_WISDOM))),
+                                               attr_modifier(AttrWisdom))),
                                          (20 - ch->perm_wis));
                                 send_to_desc_color(buf, d);
                                 d->connected = static_cast<sh_int>(ConEditStatNum);
@@ -3724,7 +3724,7 @@ case ConGetName:
                 {
                         if ((i + ch->perm_int) > 20 || (i + ch->perm_int) < 1
                             || (i + ch->perm_int +
-                                ch->race->attr_modifier(ATTR_INTELLIGENCE)) <
+                                ch->race->attr_modifier(AttrIntelligence)) <
                             3)
                         {
                                 snprintf(buf, MSL,
@@ -3733,7 +3733,7 @@ case ConGetName:
                                               (3 - ch->perm_int -
                                                ch->race->
                                                attr_modifier
-                                               (ATTR_INTELLIGENCE))),
+                                               (AttrIntelligence))),
                                          (20 - ch->perm_int));
                                 send_to_desc_color(buf, d);
                                 d->connected = static_cast<sh_int>(ConEditStatNum);
@@ -3746,7 +3746,7 @@ case ConGetName:
                 {
                         if ((i + ch->perm_dex) > 20 || (i + ch->perm_dex) < 1
                             || (i + ch->perm_dex +
-                                ch->race->attr_modifier(ATTR_DEXTERITY)) < 3)
+                                ch->race->attr_modifier(AttrDexterity)) < 3)
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
@@ -3754,7 +3754,7 @@ case ConGetName:
                                               (3 - ch->perm_dex -
                                                ch->race->
                                                attr_modifier
-                                               (ATTR_DEXTERITY))),
+                                               (AttrDexterity))),
                                          (20 - ch->perm_dex));
                                 send_to_desc_color(buf, d);
                                 d->connected = static_cast<sh_int>(ConEditStatNum);
@@ -3767,7 +3767,7 @@ case ConGetName:
                 {
                         if ((i + ch->perm_con) > 20
                             || (i + ch->perm_con) < 1
-                            || (i + ch->perm_con + ch->race->attr_modifier(ATTR_CONSTITUTION)) < 3)
+                            || (i + ch->perm_con + ch->race->attr_modifier(AttrConstitution)) < 3)
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
@@ -3775,7 +3775,7 @@ case ConGetName:
                                               (3 - ch->perm_con -
                                                ch->race->
                                                attr_modifier
-                                               (ATTR_CONSTITUTION))),
+                                               (AttrConstitution))),
                                          (20 - ch->perm_con));
                                 send_to_desc_color(buf, d);
                                 d->connected = static_cast<sh_int>(ConEditStatNum);
@@ -3788,14 +3788,14 @@ case ConGetName:
                 {
                         if ((i + ch->perm_cha) > 20 || (i + ch->perm_cha) < 1
                             || (i + ch->perm_cha +
-                                ch->race->attr_modifier(ATTR_CHARISMA)) < 3)
+                                ch->race->attr_modifier(AttrCharisma)) < 3)
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_cha),
                                               (3 - ch->perm_cha -
                                                ch->race->
-                                               attr_modifier(ATTR_CHARISMA))),
+                                               attr_modifier(AttrCharisma))),
                                          (20 - ch->perm_cha));
                                 send_to_desc_color(buf, d);
                                 d->connected = static_cast<sh_int>(ConEditStatNum);
@@ -3824,16 +3824,16 @@ case ConGetName:
                 case 'y':
                 case 'Y':
                         ch->perm_str +=
-                                ch->race->attr_modifier(ATTR_STRENGTH);
-                        ch->perm_wis += ch->race->attr_modifier(ATTR_WISDOM);
+                                ch->race->attr_modifier(AttrStrength);
+                        ch->perm_wis += ch->race->attr_modifier(AttrWisdom);
                         ch->perm_int +=
-                                ch->race->attr_modifier(ATTR_INTELLIGENCE);
+                                ch->race->attr_modifier(AttrIntelligence);
                         ch->perm_dex +=
-                                ch->race->attr_modifier(ATTR_DEXTERITY);
+                                ch->race->attr_modifier(AttrDexterity);
                         ch->perm_con +=
-                                ch->race->attr_modifier(ATTR_CONSTITUTION);
+                                ch->race->attr_modifier(AttrConstitution);
                         ch->perm_cha +=
-                                ch->race->attr_modifier(ATTR_CHARISMA);
+                                ch->race->attr_modifier(AttrCharisma);
                         break;
                 case 'n':
                 case 'N':
@@ -3864,7 +3864,7 @@ case ConGetName:
                 {
                 case 'y':
                 case 'Y':
-                        SET_BIT(ch->act, PLR_ANSI);
+                        SetBit(ch->act, PlrAnsi);
                         break;
                 case 'n':
                 case 'N':
@@ -3887,7 +3887,7 @@ case ConGetName:
                 {
                 case 'y':
                 case 'Y':
-                        SET_BIT(ch->act, PLR_SOUND);
+                        SetBit(ch->act, PlrSound);
                         break;
                 case 'n':
                 case 'N':
@@ -3901,10 +3901,10 @@ case ConGetName:
 
                 snprintf(buf, MSL, " %s@%s new %s %s %s\n\r",
                          ch->name, d->host,
-                         ch->sex == SEX_MALE ? "Male" : ch->sex ==
-                         SEX_FEMALE ? "Female" : "Neutra", ch->race->name(),
+                         ch->sex == SexMale ? "Male" : ch->sex ==
+                         SexFemale ? "Female" : "Neutra", ch->race->name(),
                          ability_name[ch->main_ability]);
-                log_string_plus(buf, LOG_COMM, sysdata.log_level);
+                log_string_plus(buf, LogComm, sysdata.log_level);
                 send_to_desc_color("&BP&zress &B[&wENTER&B] ", d);
                 show_title(d);
                 {
@@ -3914,7 +3914,7 @@ case ConGetName:
                                 ch->skill_level[ability] = 0;
                 }
                 ch->top_level = static_cast<sh_int>(0);
-                ch->position = static_cast<sh_int>(POS_STANDING);
+                ch->position = static_cast<sh_int>(PosStanding);
                 d->connected = static_cast<sh_int>(ConPressEnter);
                 return;
                 break;
@@ -3925,21 +3925,21 @@ case ConGetName:
 #else
                 if (chk_watch(get_trust(ch), ch->name, d->host))    /*  --Gorog */
 #endif
-                        SET_BIT(ch->pcdata->flags, PCFLAG_WATCH);
+                        SetBit(ch->pcdata->flags, PcflagWatch);
                 else
-                        REMOVE_BIT(ch->pcdata->flags, PCFLAG_WATCH);
-                if (IS_SET(ch->act, PLR_ANSI))
+                        RemoveBit(ch->pcdata->flags, PcflagWatch);
+                if (IsSet(ch->act, PlrAnsi))
                         send_to_pager("\033[2J", ch);
                 else
                         send_to_pager("\014", ch);
 #ifdef ACCOUNT
-                if (IS_SET(ch->act, PLR_SOUND) && ch->pcdata->Account)
+                if (IsSet(ch->act, PlrSound) && ch->pcdata->Account)
                 {
-                        SET_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
-                        REMOVE_BIT(ch->act, PLR_SOUND);
+                        SetBit(ch->pcdata->Account->flags, AccountSound);
+                        RemoveBit(ch->act, PlrSound);
                 }
 #endif
-                if (IS_IMMORTAL(ch))
+                if (IsImmortal(ch))
                 {
                         HelpData *pHelp = get_help(ch, const_cast<char *>("imotd"));
 
@@ -3992,7 +3992,7 @@ case ConGetName:
                                         send_to_pager(pHelp->text, ch);
                         }
                 }
-				if (!IS_CLANNED(ch))
+				if (!IsClanned(ch))
 				{
                         HelpData *pHelp = get_help(ch, const_cast<char *>("citmotd"));
 
@@ -4007,7 +4007,7 @@ case ConGetName:
                         }
                         send_to_pager("\n\r",ch);
 				}
-                if (!IS_NPC(ch) && IS_SET(ch->pcdata->flags, PCFLAG_GOTMAIL))
+                if (!IsNpc(ch) && IsSet(ch->pcdata->flags, PcflagGotmail))
                         send_to_char
                                 ("&R[&YYou've got mail waiting for you!&R]&W",
                                  ch);
@@ -4015,14 +4015,14 @@ case ConGetName:
                 {
                         for (i = 0; i < maxChanges; i++)
                                 if (changes_table[i].immchange == 1
-                                    && !IS_IMMORTAL(ch))
+                                    && !IsImmortal(ch))
                                         immchanges++;
                         ch_printf(ch,
                                   "&BT&zhere is a total of &B[&w %3d &B]&z changes in the database.\n\r",
                                   maxChanges - immchanges);
 
                 }
-                if (IS_IMMORTAL(ch))
+                if (IsImmortal(ch))
                 {
                         send_to_pager
                                 ("\n\r&BD&zo you wish to enter &wWIZINVIS&z? &B[&wY&z/&wN&B]&R&W    ",
@@ -4041,12 +4041,12 @@ case ConGetName:
                 {
                 case 'y':
                 case 'Y':
-                        SET_BIT(ch->act, PLR_WIZINVIS);
+                        SetBit(ch->act, PlrWizinvis);
                         send_to_desc_color("Wizinvis ON ", d);
                         break;
                 case 'n':
                 case 'N':
-                        REMOVE_BIT(ch->act, PLR_WIZINVIS);
+                        RemoveBit(ch->act, PlrWizinvis);
                         send_to_desc_color("Wizinvis OFF ", d);
                         break;
                 default:
@@ -4096,13 +4096,13 @@ case ConGetName:
                         int       chance = number_percent();
 
                         if (ch->desc->MxpDetected)
-                                SET_BIT(ch->act, PLR_MXP);
+                                SetBit(ch->act, PlrMxp);
                         ch->pcdata->clan = NULL;
                         ch->pcdata->full_name = QUICKLINK(ch->name);
                         ch->pcdata->spouse = STRALLOC(const_cast<char *>(""));
 
                         ch->perm_lck = static_cast<sh_int>(number_range(6, 18));
-                        if (ch->main_ability == FORCE_ABILITY)
+                        if (ch->main_ability == ForceAbility)
                                 ch->perm_frc = static_cast<sh_int>(number_range(3, 20));
                         /*
                          * 1 in 100 chance. To increase, check more random numbers of chance 
@@ -4113,21 +4113,21 @@ case ConGetName:
                                 ch->perm_frc = static_cast<sh_int>(0);
 
                         ch->affected_by = ch->race->affected();
-                        ch->perm_lck += ch->race->attr_modifier(ATTR_LUCK);
+                        ch->perm_lck += ch->race->attr_modifier(AttrLuck);
                         ch->perm_frc =
                                 URANGE(0,
                                        ch->perm_frc +
-                                       ch->race->attr_modifier(ATTR_FORCE),
+                                       ch->race->attr_modifier(AttrForce),
                                        20);
 
                         ch->pcdata->age = static_cast<sh_int>(ch->race->start_age());
 
                         if ((ch->perm_frc -
-                             ch->race->attr_modifier(ATTR_FORCE)) > 0
+                             ch->race->attr_modifier(AttrForce)) > 0
                             && str_cmp(ch->race->name(), "droid"))
 					    {
                                 snprintf(buf, MSL, "%s is starting with natural Force of %d.", ch->name,  ch->perm_frc);
-								log_string_plus(buf, LOG_COMM, sysdata.log_level);
+								log_string_plus(buf, LogComm, sysdata.log_level);
                         }
                         if ((iLang =
                              skill_lookup(ch->race->language()->name)) < 0)
@@ -4179,7 +4179,7 @@ case ConGetName:
                                  ch->race->name());
                         set_title(ch, buf);
                         {
-                                CHANNEL_DATA *channel;
+                                ChannelData *channel;
 
                                 for (channel = first_channel; channel;
                                      channel = channel->next)
@@ -4199,35 +4199,35 @@ case ConGetName:
                          * Added by Narn.  Start new characters with autoexit and autgold
                          * * already turned on.  Very few people don't use those. 
                          */
-                        SET_BIT(ch->act, PLR_AUTOGOLD);
-                        SET_BIT(ch->act, PLR_AUTOEXIT);
+                        SetBit(ch->act, PlrAutogold);
+                        SetBit(ch->act, PlrAutoexit);
 
                         /*
                          * New players don't have to earn some eq 
                          */
 
                         obj = create_object(get_obj_index
-                                            (OBJ_VNUM_SCHOOL_BANNER), 0);
+                                            (ObjVnumSchoolBanner), 0);
                         obj_to_char(obj, ch);
-                        equip_char(ch, obj, WEAR_LIGHT);
+                        equip_char(ch, obj, WearLight);
 
                         /*
                          * Armor they do though
-                         * * obj = create_object( get_obj_index(OBJ_VNUM_SCHOOL_VEST), 0 );
+                         * * obj = create_object( get_obj_index(ObjVnumSchoolVest), 0 );
                          * * obj_to_char( obj, ch );
-                         * * equip_char( ch, obj, WEAR_BODY );
+                         * * equip_char( ch, obj, WearBody );
                          * * 
-                         * * obj = create_object( get_obj_index(OBJ_VNUM_SCHOOL_SHIELD), 0 );
+                         * * obj = create_object( get_obj_index(ObjVnumSchoolShield), 0 );
                          * * obj_to_char( obj, ch );
-                         * * equip_char( ch, obj, WEAR_SHIELD );
+                         * * equip_char( ch, obj, WearShield );
                          * * 
                          */
 
                         obj = create_object(get_obj_index
-                                            (OBJ_VNUM_SCHOOL_DAGGER), 0);
+                                            (ObjVnumSchoolDagger), 0);
                         obj_to_char(obj, ch);
                         ch->gold = static_cast<sh_int>(5000);
-                        equip_char(ch, obj, WEAR_WIELD);
+                        equip_char(ch, obj, WearWield);
 
                         /*
                          * comlink 
@@ -4244,20 +4244,20 @@ case ConGetName:
                         }
 
 
-                        if (!sysdata.WAIT_FOR_AUTH)
+                        if (!sysdata.WaitForAuth)
                         {
                                 char_to_room(ch,
                                              get_room_index
-                                             (ROOM_VNUM_SCHOOL));
+                                             (RoomVnumSchool));
                                 ch->pcdata->AuthState = 3;
                         }
                         else
                         {
                                 char_to_room(ch,
                                              get_room_index
-                                             (ROOM_VNUM_SCHOOL));
+                                             (RoomVnumSchool));
                                 ch->pcdata->AuthState = 1;
-                                SET_BIT(ch->pcdata->flags, PCFLAG_UNAUTHED);
+                                SetBit(ch->pcdata->flags, PcflagUnauthed);
                         }
                         if (!add_to_account(d->Account, ch))
                         {
@@ -4273,17 +4273,17 @@ case ConGetName:
                                 ch->pcdata->birthday.year = time_info.year;
                         if (ch->desc->MspDetected)
                         {
-                                SET_BIT(ch->act, PLR_SOUND);
+                                SetBit(ch->act, PlrSound);
                         }
                 }
                 else
                 {
-                        if (!IS_IMMORTAL(ch)
+                        if (!IsImmortal(ch)
                             && ch->pcdata->release_date > current_time)
                         {
                                 char_to_room(ch, get_room_index(6));
                         }
-                        else if (ch->in_room && !IS_IMMORTAL(ch)
+                        else if (ch->in_room && !IsImmortal(ch)
                                  && ch->in_room->vnum != 6)
                         {
                                 char_to_room(ch, ch->in_room);
@@ -4295,11 +4295,11 @@ case ConGetName:
                         }
                 }
 
-                if (get_timer(ch, TIMER_SHOVEDRAG) > 0)
-                        remove_timer(ch, TIMER_SHOVEDRAG);
+                if (get_timer(ch, TimerShovedrag) > 0)
+                        remove_timer(ch, TimerShovedrag);
 
-                if (get_timer(ch, TIMER_PKILLED) > 0)
-                        remove_timer(ch, TIMER_PKILLED);
+                if (get_timer(ch, TimerPkilled) > 0)
+                        remove_timer(ch, TimerPkilled);
 
                 if (ch->plr_home != NULL)
                 {
@@ -4316,7 +4316,7 @@ case ConGetName:
                                 extract_obj(obj);
                         }
 
-                        snprintf(filename, MSL, "%s%c/%s.home", PLAYER_DIR,
+                        snprintf(filename, MSL, "%s%c/%s.home", PlayerDir,
                                  tolower(ch->name[0]), capitalize(ch->name));
                         if ((fph = fopen(filename, "r")) != NULL)
                         {
@@ -4351,7 +4351,7 @@ case ConGetName:
                                         word = fread_word(fph);
                                         if (!str_cmp(word, "OBJECT"))   
                                                 fread_obj(supermob, fph,
-                                                          OS_CARRY);
+                                                          OsCarry);
                                         else if (!str_cmp(word, "END"))
                                                 break;
                                         else
@@ -4375,14 +4375,14 @@ case ConGetName:
 
                         } */
                 }
-                if (!IS_SET(ch->act, PLR_WIZINVIS))
+                if (!IsSet(ch->act, PlrWizinvis))
                 {
                         snprintf(buf, MSL, "%s has entered %s", ch->name,
                                  sysdata.mud_name);
                         info_chan(buf);
                 }
-                act(AT_ACTION, "$n has entered the game.", ch, NULL, NULL,
-                    TO_ROOM);
+                act(AtAction, "$n has entered the game.", ch, NULL, NULL,
+                    ToRoom);
                 do_look(ch, "auto");
                 mail_count(ch);
                 if (ch->top_level > 1)
@@ -4390,19 +4390,19 @@ case ConGetName:
                         char      motdbuf[MaxStringLength];
                         FILE     *fp;
 
-                        snprintf(motdbuf, MSL, "%s%s", MAIL_DIR,
+                        snprintf(motdbuf, MSL, "%s%s", MailDir,
                                  capitalize(ch->name));
                         if ((fp = fopen(motdbuf, "r")) != NULL)
                         {
-                                SET_BIT(ch->pcdata->flags, PCFLAG_GOTMAIL);
+                                SetBit(ch->pcdata->flags, PcflagGotmail);
                                 FCLOSE(fp);
                         }
                 }
 #ifdef ACCOUNT
-                if (IS_SET(ch->act, PLR_SOUND) && ch->pcdata->Account)
+                if (IsSet(ch->act, PlrSound) && ch->pcdata->Account)
                 {
-                        SET_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
-                        REMOVE_BIT(ch->act, PLR_SOUND);
+                        SetBit(ch->pcdata->Account->flags, AccountSound);
+                        RemoveBit(ch->act, PlrSound);
                 }
 #endif
                 break;
@@ -4477,7 +4477,7 @@ bool check_reconnect(DescriptorData * d, char *name, bool fConn)
 
         for (ch = first_char; ch; ch = ch->next)
         {
-                if (!IS_NPC(ch)
+                if (!IsNpc(ch)
                     && (!fConn || !ch->desc)
                     && ch->name && !str_cmp(name, ch->name))
                 {
@@ -4523,11 +4523,11 @@ bool check_reconnect(DescriptorData * d, char *name, bool fConn)
                                 ch->desc = d;
                                 ch->timer = static_cast<sh_int>(0);
                                 send_to_char("Reconnecting.\n\r", ch);
-                                act(AT_ACTION, "$n has reconnected.", ch,
-                                    NULL, NULL, TO_ROOM);
+                                act(AtAction, "$n has reconnected.", ch,
+                                    NULL, NULL, ToRoom);
                                 snprintf(log_buf, MSL, "%s@%s reconnected.",
                                          ch->name, d->host);
-                                log_string_plus(log_buf, LOG_COMM,
+                                log_string_plus(log_buf, LogComm,
                                                 UMAX(sysdata.log_level,
                                                      ch->top_level));
 #ifdef ACCOUNT
@@ -4592,7 +4592,7 @@ bool check_multi(DescriptorData * d, char *name)
                                  dold->original ? dold->original->
                                  name : dold->character->name,
                                  d->character->name);
-                        log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
+                        log_string_plus(log_buf, LogComm, sysdata.log_level);
                         d->character = NULL;
                         free_char(d->character);
                         return TRUE;
@@ -4630,7 +4630,7 @@ sh_int check_playing(DescriptorData * d, char *name, bool kick)
                                                 0);
                                 snprintf(log_buf, MSL,
                                          "%s already connected.", ch->name);
-                                log_string_plus(log_buf, LOG_COMM,
+                                log_string_plus(log_buf, LogComm,
                                                 sysdata.log_level);
                                 return BERR;
                         }
@@ -4656,13 +4656,13 @@ sh_int check_playing(DescriptorData * d, char *name, bool kick)
                         ch->switched = static_cast<sh_int>(NULL);
                         ch->pcdata->Account->inuse--;
                         send_to_char("Reconnecting.\n\r", ch);
-                        act(AT_ACTION,
+                        act(AtAction,
                             "$n has reconnected, kicking off old link.", ch,
-                            NULL, NULL, TO_ROOM);
+                            NULL, NULL, ToRoom);
                         snprintf(log_buf, MSL,
                                  "%s@%s reconnected, kicking off old link.",
                                  ch->name, d->host);
-                        log_string_plus(log_buf, LOG_COMM,
+                        log_string_plus(log_buf, LogComm,
                                         UMAX(sysdata.log_level,
                                              ch->top_level));
                         d->connected = static_cast<sh_int>(cstate);
@@ -4681,15 +4681,15 @@ void stop_idling(CharData * ch)
             || !ch->desc
             || ch->desc->connected != ConPlaying
             || !ch->was_in_room
-            || ch->in_room != get_room_index(ROOM_VNUM_LIMBO))
+            || ch->in_room != get_room_index(RoomVnumLimbo))
                 return;
 
         ch->timer = static_cast<sh_int>(0);
         char_from_room(ch);
         char_to_room(ch, ch->was_in_room);
         ch->was_in_room = static_cast<sh_int>(NULL);
-        act(AT_ACTION, "$n has returned from the void.", ch, NULL, NULL,
-            TO_ROOM);
+        act(AtAction, "$n has returned from the void.", ch, NULL, NULL,
+            ToRoom);
         return;
 }
 
@@ -4753,9 +4753,9 @@ char     *obj_short(ObjData * obj)
  * The primary output interface for formatted output.
  */
 /* Major overhaul. -- Alty */
-#define NAME(ch)	(IS_NPC((ch)) ? (ch)->short_descr : (ch)->name)
-#define NAME2(ch)	(IS_NPC((ch)) ? (ch)->short_descr : (ch)->pcdata->full_name )
-#define CAN_SEE(ch, vict) ( (OOC && can_see_ooc((vict), (ch))) || (!OOC && can_see((vict), (ch))))
+#define NAME(ch)	(IsNpc((ch)) ? (ch)->short_descr : (ch)->name)
+#define NAME2(ch)	(IsNpc((ch)) ? (ch)->short_descr : (ch)->pcdata->full_name )
+#define CanSee(ch, vict) ( (OOC && can_see_ooc((vict), (ch))) || (!OOC && can_see((vict), (ch))))
 char     *act_string(const char *format, CharData * to, CharData * ch,
                      void *arg1, void *arg2, bool OOC)
 {
@@ -4824,9 +4824,9 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                                                 i =  get_char_desc(ch, to);
                                                 break;
                                         }
-                                        if (CAN_SEE(ch, to))
+                                        if (CanSee(ch, to))
                                                 i = (OOC ? NAME(ch) : get_char_desc(ch, to) );
-                                        else if (OOC && IS_IMMORTAL(ch))
+                                        else if (OOC && IsImmortal(ch))
                                                 i = "An Immortal";
                                         else
                                                 i = "Someone";
@@ -4839,9 +4839,9 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                                                 i =  get_char_desc(vch, NULL);
                                                 break;
                                         }
-                                        if (CAN_SEE(vch, to))
+                                        if (CanSee(vch, to))
                                                 i = (OOC ? NAME(vch) : get_char_desc(vch, to) );
-                                        else if (OOC && IS_IMMORTAL(vch))
+                                        else if (OOC && IsImmortal(vch))
                                                 i = "An Immortal";
                                         else
                                                 i = "Someone";
@@ -4950,10 +4950,10 @@ void act(int AType, const char *format, CharData * ch, void *arg1,
         char     *txt;
         CharData *to;
         CharData *vch = static_cast<CharData *>(arg2);
-        bool      OOC = IS_OOC_ACT(type);
+        bool      OOC = IsOocAct(type);
 
         if (OOC)
-                type -= OOC_TO;
+                type -= OocTo;
         /*
          * Discard null and zero-length messages.
          */
@@ -4968,31 +4968,31 @@ void act(int AType, const char *format, CharData * ch, void *arg1,
 
         if (!ch->in_room)
                 to = NULL;
-        else if (type == TO_CHAR)
+        else if (type == ToChar)
                 to = ch;
-        else if (type == TO_MUD)
+        else if (type == ToMud)
                 to = first_char;
         else
                 to = ch->in_room->first_person;
 
 
         /*
-         * ACT_SECRETIVE and PLR_SECRETIVE handling
+         * ActSecretive and PlrSecretive handling
          */
-        if (IS_NPC(ch) && IS_SET(ch->act, ACT_SECRETIVE) && type != TO_CHAR
+        if (IsNpc(ch) && IsSet(ch->act, ActSecretive) && type != ToChar
             && !OOC)
                 return;
 
-        if (!IS_NPC(ch)
-            && (IS_SET(ch->act, PLR_SECRETIVE)
-                || IS_AFFECTED(ch, AFF_SECRETIVE)) && type != TO_CHAR && !OOC)
+        if (!IsNpc(ch)
+            && (IsSet(ch->act, PlrSecretive)
+                || IsAffected(ch, AffSecretive)) && type != ToChar && !OOC)
                 return;
 
-        if (type == TO_VICT)
+        if (type == ToVict)
         {
                 if (!vch)
                 {
-                        bug("Act: null vch with TO_VICT.");
+                        bug("Act: null vch with ToVict.");
                         bug("%s (%s)", ch->name, format);
                         return;
                 }
@@ -5005,20 +5005,20 @@ void act(int AType, const char *format, CharData * ch, void *arg1,
                 to = vch;
         }
 
-        if (MOBtrigger && type != TO_CHAR && type != TO_VICT && to
-            && !IS_OOC_ACT(type))
+        if (MOBtrigger && type != ToChar && type != ToVict && to
+            && !IsOocAct(type))
         {
                 ObjData *to_obj;
 
                 txt = act_string(format, NULL, ch, arg1, arg2, OOC);
                 if (!to->in_room)
                         return;
-                if (IS_SET(to->in_room->progtypes, ACT_PROG))
+                if (IsSet(to->in_room->progtypes, ActProg))
                         rprog_act_trigger(txt, to->in_room, ch,
                                           static_cast<ObjData *>(arg1), static_cast<void *>(arg2));
                 for (to_obj = to->in_room->first_content; to_obj;
                      to_obj = to_obj->next_content)
-                        if (IS_SET(to_obj->pIndexData->progtypes, ACT_PROG))
+                        if (IsSet(to_obj->pIndexData->progtypes, ActProg))
                                 oprog_act_trigger(txt, to_obj, ch,
                                                   static_cast<ObjData *>(arg1),
                                                   static_cast<void *>(arg2));
@@ -5030,26 +5030,26 @@ void act(int AType, const char *format, CharData * ch, void *arg1,
          */
 
         for (; to;
-             to = (type == TO_MUD) ? to->next : (type == TO_CHAR
+             to = (type == ToMud) ? to->next : (type == ToChar
                                                  || type ==
-                                                 TO_VICT) ? NULL : to->
+                                                 ToVict) ? NULL : to->
              next_in_room)
         {
                 if ((!to->desc
-                     && (IS_NPC(to)
-                         && !IS_SET(to->pIndexData->progtypes, ACT_PROG)))
-                    || (!OOC && !IS_AWAKE(to)))
+                     && (IsNpc(to)
+                         && !IsSet(to->pIndexData->progtypes, ActProg)))
+                    || (!OOC && !IsAwake(to)))
                         continue;
 
-                if (type == TO_CHAR && to != ch)
+                if (type == ToChar && to != ch)
                         continue;
-                if (type == TO_VICT && (to != vch || to == ch))
+                if (type == ToVict && (to != vch || to == ch))
                         continue;
-                if (type == TO_ROOM && to == ch)
+                if (type == ToRoom && to == ch)
                         continue;
-                if (type == TO_NOTVICT && (to == ch || to == vch))
+                if (type == ToNotvict && (to == ch || to == vch))
                         continue;
-                if (type == TO_MUD && (to == ch || to == vch))
+                if (type == ToMud && (to == ch || to == vch))
                         continue;
 
                 /*
@@ -5064,7 +5064,7 @@ void act(int AType, const char *format, CharData * ch, void *arg1,
                         set_char_color(static_cast<sh_int>(AType), to);
                         send_to_char(txt, to);
                 }
-                if (MOBtrigger && !IS_OOC_ACT(type))
+                if (MOBtrigger && !IsOocAct(type))
                 {
                         /*
                          * Note: use original string, not string with ANSI. -- Alty 
@@ -5083,7 +5083,7 @@ CMDF do_name(CharData * ch, char *argument)
         struct stat fst;
         CharData *tmp;
 
-        if (!NOT_AUTHED(ch) || ch->pcdata->AuthState != 2)
+        if (!NotAuthed(ch) || ch->pcdata->AuthState != 2)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -5117,7 +5117,7 @@ CMDF do_name(CharData * ch, char *argument)
                 return;
         }
 
-        snprintf(fname, MSL, "%s%c/%s", PLAYER_DIR, tolower(argument[0]),
+        snprintf(fname, MSL, "%s%c/%s", PlayerDir, tolower(argument[0]),
                  capitalize(argument));
         if (stat(fname, &fst) != -1)
         {
@@ -5134,7 +5134,7 @@ CMDF do_name(CharData * ch, char *argument)
         send_to_char("Your name has been changed.  Please apply again.\n\r",
                      ch);
         ch->pcdata->AuthState = 1;
-        SET_BIT(ch->pcdata->flags, PCFLAG_UNAUTHED);
+        SetBit(ch->pcdata->flags, PcflagUnauthed);
         return;
 }
 
@@ -5143,7 +5143,7 @@ char     *default_prompt(CharData * ch)
         static char buf[MaxStringLength];
 
         mudstrlcpy(buf, "", MSL);
-        if (ch->skill_level[FORCE_ABILITY] > 1
+        if (ch->skill_level[ForceAbility] > 1
             || get_trust(ch) >= LevelImmortal)
                 mudstrlcat(buf, "&pAlign:&P%a ", MSL);
         mudstrlcat(buf, "&BHealth:&C%h&B/%H  &pEndurance:&P%m/&p%M", MSL);
@@ -5165,7 +5165,7 @@ char     *gav_prompt(CharData * ch)
         mudstrlcat(buf, "&C> &w", MSL);
         /*
          * mudstrlcpy( buf,"",MSL);
-         * if (ch->skill_level[FORCE_ABILITY] > 1 || get_trust(ch) >= LevelImmortal )
+         * if (ch->skill_level[ForceAbility] > 1 || get_trust(ch) >= LevelImmortal )
          * mudstrlcat(buf, "&pForce:&P%m/&p%M  &pAlign:&P%a\n\r", MSL);      
          * mudstrlcat(buf, "&B<Health>&C%h&B/%H  &B<Movement>&C%v&B/%V", MSL);
          * mudstrlcat(buf, " &YGold:&O%g", MSL);
@@ -5190,7 +5190,7 @@ void display_prompt(DescriptorData * d)
         CharData *ch = d->character;
         CharData *och = (d->original ? d->original : d->character);
         CharData *victim;
-        bool      ansi = (!IS_NPC(och) && IS_SET(och->act, PLR_ANSI));
+        bool      ansi = (!IsNpc(och) && IsSet(och->act, PlrAnsi));
         const char *prompt;
         char      buf[MaxStringLength];
         char     *pbuf = buf;
@@ -5202,13 +5202,13 @@ void display_prompt(DescriptorData * d)
                 return;
         }
 
-        if (IS_MXP(ch))
+        if (IsMxp(ch))
                 send_to_char(MXPTAG("Prompt"), ch);
 
-        if (!IS_NPC(ch) && ch->substate != SubNone && ch->pcdata->subprompt
+        if (!IsNpc(ch) && ch->substate != SubNone && ch->pcdata->subprompt
             && ch->pcdata->subprompt[0] != '\0')
                 prompt = ch->pcdata->subprompt;
-        else if (IS_NPC(ch))
+        else if (IsNpc(ch))
                 prompt = gav_prompt(ch);
 		else if (ch->pcdata->Account && (!ch->pcdata->Account->email || ch->pcdata->Account->email[0] == '\0'))
 				prompt = no_email_prompt;
@@ -5224,7 +5224,7 @@ void display_prompt(DescriptorData * d)
 
         if (ansi)
         {
-                mudstrlcpy(pbuf, ANSI_RESET, MSL);
+                mudstrlcpy(pbuf, AnsiReset, MSL);
                 d->PrevColor = 0x08;
                 pbuf += 4;
         }
@@ -5269,15 +5269,15 @@ void display_prompt(DescriptorData * d)
                         case 'a':
                                 if (ch->top_level >= 10)
                                         pstat = ch->alignment;
-                                else if (IS_GOOD(ch))
+                                else if (IsGood(ch))
                                         mudstrlcpy(pbuf, "good", MSL);
-                                else if (IS_EVIL(ch))
+                                else if (IsEvil(ch))
                                         mudstrlcpy(pbuf, "evil", MSL);
                                 else
                                         mudstrlcpy(pbuf, "neutral", MSL);
                                 break;
                         case 'b': /* Combat XP needed till next level */
-                                snprintf(pbuf, MSL, "%ld", (exp_level(ch->skill_level[COMBAT_ABILITY] + 1) - ch->experience[COMBAT_ABILITY]));                                
+                                snprintf(pbuf, MSL, "%ld", (exp_level(ch->skill_level[CombatAbility] + 1) - ch->experience[CombatAbility]));                                
                                 break;
                         case 'C':
                                 if (ch->max_hit > 0)
@@ -5446,9 +5446,9 @@ void display_prompt(DescriptorData * d)
                                                 if (d->connected ==
                                                     ConPlaying
                                                     && d->character
-                                                    && !IS_SET(d->character->
+                                                    && !IsSet(d->character->
                                                                act,
-                                                               PLR_WIZINVIS))
+                                                               PlrWizinvis))
                                                         count++;
                                         pstat = count;
                                 }
@@ -5472,32 +5472,32 @@ void display_prompt(DescriptorData * d)
                                 pstat = static_cast<int>(ch->gold);
                                 break;
                         case 'r':
-                                if (IS_IMMORTAL(och))
+                                if (IsImmortal(och))
                                         pstat = ch->in_room->vnum;
                                 break;
                         case 'R':
-                                if (IS_SET(och->act, PLR_ROOMVNUM))
+                                if (IsSet(och->act, PlrRoomvnum))
                                         snprintf(pbuf, MSL, "<#%d> ",
                                                  ch->in_room->vnum);
                                 break;
                         case 'i':
-                                if ((!IS_NPC(ch)
-                                     && IS_SET(ch->act, PLR_WIZINVIS))
-                                    || (IS_NPC(ch)
-                                        && IS_SET(ch->act, ACT_MOBINVIS)))
+                                if ((!IsNpc(ch)
+                                     && IsSet(ch->act, PlrWizinvis))
+                                    || (IsNpc(ch)
+                                        && IsSet(ch->act, ActMobinvis)))
                                         snprintf(pbuf, MSL, "(Invis %d) ",
-                                                 (IS_NPC(ch) ? ch->
+                                                 (IsNpc(ch) ? ch->
                                                   mobinvis : ch->pcdata->
                                                   wizinvis));
-                                else if (IS_AFFECTED(ch, AFF_INVISIBLE))
+                                else if (IsAffected(ch, AffInvisible))
                                         snprintf(pbuf, MSL, "%s", "(Invis) ");
                                 break;
                         case 'I':
-                                pstat = (IS_NPC(ch)
-                                         ? (IS_SET(ch->act, ACT_MOBINVIS) ?
-                                            ch->mobinvis : 0) : (IS_SET(ch->
+                                pstat = (IsNpc(ch)
+                                         ? (IsSet(ch->act, ActMobinvis) ?
+                                            ch->mobinvis : 0) : (IsSet(ch->
                                                                         act,
-                                                                        PLR_WIZINVIS)
+                                                                        PlrWizinvis)
                                                                  ? ch->
                                                                  pcdata->
                                                                  wizinvis :
@@ -5512,7 +5512,7 @@ void display_prompt(DescriptorData * d)
         }
         *pbuf = '\0';
         send_to_char(buf, ch);
-        if (IS_MXP(ch))
+        if (IsMxp(ch))
                 send_to_char(MXPTAG("/Prompt"), ch);
         if (d)
         {
@@ -5534,15 +5534,15 @@ const char* position_name(int position)
 {
     switch (position)
     {
-        case POS_DEAD:      return "Dead";
-        case POS_MORTAL:    return "Mortal";
-        case POS_INCAP:     return "Incapacitated";
-        case POS_STUNNED:   return "Stunned";
-        case POS_SLEEPING:  return "Sleeping";
-        case POS_RESTING:   return "Resting";
-        case POS_SITTING:   return "Sitting";
-        case POS_FIGHTING:  return "Fighting";
-        case POS_STANDING:  return "Standing";
+        case PosDead:      return "Dead";
+        case PosMortal:    return "Mortal";
+        case PosIncap:     return "Incapacitated";
+        case PosStunned:   return "Stunned";
+        case PosSleeping:  return "Sleeping";
+        case PosResting:   return "Resting";
+        case PosSitting:   return "Sitting";
+        case PosFighting:  return "Fighting";
+        case PosStanding:  return "Standing";
         default:            return "Unknown";
     }
 }
@@ -5620,8 +5620,8 @@ bool pager_output(DescriptorData * d)
                 return TRUE;
         }
         d->PageCmd = -1;
-        if (IS_SET(ch->act, PLR_ANSI))
-                if (write_to_descriptor(d->descriptor, const_cast<char*>(ANSI_LBLUE), 0) ==
+        if (IsSet(ch->act, PlrAnsi))
+                if (write_to_descriptor(d->descriptor, const_cast<char*>(AnsiLblue), 0) ==
                     FALSE)
                         return FALSE;
         if ((ret =
@@ -5629,7 +5629,7 @@ bool pager_output(DescriptorData * d)
                                  const_cast<char*>("(C)ontinue, (R)efresh, (B)ack, (Q)uit: [C] "),
                                  0)) == FALSE)
                 return FALSE;
-        if (IS_SET(ch->act, PLR_ANSI))
+        if (IsSet(ch->act, PlrAnsi))
         {
                 char      buf[32];
 
@@ -5705,33 +5705,33 @@ void show_stat_options(DescriptorData * d, CharData * ch)
                  d);
         snprintf(buf, MSL,
                  "&z|&B[&wStrength             %-2d&B]&z|&B[&wRacial Bonus        &w%+2d&B]&z|&B[ &wTotal:         &w%-2d&B]&z|\n\r",
-                 ch->perm_str, ch->race->attr_modifier(ATTR_STRENGTH),
-                 ch->perm_str + ch->race->attr_modifier(ATTR_STRENGTH));
+                 ch->perm_str, ch->race->attr_modifier(AttrStrength),
+                 ch->perm_str + ch->race->attr_modifier(AttrStrength));
         send_to_desc_color(buf, d);
         snprintf(buf, MSL,
                  "&z|&B[&wWisdom               %-2d&B]&z|&B[&wRacial Bonus        &w%+2d&B]&z|&B[ &wTotal:         &w%-2d&B]&z|\n\r",
-                 ch->perm_wis, ch->race->attr_modifier(ATTR_WISDOM),
-                 ch->perm_wis + ch->race->attr_modifier(ATTR_WISDOM));
+                 ch->perm_wis, ch->race->attr_modifier(AttrWisdom),
+                 ch->perm_wis + ch->race->attr_modifier(AttrWisdom));
         send_to_desc_color(buf, d);
         snprintf(buf, MSL,
                  "&z|&B[&wIntelligence         %-2d&B]&z|&B[&wRacial Bonus        &w%+2d&B]&z|&B[ &wTotal:         &w%-2d&B]&z|\n\r",
-                 ch->perm_int, ch->race->attr_modifier(ATTR_INTELLIGENCE),
-                 ch->perm_int + ch->race->attr_modifier(ATTR_INTELLIGENCE));
+                 ch->perm_int, ch->race->attr_modifier(AttrIntelligence),
+                 ch->perm_int + ch->race->attr_modifier(AttrIntelligence));
         send_to_desc_color(buf, d);
         snprintf(buf, MSL,
                  "&z|&B[&wDexterity            %-2d&B]&z|&B[&wRacial Bonus        &w%+2d&B]&z|&B[ &wTotal:         &w%-2d&B]&z|\n\r",
-                 ch->perm_dex, ch->race->attr_modifier(ATTR_DEXTERITY),
-                 ch->perm_dex + ch->race->attr_modifier(ATTR_DEXTERITY));
+                 ch->perm_dex, ch->race->attr_modifier(AttrDexterity),
+                 ch->perm_dex + ch->race->attr_modifier(AttrDexterity));
         send_to_desc_color(buf, d);
         snprintf(buf, MSL,
                  "&z|&B[&wConstitution         %-2d&B]&z|&B[&wRacial Bonus        &w%+2d&B]&z|&B[ &wTotal:         &w%-2d&B]&z|\n\r",
-                 ch->perm_con, ch->race->attr_modifier(ATTR_CONSTITUTION),
-                 ch->perm_con + ch->race->attr_modifier(ATTR_CONSTITUTION));
+                 ch->perm_con, ch->race->attr_modifier(AttrConstitution),
+                 ch->perm_con + ch->race->attr_modifier(AttrConstitution));
         send_to_desc_color(buf, d);
         snprintf(buf, MSL,
                  "&z|&B[&wCharisma             %-2d&B]&z|&B[&wRacial Bonus        &w%+2d&B]&z|&B[ &wTotal:         &w%-2d&B]&z|\n\r",
-                 ch->perm_cha, ch->race->attr_modifier(ATTR_CHARISMA),
-                 ch->perm_cha + ch->race->attr_modifier(ATTR_CHARISMA));
+                 ch->perm_cha, ch->race->attr_modifier(AttrCharisma),
+                 ch->perm_cha + ch->race->attr_modifier(AttrCharisma));
         send_to_desc_color(buf, d);
         send_to_desc_color
                 ("&z|-----------------------------------------------------------------------|\n\r",

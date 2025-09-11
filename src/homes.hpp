@@ -49,36 +49,36 @@
 #include "grid.hpp"
 
 
-struct ROOMMATE_DATA {
+struct RoommateData {
 	int type = 0; // Unused legacy field
 	std::string name;
-	ROOMMATE_DATA();
-	~ROOMMATE_DATA();
+	RoommateData();
+	~RoommateData();
 };
 
 
-using ROOM_LIST = std::list<RoomIndexData*>;
-using ROOMMATE_LIST = std::list<std::shared_ptr<ROOMMATE_DATA>>;
+using RoomList = std::list<RoomIndexData*>;
+using RoommateList = std::list<std::shared_ptr<RoommateData>>;
 
-struct HOME_DATA {
-	HOME_DATA* next = nullptr;
-	HOME_DATA* prev = nullptr;
+struct HomeData {
+	HomeData* next = nullptr;
+	HomeData* prev = nullptr;
 	std::string filename;
 	std::string name;
 	std::string description;
 	std::string owner; // Can be clan, player, or 'public'
 	long int price = 0;
-	std::shared_ptr<GRID_WRAPPER> grid;
+	std::shared_ptr<GridWrapper> grid;
 
-	ROOMMATE_LIST roommates;
-	ROOM_LIST rooms;
+	RoommateList roommates;
+	RoomList rooms;
 
 	// Status: Public, private
 	// (Default) Private - Only allowed list of people allowed in
 	//           Public  - Anyone allowed in, good for shops and stuff
 
-	HOME_DATA();
-	~HOME_DATA();
+	HomeData();
+	~HomeData();
 	void save();
 	void add_room(CharData* ch, const std::string& argument);
 	void decorate_room(CharData* ch, const std::string& argument);
@@ -88,11 +88,11 @@ struct HOME_DATA {
 	void reset();
 
 	// Remove a roommate
-	inline void remove(const std::shared_ptr<ROOMMATE_DATA>& roomie) {
+	inline void remove(const std::shared_ptr<RoommateData>& roomie) {
 		roommates.remove(roomie);
 	}
 	// Add a roommate
-	inline void add(const std::shared_ptr<ROOMMATE_DATA>& roomie) {
+	inline void add(const std::shared_ptr<RoommateData>& roomie) {
 		roommates.push_back(roomie);
 	}
 	// Remove a room
@@ -109,31 +109,31 @@ struct HOME_DATA {
 
 
 constexpr auto HOMEDIR = "../homes/";
-constexpr auto HOME_LIST = "homes.lst";
-constexpr int HOME_SAVE_TIME = 60 * 20; // 20 Minutes
+constexpr auto HomeList = "homes.lst";
+constexpr int HomeSaveTime = 60 * 20; // 20 Minutes
 
 // homes.c
-HOME_DATA* get_home(const std::string& name);
-void save_home2(HOME_DATA* home);
+HomeData* get_home(const std::string& name);
+void save_home2(HomeData* home);
 void write_home_list();
-void fwrite_roommates(FILE* fp, HOME_DATA* home);
+void fwrite_roommates(FILE* fp, HomeData* home);
 void load_homes();
-void fread_roommate(std::shared_ptr<ROOMMATE_DATA> roomie, FILE* fp);
-void fread_home(HOME_DATA* home, FILE* fp);
+void fread_roommate(std::shared_ptr<RoommateData> roomie, FILE* fp);
+void fread_home(HomeData* home, FILE* fp);
 void save_homes_check();
-long get_home_value(HOME_DATA* home);
+long get_home_value(HomeData* home);
 bool load_home_file(const std::string& homefile);
 
-extern HOME_DATA* first_home;
-extern HOME_DATA* last_home;
+extern HomeData* first_home;
+extern HomeData* last_home;
 extern const char* const home_flags[];
 extern time_t save_homes_time;
 
-DECLARE_DO_FUN(do_homes);
-DECLARE_DO_FUN(do_makehome);
-DECLARE_DO_FUN(do_showhome);
-DECLARE_DO_FUN(do_sethome);
-DECLARE_DO_FUN(do_resethome);
-DECLARE_DO_FUN(do_buyhome2);
-DECLARE_DO_FUN(do_sellhome2);
-DECLARE_DO_FUN(do_freehomes);
+DeclareDoFun(do_homes);
+DeclareDoFun(do_makehome);
+DeclareDoFun(do_showhome);
+DeclareDoFun(do_sethome);
+DeclareDoFun(do_resethome);
+DeclareDoFun(do_buyhome2);
+DeclareDoFun(do_sellhome2);
+DeclareDoFun(do_freehomes);

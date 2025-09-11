@@ -55,11 +55,11 @@
 #include "md5.hpp"
 #include <string.h>
 
-#undef BYTE_ORDER   /* 1 = big-endian, -1 = little-endian, 0 = unknown */
-#ifdef ARCH_IS_BIG_ENDIAN
-#  define BYTE_ORDER (ARCH_IS_BIG_ENDIAN ? 1 : -1)
+#undef ByteOrder   /* 1 = big-endian, -1 = little-endian, 0 = unknown */
+#ifdef ArchIsBigEndian
+#  define ByteOrder (ArchIsBigEndian ? 1 : -1)
 #else
-#  define BYTE_ORDER 0
+#  define ByteOrder 0
 #endif
 
 #define T_MASK ((md5_word_t)~0)
@@ -136,7 +136,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
                 c = pms->abcd[2], d = pms->abcd[3];
         md5_word_t t;
 
-#if BYTE_ORDER > 0
+#if ByteOrder > 0
         /*
          * Define storage only for big-endian CPUs. 
          */
@@ -150,7 +150,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
 #endif
 
         {
-#if BYTE_ORDER == 0
+#if ByteOrder == 0
                 /*
                  * Determine dynamically whether this is a big-endian or
                  * little-endian machine, since we can use a more efficient
@@ -160,7 +160,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
 
                 if (*((const md5_byte_t *) &w)) /* dynamic little-endian */
 #endif
-#if BYTE_ORDER <= 0 /* little-endian */
+#if ByteOrder <= 0 /* little-endian */
                 {
                         /*
                          * On little-endian machines, we can Process properly aligned
@@ -183,10 +183,10 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
                         }
                 }
 #endif
-#if BYTE_ORDER == 0
+#if ByteOrder == 0
                 else    /* dynamic big-endian */
 #endif
-#if BYTE_ORDER >= 0 /* big-endian */
+#if ByteOrder >= 0 /* big-endian */
                 {
                         /*
                          * On big-endian machines, we must arrange the bytes in the
@@ -195,7 +195,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
                         const md5_byte_t *xp = data;
                         int       i;
 
-#  if BYTE_ORDER == 0
+#  if ByteOrder == 0
                         X = xbuf;   /* (dynamic only) */
 #  else
 #    define xbuf X  /* (static only) */
@@ -208,7 +208,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
 #endif
         }
 
-#define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
+#define RotateLeft(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
 
         /*
          * Round 1. 
@@ -220,7 +220,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
 #define F(x, y, z) (((x) & (y)) | (~(x) & (z)))
 #define SET(a, b, c, d, k, s, Ti)\
   t = a + F(b,c,d) + X[k] + Ti;\
-  a = ROTATE_LEFT(t, s) + b
+  a = RotateLeft(t, s) + b
         /*
          * Do the following 16 operations. 
          */
@@ -252,7 +252,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
 #define G(x, y, z) (((x) & (z)) | ((y) & ~(z)))
 #define SET(a, b, c, d, k, s, Ti)\
   t = a + G(b,c,d) + X[k] + Ti;\
-  a = ROTATE_LEFT(t, s) + b
+  a = RotateLeft(t, s) + b
         /*
          * Do the following 16 operations. 
          */
@@ -284,7 +284,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
 #define H(x, y, z) ((x) ^ (y) ^ (z))
 #define SET(a, b, c, d, k, s, Ti)\
   t = a + H(b,c,d) + X[k] + Ti;\
-  a = ROTATE_LEFT(t, s) + b
+  a = RotateLeft(t, s) + b
         /*
          * Do the following 16 operations. 
          */
@@ -316,7 +316,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
 #define I(x, y, z) ((y) ^ ((x) | ~(z)))
 #define SET(a, b, c, d, k, s, Ti)\
   t = a + I(b,c,d) + X[k] + Ti;\
-  a = ROTATE_LEFT(t, s) + b
+  a = RotateLeft(t, s) + b
         /*
          * Do the following 16 operations. 
          */

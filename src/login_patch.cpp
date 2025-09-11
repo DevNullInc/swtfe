@@ -17,12 +17,12 @@
 #include "mud.hpp"
 #include "Account.hpp"
 
-#ifndef CON_GET_CHAR_SELECTION
-#define CON_GET_CHAR_SELECTION  76765  // Use an unused integer value appropriate for your codebase
+#ifndef ConGetCharSelection
+#define ConGetCharSelection  76765  // Use an unused integer value appropriate for your codebase
 #endif
 
 // Forward declaration for get_account if not included in Account.h
-ACCOUNT_DATA *get_account(const char *name);
+AccountData *get_account(const char *name);
 
 // Store Account password temporarily for auto-linking
 char AccountPassword[MaxStringLength];
@@ -31,7 +31,7 @@ char AccountPassword[MaxStringLength];
  * Function to auto-link character to Account
  * Call this after character creation instead of asking for a second password
  */
-void auto_link_character(DescriptorData *d, CharData *ch, ACCOUNT_DATA *Account)
+void auto_link_character(DescriptorData *d, CharData *ch, AccountData *Account)
 {
     if (!d || !ch || !Account)
         return;
@@ -52,7 +52,7 @@ void auto_link_character(DescriptorData *d, CharData *ch, ACCOUNT_DATA *Account)
  */
 void streamlined_account_login(DescriptorData *d, char *argument)
 {
-    ACCOUNT_DATA *Account;
+    AccountData *Account;
     char buf[MaxStringLength];
     
     // Check if Account exists
@@ -79,7 +79,7 @@ void streamlined_account_login(DescriptorData *d, char *argument)
  * Handle existing character selection - streamlined version
  * This lets the user select a character or create a new one
  */
-void streamlined_character_selection(DescriptorData *d, ACCOUNT_DATA *Account)
+void streamlined_character_selection(DescriptorData *d, AccountData *Account)
 {
     int count = 0;
     char buf[MaxStringLength];
@@ -100,11 +100,11 @@ void streamlined_character_selection(DescriptorData *d, ACCOUNT_DATA *Account)
         write_to_buffer(d, "No characters found. Create a new one.\r\n", 0);
         // Move to character creation
         d->connected = ConGetName;
-    d->connected = CON_GET_CHAR_SELECTION;
+    d->connected = ConGetCharSelection;
 }
 
-#ifndef CON_GET_CHAR_SELECTION
-#define CON_GET_CHAR_SELECTION  76765  // Use an unused integer value appropriate for your codebase
+#ifndef ConGetCharSelection
+#define ConGetCharSelection  76765  // Use an unused integer value appropriate for your codebase
 #endif
 
 /*

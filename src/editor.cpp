@@ -76,7 +76,7 @@ void smush_tilde(char *str)
 
 void start_editing(CharData * ch, char *data)
 {
-        EDITOR_DATA *edit;
+        EditorData *edit;
         sh_int    lines, size, lpos;
         char      c;
 
@@ -89,7 +89,7 @@ void start_editing(CharData * ch, char *data)
                 bug("NOT GOOD: start_editing: ch->substate == SubRestricted",
                     0);
 
-        set_char_color(AT_GREEN, ch);
+        set_char_color(AtGreen, ch);
         send_to_char
                 ("Begin entering your text (/? =help /s =save /c =clear /l =list /f =format)\n\r",
                  ch);
@@ -99,7 +99,7 @@ void start_editing(CharData * ch, char *data)
         if (ch->editor)
                 stop_editing(ch);
 
-        CREATE(edit, EDITOR_DATA, 1);
+        CREATE(edit, EditorData, 1);
         edit->numlines = 0;
         edit->on_line = 0;
         edit->size = 0;
@@ -174,7 +174,7 @@ char     *copy_buffer(CharData * ch)
 
 void stop_editing(CharData * ch)
 {
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         DISPOSE(ch->editor);
         ch->editor = NULL;
         send_to_char("Done.\n\r", ch);
@@ -196,7 +196,7 @@ char     *one_argument3(char *argument, char *arg_first);
 void edit_buffer(CharData * ch, char *argument)
 {
         DescriptorData *d;
-        EDITOR_DATA *edit;
+        EditorData *edit;
         char      cmd[MaxInputLength];
         char      buf[MaxInputLength];
         sh_int    x, line, max_buf_lines;
@@ -237,7 +237,7 @@ void edit_buffer(CharData * ch, char *argument)
 
         if (argument[0] == '/' || argument[0] == '\\')
         {
-                set_char_color(AT_NOTE, ch);
+                set_char_color(AtNote, ch);
                 one_argument(argument, cmd);
                 if (!str_cmp(cmd + 1, "?"))
                 {
@@ -271,7 +271,7 @@ void edit_buffer(CharData * ch, char *argument)
                 if (!str_cmp(cmd + 1, "c"))
                 {
 
-                        memset(edit, '\0', sizeof(EDITOR_DATA));
+                        memset(edit, '\0', sizeof(EditorData));
                         edit->numlines = 0;
                         edit->on_line = 0;
                         send_to_char("Buffer cleared.\n\r> ", ch);
@@ -441,7 +441,7 @@ void edit_buffer(CharData * ch, char *argument)
                                         if (line == 0 && edit->numlines == 1)
                                         {
                                                 memset(edit, '\0',
-                                                       sizeof(EDITOR_DATA));
+                                                       sizeof(EditorData));
                                                 edit->numlines = 0;
                                                 edit->on_line = 0;
                                                 send_to_char
@@ -544,7 +544,7 @@ void edit_buffer(CharData * ch, char *argument)
                         interpret(ch, argument + 3);
                         ch->substate = substate;
                         ch->last_cmd = last_cmd;
-                        set_char_color(AT_GREEN, ch);
+                        set_char_color(AtGreen, ch);
                         send_to_char("\n\r> ", ch);
                         return;
                 }
@@ -671,7 +671,7 @@ CMDF do_notepeek(CharData * ch, char *argument)
                 ch_printf(ch, "No such player as %s.\n\r", argument);
                 return;
         }
-        if (IS_NPC(victim) || victim->editor == NULL)
+        if (IsNpc(victim) || victim->editor == NULL)
         {
                 ch_printf(ch, "They are not writing anything.\n\r");
                 return;

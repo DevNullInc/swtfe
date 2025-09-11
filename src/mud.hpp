@@ -165,6 +165,7 @@ class WizEnt;
 class SpecList;
 // Extended bitvector type for x64, modernized for C++23.
 // TODO: Refactor to std::bitset or enum class for >32 bits.
+constexpr int Xbi = 4; // Number of integers in an extended bitvector (must be defined before use)
 struct ExtBV {
     int bits[Xbi]{};
 };
@@ -288,7 +289,7 @@ constexpr uint64_t BV31 = (1ULL << 31);
 /*
  * String and memory management parameters.
  */
-#define MAX_KEY_HASH		 2048
+#define MaxKeyHash		 2048
 #define MaxStringLength	 4096   /* buf */
 #define MSL                  MaxStringLength  /* Centralized MSL definition */
 #define MaxInputLength	 1024   /* arg */
@@ -401,8 +402,8 @@ constexpr int PulseCrashOver = 45 * PulsePerSecond;
  */
 typedef enum
 {
-        LOG_NORMAL, LOG_ALWAYS, LOG_NEVER, LOG_BUILD, LOG_HIGH, LOG_COMM,
-        LOG_ALL
+        LogNormal, LogAlways, LogNever, LogBuild, LogHigh, LogComm,
+        LogAll
 } log_types;
 
 /*
@@ -695,101 +696,101 @@ struct frc_app_type
 
 /* ability classes */
 
-#define ABILITY_NONE		-1
-#define COMBAT_ABILITY 		0
-#define PILOTING_ABILITY	1
-#define ENGINEERING_ABILITY	2
-#define HUNTING_ABILITY		3
-#define SMUGGLING_ABILITY	4
-#define DIPLOMACY_ABILITY	5
-#define LEADERSHIP_ABILITY	6
-#define FORCE_ABILITY		7
-#define OCCUPATION_ABILITY	8
-#define PIRACY_ABILITY	9
-#define MEDIC_ABILITY	10
+#define AbilityNone		-1
+#define CombatAbility 		0
+#define PilotingAbility	1
+#define EngineeringAbility	2
+#define HuntingAbility		3
+#define SmugglingAbility	4
+#define DiplomacyAbility	5
+#define LeadershipAbility	6
+#define ForceAbility		7
+#define OccupationAbility	8
+#define PiracyAbility	9
+#define MedicAbility	10
 
 
 /* the races */
-#define RACE_HUMAN	    	0
-#define RACE_WOOKIEE		1
-#define RACE_TWI_LEK		2
-#define RACE_RODIAN		3
-#define RACE_HUTT		4
-#define RACE_MON_CALAMARI	5
-#define RACE_NOGHRI		6
-#define RACE_GAMORREAN		7
-#define RACE_JAWA		8
-#define RACE_ADARIAN            9
-#define RACE_EWOK              	10
-#define RACE_VERPINE           	11
-#define RACE_DEFEL             	12
-#define RACE_TRANDOSHAN        	13
-#define RACE_SHISTAVANAN       	14
-#define RACE_DUINUOGWUIN       	16
-#define RACE_DROID           	15
-#define RACE_CHISS           	17
+#define RaceHuman	    	0
+#define RaceWookiee		1
+#define RaceTwiLek		2
+#define RaceRodian		3
+#define RaceHutt		4
+#define RaceMonCalamari	5
+#define RaceNoghri		6
+#define RaceGamorrean		7
+#define RaceJawa		8
+#define RaceAdarian            9
+#define RaceEwok              	10
+#define RaceVerpine           	11
+#define RaceDefel             	12
+#define RaceTrandoshan        	13
+#define RaceShistavanan       	14
+#define RaceDuinuogwuin       	16
+#define RaceDroid           	15
+#define RaceChiss           	17
 
 
 /*
  * Languages -- Altrag
  */
-#define LANG_BASIC        BV00  /* Human base language */
-#define LANG_WOOKIEE      BV01
-#define LANG_TWI_LEK      BV02
-#define LANG_RODIAN       BV03
-#define LANG_HUTT         BV04
-#define LANG_MON_CALAMARI BV05
-#define LANG_NOGHRI       BV06
-#define LANG_EWOK         BV07
-#define LANG_ITHORIAN     BV08
-#define LANG_DEVARONIAN   BV09
-#define LANG_GAMORREAN    BV10
-#define LANG_JAWA         BV11
-#define LANG_CLAN	      BV12
-#define LANG_ADARIAN	  BV13
-#define LANG_VERPINE	  BV14
-#define LANG_DEFEL        BV15
-#define LANG_TRANDOSHAN   BV16
-#define LANG_SHISTAVANAN  BV17
-#define LANG_BINARY       BV18
-#define LANG_DUINUOGWUIN  BV19
-#define LANG_CSILLIAN     BV20
-#define LANG_KEL_DOR      BV21
-#define LANG_BOTHAN       BV22
-#define LANG_BARABEL      BV23
-#define LANG_DUROSIAN     BV24
-#define LANG_GOTAL        BV25
-#define LANG_TALZ         BV26
-#define LANG_HO_DIN       BV27
-#define LANG_FALLEEN      BV28
-#define LANG_GIVIN        BV29
-#define LANG_UNKNOWN        0   /* Anything that doesnt fit a category */
-#define VALID_LANGS    ( LANG_BASIC | LANG_WOOKIEE | LANG_TWI_LEK | LANG_RODIAN  \
-		       | LANG_HUTT | LANG_MON_CALAMARI | LANG_NOGHRI | LANG_GAMORREAN \
-		       | LANG_JAWA | LANG_ADARIAN | LANG_EWOK | LANG_VERPINE | LANG_DEFEL \
-		       | LANG_TRANDOSHAN | LANG_SHISTAVANAN | LANG_BINARY | LANG_DUINUOGWUIN \
-			   | LANG_CSILLIAN| LANG_KEL_DOR | LANG_BOTHAN | LANG_BARABEL | LANG_ITHORIAN \
-			   | LANG_DEVARONIAN | LANG_DUROSIAN | LANG_GOTAL | LANG_TALZ | LANG_HO_DIN	\
-			   | LANG_FALLEEN | LANG_GIVIN)
+#define LangBasic        BV00  /* Human base language */
+#define LangWookiee      BV01
+#define LangTwiLek      BV02
+#define LangRodian       BV03
+#define LangHutt         BV04
+#define LangMonCalamari BV05
+#define LangNoghri       BV06
+#define LangEwok         BV07
+#define LangIthorian     BV08
+#define LangDevaronian   BV09
+#define LangGamorrean    BV10
+#define LangJawa         BV11
+#define LangClan	      BV12
+#define LangAdarian	  BV13
+#define LangVerpine	  BV14
+#define LangDefel        BV15
+#define LangTrandoshan   BV16
+#define LangShistavanan  BV17
+#define LangBinary       BV18
+#define LangDuinuogwuin  BV19
+#define LangCsillian     BV20
+#define LangKelDor      BV21
+#define LangBothan       BV22
+#define LangBarabel      BV23
+#define LangDurosian     BV24
+#define LangGotal        BV25
+#define LangTalz         BV26
+#define LangHoDin       BV27
+#define LangFalleen      BV28
+#define LangGivin        BV29
+#define LangUnknown        0   /* Anything that doesnt fit a category */
+#define ValidLangs    ( LangBasic | LangWookiee | LangTwiLek | LangRodian  \
+		       | LangHutt | LangMonCalamari | LangNoghri | LangGamorrean \
+		       | LangJawa | LangAdarian | LangEwok | LangVerpine | LangDefel \
+		       | LangTrandoshan | LangShistavanan | LangBinary | LangDuinuogwuin \
+			   | LangCsillian| LangKelDor | LangBothan | LangBarabel | LangIthorian \
+			   | LangDevaronian | LangDurosian | LangGotal | LangTalz | LangHoDin	\
+			   | LangFalleen | LangGivin)
 /*  26 Languages */
 
 /*
  * TO types for act.
  */
 
-/* if > IC_TO && < OOC_TO */
-#define IS_IC_ACT(act) (act > IC_TO && act < OOC_TO)
-#define IS_OOC_ACT(act) (act > OOC_TO)
-#define IS_CONTRABAND(cargo) ((cargo) > CONTRABAND_NONE && (cargo) < CONTRABAND_MAX)
+/* if > IcTo && < OocTo */
+#define IsIcAct(act) (act > IcTo && act < OocTo)
+#define IsOocAct(act) (act > OocTo)
+#define IsContraband(cargo) ((cargo) > ContrabandNone && (cargo) < ContrabandMax)
 typedef enum
 {
-        IC_TO, TO_ROOM, TO_NOTVICT, TO_VICT, TO_CHAR, TO_MUD,
-        OOC_TO, TO_ROOM_OOC, TO_NOTVICT_OOC, TO_VICT_OOC, TO_CHAR_OOC,
-        TO_MUD_OOC
-} ACT_TO_TYPES;
+        IcTo, ToRoom, ToNotvict, ToVict, ToChar, ToMud,
+        OocTo, ToRoomOoc, ToNotvictOoc, ToVictOoc, ToCharOoc,
+        ToMudOoc
+} ActToTypes;
 
-#define INIT_WEAPON_CONDITION    12
-#define MAX_ITEM_IMPACT		 30
+#define InitWeaponCondition    12
+#define MaxItemImpact		 30
 
 /*
  * Help table types.
@@ -810,30 +811,30 @@ struct help_data
 /*
  * Shop types.
  */
-#define MAX_TRADE	 5
+#define MaxTrade	 5
 
 struct shop_data
 {
         ShopData *next;    /* Next shop in list        */
         ShopData *prev;    /* Previous shop in list    */
         int keeper; /* Vnum of shop keeper mob  */
-        sh_int buy_type[MAX_TRADE]; /* Item types shop will buy */
+        sh_int buy_type[MaxTrade]; /* Item types shop will buy */
         sh_int profit_buy;  /* Cost multiplier for buying   */
         sh_int profit_sell; /* Cost multiplier for selling  */
         sh_int open_hour;   /* First opening hour       */
         sh_int close_hour;  /* First closing hour       */
 };
 
-#define MAX_FIX		3
-#define SHOP_FIX	1
-#define SHOP_RECHARGE	2
+#define MaxFix		3
+#define ShopFix	1
+#define ShopRecharge	2
 
 struct repairshop_data
 {
         RepairData *next;  /* Next shop in list        */
         RepairData *prev;  /* Previous shop in list    */
         int keeper; /* Vnum of shop keeper mob  */
-        sh_int fix_type[MAX_FIX];   /* Item types shop will fix */
+        sh_int fix_type[MaxFix];   /* Item types shop will fix */
         sh_int profit_fix;  /* Cost multiplier for fixing   */
         sh_int shop_type;   /* Repair shop type     */
         sh_int open_hour;   /* First opening hour       */
@@ -844,13 +845,13 @@ struct repairshop_data
 /* Mob program structures */
 /* Mob program structures and defines */
 /* Moved these defines here from mud_prog.cpp as I need them -TSR */
-#define MAX_IFS 20  /* should always be generous */
-#define IN_IF 0
-#define IN_ELSE 1
-#define DO_IF 2
-#define DO_ELSE 3
+#define MaxIfs 20  /* should always be generous */
+#define InIf 0
+#define InElse 1
+#define DoIf 2
+#define DoElse 3
 
-#define MAX_PROG_NEST 20
+#define MaxProgNest 20
 
 struct act_prog_data
 {
@@ -879,7 +880,7 @@ struct MProgData
 
 /* Used to store sleeping mud progs. -rkb */
 typedef enum
-{ MP_MOB, MP_ROOM, MP_OBJ } mp_types;
+{ MpMob, MpRoom, MpObj } mp_types;
 struct mpsleep_data
 {
         MPSleepData *next;
@@ -887,14 +888,14 @@ struct mpsleep_data
 
         int timer;  /* Pulses to sleep */
         mp_types type;  /* Mob, Room or Obj prog */
-        RoomIndexData *room;  /* Room when type is MP_ROOM */
+        RoomIndexData *room;  /* Room when type is MpRoom */
 
         /*
          * mprog_driver state variables 
          */
         int ignorelevel;
         int iflevel;
-        bool ifstate[MAX_IFS][DO_ELSE + 1];
+        bool ifstate[MaxIfs][DoElse + 1];
 
         /*
          * mprog_driver arguments 
@@ -941,10 +942,10 @@ struct log_data
 
 typedef enum
 {
-        CLAN_PLAIN, CLAN_CRIME, CLAN_GUILD, CLAN_SUBCLAN
+        ClanPlain, ClanCrime, ClanGuild, ClanSubclan
 } clan_types;
 
-#define HAS_CLAN_PERM(ch, clan, permission) \
+#define HasClanPerm(ch, clan, permission) \
 		( (ch) && (ch)->pcdata && (clan) && (ch)->pcdata->bestowments && \
 		 ( !str_cmp((ch)->name, (clan)->leader) || \
 		   !str_cmp((ch)->name, (clan)->number1) || \
@@ -954,30 +955,30 @@ typedef enum
 		)
 
 typedef enum
-{ SHIP_CIVILIAN, SHIP_REPUBLIC, SHIP_IMPERIAL, MOB_SHIP, PLAYER_SHIP,
-        CLAN_MOB_SHIP
+{ ShipCivilian, ShipRepublic, ShipImperial, MobShip, PlayerShip,
+        ClanMobShip
 } ship_types;
 typedef enum
-{ SHIP_DOCKED, SHIP_READY, SHIP_BUSY, SHIP_BUSY_2, SHIP_BUSY_3, SHIP_REFUEL,
-        SHIP_LAUNCH, SHIP_LAUNCH_2, SHIP_LAND, SHIP_LAND_2, SHIP_HYPERSPACE,
-        SHIP_DISABLED, SHIP_FLYING
+{ ShipDocked, ShipReady, ShipBusy, ShipBusy2, ShipBusy3, ShipRefuel,
+        ShipLaunch, ShipLaunch2, ShipLand, ShipLand2, ShipHyperspace,
+        ShipDisabled, ShipFlying
 } ship_states;
 typedef enum
-{ MISSILE_READY, MISSILE_FIRED, MISSILE_RELOAD, MISSILE_RELOAD_2,
-        MISSILE_DAMAGED
+{ MissileReady, MissileFired, MissileReload, MissileReload2,
+        MissileDamaged
 } missile_states;
 typedef enum
-{ FIGHTER_SHIP, MIDSIZE_SHIP, CAPITAL_SHIP, SHIP_PLATFORM } ship_classes;
+{ FighterShip, MidsizeShip, CapitalShip, ShipPlatform } ship_classes;
 typedef enum
-{ CONCUSSION_MISSILE, PROTON_TORPEDO, HEAVY_ROCKET,
-        HEAVY_BOMB
+{ ConcussionMissile, ProtonTorpedo, HeavyRocket,
+        HeavyBomb
 } missile_types;
 
 typedef enum
-{ GROUP_CLAN, GROUP_COUNCIL, GROUP_GUILD } group_types;
+{ GroupClan, GroupCouncil, GroupGuild } group_types;
 
-#define LASER_DAMAGED    -1
-#define LASER_READY       0
+#define LaserDamaged    -1
+#define LaserReady       0
 
 struct DockData;
 struct space_data
@@ -1005,49 +1006,49 @@ struct space_data
 /* cargo types */
 typedef enum
 {
-        CARGO_NONE, CARGO_ORE, CARGO_PRODUCE, CARGO_MEAT, CARGO_METAL,
-        CARGO_MINERALS, CARGO_COMPONENTS, CARGO_FUEL_CELLS, CARGO_TABANNA,
-        CARGO_CULTURED, CARGO_PROCESSED, CARGO_DURACRETE, CARGO_DURASTEEL,
-        CARGO_ELECTRONICS, CARGO_SERIND, CARGO_TETRALI, CARGO_COMPUTERS,
-        CARGO_MONOTHELENE, CARGO_ATOMIC_CELLS, CARGO_BACTA,
-        CARGO_TRANSPARISTEEL,
-        CARGO_DROID_PARTS, CARGO_ARMOUR, CARGO_DELICACIES, CARGO_ALAZHI,
-        CARGO_MAX,
-        CONTRABAND_NONE, CONTRABAND_BLASTERS, CONTRABAND_SPICE,
-        CONTRABAND_SLAVES,
-        CONTRABAND_EXPLOSIVES, CONTRABAND_MAX
+        CargoNone, CargoOre, CargoProduce, CargoMeat, CargoMetal,
+        CargoMinerals, CargoComponents, CargoFuelCells, CargoTabanna,
+        CargoCultured, CargoProcessed, CargoDuracrete, CargoDurasteel,
+        CargoElectronics, CargoSerind, CargoTetrali, CargoComputers,
+        CargoMonothelene, CargoAtomicCells, CargoBacta,
+        CargoTransparisteel,
+        CargoDroidParts, CargoArmour, CargoDelicacies, CargoAlazhi,
+        CargoMax,
+        ContrabandNone, ContrabandBlasters, ContrabandSpice,
+        ContrabandSlaves,
+        ContrabandExplosives, ContrabandMax
 } cargo_types;
 
 /* disease types */
-#define ILLNESS_NONE            0
-#define ILLNESS_SNIFFLES        1
-#define ILLNESS_GAS             2
-#define ILLNESS_COUGH           3
-#define ILLNESS_COLD            4
-#define ILLNESS_FLU             5
-#define ILLNESS_STREP           6
-#define ILLNESS_PNUMONIA        7
-#define ILLNESS_INFECTEYE       8
-#define ILLNESS_INFECTEAR       9
-#define ILLNESS_INFECTTHROAT    10
-#define ILLNESS_BACHULARIA      11
-#define ILLNESS_ANGINA          12
-#define ILLNESS_DEPRESSION      13
-#define ILLNESS_CANCER          14
-#define ILLNESS_BUBONIC_PLAGUE  15
-#define ILLNESS_AIDS            16
-#define ILLNESS_MAX             17
+#define IllnessNone            0
+#define IllnessSniffles        1
+#define IllnessGas             2
+#define IllnessCough           3
+#define IllnessCold            4
+#define IllnessFlu             5
+#define IllnessStrep           6
+#define IllnessPnumonia        7
+#define IllnessInfecteye       8
+#define IllnessInfectear       9
+#define IllnessInfectthroat    10
+#define IllnessBachularia      11
+#define IllnessAngina          12
+#define IllnessDepression      13
+#define IllnessCancer          14
+#define IllnessBubonicPlague  15
+#define IllnessAids            16
+#define IllnessMax             17
 
 
-struct INSTALLATION_DATA;
+struct InstallationData;
 struct PlanetData
 {
         PlanetData *next;
         PlanetData *prev;
         PlanetData *next_in_system;
         PlanetData *prev_in_system;
-        INSTALLATION_DATA *first_install;
-        INSTALLATION_DATA *last_install;
+        InstallationData *first_install;
+        InstallationData *last_install;
         SpaceData *starsystem;
         AreaData *first_area;
         AreaData *last_area;
@@ -1068,11 +1069,11 @@ struct PlanetData
         int budgetantiesp;
         int flags;
         int pop_support;
-        int cargoimport[CONTRABAND_MAX];
-        int cargoexport[CONTRABAND_MAX];
-        int resource[CONTRABAND_MAX];
-        int consumes[CONTRABAND_MAX];
-        int produces[CONTRABAND_MAX];
+        int cargoimport[ContrabandMax];
+        int cargoexport[ContrabandMax];
+        int resource[ContrabandMax];
+        int consumes[ContrabandMax];
+        int produces[ContrabandMax];
         int defbattalions;
         int attbattalions;
         ClanData *attgovern;
@@ -1081,12 +1082,12 @@ struct PlanetData
 };
 
 
-#define PLANET_NOCAPTURE  BV00
-#define PLANET_SHIELD     BV01
+#define PlanetNocapture  BV00
+#define PlanetShield     BV01
 
 /* NEVER USE MAGIC NUMBERS */
 /* Pretty sure if we are doing 0-13, this can be 13 */
-#define MAX_RANK 14
+#define MaxRank 14
 
 struct ClanData
 {
@@ -1125,8 +1126,8 @@ struct ClanData
         int spacecraft;
         int jail;
         char     *tmpstr;
-        char     *rank[MAX_RANK];
-        int       salary[MAX_RANK];
+        char     *rank[MaxRank];
+        int       salary[MaxRank];
 		/*       rank.allowed should be a bitset
 		 *       could contain flags for different commands
 		 *       as well as maybe different areas
@@ -1296,184 +1297,184 @@ struct smaug_affect
  * Well known mob virtual numbers.
  * Defined in #MOBILES.
  */
-#define MOB_VNUM_ANIMATED_CORPSE   5
-#define MOB_VNUM_POLY_WOLF	   10
+#define MobVnumAnimatedCorpse   5
+#define MobVnumPolyWolf	   10
 
 
-#define MOB_VNUM_GUARD	21
-#define MOB_VNUM_PATROL	23
-#define MOB_VNUM_ELITE_GUARD	18
-#define MOB_VNUM_SPECIAL_FORCES  	19
-#define MOB_VNUM_PATROL	23
-#define MOB_VNUM_MERCINARY	24
-#define MOB_VNUM_BOUNCER	25
+#define MobVnumGuard	21
+#define MobVnumPatrol	23
+#define MobVnumEliteGuard	18
+#define MobVnumSpecialForces  	19
+#define MobVnumPatrol	23
+#define MobVnumMercinary	24
+#define MobVnumBouncer	25
 
 
 /*
  * ACT bits for mobs.
  * Used in #MOBILES.
  */
-#define ACT_IS_NPC		 BV00   /* Auto set for mobs    */
-#define ACT_SENTINEL		 BV01   /* Stays in one room    */
-#define ACT_SCAVENGER		 BV02   /* Picks up objects */
-#define ACT_NORUNSNIPE       BV03   /* Won't run and snipe */
-#define ACT_AGGRESSIVE		 BV05   /* Attacks PC's     */
-#define ACT_STAY_AREA		 BV06   /* Won't leave area */
-#define ACT_WIMPY		 BV07   /* Flees when hurt  */
-#define ACT_PET			 BV08   /* Auto set for pets    */
-#define ACT_TRAIN		 BV09   /* Can train PC's   */
-#define ACT_PRACTICE		 BV10   /* Can practice PC's    */
-#define ACT_IMMORTAL		 BV11   /* Cannot be killed */
-#define ACT_DEADLY		 BV12   /* Has a deadly poison  */
-#define ACT_SPEAKSALL		 BV13
-#define ACT_META_AGGR		 BV14   /* Extremely aggressive */
-#define ACT_GUARDIAN		 BV15   /* Protects master  */
-#define ACT_RUNNING		 BV16   /* Hunts quickly    */
-#define ACT_NOWANDER		 BV17   /* Doesn't wander   */
-#define ACT_MOUNTABLE		 BV18   /* Can be mounted   */
-#define ACT_MOUNTED		 BV19   /* Is mounted       */
-#define ACT_SCHOLAR              BV20   /* Can teach languages  */
-#define ACT_SECRETIVE		 BV21   /* actions aren't seen  */
-#define ACT_POLYMORPHED		 BV22   /* Mob is a ch      */
-#define ACT_MOBINVIS		 BV23   /* Like wizinvis    */
-#define ACT_NOASSIST		 BV24   /* Doesn't assist mobs  */
-#define ACT_NOKILL               BV25   /* Mob can't die */
-#define ACT_DROID                BV26   /* mob is a droid */
-#define ACT_NOCORPSE             BV27
-#define ACT_MAIL			 BV28   /* Mail */
-#define ACT_CITIZEN		 BV29   /* Planet Citizen */
-#define ACT_PROTOTYPE		 BV30   /* A prototype mob  */
+#define ActIsNpc		 BV00   /* Auto set for mobs    */
+#define ActSentinel		 BV01   /* Stays in one room    */
+#define ActScavenger		 BV02   /* Picks up objects */
+#define ActNorunsnipe       BV03   /* Won't run and snipe */
+#define ActAggressive		 BV05   /* Attacks PC's     */
+#define ActStayArea		 BV06   /* Won't leave area */
+#define ActWimpy		 BV07   /* Flees when hurt  */
+#define ActPet			 BV08   /* Auto set for pets    */
+#define ActTrain		 BV09   /* Can train PC's   */
+#define ActPractice		 BV10   /* Can practice PC's    */
+#define ActImmortal		 BV11   /* Cannot be killed */
+#define ActDeadly		 BV12   /* Has a deadly poison  */
+#define ActSpeaksall		 BV13
+#define ActMetaAggr		 BV14   /* Extremely aggressive */
+#define ActGuardian		 BV15   /* Protects master  */
+#define ActRunning		 BV16   /* Hunts quickly    */
+#define ActNowander		 BV17   /* Doesn't wander   */
+#define ActMountable		 BV18   /* Can be mounted   */
+#define ActMounted		 BV19   /* Is mounted       */
+#define ActScholar              BV20   /* Can teach languages  */
+#define ActSecretive		 BV21   /* actions aren't seen  */
+#define ActPolymorphed		 BV22   /* Mob is a ch      */
+#define ActMobinvis		 BV23   /* Like wizinvis    */
+#define ActNoassist		 BV24   /* Doesn't assist mobs  */
+#define ActNokill               BV25   /* Mob can't die */
+#define ActDroid                BV26   /* mob is a droid */
+#define ActNocorpse             BV27
+#define ActMail			 BV28   /* Mail */
+#define ActCitizen		 BV29   /* Planet Citizen */
+#define ActPrototype		 BV30   /* A prototype mob  */
 /* 20 acts */
 
 /* bits for vip flags */
 
-#define VIP_CORUSCANT           BV00
-#define VIP_KASHYYYK          	BV01
-#define VIP_RYLOTH            	BV02
-#define VIP_RODIA             	BV03
-#define VIP_NAL_HUTTA           BV04
-#define VIP_MON_CALAMARI       	BV05
-#define VIP_HONOGHR             BV06
-#define VIP_GAMORR              BV07
-#define VIP_TATOOINE            BV08
-#define VIP_ADARI           	BV09
-#define VIP_BYSS		        BV10
-#define VIP_ENDOR		        BV11
-#define VIP_ROCHE		        BV12
-#define VIP_AF_EL		        BV13
-#define VIP_TRANDOSHA	 	    BV14
-#define VIP_CHAD		        BV15
-#define VIP_HOTH		        BV16
+#define VipCoruscant           BV00
+#define VipKashyyyk          	BV01
+#define VipRyloth            	BV02
+#define VipRodia             	BV03
+#define VipNalHutta           BV04
+#define VipMonCalamari       	BV05
+#define VipHonoghr             BV06
+#define VipGamorr              BV07
+#define VipTatooine            BV08
+#define VipAdari           	BV09
+#define VipByss		        BV10
+#define VipEndor		        BV11
+#define VipRoche		        BV12
+#define VipAfEl		        BV13
+#define VipTrandosha	 	    BV14
+#define VipChad		        BV15
+#define VipHoth		        BV16
 
 /* player wanted bits */
 
-#define WANTED_MON_CALAMARI   	VIP_MON_CALAMARI
-#define WANTED_CORUSCANT   	VIP_CORUSCANT
-#define WANTED_ADARI   		VIP_ADARI
-#define WANTED_RODIA   		VIP_RODIA
-#define WANTED_RYLOTH   	VIP_RYLOTH
-#define WANTED_GAMORR   	VIP_GAMORR
-#define WANTED_TATOOINE   	VIP_TATOOINE
-#define WANTED_BYSS   		VIP_BYSS
-#define WANTED_NAL_HUTTA   	VIP_NAL_HUTTA
-#define WANTED_KASHYYYK   	VIP_KASHYYYK
-#define WANTED_HONOGHR   	VIP_HONOGHR
-#define WANTED_ENDOR		BV11
-#define WANTED_ROCHE		BV12
-#define WANTED_AF_EL		BV13
-#define WANTED_TRANDOSHA		BV14
-#define WANTED_CHAD		BV15
-#define WANTED_HOTH		BV16
+#define WantedMonCalamari   	VipMonCalamari
+#define WantedCoruscant   	VipCoruscant
+#define WantedAdari   		VipAdari
+#define WantedRodia   		VipRodia
+#define WantedRyloth   	VipRyloth
+#define WantedGamorr   	VipGamorr
+#define WantedTatooine   	VipTatooine
+#define WantedByss   		VipByss
+#define WantedNalHutta   	VipNalHutta
+#define WantedKashyyyk   	VipKashyyyk
+#define WantedHonoghr   	VipHonoghr
+#define WantedEndor		BV11
+#define WantedRoche		BV12
+#define WantedAfEl		BV13
+#define WantedTrandosha		BV14
+#define WantedChad		BV15
+#define WantedHoth		BV16
 
 /*
  * Bits for 'affected_by'.
  * Used in #MOBILES.
  */
-#define AFF_NONE                  0
+#define AffNone                  0
 
-#define AFF_BLIND		  BV00
-#define AFF_INVISIBLE		  BV01
-#define AFF_DETECT_EVIL		  BV02
-#define AFF_DETECT_INVIS	  BV03
-#define AFF_DETECT_MAGIC	  BV04
-#define AFF_DETECT_HIDDEN	  BV05
-#define AFF_WEAKEN		  BV06
-#define AFF_SANCTUARY		  BV07
-#define AFF_FAERIE_FIRE		  BV08
-#define AFF_INFRARED		  BV09
-#define AFF_CURSE		  BV10
-#define AFF_SECRETIVE		  BV11  /* Unused   */
-#define AFF_POISON		  BV12
-#define AFF_PROTECT		  BV13
-#define AFF_PARALYSIS		  BV14
-#define AFF_SNEAK		  BV15
-#define AFF_HIDE		  BV16
-#define AFF_SLEEP		  BV17
-#define AFF_CHARM		  BV18
-#define AFF_FLYING		  BV19
-#define AFF_PASS_DOOR		  BV20
-#define AFF_FLOATING		  BV21
-#define AFF_TRUESIGHT		  BV22
-#define AFF_DETECTTRAPS		  BV23
-#define AFF_SCRYING	          BV24
-#define AFF_FIRESHIELD	          BV25
-#define AFF_SHOCKSHIELD	          BV26
-#define AFF_RESTRAINED                 BV27 /* not used */
-#define AFF_ICESHIELD  		  BV28
-#define AFF_POSSESS		  BV29
-#define AFF_BERSERK		  BV30
-#define AFF_AQUA_BREATH		  BV31
+#define AffBlind		  BV00
+#define AffInvisible		  BV01
+#define AffDetectEvil		  BV02
+#define AffDetectInvis	  BV03
+#define AffDetectMagic	  BV04
+#define AffDetectHidden	  BV05
+#define AffWeaken		  BV06
+#define AffSanctuary		  BV07
+#define AffFaerieFire		  BV08
+#define AffInfrared		  BV09
+#define AffCurse		  BV10
+#define AffSecretive		  BV11  /* Unused   */
+#define AffPoison		  BV12
+#define AffProtect		  BV13
+#define AffParalysis		  BV14
+#define AffSneak		  BV15
+#define AffHide		  BV16
+#define AffSleep		  BV17
+#define AffCharm		  BV18
+#define AffFlying		  BV19
+#define AffPassDoor		  BV20
+#define AffFloating		  BV21
+#define AffTruesight		  BV22
+#define AffDetecttraps		  BV23
+#define AffScrying	          BV24
+#define AffFireshield	          BV25
+#define AffShockshield	          BV26
+#define AffRestrained                 BV27 /* not used */
+#define AffIceshield  		  BV28
+#define AffPossess		  BV29
+#define AffBerserk		  BV30
+#define AffAquaBreath		  BV31
 
 /* 31 aff's (1 left.. :P) */
 /* make that none - ugh - time for another field? :P */
 /*
  * Resistant Immune Susceptible flags
  */
-#define RIS_FIRE		  BV00
-#define RIS_COLD		  BV01
-#define RIS_ELECTRICITY		  BV02
-#define RIS_ENERGY		  BV03
-#define RIS_BLUNT		  BV04
-#define RIS_PIERCE		  BV05
-#define RIS_SLASH		  BV06
-#define RIS_ACID		  BV07
-#define RIS_POISON		  BV08
-#define RIS_DRAIN		  BV09
-#define RIS_SLEEP		  BV10
-#define RIS_CHARM		  BV11
-#define RIS_HOLD		  BV12
-#define RIS_NONMAGIC		  BV13
-#define RIS_PLUS1		  BV14
-#define RIS_PLUS2		  BV15
-#define RIS_PLUS3		  BV16
-#define RIS_PLUS4		  BV17
-#define RIS_PLUS5		  BV18
-#define RIS_PLUS6		  BV19
-#define RIS_MAGIC		  BV20
-#define RIS_PARALYSIS		  BV21
+#define RisFire		  BV00
+#define RisCold		  BV01
+#define RisElectricity		  BV02
+#define RisEnergy		  BV03
+#define RisBlunt		  BV04
+#define RisPierce		  BV05
+#define RisSlash		  BV06
+#define RisAcid		  BV07
+#define RisPoison		  BV08
+#define RisDrain		  BV09
+#define RisSleep		  BV10
+#define RisCharm		  BV11
+#define RisHold		  BV12
+#define RisNonmagic		  BV13
+#define RisPlus1		  BV14
+#define RisPlus2		  BV15
+#define RisPlus3		  BV16
+#define RisPlus4		  BV17
+#define RisPlus5		  BV18
+#define RisPlus6		  BV19
+#define RisMagic		  BV20
+#define RisParalysis		  BV21
 /* 21 RIS's*/
 
 /* 
  * Attack types
  */
 
-#define ATCK_BITE          BV00
-#define ATCK_CLAWS      BV01
-#define ATCK_TAIL          BV02
-#define ATCK_STING      BV03
-#define ATCK_PUNCH      BV04
-#define ATCK_KICK          BV05
-#define ATCK_TRIP          BV06
-#define ATCK_BACKSTAB      BV10
+#define AtckBite          BV00
+#define AtckClaws      BV01
+#define AtckTail          BV02
+#define AtckSting      BV03
+#define AtckPunch      BV04
+#define AtckKick          BV05
+#define AtckTrip          BV06
+#define AtckBackstab      BV10
 
 
 /*
  * Defense types
  */
-#define DFND_PARRY      BV00
-#define DFND_DODGE      BV01
-#define DFND_DISARM      BV19
-#define DFND_GRIP          BV21
+#define DfndParry      BV00
+#define DfndDodge      BV01
+#define DfndDisarm      BV19
+#define DfndGrip          BV21
 /* 2 def's */
 
 /*
@@ -1481,106 +1482,106 @@ struct smaug_affect
  */
 typedef enum
 {
-        PART_HEAD, PART_ARMS, PART_LEGS, PART_HEART, PART_BRAINS,
-        PART_GUTS, PART_HANGS, PART_FEET, PART_FINGERS, PART_EAR,
-        PART_EYE, PART_LONG_TONGUE, PART_EYESTALKS, PART_TENTACLES, PART_FINS,
-        PART_WINGS, PART_TAIL, PART_SCALES, PART_CLAWS, PART_FANGS,
-        PART_HORNS, PART_TUSKS, PART_TAILATTACK, PART_SHARPSCALES, PART_BEAK,
-        PART_HAUNCH, PART_HOOVES, PART_FORELEGS, PART_FEATHERS
+        PartHead, PartArms, PartLegs, PartHeart, PartBrains,
+        PartGuts, PartHangs, PartFeet, PartFingers, PartEar,
+        PartEye, PartLongTongue, PartEyestalks, PartTentacles, PartFins,
+        PartWings, PartTail, PartScales, PartClaws, PartFangs,
+        PartHorns, PartTusks, PartTailattack, PartSharpscales, PartBeak,
+        PartHaunch, PartHooves, PartForelegs, PartFeathers
 } body_part;
 
 
 /*
  * Autosave flags
  */
-#define SV_DEATH		  BV00
-#define SV_KILL			  BV01
-#define SV_PASSCHG		  BV02
-#define SV_DROP			  BV03
-#define SV_PUT			  BV04
-#define SV_GIVE			  BV05
-#define SV_AUTO			  BV06
-#define SV_ZAPDROP		  BV07
-#define SV_AUCTION		  BV08
-#define SV_GET			  BV09
-#define SV_RECEIVE		  BV10
-#define SV_IDLE			  BV11
-#define SV_BACKUP		  BV12
-#define SV_WHO		  	  BV13
-#define SV_SCORE		  BV14
-#define SV_LIST		  	  BV15
-#define SV_N		  	  BV16
-#define SV_E			  BV17
-#define SV_S			  BV18
-#define SV_W			  BV19
-#define SV_NE		  	  BV20
-#define SV_SE			  BV21
-#define SV_NW			  BV22
-#define SV_SW			  BV23
-#define SV_LOOK			  BV24
+#define SvDeath		  BV00
+#define SvKill			  BV01
+#define SvPasschg		  BV02
+#define SvDrop			  BV03
+#define SvPut			  BV04
+#define SvGive			  BV05
+#define SvAuto			  BV06
+#define SvZapdrop		  BV07
+#define SvAuction		  BV08
+#define SvGet			  BV09
+#define SvReceive		  BV10
+#define SvIdle			  BV11
+#define SvBackup		  BV12
+#define SvWho		  	  BV13
+#define SvScore		  BV14
+#define SvList		  	  BV15
+#define SvN		  	  BV16
+#define SvE			  BV17
+#define SvS			  BV18
+#define SvW			  BV19
+#define SvNe		  	  BV20
+#define SvSe			  BV21
+#define SvNw			  BV22
+#define SvSw			  BV23
+#define SvLook			  BV24
 
 /*
  * Pipe flags
  */
-#define PIPE_TAMPED		  BV01
-#define PIPE_LIT		  BV02
-#define PIPE_HOT		  BV03
-#define PIPE_DIRTY		  BV04
-#define PIPE_FILTHY		  BV05
-#define PIPE_GOINGOUT		  BV06
-#define PIPE_BURNT		  BV07
-#define PIPE_FULLOFASH		  BV08
+#define PipeTamped		  BV01
+#define PipeLit		  BV02
+#define PipeHot		  BV03
+#define PipeDirty		  BV04
+#define PipeFilthy		  BV05
+#define PipeGoingout		  BV06
+#define PipeBurnt		  BV07
+#define PipeFullofash		  BV08
 
 /*
  * Skill/Spell flags	The minimum BV *MUST* be 11!
  */
-#define SF_WATER		  BV11
-#define SF_EARTH		  BV12
-#define SF_AIR			  BV13
-#define SF_ASTRAL		  BV14
-#define SF_AREA			  BV15  /* is an area spell     */
-#define SF_DISTANT		  BV16  /* affects something far away   */
-#define SF_REVERSE		  BV17
-#define SF_SAVE_HALF_DAMAGE	  BV18  /* save for half damage     */
-#define SF_SAVE_NEGATES		  BV19  /* save negates affect      */
-#define SF_ACCUMULATIVE		  BV20  /* is accumulative      */
-#define SF_RECASTABLE		  BV21  /* can be refreshed     */
-#define SF_NOSCRIBE		  BV22  /* cannot be scribed        */
-#define SF_NOBREW		  BV23  /* cannot be brewed     */
-#define SF_GROUPSPELL		  BV24  /* only affects group members   */
-#define SF_OBJECT		  BV25  /* directed at an object    */
-#define SF_CHARACTER		  BV26  /* directed at a character  */
-#define SF_SECRETSKILL		  BV27  /* hidden unless learned    */
-#define SF_PKSENSITIVE		  BV28  /* much harder for plr vs. plr  */
-#define SF_STOPONFAIL		  BV29  /* stops spell on first failure */
+#define SfWater		  BV11
+#define SfEarth		  BV12
+#define SfAir			  BV13
+#define SfAstral		  BV14
+#define SfArea			  BV15  /* is an area spell     */
+#define SfDistant		  BV16  /* affects something far away   */
+#define SfReverse		  BV17
+#define SfSaveHalfDamage	  BV18  /* save for half damage     */
+#define SfSaveNegates		  BV19  /* save negates affect      */
+#define SfAccumulative		  BV20  /* is accumulative      */
+#define SfRecastable		  BV21  /* can be refreshed     */
+#define SfNoscribe		  BV22  /* cannot be scribed        */
+#define SfNobrew		  BV23  /* cannot be brewed     */
+#define SfGroupspell		  BV24  /* only affects group members   */
+#define SfObject		  BV25  /* directed at an object    */
+#define SfCharacter		  BV26  /* directed at a character  */
+#define SfSecretskill		  BV27  /* hidden unless learned    */
+#define SfPksensitive		  BV28  /* much harder for plr vs. plr  */
+#define SfStoponfail		  BV29  /* stops spell on first failure */
 
 typedef enum
-{ SS_NONE, SS_POISON_DEATH, SS_ROD_WANDS, SS_PARA_PETRI,
-        SS_BREATH, SS_SPELL_STAFF
+{ SsNone, SsPoisonDeath, SsRodWands, SsParaPetri,
+        SsBreath, SsSpellStaff
 } save_types;
 
-#define ALL_BITS		INT_MAX
-#define SDAM_MASK		ALL_BITS & ~(BV00 | BV01 | BV02)
-#define SACT_MASK		ALL_BITS & ~(BV03 | BV04 | BV05)
-#define SCLA_MASK		ALL_BITS & ~(BV06 | BV07 | BV08)
-#define SPOW_MASK		ALL_BITS & ~(BV09 | BV10)
+#define AllBits		IntMax
+#define SdamMask		AllBits & ~(BV00 | BV01 | BV02)
+#define SactMask		AllBits & ~(BV03 | BV04 | BV05)
+#define SclaMask		AllBits & ~(BV06 | BV07 | BV08)
+#define SpowMask		AllBits & ~(BV09 | BV10)
 
 typedef enum
-{ SD_NONE, SD_FIRE, SD_COLD, SD_ELECTRICITY, SD_ENERGY, SD_ACID,
-        SD_POISON, SD_DRAIN
+{ SdNone, SdFire, SdCold, SdElectricity, SdEnergy, SdAcid,
+        SdPoison, SdDrain
 } spell_dam_types;
 
 typedef enum
-{ SA_NONE, SA_CREATE, SA_DESTROY, SA_RESIST, SA_SUSCEPT,
-        SA_DIVINATE, SA_OBSCURE, SA_CHANGE
+{ SaNone, SaCreate, SaDestroy, SaResist, SaSuscept,
+        SaDivinate, SaObscure, SaChange
 } spell_act_types;
 
 typedef enum
-{ SP_NONE, SP_MINOR, SP_GREATER, SP_MAJOR } spell_power_types;
+{ SpNone, SpMinor, SpGreater, SpMajor } spell_power_types;
 
 typedef enum
-{ SC_NONE, SC_LUNAR, SC_SOLAR, SC_TRAVEL, SC_SUMMON,
-        SC_LIFE, SC_DEATH, SC_ILLUSION
+{ ScNone, ScLunar, ScSolar, ScTravel, ScSummon,
+        ScLife, ScDeath, ScIllusion
 } spell_class_types;
 
 /*
@@ -1588,94 +1589,94 @@ typedef enum
  * Used in #MOBILES.
  */
 typedef enum
-{ SEX_NEUTRAL, SEX_MALE, SEX_FEMALE, SEX_MAX } sex_types;
+{ SexNeutral, SexMale, SexFemale, SexMax } sex_types;
 
 typedef enum
 {
-        TRAP_TYPE_POISON_GAS =
-                1, TRAP_TYPE_POISON_DART, TRAP_TYPE_POISON_NEEDLE,
-        TRAP_TYPE_POISON_DAGGER, TRAP_TYPE_POISON_ARROW,
-        TRAP_TYPE_BLINDNESS_GAS,
-        TRAP_TYPE_SLEEPING_GAS, TRAP_TYPE_FLAME, TRAP_TYPE_EXPLOSION,
-        TRAP_TYPE_ACID_SPRAY, TRAP_TYPE_ELECTRIC_SHOCK, TRAP_TYPE_BLADE,
-        TRAP_TYPE_SEX_CHANGE
+        TrapTypePoisonGas =
+                1, TrapTypePoisonDart, TrapTypePoisonNeedle,
+        TrapTypePoisonDagger, TrapTypePoisonArrow,
+        TrapTypeBlindnessGas,
+        TrapTypeSleepingGas, TrapTypeFlame, TrapTypeExplosion,
+        TrapTypeAcidSpray, TrapTypeElectricShock, TrapTypeBlade,
+        TrapTypeSexChange
 } trap_types;
 
-#define MAX_TRAPTYPE		   TRAP_TYPE_SEX_CHANGE
+#define MaxTraptype		   TrapTypeSexChange
 
-#define TRAP_ROOM      		   BV00
-#define TRAP_OBJ	      	   BV01
-#define TRAP_ENTER_ROOM		   BV02
-#define TRAP_LEAVE_ROOM		   BV03
-#define TRAP_OPEN		   BV04
-#define TRAP_CLOSE		   BV05
-#define TRAP_GET		   BV06
-#define TRAP_PUT		   BV07
-#define TRAP_PICK		   BV08
-#define TRAP_UNLOCK		   BV09
-#define TRAP_N			   BV10
-#define TRAP_S			   BV11
-#define TRAP_E	      		   BV12
-#define TRAP_W	      		   BV13
-#define TRAP_U	      		   BV14
-#define TRAP_D	      		   BV15
-#define TRAP_EXAMINE		   BV16
-#define TRAP_NE			   BV17
-#define TRAP_NW			   BV18
-#define TRAP_SE			   BV19
-#define TRAP_SW			   BV20
+#define TrapRoom      		   BV00
+#define TrapObj	      	   BV01
+#define TrapEnterRoom		   BV02
+#define TrapLeaveRoom		   BV03
+#define TrapOpen		   BV04
+#define TrapClose		   BV05
+#define TrapGet		   BV06
+#define TrapPut		   BV07
+#define TrapPick		   BV08
+#define TrapUnlock		   BV09
+#define TrapN			   BV10
+#define TrapS			   BV11
+#define TrapE	      		   BV12
+#define TrapW	      		   BV13
+#define TrapU	      		   BV14
+#define TrapD	      		   BV15
+#define TrapExamine		   BV16
+#define TrapNe			   BV17
+#define TrapNw			   BV18
+#define TrapSe			   BV19
+#define TrapSw			   BV20
 
 /*
  * Well known object virtual numbers.
  * Defined in #OBJECTS.
  */
-#define OBJ_VNUM_MONEY_ONE	      2
-#define OBJ_VNUM_MONEY_SOME	      3
+#define ObjVnumMoneyOne	      2
+#define ObjVnumMoneySome	      3
 
-#define OBJ_VNUM_DROID_CORPSE        9
-#define OBJ_VNUM_CORPSE_NPC	     10
-#define OBJ_VNUM_CORPSE_PC	     11
-#define OBJ_VNUM_SEVERED_HEAD	     12
-#define OBJ_VNUM_TORN_HEART	     13
-#define OBJ_VNUM_SLICED_ARM	     14
-#define OBJ_VNUM_SLICED_LEG	     15
-#define OBJ_VNUM_SPILLED_GUTS	     16
-#define OBJ_VNUM_BLOOD		     17
-#define OBJ_VNUM_BLOODSTAIN	     18
-#define OBJ_VNUM_SCRAPS		     19
+#define ObjVnumDroidCorpse        9
+#define ObjVnumCorpseNpc	     10
+#define ObjVnumCorpsePc	     11
+#define ObjVnumSeveredHead	     12
+#define ObjVnumTornHeart	     13
+#define ObjVnumSlicedArm	     14
+#define ObjVnumSlicedLeg	     15
+#define ObjVnumSpilledGuts	     16
+#define ObjVnumBlood		     17
+#define ObjVnumBloodstain	     18
+#define ObjVnumScraps		     19
 
-#define OBJ_VNUM_MUSHROOM	     20
-#define OBJ_VNUM_LIGHT_BALL	     21
-#define OBJ_VNUM_SPRING		     22
+#define ObjVnumMushroom	     20
+#define ObjVnumLightBall	     21
+#define ObjVnumSpring		     22
 
-#define OBJ_VNUM_SLICE		     24
-#define OBJ_VNUM_SHOPPING_BAG	     25
+#define ObjVnumSlice		     24
+#define ObjVnumShoppingBag	     25
 
-#define OBJ_VNUM_FIRE		     30
-#define OBJ_VNUM_TRAP		     31
-#define OBJ_VNUM_PORTAL		     32
+#define ObjVnumFire		     30
+#define ObjVnumTrap		     31
+#define ObjVnumPortal		     32
 
-#define OBJ_VNUM_BLACK_POWDER	     33
-#define OBJ_VNUM_SCROLL_SCRIBING     34
-#define OBJ_VNUM_FLASK_BREWING       35
-#define OBJ_VNUM_SHARPEN             39
+#define ObjVnumBlackPowder	     33
+#define ObjVnumScrollScribing     34
+#define ObjVnumFlaskBrewing       35
+#define ObjVnumSharpen             39
 
-#define OBJ_VNUM_DIAMOND_RING	     65
-#define OBJ_VNUM_RESTRAINT           66
-#define OBJ_VNUM_WEDDING_BAND        67
-#define OBJ_VNUM_MEDKIT              67
+#define ObjVnumDiamondRing	     65
+#define ObjVnumRestraint           66
+#define ObjVnumWeddingBand        67
+#define ObjVnumMedkit              67
 
 /* Academy eq */
-#define OBJ_VNUM_SCHOOL_MACE	  10315
-#define OBJ_VNUM_SCHOOL_DAGGER	  10312
-#define OBJ_VNUM_SCHOOL_SWORD	  10313
-#define OBJ_VNUM_SCHOOL_VEST	  10308
-#define OBJ_VNUM_SCHOOL_SHIELD	  10310
-#define OBJ_VNUM_SCHOOL_BANNER    10311
-#define OBJ_VNUM_SCHOOL_DIPLOMA   10321
-#define OBJ_VNUM_SCHOOL_MONEY     10431
+#define ObjVnumSchoolMace	  10315
+#define ObjVnumSchoolDagger	  10312
+#define ObjVnumSchoolSword	  10313
+#define ObjVnumSchoolVest	  10308
+#define ObjVnumSchoolShield	  10310
+#define ObjVnumSchoolBanner    10311
+#define ObjVnumSchoolDiploma   10321
+#define ObjVnumSchoolMoney     10431
 
-#define OBJ_VNUM_BLASTECH_E11     50
+#define ObjVnumBlastechE11     50
 
 /*
  * Item types.
@@ -1683,193 +1684,193 @@ typedef enum
  */
 typedef enum
 {
-        ITEM_NONE, ITEM_LIGHT, ITEM_SCROLL, ITEM_WAND, ITEM_STAFF,
-        ITEM_WEAPON,
-        ITEM_FIREWEAPON, ITEM_MISSILE, ITEM_TREASURE, ITEM_ARMOR, ITEM_POTION,
-        ITEM_WORN, ITEM_FURNITURE, ITEM_TRASH, ITEM_OLDTRAP, ITEM_CONTAINER,
-        ITEM_NOTE, ITEM_DRINK_CON, ITEM_KEY, ITEM_FOOD, ITEM_MONEY, ITEM_PEN,
-        ITEM_BOAT, ITEM_CORPSE_NPC, ITEM_CORPSE_PC, ITEM_FOUNTAIN, ITEM_PILL,
-        ITEM_BLOOD, ITEM_BLOODSTAIN, ITEM_SCRAPS, ITEM_PIPE, ITEM_HERB_CON,
-        ITEM_HERB, ITEM_INCENSE, ITEM_FIRE, ITEM_BOOK, ITEM_SWITCH,
-        ITEM_LEVER,
-        ITEM_PULLCHAIN, ITEM_BUTTON, ITEM_BEACON, ITEM_TRAP, ITEM_RUNEPOUCH,
-        ITEM_MATCH, ITEM_RAW_METAL, ITEM_CANISTER, ITEM_PORTAL, ITEM_PAPER,
-        ITEM_TINDER, ITEM_LOCKPICK, ITEM_SPIKE, ITEM_DISEASE, ITEM_OIL,
-        ITEM_FUEL,
-        ITEM_RESTRAINT, ITEM_LONG_BOW, ITEM_CROSSBOW, ITEM_AMMO, ITEM_QUIVER,
-        ITEM_SHOVEL, ITEM_SALVE, ITEM_RAWSPICE, ITEM_LENS, ITEM_CRYSTAL,
-        ITEM_DURAPLAST,
-        ITEM_BATTERY, ITEM_TOOLKIT, ITEM_DURASTEEL, ITEM_OVEN, ITEM_MIRROR,
-        ITEM_CIRCUIT, ITEM_SUPERCONDUCTOR, ITEM_COMLINK, ITEM_MEDPAC,
-        ITEM_FABRIC,
-        ITEM_RARE_METAL, ITEM_MAGNET, ITEM_THREAD, ITEM_SPICE, ITEM_SMUT,
-        ITEM_DEVICE, ITEM_SPACECRAFT,
-        ITEM_GRENADE, ITEM_LANDMINE, ITEM_GOVERNMENT, ITEM_DROID_CORPSE,
-        ITEM_BOLT, ITEM_BOND,
-        ITEM_IMPLANT, ITEM_CHEMICAL, ITEM_BINDING, ITEM_HOLSTER, 
-        ITEM_LANDDEED,
-        ITEM_MAX
+        ItemNone, ItemLight, ItemScroll, ItemWand, ItemStaff,
+        ItemWeapon,
+        ItemFireweapon, ItemMissile, ItemTreasure, ItemArmor, ItemPotion,
+        ItemWorn, ItemFurniture, ItemTrash, ItemOldtrap, ItemContainer,
+        ItemNote, ItemDrinkCon, ItemKey, ItemFood, ItemMoney, ItemPen,
+        ItemBoat, ItemCorpseNpc, ItemCorpsePc, ItemFountain, ItemPill,
+        ItemBlood, ItemBloodstain, ItemScraps, ItemPipe, ItemHerbCon,
+        ItemHerb, ItemIncense, ItemFire, ItemBook, ItemSwitch,
+        ItemLever,
+        ItemPullchain, ItemButton, ItemBeacon, ItemTrap, ItemRunepouch,
+        ItemMatch, ItemRawMetal, ItemCanister, ItemPortal, ItemPaper,
+        ItemTinder, ItemLockpick, ItemSpike, ItemDisease, ItemOil,
+        ItemFuel,
+        ItemRestraint, ItemLongBow, ItemCrossbow, ItemAmmo, ItemQuiver,
+        ItemShovel, ItemSalve, ItemRawspice, ItemLens, ItemCrystal,
+        ItemDuraplast,
+        ItemBattery, ItemToolkit, ItemDurasteel, ItemOven, ItemMirror,
+        ItemCircuit, ItemSuperconductor, ItemComlink, ItemMedpac,
+        ItemFabric,
+        ItemRareMetal, ItemMagnet, ItemThread, ItemSpice, ItemSmut,
+        ItemDevice, ItemSpacecraft,
+        ItemGrenade, ItemLandmine, ItemGovernment, ItemDroidCorpse,
+        ItemBolt, ItemBond,
+        ItemImplant, ItemChemical, ItemBinding, ItemHolster, 
+        ItemLanddeed,
+        ItemMax
 } item_types;
 
 
-#define MAX_ITEM_TYPE		     (ITEM_MAX-1)
+#define MaxItemType		     (ItemMax-1)
 /*
  * Extra flags.
  * Used in #OBJECTS.
  */
-#define ITEM_GLOW		BV00
-#define ITEM_HUM		BV01
-#define ITEM_DARK		BV02
-#define ITEM_HUTT_SIZE		BV03
-#define ITEM_CONTRABAND		BV04
-#define ITEM_INVIS		BV05
-#define ITEM_MAGIC		BV06
-#define ITEM_NODROP		BV07
-#define ITEM_BLESS		BV08
-#define ITEM_ANTI_GOOD		BV09
-#define ITEM_ANTI_EVIL		BV10
-#define ITEM_ANTI_NEUTRAL	BV11
-#define ITEM_NOREMOVE		BV12
-#define ITEM_INVENTORY		BV13
-#define ITEM_ANTI_SOLDIER	BV14
-#define ITEM_ANTI_THIEF	        BV15
-#define ITEM_ANTI_HUNTER	BV16
-#define ITEM_ANTI_JEDI  	BV17
-#define ITEM_SMALL_SIZE		BV18
-#define ITEM_LARGE_SIZE		BV19
-#define ITEM_DONATION		BV20
-#define ITEM_CLANOBJECT		BV21
-#define ITEM_ANTI_CITIZEN	BV22
-#define ITEM_ANTI_SITH  	BV23
-#define ITEM_ANTI_PILOT	        BV24
-#define ITEM_HIDDEN		BV25
-#define ITEM_POISONED		BV26
-#define ITEM_COVERING		BV27
-#define ITEM_DEATHROT		BV28
-#define ITEM_BURRIED		BV29    /* item is underground */
-#define ITEM_PROTOTYPE		BV30
-#define ITEM_HUMAN_SIZE         BV31
+#define ItemGlow		BV00
+#define ItemHum		BV01
+#define ItemDark		BV02
+#define ItemHuttSize		BV03
+#define ItemContraband		BV04
+#define ItemInvis		BV05
+#define ItemMagic		BV06
+#define ItemNodrop		BV07
+#define ItemBless		BV08
+#define ItemAntiGood		BV09
+#define ItemAntiEvil		BV10
+#define ItemAntiNeutral	BV11
+#define ItemNoremove		BV12
+#define ItemInventory		BV13
+#define ItemAntiSoldier	BV14
+#define ItemAntiThief	        BV15
+#define ItemAntiHunter	BV16
+#define ItemAntiJedi  	BV17
+#define ItemSmallSize		BV18
+#define ItemLargeSize		BV19
+#define ItemDonation		BV20
+#define ItemClanobject		BV21
+#define ItemAntiCitizen	BV22
+#define ItemAntiSith  	BV23
+#define ItemAntiPilot	        BV24
+#define ItemHidden		BV25
+#define ItemPoisoned		BV26
+#define ItemCovering		BV27
+#define ItemDeathrot		BV28
+#define ItemBurried		BV29    /* item is underground */
+#define ItemPrototype		BV30
+#define ItemHumanSize         BV31
 
 /* Magic flags - extra extra_flags for objects that are used in spells */
-#define ITEM_RETURNING		BV00
-#define ITEM_BACKSTABBER  	BV01
-#define ITEM_BANE		BV02
-#define ITEM_LOYAL		BV03
-#define ITEM_HASTE		BV04
-#define ITEM_DRAIN		BV05
-#define ITEM_LIGHTNING_BLADE  	BV06
+#define ItemReturning		BV00
+#define ItemBackstabber  	BV01
+#define ItemBane		BV02
+#define ItemLoyal		BV03
+#define ItemHaste		BV04
+#define ItemDrain		BV05
+#define ItemLightningBlade  	BV06
 
 /* Blaster settings - only saves on characters */
-#define BLASTER_NORMAL          0
-#define BLASTER_HALF		2
-#define BLASTER_FULL            5
-#define BLASTER_LOW		1
-#define	BLASTER_STUN		3
-#define BLASTER_HIGH            4
+#define BlasterNormal          0
+#define BlasterHalf		2
+#define BlasterFull            5
+#define BlasterLow		1
+#define	BlasterStun		3
+#define BlasterHigh            4
 
 /* Weapon Types */
 
-#define WEAPON_NONE     	0
-#define WEAPON_VIBRO_AXE	1
-#define WEAPON_VIBRO_BLADE	2
-#define WEAPON_LIGHTSABER	3
-#define WEAPON_WHIP  		4
-#define WEAPON_KNIFE		5
-#define WEAPON_BLASTER		6
-#define WEAPON_BLUDGEON		8
-#define WEAPON_BOWCASTER        9
-#define WEAPON_FORCE_PIKE	11
+#define WeaponNone     	0
+#define WeaponVibroAxe	1
+#define WeaponVibroBlade	2
+#define WeaponLightsaber	3
+#define WeaponWhip  		4
+#define WeaponKnife		5
+#define WeaponBlaster		6
+#define WeaponBludgeon		8
+#define WeaponBowcaster        9
+#define WeaponForcePike	11
 
 
 /* Furniture Settings */
-#define STAND_AT                1
-#define STAND_ON                2
-#define STAND_IN                3
-#define SIT_AT                  1
-#define SIT_ON                  2
-#define SIT_IN                  3
-#define REST_AT                 1
-#define REST_ON                 2
-#define REST_IN                 3
-#define SLEEP_AT                1
-#define SLEEP_ON                2
-#define SLEEP_IN                3
-#define PUT_AT                  1
-#define PUT_ON                  2
-#define PUT_IN                  3
-#define PUT_INSIDE              4
+#define StandAt                1
+#define StandOn                2
+#define StandIn                3
+#define SitAt                  1
+#define SitOn                  2
+#define SitIn                  3
+#define RestAt                 1
+#define RestOn                 2
+#define RestIn                 3
+#define SleepAt                1
+#define SleepOn                2
+#define SleepIn                3
+#define PutAt                  1
+#define PutOn                  2
+#define PutIn                  3
+#define PutInside              4
 
 
 /* Lever/dial/switch/button/pullchain flags */
-#define TRIG_UP			BV00
-#define TRIG_UNLOCK		BV01
-#define TRIG_LOCK		BV02
-#define TRIG_D_NORTH		BV03
-#define TRIG_D_SOUTH		BV04
-#define TRIG_D_EAST		BV05
-#define TRIG_D_WEST		BV06
-#define TRIG_D_UP		BV07
-#define TRIG_D_DOWN		BV08
-#define TRIG_DOOR		BV09
-#define TRIG_CONTAINER		BV10
-#define TRIG_OPEN		BV11
-#define TRIG_CLOSE		BV12
-#define TRIG_PASSAGE		BV13
-#define TRIG_OLOAD		BV14
-#define TRIG_MLOAD		BV15
-#define TRIG_DEATH		BV19
-#define TRIG_CAST		BV20
-#define TRIG_FAKEBLADE		BV21
-#define TRIG_RAND4		BV22
-#define TRIG_RAND6		BV23
-#define TRIG_TRAPDOOR		BV24
-#define TRIG_ANOTHEROOM		BV25
-#define TRIG_USEDIAL		BV26    /* Unused */
-#define TRIG_ABSOLUTEVNUM	BV27
-#define TRIG_SHOWROOMDESC	BV28
-#define TRIG_AUTORETURN		BV29
+#define TrigUp			BV00
+#define TrigUnlock		BV01
+#define TrigLock		BV02
+#define TrigDNorth		BV03
+#define TrigDSouth		BV04
+#define TrigDEast		BV05
+#define TrigDWest		BV06
+#define TrigDUp		BV07
+#define TrigDDown		BV08
+#define TrigDoor		BV09
+#define TrigContainer		BV10
+#define TrigOpen		BV11
+#define TrigClose		BV12
+#define TrigPassage		BV13
+#define TrigOload		BV14
+#define TrigMload		BV15
+#define TrigDeath		BV19
+#define TrigCast		BV20
+#define TrigFakeblade		BV21
+#define TrigRand4		BV22
+#define TrigRand6		BV23
+#define TrigTrapdoor		BV24
+#define TrigAnotheroom		BV25
+#define TrigUsedial		BV26    /* Unused */
+#define TrigAbsolutevnum	BV27
+#define TrigShowroomdesc	BV28
+#define TrigAutoreturn		BV29
 
 /* drug types */
-#define SPICE_GLITTERSTIM        0
-#define SPICE_CARSANUM           1
-#define SPICE_RYLL               2
-#define SPICE_ANDRIS             3
+#define SpiceGlitterstim        0
+#define SpiceCarsanum           1
+#define SpiceRyll               2
+#define SpiceAndris             3
 
 /* crystal types */
-#define GEM_NON_ADEGEN          0
-#define GEM_KATHRACITE		1
-#define GEM_RELACITE		2
-#define GEM_DANITE		3
-#define GEM_MEPHITE		4
-#define GEM_PONITE		5
-#define GEM_ILLUM               6
-#define GEM_CORUSCA             7
+#define GemNonAdegen          0
+#define GemKathracite		1
+#define GemRelacite		2
+#define GemDanite		3
+#define GemMephite		4
+#define GemPonite		5
+#define GemIllum               6
+#define GemCorusca             7
 
 /*
  * Wear flags.
  * Used in #OBJECTS.
  */
-#define ITEM_TAKE		BV00
-#define ITEM_WEAR_FINGER	BV01
-#define ITEM_WEAR_NECK		BV02
-#define ITEM_WEAR_BODY		BV03
-#define ITEM_WEAR_HEAD		BV04
-#define ITEM_WEAR_LEGS		BV05
-#define ITEM_WEAR_FEET		BV06
-#define ITEM_WEAR_HANDS		BV07
-#define ITEM_WEAR_ARMS		BV08
-#define ITEM_WEAR_SHIELD	BV09
-#define ITEM_WEAR_ABOUT		BV10
-#define ITEM_WEAR_WAIST		BV11
-#define ITEM_WEAR_WRIST		BV12
-#define ITEM_WIELD		BV13
-#define ITEM_HOLD		BV14
-#define ITEM_DUAL_WIELD		BV15
-#define ITEM_WEAR_EARS		BV16
-#define ITEM_WEAR_EYES		BV17
-#define ITEM_MISSILE_WIELD	BV18
-#define ITEM_WEAR_BINDING       BV19
-#define ITEM_WEAR_HOLSTER1	BV20
+#define ItemTake		BV00
+#define ItemWearFinger	BV01
+#define ItemWearNeck		BV02
+#define ItemWearBody		BV03
+#define ItemWearHead		BV04
+#define ItemWearLegs		BV05
+#define ItemWearFeet		BV06
+#define ItemWearHands		BV07
+#define ItemWearArms		BV08
+#define ItemWearShield	BV09
+#define ItemWearAbout		BV10
+#define ItemWearWaist		BV11
+#define ItemWearWrist		BV12
+#define ItemWield		BV13
+#define ItemHold		BV14
+#define ItemDualWield		BV15
+#define ItemWearEars		BV16
+#define ItemWearEyes		BV17
+#define ItemMissileWield	BV18
+#define ItemWearBinding       BV19
+#define ItemWearHolster1	BV20
 
 /*
  * Apply types (for affects).
@@ -1877,123 +1878,123 @@ typedef enum
  */
 typedef enum
 {
-        APPLY_NONE, APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON,
-        APPLY_SEX, APPLY_NULL, APPLY_LEVEL, APPLY_AGE, APPLY_HEIGHT,
-        APPLY_WEIGHT,
-        APPLY_MANA, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_AC,
-        APPLY_HITROLL, APPLY_DAMROLL, APPLY_SAVING_POISON, APPLY_SAVING_ROD,
-        APPLY_SAVING_PARA, APPLY_SAVING_BREATH, APPLY_SAVING_SPELL, APPLY_CHA,
-        APPLY_AFFECT, APPLY_RESISTANT, APPLY_IMMUNE, APPLY_SUSCEPTIBLE,
-        APPLY_WEAPONSPELL, APPLY_LCK, APPLY_BACKSTAB, APPLY_PICK, APPLY_TRACK,
-        APPLY_STEAL, APPLY_SNEAK, APPLY_HIDE, APPLY_PALM, APPLY_DETRAP,
-        APPLY_DODGE,
-        APPLY_PEEK, APPLY_SCAN, APPLY_GOUGE, APPLY_SEARCH, APPLY_MOUNT,
-        APPLY_DISARM,
-        APPLY_KICK, APPLY_PARRY, APPLY_BASH, APPLY_STUN, APPLY_PUNCH,
-        APPLY_CLIMB,
-        APPLY_GRIP, APPLY_SCRIBE, APPLY_BREW, APPLY_WEARSPELL,
-        APPLY_REMOVESPELL,
-        APPLY_EMOTION, APPLY_MENTALSTATE, APPLY_STRIPSN, APPLY_REMOVE,
-        APPLY_DIG,
-        APPLY_FULL, APPLY_THIRST, APPLY_DRUNK, APPLY_BLOOD, APPLY_SECRETIVE,
-        MAX_APPLY_TYPE
+        ApplyNone, ApplyStr, ApplyDex, ApplyInt, ApplyWis, ApplyCon,
+        ApplySex, ApplyNull, ApplyLevel, ApplyAge, ApplyHeight,
+        ApplyWeight,
+        ApplyMana, ApplyHit, ApplyMove, ApplyGold, ApplyExp, ApplyAc,
+        ApplyHitroll, ApplyDamroll, ApplySavingPoison, ApplySavingRod,
+        ApplySavingPara, ApplySavingBreath, ApplySavingSpell, ApplyCha,
+        ApplyAffect, ApplyResistant, ApplyImmune, ApplySusceptible,
+        ApplyWeaponspell, ApplyLck, ApplyBackstab, ApplyPick, ApplyTrack,
+        ApplySteal, ApplySneak, ApplyHide, ApplyPalm, ApplyDetrap,
+        ApplyDodge,
+        ApplyPeek, ApplyScan, ApplyGouge, ApplySearch, ApplyMount,
+        ApplyDisarm,
+        ApplyKick, ApplyParry, ApplyBash, ApplyStun, ApplyPunch,
+        ApplyClimb,
+        ApplyGrip, ApplyScribe, ApplyBrew, ApplyWearspell,
+        ApplyRemovespell,
+        ApplyEmotion, ApplyMentalstate, ApplyStripsn, ApplyRemove,
+        ApplyDig,
+        ApplyFull, ApplyThirst, ApplyDrunk, ApplyBlood, ApplySecretive,
+        MaxApplyType
 } apply_types;
 
-#define REVERSE_APPLY		   1000
+#define ReverseApply		   1000
 
 /*
  * Values for containers (value[1]).
  * Used in #OBJECTS.
  */
-#define CONT_CLOSEABLE		      1
-#define CONT_PICKPROOF		      2
-#define CONT_CLOSED		      4
-#define CONT_LOCKED		      8
+#define ContCloseable		      1
+#define ContPickproof		      2
+#define ContClosed		      4
+#define ContLocked		      8
 
 /*
  * Well known room virtual numbers.
  * Defined in #ROOMS.
  */
-#define ROOM_VNUM_LIMBO		      2
-#define ROOM_VNUM_POLY		      3
-#define ROOM_CLONE_END	      10000
-#define ROOM_CLONE_BEGIN	  10001
-#define ROOM_VNUM_CHAT		  32144
-#define ROOM_VNUM_TEMPLE	  32144
-#define ROOM_VNUM_ALTAR		  32144
-#define ROOM_VNUM_SCHOOL	  227
-#define ROOM_AUTH_START		  227
-#define ROOM_START_HUMAN            211
-#define ROOM_START_WOOKIEE        28600
-#define ROOM_START_TWILEK         32148
-#define ROOM_START_RODIAN         32148
-#define ROOM_START_HUTT           32148
-#define ROOM_START_MON_CALAMARIAN 21069
-#define ROOM_START_NOGHRI          1015
-#define ROOM_START_GAMORREAN      28100
-#define ROOM_START_JAWA           31819
-#define ROOM_START_ADARIAN        29000
-#define ROOM_START_EWOK           32148
-#define ROOM_START_VERPINE        32148
-#define ROOM_START_CSILLIAN       32148
-#define ROOM_START_DEFEL          32148
-#define ROOM_START_TRANDOSHAN     32148
-#define ROOM_START_SHISTAVANAN     32148
-#define ROOM_START_DUINUOGWUIN    32148
-#define ROOM_START_DROID        21069
-#define ROOM_START_IMMORTAL         100
-#define ROOM_LIMBO_SHIPYARD          45
-#define ROOM_DEFAULT_CRASH        28025
+#define RoomVnumLimbo		      2
+#define RoomVnumPoly		      3
+#define RoomCloneEnd	      10000
+#define RoomCloneBegin	  10001
+#define RoomVnumChat		  32144
+#define RoomVnumTemple	  32144
+#define RoomVnumAltar		  32144
+#define RoomVnumSchool	  227
+#define RoomAuthStart		  227
+#define RoomStartHuman            211
+#define RoomStartWookiee        28600
+#define RoomStartTwilek         32148
+#define RoomStartRodian         32148
+#define RoomStartHutt           32148
+#define RoomStartMonCalamarian 21069
+#define RoomStartNoghri          1015
+#define RoomStartGamorrean      28100
+#define RoomStartJawa           31819
+#define RoomStartAdarian        29000
+#define RoomStartEwok           32148
+#define RoomStartVerpine        32148
+#define RoomStartCsillian       32148
+#define RoomStartDefel          32148
+#define RoomStartTrandoshan     32148
+#define RoomStartShistavanan     32148
+#define RoomStartDuinuogwuin    32148
+#define RoomStartDroid        21069
+#define RoomStartImmortal         100
+#define RoomLimboShipyard          45
+#define RoomDefaultCrash        28025
 
-#define ROOM_PLUOGUS_QUIT         32148
+#define RoomPluogusQuit         32148
 
 /*
  * Room flags.           Holy cow!  Talked about stripped away..
  * Used in #ROOMS.       Those merc guys know how to strip code down.
  *			 Lets put it all back... ;)
- * Leave ROOM_RESERVED alone, its reserved for tracking.
+ * Leave RoomReserved alone, its reserved for tracking.
  */
 typedef enum
 {
-        ROOM_DARK, ROOM_RESERVED, ROOM_NO_MOB, ROOM_INDOORS, ROOM_CAN_LAND,
-        ROOM_CAN_FLY, ROOM_NO_DRIVING, ROOM_NO_MAGIC, ROOM_BANK,
-        ROOM_PRIVATE, ROOM_SAFE, ROOM_INSTALLATION, ROOM_PET_SHOP,
-        ROOM_NO_HAIL_TO, ROOM_DONATION, ROOM_NODROPALL,
-        ROOM_SILENCE, ROOM_LOGSPEECH, ROOM_NODROP, ROOM_CLANSTOREROOM,
-        ROOM_PLR_HOME, ROOM_EMPTY_HOME, ROOM_NOTHING, ROOM_HOTEL,
-        ROOM_NOFLOOR, ROOM_REFINERY, ROOM_FACTORY, ROOM_RECRUIT,
-        ROOM_E_RECRUIT,
-        ROOM_SPACECRAFT, ROOM_PROTOTYPE, ROOM_AUCTION, ROOM_BAR, ROOM_INN,
-        ROOM_OFFICE, ROOM_CAFE, ROOM_KITCHEN, ROOM_EXECUTIVE, ROOM_BOARDROOM,
-        ROOM_BACTA, ROOM_IMPORT, ROOM_BACTA_CHARGE, ROOM_ARENA, ROOM_BOUNTY,
-        ROOM_TEMP_COCKPIT, ROOM_TEMP_TURRET1, ROOM_TEMP_TURRET2,
-        ROOM_TEMP_HANGAR,
-        ROOM_TEMP_ENGINEROOM, ROOM_TEMP_NAVSEAT, ROOM_TEMP_PILOTSEAT,
-        ROOM_TEMP_COSEAT,
-        ROOM_TEMP_GUNSEAT, ROOM_TEMP_CORRIDOR, ROOM_TEMP_BEDROOM,
-        ROOM_TEMP_WORKSHOP,
-        ROOM_TEMP_TURBOLIFT, ROOM_PLAYERSHOP, ROOM_MONITOR,
-        ROOM_EMPTYPLOT, MAX_ROOM_FLAG
+        RoomDark, RoomReserved, RoomNoMob, RoomIndoors, RoomCanLand,
+        RoomCanFly, RoomNoDriving, RoomNoMagic, RoomBank,
+        RoomPrivate, RoomSafe, RoomInstallation, RoomPetShop,
+        RoomNoHailTo, RoomDonation, RoomNodropall,
+        RoomSilence, RoomLogspeech, RoomNodrop, RoomClanstoreroom,
+        RoomPlrHome, RoomEmptyHome, RoomNothing, RoomHotel,
+        RoomNofloor, RoomRefinery, RoomFactory, RoomRecruit,
+        RoomERecruit,
+        RoomSpacecraft, RoomPrototype, RoomAuction, RoomBar, RoomInn,
+        RoomOffice, RoomCafe, RoomKitchen, RoomExecutive, RoomBoardroom,
+        RoomBacta, RoomImport, RoomBactaCharge, RoomArena, RoomBounty,
+        RoomTempCockpit, RoomTempTurret1, RoomTempTurret2,
+        RoomTempHangar,
+        RoomTempEngineroom, RoomTempNavseat, RoomTempPilotseat,
+        RoomTempCoseat,
+        RoomTempGunseat, RoomTempCorridor, RoomTempBedroom,
+        RoomTempWorkshop,
+        RoomTempTurbolift, RoomPlayershop, RoomMonitor,
+        RoomEmptyplot, MaxRoomFlag
 } roomflags;
 
 /*Ship Flags*/
-#define SHIP_SIMULATOR		BV00
-#define SHIP_CLOAK          BV01
-#define SHIP_STEALTH        BV02
-#define SHIP_INTERDICTOR    BV03
-#define SHIP_REPUBLIC       BV04
-#define SHIP_EMPIRE         BV05
-#define SHIP_HUNTER         BV06
-#define SHIP_SMUGGLER       BV07
-#define SHIP_PIRATE         BV08
-#define SHIP_POLICE         BV09
-#define SHIP_CLAN1          BV10
-#define SHIP_CLAN2          BV11
-#define SHIP_CLAN3          BV12
-#define SHIP_CLAN4          BV13
-#define SHIP_CLAN5          BV14
-#define SHIP_TROOP          BV15
-#define SHIP_TAXI           BV16
+#define ShipSimulator		BV00
+#define ShipCloak          BV01
+#define ShipStealth        BV02
+#define ShipInterdictor    BV03
+#define ShipRepublic       BV04
+#define ShipEmpire         BV05
+#define ShipHunter         BV06
+#define ShipSmuggler       BV07
+#define ShipPirate         BV08
+#define ShipPolice         BV09
+#define ShipClan1          BV10
+#define ShipClan2          BV11
+#define ShipClan3          BV12
+#define ShipClan4          BV13
+#define ShipClan5          BV14
+#define ShipTroop          BV15
+#define ShipTaxi           BV16
 
 
 
@@ -2003,48 +2004,48 @@ typedef enum
  */
 typedef enum
 {
-        DIR_NORTH, DIR_EAST, DIR_SOUTH, DIR_WEST, DIR_UP, DIR_DOWN,
-        DIR_NORTHEAST, DIR_NORTHWEST, DIR_SOUTHEAST, DIR_SOUTHWEST,
-        DIR_SOMEWHERE
+        DirNorth, DirEast, DirSouth, DirWest, DirUp, DirDown,
+        DirNortheast, DirNorthwest, DirSoutheast, DirSouthwest,
+        DirSomewhere
 } dir_types;
 
-#define MAX_DIR			DIR_SOUTHWEST   /* max for normal walking */
-#define DIR_PORTAL		DIR_SOMEWHERE   /* portal direction   */
+#define MaxDir			DirSouthwest   /* max for normal walking */
+#define DirPortal		DirSomewhere   /* portal direction   */
 
 
 /*
  * Exit flags.
  * Used in #ROOMS.
  */
-#define EX_ISDOOR		  BV00
-#define EX_CLOSED		  BV01
-#define EX_LOCKED		  BV02
-#define EX_SECRET		  BV03
-#define EX_SWIM			  BV04
-#define EX_PICKPROOF		  BV05
-#define EX_FLY			  BV06
-#define EX_CLIMB		  BV07
-#define EX_DIG			  BV08
-#define EX_RES1                   BV09  /* are these res[1-4] important? */
-#define EX_NOPASSDOOR		  BV10
-#define EX_HIDDEN		  BV11
-#define EX_PASSAGE		  BV12
-#define EX_PORTAL 		  BV13
-#define EX_RES2			  BV14
-#define EX_RES3			  BV15
+#define ExIsdoor		  BV00
+#define ExClosed		  BV01
+#define ExLocked		  BV02
+#define ExSecret		  BV03
+#define ExSwim			  BV04
+#define ExPickproof		  BV05
+#define ExFly			  BV06
+#define ExClimb		  BV07
+#define ExDig			  BV08
+#define ExRes1                   BV09  /* are these res[1-4] important? */
+#define ExNopassdoor		  BV10
+#define ExHidden		  BV11
+#define ExPassage		  BV12
+#define ExPortal 		  BV13
+#define ExRes2			  BV14
+#define ExRes3			  BV15
 #define EX_xCLIMB		  BV16
 #define EX_xENTER		  BV17
 #define EX_xLEAVE		  BV18
 #define EX_xAUTO		  BV19
-#define EX_RES4	  		  BV20
+#define ExRes4	  		  BV20
 #define EX_xSEARCHABLE		  BV21
-#define EX_BASHED                 BV22
-#define EX_BASHPROOF              BV23
-#define EX_NOMOB		  BV24
-#define EX_WINDOW		  BV25
+#define ExBashed                 BV22
+#define ExBashproof              BV23
+#define ExNomob		  BV24
+#define ExWindow		  BV25
 #define EX_xLOOK		  BV26
-#define EX_RUBBLE      BV27
-#define MAX_EXFLAG		  27
+#define ExRubble      BV27
+#define MaxExflag		  27
 
 /*
  * Sector types.
@@ -2052,12 +2053,12 @@ typedef enum
  */
 typedef enum
 {
-        SECT_INSIDE, SECT_CITY, SECT_FIELD, SECT_FOREST, SECT_HILLS,
-        SECT_MOUNTAIN,
-        SECT_WATER_SWIM, SECT_WATER_NOSWIM, SECT_UNDERWATER, SECT_AIR,
-        SECT_DESERT,
-        SECT_DUNNO, SECT_OCEANFLOOR, SECT_UNDERGROUND, SECT_SPACECRAFT,
-        SECT_MAX
+        SectInside, SectCity, SectField, SectForest, SectHills,
+        SectMountain,
+        SectWaterSwim, SectWaterNoswim, SectUnderwater, SectAir,
+        SectDesert,
+        SectDunno, SectOceanfloor, SectUnderground, SectSpacecraft,
+        SectMax
 } sector_types;
 
 /*
@@ -2066,14 +2067,14 @@ typedef enum
  */
 typedef enum
 {
-        WEAR_NONE = -1, WEAR_LIGHT =
-                0, WEAR_FINGER_L, WEAR_FINGER_R, WEAR_NECK_1,
-        WEAR_NECK_2, WEAR_BODY, WEAR_HEAD, WEAR_LEGS, WEAR_FEET, WEAR_HANDS,
-        WEAR_ARMS, WEAR_SHIELD, WEAR_ABOUT, WEAR_WAIST, WEAR_WRIST_L,
-        WEAR_WRIST_R,
-        WEAR_WIELD, WEAR_HOLD, WEAR_DUAL_WIELD, WEAR_EARS, WEAR_EYES,
-        WEAR_MISSILE_WIELD, WEAR_BINDING, WEAR_HOLSTER_L, WEAR_HOLSTER_R,
-        MAX_WEAR
+        WearNone = -1, WearLight =
+                0, WearFingerL, WearFingerR, WearNeck1,
+        WearNeck2, WearBody, WearHead, WearLegs, WearFeet, WearHands,
+        WearArms, WearShield, WearAbout, WearWaist, WearWristL,
+        WearWristR,
+        WearWield, WearHold, WearDualWield, WearEars, WearEyes,
+        WearMissileWield, WearBinding, WearHolsterL, WearHolsterR,
+        MaxWear
 } wear_locations;
 
 /***************************************************************************
@@ -2088,7 +2089,7 @@ typedef enum
  */
 typedef enum
 {
-        COND_DRUNK, COND_FULL, COND_THIRST, COND_BLOODTHIRST, MAX_CONDS
+        CondDrunk, CondFull, CondThirst, CondBloodthirst, MaxConds
 } conditions;
 
 /*
@@ -2096,11 +2097,11 @@ typedef enum
  */
 typedef enum
 {
-        POS_DEAD, POS_MORTAL, POS_INCAP, POS_STUNNED, POS_SLEEPING,
-        POS_RESTING,
-        POS_SITTING, POS_FIGHTING, POS_STANDING, POS_MOUNTED, POS_SHOVE,
-        POS_DRAG,
-        POS_MAX
+        PosDead, PosMortal, PosIncap, PosStunned, PosSleeping,
+        PosResting,
+        PosSitting, PosFighting, PosStanding, PosMounted, PosShove,
+        PosDrag,
+        PosMax
 } positions;
 
 /*
@@ -2108,89 +2109,89 @@ typedef enum
  */
 
 
-#define PLR_IS_NPC		      BV00  /* Don't EVER set.  */
-#define PLR_BOUGHT_PET		      BV01
-#define PLR_SHOVEDRAG		      BV02
-#define PLR_AUTOEXIT		      BV03
-#define PLR_AUTOLOOT		      BV04
-#define PLR_FORSAKEN                  BV05
-#define PLR_BLANK		      BV06
-#define PLR_SECRETIVE 		      BV07
-#define PLR_BRIEF		      BV08
-#define PLR_COMBINE		      BV09
-#define PLR_PROMPT		      BV10
-#define PLR_TELNET_GA		      BV11
-#define PLR_HOLYLIGHT		   BV12
-#define PLR_WIZINVIS		   BV13
-#define PLR_ROOMVNUM		   BV14
-#define	PLR_SILENCE		   BV15
-#define PLR_NO_EMOTE		   BV16
-#define PLR_ATTACKER    	   BV17
-#define PLR_NO_TELL		   BV18
-#define PLR_LOG			   BV19
-#define PLR_DENY		   BV20
-#define PLR_FREEZE		   BV21
-#define PLR_KILLER    	           BV22
-#define PLR_QUESTOR  	           BV23
-#define PLR_LITTERBUG	           BV24
-#define PLR_ANSI	           BV25
-#define PLR_SOUND	           BV26
-#define PLR_NICE	           BV27
-#define PLR_FLEE	           BV28
-#define PLR_AUTOGOLD               BV29
-#define PLR_MXP		           BV30
-#define PLR_AFK                    BV31
+#define PlrIsNpc		      BV00  /* Don't EVER set.  */
+#define PlrBoughtPet		      BV01
+#define PlrShovedrag		      BV02
+#define PlrAutoexit		      BV03
+#define PlrAutoloot		      BV04
+#define PlrForsaken                  BV05
+#define PlrBlank		      BV06
+#define PlrSecretive 		      BV07
+#define PlrBrief		      BV08
+#define PlrCombine		      BV09
+#define PlrPrompt		      BV10
+#define PlrTelnetGa		      BV11
+#define PlrHolylight		   BV12
+#define PlrWizinvis		   BV13
+#define PlrRoomvnum		   BV14
+#define	PlrSilence		   BV15
+#define PlrNoEmote		   BV16
+#define PlrAttacker    	   BV17
+#define PlrNoTell		   BV18
+#define PlrLog			   BV19
+#define PlrDeny		   BV20
+#define PlrFreeze		   BV21
+#define PlrKiller    	           BV22
+#define PlrQuestor  	           BV23
+#define PlrLitterbug	           BV24
+#define PlrAnsi	           BV25
+#define PlrSound	           BV26
+#define PlrNice	           BV27
+#define PlrFlee	           BV28
+#define PlrAutogold               BV29
+#define PlrMxp		           BV30
+#define PlrAfk                    BV31
 
 /* Bits for pc_data->flags. */
-#define PCFLAG_R1                  BV00
-#define PCFLAG_NOHUNGER	    	   BV01
-#define PCFLAG_UNAUTHED	    	   BV02
-#define PCFLAG_NORECALL            BV03
-#define PCFLAG_NOINTRO             BV04
-#define PCFLAG_GAG		           BV05
-#define PCFLAG_RETIRED             BV06
-#define PCFLAG_GUEST               BV07
-#define PCFLAG_NOSUMMON		       BV08
-#define PCFLAG_PAGERON		       BV09
-#define PCFLAG_NOTITLE             BV10
-#define PCFLAG_ROOM                BV11
-#define PCFLAG_WORKING             BV12
-#define PCFLAG_GOTMAIL             BV13
-#define PCFLAG_EXEMPT              BV14
-#define PCFLAG_FASTENGINEER        BV15
-#define PCFLAG_WATCH               BV16 /* see function "do_watch" */
-#define PCFLAG_MARRIED             BV17
-#define PCFLAG_NEWBGUIDE           BV18
-#define PCFLAG_AUTODRAW            BV19
+#define PcflagR1                  BV00
+#define PcflagNohunger	    	   BV01
+#define PcflagUnauthed	    	   BV02
+#define PcflagNorecall            BV03
+#define PcflagNointro             BV04
+#define PcflagGag		           BV05
+#define PcflagRetired             BV06
+#define PcflagGuest               BV07
+#define PcflagNosummon		       BV08
+#define PcflagPageron		       BV09
+#define PcflagNotitle             BV10
+#define PcflagRoom                BV11
+#define PcflagWorking             BV12
+#define PcflagGotmail             BV13
+#define PcflagExempt              BV14
+#define PcflagFastengineer        BV15
+#define PcflagWatch               BV16 /* see function "do_watch" */
+#define PcflagMarried             BV17
+#define PcflagNewbguide           BV18
+#define PcflagAutodraw            BV19
 
 /* Bits for ch->pcdata->godflags */
-#define IMM_ADMIN                  BV00
-#define IMM_BUILDER                BV01
-#define IMM_HIGHBUILDER            BV02
-#define IMM_ENFORCER               BV03
-#define IMM_QUEST                  BV04
-#define IMM_CODER                  BV05
-#define IMM_ALL                    BV06
-#define IMM_OWNER                  BV07
-#define IMM_HIGHENFORCER           BV08
+#define ImmAdmin                  BV00
+#define ImmBuilder                BV01
+#define ImmHighbuilder            BV02
+#define ImmEnforcer               BV03
+#define ImmQuest                  BV04
+#define ImmCoder                  BV05
+#define ImmAll                    BV06
+#define ImmOwner                  BV07
+#define ImmHighenforcer           BV08
 
 /* Bits for command->flags */
-#define COMMAND_ADMIN                  BV00
-#define COMMAND_BUILDER                BV01
-#define COMMAND_HIGHBUILDER            BV02
-#define COMMAND_ENFORCER               BV03
-#define COMMAND_QUEST                  BV04
-#define COMMAND_CODER                  BV05
-#define COMMAND_ALL                    BV06
-#define COMMAND_OWNER                  BV07
-#define COMMAND_HIGHENFORCER           BV08
+#define CommandAdmin                  BV00
+#define CommandBuilder                BV01
+#define CommandHighbuilder            BV02
+#define CommandEnforcer               BV03
+#define CommandQuest                  BV04
+#define CommandCoder                  BV05
+#define CommandAll                    BV06
+#define CommandOwner                  BV07
+#define CommandHighenforcer           BV08
 
 
 
 typedef enum
 {
-        TIMER_NONE, TIMER_RECENTFIGHT, TIMER_SHOVEDRAG, TIMER_DO_FUN,
-        TIMER_APPLIED, TIMER_PKILLED
+        TimerNone, TimerRecentfight, TimerShovedrag, TimerDoFun,
+        TimerApplied, TimerPkilled
 } timer_types;
 
 struct timer_data
@@ -2209,20 +2210,20 @@ struct timer_data
  */
 typedef enum
 {
-        CHANNEL_LOG, CHANNEL_BUILD, CHANNEL_COMM, CHANNEL_TELLS,
-        CHANNEL_AUCTION
+        ChannelLog, ChannelBuild, ChannelComm, ChannelTells,
+        ChannelAuction
 } channels;
 
 /* Area defines - Scryn 8/11
  *
  */
-#define AREA_DELETED		   BV00
-#define AREA_LOADED                BV01
+#define AreaDeleted		   BV00
+#define AreaLoaded                BV01
 
 /* Area flags - Narn Mar/96 */
-#define AFLAG_NOPKILL               BV00
-#define AFLAG_NOQUEST               BV01
-#define AFLAG_PROTOTYPE             BV02
+#define AflagNopkill               BV00
+#define AflagNoquest               BV01
+#define AflagPrototype             BV02
 
 /*
  * Prototype for a mob.
@@ -2324,29 +2325,29 @@ struct extracted_char_data
 /*
  * Body Parts Stuff
  */
-#define BODY_NONE	0
-#define BODY_L_LEG	BV00
-#define BODY_R_LEG	BV01
-#define BODY_L_FOOT	BV02
-#define BODY_R_FOOT	BV03
-#define BODY_L_ARM	BV04
-#define BODY_R_ARM	BV05
-#define BODY_L_WRIST	BV06
-#define BODY_R_WRIST	BV07
-#define BODY_L_KNEE	BV08
-#define BODY_R_KNEE	BV09
-#define BODY_L_ANKLE	BV10
-#define BODY_R_ANKLE	BV11
-#define BODY_L_SHOLDER	BV12
-#define BODY_R_SHOLDER	BV13
-#define BODY_L_HAND	BV14
-#define BODY_R_HAND	BV15
-#define BODY_NOSE	BV16
-#define BODY_RIBS	BV17
-#define BODY_JAW	BV18
-#define BODY_STOMACH	BV19
-#define BODY_CHEST	BV20
-#define MAX_BODY_PARTS  21
+#define BodyNone	0
+#define BodyLLeg	BV00
+#define BodyRLeg	BV01
+#define BodyLFoot	BV02
+#define BodyRFoot	BV03
+#define BodyLArm	BV04
+#define BodyRArm	BV05
+#define BodyLWrist	BV06
+#define BodyRWrist	BV07
+#define BodyLKnee	BV08
+#define BodyRKnee	BV09
+#define BodyLAnkle	BV10
+#define BodyRAnkle	BV11
+#define BodyLSholder	BV12
+#define BodyRSholder	BV13
+#define BodyLHand	BV14
+#define BodyRHand	BV15
+#define BodyNose	BV16
+#define BodyRibs	BV17
+#define BodyJaw	BV18
+#define BodyStomach	BV19
+#define BodyChest	BV20
+#define MaxBodyParts  21
 
 /*
  * One character (PC or NPC).
@@ -2502,7 +2503,7 @@ struct chardata
         sh_int main_ability;
         char     *owner;
         RoomIndexData *home;
-        sh_int colors[MAX_COLORS];
+        sh_int colors[MaxColors];
         int bodyparts;
         int home_vnum;  /* hotboot tracker */
         char     *following;
@@ -2559,7 +2560,7 @@ struct pc_data
         int o_range_hi;
         sh_int wizinvis;    /* wizinvis level */
         sh_int min_snoop;   /* minimum snoop level */
-        sh_int condition[MAX_CONDS];
+        sh_int condition[MaxConds];
         sh_int learned[MaxSkill];
         KilledData killed[MaxKillTrack];
         sh_int quest_number;    /* current *QUEST BEING DONE* DON'T REMOVE! */
@@ -2593,7 +2594,7 @@ struct pc_data
         char     *sendmail; /*buffer used to send an email */
         bool hotboot;   /* hotboot tracker */
         int comchan;    /* for talk tune */
-        int implants[MAX_IMPLANT_TYPES];
+        int implants[MaxImplantTypes];
         sh_int statpoints;
         sh_int statedit;
 #ifdef ACCOUNT
@@ -2605,7 +2606,7 @@ struct pc_data
         char     *pose;
         char     *listening;
 #ifdef IMC
-        IMC_CHARDATA *imcchardata;
+        ImcChardata *imcchardata;
 #endif
 		  char     *email;
         char     *realname;
@@ -2623,8 +2624,8 @@ struct pc_data
 /*
  * Liquids.
  */
-#define LIQ_WATER        0
-#define LIQ_MAX		19
+#define LiqWater        0
+#define LiqMax		19
 
 struct liq_type
 {
@@ -2775,23 +2776,23 @@ struct reset_data
 };
 
 /* Constants for arg2 of 'B' resets. */
-#define	BIT_RESET_DOOR			0
-#define BIT_RESET_OBJECT		1
-#define BIT_RESET_MOBILE		2
-#define BIT_RESET_ROOM			3
-#define BIT_RESET_TYPE_MASK		0xFF    /* 256 should be enough */
-#define BIT_RESET_DOOR_THRESHOLD	8
-#define BIT_RESET_DOOR_MASK		0xFF00  /* 256 should be enough */
-#define BIT_RESET_SET			BV30
-#define BIT_RESET_TOGGLE		BV31
-#define BIT_RESET_FREEBITS	  0x3FFF0000    /* For reference */
+#define	BitResetDoor			0
+#define BitResetObject		1
+#define BitResetMobile		2
+#define BitResetRoom			3
+#define BitResetTypeMask		0xFF    /* 256 should be enough */
+#define BitResetDoorThreshold	8
+#define BitResetDoorMask		0xFF00  /* 256 should be enough */
+#define BitResetSet			BV30
+#define BitResetToggle		BV31
+#define BitResetFreebits	  0x3FFF0000    /* For reference */
 
 
 
 /*
  * Area definition.
  */
-#define AREA_VERSION 	2
+#define AreaVersion 	2
 struct area_data
 {
         int version;
@@ -2871,16 +2872,16 @@ struct system_data
         int maxplayers; /* Maximum players this boot   */
         int alltimemax; /* Maximum players ever   */
         char     *time_of_max;  /* Time of max ever */
-        bool NO_NAME_RESOLVING; /* Hostnames are not resolved  */
-        bool DENY_NEW_PLAYERS;  /* New players cannot connect  */
-        bool WAIT_FOR_AUTH; /* New players must be auth'ed */
+        bool NoNameResolving; /* Hostnames are not resolved  */
+        bool DenyNewPlayers;  /* New players cannot connect  */
+        bool WaitForAuth; /* New players must be auth'ed */
         sh_int read_all_mail;   /* Read all player mail(was 54) */
         sh_int read_mail_free;  /* Read mail for free (was 51) */
         sh_int write_mail_free; /* Write mail for free(was 51) */
         sh_int take_others_mail;    /* Take others mail (was 54)   */
         sh_int muse_level;  /* Level of muse channel */
         sh_int think_level; /* Level of think channel LevelHiGod */
-        sh_int build_level; /* Level of build channel LEVEL_BUILD */
+        sh_int build_level; /* Level of build channel LevelBuild */
         sh_int log_level;   /* Level of log channel LEVEL LOG */
         sh_int level_modify_proto;  /* Level to modify prototype stuff LevelLesser */
         sh_int level_override_private;  /* override private flag */
@@ -2929,7 +2930,7 @@ struct system_data
 };
 
 
-struct HOME_DATA;
+struct HomeData;
 /*
  * Room type.
  */
@@ -2949,7 +2950,7 @@ public:
         ExitData *last_exit;
         ShipData *first_ship;
         ShipData *last_ship;
-#ifdef OLC_SHUTTLE
+#ifdef OlcShuttle
         struct shuttle_data *first_shuttle;
         struct shuttle_data *last_shuttle;
 #endif
@@ -2968,7 +2969,7 @@ public:
         /* Eventually change this to a union or struct pointer for other types
          * such as room->isa->ship
          */
-        HOME_DATA * home;
+        HomeData * home;
 };
 
 
@@ -2977,24 +2978,24 @@ public:
  * Must be non-overlapping with spell/skill types,
  * but may be arbitrary beyond that.
  */
-#define TYPE_UNDEFINED               -1
-#define TYPE_HIT                     1000   /* allows for 1000 skills/spells */
-#define TYPE_HERB		     2000   /* allows for 1000 attack types  */
-#define TYPE_PERSONAL		     3000   /* allows for 1000 herb types    */
+#define TypeUndefined               -1
+#define TypeHit                     1000   /* allows for 1000 skills/spells */
+#define TypeHerb		     2000   /* allows for 1000 attack types  */
+#define TypePersonal		     3000   /* allows for 1000 herb types    */
 
 /*
  *  Target types.
  */
 typedef enum
 {
-        TAR_IGNORE, TAR_CHAR_OFFENSIVE, TAR_CHAR_DEFENSIVE, TAR_CHAR_SELF,
-        TAR_OBJ_INV
+        TarIgnore, TarCharOffensive, TarCharDefensive, TarCharSelf,
+        TarObjInv
 } target_types;
 
 typedef enum
 {
-        SKILL_UNKNOWN, SKILL_SPELL, SKILL_SKILL, SKILL_WEAPON, SKILL_TONGUE,
-        SKILL_HERB
+        SkillUnknown, SkillSpell, SkillSkill, SkillWeapon, SkillTongue,
+        SkillHerb
 } skill_types;
 
 
@@ -3385,117 +3386,117 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 /*
  * Character macros.
  */
-#define IS_NPC(ch)		(IS_SET((ch)->act, ACT_IS_NPC) || (ch)->pcdata == NULL)
-#define IS_QUESTOR(ch)  (IS_SET((ch)->act, PLR_QUESTOR))
-#define IS_IMMORTAL(ch)		(get_trust((ch)) >= LevelImmortal)
-#define IS_HERO(ch)		(get_trust((ch)) >= LevelHero)
-#define IS_PLAYING(d)		((d)->connected == ConPlaying || \
+#define IsNpc(ch)		(IsSet((ch)->act, ActIsNpc) || (ch)->pcdata == NULL)
+#define IsQuestor(ch)  (IsSet((ch)->act, PlrQuestor))
+#define IsImmortal(ch)		(get_trust((ch)) >= LevelImmortal)
+#define IsHero(ch)		(get_trust((ch)) >= LevelHero)
+#define IsPlaying(d)		((d)->connected == ConPlaying || \
 		(d)->connected == ConForked || (d)->connected == ConIaForked )
-#define IS_AFFECTED(ch, sn)	(IS_SET((ch)->affected_by, (sn)))
-#define HAS_BODYPART(ch, part)	((ch)->xflags == 0 || IS_SET((ch)->xflags, (part)))
+#define IsAffected(ch, sn)	(IsSet((ch)->affected_by, (sn)))
+#define HasBodypart(ch, part)	((ch)->xflags == 0 || IsSet((ch)->xflags, (part)))
 
-#define IS_GOOD(ch)		((ch)->alignment >= 350)
-#define IS_EVIL(ch)		((ch)->alignment <= -350)
-#define IS_NEUTRAL(ch)		(!IS_GOOD(ch) && !IS_EVIL(ch))
+#define IsGood(ch)		((ch)->alignment >= 350)
+#define IsEvil(ch)		((ch)->alignment <= -350)
+#define IsNeutral(ch)		(!IsGood(ch) && !IsEvil(ch))
 
-#define IS_AWAKE(ch)		((ch)->position > POS_SLEEPING || IS_AFFECTED( (ch), AFF_CHARM ))
-#define GET_AC(ch)		( (ch)->Armor + ( IS_AWAKE(ch) ? DexApp[get_curr_dex(ch)].defensive : 0 ) \
-				- ( !str_cmp((ch)->race->name(), "defel") ? (ch)->skill_level[COMBAT_ABILITY]*2+5 : (ch)->skill_level[COMBAT_ABILITY]/2 ) )
-#define GET_HITROLL(ch)		((ch)->Hitroll				    \
+#define IsAwake(ch)		((ch)->position > PosSleeping || IsAffected( (ch), AffCharm ))
+#define GetAc(ch)		( (ch)->Armor + ( IsAwake(ch) ? DexApp[get_curr_dex(ch)].defensive : 0 ) \
+				- ( !str_cmp((ch)->race->name(), "defel") ? (ch)->skill_level[CombatAbility]*2+5 : (ch)->skill_level[CombatAbility]/2 ) )
+#define GetHitroll(ch)		((ch)->Hitroll				    \
 				    +StrApp[get_curr_str(ch)].tohit	    \
 				    +(2-(abs((ch)->mental_state)/10)))
-#define GET_DAMROLL(ch)		((ch)->Damroll                              \
+#define GetDamroll(ch)		((ch)->Damroll                              \
 				    +StrApp[get_curr_str(ch)].todam	    \
 				    +(((ch)->mental_state > 5		    \
 				    &&(ch)->mental_state < 15) ? 1 : 0) )
 
-#define IS_OUTSIDE(ch)		(IS_OUTSIDE_ROOM((ch)->in_room))
+#define IsOutside(ch)		(IsOutsideRoom((ch)->in_room))
     /*
      * (!xIS_SET(                   \
      * (ch)->in_room->RoomFlags,           \
-     * ROOM_INDOORS) && !xIS_SET(               \
+     * RoomIndoors) && !xIS_SET(               \
      * (ch)->in_room->RoomFlags,              \
-     * ROOM_SPACECRAFT) )
+     * RoomSpacecraft) )
      */
 
-#define IS_OUTSIDE_ROOM(room)	(!xIS_SET((room)->RoomFlags,		    \
-				    ROOM_INDOORS) && !xIS_SET(               \
+#define IsOutsideRoom(room)	(!xIS_SET((room)->RoomFlags,		    \
+				    RoomIndoors) && !xIS_SET(               \
 				    (room)->RoomFlags,              \
-				    ROOM_SPACECRAFT) )
-#define IS_DRUNK(ch, drunk)     (number_percent() < \
-			        ( (ch)->pcdata->condition[COND_DRUNK] \
+				    RoomSpacecraft) )
+#define IsDrunk(ch, drunk)     (number_percent() < \
+			        ( (ch)->pcdata->condition[CondDrunk] \
 				* 2 / (drunk) ) )
 
-#define IS_CLANNED(ch)		(!IS_NPC((ch))				    \
+#define IsClanned(ch)		(!IsNpc((ch))				    \
 				&& (ch)->pcdata->clan			    )
 
-#define WAIT_STATE(ch, npulse)	((ch)->wait = UMAX((ch)->wait, (IS_IMMORTAL(ch) ? 0 :(npulse))))
+#define WaitState(ch, npulse)	((ch)->wait = UMAX((ch)->wait, (IsImmortal(ch) ? 0 :(npulse))))
 
 
 #define EXIT(ch, door)		( get_exit( (ch)->in_room, door ) )
 
-#define CAN_GO(ch, door)	(EXIT((ch),(door))			 \
+#define CanGo(ch, door)	(EXIT((ch),(door))			 \
 				&& (EXIT((ch),(door))->to_room != NULL)  \
-                          	&& !IS_SET(EXIT((ch), (door))->exit_info, EX_CLOSED))
+                          	&& !IsSet(EXIT((ch), (door))->exit_info, ExClosed))
 
-#define IS_VALID_SN(sn)		( (sn) >=0 && (sn) < MaxSkill		     \
+#define IsValidSn(sn)		( (sn) >=0 && (sn) < MaxSkill		     \
 				&& skill_table[(sn)]			     \
 				&& skill_table[(sn)]->name )
 
-#define IS_VALID_HERB(sn)	( (sn) >=0 && (sn) < MaxHerb		     \
+#define IsValidHerb(sn)	( (sn) >=0 && (sn) < MaxHerb		     \
 				&& herb_table[(sn)]			     \
 				&& herb_table[(sn)]->name )
 
-#define DEF_IMM_FLAGS		IMM_ALL | IMM_OWNER
-#define IS_IMM_BUILDER(ch)      ( !IS_NPC((ch)) && (ch)->pcdata->godflags & ( IMM_BUILDER | IMM_HIGHBUILDER | DEF_IMM_FLAGS ) )
-#define IS_IMM_HIGH_ENFORCER(ch)     ( !IS_NPC((ch)) && (ch)->pcdata->godflags & ( IMM_HIGHENFORCER | DEF_IMM_FLAGS ) )
-#define IS_IMM_ENFORCER(ch)     ( !IS_NPC((ch)) && (ch)->pcdata->godflags & ( IMM_ENFORCER | DEF_IMM_FLAGS ) )
-#define IS_IMM_ADMIN(ch)        ( !IS_NPC((ch)) && (ch)->pcdata->godflags & ( IMM_ADMIN | DEF_IMM_FLAGS ) )
-#define IS_IMM_HIGH_BUILDER(ch) ( !IS_NPC((ch)) && (ch)->pcdata->godflags & ( IMM_HIGHBUILDER | DEF_IMM_FLAGS ) )
-#define IS_IMM_CODER(ch)        ( !IS_NPC((ch)) && (ch)->pcdata->godflags & ( IMM_CODER | DEF_IMM_FLAGS ) )
-#define IS_IMM_QUEST(ch)        ( !IS_NPC((ch)) && (ch)->pcdata->godflags & ( IMM_QUEST | DEF_IMM_FLAGS ) )
+#define DefImmFlags		ImmAll | ImmOwner
+#define IsImmBuilder(ch)      ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmBuilder | ImmHighbuilder | DefImmFlags ) )
+#define IsImmHighEnforcer(ch)     ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmHighenforcer | DefImmFlags ) )
+#define IsImmEnforcer(ch)     ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmEnforcer | DefImmFlags ) )
+#define IsImmAdmin(ch)        ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmAdmin | DefImmFlags ) )
+#define IsImmHighBuilder(ch) ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmHighbuilder | DefImmFlags ) )
+#define IsImmCoder(ch)        ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmCoder | DefImmFlags ) )
+#define IsImmQuest(ch)        ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmQuest | DefImmFlags ) )
 
-#define SPELL_FLAG(skill, flag)	( IS_SET((skill)->flags, (flag)) )
-#define SPELL_DAMAGE(skill)	( ((skill)->flags     ) & 7 )
-#define SPELL_ACTION(skill)	( ((skill)->flags >> 3) & 7 )
-#define SPELL_CLASS(skill)	( ((skill)->flags >> 6) & 7 )
-#define SPELL_POWER(skill)	( ((skill)->flags >> 9) & 3 )
-#define SET_SDAM(skill, val)	( (skill)->flags =  ((skill)->flags & SDAM_MASK) + ((val) & 7) )
-#define SET_SACT(skill, val)	( (skill)->flags =  ((skill)->flags & SACT_MASK) + (((val) & 7) << 3) )
-#define SET_SCLA(skill, val)	( (skill)->flags =  ((skill)->flags & SCLA_MASK) + (((val) & 7) << 6) )
-#define SET_SPOW(skill, val)	( (skill)->flags =  ((skill)->flags & SPOW_MASK) + (((val) & 3) << 9) )
+#define SpellFlag(skill, flag)	( IsSet((skill)->flags, (flag)) )
+#define SpellDamage(skill)	( ((skill)->flags     ) & 7 )
+#define SpellAction(skill)	( ((skill)->flags >> 3) & 7 )
+#define SpellClass(skill)	( ((skill)->flags >> 6) & 7 )
+#define SpellPower(skill)	( ((skill)->flags >> 9) & 3 )
+#define SetSdam(skill, val)	( (skill)->flags =  ((skill)->flags & SdamMask) + ((val) & 7) )
+#define SetSact(skill, val)	( (skill)->flags =  ((skill)->flags & SactMask) + (((val) & 7) << 3) )
+#define SetScla(skill, val)	( (skill)->flags =  ((skill)->flags & SclaMask) + (((val) & 7) << 6) )
+#define SetSpow(skill, val)	( (skill)->flags =  ((skill)->flags & SpowMask) + (((val) & 3) << 9) )
 
 /* Retired and guest imms. */
-#define IS_RETIRED(ch) (ch->pcdata && IS_SET(ch->pcdata->flags,PCFLAG_RETIRED))
-#define IS_GUEST(ch) (ch->pcdata && IS_SET(ch->pcdata->flags,PCFLAG_GUEST))
+#define IsRetired(ch) (ch->pcdata && IsSet(ch->pcdata->flags,PcflagRetired))
+#define IsGuest(ch) (ch->pcdata && IsSet(ch->pcdata->flags,PcflagGuest))
 
 /* RIS by gsn lookups. -- Altrag.
    Will need to add some || stuff for spells that need a special GSN. */
 
-#define IS_FIRE(dt)		( IS_VALID_SN(dt) &&			     \
-				SPELL_DAMAGE(skill_table[(dt)]) == SD_FIRE )
-#define IS_COLD(dt)		( IS_VALID_SN(dt) &&			     \
-				SPELL_DAMAGE(skill_table[(dt)]) == SD_COLD )
-#define IS_ACID(dt)		( IS_VALID_SN(dt) &&			     \
-				SPELL_DAMAGE(skill_table[(dt)]) == SD_ACID )
-#define IS_ELECTRICITY(dt)	( IS_VALID_SN(dt) &&			     \
-				SPELL_DAMAGE(skill_table[(dt)]) == SD_ELECTRICITY )
-#define IS_ENERGY(dt)		( IS_VALID_SN(dt) &&			     \
-				SPELL_DAMAGE(skill_table[(dt)]) == SD_ENERGY )
+#define IsFire(dt)		( IsValidSn(dt) &&			     \
+				SpellDamage(skill_table[(dt)]) == SdFire )
+#define IsCold(dt)		( IsValidSn(dt) &&			     \
+				SpellDamage(skill_table[(dt)]) == SdCold )
+#define IsAcid(dt)		( IsValidSn(dt) &&			     \
+				SpellDamage(skill_table[(dt)]) == SdAcid )
+#define IsElectricity(dt)	( IsValidSn(dt) &&			     \
+				SpellDamage(skill_table[(dt)]) == SdElectricity )
+#define IsEnergy(dt)		( IsValidSn(dt) &&			     \
+				SpellDamage(skill_table[(dt)]) == SdEnergy )
 
-#define IS_DRAIN(dt)		( IS_VALID_SN(dt) &&			     \
-				SPELL_DAMAGE(skill_table[(dt)]) == SD_DRAIN )
+#define IsDrain(dt)		( IsValidSn(dt) &&			     \
+				SpellDamage(skill_table[(dt)]) == SdDrain )
 
-#define IS_POISON(dt)		( IS_VALID_SN(dt) &&			     \
-				SPELL_DAMAGE(skill_table[(dt)]) == SD_POISON )
+#define IsPoison(dt)		( IsValidSn(dt) &&			     \
+				SpellDamage(skill_table[(dt)]) == SdPoison )
 
 
-#define NOT_AUTHED(ch)		(!IS_NPC(ch) && ch->pcdata->AuthState <= 3  \
-			      && IS_SET(ch->pcdata->flags, PCFLAG_UNAUTHED) )
+#define NotAuthed(ch)		(!IsNpc(ch) && ch->pcdata->AuthState <= 3  \
+			      && IsSet(ch->pcdata->flags, PcflagUnauthed) )
 
-#define IS_WAITING_FOR_AUTH(ch) (!IS_NPC(ch) && ch->desc		     \
+#define IsWaitingForAuth(ch) (!IsNpc(ch) && ch->desc		     \
 			      && ch->pcdata->AuthState == 1		     \
-			      && IS_SET(ch->pcdata->flags, PCFLAG_UNAUTHED) )
+			      && IsSet(ch->pcdata->flags, PcflagUnauthed) )
 
 #define KEY( literal, field, value )					\
                                 _Pragma("GCC diagnostic push")     \
@@ -3509,7 +3510,7 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
                                 _Pragma("GCC diagnostic pop")
 
 // This is a special case of the KEY macro that allows for fallthrough
-#define KEY_NO_FALLTHROUGH( literal, field, value )			\
+#define KeyNoFallthrough( literal, field, value )			\
                                 if ( !str_cmp( word, literal ) )	    \
                                 {					                    \
                                     field  = value;			            \
@@ -3519,8 +3520,8 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 /*
  * Object macros.
  */
-#define CAN_WEAR(obj, part)	(IS_SET((obj)->wear_flags,  (part)))
-#define IS_OBJ_STAT(obj, stat)	(IS_SET((obj)->extra_flags, (stat)))
+#define CanWear(obj, part)	(IsSet((obj)->wear_flags,  (part)))
+#define IsObjStat(obj, stat)	(IsSet((obj)->extra_flags, (stat)))
 
 
 
@@ -3528,18 +3529,18 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
  * Description macros.
  */
 #define PERS(ch, looker)	( can_see( (looker), (ch) ) ?		\
-				( IS_NPC(ch) ? (ch)->short_descr	\
-				: (ch)->pcdata->full_name ) : (IS_IMMORTAL(ch) ? "An Immortal" : "someone") )
+				( IsNpc(ch) ? (ch)->short_descr	\
+				: (ch)->pcdata->full_name ) : (IsImmortal(ch) ? "An Immortal" : "someone") )
 
 
 
-#define log_string( txt )	( log_string_plus( (txt), LOG_NORMAL, LevelLog ) )
+#define log_string( txt )	( log_string_plus( (txt), LogNormal, LevelLog ) )
 
 
-#define CMD_OOC			BV00
-#define CMD_HELD		BV01
-#define CMD_WATCH               BV02
-#define CMD_FULLNAME            BV03
+#define CmdOoc			BV00
+#define CmdHeld		BV01
+#define CmdWatch               BV02
+#define CmdFullname            BV03
 /*
  * Structure for a command in the command lookup table.
  */
@@ -3604,12 +3605,12 @@ extern const char* const wear_locs[];
 extern const char* const ex_flags[];
 
 extern const struct race_type race_table[];
-extern const struct liq_type liq_table[LIQ_MAX];
+extern const struct liq_type liq_table[LiqMax];
 extern const char *const attack_table[13];
 extern const char *const ability_name[MaxAbility];
 
 extern const char *const skill_tname[];
-extern sh_int const movement_loss[SECT_MAX];
+extern sh_int const movement_loss[SectMax];
 extern const char *const dir_name[];
 extern const char* const where_name[];
 extern const sh_int rev_dir[];
@@ -3636,7 +3637,7 @@ extern const char* const defense_flags[];
 extern const char* const attack_flags[];
 extern const char* const area_flags[];
 extern const char *const ShipFlags[];
-extern const char *const cargo_names[CONTRABAND_MAX];
+extern const char *const cargo_names[ContrabandMax];
 extern const char *const hair_list[];
 extern const char *const eye_list[];
 extern const char *const build_list[];
@@ -3644,9 +3645,9 @@ extern const char *const height_list[];
 extern const char *const weight_list[];
 extern const char *const complextion_list[];
 extern const char *const illness_list[];
-extern const char *const body_parts[MAX_BODY_PARTS];
-extern const char *const npc_sex[SEX_MAX];
-extern const char *const npc_position[POS_MAX];
+extern const char *const body_parts[MaxBodyParts];
+extern const char *const npc_sex[SexMax];
+extern const char *const npc_position[PosMax];
 extern const char *const log_flag[];
 extern const char *const true_false[];
 
@@ -3719,7 +3720,7 @@ extern AreaData *first_bsort;
 extern AreaData *last_bsort;
 extern ObjData *extracted_obj_queue;
 extern ExtractCharData *extracted_char_queue;
-extern ObjData *save_equipment[MAX_WEAR][MaxLayers];
+extern ObjData *save_equipment[MaxWear][MaxLayers];
 extern CharData *quitting_char;
 extern CharData *loading_char;
 extern CharData *saving_char;
@@ -3768,7 +3769,7 @@ char     *crypt args((const char *key, const char *salt));
 #endif
 #endif
 
-#if	defined(MIPS_OS)
+#if	defined(MipsOs)
 char     *crypt args((const char *key, const char *salt));
 #endif
 
@@ -3823,70 +3824,70 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
  * All files are read in completely at bootup.
  * Most output files (bug, idea, typo, shutdown) are append-only.
  *
- * The NULL_FILE is held open so that we have a stream handle in reserve,
+ * The NullFile is held open so that we have a stream handle in reserve,
  *   so players can go ahead and telnet to all the other descriptors.
  * Then we close it whenever we need to open a file (e.g. a save file).
  */
-#define WATCH_DIR    "../watch/"    /* Imm watch files --Gorog */
-#define PLAYER_DIR	"../player/"    /* Player files         */
-#define BACKUP_DIR	"../backup/"    /* Backup Player files      */
-#define GOD_DIR		"../gods/"  /* God Info Dir         */
-#define BOARD_DIR	"../boards/"    /* Board data dir       */
-#define CLAN_DIR	"../clans/" /* Clan data dir        */
-#define SHIP_DIR        "../space/"
-#define SPACE_DIR       "../space/"
-#define PLANET_DIR      "../planets/"
-#define GUARD_DIR       "../planets/"
-#define AREA_DIR       "../areas/"
-#define GUILD_DIR       "../guilds/"    /* Guild data dir               */
-#define BUILD_DIR       "../building/"  /* Online building save dir     */
-#define SYSTEM_DIR	"../system/"    /* Main system files        */
-#define LOG_DIR	"../log/"   /* Main system files        */
-#define PROG_DIR    "../mudprogs/"  /* MUDProg files     */
-#define CORPSE_DIR	"../corpses/"   /* Corpses          */
-#define NULL_FILE	"/dev/null" /* To reserve one stream    */
-#define MAIL_DIR      "../mail/"
-#define BUG_FILE	SYSTEM_DIR "bugs.txt"   /* For bug( ) */
-#define BUGS_FILE	SYSTEM_DIR "reported_bugs.txt"  /* For 'bug' */
-#define EMAIL_FILE              SYSTEM_DIR "email.dat"
+#define WatchDir    "../watch/"    /* Imm watch files --Gorog */
+#define PlayerDir	"../player/"    /* Player files         */
+#define BackupDir	"../backup/"    /* Backup Player files      */
+#define GodDir		"../gods/"  /* God Info Dir         */
+#define BoardDir	"../boards/"    /* Board data dir       */
+#define ClanDir	"../clans/" /* Clan data dir        */
+#define ShipDir        "../space/"
+#define SpaceDir       "../space/"
+#define PlanetDir      "../planets/"
+#define GuardDir       "../planets/"
+#define AreaDir       "../areas/"
+#define GuildDir       "../guilds/"    /* Guild data dir               */
+#define BuildDir       "../building/"  /* Online building save dir     */
+#define SystemDir	"../system/"    /* Main system files        */
+#define LogDir	"../log/"   /* Main system files        */
+#define ProgDir    "../mudprogs/"  /* MUDProg files     */
+#define CorpseDir	"../corpses/"   /* Corpses          */
+#define NullFile	"/dev/null" /* To reserve one stream    */
+#define MailDir      "../mail/"
+#define BugFile	SystemDir "bugs.txt"   /* For bug( ) */
+#define BugsFile	SystemDir "reported_bugs.txt"  /* For 'bug' */
+#define EmailFile              SystemDir "email.dat"
 #define FILE_AreaList	"area.lst"  /* List of areas        */
-#define WATCH_LIST      "watch.lst" /* List of watches                        */
-#define BAN_LIST        "ban.lst"   /* List of bans                 */
+#define WatchList      "watch.lst" /* List of watches                        */
+#define BanList        "ban.lst"   /* List of bans                 */
 #define ClanList	"clan.lst"  /* List of clans        */
-#define SHIP_LIST       "ship.lst"
-#define PLANET_LIST      "planet.lst"
-#define SPACE_LIST      "space.lst"
-#define DISINTIGRATION_LIST	"disintigration.lst"
-#define GUILD_LIST      "guild.lst" /* List of guilds               */
-#define GOD_LIST	"gods.lst"  /* List of gods         */
-#define GUARD_LIST	"guard.lst"
-#define PLANET_HTML_LIST	"planets.html"
-#define CLAN_HTML_LIST	"clans.html"
-#define SHIP_HTML_LIST	"ships.html"
-#define COPYOVER_FILE	SYSTEM_DIR "copyover.dat"   /* for warm reboots    */
-#define EXE_FILE	"../src/swr"    /*  Executable Path */
-#define MAIN_EXE_FILE	"/home/mud/darkwars/dwadmins/src/swr"   /*  Executable Path */
-#define PORT_EXE_FILE	"../port/src/swr"   /*  Executable Path */
-#define PSHIP_AREA            "pships.are"
-#define BOARD_FILE	"boards.txt"    /* For bulletin boards   */
-#define SHUTDOWN_FILE	"../log/shutdown/shutdown.txt"  /* For 'shutdown'    */
-#define BOOTLOG_FILE	SYSTEM_DIR "boot.txt"   /* Boot up error file  */
-#define IDEA_FILE	SYSTEM_DIR "ideas.txt"  /* For 'idea'      */
-#define MEMORY_FILE	SYSTEM_DIR "memory.txt" /* For 'wiznet'        */
-#define TYPO_FILE	SYSTEM_DIR "typos.txt"  /* For 'typo'      */
-#define PLANETS_HTML_FILE	SYSTEM_DIR "planets.html"   /* For beginning html test         */
-#define LOG_FILE	SYSTEM_DIR "log.txt"    /* For talking in logged rooms */
-#define WIZLIST_FILE	SYSTEM_DIR "WIZLIST"    /* Wizlist         */
-#define SKILL_FILE	SYSTEM_DIR "skills.dat" /* Skill table     */
-#define HERB_FILE	SYSTEM_DIR "herbs.dat"  /* Herb table      */
-#define SOCIAL_FILE	SYSTEM_DIR "socials.dat"    /* Socials         */
-#define COMMAND_FILE	SYSTEM_DIR "commands.dat"   /* Commands        */
-#define USAGE_FILE	SYSTEM_DIR "usage.txt"  /* How many people are on 
+#define ShipList       "ship.lst"
+#define PlanetList      "planet.lst"
+#define SpaceList      "space.lst"
+#define DisintigrationList	"disintigration.lst"
+#define GuildList      "guild.lst" /* List of guilds               */
+#define GodList	"gods.lst"  /* List of gods         */
+#define GuardList	"guard.lst"
+#define PlanetHtmlList	"planets.html"
+#define ClanHtmlList	"clans.html"
+#define ShipHtmlList	"ships.html"
+#define CopyoverFile	SystemDir "copyover.dat"   /* for warm reboots    */
+#define ExeFile	"../src/swr"    /*  Executable Path */
+#define MainExeFile	"/home/mud/darkwars/dwadmins/src/swr"   /*  Executable Path */
+#define PortExeFile	"../port/src/swr"   /*  Executable Path */
+#define PshipArea            "pships.are"
+#define BoardFile	"boards.txt"    /* For bulletin boards   */
+#define ShutdownFile	"../log/shutdown/shutdown.txt"  /* For 'shutdown'    */
+#define BootlogFile	SystemDir "boot.txt"   /* Boot up error file  */
+#define IdeaFile	SystemDir "ideas.txt"  /* For 'idea'      */
+#define MemoryFile	SystemDir "memory.txt" /* For 'wiznet'        */
+#define TypoFile	SystemDir "typos.txt"  /* For 'typo'      */
+#define PlanetsHtmlFile	SystemDir "planets.html"   /* For beginning html test         */
+#define LogFile	SystemDir "log.txt"    /* For talking in logged rooms */
+#define WizlistFile	SystemDir "WIZLIST"    /* Wizlist         */
+#define SkillFile	SystemDir "skills.dat" /* Skill table     */
+#define HerbFile	SystemDir "herbs.dat"  /* Herb table      */
+#define SocialFile	SystemDir "socials.dat"    /* Socials         */
+#define CommandFile	SystemDir "commands.dat"   /* Commands        */
+#define UsageFile	SystemDir "usage.txt"  /* How many people are on 
                                              * every half hour - trying to
                                              * determine best reboot time */
-#define HELP_FILE      SYSTEM_DIR "help.txt"    /* For undefined helps */
-#define TEMP_FILE      VendorDir "temp.txt"    /* For undefined helps */
-#define PID_FILE	"../swr.pid"    /* Pid File */
+#define HelpFile      SystemDir "help.txt"    /* For undefined helps */
+#define TempFile      VendorDir "temp.txt"    /* For undefined helps */
+#define PidFile	"../swr.pid"    /* Pid File */
 /*
  * Our function prototypes.
  * One big lump ... this is every function in Merc.
@@ -3901,8 +3902,8 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
 #define EDD	ExtraDescrData
 #define RD	ResetData
 #define	ST	SocialType
-#define	CO	COUNCIL_DATA
-#define DE	DEITY_DATA
+#define	CO	CouncilData
+#define DE	DeityData
 #define SK	SkillType
 #define SH      ShipData
 #ifdef MCCP
@@ -3979,12 +3980,12 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    void close_area args((AreaData * pArea));
                    RID * find_location args((CharData * ch, char *arg));
                    void echo_to_room
-                   args((sh_int AT_COLOR, RoomIndexData * room,
+                   args((sh_int AtColor, RoomIndexData * room,
                          char *argument));
                    void echo_to_all
-                   args((sh_int AT_COLOR, char *argument, sh_int tar));
+                   args((sh_int AtColor, char *argument, sh_int tar));
                    void echo_to_clan
-                   args((sh_int AT_COLOR, char *argument, ClanData * clan));
+                   args((sh_int AtColor, char *argument, ClanData * clan));
                    void add_to_wizlist
                    args((char *name, int level, int flags));
                    void really_destroy_ship args((ShipData * ship));
@@ -4324,7 +4325,7 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
 /* mud_comm.cpp */
                    char *mprog_type_to_name args((int type));
 /* mud_prog.cpp */
-#ifdef DUNNO_STRSTR
+#ifdef DunnoStrstr
                    char *strstr args((const char *s1, const char *s2));
 #endif
                    void mprog_wordlist_check args((char *arg, CharData * mob,
@@ -4584,8 +4585,8 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
                    SK * get_skilltype args((int sn));
 /* save.cpp */
 /* object saving defines for fread/write_obj. -- Altrag */
-#define OS_CARRY	static_cast<sh_int>(0)
-#define OS_CORPSE	static_cast<sh_int>(1)
+#define OsCarry	static_cast<sh_int>(0)
+#define OsCorpse	static_cast<sh_int>(1)
                    void save_char_obj args((CharData * ch));
                    void save_clone args((CharData * ch));
                    bool load_char_obj
@@ -4673,32 +4674,32 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
 #undef	EDD
 #undef	RD
 #undef	ED
-#define SUB_NORTH DIR_NORTH
-#define SUB_EAST  DIR_EAST
-#define SUB_SOUTH DIR_SOUTH
-#define SUB_WEST  DIR_WEST
-#define SUB_UP    DIR_UP
-#define SUB_DOWN  DIR_DOWN
-#define SUB_NE    DIR_NORTHEAST
-#define SUB_NW    DIR_NORTHWEST
-#define SUB_SE    DIR_SOUTHEAST
-#define SUB_SW    DIR_SOUTHWEST
+#define SubNorth DirNorth
+#define SubEast  DirEast
+#define SubSouth DirSouth
+#define SubWest  DirWest
+#define SubUp    DirUp
+#define SubDown  DirDown
+#define SubNe    DirNortheast
+#define SubNw    DirNorthwest
+#define SubSe    DirSoutheast
+#define SubSw    DirSouthwest
 /*
  * defines for use with this get_affect function
  */
-#define RIS_000		BV00
-#define RIS_R00		BV01
-#define RIS_0I0		BV02
-#define RIS_RI0		BV03
-#define RIS_00S		BV04
-#define RIS_R0S		BV05
-#define RIS_0IS		BV06
-#define RIS_RIS		BV07
-#define GA_AFFECTED	BV09
-#define GA_RESISTANT	BV10
-#define GA_IMMUNE	BV11
-#define GA_SUSCEPTIBLE	BV12
-#define GA_RIS          BV30
+#define Ris000		BV00
+#define RisR00		BV01
+#define Ris0I0		BV02
+#define RisRi0		BV03
+#define Ris00S		BV04
+#define RisR0S		BV05
+#define Ris0Is		BV06
+#define RisRis		BV07
+#define GaAffected	BV09
+#define GaResistant	BV10
+#define GaImmune	BV11
+#define GaSusceptible	BV12
+#define GaRis          BV30
 /*
  * mudprograms stuff
  */
@@ -4717,7 +4718,7 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
                    void oprog_zap_trigger(CharData * ch, ObjData * obj);
                    char *oprog_type_to_name(int type);
 /*
- * MUD_PROGS START HERE
+ * MudProgs START HERE
  * (object stuff)
  */
                    void oprog_greet_trigger(CharData * ch);
@@ -4726,45 +4727,45 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
                    void oprog_pull_trigger(CharData * ch, ObjData * obj);
                    void oprog_push_trigger(CharData * ch, ObjData * obj);
 /* mud prog defines */
-#define ERROR_PROG        -1
-#define IN_FILE_PROG       0
-#define ACT_PROG           BV00
-#define SPEECH_PROG        BV01
-#define RAND_PROG          BV02
-#define FIGHT_PROG         BV03
-#define RFIGHT_PROG        BV03
-#define DEATH_PROG         BV04
-#define RDEATH_PROG        BV04
-#define HITPRCNT_PROG      BV05
-#define ENTRY_PROG         BV06
-#define ENTER_PROG         BV06
-#define GREET_PROG         BV07
-#define RGREET_PROG	   BV07
-#define OGREET_PROG        BV07
-#define ALL_GREET_PROG	   BV08
-#define GIVE_PROG	   BV09
-#define BRIBE_PROG	   BV10
-#define HOUR_PROG	   BV11
-#define TIME_PROG	   BV12
-#define WEAR_PROG          BV13
-#define REMOVE_PROG        BV14
-#define SAC_PROG           BV15
-#define LOOK_PROG          BV16
-#define EXA_PROG           BV17
-#define ZAP_PROG           BV18
-#define GET_PROG 	   BV19
-#define DROP_PROG	   BV20
-#define DAMAGE_PROG	   BV21
-#define REPAIR_PROG	   BV22
-#define RANDIW_PROG	   BV23
-#define SPEECHIW_PROG	   BV24
-#define PULL_PROG	   BV25
-#define PUSH_PROG	   BV26
-#define SLEEP_PROG         BV27
-#define REST_PROG          BV28
-#define LEAVE_PROG         BV29
-#define SCRIPT_PROG	   BV30
-#define USE_PROG           BV31
+#define ErrorProg        -1
+#define InFileProg       0
+#define ActProg           BV00
+#define SpeechProg        BV01
+#define RandProg          BV02
+#define FightProg         BV03
+#define RfightProg        BV03
+#define DeathProg         BV04
+#define RdeathProg        BV04
+#define HitprcntProg      BV05
+#define EntryProg         BV06
+#define EnterProg         BV06
+#define GreetProg         BV07
+#define RgreetProg	   BV07
+#define OgreetProg        BV07
+#define AllGreetProg	   BV08
+#define GiveProg	   BV09
+#define BribeProg	   BV10
+#define HourProg	   BV11
+#define TimeProg	   BV12
+#define WearProg          BV13
+#define RemoveProg        BV14
+#define SacProg           BV15
+#define LookProg          BV16
+#define ExaProg           BV17
+#define ZapProg           BV18
+#define GetProg 	   BV19
+#define DropProg	   BV20
+#define DamageProg	   BV21
+#define RepairProg	   BV22
+#define RandiwProg	   BV23
+#define SpeechiwProg	   BV24
+#define PullProg	   BV25
+#define PushProg	   BV26
+#define SleepProg         BV27
+#define RestProg          BV28
+#define LeaveProg         BV29
+#define ScriptProg	   BV30
+#define UseProg           BV31
                    void rprog_leave_trigger(CharData * ch);
                    void rprog_enter_trigger(CharData * ch);
                    void rprog_sleep_trigger(CharData * ch);
@@ -4777,14 +4778,14 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
                    void rprog_time_trigger(CharData * ch);
                    void rprog_hour_trigger(CharData * ch);
                    char *rprog_type_to_name(int type);
-#define OPROG_ACT_TRIGGER
-#ifdef OPROG_ACT_TRIGGER
+#define OprogActTrigger
+#ifdef OprogActTrigger
                    void oprog_act_trigger(char *buf, ObjData * mobj,
                                           CharData * ch, ObjData * obj,
                                           void *vo);
 #endif
-#define RPROG_ACT_TRIGGER
-#ifdef RPROG_ACT_TRIGGER
+#define RprogActTrigger
+#ifdef RprogActTrigger
                    void rprog_act_trigger(char *buf, RoomIndexData * room,
                                           CharData * ch, ObjData * obj,
                                           void *vo);

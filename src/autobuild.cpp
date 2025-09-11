@@ -54,24 +54,24 @@
 // ============================================================================
 namespace {
     // File handling constants
-    constexpr size_t MAX_FILENAME_LENGTH = 512;    // Increased buffer size for safety
-    constexpr size_t MAX_LINE_LENGTH = 1024;       // Maximum line length in list files
-    constexpr int MAX_LINES_PER_LIST = 10000;      // Safety limit for list files
+    constexpr size_t MaxFilenameLength = 512;    // Increased buffer size for safety
+    constexpr size_t MaxLineLength = 1024;       // Maximum line length in list files
+    constexpr int MaxLinesPerList = 10000;      // Safety limit for list files
     
     // Status messages
-    const char* const FILE_EXISTS_MSG = "File already exists.\n\r";
-    const char* const FILE_NOT_EXIST_MSG = "File does not exist.\n\r";
-    const char* const FILE_CREATED_MSG = "File created successfully.\n\r";
-    const char* const TEXT_ADDED_MSG = "Text added to list.\n\r";
-    const char* const LINE_INVALID_MSG = "Line number invalid.\n\r";
-    const char* const LINE_REMOVED_MSG = "Line removed successfully.\n\r";
+    const char* const FileExistsMsg = "File already exists.\n\r";
+    const char* const FileNotExistMsg = "File does not exist.\n\r";
+    const char* const FileCreatedMsg = "File created successfully.\n\r";
+    const char* const TextAddedMsg = "Text added to list.\n\r";
+    const char* const LineInvalidMsg = "Line number invalid.\n\r";
+    const char* const LineRemovedMsg = "Line removed successfully.\n\r";
     
     // Error messages
-    const char* const CREATE_SYNTAX = "Syntax: createlist <list filename>\n\r";
-    const char* const ADDTO_SYNTAX = "Syntax: addtolist <list filename> <text to add>\n\r";
-    const char* const SHOW_SYNTAX = "Syntax: showlist <list filename>\n\r";
-    const char* const REM_SYNTAX = "Syntax: remlist <list filename> <line number>\n\r";
-    const char* const LINE_NUMBER_SYNTAX = "Line must be referenced by a number.\n\r";
+    const char* const CreateSyntax = "Syntax: createlist <list filename>\n\r";
+    const char* const AddtoSyntax = "Syntax: addtolist <list filename> <text to add>\n\r";
+    const char* const ShowSyntax = "Syntax: showlist <list filename>\n\r";
+    const char* const RemSyntax = "Syntax: remlist <list filename> <line number>\n\r";
+    const char* const LineNumberSyntax = "Line must be referenced by a number.\n\r";
 }
 
 // ============================================================================
@@ -83,12 +83,12 @@ namespace {
  */
 static bool build_list_filename(char* buffer, size_t buffer_size, const char* filename)
 {
-    if (!buffer || !filename || buffer_size < MAX_FILENAME_LENGTH)
+    if (!buffer || !filename || buffer_size < MaxFilenameLength)
         return false;
         
     // Clear buffer and build path safely
     buffer[0] = '\0';
-    int result = snprintf(buffer, buffer_size, "%s%s", LIST_DIR, filename);
+    int result = snprintf(buffer, buffer_size, "%s%s", ListDir, filename);
     
     // Check for truncation
     if (result < 0 || static_cast<size_t>(result) >= buffer_size)
@@ -114,7 +114,7 @@ static FILE* safe_file_open(const char* filename, const char* mode)
     if (!fp)
     {
         // Restore reserve file handle on failure
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return nullptr;
     }
     
@@ -126,7 +126,7 @@ static void safe_file_close(FILE* fp)
     if (fp)
     {
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
     }
 }
 
@@ -140,12 +140,12 @@ static void safe_file_close(FILE* fp)
  */
 CMDF do_create_list(CharData* ch, char* argument)
 {
-    char filename[MAX_FILENAME_LENGTH];
+    char filename[MaxFilenameLength];
     
     // Validate input
     if (!argument || argument[0] == '\0')
     {
-        send_to_char(CREATE_SYNTAX, ch);
+        send_to_char(CreateSyntax, ch);
         return;
     }
     
@@ -159,7 +159,7 @@ CMDF do_create_list(CharData* ch, char* argument)
     // Check if file already exists
     if (file_exist(filename))
     {
-        send_to_char(FILE_EXISTS_MSG, ch);
+        send_to_char(FileExistsMsg, ch);
         return;
     }
     
@@ -173,7 +173,7 @@ CMDF do_create_list(CharData* ch, char* argument)
     }
     
     safe_file_close(fp);
-    send_to_char(FILE_CREATED_MSG, ch);
+    send_to_char(FileCreatedMsg, ch);
 }
 
 /*
@@ -182,7 +182,7 @@ CMDF do_create_list(CharData* ch, char* argument)
  */
 CMDF do_addto_list(CharData* ch, char* argument)
 {
-    char filename[MAX_FILENAME_LENGTH];
+    char filename[MaxFilenameLength];
     char arg1[MaxInputLength];
     
     argument = one_argument(argument, arg1);
@@ -190,7 +190,7 @@ CMDF do_addto_list(CharData* ch, char* argument)
     // Validate input
     if (arg1[0] == '\0' || argument[0] == '\0')
     {
-        send_to_char(ADDTO_SYNTAX, ch);
+        send_to_char(AddtoSyntax, ch);
         return;
     }
     
@@ -204,13 +204,13 @@ CMDF do_addto_list(CharData* ch, char* argument)
     // Check if file exists
     if (!file_exist(filename))
     {
-        send_to_char(FILE_NOT_EXIST_MSG, ch);
+        send_to_char(FileNotExistMsg, ch);
         return;
     }
     
     // Append text to file
     append_to_file(filename, argument);
-    send_to_char(TEXT_ADDED_MSG, ch);
+    send_to_char(TextAddedMsg, ch);
 }
 
 /*
@@ -219,7 +219,7 @@ CMDF do_addto_list(CharData* ch, char* argument)
  */
 CMDF do_showlist(CharData* ch, char* argument)
 {
-    char filename[MAX_FILENAME_LENGTH];
+    char filename[MaxFilenameLength];
     FILE* fp;
     int line_count = 0;
     char* line_text;
@@ -227,7 +227,7 @@ CMDF do_showlist(CharData* ch, char* argument)
     // Validate input
     if (!argument || argument[0] == '\0')
     {
-        send_to_char(SHOW_SYNTAX, ch);
+        send_to_char(ShowSyntax, ch);
         return;
     }
     
@@ -241,7 +241,7 @@ CMDF do_showlist(CharData* ch, char* argument)
     // Check if file exists
     if (!file_exist(filename))
     {
-        send_to_char(FILE_NOT_EXIST_MSG, ch);
+        send_to_char(FileNotExistMsg, ch);
         return;
     }
     
@@ -253,12 +253,12 @@ CMDF do_showlist(CharData* ch, char* argument)
         return;
     }
     
-    set_char_color(AT_WHITE, ch);
+    set_char_color(AtWhite, ch);
     send_to_char("&WList Contents:\n\r", ch);
-    set_char_color(AT_CYAN, ch);
+    set_char_color(AtCyan, ch);
     
     // Read and display each line with line numbers
-    while (!feof(fp) && line_count < MAX_LINES_PER_LIST)
+    while (!feof(fp) && line_count < MaxLinesPerList)
     {
         line_text = fread_line(fp);
         if (!line_text || !strcmp(line_text, ""))
@@ -270,7 +270,7 @@ CMDF do_showlist(CharData* ch, char* argument)
     safe_file_close(fp);
     
     // Display summary
-    set_char_color(AT_BLUE, ch);
+    set_char_color(AtBlue, ch);
     ch_printf(ch, "&B[&W%d&B] &zlines in %s\n\r", line_count, argument);
 }
 
@@ -280,8 +280,8 @@ CMDF do_showlist(CharData* ch, char* argument)
  */
 CMDF do_remlist(CharData* ch, char* argument)
 {
-    char filename[MAX_FILENAME_LENGTH];
-    char temp_filename[MAX_FILENAME_LENGTH];
+    char filename[MaxFilenameLength];
+    char temp_filename[MaxFilenameLength];
     char arg1[MaxInputLength];
     FILE* fp = nullptr;
     FILE* temp_fp = nullptr;
@@ -296,13 +296,13 @@ CMDF do_remlist(CharData* ch, char* argument)
     // Validate input
     if (arg1[0] == '\0' || argument[0] == '\0')
     {
-        send_to_char(REM_SYNTAX, ch);
+        send_to_char(RemSyntax, ch);
         return;
     }
     
     if (!is_number(argument))
     {
-        send_to_char(LINE_NUMBER_SYNTAX, ch);
+        send_to_char(LineNumberSyntax, ch);
         return;
     }
     
@@ -341,7 +341,7 @@ CMDF do_remlist(CharData* ch, char* argument)
     // Check if original file exists
     if (!file_exist(filename))
     {
-        send_to_char(FILE_NOT_EXIST_MSG, ch);
+        send_to_char(FileNotExistMsg, ch);
         return;
     }
     
@@ -353,7 +353,7 @@ CMDF do_remlist(CharData* ch, char* argument)
         return;
     }
     
-    while (!feof(fp) && total_lines < MAX_LINES_PER_LIST)
+    while (!feof(fp) && total_lines < MaxLinesPerList)
     {
         line_text = fread_line(fp);
         if (!line_text || !strcmp(line_text, ""))
@@ -366,7 +366,7 @@ CMDF do_remlist(CharData* ch, char* argument)
     // Validate target line number
     if (target_line > total_lines)
     {
-        send_to_char(LINE_INVALID_MSG, ch);
+        send_to_char(LineInvalidMsg, ch);
         return;
     }
     

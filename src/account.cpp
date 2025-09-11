@@ -42,7 +42,7 @@
 
 
 #include "mud.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 #include "alias.hpp"
 #include "boards.hpp"
 #include "imccfg.hpp"
@@ -67,10 +67,10 @@
 
 namespace Account {
 
-constexpr std::size_t ACCOUNT_FILENAME_SIZE = 255;
+constexpr std::size_t AccountFilenameSize = 255;
 
-ACCOUNT_DATA *first_account = nullptr;
-ACCOUNT_DATA *last_account = nullptr;
+AccountData *first_account = nullptr;
+AccountData *last_account = nullptr;
 
 // Function prototypes
 
@@ -78,20 +78,20 @@ ACCOUNT_DATA *last_account = nullptr;
 // Function prototypes
 int check_playing(DescriptorData* d, const std::string& name, bool kick);
 bool check_reconnect(DescriptorData * d, char *name, bool fConn);
-void fwrite_comments(ACCOUNT_DATA * Account, FILE * fp);
-void fread_comment(ACCOUNT_DATA * Account, FILE * fp);
-void fread_account(ACCOUNT_DATA * Account, FILE * fp);
-ACCOUNT_DATA *get_account(const char *name);
+void fwrite_comments(AccountData * Account, FILE * fp);
+void fread_comment(AccountData * Account, FILE * fp);
+void fread_account(AccountData * Account, FILE * fp);
+AccountData *get_account(const char *name);
 
 // =============================================================================
 // Account Creation and Management
 // =============================================================================
 
-ACCOUNT_DATA *create_account() noexcept
+AccountData *create_account() noexcept
 {
-    ACCOUNT_DATA *Account = nullptr;
+    AccountData *Account = nullptr;
 
-    CREATE(Account, ACCOUNT_DATA, 1);
+    CREATE(Account, AccountData, 1);
     Account->rppoints = 0;
     Account->rpcurrent = -1;
     Account->qpoints = 0;
@@ -103,7 +103,7 @@ ACCOUNT_DATA *create_account() noexcept
     return Account;
 }
 
-void free_account(ACCOUNT_DATA *Account)
+void free_account(AccountData *Account)
 {
     if (!Account) {
         return;
@@ -127,9 +127,9 @@ void free_account(ACCOUNT_DATA *Account)
         }
     }
 
-    NOTE_DATA *pnote = Account->comments;
+    NoteData *pnote = Account->comments;
     while (pnote) {
-        NOTE_DATA *next_note = pnote->next;
+        NoteData *next_note = pnote->next;
         free_note(pnote);
         pnote = next_note;
     }
@@ -139,7 +139,7 @@ void free_account(ACCOUNT_DATA *Account)
     DISPOSE(Account);
 }
 
-void save_account(ACCOUNT_DATA *Account)
+void save_account(AccountData *Account)
 {
     if (!Account) {
         bug("Save_account: null Account!", 0);
@@ -147,7 +147,7 @@ void save_account(ACCOUNT_DATA *Account)
     }
 
     char accountsave[MIL];
-    snprintf(accountsave, MIL, "%s%c/%s.Account", ACCOUNT_DIR, tolower(Account->name[0]), capitalize(Account->name));
+    snprintf(accountsave, MIL, "%s%c/%s.Account", AccountDir, tolower(Account->name[0]), capitalize(Account->name));
 
     FILE *fp = fopen(accountsave, "w");
     if (!fp) {
@@ -179,9 +179,9 @@ void save_account(ACCOUNT_DATA *Account)
     FCLOSE(fp);
 }
 
-ACCOUNT_DATA *get_account(const char *name)
+AccountData *get_account(const char *name)
 {
-    for (ACCOUNT_DATA *Account = first_account; Account; Account = Account->next) {
+    for (AccountData *Account = first_account; Account; Account = Account->next) {
         if (!Account->name) {
             bug("Account with invalid Name", 0);
             free_account(Account);
@@ -192,16 +192,16 @@ ACCOUNT_DATA *get_account(const char *name)
     return nullptr;
 }
 
-ACCOUNT_DATA *load_account(const char *name)
+AccountData *load_account(const char *name)
 {
-    ACCOUNT_DATA *Account = get_account(name);
+    AccountData *Account = get_account(name);
     if (Account) {
         ++Account->inuse;
         return Account;
     }
 
     char accountsave[MIL];
-    snprintf(accountsave, MIL, "%s%c/%s.Account", ACCOUNT_DIR, tolower(name[0]), capitalize(name));
+    snprintf(accountsave, MIL, "%s%c/%s.Account", AccountDir, tolower(name[0]), capitalize(name));
 
     FILE *fp = fopen(accountsave, "r");
     if (!fp) {
@@ -252,7 +252,7 @@ ACCOUNT_DATA *load_account(const char *name)
 CMDF do_showalts(CharData * ch, char *argument)
 {
         CharData *victim;
-        ACCOUNT_DATA *Account = NULL;
+        AccountData *Account = NULL;
         int       count;
 
         if (argument[0] == '\0')
@@ -348,7 +348,7 @@ void show_account_characters(DescriptorData * d)
                  d);
 }
 
-void save_account(ACCOUNT_DATA * Account)
+void save_account(AccountData * Account)
 {
         char      accountsave[MIL];
         FILE     *fp;
@@ -359,7 +359,7 @@ void save_account(ACCOUNT_DATA * Account)
                 return;
         }
 
-        snprintf(accountsave, MIL, "%s%c/%s.Account", ACCOUNT_DIR,
+        snprintf(accountsave, MIL, "%s%c/%s.Account", AccountDir,
                  tolower(Account->name[0]), capitalize(Account->name));
 
         if ((fp = fopen(accountsave, "w")) == NULL)
@@ -397,9 +397,9 @@ void save_account(ACCOUNT_DATA * Account)
         return;
 }
 
-ACCOUNT_DATA *get_account(const char *name)
+AccountData *get_account(const char *name)
 {
-        ACCOUNT_DATA *Account = NULL;
+        AccountData *Account = NULL;
 
         for (Account = first_account; Account; Account = Account->next)
         {
@@ -419,9 +419,9 @@ ACCOUNT_DATA *get_account(const char *name)
         return NULL;
 }
 
-ACCOUNT_DATA *load_account(const char *name)
+AccountData *load_account(const char *name)
 {
-        ACCOUNT_DATA *Account;
+        AccountData *Account;
         char      accountsave[MIL];
         FILE     *fp;
 
@@ -433,7 +433,7 @@ ACCOUNT_DATA *load_account(const char *name)
         }
 
         /* The capitalize function returns a static buffer, no need to modify input */
-        snprintf(accountsave, MIL, "%s%c/%s.Account", ACCOUNT_DIR,
+        snprintf(accountsave, MIL, "%s%c/%s.Account", AccountDir,
                  tolower(name[0]), capitalize(name));
 
         if ((fp = fopen(accountsave, "r")) != NULL)
@@ -509,7 +509,7 @@ ACCOUNT_DATA *load_account(const char *name)
 // Account File I/O Functions
 // =============================================================================
 
-void fread_account(ACCOUNT_DATA * Account, FILE * fp)
+void fread_account(AccountData * Account, FILE * fp)
 {
         char      buf[MSL];
         const char *word;
@@ -532,7 +532,7 @@ void fread_account(ACCOUNT_DATA * Account, FILE * fp)
                         {
                                 char     *name = fread_string(fp);
 
-                                snprintf(buf, MSL, "%s%c/%s", PLAYER_DIR,
+                                snprintf(buf, MSL, "%s%c/%s", PlayerDir,
                                          tolower(name[0]), capitalize(name));
                                 if (access(buf, F_OK) != 0)
                                 {
@@ -583,7 +583,7 @@ void fread_account(ACCOUNT_DATA * Account, FILE * fp)
         }
 }
 
-bool add_to_account(ACCOUNT_DATA * acct, CharData * chdata)
+bool add_to_account(AccountData * acct, CharData * chdata)
 {
         int       count;
 
@@ -621,7 +621,7 @@ bool add_to_account(ACCOUNT_DATA * acct, CharData * chdata)
         return TRUE;
 }
 
-bool del_from_account(ACCOUNT_DATA * Account, CharData * ch)
+bool del_from_account(AccountData * Account, CharData * ch)
 {
         int       count;
 
@@ -672,10 +672,10 @@ CMDF do_transaccount(CharData * ch, char *argument)
 
 CMDF do_showaccounts(CharData * ch, char *argument)
 {
-        ACCOUNT_DATA *Account = NULL;
+        AccountData *Account = NULL;
         CharData *victim = get_char_world(ch, argument);
 
-        if (victim && !IS_NPC(victim))
+        if (victim && !IsNpc(victim))
         {
                 Account = victim->pcdata->Account;
                 ch_printf(ch, "Account Name: %s\n\r", Account->name);
@@ -709,13 +709,13 @@ CMDF do_switchchar(CharData * ch, char *argument)
         if (d->Account == NULL)
                 return;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         if (argument[0] == '\0')
         {
-                set_pager_color(AT_PLAIN, ch);
+                set_pager_color(AtPlain, ch);
                 send_to_pager
                         ("&RSyntax: &Gswitchchar &C<&ccharacter name&C>&w\n\r\n\r",
                          ch);
@@ -732,9 +732,9 @@ CMDF do_switchchar(CharData * ch, char *argument)
                 return;
         }
 
-        if (ch->position == POS_FIGHTING)
+        if (ch->position == PosFighting)
         {
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 send_to_char("No way! You are fighting.\n\r", ch);
                 return;
         }
@@ -748,9 +748,9 @@ CMDF do_switchchar(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_IMMORTAL(ch) && ch->in_room
-            && !xIS_SET(ch->in_room->RoomFlags, ROOM_HOTEL)
-            && !NOT_AUTHED(ch))
+        if (!IsImmortal(ch) && ch->in_room
+            && !xIS_SET(ch->in_room->RoomFlags, RoomHotel)
+            && !NotAuthed(ch))
         {
                 send_to_char("You may not quit here.\n\r", ch);
                 send_to_char
@@ -784,8 +784,8 @@ CMDF do_switchchar(CharData * ch, char *argument)
         save_home(ch);
 
         snprintf(log_buf, MSL, "%s has quit.", ch->name);
-        log_string_plus(log_buf, LOG_COMM, get_trust(ch));
-        if (!IS_SET(ch->act, PLR_WIZINVIS))
+        log_string_plus(log_buf, LogComm, get_trust(ch));
+        if (!IsSet(ch->act, PlrWizinvis))
         {
                 snprintf(log_buf, MSL, "%s has left %s", ch->name,
                          sysdata.mud_name);
@@ -819,7 +819,7 @@ CMDF do_switchchar(CharData * ch, char *argument)
                 if (ch->prev)
                         ch->prev->next = ch;
 
-                if (!IS_SET(ch->act, PLR_WIZINVIS))
+                if (!IsSet(ch->act, PlrWizinvis))
                 {
                         snprintf(log_buf, MSL, "%s has entered %s", ch->name,
                                  sysdata.mud_name);
@@ -829,22 +829,22 @@ CMDF do_switchchar(CharData * ch, char *argument)
                          d->host);
                 if (ch->top_level < LevelDemi)
                 {
-                        log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
+                        log_string_plus(log_buf, LogComm, sysdata.log_level);
                 }
                 else
-                        log_string_plus(log_buf, LOG_COMM, ch->top_level);
+                        log_string_plus(log_buf, LogComm, ch->top_level);
                 if (ch->pcdata->area)
                         do_loadarea(ch, "");
 
 
-				if (!IS_IMMORTAL(ch)
+				if (!IsImmortal(ch)
 						&& ch->pcdata->release_date > current_time)
 				{
 					if (ch->in_room)
 						char_from_room(ch);
 					char_to_room(ch, get_room_index(6));
 				}
-				else if (ch->in_room && !IS_IMMORTAL(ch)
+				else if (ch->in_room && !IsImmortal(ch)
 						&& ch->in_room->vnum != 6)
 				{
 					RoomIndexData * room = ch->in_room;

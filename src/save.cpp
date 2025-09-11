@@ -67,7 +67,7 @@
 /*
  * Array to keep track of equipment temporarily.		-Thoric
  */
-ObjData *save_equipment[MAX_WEAR][MaxLayers];
+ObjData *save_equipment[MaxWear][MaxLayers];
 CharData *quitting_char, *loading_char, *saving_char;
 
 int       file_ver;
@@ -90,7 +90,7 @@ void fwrite_char args((CharData * ch, FILE * fp));
 void      fread_char
 args((CharData * ch, FILE * fp, bool preload, bool copyover));
 void write_corpses args((CharData * ch, char *name));
-void      fread_comment(ACCOUNT_DATA * Account, FILE * fp);
+void      fread_comment(AccountData * Account, FILE * fp);
 
 void save_home(CharData * ch)
 {
@@ -102,7 +102,7 @@ void save_home(CharData * ch)
                 ObjData *contents;
 
 
-                snprintf(filename, MSL, "%s%c/%s.home", PLAYER_DIR,
+                snprintf(filename, MSL, "%s%c/%s.home", PlayerDir,
                          tolower(ch->name[0]), capitalize(ch->name));
                 if ((fp = fopen(filename, "w")) == NULL)
                 {
@@ -113,7 +113,7 @@ void save_home(CharData * ch)
                         ch->top_level = LevelHero; /* make sure EQ doesn't get lost */
                         contents = ch->plr_home->last_content;
                         if (contents)
-                                fwrite_obj(ch, contents, fp, 0, OS_CARRY,
+                                fwrite_obj(ch, contents, fp, 0, OsCarry,
                                            FALSE);
                         fprintf(fp, "#END\n");
                         ch->top_level = templvl;
@@ -141,7 +141,7 @@ void load_home(CharData * ch)
                 extract_obj(obj);
         }
 
-        snprintf(filename, MSL, "%s%c/%s.home", PLAYER_DIR,
+        snprintf(filename, MSL, "%s%c/%s.home", PlayerDir,
                  tolower(ch->name[0]), capitalize(ch->name));
         if ((fph = fopen(filename, "r")) != NULL)
         {
@@ -175,7 +175,7 @@ void load_home(CharData * ch)
 
                         word = fread_word(fph);
                         if (!str_cmp(word, "OBJECT"))   /* Objects  */
-                                fread_obj(supermob, fph, OS_CARRY);
+                                fread_obj(supermob, fph, OsCarry);
                         else if (!str_cmp(word, "END")) /* Done     */
                                 break;
                         else
@@ -214,11 +214,11 @@ void de_equip_char(CharData * ch)
         ObjData *obj;
         int       x, y;
 
-        for (x = 0; x < MAX_WEAR; x++)
+        for (x = 0; x < MaxWear; x++)
                 for (y = 0; y < MaxLayers; y++)
                         save_equipment[x][y] = NULL;
         for (obj = ch->first_carrying; obj; obj = obj->next_content)
-                if (obj->wear_loc > -1 && obj->wear_loc < MAX_WEAR)
+                if (obj->wear_loc > -1 && obj->wear_loc < MaxWear)
                 {
 
                         for (x = 0; x < MaxLayers; x++)
@@ -248,7 +248,7 @@ void re_equip_char(CharData * ch)
 {
         int       x, y;
 
-        for (x = 0; x < MAX_WEAR; x++)
+        for (x = 0; x < MaxWear; x++)
                 for (y = 0; y < MaxLayers; y++)
                         if (save_equipment[x][y] != NULL)
                         {
@@ -279,7 +279,7 @@ void save_char_obj(CharData * ch)
                 return;
         }
 
-        if (IS_NPC(ch) || NOT_AUTHED(ch))
+        if (IsNpc(ch) || NotAuthed(ch))
                 return;
 
 #ifdef ACCOUNT
@@ -291,7 +291,7 @@ void save_char_obj(CharData * ch)
         /*
          * save pc's clan's data while we're at it to keep the data in sync 
          */
-        if (!IS_NPC(ch) && ch->pcdata->clan)
+        if (!IsNpc(ch) && ch->pcdata->clan)
                 save_clan(ch->pcdata->clan);
 
         if (ch->desc && ch->desc->original)
@@ -305,15 +305,15 @@ void save_char_obj(CharData * ch)
                 bug("save_char_obj: ch with no name!", 0);
                 return;
         }
-        snprintf(strsave, MSL, "%s%c/%s", PLAYER_DIR, tolower(ch->name[0]),
+        snprintf(strsave, MSL, "%s%c/%s", PlayerDir, tolower(ch->name[0]),
                  capitalize(ch->name));
 
         /*
          * Auto-backup pfile (can cause lag with high disk access situtations
          */
-        if (IS_SET(sysdata.save_flags, SV_BACKUP))
+        if (IsSet(sysdata.save_flags, SvBackup))
         {
-                snprintf(strback, MSL, "%s%c/%s", BACKUP_DIR,
+                snprintf(strback, MSL, "%s%c/%s", BackupDir,
                          tolower(ch->name[0]), capitalize(ch->name));
                 rename(strsave, strback);
         }
@@ -327,7 +327,7 @@ void save_char_obj(CharData * ch)
          */
         if (get_trust(ch) > LevelHero)
         {
-                snprintf(strback, MSL, "%s%s", GOD_DIR, capitalize(ch->name));
+                snprintf(strback, MSL, "%s%s", GodDir, capitalize(ch->name));
 
                 if ((fp = fopen(strback, "w")) == NULL)
                 {
@@ -366,7 +366,7 @@ void save_char_obj(CharData * ch)
                 fwrite_char(ch, fp);
                 fwrite_wanted(ch, fp);
                 if (ch->first_carrying)
-                        fwrite_obj(ch, ch->last_carrying, fp, 0, OS_CARRY,
+                        fwrite_obj(ch, ch->last_carrying, fp, 0, OsCarry,
                                    ch->pcdata->hotboot);
                 fwrite_greet(ch, fp);
                 fprintf(fp, "#END\n");
@@ -393,7 +393,7 @@ void save_clone(CharData * ch)
                 return;
         }
 
-        if (IS_NPC(ch) || NOT_AUTHED(ch))
+        if (IsNpc(ch) || NotAuthed(ch))
                 return;
 
         if (ch->desc && ch->desc->original)
@@ -402,15 +402,15 @@ void save_clone(CharData * ch)
         de_equip_char(ch);
 
         ch->save_time = current_time;
-        snprintf(strsave, MSL, "%s%c/%s.clone", PLAYER_DIR,
+        snprintf(strsave, MSL, "%s%c/%s.clone", PlayerDir,
                  tolower(ch->name[0]), capitalize(ch->name));
 
         /*
          * Auto-backup pfile (can cause lag with high disk access situtations
          */
-        if (IS_SET(sysdata.save_flags, SV_BACKUP))
+        if (IsSet(sysdata.save_flags, SvBackup))
         {
-                snprintf(strback, MSL, "%s%c/%s", BACKUP_DIR,
+                snprintf(strback, MSL, "%s%c/%s", BackupDir,
                          tolower(ch->name[0]), capitalize(ch->name));
                 rename(strsave, strback);
         }
@@ -449,7 +449,7 @@ void fwrite_char(CharData * ch, FILE * fp)
         SkillType *skill = NULL;
         int       pos;
 
-        fprintf(fp, "#%s\n", IS_NPC(ch) ? "MOB" : "PLAYER");
+        fprintf(fp, "#%s\n", IsNpc(ch) ? "MOB" : "PLAYER");
 
         fprintf(fp, "Version      %d\n", SAVEVERSION);
         fprintf(fp, "Name         %s~\n", ch->name);
@@ -484,7 +484,7 @@ void fwrite_char(CharData * ch, FILE * fp)
         fprintf(fp, "Played       %d\n",
                 ch->played + (int) (current_time - ch->logon));
         fprintf(fp, "Room         %d\n",
-                (ch->in_room == get_room_index(ROOM_VNUM_LIMBO)
+                (ch->in_room == get_room_index(RoomVnumLimbo)
                  && ch->was_in_room)
                 ? ch->was_in_room->vnum : ch->in_room->vnum);
         if (ch->plr_home != NULL)
@@ -523,7 +523,7 @@ void fwrite_char(CharData * ch, FILE * fp)
                 fprintf(fp, "AffectedBy   %d\n", ch->affected_by);
         fprintf(fp, "Position     %d\n",
                 ch->position ==
-                (int) POS_FIGHTING ? (int) POS_STANDING : ch->position);
+                (int) PosFighting ? (int) PosStanding : ch->position);
 
         fprintf(fp, "SavingThrows %d %d %d %d %d\n",
                 ch->SavingPoisonDeath,
@@ -538,7 +538,7 @@ void fwrite_char(CharData * ch, FILE * fp)
         fprintf(fp, "Armor        %d\n", ch->Armor);
         if (ch->wimpy)
                 fprintf(fp, "Wimpy        %d\n", ch->wimpy);
-        if (!xIS_EMPTY(ch->deaf) && IS_IMMORTAL(ch))
+        if (!xIS_EMPTY(ch->deaf) && IsImmortal(ch))
                 fprintf(fp, "Deaf         %s\n", print_bitvector(&ch->deaf));
         fprintf(fp, "Listening %s~\n", ch->pcdata->listening);
         if (ch->pcdata->recall != 0)
@@ -558,7 +558,7 @@ void fwrite_char(CharData * ch, FILE * fp)
         if (ch->leader && ch->leader->name)
                 fprintf(fp, "Leader  %s~\n", ch->leader->name);
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 fprintf(fp, "Vnum         %d\n", ch->pIndexData->vnum);
                 fprintf(fp, "Mobinvis     %d\n", ch->mobinvis);
@@ -653,13 +653,13 @@ void fwrite_char(CharData * ch, FILE * fp)
 
                         fprintf(fp, "Ignore %s~\n", ch->pcdata->ignore[pos]);
                 }
-                for (pos = 0; pos < MAX_IMPLANT_TYPES; pos++)
+                for (pos = 0; pos < MaxImplantTypes; pos++)
                         if (ch->pcdata->implants[pos] >= 0
                             && ch->pcdata->implants[pos] <= 3)
                                 fprintf(fp, "Implant %d %d\n", pos,
                                         ch->pcdata->implants[pos]);
 
-                if (IS_IMMORTAL(ch) || ch->pcdata->area)
+                if (IsImmortal(ch) || ch->pcdata->area)
                 {
                         fprintf(fp, "WizInvis     %d\n",
                                 ch->pcdata->wizinvis);
@@ -689,10 +689,10 @@ void fwrite_char(CharData * ch, FILE * fp)
                         fprintf(fp, "PKills       %d\n", ch->pcdata->pkills);
                 if (ch->pcdata->pdeaths)
                         fprintf(fp, "PDeaths      %d\n", ch->pcdata->pdeaths);
-                if (get_timer(ch, TIMER_PKILLED)
-                    && (get_timer(ch, TIMER_PKILLED) > 0))
+                if (get_timer(ch, TimerPkilled)
+                    && (get_timer(ch, TimerPkilled) > 0))
                         fprintf(fp, "PTimer       %d\n",
-                                get_timer(ch, TIMER_PKILLED));
+                                get_timer(ch, TimerPkilled));
                 fprintf(fp, "MKills       %d\n", ch->pcdata->mkills);
                 fprintf(fp, "MDeaths      %d\n", ch->pcdata->mdeaths);
                 if (ch->pcdata->illegal_pk)
@@ -738,17 +738,17 @@ void fwrite_char(CharData * ch, FILE * fp)
                                                 ch->pcdata->learned[sn],
                                                 skill_table[sn]->name);
                                         break;
-                                case SKILL_SPELL:
+                                case SkillSpell:
                                         fprintf(fp, "Spell        %d '%s'\n",
                                                 ch->pcdata->learned[sn],
                                                 skill_table[sn]->name);
                                         break;
-                                case SKILL_WEAPON:
+                                case SkillWeapon:
                                         fprintf(fp, "Weapon       %d '%s'\n",
                                                 ch->pcdata->learned[sn],
                                                 skill_table[sn]->name);
                                         break;
-                                case SKILL_TONGUE:
+                                case SkillTongue:
                                         fprintf(fp, "Tongue       %d '%s'\n",
                                                 ch->pcdata->learned[sn],
                                                 skill_table[sn]->name);
@@ -763,7 +763,7 @@ void fwrite_char(CharData * ch, FILE * fp)
                     && (skill = get_skilltype(paf->type)) == NULL)
                         continue;
 
-                if (paf->type >= 0 && paf->type < TYPE_PERSONAL)
+                if (paf->type >= 0 && paf->type < TypePersonal)
                         fprintf(fp, "AffectData   '%s' %3d %3d %3d %10d\n",
                                 skill->name,
                                 paf->duration,
@@ -793,9 +793,9 @@ void fwrite_char(CharData * ch, FILE * fp)
         {
                 int       x;
 
-                fprintf(fp, "MaxColors    %d\n", MAX_COLORS);
+                fprintf(fp, "MaxColors    %d\n", MaxColors);
                 fprintf(fp, "Colors       ");
-                for (x = 0; x < MAX_COLORS; x++)
+                for (x = 0; x < MaxColors; x++)
                         fprintf(fp, "%d ", ch->colors[x]);
                 fprintf(fp, "\n");
         }
@@ -828,8 +828,8 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
          * Slick recursion to write lists backwards,
          *   so loading them will load in forwards order.
          */
-        if (obj->prev_content && os_type != OS_CORPSE)
-                fwrite_obj(ch, obj->prev_content, fp, iNest, OS_CARRY, FALSE);
+        if (obj->prev_content && os_type != OsCorpse)
+                fwrite_obj(ch, obj->prev_content, fp, iNest, OsCarry, FALSE);
 
         /*
          * Catch deleted objects                    -Thoric
@@ -840,19 +840,19 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
         /*
          * Do NOT save prototype items!             -Thoric
          */
-        if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+        if (IsObjStat(obj, ItemPrototype))
                 return;
 
         /*
          * DO NOT save corpses lying on the ground as a hotboot item, they already saved elsewhere! - Samson 
          */
-        if (hotboot && obj->item_type == ITEM_CORPSE_PC)
+        if (hotboot && obj->item_type == ItemCorpsePc)
                 return;
 
         /*
          * Corpse saving. -- Altrag 
          */
-        fprintf(fp, (os_type == OS_CORPSE ? "#CORPSE\n" : "#OBJECT\n"));
+        fprintf(fp, (os_type == OsCorpse ? "#CORPSE\n" : "#OBJECT\n"));
 
         if (iNest)
                 fprintf(fp, "Nest         %d\n", iNest);
@@ -869,7 +869,7 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
         if (obj->armed_by && obj->armed_by[0] != '\0')
                 fprintf(fp, "Armedby      %s~\n", obj->armed_by);
         fprintf(fp, "Vnum         %d\n", obj->pIndexData->vnum);
-        if ((os_type == OS_CORPSE || hotboot) && obj->in_room)
+        if ((os_type == OsCorpse || hotboot) && obj->in_room)
         {
                 fprintf(fp, "Room         %d\n", obj->in_room->vnum);
                 fprintf(fp, "Rvnum	   %d\n", obj->RoomVnum);
@@ -879,7 +879,7 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
         if (obj->wear_flags != obj->pIndexData->wear_flags)
                 fprintf(fp, "WearFlags    %d\n", obj->wear_flags);
         wear_loc = -1;
-        for (wear = 0; wear < MAX_WEAR; wear++)
+        for (wear = 0; wear < MaxWear; wear++)
                 for (x = 0; x < MaxLayers; x++)
                         if (obj == save_equipment[wear][x])
                         {
@@ -908,34 +908,34 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
 
         switch (obj->item_type)
         {
-        case ITEM_PILL:    /* was down there with staff and wand, wrongly - Scryn */
-        case ITEM_POTION:
-                if (IS_VALID_SN(obj->value[1]))
+        case ItemPill:    /* was down there with staff and wand, wrongly - Scryn */
+        case ItemPotion:
+                if (IsValidSn(obj->value[1]))
                         fprintf(fp, "Spell 1      '%s'\n",
                                 skill_table[obj->value[1]]->name);
 
-                if (IS_VALID_SN(obj->value[2]))
+                if (IsValidSn(obj->value[2]))
                         fprintf(fp, "Spell 2      '%s'\n",
                                 skill_table[obj->value[2]]->name);
 
-                if (IS_VALID_SN(obj->value[3]))
+                if (IsValidSn(obj->value[3]))
                         fprintf(fp, "Spell 3      '%s'\n",
                                 skill_table[obj->value[3]]->name);
 
                 break;
 
-        case ITEM_DEVICE:
-                if (IS_VALID_SN(obj->value[3]))
+        case ItemDevice:
+                if (IsValidSn(obj->value[3]))
                         fprintf(fp, "Spell 3      '%s'\n",
                                 skill_table[obj->value[3]]->name);
 
                 break;
-        case ITEM_SALVE:
-                if (IS_VALID_SN(obj->value[4]))
+        case ItemSalve:
+                if (IsValidSn(obj->value[4]))
                         fprintf(fp, "Spell 4      '%s'\n",
                                 skill_table[obj->value[4]]->name);
 
-                if (IS_VALID_SN(obj->value[5]))
+                if (IsValidSn(obj->value[5]))
                         fprintf(fp, "Spell 5      '%s'\n",
                                 skill_table[obj->value[5]]->name);
                 break;
@@ -951,11 +951,11 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
                         fprintf(fp, "Affect       %d %d %d %d %d\n",
                                 paf->type,
                                 paf->duration,
-                                ((paf->location == APPLY_WEAPONSPELL
-                                  || paf->location == APPLY_WEARSPELL
-                                  || paf->location == APPLY_REMOVESPELL
-                                  || paf->location == APPLY_STRIPSN)
-                                 && IS_VALID_SN(paf->modifier))
+                                ((paf->location == ApplyWeaponspell
+                                  || paf->location == ApplyWearspell
+                                  || paf->location == ApplyRemovespell
+                                  || paf->location == ApplyStripsn)
+                                 && IsValidSn(paf->modifier))
                                 ? skill_table[paf->modifier]->slot : paf->
                                 modifier, paf->location, paf->bitvector);
                 }
@@ -963,11 +963,11 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
                         fprintf(fp, "AffectData   '%s' %d %d %d %d\n",
                                 skill_table[paf->type]->name,
                                 paf->duration,
-                                ((paf->location == APPLY_WEAPONSPELL
-                                  || paf->location == APPLY_WEARSPELL
-                                  || paf->location == APPLY_REMOVESPELL
-                                  || paf->location == APPLY_STRIPSN)
-                                 && IS_VALID_SN(paf->modifier))
+                                ((paf->location == ApplyWeaponspell
+                                  || paf->location == ApplyWearspell
+                                  || paf->location == ApplyRemovespell
+                                  || paf->location == ApplyStripsn)
+                                 && IsValidSn(paf->modifier))
                                 ? skill_table[paf->modifier]->slot : paf->
                                 modifier, paf->location, paf->bitvector);
         }
@@ -979,7 +979,7 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
         fprintf(fp, "End\n\n");
 
         if (obj->first_content)
-                fwrite_obj(ch, obj->last_content, fp, iNest + 1, OS_CARRY,
+                fwrite_obj(ch, obj->last_content, fp, iNest + 1, OsCarry,
                            hotboot);
 
         return;
@@ -1004,7 +1004,7 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
         char      buf[MaxInputLength];
 
         CREATE(ch, CharData, 1);
-        for (x = 0; x < MAX_WEAR; x++)
+        for (x = 0; x < MaxWear; x++)
                 for (i = 0; i < MaxLayers; i++)
                         save_equipment[x][i] = NULL;
         clear_char(ch);
@@ -1014,7 +1014,7 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
         d->character = ch;
         ch->desc = d;
         ch->name = STRALLOC(name);
-        ch->act = PLR_BLANK | PLR_COMBINE | PLR_PROMPT;
+        ch->act = PlrBlank | PlrCombine | PlrPrompt;
         ch->perm_str = 10;
         ch->perm_int = 10;
         ch->perm_wis = 10;
@@ -1024,9 +1024,9 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
         ch->perm_lck = 10;
         ch->max_endurance = 0;
         ch->endurance = 0;
-        ch->pcdata->condition[COND_THIRST] = 48;
-        ch->pcdata->condition[COND_FULL] = 48;
-        ch->pcdata->condition[COND_BLOODTHIRST] = 10;
+        ch->pcdata->condition[CondThirst] = 48;
+        ch->pcdata->condition[CondFull] = 48;
+        ch->pcdata->condition[CondBloodthirst] = 10;
         ch->pcdata->statpoints = 0;
         ch->pcdata->statedit = 0;
         ch->pcdata->wizinvis = 0;
@@ -1048,19 +1048,19 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
         ch->was_sentinel = NULL;
         ch->plr_home = NULL;
         ch->pcdata->hotboot = FALSE;    /* Never changed except when PC is saved during hotboot save */
-        for (i = 0; i < MAX_IMPLANT_TYPES; i++)
+        for (i = 0; i < MaxImplantTypes; i++)
                 ch->pcdata->implants[i] = -2;
         found = FALSE;
 #ifdef IMC
         imc_initchar(ch);
 #endif
-        snprintf(strsave, MSL, "%s%c/%s", PLAYER_DIR, tolower(name[0]),
+        snprintf(strsave, MSL, "%s%c/%s", PlayerDir, tolower(name[0]),
                  capitalize(name));
         if (stat(strsave, &fst) != -1)
         {
                 if (fst.st_size == 0)
                 {
-                        snprintf(buf, MSL, "%s%c/%s", BACKUP_DIR,
+                        snprintf(buf, MSL, "%s%c/%s", BackupDir,
                                  tolower(name[0]), capitalize(name));
                         send_to_char("Restoring your backup player file...",
                                      ch);
@@ -1079,7 +1079,7 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                         snprintf(buf, MSL, "%s player data for: %s (%dK)",
                                  preload ? "Preloading" : "Loading", ch->name,
                                  (int) fst.st_size / 1024);
-                        log_string_plus(buf, LOG_COMM, LevelGreater);
+                        log_string_plus(buf, LogComm, LevelGreater);
                 }
         }
         /*
@@ -1128,10 +1128,10 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                         else if (!str_cmp(word, "WANTED"))  /* Wanted */
                                 fread_wanted(ch, fp);
                         else if (!str_cmp(word, "OBJECT"))  /* Objects  */
-                                fread_obj(ch, fp, OS_CARRY);
+                                fread_obj(ch, fp, OsCarry);
                         else if (!str_cmp(word, "COMMENT"))
                         {
-                                ACCOUNT_DATA *Account = ch->pcdata->Account;
+                                AccountData *Account = ch->pcdata->Account;
 
                                 fread_comment(Account, fp); /* Comments */
                         }
@@ -1197,7 +1197,7 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                 if (!ch->pcdata->authed_by)
                         ch->pcdata->authed_by = STRALLOC("");
 
-                if (!IS_NPC(ch) && get_trust(ch) > LevelAvatar)
+                if (!IsNpc(ch) && get_trust(ch) > LevelAvatar)
                 {
                         if (ch->pcdata->wizinvis < 2)
                                 ch->pcdata->wizinvis = ch->top_level;
@@ -1205,7 +1205,7 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                 }
                 if (file_ver > 1)
                 {
-                        for (i = 0; i < MAX_WEAR; i++)
+                        for (i = 0; i < MaxWear; i++)
                         {
                                 for (x = 0; x < MaxLayers; x++)
                                 {
@@ -1223,13 +1223,13 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                 }
 
         }
-		if (ch->pcdata->clanrank >= MAX_RANK) 
-			ch->pcdata->clanrank = MAX_RANK - 1;
+		if (ch->pcdata->clanrank >= MaxRank) 
+			ch->pcdata->clanrank = MaxRank - 1;
 
 
 		if (ch->pcdata->spouse && ch->pcdata->spouse[0] != '\0' && !char_exists(ch->pcdata->spouse))
 		{
-			REMOVE_BIT(ch->pcdata->flags, PCFLAG_MARRIED);
+			RemoveBit(ch->pcdata->flags, PcflagMarried);
 			if (ch->pcdata->spouse)
                 STRFREE(ch->pcdata->spouse);
 		}
@@ -1256,7 +1256,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
         int       max_colors = 0;   /* Color code */
         time_t    lastplayed = 0;
         int       skill_number, extra, count = 0;
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
 
         copyover = 0;
 
@@ -1296,7 +1296,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                 ch->desc->Account;
                                 else
                                 {
-                                        ACCOUNT_DATA *Account =
+                                        AccountData *Account =
                                                 load_account(name);
                                         if (Account)
                                                 ch->pcdata->Account = Account;
@@ -1787,7 +1787,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         KEY("Prompt", ch->pcdata->prompt, fread_string(fp));
                         if (!str_cmp(word, "PTimer"))
                         {
-                                add_timer(ch, TIMER_PKILLED, fread_number(fp),
+                                add_timer(ch, TimerPkilled, fread_number(fp),
                                           NULL, 0);
                                 fMatch = TRUE;
                                 break;
@@ -1857,7 +1857,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 if (!ch->in_room)
                                         ch->in_room =
                                                 get_room_index
-                                                (ROOM_VNUM_LIMBO);
+                                                (RoomVnumLimbo);
                                 fMatch = TRUE;
                                 break;
                         }
@@ -2115,9 +2115,9 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                                 [ability] = 1;
                                         }
                                 }
-                                if (!IS_IMMORTAL(ch) && !ch->speaking)
+                                if (!IsImmortal(ch) && !ch->speaking)
                                         ch->speaking = ch->race->language();
-                                if (IS_IMMORTAL(ch))
+                                if (IsImmortal(ch))
                                         ch->speaking = ch->race->language();
 
                                 if (!ch->speaking
@@ -2274,71 +2274,71 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 temp = fread_number(fp);
                                 if (!preload)
                                 {
-                                        if (IS_SET(temp, WANTED_MON_CALAMARI))
+                                        if (IsSet(temp, WantedMonCalamari))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Calamari"));
-                                        if (IS_SET(temp, WANTED_CORUSCANT))
+                                        if (IsSet(temp, WantedCoruscant))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Coruscant"));
-                                        if (IS_SET(temp, WANTED_ADARI))
+                                        if (IsSet(temp, WantedAdari))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Adari"));
-                                        if (IS_SET(temp, WANTED_RODIA))
+                                        if (IsSet(temp, WantedRodia))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Rodia"));
-                                        if (IS_SET(temp, WANTED_RYLOTH))
+                                        if (IsSet(temp, WantedRyloth))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Ryloth"));
-                                        if (IS_SET(temp, WANTED_GAMORR))
+                                        if (IsSet(temp, WantedGamorr))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Gamorr"));
-                                        if (IS_SET(temp, WANTED_TATOOINE))
+                                        if (IsSet(temp, WantedTatooine))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Tatooine"));
-                                        if (IS_SET(temp, WANTED_BYSS))
+                                        if (IsSet(temp, WantedByss))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Byss"));
-                                        if (IS_SET(temp, WANTED_NAL_HUTTA))
+                                        if (IsSet(temp, WantedNalHutta))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Nal Hutta"));
-                                        if (IS_SET(temp, WANTED_KASHYYYK))
+                                        if (IsSet(temp, WantedKashyyyk))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Kashyyyk"));
-                                        if (IS_SET(temp, WANTED_HONOGHR))
+                                        if (IsSet(temp, WantedHonoghr))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Honoghr"));
-                                        if (IS_SET(temp, WANTED_ENDOR))
+                                        if (IsSet(temp, WantedEndor))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Endor"));
-                                        if (IS_SET(temp, WANTED_ROCHE))
+                                        if (IsSet(temp, WantedRoche))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Roche"));
-                                        if (IS_SET(temp, WANTED_AF_EL))
+                                        if (IsSet(temp, WantedAfEl))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Af El"));
-                                        if (IS_SET(temp, WANTED_TRANDOSHA))
+                                        if (IsSet(temp, WantedTrandosha))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Trandosha"));
-                                        if (IS_SET(temp, WANTED_CHAD))
+                                        if (IsSet(temp, WantedChad))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Chad"));
-                                        if (IS_SET(temp, WANTED_HOTH))
+                                        if (IsSet(temp, WantedHoth))
                                                 add_wanted(ch,
                                                            get_planet
                                                            ("Hoth"));
@@ -2423,9 +2423,9 @@ void fread_obj(CharData * ch, FILE * fp, sh_int os_type)
                                 pafmod = fread_number(fp);
                                 paf->location = fread_number(fp);
                                 paf->bitvector = fread_number(fp);
-                                if (paf->location == APPLY_WEAPONSPELL
-                                    || paf->location == APPLY_WEARSPELL
-                                    || paf->location == APPLY_REMOVESPELL)
+                                if (paf->location == ApplyWeaponspell
+                                    || paf->location == ApplyWearspell
+                                    || paf->location == ApplyRemovespell)
                                         paf->modifier = slot_lookup(pafmod);
                                 else
                                         paf->modifier = pafmod;
@@ -2512,18 +2512,18 @@ void fread_obj(CharData * ch, FILE * fp, sh_int os_type)
                                         numobjsloaded += obj->count;
                                         physicalobjects++;
                                         if (file_ver > 1 || obj->wear_loc < -1
-                                            || obj->wear_loc >= MAX_WEAR)
+                                            || obj->wear_loc >= MaxWear)
                                                 obj->wear_loc = -1;
                                         /*
                                          * Corpse saving. -- Altrag 
                                          */
-                                        if (os_type == OS_CORPSE)
+                                        if (os_type == OsCorpse)
                                         {
                                                 if (!room)
                                                 {
                                                         bug("Fread_obj: Corpse without room", 0);
                                                         room = get_room_index
-                                                                (ROOM_VNUM_LIMBO);
+                                                                (RoomVnumLimbo);
                                                 }
                                                 obj = obj_to_room(obj, room);
                                         }
@@ -2535,7 +2535,7 @@ void fread_obj(CharData * ch, FILE * fp, sh_int os_type)
 
                                                 if (file_ver > 1
                                                     && wear_loc > -1
-                                                    && wear_loc < MAX_WEAR)
+                                                    && wear_loc < MaxWear)
                                                 {
                                                         int       x;
 
@@ -2755,7 +2755,7 @@ CMDF do_last(CharData * ch, char *argument)
                 return;
         }
         mudstrlcpy(name, capitalize(arg), MIL);
-        snprintf(buf, MSL, "%s%c/%s", PLAYER_DIR, tolower(arg[0]), name);
+        snprintf(buf, MSL, "%s%c/%s", PlayerDir, tolower(arg[0]), name);
         if (stat(buf, &fst) != -1)
                 snprintf(buf, MSL, "%s was last on: %s\r", name,
                          ctime(&fst.st_mtime));
@@ -2773,7 +2773,7 @@ void write_corpses(CharData * ch, char *name)
          * Name and ch support so that we dont have to have a char to save their
          * corpses.. (ie: decayed corpses while offline) 
          */
-        if (ch && IS_NPC(ch))
+        if (ch && IsNpc(ch))
         {
                 bug("Write_corpses: writing NPC corpse.", 0);
                 return;
@@ -2784,7 +2784,7 @@ void write_corpses(CharData * ch, char *name)
          * Go by vnum, less chance of screwups. -- Altrag 
          */
         for (corpse = first_object; corpse; corpse = corpse->next)
-                if (corpse->pIndexData->vnum == OBJ_VNUM_CORPSE_PC &&
+                if (corpse->pIndexData->vnum == ObjVnumCorpsePc &&
                     corpse->in_room != NULL &&
                     !str_cmp(corpse->short_descr + 14, name))
                 {
@@ -2792,7 +2792,7 @@ void write_corpses(CharData * ch, char *name)
                         {
                                 char      buf[127];
 
-                                snprintf(buf, 127, "%s%s", CORPSE_DIR,
+                                snprintf(buf, 127, "%s%s", CorpseDir,
                                          capitalize(name));
                                 if (!(fp = fopen(buf, "w")))
                                 {
@@ -2801,7 +2801,7 @@ void write_corpses(CharData * ch, char *name)
                                         return;
                                 }
                         }
-                        fwrite_obj(ch, corpse, fp, 0, OS_CORPSE, FALSE);
+                        fwrite_obj(ch, corpse, fp, 0, OsCorpse, FALSE);
                 }
         if (fp)
         {
@@ -2812,7 +2812,7 @@ void write_corpses(CharData * ch, char *name)
         {
                 char      buf[127];
 
-                snprintf(buf, MSL, "%s%s", CORPSE_DIR, capitalize(name));
+                snprintf(buf, MSL, "%s%s", CorpseDir, capitalize(name));
                 remove(buf);
         }
         return;
@@ -2826,10 +2826,10 @@ void load_corpses(void)
         extern char strArea[MaxInputLength];
         extern int falling;
 
-        if (!(dp = opendir(CORPSE_DIR)))
+        if (!(dp = opendir(CorpseDir)))
         {
-                bug("Load_corpses: can't open CORPSE_DIR", 0);
-                perror(CORPSE_DIR);
+                bug("Load_corpses: can't open CorpseDir", 0);
+                perror(CorpseDir);
                 return;
         }
 
@@ -2838,7 +2838,7 @@ void load_corpses(void)
         {
                 if (de->d_name[0] != '.')
                 {
-                        snprintf(strArea, MSL, "%s%s", CORPSE_DIR,
+                        snprintf(strArea, MSL, "%s%s", CorpseDir,
                                  de->d_name);
                         fprintf(stderr, "Corpse -> %s\n", strArea);
                         if (!(fpArea = fopen(strArea, "r")))
@@ -2864,9 +2864,9 @@ void load_corpses(void)
                                 }
                                 word = fread_word(fpArea);
                                 if (!str_cmp(word, "CORPSE"))
-                                        fread_obj(NULL, fpArea, OS_CORPSE);
+                                        fread_obj(NULL, fpArea, OsCorpse);
                                 else if (!str_cmp(word, "OBJECT"))
-                                        fread_obj(NULL, fpArea, OS_CARRY);
+                                        fread_obj(NULL, fpArea, OsCarry);
                                 else if (!str_cmp(word, "END"))
                                         break;
                                 else
@@ -2934,7 +2934,7 @@ void load_vendors(void)
                                 if (!strcmp(word, "VENDOR"))
                                         mob = fread_vendor(fpArea);
                                 else if (!strcmp(word, "OBJECT"))
-                                        fread_obj(mob, fpArea, OS_CARRY);
+                                        fread_obj(mob, fpArea, OsCarry);
                                 else if (!strcmp(word, "END"))
                                         break;
                         }

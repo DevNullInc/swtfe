@@ -51,13 +51,13 @@
 
 // Directory and file constants - modernized
 namespace BodyConstants {
-    constexpr const char* BODY_DIR = "../body/";
-    constexpr const char* FILE_BODY_LIST = "body.lst";
+    constexpr const char* BodyDir = "../body/";
+    constexpr const char* FileBodyList = "body.lst";
 }
 
 // Legacy macros for compatibility
-#define BODY_DIR       "../body/"
-#define FILE_BODY_LIST	"body.lst"
+#define BodyDir       "../body/"
+#define FileBodyList	"body.lst"
 typedef std::list < DockData * >DockList;
 extern DockData *first_dock;
 extern DockData *last_dock;

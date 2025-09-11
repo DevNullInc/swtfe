@@ -63,26 +63,26 @@ static char fmt_act[]    = "%s $n: $t";
 static char fmt_emote[]  = "(%s) * $n $t";
 static char fmt_social[] = "(%s) * $t";
 
-DECLARE_DO_FUN(do_history);
+DeclareDoFun(do_history);
 extern bool is_ignoring(CharData * ch, CharData * victim);
 extern char *const valid_color[];
-char     *scramble args((const char *argument, LANGUAGE_DATA * language));
+char     *scramble args((const char *argument, LanguageData * language));
 
-CHANNEL_DATA *first_channel = NULL;
-CHANNEL_DATA *last_channel = NULL;
+ChannelData *first_channel = NULL;
+ChannelData *last_channel = NULL;
 
-CHANNEL_DATA *get_channel(char *name) { return get_channel(static_cast<const char*>(name)); }
+ChannelData *get_channel(char *name) { return get_channel(static_cast<const char*>(name)); }
 
-CHANNEL_DATA *get_channel(const char *name)
+ChannelData *get_channel(const char *name)
 {
         if (!name)
                 return nullptr;
-        for (CHANNEL_DATA *channel = first_channel; channel; channel = channel->next)
+        for (ChannelData *channel = first_channel; channel; channel = channel->next)
         {
                 if (!str_cmp(name, channel->name))
                         return channel;
         }
-        for (CHANNEL_DATA *channel = first_channel; channel; channel = channel->next)
+        for (ChannelData *channel = first_channel; channel; channel = channel->next)
         {
                 if (nifty_is_name_prefix(const_cast<char*>(name), channel->name))
                         return channel;
@@ -90,7 +90,7 @@ CHANNEL_DATA *get_channel(const char *name)
         return nullptr;
 }
 
-void free_channel(CHANNEL_DATA * channel)
+void free_channel(ChannelData * channel)
 {
         if (channel->name)
                 STRFREE(channel->name);
@@ -118,14 +118,14 @@ void free_channel(CHANNEL_DATA * channel)
         return;
 }
 
-#define IC_CHANNEL(channel) (((channel)->type == CHANNEL_IC || (channel)->type == CHANNEL_IC_COM))
-#define OOC_CHANNEL(channel) (!IC_CHANNEL((channel)))
+#define IcChannel(channel) (((channel)->type == ChannelIc || (channel)->type == ChannelIcCom))
+#define OocChannel(channel) (!IcChannel((channel)))
 char     *act_string(const char *format, CharData * to, CharData * ch,
                      void *arg1, void *arg2, bool OOC);
 
-bool player_is_listening(CharData * ch, CHANNEL_DATA * channel)
+bool player_is_listening(CharData * ch, ChannelData * channel)
 {
-	if (IS_NPC(ch) || !ch->pcdata || !channel)
+	if (IsNpc(ch) || !ch->pcdata || !channel)
 		return FALSE;
 	if (!hasname(ch->pcdata->listening, channel->name)) 
 		return FALSE;
@@ -136,7 +136,7 @@ bool player_is_listening(CharData * ch, CHANNEL_DATA * channel)
 
 bool check_channel(CharData * ch, char *command, char *argument)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
         CharData *victim = NULL;
         PlanetData *planet = NULL;
         ClanData *clan = NULL;
@@ -166,37 +166,37 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 return TRUE;
         }
 
-		if (!IS_NPC(ch) && !player_is_listening(ch, channel)) {
+		if (!IsNpc(ch) && !player_is_listening(ch, channel)) {
 			send_to_char("You can't do that if you are not listening to that channel.\n\r", ch);
 			return TRUE;
 		}
 			
 
-        if (!IS_NPC(ch) && IS_SET(ch->act, PLR_SILENCE))
+        if (!IsNpc(ch) && IsSet(ch->act, PlrSilence))
         {
                 ch_printf(ch, "You can't %s.\n\r", command);
                 return TRUE;
         }
 
-        if (ch->position < POS_RESTING
-            && (channel->type == CHANNEL_IC
-                || channel->type == CHANNEL_IC_COM))
+        if (ch->position < PosResting
+            && (channel->type == ChannelIc
+                || channel->type == ChannelIcCom))
                 return TRUE;
 
-        if (ch->in_room && IC_CHANNEL(channel)
-            && xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        if (ch->in_room && IcChannel(channel)
+            && xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return TRUE;
         }
 
-        if (channel->type == CHANNEL_IC_COM && !has_comlink(ch))
+        if (channel->type == ChannelIcCom && !has_comlink(ch))
         {
                 send_to_char("You need a comlink to do that!\n\r", ch);
                 return TRUE;
         }
 
-        if (channel->range == CHANNEL_PLANET
+        if (channel->range == ChannelPlanet
             && (!ch->in_room->area
                 || (planet = ch->in_room->area->planet) == NULL))
         {
@@ -204,7 +204,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 return TRUE;
         }
 
-        if (channel->range == CHANNEL_CLAN)
+        if (channel->range == ChannelClan)
         {
                 if (!ch->pcdata->clan)
                 {
@@ -218,7 +218,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                         clan = ch->pcdata->clan;
         }
 
-        if (channel->range == CHANNEL_SYSTEM)
+        if (channel->range == ChannelSystem)
         {
                 if ((ship = ship_from_room(ch->in_room->vnum)) == NULL)
                 {
@@ -234,7 +234,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                         return TRUE;
                 }
 
-                if (ship->shipstate == SHIP_DOCKED)
+                if (ship->shipstate == ShipDocked)
                 {
                         send_to_char
                                 ("You can't do that until after you've launched!\n\r",
@@ -251,7 +251,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 }
         }
 
-        if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
+        if (IsNpc(ch) && IsAffected(ch, AffCharm))
         {
                 if (ch->master)
                         send_to_char("I don't think so...\n\r", ch->master);
@@ -281,7 +281,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 argument = one_argument(argument, arg);
                 if ((social = find_social(arg)) == NULL)
                         return FALSE;
-                else if (OOC_CHANNEL(channel) && argument[0] != '\0'
+                else if (OocChannel(channel) && argument[0] != '\0'
                          && (victim = get_char_world(ch, argument)) == NULL)
                 {
                         send_to_char("They aren't here.\n\r", ch);
@@ -321,15 +321,15 @@ bool check_channel(CharData * ch, char *command, char *argument)
         }
 
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 snprintf(buf2, MSL, "%s: %s (%s)",
-                         IS_NPC(ch) ? ch->short_descr : ch->name, argument,
+                         IsNpc(ch) ? ch->short_descr : ch->name, argument,
                          command);
-                append_to_file(LOG_FILE, buf2);
+                append_to_file(LogFile, buf2);
         }
 
-        if ((channel->type == CHANNEL_IC || channel->type == CHANNEL_IC_COM)
+        if ((channel->type == ChannelIc || channel->type == ChannelIcCom)
             && channel->cost > 0)
         {
                 if (ch->gold < channel->cost)
@@ -348,7 +348,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
         {
                 char     *sbuf = argument;
 
-                if (IC_CHANNEL(channel))
+                if (IcChannel(channel))
                 {
                         sbuf = act_string(social->char_no_arg, ch, ch, NULL,
                                           victim, 0);
@@ -379,10 +379,10 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 messagetype = channel->emotemessage;
         else
                 messagetype = channel->actmessage;
-        if (channel->type == CHANNEL_IC || channel->type == CHANNEL_IC_COM)
-                act(static_cast<sh_int>(channel->color), messagetype, ch, buf, NULL, TO_CHAR);
+        if (channel->type == ChannelIc || channel->type == ChannelIcCom)
+                act(static_cast<sh_int>(channel->color), messagetype, ch, buf, NULL, ToChar);
         else
-                act(static_cast<sh_int>(channel->color), messagetype, ch, buf, NULL, TO_CHAR_OOC);
+                act(static_cast<sh_int>(channel->color), messagetype, ch, buf, NULL, ToCharOoc);
 
         for (d = first_descriptor; d; d = d->next)
         {
@@ -392,7 +392,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 och = d->original ? d->original : d->character;
                 vch = d->character;
 
-                if (IS_PLAYING(d) && vch != ch
+                if (IsPlaying(d) && vch != ch
                     && hasname(och->pcdata->listening, channel->name))
                 {
                         /*
@@ -400,30 +400,30 @@ bool check_channel(CharData * ch, char *command, char *argument)
                          */
                         char     *sbuf = argument;
 
-                        if (channel->type == CHANNEL_IC_COM
+                        if (channel->type == ChannelIcCom
                             && !has_comlink(och))
                                 continue;
                         if (channel->level > ch->top_level)
                                 continue;
-                        if (channel->type != CHANNEL_OOC
+                        if (channel->type != ChannelOoc
                             && xIS_SET(vch->in_room->RoomFlags,
-                                       ROOM_SILENCE))
+                                       RoomSilence))
                                 continue;
-                        if (channel->range == CHANNEL_PLANET)
+                        if (channel->range == ChannelPlanet)
                         {
                                 if (!vch->in_room || !vch->in_room->area
                                     || !vch->in_room->area->planet
                                     || (vch->in_room->area->planet != planet)
                                     || xIS_SET(vch->in_room->RoomFlags,
-                                               ROOM_INDOORS))
+                                               RoomIndoors))
                                         continue;
                         }
-                        if (channel->range == CHANNEL_ROOM)
+                        if (channel->range == ChannelRoom)
                         {
                                 if (ch->in_room != och->in_room)
                                         continue;
                         }
-                        if (channel->range == CHANNEL_CLAN)
+                        if (channel->range == ChannelClan)
                         {
                                 if (!vch->pcdata->clan)
                                         continue;
@@ -431,7 +431,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                                     && vch->pcdata->clan->mainclan != clan)
                                         continue;
                         }
-                        if (channel->range == CHANNEL_SYSTEM)
+                        if (channel->range == ChannelSystem)
                         {
                                 ShipData *target;
 
@@ -456,7 +456,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                         MOBtrigger = FALSE;
                         if (social)
                         {
-                                if (IC_CHANNEL(channel))
+                                if (IcChannel(channel))
                                 {
                                         sbuf = act_string(social->
                                                           others_no_arg, vch,
@@ -502,20 +502,20 @@ bool check_channel(CharData * ch, char *command, char *argument)
                         }
                         else
                         {
-                                if ((channel->type == CHANNEL_IC
-                                     || channel->type == CHANNEL_IC_COM)
+                                if ((channel->type == ChannelIc
+                                     || channel->type == ChannelIcCom)
                                     && !knows_language(vch, ch->speaking, vch)
-                                    && (!IS_NPC(ch) || ch->speaking != 0))
+                                    && (!IsNpc(ch) || ch->speaking != 0))
                                         sbuf = scramble(argument,
                                                         ch->speaking);
                         }
 
-                        if (IC_CHANNEL(channel))
+                        if (IcChannel(channel))
                                 act(static_cast<sh_int>(channel->color), messagetype, ch, sbuf,
-                                    vch, TO_VICT);
+                                    vch, ToVict);
                         else
                                 act(static_cast<sh_int>(channel->color), messagetype, ch, sbuf,
-                                    vch, TO_VICT_OOC);
+                                    vch, ToVictOoc);
                         MOBtrigger = TRUE;
                 }
         }
@@ -523,7 +523,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
 }
 
 
-void fwrite_channel(CHANNEL_DATA * channel, FILE * fp)
+void fwrite_channel(ChannelData * channel, FILE * fp)
 {
         if (!channel)
                 return;
@@ -546,13 +546,13 @@ void fwrite_channel(CHANNEL_DATA * channel, FILE * fp)
 
 void save_channels(void)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
         FILE     *fp;
 
-        if ((fp = fopen(CHANNEL_FILE, "w")) == NULL)
+        if ((fp = fopen(ChannelFile, "w")) == NULL)
         {
                 bug("Cannot open channel.dat for writting", 0);
-                perror(CHANNEL_FILE);
+                perror(ChannelFile);
                 return;
         }
 
@@ -562,11 +562,11 @@ void save_channels(void)
         FCLOSE(fp);
 }
 
-CHANNEL_DATA *create_channel(void)
+ChannelData *create_channel(void)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
 
-        CREATE(channel, CHANNEL_DATA, 1);
+        CREATE(channel, ChannelData, 1);
         channel->next = NULL;
         channel->prev = NULL;
         channel->log = NULL;
@@ -586,11 +586,11 @@ CHANNEL_DATA *create_channel(void)
         return channel;
 }
 
-CHANNEL_DATA *fread_channel(FILE * fp)
+ChannelData *fread_channel(FILE * fp)
 {
         const char *word;
         bool      fMatch;
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
         char      buf[MSL];
 
         channel = create_channel();
@@ -686,9 +686,9 @@ CHANNEL_DATA *fread_channel(FILE * fp)
 void load_channels(void)
 {
         FILE     *fp;
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
 
-        if ((fp = fopen(CHANNEL_FILE, "r")) != NULL)
+        if ((fp = fopen(ChannelFile, "r")) != NULL)
         {
                 for (;;)
                 {
@@ -735,7 +735,7 @@ void load_channels(void)
 
 CMDF do_showchannels(CharData * ch, char *argument)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
 
         if (!argument || argument[0] == '\0'
             || (channel = get_channel(argument)) == NULL)
@@ -775,7 +775,7 @@ CMDF do_showchannels(CharData * ch, char *argument)
 
 CMDF do_makechannel(CharData * ch, char *argument)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
 
         if (!argument || argument[0] == '\0'
             || (channel = get_channel(argument)) != NULL)
@@ -800,7 +800,7 @@ CMDF do_makechannel(CharData * ch, char *argument)
 
 CMDF do_setchannel(CharData * ch, char *argument)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
         char      arg[MSL];
         char     *arg2 = arg;
         int       x;
@@ -912,10 +912,10 @@ CMDF do_setchannel(CharData * ch, char *argument)
 
         else if (!str_cmp(arg2, "color"))
         {
-                for (x = 0; x < MAX_COLORS; x++)
+                for (x = 0; x < MaxColors; x++)
                         if (!str_cmp(pc_displays[x], argument))
                                 break;
-                if (x == MAX_COLORS)
+                if (x == MaxColors)
                         x = 0;
                 channel->color = x;
                 send_to_char("Done.\n\r", ch);
@@ -1050,9 +1050,9 @@ void removename(char **list, const char *name)
 
 CMDF do_listen(CharData * ch, char *argument)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!argument || argument[0] == '\0')
@@ -1106,11 +1106,11 @@ CMDF do_listen(CharData * ch, char *argument)
         }
         else
         {
-                if (IS_IMMORTAL(ch))
+                if (IsImmortal(ch))
                 {
                         if (!str_cmp(argument, "build"))
                         {
-                                xTOGGLE_BIT(ch->deaf, CHANNEL_BUILD);
+                                xTOGGLE_BIT(ch->deaf, ChannelBuild);
                                 send_to_char
                                         ("The build channel has been toggled",
                                          ch);
@@ -1118,7 +1118,7 @@ CMDF do_listen(CharData * ch, char *argument)
                         }
                         if (!str_cmp(argument, "log"))
                         {
-                                xTOGGLE_BIT(ch->deaf, CHANNEL_LOG);
+                                xTOGGLE_BIT(ch->deaf, ChannelLog);
                                 send_to_char
                                         ("The log channel has been toggled",
                                          ch);
@@ -1126,7 +1126,7 @@ CMDF do_listen(CharData * ch, char *argument)
                         }
                         if (!str_cmp(argument, "comm"))
                         {
-                                xTOGGLE_BIT(ch->deaf, CHANNEL_COMM);
+                                xTOGGLE_BIT(ch->deaf, ChannelComm);
                                 send_to_char
                                         ("The comm channel has been toggled",
                                          ch);
@@ -1135,14 +1135,14 @@ CMDF do_listen(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "tells"))
                 {
-                        xTOGGLE_BIT(ch->deaf, CHANNEL_TELLS);
+                        xTOGGLE_BIT(ch->deaf, ChannelTells);
                         send_to_char("The tell channels has been toggled",
                                      ch);
                         return;
                 }
                 if (!str_cmp(argument, "auction"))
                 {
-                        xTOGGLE_BIT(ch->deaf, CHANNEL_AUCTION);
+                        xTOGGLE_BIT(ch->deaf, ChannelAuction);
                         send_to_char("The auction channel has been toggled",
                                      ch);
                         return;
@@ -1167,7 +1167,7 @@ CMDF do_listen(CharData * ch, char *argument)
 
 CMDF do_channels(CharData * ch, char *argument)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
         CharData *victim = NULL;
 
         if ( argument[0] == '-'  || argument[0] == '+') {
@@ -1197,13 +1197,13 @@ CMDF do_channels(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_IMMORTAL(ch)
+        if (!IsImmortal(ch)
                         || (victim = get_char_world(ch, argument)) == NULL
-                        || IS_NPC(victim))
+                        || IsNpc(victim))
                 victim = ch;
 
         if (!victim) {
-                if (IS_IMMORTAL(ch)) {
+                if (IsImmortal(ch)) {
                         send_to_char("Who?\n\r", ch);
                         return;
                 }
@@ -1221,26 +1221,26 @@ CMDF do_channels(CharData * ch, char *argument)
                                    (victim->pcdata->listening,
                                     channel->name)) ? "Listening" : "");
         ch_printf(ch, "&BT&zells             &z[&w%9s&z]&D\n\r",
-                  !xIS_SET(victim->deaf, CHANNEL_TELLS) ? "Listening" : "");
+                  !xIS_SET(victim->deaf, ChannelTells) ? "Listening" : "");
         ch_printf(ch, "&BA&zuction           &z[&w%9s&z]&D\n\r",
-                  !xIS_SET(victim->deaf, CHANNEL_AUCTION) ? "Listening" : "");
-        if (IS_IMMORTAL(victim))
+                  !xIS_SET(victim->deaf, ChannelAuction) ? "Listening" : "");
+        if (IsImmortal(victim))
         {
                 ch_printf(ch, "&BL&zog               &z[&w%9s&z]&D\n\r",
                           !xIS_SET(victim->deaf,
-                                   CHANNEL_LOG) ? "Listening" : "");
+                                   ChannelLog) ? "Listening" : "");
                 ch_printf(ch, "&BB&zuild             &z[&w%9s&z]&D\n\r",
                           !xIS_SET(victim->deaf,
-                                   CHANNEL_BUILD) ? "Listening" : "");
+                                   ChannelBuild) ? "Listening" : "");
                 ch_printf(ch, "&BC&zomm              &z[&w%9s&z]&D\n\r",
                           !xIS_SET(victim->deaf,
-                                   CHANNEL_COMM) ? "Listening" : "");
+                                   ChannelComm) ? "Listening" : "");
         }
 
         return;
 }
 
-void add_channel_log(CharData * from, char *message, CHANNEL_DATA * channel)
+void add_channel_log(CharData * from, char *message, ChannelData * channel)
 {
         int       i;
 
@@ -1249,7 +1249,7 @@ void add_channel_log(CharData * from, char *message, CHANNEL_DATA * channel)
 
         if (channel->log == NULL)
         {
-                CREATE(channel->log, LOG_DATA, static_cast<size_t>(sysdata.channellog));
+                CREATE(channel->log, LogData, static_cast<size_t>(sysdata.channellog));
                 channel->logpos = -1;
         }
 
@@ -1281,7 +1281,7 @@ void add_channel_log(CharData * from, char *message, CHANNEL_DATA * channel)
         if (channel->log[channel->logpos].name)
                 STRFREE(channel->log[channel->logpos].name);
         channel->log[channel->logpos].name =
-                STRALLOC(IS_SET(from->act, PLR_WIZINVIS) ? immortal_visible_name : from->name);
+                STRALLOC(IsSet(from->act, PlrWizinvis) ? immortal_visible_name : from->name);
         if (channel->log[channel->logpos].message)
                 DISPOSE(channel->log[channel->logpos].message);
         channel->log[channel->logpos].message = str_dup(message);
@@ -1293,7 +1293,7 @@ CMDF do_history(CharData * ch, const char *argument)
 {
         int       count = 0;
         int       pos = 0;
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
         char      buf[MSL];
         char      chan[100];
 
@@ -1329,7 +1329,7 @@ CMDF do_history(CharData * ch, const char *argument)
                 buf[0] = '\0';
                 chan[0] = '\0';
 
-                if (channel->type != CHANNEL_OOC &&
+                if (channel->type != ChannelOoc &&
                     !knows_language(ch, channel->log[pos].language, ch))
                 {
                         snprintf(buf, MSL, "%s",
@@ -1339,7 +1339,7 @@ CMDF do_history(CharData * ch, const char *argument)
                 else
                 {
                         snprintf(buf, MSL, "%s", channel->log[pos].message);
-                        if (channel->type != CHANNEL_OOC)
+                        if (channel->type != ChannelOoc)
                                 snprintf(chan, 100, "(%s) ",
                                          channel->log[pos].language->name);
                 }
@@ -1384,10 +1384,10 @@ void send_social(CharData * from, CharData * to, char *argument)
 {
         if (argument[0] == '\0')
         {
-                act(AT_SOCIAL, social->others_no_arg, ch, NULL, victim,
-                    TO_ROOM);
-                act(AT_SOCIAL, social->char_no_arg, ch, NULL, victim,
-                    TO_CHAR);
+                act(AtSocial, social->others_no_arg, ch, NULL, victim,
+                    ToRoom);
+                act(AtSocial, social->char_no_arg, ch, NULL, victim,
+                    ToChar);
         }
         else if ((victim = get_char_room(ch, arg)) == NULL)
         {
@@ -1395,16 +1395,16 @@ void send_social(CharData * from, CharData * to, char *argument)
         }
         else if (victim == ch)
         {
-                act(AT_SOCIAL, social->others_auto, ch, NULL, victim,
-                    TO_ROOM);
-                act(AT_SOCIAL, social->char_auto, ch, NULL, victim, TO_CHAR);
+                act(AtSocial, social->others_auto, ch, NULL, victim,
+                    ToRoom);
+                act(AtSocial, social->char_auto, ch, NULL, victim, ToChar);
         }
         else
         {
-                act(AT_SOCIAL, social->others_found, ch, NULL, victim,
-                    TO_NOTVICT);
-                act(AT_SOCIAL, social->char_found, ch, NULL, victim, TO_CHAR);
-                act(AT_SOCIAL, social->vict_found, ch, NULL, victim, TO_VICT);
+                act(AtSocial, social->others_found, ch, NULL, victim,
+                    ToNotvict);
+                act(AtSocial, social->char_found, ch, NULL, victim, ToChar);
+                act(AtSocial, social->vict_found, ch, NULL, victim, ToVict);
         }
 }
 #endif

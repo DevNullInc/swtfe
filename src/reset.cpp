@@ -128,12 +128,12 @@ bool is_room_reset(ResetData * pReset, RoomIndexData * aRoom,
                         return TRUE;
                 return FALSE;
         case 'B':
-                switch (pReset->arg2 & BIT_RESET_TYPE_MASK)
+                switch (pReset->arg2 & BitResetTypeMask)
                 {
-                case BIT_RESET_DOOR:
-                case BIT_RESET_ROOM:
+                case BitResetDoor:
+                case BitResetRoom:
                         return (aRoom->vnum == pReset->arg1);
-                case BIT_RESET_MOBILE:
+                case BitResetMobile:
                         for (reset = pReset->prev; reset; reset = reset->prev)
                                 if (reset->command == 'M'
                                     && get_mob_index(reset->arg1))
@@ -141,7 +141,7 @@ bool is_room_reset(ResetData * pReset, RoomIndexData * aRoom,
                         if (reset && is_room_reset(reset, aRoom, pArea))
                                 return TRUE;
                         return FALSE;
-                case BIT_RESET_OBJECT:
+                case BitResetObject:
                         for (reset = pReset->prev; reset; reset = reset->prev)
                                 if ((reset->command == 'O'
                                      || reset->command == 'P'
@@ -204,7 +204,7 @@ RoomIndexData *find_room(CharData * ch, char *argument,
 }
 
 /* Separate function for recursive purposes */
-#define DEL_RESET(area, reset, rprev) \
+#define DelReset(area, reset, rprev) \
 do { \
   rprev = reset->prev; \
   delete_reset(area, reset); \
@@ -229,13 +229,13 @@ void delete_reset(AreaData * pArea, ResetData * pReset)
                          * Delete anything mob is holding 
                          */
                         if (reset->command == 'G' || reset->command == 'E')
-                                DEL_RESET(pArea, reset, reset_prev);
+                                DelReset(pArea, reset, reset_prev);
                         if (reset->command == 'B' &&
-                            (reset->arg2 & BIT_RESET_TYPE_MASK) ==
-                            BIT_RESET_MOBILE && (!reset->arg1
+                            (reset->arg2 & BitResetTypeMask) ==
+                            BitResetMobile && (!reset->arg1
                                                  || reset->arg1 ==
                                                  pReset->arg1))
-                                DEL_RESET(pArea, reset, reset_prev);
+                                DelReset(pArea, reset, reset_prev);
                 }
         }
         else if (pReset->command == 'O' || pReset->command == 'P' ||
@@ -245,10 +245,10 @@ void delete_reset(AreaData * pArea, ResetData * pReset)
                 {
                         if (reset->command == 'T' &&
                             (!reset->arg3 || reset->arg3 == pReset->arg1))
-                                DEL_RESET(pArea, reset, reset_prev);
+                                DelReset(pArea, reset, reset_prev);
                         if (reset->command == 'H' &&
                             (!reset->arg1 || reset->arg1 == pReset->arg1))
-                                DEL_RESET(pArea, reset, reset_prev);
+                                DelReset(pArea, reset, reset_prev);
                         /*
                          * Delete nested objects, even if they are the same object. 
                          */
@@ -257,13 +257,13 @@ void delete_reset(AreaData * pArea, ResetData * pReset)
                                                       || reset->extra - 1 ==
                                                       pReset->extra)
                             && (!reset->arg3 || reset->arg3 == pReset->arg1))
-                                DEL_RESET(pArea, reset, reset_prev);
+                                DelReset(pArea, reset, reset_prev);
                         if (reset->command == 'B' &&
-                            (reset->arg2 & BIT_RESET_TYPE_MASK) ==
-                            BIT_RESET_OBJECT && (!reset->arg1
+                            (reset->arg2 & BitResetTypeMask) ==
+                            BitResetObject && (!reset->arg1
                                                  || reset->arg1 ==
                                                  pReset->arg1))
-                                DEL_RESET(pArea, reset, reset_prev);
+                                DelReset(pArea, reset, reset_prev);
 
                         /*
                          * Break when a new object of same type is found 
@@ -283,7 +283,7 @@ void delete_reset(AreaData * pArea, ResetData * pReset)
         return;
 }
 
-#undef DEL_RESET
+#undef DelReset
 
 ResetData *find_oreset(CharData * ch, AreaData * pArea,
                         RoomIndexData * pRoom, char *name)
@@ -870,7 +870,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                 if (!str_cmp(oname, "room") && !isobj)
                 {
                         vnum = (aRoom ? aRoom->vnum : ch->in_room->vnum);
-                        extra = TRAP_ROOM;
+                        extra = TrapRoom;
                 }
                 else
                 {
@@ -885,7 +885,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                                         return;
                                 }
                                 reset = NULL;
-                                extra = TRAP_ROOM;
+                                extra = TrapRoom;
                         }
                         else
                         {
@@ -895,10 +895,10 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                                         return;
 /*        vnum = reset->arg1;*/
                                 vnum = 0;
-                                extra = TRAP_OBJ;
+                                extra = TrapObj;
                         }
                 }
-                if (num < 1 || num > MAX_TRAPTYPE)
+                if (num < 1 || num > MaxTraptype)
                 {
                         send_to_char("Reset: TRAP: invalid trap type\n\r",
                                      ch);
@@ -919,7 +919,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                                 send_to_char("Reset: TRAP: bad flag\n\r", ch);
                                 return;
                         }
-                        SET_BIT(extra, 1 << value);
+                        SetBit(extra, 1 << value);
                 }
                 pReset = make_reset('T', extra, num, chrg, vnum);
                 if (reset)
@@ -947,9 +947,9 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                 }
                 num = 0;
                 if (!str_prefix(option, "set"))
-                        SET_BIT(num, BIT_RESET_SET);
+                        SetBit(num, BitResetSet);
                 else if (!str_prefix(option, "toggle"))
-                        SET_BIT(num, BIT_RESET_TOGGLE);
+                        SetBit(num, BitResetToggle);
                 else if (str_prefix(option, "remove"))
                 {
                         send_to_char
@@ -969,7 +969,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                 }
                 if (!str_prefix(option, "door"))
                 {
-                        SET_BIT(num, BIT_RESET_DOOR);
+                        SetBit(num, BitResetDoor);
                         if (aRoom)
                         {
                                 pRoom = aRoom;
@@ -990,14 +990,14 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                                 return;
                         }
                         vnum = get_dir(arg);
-                        SET_BIT(num, vnum << BIT_RESET_DOOR_THRESHOLD);
+                        SetBit(num, vnum << BitResetDoorThreshold);
                         vnum = pRoom->vnum;
                         flfunc = &get_exflag;
                         reset = NULL;
                 }
                 else if (!str_prefix(option, "object"))
                 {
-                        SET_BIT(num, BIT_RESET_OBJECT);
+                        SetBit(num, BitResetObject);
                         vnum = 0;
                         flfunc = &get_oflag;
                         if (!(reset = find_oreset(ch, pArea, aRoom, arg)))
@@ -1005,7 +1005,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                 }
                 else if (!str_prefix(option, "mobile"))
                 {
-                        SET_BIT(num, BIT_RESET_MOBILE);
+                        SetBit(num, BitResetMobile);
                         vnum = 0;
                         flfunc = &get_aflag;
                         if (!(reset = find_mreset(ch, pArea, aRoom, arg)))
@@ -1013,7 +1013,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                 }
                 else if (!str_prefix(option, "room"))
                 {
-                        SET_BIT(num, BIT_RESET_ROOM);
+                        SetBit(num, BitResetRoom);
                         if (aRoom)
                         {
                                 pRoom = aRoom;
@@ -1048,7 +1048,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                                 send_to_char("Reset: BIT: bad flag\n\r", ch);
                                 return;
                         }
-                        SET_BIT(flags, 1 << value);
+                        SetBit(flags, 1 << value);
                 }
                 if (!flags)
                 {
@@ -1146,7 +1146,7 @@ CMDF do_reset(CharData * ch, char *argument)
                                 break;
                         }
                 if (!pArea)
-                        pArea = !IS_NPC(ch) ? ch->pcdata->
+                        pArea = !IsNpc(ch) ? ch->pcdata->
                                 area : ((ch->desc && ch->desc->original) ?
                                         ch->desc->original->pcdata->
                                         area : NULL);
@@ -1198,7 +1198,7 @@ void add_obj_reset(AreaData * pArea, char cm, ObjData * obj, int v2, int v3)
         static int iNest;
 
         if ((cm == 'O' || cm == 'P')
-            && obj->pIndexData->vnum == OBJ_VNUM_TRAP)
+            && obj->pIndexData->vnum == ObjVnumTrap)
         {
                 if (cm == 'O')
                         add_reset(pArea, 'T', obj->value[3], obj->value[1],
@@ -1211,11 +1211,11 @@ void add_obj_reset(AreaData * pArea, char cm, ObjData * obj, int v2, int v3)
          * Only add hide for in-room objects that are hidden and cant be moved, as
          * hide is an update reset, not a load-only reset. 
          */
-        if (cm == 'O' && IS_OBJ_STAT(obj, ITEM_HIDDEN) &&
-            !IS_SET(obj->wear_flags, ITEM_TAKE))
+        if (cm == 'O' && IsObjStat(obj, ItemHidden) &&
+            !IsSet(obj->wear_flags, ItemTake))
                 add_reset(pArea, 'H', 1, 0, 0, 0);
         for (inobj = obj->first_content; inobj; inobj = inobj->next_content)
-                if (inobj->pIndexData->vnum == OBJ_VNUM_TRAP)
+                if (inobj->pIndexData->vnum == ObjVnumTrap)
                         add_obj_reset(pArea, 'O', inobj, 0, 0);
         if (cm == 'P')
                 iNest++;
@@ -1233,13 +1233,13 @@ void instaroom(AreaData * pArea, RoomIndexData * pRoom, bool dodoors)
 
         for (rch = pRoom->first_person; rch; rch = rch->next_in_room)
         {
-                if (!IS_NPC(rch))
+                if (!IsNpc(rch))
                         continue;
                 add_reset(pArea, 'M', 1, rch->pIndexData->vnum,
                           rch->pIndexData->count, pRoom->vnum);
                 for (obj = rch->first_carrying; obj; obj = obj->next_content)
                 {
-                        if (obj->wear_loc == WEAR_NONE)
+                        if (obj->wear_loc == WearNone)
                                 add_obj_reset(pArea, 'G', obj, 1, 0);
                         else
                                 add_obj_reset(pArea, 'E', obj, 1,
@@ -1248,7 +1248,7 @@ void instaroom(AreaData * pArea, RoomIndexData * pRoom, bool dodoors)
         }
         for (obj = pRoom->first_content; obj; obj = obj->next_content)
         {
-                if (obj->item_type == ITEM_SPACECRAFT)
+                if (obj->item_type == ItemSpacecraft)
                         continue;
                 add_obj_reset(pArea, 'O', obj, 1, pRoom->vnum);
         }
@@ -1260,11 +1260,11 @@ void instaroom(AreaData * pArea, RoomIndexData * pRoom, bool dodoors)
                 {
                         int       state = 0;
 
-                        if (!IS_SET(pexit->exit_info, EX_ISDOOR))
+                        if (!IsSet(pexit->exit_info, ExIsdoor))
                                 continue;
-                        if (IS_SET(pexit->exit_info, EX_CLOSED))
+                        if (IsSet(pexit->exit_info, ExClosed))
                         {
-                                if (IS_SET(pexit->exit_info, EX_LOCKED))
+                                if (IsSet(pexit->exit_info, ExLocked))
                                         state = 2;
                                 else
                                         state = 1;
@@ -1307,7 +1307,7 @@ CMDF do_instaroom(CharData * ch, char *argument)
         bool      dodoors;
         char      arg[MaxInputLength];
 
-        if (IS_NPC(ch) || get_trust(ch) < LevelSavior || !ch->pcdata ||
+        if (IsNpc(ch) || get_trust(ch) < LevelSavior || !ch->pcdata ||
             !ch->pcdata->area)
         {
                 send_to_char
@@ -1346,7 +1346,7 @@ CMDF do_instazone(CharData * ch, char *argument)
         RoomIndexData *pRoom;
         bool      dodoors;
 
-        if (IS_NPC(ch) || get_trust(ch) < LevelSavior || !ch->pcdata ||
+        if (IsNpc(ch) || get_trust(ch) < LevelSavior || !ch->pcdata ||
             !ch->pcdata->area)
         {
                 send_to_char
@@ -1385,19 +1385,19 @@ int generate_itemlevel(AreaData * pArea, ObjIndexData * pObjIndex)
                 default:
                         olevel = 0;
                         break;
-                case ITEM_PILL:
+                case ItemPill:
                         olevel = number_range(min, max);
                         break;
-                case ITEM_POTION:
+                case ItemPotion:
                         olevel = number_range(min, max);
                         break;
-                case ITEM_DEVICE:
+                case ItemDevice:
                         olevel = number_range(min, max);
                         break;
-                case ITEM_ARMOR:
+                case ItemArmor:
                         olevel = number_range(min + 4, max + 1);
                         break;
-                case ITEM_WEAPON:
+                case ItemWeapon:
                         olevel = number_range(min + 4, max + 1);
                         break;
                 }
@@ -1422,7 +1422,7 @@ void reset_area(AreaData * pArea)
         int       level = 0;
         int      *plc = NULL;
         ExtBV   *xplc;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
 
         if (!pArea)
         {
@@ -1472,15 +1472,15 @@ void reset_area(AreaData * pArea)
 
                                 if (pRoomPrev
                                     && xIS_SET(pRoomPrev->RoomFlags,
-                                               ROOM_PET_SHOP))
-                                        SET_BIT(mob->act, ACT_PET);
+                                               RoomPetShop))
+                                        SetBit(mob->act, ActPet);
                         }
                         if (room_is_dark(pRoomIndex))
-                                SET_BIT(mob->affected_by, AFF_INFRARED);
+                                SetBit(mob->affected_by, AffInfrared);
                         char_to_room(mob, pRoomIndex);
                         economize_mobgold(mob);
                         level = URANGE(0, mob->top_level - 2, LevelAvatar);
-                        if (IS_SET(mob->act, ACT_CITIZEN) && pArea->planet)
+                        if (IsSet(mob->act, ActCitizen) && pArea->planet)
                                 pArea->planet->population++;
                         if ((installation =
                              installation_from_room(mob->in_room->vnum)) !=
@@ -1505,7 +1505,7 @@ void reset_area(AreaData * pArea)
                                 int       olevel =
                                         generate_itemlevel(pArea, pObjIndex);
                                 obj = create_object(pObjIndex, olevel);
-                                SET_BIT(obj->extra_flags, ITEM_INVENTORY);
+                                SetBit(obj->extra_flags, ItemInventory);
                         }
                         else
                                 obj = create_object(pObjIndex,
@@ -1608,7 +1608,7 @@ void reset_area(AreaData * pArea)
                         break;
 
                 case 'T':
-                        if (IS_SET(pReset->extra, TRAP_OBJ))
+                        if (IsSet(pReset->extra, TrapObj))
                         {
                                 /*
                                  * We need to preserve obj for future 'T' and 'H' checks 
@@ -1628,7 +1628,7 @@ void reset_area(AreaData * pArea)
                                             !(to_obj =
                                               get_obj_type(pObjToIndex))
                                             || (to_obj->carried_by
-                                                && !IS_NPC(to_obj->
+                                                && !IsNpc(to_obj->
                                                            carried_by))
                                             || is_trapped(to_obj))
                                                 break;
@@ -1656,7 +1656,7 @@ void reset_area(AreaData * pArea)
                                 }
                                 if (pArea->nplayer > 0 ||
                                     count_obj_list(get_obj_index
-                                                   (OBJ_VNUM_TRAP),
+                                                   (ObjVnumTrap),
                                                    pRoomIndex->
                                                    first_content) > 0)
                                         break;
@@ -1680,7 +1680,7 @@ void reset_area(AreaData * pArea)
                                     !(to_obj = get_obj_type(pObjToIndex)) ||
                                     !to_obj->in_room ||
                                     to_obj->in_room->area != pArea ||
-                                    IS_OBJ_STAT(to_obj, ITEM_HIDDEN))
+                                    IsObjStat(to_obj, ItemHidden))
                                         break;
                         }
                         else
@@ -1689,13 +1689,13 @@ void reset_area(AreaData * pArea)
                                         break;
                                 to_obj = obj;
                         }
-                        SET_BIT(to_obj->extra_flags, ITEM_HIDDEN);
+                        SetBit(to_obj->extra_flags, ItemHidden);
                         break;
 
                 case 'B':
-                        switch (pReset->arg2 & BIT_RESET_TYPE_MASK)
+                        switch (pReset->arg2 & BitResetTypeMask)
                         {
-                        case BIT_RESET_DOOR:
+                        case BitResetDoor:
                                 {
                                         int       doornum;
 
@@ -1708,8 +1708,8 @@ void reset_area(AreaData * pArea)
                                         }
                                         doornum =
                                                 (pReset->
-                                                 arg2 & BIT_RESET_DOOR_MASK)
-                                                >> BIT_RESET_DOOR_THRESHOLD;
+                                                 arg2 & BitResetDoorMask)
+                                                >> BitResetDoorThreshold;
                                         if (!
                                             (pexit =
                                              get_exit(pRoomIndex, doornum)))
@@ -1717,7 +1717,7 @@ void reset_area(AreaData * pArea)
                                         plc = &pexit->exit_info;
                                 }
                                 break;
-                        case BIT_RESET_ROOM:
+                        case BitResetRoom:
                                 if (!
                                     (pRoomIndex =
                                      get_room_index(pReset->arg1)))
@@ -1727,7 +1727,7 @@ void reset_area(AreaData * pArea)
                                 }
                                 xplc = &pRoomIndex->RoomFlags;
                                 break;
-                        case BIT_RESET_OBJECT:
+                        case BitResetObject:
                                 if (pReset->arg1 > 0)
                                 {
                                         if (!
@@ -1752,7 +1752,7 @@ void reset_area(AreaData * pArea)
                                 }
                                 plc = &to_obj->extra_flags;
                                 break;
-                        case BIT_RESET_MOBILE:
+                        case BitResetMobile:
                                 if (!mob)
                                         continue;
                                 plc = &mob->affected_by;
@@ -1762,12 +1762,12 @@ void reset_area(AreaData * pArea)
                                     pReset->arg2);
                                 continue;
                         }
-                        if (IS_SET(pReset->arg2, BIT_RESET_SET))
-                                SET_BIT(*plc, pReset->arg3);
-                        else if (IS_SET(pReset->arg2, BIT_RESET_TOGGLE))
-                                TOGGLE_BIT(*plc, pReset->arg3);
+                        if (IsSet(pReset->arg2, BitResetSet))
+                                SetBit(*plc, pReset->arg3);
+                        else if (IsSet(pReset->arg2, BitResetToggle))
+                                ToggleBit(*plc, pReset->arg3);
                         else
-                                REMOVE_BIT(*plc, pReset->arg3);
+                                RemoveBit(*plc, pReset->arg3);
                         break;
 
                 case 'D':
@@ -1782,20 +1782,20 @@ void reset_area(AreaData * pArea)
                         switch (pReset->arg3)
                         {
                         case 0:
-                                REMOVE_BIT(pexit->exit_info, EX_CLOSED);
-                                REMOVE_BIT(pexit->exit_info, EX_LOCKED);
+                                RemoveBit(pexit->exit_info, ExClosed);
+                                RemoveBit(pexit->exit_info, ExLocked);
                                 break;
                         case 1:
-                                SET_BIT(pexit->exit_info, EX_CLOSED);
-                                REMOVE_BIT(pexit->exit_info, EX_LOCKED);
-                                if (IS_SET(pexit->exit_info, EX_xSEARCHABLE))
-                                        SET_BIT(pexit->exit_info, EX_SECRET);
+                                SetBit(pexit->exit_info, ExClosed);
+                                RemoveBit(pexit->exit_info, ExLocked);
+                                if (IsSet(pexit->exit_info, EX_xSEARCHABLE))
+                                        SetBit(pexit->exit_info, ExSecret);
                                 break;
                         case 2:
-                                SET_BIT(pexit->exit_info, EX_CLOSED);
-                                SET_BIT(pexit->exit_info, EX_LOCKED);
-                                if (IS_SET(pexit->exit_info, EX_xSEARCHABLE))
-                                        SET_BIT(pexit->exit_info, EX_SECRET);
+                                SetBit(pexit->exit_info, ExClosed);
+                                SetBit(pexit->exit_info, ExLocked);
+                                if (IsSet(pexit->exit_info, EX_xSEARCHABLE))
+                                        SetBit(pexit->exit_info, ExSecret);
                                 break;
                         }
                         break;
@@ -1868,7 +1868,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                         if (!room)
                                 mob = NULL;
                         if ((room = get_room_index(pReset->arg3 - 1)) &&
-                            xIS_SET(room->RoomFlags, ROOM_PET_SHOP))
+                            xIS_SET(room->RoomFlags, RoomPetShop))
                                 mudstrlcat(buf, " (pet)\n\r", 256);
                         else
                                 mudstrlcat(buf, "\n\r", 256);
@@ -1884,7 +1884,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                         snprintf(pbuf, MSL, "%s (%d) -> %s (%s) [%d]", oname,
                                  pReset->arg1, mname,
                                  (pReset->command ==
-                                  'G' ? "carry" : wear_locs[URANGE(0,pReset->arg3,MAX_WEAR)]),
+                                  'G' ? "carry" : wear_locs[URANGE(0,pReset->arg3,MaxWear)]),
                                  pReset->arg2);
                         if (mob && mob->pShop)
                                 mudstrlcat(buf, " (shop)\n\r", 256);
@@ -1991,13 +1991,13 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
 
                                 mudstrlcpy(pbuf, "BIT: ", MSL);
                                 pbuf += 5;
-                                if (IS_SET(pReset->arg2, BIT_RESET_SET))
+                                if (IsSet(pReset->arg2, BitResetSet))
                                 {
                                         mudstrlcpy(pbuf, "Set: ", 251);
                                         pbuf += 5;
                                 }
-                                else if (IS_SET
-                                         (pReset->arg2, BIT_RESET_TOGGLE))
+                                else if (IsSet
+                                         (pReset->arg2, BitResetToggle))
                                 {
                                         mudstrlcpy(pbuf, "Toggle: ", 251);
                                         pbuf += 8;
@@ -2007,9 +2007,9 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                         mudstrlcpy(pbuf, "Remove: ", 251);
                                         pbuf += 8;
                                 }
-                                switch (pReset->arg2 & BIT_RESET_TYPE_MASK)
+                                switch (pReset->arg2 & BitResetTypeMask)
                                 {
-                                case BIT_RESET_DOOR:
+                                case BitResetDoor:
                                         {
                                                 int       door;
 
@@ -2022,11 +2022,11 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                                         rname = room->name;
                                                 door = (pReset->
                                                         arg2 &
-                                                        BIT_RESET_DOOR_MASK)
+                                                        BitResetDoorMask)
                                                         >>
-                                                        BIT_RESET_DOOR_THRESHOLD;
+                                                        BitResetDoorThreshold;
                                                 door = URANGE(0, door,
-                                                              MAX_DIR + 1);
+                                                              MaxDir + 1);
                                                 snprintf(pbuf, MSL,
                                                          "Exit %s%s (%d), Room %s (%d)",
                                                          dir_name[door], (room
@@ -2042,7 +2042,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                         }
                                         flagarray = ex_flags;
                                         break;
-                                case BIT_RESET_ROOM:
+                                case BitResetRoom:
                                         if (!
                                             (room =
                                              get_room_index(pReset->arg1)))
@@ -2053,7 +2053,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                                  rname, pReset->arg1);
                                         flagarray = r_flags;
                                         break;
-                                case BIT_RESET_OBJECT:
+                                case BitResetObject:
                                         if (pReset->arg1 > 0)
                                                 if (!
                                                     (obj2 =
@@ -2074,7 +2074,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                                   vnum : 0));
                                         flagarray = o_flags;
                                         break;
-                                case BIT_RESET_MOBILE:
+                                case BitResetMobile:
                                         if (pReset->arg1 > 0)
                                         {
                                                 MobIndexData *mob2;
@@ -2103,7 +2103,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                 default:
                                         snprintf(pbuf, MSL, "bad type %d",
                                                  pReset->
-                                                 arg2 & BIT_RESET_TYPE_MASK);
+                                                 arg2 & BitResetTypeMask);
                                         flagarray = NULL;
                                         break;
                                 }
@@ -2124,7 +2124,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                 char     *ef_name;
 
                                 pReset->arg2 =
-                                        URANGE(0, pReset->arg2, MAX_DIR + 1);
+                                        URANGE(0, pReset->arg2, MaxDir + 1);
                                 if (!(room = get_room_index(pReset->arg1)))
                                         rname = "Room: *BAD VNUM*";
                                 else
@@ -2260,7 +2260,7 @@ ResetData *add_reset(AreaData * tarea, char letter, int extra, int arg1,
                 tarea->last_obj_reset = pReset;
                 break;
         case 'T':
-                if (IS_SET(extra, TRAP_OBJ) && arg1 == 0)
+                if (IsSet(extra, TrapObj) && arg1 == 0)
                         tarea->last_obj_reset = pReset;
                 break;
         }
@@ -2441,7 +2441,7 @@ ResetData *place_reset(AreaData * tarea, char letter, int extra, int arg1,
                          * find the object in question 
                          */
                         if (((letter == 'P' && arg3 == 0)
-                             || (letter == 'T' && IS_SET(extra, TRAP_OBJ)
+                             || (letter == 'T' && IsSet(extra, TrapObj)
                                  && arg1 == 0) || (letter == 'H'
                                                    && arg1 == 0))
                             && (tmp = tarea->last_obj_reset) != NULL)

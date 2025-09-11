@@ -99,9 +99,9 @@ char     *full_color args((char *str));
 CMDF do_gold(CharData * ch, char *argument)
 {
         argument = NULL;
-        set_char_color(AT_GOLD, ch);
+        set_char_color(AtGold, ch);
         ch_printf(ch, "You have %s", num_punct_long(ch->gold));
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("\n\r", ch);
                 return;
@@ -123,7 +123,7 @@ CMDF do_score(CharData * ch, char *argument)
          */
         ClanData *clan;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 do_oldscore(ch, argument);
                 return;
@@ -147,23 +147,23 @@ CMDF do_score(CharData * ch, char *argument)
         if (ch->pcdata->spouse && ch->pcdata->spouse[0] != '\0')
                 pager_printf(ch,
                              "&B|| H&zitroll:&w%-2.2d                       &BS&zpouse:&w   %-23.23s  &B||\n\r",
-                             GET_HITROLL(ch), ch->pcdata->spouse);
+                             GetHitroll(ch), ch->pcdata->spouse);
         else
                 pager_printf(ch, "&B|| H&zitroll:&w%-60.2d&B||\n\r",
-                             GET_HITROLL(ch),
+                             GetHitroll(ch),
                              ch->
                              save_time ? ctime(&(ch->save_time)) : "no\n");
 
         pager_printf(ch,
                      "&B|| D&zamroll:&w%-2.2d                       &BM&zarital &BS&ztatus:&w  %-18.18s&B||\n\r",
-                     GET_DAMROLL(ch),
+                     GetDamroll(ch),
                      ch->pcdata->spouse[0] !=
-                     '\0' ? (IS_SET(ch->pcdata->flags, PCFLAG_MARRIED) ?
+                     '\0' ? (IsSet(ch->pcdata->flags, PcflagMarried) ?
                              "Married" : "Engaged") : "Single ");
 
         pager_printf(ch,
                      "&B|| A&zrmor:  &w%-5d                    &BH&zit &BP&zoints:&w  %-5d &zof &w%-13d&B||\n\r",
-                     GET_AC(ch), ch->hit, ch->max_hit);
+                     GetAc(ch), ch->hit, ch->max_hit);
 
         pager_printf(ch,
                      "&B|| A&zlign:  &w%-5d                    &BE&zndurance:&w   %-5d &zof &w%-13d&B||\n\r",
@@ -198,7 +198,7 @@ CMDF do_score(CharData * ch, char *argument)
                              get_curr_str(ch), get_curr_dex(ch),
                              get_curr_con(ch), get_curr_int(ch),
                              get_curr_wis(ch), get_curr_cha(ch));
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
                 birth_date(ch);
         send_to_pager
                 ("&B||---------------------------------------------------------------------||\n\r",
@@ -210,10 +210,10 @@ CMDF do_score(CharData * ch, char *argument)
                 int       ability;
 
                 for (ability = 0; ability < MaxAbility; ability++)
-                        if ((ability == FORCE_ABILITY
-                             && ch->skill_level[FORCE_ABILITY] > 1)
+                        if ((ability == ForceAbility
+                             && ch->skill_level[ForceAbility] > 1)
                             || (get_trust(ch) >= 5
-                                && ability != FORCE_ABILITY))
+                                && ability != ForceAbility))
                                 ch_printf(ch,
                                           "&B|| &w%-15s &BL&zevel: &w%-3d &BM&zax: &w%-3d &BE&zxp: &w%-10ld &BN&zext: &w%-10ld&B||\n\r",
                                           capitalize(ability_name[ability]),
@@ -249,50 +249,50 @@ CMDF do_score(CharData * ch, char *argument)
 
         pager_printf(ch,
                      "&B|| P&zager: &B(&w%c&B) %5.5d   &BA&zutoExit&B(&w%c&B)  &BA&zutoLoot&B(&w%c&B)                         &B||\n\r",
-                     IS_SET(ch->pcdata->flags, PCFLAG_PAGERON) ? 'X' : ' ',
-                     ch->pcdata->pagerlen, IS_SET(ch->act,
-                                                  PLR_AUTOEXIT) ? 'X' : ' ',
-                     IS_SET(ch->act, PLR_AUTOLOOT) ? 'X' : ' ');
+                     IsSet(ch->pcdata->flags, PcflagPageron) ? 'X' : ' ',
+                     ch->pcdata->pagerlen, IsSet(ch->act,
+                                                  PlrAutoexit) ? 'X' : ' ',
+                     IsSet(ch->act, PlrAutoloot) ? 'X' : ' ');
 
         switch (ch->position)
         {
-        case POS_DEAD:
+        case PosDead:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wslowly decomposing.                                         &B||\n\r");
                 break;
-        case POS_MORTAL:
+        case PosMortal:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wmortally wounded.                                           &B||\n\r");
                 break;
-        case POS_INCAP:
+        case PosIncap:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wincapacitated.                                              &B||\n\r");
                 break;
-        case POS_STUNNED:
+        case PosStunned:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wstunned.                                                    &B||\n\r");
                 break;
-        case POS_SLEEPING:
+        case PosSleeping:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wsleeping.                                                   &B||\n\r");
                 break;
-        case POS_RESTING:
+        case PosResting:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wresting.                                                    &B||\n\r");
                 break;
-        case POS_STANDING:
+        case PosStanding:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wstanding.                                                   &B||\n\r");
                 break;
-        case POS_FIGHTING:
+        case PosFighting:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wfighting.                                                   &B||\n\r");
                 break;
-        case POS_MOUNTED:
+        case PosMounted:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wmounted.                                                    &B||\n\r");
                 break;
-        case POS_SITTING:
+        case PosSitting:
                 snprintf(buf, MSL,
                          "&B|| &BY&zou are &wsitting.                                                    &B||\n\r");
                 break;
@@ -300,43 +300,43 @@ CMDF do_score(CharData * ch, char *argument)
 
         send_to_pager(buf, ch);
 
-        if (!IS_NPC(ch) && ch->pcdata->condition[COND_DRUNK] > 10)
+        if (!IsNpc(ch) && ch->pcdata->condition[CondDrunk] > 10)
                 send_to_pager
                         ("&B|| &BY&zou are &wdrunk.                                                      &B||\n\r",
                          ch);
-        if (!IS_NPC(ch) && ch->pcdata->condition[COND_THIRST] == 0)
+        if (!IsNpc(ch) && ch->pcdata->condition[CondThirst] == 0)
                 send_to_pager
                         ("&B|| &BY&zou are in danger of &wdehydrating.                                   &B||\n\r",
                          ch);
-        if (!IS_NPC(ch) && ch->pcdata->condition[COND_FULL] == 0)
+        if (!IsNpc(ch) && ch->pcdata->condition[CondFull] == 0)
                 send_to_pager
                         ("&B|| &BY&zou are starving to &wdeath.                                          &B||\n\r",
                          ch);
-        if (!IS_NPC(ch) && ch->pcdata->illness > (0)
+        if (!IsNpc(ch) && ch->pcdata->illness > (0)
             && ch->pcdata->illness <= (4))
                 send_to_pager
                         ("&B|| &BY&zou feel &wa little bit sick.                                           &B||\n\r",
                          ch);
-        if (!IS_NPC(ch) && ch->pcdata->illness >= (5)
+        if (!IsNpc(ch) && ch->pcdata->illness >= (5)
             && ch->pcdata->illness <= (7))
                 send_to_pager
                         ("&B|| &BY&zou feel &wquite sick and queesey.                                      &B||\n\r",
                          ch);
-        if (!IS_NPC(ch) && ch->pcdata->illness >= (8)
+        if (!IsNpc(ch) && ch->pcdata->illness >= (8)
             && ch->pcdata->illness <= (10))
                 send_to_pager
                         ("&B|| &BY&zou feel &wweak.                                                        &B||\n\r",
                          ch);
-        if (!IS_NPC(ch) && ch->pcdata->illness >= (11)
+        if (!IsNpc(ch) && ch->pcdata->illness >= (11)
             && ch->pcdata->illness <= (12))
                 send_to_pager
                         ("&B|| &BY&zou feel &wvery ill.                                                    &B||\n\r",
                          ch);
-        if (!IS_NPC(ch) && ch->pcdata->illness == (13))
+        if (!IsNpc(ch) && ch->pcdata->illness == (13))
                 send_to_pager
                         ("&B|| &BY&zou feel &wvery depressed.                                              &B||\n\r",
                          ch);
-        if (!IS_NPC(ch) && ch->pcdata->illness >= (14)
+        if (!IsNpc(ch) && ch->pcdata->illness >= (14)
             && ch->pcdata->illness <= (15))
                 send_to_pager
                         ("&B|| &BY&zou feel &wextremely sick.                                              &B||\n\r",
@@ -347,7 +347,7 @@ CMDF do_score(CharData * ch, char *argument)
          */
         if (ch->pcdata->first_wanted)
         {
-                WANTED_DATA *wanted = NULL;
+                WantedData *wanted = NULL;
 
                 mudstrlcpy(buf, "", MSL);
                 for (wanted = ch->pcdata->first_wanted; wanted;
@@ -386,7 +386,7 @@ CMDF do_score(CharData * ch, char *argument)
                                      ch->pcdata->clan->rank[ch->pcdata->
                                                             clanrank]);
         }
-        if (IS_IMMORTAL(ch))
+        if (IsImmortal(ch))
         {
                 send_to_pager
                         ("&B||---------------------------------------------------------------------||\n\r",
@@ -396,7 +396,7 @@ CMDF do_score(CharData * ch, char *argument)
                          ch);
                 pager_printf(ch,
                              "&B|| I&zMMORTAL DATA:  &BW&zizinvis &B[&w%s&B]  W&zizlevel &B(&w%-3d&B)                        ||\n\r",
-                             IS_SET(ch->act, PLR_WIZINVIS) ? "X" : " ",
+                             IsSet(ch->act, PlrWizinvis) ? "X" : " ",
                              ch->pcdata->wizinvis);
 
                 pager_printf(ch, "&B|| B&zamfin:&w  %58.58s &B||\n\r",
@@ -425,9 +425,9 @@ CMDF do_score(CharData * ch, char *argument)
                                      ch->pcdata->area->hi_m_vnum);
                         pager_printf(ch,
                                      "&B|| A&zrea Loaded &B[&w%-3s&B]                                                   &B||\n\r",
-                                     (IS_SET
+                                     (IsSet
                                       (ch->pcdata->area->status,
-                                       AREA_LOADED)) ? "yes" : "no");
+                                       AreaLoaded)) ? "yes" : "no");
                 }
         }
         send_to_pager
@@ -469,7 +469,7 @@ CMDF do_immscore(CharData * ch, char *argument)
                 send_to_char("&RNo such person&W\n\r", ch);
                 return;
         }
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("&RNot on NPC's&W\n\r", ch);
                 return;
@@ -494,21 +494,21 @@ CMDF do_immscore(CharData * ch, char *argument)
         if (victim->pcdata->spouse && victim->pcdata->spouse[0] != '\0')
                 ch_printf(ch,
                           "&B|| H&zitroll:&w%-2.2d                       &BS&zpouse:&w   %-23.23s  &B||\n\r",
-                          GET_HITROLL(victim), victim->pcdata->spouse);
+                          GetHitroll(victim), victim->pcdata->spouse);
         else
                 ch_printf(ch, "&B|| H&zitroll:&w%-60.2d&B||\n\r",
-                          GET_HITROLL(victim),
+                          GetHitroll(victim),
                           victim->
                           save_time ? ctime(&(victim->save_time)) : "no\n");
 
         ch_printf(ch,
                   "&B|| D&zamroll:&w%-2.2d                       &BM&zarital &BS&ztatus:&w  %-18.18s&B||\n\r",
-                  GET_DAMROLL(victim),
+                  GetDamroll(victim),
                   victim->pcdata->spouse[0] != '\0' ? "Married" : "Single ");
 
         ch_printf(ch,
                   "&B|| A&zrmor:  &w%-5d                    &BH&zit &BP&zoints:&w  %-5d &zof &w%-13d&B||\n\r",
-                  GET_AC(victim), victim->hit, victim->max_hit);
+                  GetAc(victim), victim->hit, victim->max_hit);
 
         ch_printf(ch,
                   "&B|| A&zlign:  &w%-5d                    &BE&zndurance:&w   %-5d &zof &w%-13d&B||\n\r",
@@ -578,50 +578,50 @@ CMDF do_immscore(CharData * ch, char *argument)
 
         ch_printf(ch,
                   "&B|| P&zager: &B(&w%c&B) %5.5d   &BA&zutoExit&B(&w%c&B)  &BA&zutoLoot&B(&w%c&B)                         &B||\n\r",
-                  IS_SET(victim->pcdata->flags, PCFLAG_PAGERON) ? 'X' : ' ',
-                  victim->pcdata->pagerlen, IS_SET(victim->act,
-                                                   PLR_AUTOEXIT) ? 'X' : ' ',
-                  IS_SET(victim->act, PLR_AUTOLOOT) ? 'X' : ' ');
+                  IsSet(victim->pcdata->flags, PcflagPageron) ? 'X' : ' ',
+                  victim->pcdata->pagerlen, IsSet(victim->act,
+                                                   PlrAutoexit) ? 'X' : ' ',
+                  IsSet(victim->act, PlrAutoloot) ? 'X' : ' ');
 
         switch (victim->position)
         {
-        case POS_DEAD:
+        case PosDead:
                 snprintf(buf, MSL,
                          "&B|| &wYou are slowly decomposing.                                         &B||\n\r");
                 break;
-        case POS_MORTAL:
+        case PosMortal:
                 snprintf(buf, MSL,
                          "&B|| &wYou are mortally wounded.                                           &B||\n\r");
                 break;
-        case POS_INCAP:
+        case PosIncap:
                 snprintf(buf, MSL,
                          "&B|| &wYou are incapacitated.                                              &B||\n\r");
                 break;
-        case POS_STUNNED:
+        case PosStunned:
                 snprintf(buf, MSL,
                          "&B|| &wYou are stunned.                                                    &B||\n\r");
                 break;
-        case POS_SLEEPING:
+        case PosSleeping:
                 snprintf(buf, MSL,
                          "&B|| &wYou are sleeping.                                                   &B||\n\r");
                 break;
-        case POS_RESTING:
+        case PosResting:
                 snprintf(buf, MSL,
                          "&B|| &wYou are resting.                                                    &B||\n\r");
                 break;
-        case POS_STANDING:
+        case PosStanding:
                 snprintf(buf, MSL,
                          "&B|| &wYou are standing.                                                   &B||\n\r");
                 break;
-        case POS_FIGHTING:
+        case PosFighting:
                 snprintf(buf, MSL,
                          "&B|| &wYou are fighting.                                                   &B||\n\r");
                 break;
-        case POS_MOUNTED:
+        case PosMounted:
                 snprintf(buf, MSL,
                          "&B|| &wYou are mounted.                                                    &B||\n\r");
                 break;
-        case POS_SITTING:
+        case PosSitting:
                 snprintf(buf, MSL,
                          "&B|| &wYou are sitting.                                                    &B||\n\r");
                 break;
@@ -629,15 +629,15 @@ CMDF do_immscore(CharData * ch, char *argument)
 
         send_to_char(buf, ch);
 
-        if (!IS_NPC(victim) && victim->pcdata->condition[COND_DRUNK] > 10)
+        if (!IsNpc(victim) && victim->pcdata->condition[CondDrunk] > 10)
                 send_to_char
                         ("&B|| &wYou are &zdrunk.                                                      &B||\n\r",
                          ch);
-        if (!IS_NPC(victim) && victim->pcdata->condition[COND_THIRST] == 0)
+        if (!IsNpc(victim) && victim->pcdata->condition[CondThirst] == 0)
                 send_to_char
                         ("&B|| &wYou are in danger of &zdehydrating.                                   &B||\n\r",
                          ch);
-        if (!IS_NPC(victim) && victim->pcdata->condition[COND_FULL] == 0)
+        if (!IsNpc(victim) && victim->pcdata->condition[CondFull] == 0)
                 send_to_char
                         ("&B|| &wYou are starving to &zdeath.                                          &B||\n\r",
                          ch);
@@ -647,7 +647,7 @@ CMDF do_immscore(CharData * ch, char *argument)
          */
         if (victim->pcdata->first_wanted)
         {
-                WANTED_DATA *wanted = NULL;
+                WantedData *wanted = NULL;
 
                 mudstrlcpy(buf, "", MSL);
                 for (wanted = victim->pcdata->first_wanted; wanted;
@@ -688,7 +688,7 @@ CMDF do_immscore(CharData * ch, char *argument)
                                   victim->pcdata->clan->rank[victim->pcdata->
                                                              clanrank]);
         }
-        if (IS_IMMORTAL(victim))
+        if (IsImmortal(victim))
         {
                 send_to_char
                         ("&B||---------------------------------------------------------------------||\n\r",
@@ -698,7 +698,7 @@ CMDF do_immscore(CharData * ch, char *argument)
                          ch);
                 ch_printf(ch,
                           "&B|| I&zMMORTAL DATA:  &BW&zizinvis &B[&w%s&B]  W&zizlevel &B(&w%-3d&B)                        ||\n\r",
-                          IS_SET(victim->act, PLR_WIZINVIS) ? "X" : " ",
+                          IsSet(victim->act, PlrWizinvis) ? "X" : " ",
                           victim->pcdata->wizinvis);
 
                 ch_printf(ch, "&B|| B&zamfin:&w  %58.58s &B||\n\r",
@@ -727,9 +727,9 @@ CMDF do_immscore(CharData * ch, char *argument)
                                   victim->pcdata->area->hi_m_vnum);
                         ch_printf(ch,
                                   "&B|| A&zrea Loaded &B[&w%-3s&B]                                                   &B||\n\r",
-                                  (IS_SET
+                                  (IsSet
                                    (victim->pcdata->area->status,
-                                    AREA_LOADED)) ? "yes" : "no");
+                                    AreaLoaded)) ? "yes" : "no");
                 }
         }
         send_to_char
@@ -741,7 +741,7 @@ CMDF do_immscore(CharData * ch, char *argument)
                 SkillType *skill;
                 char     *affname;
 
-                set_pager_color(AT_BLUE, ch);
+                set_pager_color(AtBlue, ch);
 
                 for (paf = ch->first_affect; paf; paf = paf->next)
                 {
@@ -749,7 +749,7 @@ CMDF do_immscore(CharData * ch, char *argument)
                         {
                                 if (((count++) % 2) == 0)
                                         send_to_pager("&B||", ch);
-                                set_pager_color(AT_SCORE, ch);
+                                set_pager_color(AtScore, ch);
                                 pager_printf(ch, "  &B%c&z%-9.9s ",
                                              UPPER(skill->name[0]),
                                              (skill->name + 1));
@@ -809,137 +809,137 @@ char     *tiny_affect_loc_name(int location)
 {
         switch (location)
         {
-        case APPLY_NONE:
+        case ApplyNone:
                 return "NIL";
-        case APPLY_STR:
+        case ApplyStr:
                 return "STR";
-        case APPLY_DEX:
+        case ApplyDex:
                 return "DEX";
-        case APPLY_INT:
+        case ApplyInt:
                 return "INT";
-        case APPLY_WIS:
+        case ApplyWis:
                 return "WIS";
-        case APPLY_CON:
+        case ApplyCon:
                 return "CON";
-        case APPLY_CHA:
+        case ApplyCha:
                 return "CHA";
-        case APPLY_LCK:
+        case ApplyLck:
                 return "LCK";
-        case APPLY_SEX:
+        case ApplySex:
                 return "SEX";
-        case APPLY_LEVEL:
+        case ApplyLevel:
                 return "LVL";
-        case APPLY_AGE:
+        case ApplyAge:
                 return "AGE";
-        case APPLY_MANA:
+        case ApplyMana:
                 return "ENDUR";
-        case APPLY_HIT:
+        case ApplyHit:
                 return "HIT";
-        case APPLY_MOVE:
+        case ApplyMove:
                 return "ENDUR";
-        case APPLY_GOLD:
+        case ApplyGold:
                 return "GOLD";
-        case APPLY_EXP:
+        case ApplyExp:
                 return "EXP";
-        case APPLY_AC:
+        case ApplyAc:
                 return " AC";
-        case APPLY_HITROLL:
+        case ApplyHitroll:
                 return " HITRL";
-        case APPLY_DAMROLL:
+        case ApplyDamroll:
                 return "DAMRL";
-        case APPLY_SAVING_POISON:
+        case ApplySavingPoison:
                 return "SV POI";
-        case APPLY_SAVING_ROD:
+        case ApplySavingRod:
                 return "SV ROD";
-        case APPLY_SAVING_PARA:
+        case ApplySavingPara:
                 return "SV PARA";
-        case APPLY_SAVING_BREATH:
+        case ApplySavingBreath:
                 return "SV BRTH";
-        case APPLY_SAVING_SPELL:
+        case ApplySavingSpell:
                 return "SV SPLL";
-        case APPLY_HEIGHT:
+        case ApplyHeight:
                 return "HEIGHT";
-        case APPLY_WEIGHT:
+        case ApplyWeight:
                 return "WEIGHT";
-        case APPLY_AFFECT:
+        case ApplyAffect:
                 return "AFF BY";
-        case APPLY_RESISTANT:
+        case ApplyResistant:
                 return "RESIST";
-        case APPLY_IMMUNE:
+        case ApplyImmune:
                 return "IMMUNE";
-        case APPLY_SUSCEPTIBLE:
+        case ApplySusceptible:
                 return "SUSCEPT";
-        case APPLY_WEAPONSPELL:
+        case ApplyWeaponspell:
                 return " WEAPON";
-        case APPLY_BACKSTAB:
+        case ApplyBackstab:
                 return "BACKSTB";
-        case APPLY_PICK:
+        case ApplyPick:
                 return "PICK";
-        case APPLY_TRACK:
+        case ApplyTrack:
                 return "TRACK";
-        case APPLY_STEAL:
+        case ApplySteal:
                 return "STEAL";
-        case APPLY_SNEAK:
+        case ApplySneak:
                 return "SNEAK";
-        case APPLY_HIDE:
+        case ApplyHide:
                 return "HIDE";
-        case APPLY_PALM:
+        case ApplyPalm:
                 return "PALM";
-        case APPLY_DETRAP:
+        case ApplyDetrap:
                 return "DETRAP";
-        case APPLY_DODGE:
+        case ApplyDodge:
                 return "DODGE";
-        case APPLY_PEEK:
+        case ApplyPeek:
                 return "PEEK";
-        case APPLY_SCAN:
+        case ApplyScan:
                 return "SCAN";
-        case APPLY_GOUGE:
+        case ApplyGouge:
                 return "GOUGE";
-        case APPLY_SEARCH:
+        case ApplySearch:
                 return "SEARCH";
-        case APPLY_MOUNT:
+        case ApplyMount:
                 return "MOUNT";
-        case APPLY_DISARM:
+        case ApplyDisarm:
                 return "DISARM";
-        case APPLY_KICK:
+        case ApplyKick:
                 return "KICK";
-        case APPLY_PARRY:
+        case ApplyParry:
                 return "PARRY";
-        case APPLY_BASH:
+        case ApplyBash:
                 return "BASH";
-        case APPLY_STUN:
+        case ApplyStun:
                 return "STUN";
-        case APPLY_PUNCH:
+        case ApplyPunch:
                 return "PUNCH";
-        case APPLY_CLIMB:
+        case ApplyClimb:
                 return "CLIMB";
-        case APPLY_GRIP:
+        case ApplyGrip:
                 return "GRIP";
-        case APPLY_SCRIBE:
+        case ApplyScribe:
                 return "SCRIBE";
-        case APPLY_BREW:
+        case ApplyBrew:
                 return "BREW";
-        case APPLY_WEARSPELL:
+        case ApplyWearspell:
                 return "WEAR";
-        case APPLY_REMOVESPELL:
+        case ApplyRemovespell:
                 return "REMOVE";
-        case APPLY_EMOTION:
+        case ApplyEmotion:
                 return "EMOTION";
-        case APPLY_MENTALSTATE:
+        case ApplyMentalstate:
                 return "MENTAL";
-        case APPLY_STRIPSN:
+        case ApplyStripsn:
                 return "DISPEL";
-        case APPLY_REMOVE:
+        case ApplyRemove:
                 return "REMOVE";
-        case APPLY_DIG:
+        case ApplyDig:
                 return "DIG";
-        case APPLY_FULL:
+        case ApplyFull:
                 return "HUNGER";
-        case APPLY_THIRST:
+        case ApplyThirst:
                 return "THIRST";
-        case APPLY_DRUNK:
+        case ApplyDrunk:
                 return "DRUNK";
-        case APPLY_BLOOD:
+        case ApplyBlood:
                 return "BLOOD";
         }
 
@@ -953,7 +953,7 @@ CMDF do_oldscore(CharData * ch, char *argument)
         SkillType *skill;
 
         argument = NULL;    /* Squelch Warning */
-        if (IS_AFFECTED(ch, AFF_POSSESS))
+        if (IsAffected(ch, AffPossess))
         {
                 send_to_char
                         ("You can't do that in your current state of mind!\n\r",
@@ -961,18 +961,18 @@ CMDF do_oldscore(CharData * ch, char *argument)
                 return;
         }
 
-        set_char_color(AT_SCORE, ch);
+        set_char_color(AtScore, ch);
         ch_printf(ch,
                   "You are %s%s, level %d, %d years old (%d hours).\n\r",
                   ch->name,
-                  IS_NPC(ch) ? "" : ch->pcdata->title,
+                  IsNpc(ch) ? "" : ch->pcdata->title,
                   ch->top_level, get_age(ch), (get_age(ch) - 17));
 
         if (get_trust(ch) != ch->top_level)
                 ch_printf(ch, "You are trusted at level %d.\n\r",
                           get_trust(ch));
 
-        if (IS_SET(ch->act, ACT_MOBINVIS))
+        if (IsSet(ch->act, ActMobinvis))
                 ch_printf(ch, "You are mobinvis at level %d.\n\r",
                           ch->mobinvis);
 
@@ -995,27 +995,27 @@ CMDF do_oldscore(CharData * ch, char *argument)
 
         ch_printf(ch, "You have have %ld credits.\n\r", ch->gold);
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
                 ch_printf(ch,
                           "You have achieved %d glory during your life, and currently have %d.\n\r",
                           ch->pcdata->quest_accum, ch->pcdata->quest_curr);
 
         ch_printf(ch,
                   "Autoexit: %s   Autoloot: %s  Autocred: %s\n\r",
-                  (!IS_NPC(ch)
-                   && IS_SET(ch->act, PLR_AUTOEXIT)) ? "yes" : "no",
-                  (!IS_NPC(ch)
-                   && IS_SET(ch->act, PLR_AUTOLOOT)) ? "yes" : "no",
-                  (!IS_NPC(ch)
-                   && IS_SET(ch->act, PLR_AUTOGOLD)) ? "yes" : "no");
+                  (!IsNpc(ch)
+                   && IsSet(ch->act, PlrAutoexit)) ? "yes" : "no",
+                  (!IsNpc(ch)
+                   && IsSet(ch->act, PlrAutoloot)) ? "yes" : "no",
+                  (!IsNpc(ch)
+                   && IsSet(ch->act, PlrAutogold)) ? "yes" : "no");
 
         ch_printf(ch, "Wimpy set to %d hit points.\n\r", ch->wimpy);
 
-        if (!IS_NPC(ch) && ch->pcdata->condition[COND_DRUNK] > 10)
+        if (!IsNpc(ch) && ch->pcdata->condition[CondDrunk] > 10)
                 send_to_char("You are drunk.\n\r", ch);
-        if (!IS_NPC(ch) && ch->pcdata->condition[COND_THIRST] == 0)
+        if (!IsNpc(ch) && ch->pcdata->condition[CondThirst] == 0)
                 send_to_char("You are thirsty.\n\r", ch);
-        if (!IS_NPC(ch) && ch->pcdata->condition[COND_FULL] == 0)
+        if (!IsNpc(ch) && ch->pcdata->condition[CondFull] == 0)
                 send_to_char("You are hungry.\n\r", ch);
 
         switch (ch->mental_state / 10)
@@ -1093,73 +1093,73 @@ CMDF do_oldscore(CharData * ch, char *argument)
 
         switch (ch->position)
         {
-        case POS_DEAD:
+        case PosDead:
                 send_to_char("You are DEAD!!\n\r", ch);
                 break;
-        case POS_MORTAL:
+        case PosMortal:
                 send_to_char("You are mortally wounded.\n\r", ch);
                 break;
-        case POS_INCAP:
+        case PosIncap:
                 send_to_char("You are incapacitated.\n\r", ch);
                 break;
-        case POS_STUNNED:
+        case PosStunned:
                 send_to_char("You are stunned.\n\r", ch);
                 break;
-        case POS_SLEEPING:
+        case PosSleeping:
                 send_to_char("You are sleeping.\n\r", ch);
                 break;
-        case POS_RESTING:
+        case PosResting:
                 send_to_char("You are resting.\n\r", ch);
                 break;
-        case POS_STANDING:
+        case PosStanding:
                 send_to_char("You are standing.\n\r", ch);
                 break;
-        case POS_FIGHTING:
+        case PosFighting:
                 send_to_char("You are fighting.\n\r", ch);
                 break;
-        case POS_MOUNTED:
+        case PosMounted:
                 send_to_char("Mounted.\n\r", ch);
                 break;
-        case POS_SHOVE:
+        case PosShove:
                 send_to_char("Being shoved.\n\r", ch);
                 break;
-        case POS_DRAG:
+        case PosDrag:
                 send_to_char("Being dragged.\n\r", ch);
                 break;
         }
 
         if (ch->top_level >= 25)
-                ch_printf(ch, "AC: %d.  ", GET_AC(ch));
+                ch_printf(ch, "AC: %d.  ", GetAc(ch));
 
         send_to_char("You are ", ch);
-        if (GET_AC(ch) >= 101)
+        if (GetAc(ch) >= 101)
                 send_to_char("WORSE than naked!\n\r", ch);
-        else if (GET_AC(ch) >= 80)
+        else if (GetAc(ch) >= 80)
                 send_to_char("naked.\n\r", ch);
-        else if (GET_AC(ch) >= 60)
+        else if (GetAc(ch) >= 60)
                 send_to_char("wearing clothes.\n\r", ch);
-        else if (GET_AC(ch) >= 40)
+        else if (GetAc(ch) >= 40)
                 send_to_char("slightly armored.\n\r", ch);
-        else if (GET_AC(ch) >= 20)
+        else if (GetAc(ch) >= 20)
                 send_to_char("somewhat armored.\n\r", ch);
-        else if (GET_AC(ch) >= 0)
+        else if (GetAc(ch) >= 0)
                 send_to_char("armored.\n\r", ch);
-        else if (GET_AC(ch) >= -20)
+        else if (GetAc(ch) >= -20)
                 send_to_char("well armored.\n\r", ch);
-        else if (GET_AC(ch) >= -40)
+        else if (GetAc(ch) >= -40)
                 send_to_char("strongly armored.\n\r", ch);
-        else if (GET_AC(ch) >= -60)
+        else if (GetAc(ch) >= -60)
                 send_to_char("heavily armored.\n\r", ch);
-        else if (GET_AC(ch) >= -80)
+        else if (GetAc(ch) >= -80)
                 send_to_char("superbly armored.\n\r", ch);
-        else if (GET_AC(ch) >= -100)
+        else if (GetAc(ch) >= -100)
                 send_to_char("divinely armored.\n\r", ch);
         else
                 send_to_char("invincible!\n\r", ch);
 
         if (ch->top_level >= 15)
                 ch_printf(ch, "Hitroll: %d  Damroll: %d.\n\r",
-                          GET_HITROLL(ch), GET_DAMROLL(ch));
+                          GetHitroll(ch), GetDamroll(ch));
 
         if (ch->top_level >= 10)
                 ch_printf(ch, "Alignment: %d.  ", ch->alignment);
@@ -1204,11 +1204,11 @@ CMDF do_oldscore(CharData * ch, char *argument)
                         }
         }
 
-        if (!IS_NPC(ch) && IS_IMMORTAL(ch))
+        if (!IsNpc(ch) && IsImmortal(ch))
         {
                 ch_printf(ch, "WizInvis level: %d   WizInvis is %s\n\r",
                           ch->pcdata->wizinvis,
-                          IS_SET(ch->act, PLR_WIZINVIS) ? "ON" : "OFF");
+                          IsSet(ch->act, PlrWizinvis) ? "ON" : "OFF");
                 if (ch->pcdata->r_range_lo && ch->pcdata->r_range_hi)
                         ch_printf(ch, "Room Range: %d - %d\n\r",
                                   ch->pcdata->r_range_lo,
@@ -1242,10 +1242,10 @@ CMDF do_level(CharData * ch, char *argument)
                 int       ability;
 
                 for (ability = 0; ability < MaxAbility; ability++)
-                        if ((ability == FORCE_ABILITY
-                             && ch->skill_level[FORCE_ABILITY] > 1)
+                        if ((ability == ForceAbility
+                             && ch->skill_level[ForceAbility] > 1)
                             || (get_trust(ch) > 5
-                                && ability != FORCE_ABILITY))
+                                && ability != ForceAbility))
                                 ch_printf(ch,
                                           "&B|| &w%-15s &BL&zevel: &w%-3d &BM&zax: &w%-3d &BE&zxp: &w%-10ld &BN&zext: &w%-10ld&B||\n\r",
                                           capitalize(ability_name[ability]),
@@ -1275,41 +1275,41 @@ CMDF do_affected(CharData * ch, char *argument)
         AffectData *paf;
         SkillType *skill;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         argument = one_argument(argument, arg);
         if (!str_cmp(arg, "by"))
         {
-                set_char_color(AT_BLUE, ch);
+                set_char_color(AtBlue, ch);
                 send_to_char("\n\rImbued with:\n\r", ch);
-                set_char_color(AT_SCORE, ch);
+                set_char_color(AtScore, ch);
                 ch_printf(ch, "%s\n\r", affect_bit_name(ch->affected_by));
                 if (ch->top_level >= 20)
                 {
                         send_to_char("\n\r", ch);
                         if (ch->resistant > 0)
                         {
-                                set_char_color(AT_BLUE, ch);
+                                set_char_color(AtBlue, ch);
                                 send_to_char("Resistances:  ", ch);
-                                set_char_color(AT_SCORE, ch);
+                                set_char_color(AtScore, ch);
                                 ch_printf(ch, "%s\n\r",
                                           flag_string(ch->resistant,
                                                       ris_flags));
                         }
                         if (ch->immune > 0)
                         {
-                                set_char_color(AT_BLUE, ch);
+                                set_char_color(AtBlue, ch);
                                 send_to_char("Immunities:   ", ch);
-                                set_char_color(AT_SCORE, ch);
+                                set_char_color(AtScore, ch);
                                 ch_printf(ch, "%s\n\r",
                                           flag_string(ch->immune, ris_flags));
                         }
                         if (ch->susceptible > 0)
                         {
-                                set_char_color(AT_BLUE, ch);
+                                set_char_color(AtBlue, ch);
                                 send_to_char("Suscepts:     ", ch);
-                                set_char_color(AT_SCORE, ch);
+                                set_char_color(AtScore, ch);
                                 ch_printf(ch, "%s\n\r",
                                           flag_string(ch->susceptible,
                                                       ris_flags));
@@ -1330,7 +1330,7 @@ CMDF do_affected(CharData * ch, char *argument)
 
         if (!ch->first_affect)
         {
-                set_pager_color(AT_SCORE, ch);
+                set_pager_color(AtScore, ch);
                 send_to_pager
                         ("&B|| N&zo cantrip or skill affects you.                                    &B||\n\r",
                          ch);
@@ -1340,7 +1340,7 @@ CMDF do_affected(CharData * ch, char *argument)
                 int       count = 0;
                 char     *affname;
 
-                set_pager_color(AT_BLUE, ch);
+                set_pager_color(AtBlue, ch);
                 send_to_pager
                         ("&B|| &BA&zffected&z:                                                           &B||\n\r",
                          ch);
@@ -1351,7 +1351,7 @@ CMDF do_affected(CharData * ch, char *argument)
                         {
                                 if (((count++) % 2) == 0)
                                         send_to_pager("&B||", ch);
-                                set_pager_color(AT_SCORE, ch);
+                                set_pager_color(AtScore, ch);
                                 pager_printf(ch, "  &B%c&z%-9.9s ",
                                              UPPER(skill->name[0]),
                                              (skill->name + 1));
@@ -1464,7 +1464,7 @@ CMDF do_inventory(CharData *ch, char *argument)
 
         // 1) Show plain-text inventory
         (void)argument;  // Squelch warning
-        set_char_color(AT_RED, ch);
+        set_char_color(AtRed, ch);
         send_to_char("You are carrying:\n\r", ch);
         show_list_to_char(ch->first_carrying, ch, TRUE, TRUE);
 
@@ -1559,11 +1559,11 @@ CMDF do_equipment(CharData * ch, char *argument)
         bool      found;
         char      buf[MaxStringLength];
         argument = NULL;    /* Squelch Warning */
-        set_char_color(AT_RED, ch);
+        set_char_color(AtRed, ch);
         send_to_char("&BYou are using:\n\r", ch);
         found = FALSE;
-        set_char_color(AT_OBJECT, ch);
-        for (iWear = 0; iWear < MAX_WEAR; iWear++)
+        set_char_color(AtObject, ch);
+        for (iWear = 0; iWear < MaxWear; iWear++)
         {
                 for (obj = ch->first_carrying; obj; obj = obj->next_content)
                         if (obj->wear_loc == iWear)
@@ -1580,7 +1580,7 @@ CMDF do_equipment(CharData * ch, char *argument)
                                         {
                                         default:
                                                 break;
-                                        case ITEM_HOLSTER:
+                                        case ItemHolster:
                                                 if (obj->first_content ==
                                                     NULL)
                                                         strcat(buf,
@@ -1597,7 +1597,7 @@ CMDF do_equipment(CharData * ch, char *argument)
                                                 }
                                                 send_to_char(buf, ch);
                                                 break;
-                                        case ITEM_ARMOR:
+                                        case ItemArmor:
                                                 if (obj->value[1] == 0)
                                                         obj->value[1] =
                                                                 obj->value[0];
@@ -1635,8 +1635,8 @@ CMDF do_equipment(CharData * ch, char *argument)
                                                 send_to_char(buf, ch);
                                                 break;
 
-                                        case ITEM_WEAPON:
-                                                dam = INIT_WEAPON_CONDITION -
+                                        case ItemWeapon:
+                                                dam = InitWeaponCondition -
                                                         obj->value[0];
                                                 if (dam < 2)
                                                         mudstrlcat(buf,
@@ -1664,41 +1664,41 @@ CMDF do_equipment(CharData * ch, char *argument)
                                                                    MSL);
                                                 send_to_char(buf, ch);
                                                 if (obj->value[3] ==
-                                                    WEAPON_BLASTER)
+                                                    WeaponBlaster)
                                                 {
                                                         if (obj->
                                                             blaster_setting ==
-                                                            BLASTER_FULL)
+                                                            BlasterFull)
                                                                 ch_printf(ch,
                                                                           "&BFULL");
                                                         else if (obj->
                                                                  blaster_setting
                                                                  ==
-                                                                 BLASTER_HIGH)
+                                                                 BlasterHigh)
                                                                 ch_printf(ch,
                                                                           "&BHIGH");
                                                         else if (obj->
                                                                  blaster_setting
                                                                  ==
-                                                                 BLASTER_NORMAL)
+                                                                 BlasterNormal)
                                                                 ch_printf(ch,
                                                                           "&BNORMAL");
                                                         else if (obj->
                                                                  blaster_setting
                                                                  ==
-                                                                 BLASTER_HALF)
+                                                                 BlasterHalf)
                                                                 ch_printf(ch,
                                                                           "&BHALF");
                                                         else if (obj->
                                                                  blaster_setting
                                                                  ==
-                                                                 BLASTER_LOW)
+                                                                 BlasterLow)
                                                                 ch_printf(ch,
                                                                           "&BLOW");
                                                         else if (obj->
                                                                  blaster_setting
                                                                  ==
-                                                                 BLASTER_STUN)
+                                                                 BlasterStun)
                                                                 ch_printf(ch,
                                                                           "&BSTUN");
                                                         ch_printf(ch, " %d",
@@ -1706,13 +1706,13 @@ CMDF do_equipment(CharData * ch, char *argument)
                                                                   value[4]);
                                                 }
                                                 else if ((obj->value[3] ==
-                                                          WEAPON_LIGHTSABER
+                                                          WeaponLightsaber
                                                           || obj->value[3] ==
-                                                          WEAPON_VIBRO_BLADE
+                                                          WeaponVibroBlade
                                                           || obj->value[3] ==
-                                                          WEAPON_FORCE_PIKE
+                                                          WeaponForcePike
                                                           || obj->value[3] ==
-                                                          WEAPON_BOWCASTER))
+                                                          WeaponBowcaster))
                                                 {
                                                         ch_printf(ch, "&z%d",
                                                                   obj->
@@ -1729,13 +1729,13 @@ CMDF do_equipment(CharData * ch, char *argument)
         }
         if (!found)
                 send_to_char("&BN&zothing.\n\r", ch);
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("&BI&zmplants currently installed&w:\n\r", ch);
                 {
                         int       count;
 
-                        for (count = 0; count < MAX_IMPLANT_TYPES; count++)
+                        for (count = 0; count < MaxImplantTypes; count++)
                         {
                                 if (ch->pcdata->implants[count] >= 0
                                     && ch->pcdata->implants[count] <= 3)
@@ -1761,7 +1761,7 @@ CMDF do_equipment(CharData * ch, char *argument)
 
 void set_title(CharData * ch, char *title)
 {
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 bug("Set_title: NPC.", 0);
                 return;
@@ -1776,10 +1776,10 @@ void set_title(CharData * ch, char *title)
 
 CMDF do_title(CharData * ch, char *argument)
 {
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if (IS_SET(ch->pcdata->flags, PCFLAG_NOTITLE))
+        if (IsSet(ch->pcdata->flags, PcflagNotitle))
         {
                 send_to_char("You try but the Force resists you.\n\r", ch);
                 return;
@@ -1811,7 +1811,7 @@ CMDF do_homepage(CharData * ch, char *argument)
 {
         char      buf[MaxStringLength];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (argument[0] == '\0')
@@ -1854,7 +1854,7 @@ CMDF do_homepage(CharData * ch, char *argument)
 CMDF do_description(CharData * ch, char *argument)
 {
         argument = NULL;    /* Squelch Warning */
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Monsters are too dumb to do that!\n\r", ch);
                 return;
@@ -1896,7 +1896,7 @@ CMDF do_description(CharData * ch, char *argument)
 CMDF do_bio(CharData * ch, char *argument)
 {
         argument = NULL;    /* Squelch Warning */
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Mobs can't set bio's!\n\r", ch);
                 return;
@@ -1941,7 +1941,7 @@ CMDF do_report(CharData * ch, char *argument)
         char      buf[MaxInputLength];
 
         argument = NULL;    /* Squelch Warning */
-        if (IS_AFFECTED(ch, AFF_POSSESS))
+        if (IsAffected(ch, AffPossess))
         {
                 send_to_char
                         ("You can't do that in your current state of mind!\n\r",
@@ -1958,7 +1958,7 @@ CMDF do_report(CharData * ch, char *argument)
         snprintf(buf, MSL, "$n reports: %d/%d hp %d/%d.",
                  ch->hit, ch->max_hit, ch->endurance, ch->max_endurance);
 
-        act(AT_REPORT, buf, ch, NULL, NULL, TO_ROOM);
+        act(AtReport, buf, ch, NULL, NULL, ToRoom);
 
         return;
 }
@@ -1968,7 +1968,7 @@ CMDF do_prompt(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         char      buf[MIL];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("NPC's can't change their prompt..\n\r", ch);
                 return;
@@ -1983,7 +1983,7 @@ CMDF do_prompt(CharData * ch, char *argument)
                                 !str_cmp(ch->pcdata->prompt,
                                          "") ? "(default prompt)" : ch->
                                 pcdata->prompt);
-                        set_char_color(AT_WHITE, ch);
+                        set_char_color(AtWhite, ch);
                         send_to_char("Your current prompt string:\n\r", ch);
                         ch_printf(ch, "%s\n\r",
                                   full_color(ch->pcdata->prompt));
@@ -2107,7 +2107,7 @@ char     *trim(const char *str)
 
 void set_name(CharData * ch, char *name)
 {
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 bug("Set_name: NPC.", 0);
                 return;
@@ -2127,7 +2127,7 @@ void set_name(CharData * ch, char *name)
 CMDF do_fullname(CharData * ch, char *argument)
 {
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (argument[0] == '\0')
@@ -2156,7 +2156,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
 {
         char      arg[MIL];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!argument || argument[0] == '\0')
@@ -2194,14 +2194,14 @@ CMDF do_rpreward(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_SET(ch->pcdata->flags, PCFLAG_FASTENGINEER))
+                if (IsSet(ch->pcdata->flags, PcflagFastengineer))
                 {
                         send_to_char("&RYou already have this ability!\n\r&D",
                                      ch);
                         return;
                 }
 
-                SET_BIT(ch->pcdata->flags, PCFLAG_FASTENGINEER);
+                SetBit(ch->pcdata->flags, PcflagFastengineer);
                 send_to_char
                         ("&GYou have been rewarded for your RP with the Fast Engineering ability.\n\r&D",
                          ch);
@@ -2253,7 +2253,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
                         return;
                 }
 
-                snprintf(filename, 256, "%s%s", CLAN_DIR,
+                snprintf(filename, 256, "%s%s", ClanDir,
                          strlower(smash_space(argument)));
 
                 CREATE(clan, ClanData, 1);
@@ -2273,7 +2273,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
                 clan->enliston = 0;
                 clan->alignment = 0;
                 clan->roster = STRALLOC(ch->name);
-                clan->ClanType = CLAN_GUILD;
+                clan->ClanType = ClanGuild;
                 clan->filename = str_dup(filename);
                 for (int i = 0; i <= 13; i++)
                 {
@@ -2343,27 +2343,27 @@ CMDF do_rpreward(CharData * ch, char *argument)
                         {
                                 ch->experience[ability] = 0;
                                 ch->skill_level[ability] = 1;
-                                if (ability == COMBAT_ABILITY)
+                                if (ability == CombatAbility)
                                         ch->max_hit = 500;
-                                if (ability == FORCE_ABILITY
-                                    || ability == HUNTING_ABILITY)
+                                if (ability == ForceAbility
+                                    || ability == HuntingAbility)
                                 {
                                         if (ch->perm_frc > 0)
                                                 ch->max_endurance = 700;
                                         else
                                                 ch->max_endurance = 500;
 
-                                        if (ability == FORCE_ABILITY)
+                                        if (ability == ForceAbility)
                                                 ch->max_endurance +=
                                                         ch->
                                                         skill_level
-                                                        [HUNTING_ABILITY] *
+                                                        [HuntingAbility] *
                                                         ch->perm_dex;
-                                        if (ability == HUNTING_ABILITY)
+                                        if (ability == HuntingAbility)
                                                 ch->max_endurance +=
                                                         ch->
                                                         skill_level
-                                                        [HUNTING_ABILITY] *
+                                                        [HuntingAbility] *
                                                         20;
                                 }
 
@@ -2452,7 +2452,7 @@ CMDF do_fprompt(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         char      buf[MIL];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("NPC's can't change their prompt..\n\r", ch);
                 return;
@@ -2464,7 +2464,7 @@ CMDF do_fprompt(CharData * ch, char *argument)
         {
                 if (ch->desc && ch->desc->descriptor)
                 {
-                        set_char_color(AT_WHITE, ch);
+                        set_char_color(AtWhite, ch);
                         send_to_char("Your current prompt string:\n\r", ch);
                         if (ch->pcdata->fprompt
                             && ch->pcdata->fprompt[0] != '\0')

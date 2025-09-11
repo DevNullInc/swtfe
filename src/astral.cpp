@@ -126,7 +126,7 @@ CMDF do_testbody(CharData * ch, char *argument)
                 return;
         }
 
-        room = body->get_rand_room(ROOM_INDOORS, value);
+        room = body->get_rand_room(RoomIndoors, value);
         if (room)
                 ch_printf(ch, const_cast<char*>("Room name: %s\n\rRoom VNUM: %d\n\r"),
                           room->name, room->vnum);
@@ -418,7 +418,7 @@ bool load_body_file(char *bodyfile)
          /* If it never gets to BODY below, this goes dead, no pointer to it.*/
 
         found = FALSE;
-        snprintf(filename, 256, "%s%s", BODY_DIR, bodyfile);
+        snprintf(filename, 256, "%s%s", BodyDir, bodyfile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -498,7 +498,7 @@ void BodyData::save()
                 bug(buf, 0);
                 return;
         }
-        snprintf(filename, 256, "%s%s", BODY_DIR, this->_filename.c_str());
+        snprintf(filename, 256, "%s%s", BodyDir, this->_filename.c_str());
 
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) == NULL)
@@ -531,13 +531,13 @@ void BodyData::save()
                                 this->_starsystem->name);
                 if (this->_planet && this->_planet->name)
                         fprintf(fp, "Planet   %s~\n", this->_planet->name);
-                FOR_EACH_LIST(AreaList, this->_areas, pArea)
+                ForEachList(AreaList, this->_areas, pArea)
                         if (pArea->filename)
                         fprintf(fp, "Area         %s~\n", pArea->filename);
 
                 fprintf(fp, "End\n\n");
 
-                FOR_EACH_LIST(DOCK_LIST, this->_docks, dock)
+                ForEachList(DockList, this->_docks, dock)
                 {
                         if (dock->temporary)
                                 continue;
@@ -547,7 +547,7 @@ void BodyData::save()
                 fprintf(fp, "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -557,14 +557,14 @@ void write_body_list()
         FILE     *fpout;
         char filename[256];
 
-        snprintf(filename, 256, "%s%s", BODY_DIR, FILE_BodyList);
+        snprintf(filename, 256, "%s%s", BodyDir, FILE_BodyList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
                 bug("FATAL: cannot open body.lst for writing!\n\r", 0);
                 return;
         }
-        FOR_EACH_LIST(BodyList, bodies, tbody)
+        ForEachList(BodyList, bodies, tbody)
                 fprintf(fpout, "%s\n", tbody->filename());
         fprintf(fpout, "$\n");
         FCLOSE(fpout);
@@ -577,7 +577,7 @@ void load_bodies()
         char bodylist[256];
         PlanetData *planet;
 
-        snprintf(bodylist, 256, "%s%s", BODY_DIR, FILE_BodyList);
+        snprintf(bodylist, 256, "%s%s", BodyDir, FILE_BodyList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(bodylist, "r")) == NULL)
         {

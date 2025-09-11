@@ -47,16 +47,16 @@
 #include <memory>
 
 struct channel_data;
-using CHANNEL_DATA = channel_data;
-extern CHANNEL_DATA *first_channel;
-extern CHANNEL_DATA *last_channel;
+using ChannelData = channel_data;
+extern ChannelData *first_channel;
+extern ChannelData *last_channel;
 
-#define CHANNEL_FILE SYSTEM_DIR "channel.dat"
+#define ChannelFile SystemDir "channel.dat"
 struct channel_data
 {
-        CHANNEL_DATA *next;
-        CHANNEL_DATA *prev;
-        LOG_DATA *log;
+        ChannelData *next;
+        ChannelData *prev;
+        LogData *log;
         std::string name;
         std::string actmessage;   // The title to send, "OOC", "[INFO]", etc, accepts colors
         std::string emotemessage;
@@ -73,22 +73,22 @@ struct channel_data
 };
 
 enum class ChannelRange {
-        ROOM, AREA, PLANET, SYSTEM, OOC_GLOBAL, CLAN
+        ROOM, AREA, PLANET, SYSTEM, OocGlobal, CLAN
 };
 
 enum class ChannelType {
-        IC, IC_COM, OOC
+        IC, IcCom, OOC
 };
 
-CHANNEL_DATA *get_channel(const char *name);
-CHANNEL_DATA *get_channel(std::string_view name);
-CHANNEL_DATA *get_channel(std::shared_ptr<std::string> name);
+ChannelData *get_channel(const char *name);
+ChannelData *get_channel(std::string_view name);
+ChannelData *get_channel(std::shared_ptr<std::string> name);
 bool check_channel(CharData *ch, const char *command, const char *argument);
 bool check_channel(CharData *ch, std::string_view command, std::string_view argument);
 bool check_channel(std::shared_ptr<CharData> ch, std::string_view command, std::string_view argument);
-void add_channel_log(CharData *from, const char *message, CHANNEL_DATA *channel);
-void add_channel_log(CharData *from, std::string_view message, CHANNEL_DATA *channel);
-void add_channel_log(std::shared_ptr<CharData> from, std::string_view message, std::shared_ptr<CHANNEL_DATA> channel);
+void add_channel_log(CharData *from, const char *message, ChannelData *channel);
+void add_channel_log(CharData *from, std::string_view message, ChannelData *channel);
+void add_channel_log(std::shared_ptr<CharData> from, std::string_view message, std::shared_ptr<ChannelData> channel);
 int hasname(const char *list, const char *name);
 int hasname(std::string_view list, std::string_view name);
 void addname(char **list, const char *name);
@@ -98,4 +98,4 @@ void removename(std::shared_ptr<std::string> list, std::string_view name);
 const char *getarg(const char *argument, char *arg, int length);
 std::string getarg(std::string_view argument, int length);
 void load_channels();
-extern char *const pc_displays[MAX_COLORS];
+extern char *const pc_displays[MaxColors];

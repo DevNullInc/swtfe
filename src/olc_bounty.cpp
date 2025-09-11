@@ -46,9 +46,9 @@
 #include "races.hpp"
 #include "utils.hpp"
 
-OLC_BOUNTY_LIST olc_bounties;
+OlcBountyList olc_bounties;
 
-OLC_BOUNTY_DATA::OLC_BOUNTY_DATA()
+OlcBountyData::OlcBountyData()
 {
         this->_owner = 2;
         this->_vnum = 0;
@@ -58,7 +58,7 @@ OLC_BOUNTY_DATA::OLC_BOUNTY_DATA()
         this->_corpse = 0;
 }
 
-OLC_BOUNTY_DATA::OLC_BOUNTY_DATA(int vnum)
+OlcBountyData::OlcBountyData(int vnum)
 {
         this->_owner = vnum;
         this->_vnum = 0;
@@ -68,10 +68,10 @@ OLC_BOUNTY_DATA::OLC_BOUNTY_DATA(int vnum)
         this->_corpse = 0;
 }
 
-OLC_BOUNTY_DATA::~OLC_BOUNTY_DATA()
+OlcBountyData::~OlcBountyData()
 {
-        std::list < OLC_BOUNTY_DATA * >::iterator iter;
-        OLC_BOUNTY_DATA *bounty;
+        std::list < OlcBountyData * >::iterator iter;
+        OlcBountyData *bounty;
 
         for (iter = olc_bounties.begin(); iter != olc_bounties.end(); iter++)
         {
@@ -85,19 +85,19 @@ OLC_BOUNTY_DATA::~OLC_BOUNTY_DATA()
         }
 }
 
-void OLC_BOUNTY_DATA::save()
+void OlcBountyData::save()
 {
         FILE     *fp;
 
-        std::list < OLC_BOUNTY_DATA * >::iterator iter;
-        OLC_BOUNTY_DATA *bounty;
+        std::list < OlcBountyData * >::iterator iter;
+        OlcBountyData *bounty;
 
         FCLOSE(fpReserve);
-        if ((fp = fopen(OLC_BOUNTY_FILE, "w")) == NULL)
+        if ((fp = fopen(OlcBountyFile, "w")) == NULL)
         {
                 bug("fwrite_olc_bounty: fopen", 0);
-                perror(OLC_BOUNTY_FILE);
-                fpReserve = fopen(NULL_FILE, "r");
+                perror(OlcBountyFile);
+                fpReserve = fopen(NullFile, "r");
         }
         else
         {
@@ -105,7 +105,7 @@ void OLC_BOUNTY_DATA::save()
                      iter++)
                 {
                         bounty = (*iter);
-                        fprintf(fp, "#OLC_BOUNTY\n");
+                        fprintf(fp, "#OlcBounty\n");
                         fprintf(fp, "Owner             %d\n", bounty->_owner);
                         fprintf(fp, "Vnum              %d\n", bounty->_vnum);
                         fprintf(fp, "Corpse            %d\n",
@@ -119,11 +119,11 @@ void OLC_BOUNTY_DATA::save()
                 fprintf(fp, "#END\n");
                 FCLOSE(fp);
         }
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
-void OLC_BOUNTY_DATA::load(FILE * fp)
+void OlcBountyData::load(FILE * fp)
 {
         const char *word;
         bool fMatch;
@@ -166,7 +166,7 @@ void OLC_BOUNTY_DATA::load(FILE * fp)
 
                 if (!fMatch)
                 {
-                        bug("OLC_BOUNTY_DATA::load: no match: %s", word);
+                        bug("OlcBountyData::load: no match: %s", word);
                 }
         }
 }
@@ -174,9 +174,9 @@ void OLC_BOUNTY_DATA::load(FILE * fp)
 void load_olc_bounties(void)
 {
         FILE     *fp;
-        OLC_BOUNTY_DATA *bounty;
+        OlcBountyData *bounty;
 
-        if ((fp = fopen(OLC_BOUNTY_FILE, "r")) != NULL)
+        if ((fp = fopen(OlcBountyFile, "r")) != NULL)
         {
                 for (;;)
                 {
@@ -197,9 +197,9 @@ void load_olc_bounties(void)
                         }
 
                         word = fread_word(fp);
-                        if (!str_cmp(word, "OLC_BOUNTY"))
+                        if (!str_cmp(word, "OlcBounty"))
                         {
-                                bounty = new OLC_BOUNTY_DATA;
+                                bounty = new OlcBountyData;
                                 bounty->load(fp);
                                 olc_bounties.push_back(bounty);
                                 continue;
@@ -216,7 +216,7 @@ void load_olc_bounties(void)
         }
         else
         {
-				if (!file_exist(OLC_BOUNTY_FILE))
+				if (!file_exist(OlcBountyFile))
 				{
   				    bug("olcbounty.dat does not exist", 0);
   				    bug("Creating empty file for future use", 0);
@@ -241,7 +241,7 @@ bool check_olc_bounties(RoomIndexData * room)
 
         for (mob = room->first_person; mob; mob = mob->next_in_room)
         {
-                if (!IS_NPC(mob))
+                if (!IsNpc(mob))
                 {
                         continue;
                 }
@@ -256,7 +256,7 @@ bool check_olc_bounties(RoomIndexData * room)
 bool check_olc_bounties(CharData * mob)
 {
 
-        if (!IS_NPC(mob))
+        if (!IsNpc(mob))
         {
                 return FALSE;
         }
@@ -272,8 +272,8 @@ int print_olc_bounties(CharData * ch)
         int count = 0;
         CharData *mob;
 
-        std::list < OLC_BOUNTY_DATA * >::const_iterator iter;
-        OLC_BOUNTY_DATA *bounty;
+        std::list < OlcBountyData * >::const_iterator iter;
+        OlcBountyData *bounty;
         MobIndexData *imob;
 
         if (!ch)
@@ -283,7 +283,7 @@ int print_olc_bounties(CharData * ch)
 
         for (mob = ch->in_room->first_person; mob; mob = mob->next_in_room)
         {
-                if (!IS_NPC(mob))
+                if (!IsNpc(mob))
                 {
                         continue;
                 }
@@ -318,8 +318,8 @@ void print_olc_bounties_mob(CharData * ch, CharData * mob)
 {
         int count = 0;
 
-        std::list < OLC_BOUNTY_DATA * >::const_iterator iter;
-        OLC_BOUNTY_DATA *bounty;
+        std::list < OlcBountyData * >::const_iterator iter;
+        OlcBountyData *bounty;
 
         if (!ch)
         {
@@ -347,12 +347,12 @@ void print_olc_bounties_mob(CharData * ch, CharData * mob)
         }
 }
 
-OLC_BOUNTY_DATA *has_olc_bounty(CharData * victim)
+OlcBountyData *has_olc_bounty(CharData * victim)
 {
-        std::list < OLC_BOUNTY_DATA * >::iterator iter;
-        OLC_BOUNTY_DATA *bounty;
+        std::list < OlcBountyData * >::iterator iter;
+        OlcBountyData *bounty;
 
-        if (!IS_NPC(victim))
+        if (!IsNpc(victim))
         {
                 return NULL;
         }
@@ -360,7 +360,7 @@ OLC_BOUNTY_DATA *has_olc_bounty(CharData * victim)
         {
                 bounty = (*iter);
                 if (victim->pIndexData->vnum == bounty->vnum()
-                    && bounty->type() == BOUNTY_ALIVE)
+                    && bounty->type() == BountyAlive)
                 {
                         return bounty;
                 }
@@ -370,11 +370,11 @@ OLC_BOUNTY_DATA *has_olc_bounty(CharData * victim)
 
 bool check_given_bounty(CharData * ch, CharData * hunter, ObjData * obj)
 {
-        std::list < OLC_BOUNTY_DATA * >::iterator iter;
-        OLC_BOUNTY_DATA *bounty;
+        std::list < OlcBountyData * >::iterator iter;
+        OlcBountyData *bounty;
         char buf[MSL];
 
-        if (!IS_NPC(hunter))
+        if (!IsNpc(hunter))
         {
                 return FALSE;
         }
@@ -382,22 +382,22 @@ bool check_given_bounty(CharData * ch, CharData * hunter, ObjData * obj)
         {
                 bounty = (*iter);
                 if (obj->pIndexData->vnum == bounty->corpse()
-                    && bounty->type() == BOUNTY_DEAD)
+                    && bounty->type() == BountyDead)
                 {
                         command_printf(hunter,
                                        "sayto %s Well done %s, you've killed it.",
                                        ch->name, ch->race->name());
-                        act(AT_ACTION,
+                        act(AtAction,
                             "$n takes the corpse and puts it in the back.",
-                            hunter, NULL, NULL, TO_ROOM);
+                            hunter, NULL, NULL, ToRoom);
                         command_printf(hunter,
                                        "sayto %s Here is the payment for the kill.",
                                        ch->name);
                         ch->gold += bounty->amount();
                         sprintf(buf, "$n give you %d credits.",
                                 bounty->amount());
-                        act(AT_ACTION, buf, hunter, NULL, ch, TO_VICT);
-                        gain_exp(ch, bounty->experience(), HUNTING_ABILITY);
+                        act(AtAction, buf, hunter, NULL, ch, ToVict);
+                        gain_exp(ch, bounty->experience(), HuntingAbility);
                         ch_printf(ch,
                                   "You gain %d bounty hunting experience.",
                                   bounty->experience());
@@ -410,9 +410,9 @@ bool check_given_bounty(CharData * ch, CharData * hunter, ObjData * obj)
 
 void mset_bounty(CharData * ch, CharData * mob, char *argument)
 {
-        OLC_BOUNTY_DATA *bounty;
+        OlcBountyData *bounty;
 
-        std::list < OLC_BOUNTY_DATA * >::iterator iter;
+        std::list < OlcBountyData * >::iterator iter;
         char arg1[MaxInputLength];
         char arg2[MaxInputLength];
         char arg3[MaxInputLength];
@@ -442,7 +442,7 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
         }
         if (!str_cmp(arg1, "create"))
         {
-                bounty = new OLC_BOUNTY_DATA(mob->pIndexData->vnum);
+                bounty = new OlcBountyData(mob->pIndexData->vnum);
                 olc_bounties.push_back(bounty);
                 bounty->save();
                 return;
@@ -618,9 +618,9 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
 
 CMDF do_showallbounties(CharData * ch, char *argument)
 {
-        OLC_BOUNTY_DATA *bounty;
+        OlcBountyData *bounty;
 
-        std::list < OLC_BOUNTY_DATA * >::iterator iter;
+        std::list < OlcBountyData * >::iterator iter;
 
         if (olc_bounties.empty())
         {

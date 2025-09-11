@@ -64,7 +64,7 @@ CMDF do_placebeacon(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_OUTSIDE(ch))
+        if (!IsOutside(ch))
         {
                 send_to_char
                         ("Placing a beacon inside would not allow it to function properly.",
@@ -74,7 +74,7 @@ CMDF do_placebeacon(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_BEACON)
+                if (obj->item_type == ItemBeacon)
                         break;
         }
 
@@ -87,7 +87,7 @@ CMDF do_placebeacon(CharData * ch, char *argument)
         }
         separate_obj(obj);
         obj_from_char(obj);
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_placebeacon]);
         if (number_percent() > percentage)
         {
@@ -98,9 +98,9 @@ CMDF do_placebeacon(CharData * ch, char *argument)
                 send_to_char
                         ("The beacon emits a horrible screech of static, and you quickly remove it from its perch.\n\r",
                          ch);
-                act(AT_PLAIN,
+                act(AtPlain,
                     "The beacon emits a horrible screech of static, and $n quickly removes it from its perch.",
-                    ch, NULL, NULL, TO_ROOM);
+                    ch, NULL, NULL, ToRoom);
                 /*
                  * act message here to ROOM 
                  */
@@ -120,8 +120,8 @@ CMDF do_placebeacon(CharData * ch, char *argument)
         send_to_char
                 ("You test it, and recognize that the signal bein emitted is the exact frequency you wanted.\n\r",
                  ch);
-        act(AT_PLAIN, "$n places $s beacon carefully on the ground.", ch,
-            NULL, NULL, TO_ROOM);
+        act(AtPlain, "$n places $s beacon carefully on the ground.", ch,
+            NULL, NULL, ToRoom);
         /*
          * act message here to ROOM 
          */
@@ -158,7 +158,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                 checkbattery = FALSE;
                 checkcirc = FALSE;
 
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomFactory))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -168,18 +168,18 @@ CMDF do_makebeacon(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_OVEN)
+                        if (obj->item_type == ItemOven)
                                 checkoven = TRUE;
-                        if (obj->item_type == ITEM_RARE_METAL
-                            || obj->item_type == ITEM_DURASTEEL)
+                        if (obj->item_type == ItemRareMetal
+                            || obj->item_type == ItemDurasteel)
                                 checkmetal = TRUE;
-                        if (obj->item_type == ITEM_COMLINK)
+                        if (obj->item_type == ItemComlink)
                                 checkcom = TRUE;
-                        if (obj->item_type == ITEM_BATTERY)
+                        if (obj->item_type == ItemBattery)
                                 checkbattery = TRUE;
-                        if (obj->item_type == ITEM_CIRCUIT)
+                        if (obj->item_type == ItemCircuit)
                                 checkcirc = TRUE;
                 }
 
@@ -224,7 +224,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                 }
 
                 percentage =
-                        IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                             learned
                                                             [gsn_makebeacon]);
 
@@ -233,10 +233,10 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                         send_to_char
                                 ("&GYou grab your tools and equipment and start to craft a beacon.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s toolkit and some metal and begins to work.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 15, do_makebeacon, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 15, do_makebeacon, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -263,7 +263,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makebeacon]);
 
         checkmetal = FALSE;
@@ -276,12 +276,12 @@ CMDF do_makebeacon(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_OVEN)
+                if (obj->item_type == ItemOven)
                         checkoven = TRUE;
-                if ((obj->item_type == ITEM_RARE_METAL
-                     || obj->item_type == ITEM_DURASTEEL)
+                if ((obj->item_type == ItemRareMetal
+                     || obj->item_type == ItemDurasteel)
                     && checkmetal == FALSE)
                 {
                         checkmetal = TRUE;
@@ -289,21 +289,21 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                         obj_from_char(obj);
                         metal = obj;
                 }
-                if (obj->item_type == ITEM_COMLINK && checkcom == FALSE)
+                if (obj->item_type == ItemComlink && checkcom == FALSE)
                 {
                         checkcom = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_BATTERY && checkbattery == FALSE)
+                if (obj->item_type == ItemBattery && checkbattery == FALSE)
                 {
                         checkbattery = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_CIRCUIT && checkcirc == FALSE)
+                if (obj->item_type == ItemCircuit && checkcirc == FALSE)
                 {
                         checkcirc = TRUE;
                         separate_obj(obj);
@@ -315,7 +315,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
         }
 
         percentage =
-                IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makebeacon]);
 
         if (number_percent() > percentage * 2 || (!checkoven) || (!checktool)
@@ -336,10 +336,10 @@ CMDF do_makebeacon(CharData * ch, char *argument)
 
         obj = metal;
 
-        obj->item_type = ITEM_BEACON;
-        SET_BIT(obj->wear_flags, ITEM_TAKE);
-        if (IS_OBJ_STAT(obj, ITEM_INVENTORY))
-                REMOVE_BIT(obj->extra_flags, ITEM_INVENTORY);
+        obj->item_type = ItemBeacon;
+        SetBit(obj->wear_flags, ItemTake);
+        if (IsObjStat(obj, ItemInventory))
+                RemoveBit(obj->extra_flags, ItemInventory);
 
         stralloc_printf(&obj->name, "%s beacon", smash_color(arg));
         stralloc_printf(&obj->short_descr, "%s", smash_color(arg));
@@ -354,8 +354,8 @@ CMDF do_makebeacon(CharData * ch, char *argument)
         send_to_char
                 ("&GYou finish your work and hold up your newly created beacon.&w\n\r",
                  ch);
-        act(AT_PLAIN, "$n finishes working on a piece of metal.", ch, NULL,
-            argument, TO_ROOM);
+        act(AtPlain, "$n finishes working on a piece of metal.", ch, NULL,
+            argument, ToRoom);
         {
                 SkillType *skill = skill_table[gsn_makebeacon];
                 long      xpgain;

@@ -104,29 +104,29 @@
 
 /* Object vnums for Quest Rewards */
 
-#define QUEST_ITEM1 10326
-#define QUEST_ITEM2 10325
-#define QUEST_ITEM3 10324
-#define QUEST_ITEM4 6608
-#define QUEST_ITEM5 6607
+#define QuestItem1 10326
+#define QuestItem2 10325
+#define QuestItem3 10324
+#define QuestItem4 6608
+#define QuestItem5 6607
 
 
-#define QUEST_VALUE1 1500
-#define QUEST_VALUE2 1000
-#define QUEST_VALUE3 1000
-#define QUEST_VALUE4 250
-#define QUEST_VALUE5 200
+#define QuestValue1 1500
+#define QuestValue2 1000
+#define QuestValue3 1000
+#define QuestValue4 250
+#define QuestValue5 200
 
 /* Object vnums for object quest 'tokens'. In Moongate, the tokens are
    things like 'the Shield of Moongate', 'the Sceptre of Moongate'. These
    items are worthless and have the rot-death flag, as they are placed
    into the world when a player receives an object quest. */
 
-#define QUEST_OBJQUEST1 10350
-#define QUEST_OBJQUEST2 10351
-#define QUEST_OBJQUEST3 10352
-#define QUEST_OBJQUEST4 10353
-#define QUEST_OBJQUEST5 10354
+#define QuestObjquest1 10350
+#define QuestObjquest2 10351
+#define QuestObjquest3 10352
+#define QuestObjquest4 10353
+#define QuestObjquest5 10354
 
 /* Local functions */
 
@@ -161,7 +161,7 @@ CMDF do_aquest(CharData * ch, char *argument)
 
         if (!str_cmp(arg1, "info"))
         {
-                if (IS_SET(ch->act, PLR_QUESTOR))
+                if (IsSet(ch->act, PlrQuestor))
                 {
                         if (ch->questmob == -1
                             && ch->questgiver->short_descr != NULL)
@@ -218,7 +218,7 @@ CMDF do_aquest(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg1, "time"))
         {
-                if (!IS_SET(ch->act, PLR_QUESTOR))
+                if (!IsSet(ch->act, PlrQuestor))
                 {
                         send_to_char("You aren't currently on a quest.\n\r",
                                      ch);
@@ -248,12 +248,12 @@ CMDF do_aquest(CharData * ch, char *argument)
 
 /* Checks for a character in the room with spec_questmaster set. This special
    procedure must be defined in special.c. You could instead use an 
-   ACT_QUESTMASTER flag instead of a special procedure. */
+   ActQuestmaster flag instead of a special procedure. */
 
         for (questman = ch->in_room->first_person; questman != NULL;
              questman = questman->next_in_room)
         {
-                if (!IS_NPC(questman))
+                if (!IsNpc(questman))
                         continue;
                 if (questman->spec_fun == spec_lookup("spec_questmaster"))
                         break;
@@ -266,7 +266,7 @@ CMDF do_aquest(CharData * ch, char *argument)
                 return;
         }
 
-        if (questman->position == POS_FIGHTING)
+        if (questman->position == PosFighting)
         {
                 send_to_char("Wait until the fighting stops.\n\r", ch);
                 return;
@@ -279,11 +279,11 @@ CMDF do_aquest(CharData * ch, char *argument)
    very nice items, and no one has one yet, because it takes awhile to
    build up quest points :> Make the item worth their while. */
 
-        obj1 = get_obj_index(QUEST_ITEM1);
-        obj2 = get_obj_index(QUEST_ITEM2);
-        obj3 = get_obj_index(QUEST_ITEM3);
-        obj4 = get_obj_index(QUEST_ITEM4);
-        obj5 = get_obj_index(QUEST_ITEM5);
+        obj1 = get_obj_index(QuestItem1);
+        obj2 = get_obj_index(QuestItem2);
+        obj3 = get_obj_index(QuestItem3);
+        obj4 = get_obj_index(QuestItem4);
+        obj5 = get_obj_index(QuestItem5);
 
         if (obj1 == NULL || obj2 == NULL || obj3 == NULL || obj4 == NULL
             || obj5 == NULL)
@@ -294,10 +294,10 @@ CMDF do_aquest(CharData * ch, char *argument)
 
         if (!str_cmp(arg1, "list"))
         {
-                act(AT_PLAIN, "$n asks $N for a list of quest items.", ch,
-                    NULL, questman, TO_ROOM);
-                act(AT_PLAIN, "You ask $N for a list of quest items.", ch,
-                    NULL, questman, TO_CHAR);
+                act(AtPlain, "$n asks $N for a list of quest items.", ch,
+                    NULL, questman, ToRoom);
+                act(AtPlain, "You ask $N for a list of quest items.", ch,
+                    NULL, questman, ToChar);
                 snprintf(buf, MSL, "Current Quest Items available for Purchase:\n\r\n\r\
 [1] %dqp.......... %s\n\r\
 [2] %dqp.......... %s\n\r\
@@ -305,8 +305,8 @@ CMDF do_aquest(CharData * ch, char *argument)
 [4] %dqp.......... %s\n\r\
 [5] %dqp.......... %s\n\r\
 [6] 200qp......... 100,000 credits\n\r\
-[7] 200qp......... 30 hit points\n\r", QUEST_VALUE1, obj1->short_descr,
-                         QUEST_VALUE2, obj2->short_descr, QUEST_VALUE3, obj3->short_descr, QUEST_VALUE4, obj4->short_descr, QUEST_VALUE5, obj5->short_descr);
+[7] 200qp......... 30 hit points\n\r", QuestValue1, obj1->short_descr,
+                         QuestValue2, obj2->short_descr, QuestValue3, obj3->short_descr, QuestValue4, obj4->short_descr, QuestValue5, obj5->short_descr);
 
                 send_to_char(buf, ch);
                 return;
@@ -314,7 +314,7 @@ CMDF do_aquest(CharData * ch, char *argument)
 
         if (!str_cmp(arg1, "fail"))
         {
-                if (IS_SET(ch->act, PLR_QUESTOR))
+                if (IsSet(ch->act, PlrQuestor))
                 {
                         if (ch->countdown > 0)
                         {
@@ -324,7 +324,7 @@ CMDF do_aquest(CharData * ch, char *argument)
                                          "You give up on your quest. You may quest again in %d minutes.\n\r",
                                          ch->nextquest);
                                 send_to_char(buf, ch);
-                                REMOVE_BIT(ch->act, PLR_QUESTOR);
+                                RemoveBit(ch->act, PlrQuestor);
                                 ch->questgiver = NULL;
                                 ch->countdown = 0;
                                 ch->questmob = 0;
@@ -347,11 +347,11 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 if (is_name(arg2, "1"))
                 {
-                        if (ch->pcdata->quest_curr >= QUEST_VALUE1)
+                        if (ch->pcdata->quest_curr >= QuestValue1)
                         {
-                                ch->pcdata->quest_curr -= QUEST_VALUE1;
+                                ch->pcdata->quest_curr -= QuestValue1;
                                 obj = create_object(get_obj_index
-                                                    (QUEST_ITEM1),
+                                                    (QuestItem1),
                                                     ch->top_level);
                         }
                         else
@@ -365,11 +365,11 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 else if (is_name(arg2, "2"))
                 {
-                        if (ch->pcdata->quest_curr >= QUEST_VALUE2)
+                        if (ch->pcdata->quest_curr >= QuestValue2)
                         {
-                                ch->pcdata->quest_curr -= QUEST_VALUE2;
+                                ch->pcdata->quest_curr -= QuestValue2;
                                 obj = create_object(get_obj_index
-                                                    (QUEST_ITEM2),
+                                                    (QuestItem2),
                                                     ch->top_level);
                         }
                         else
@@ -383,11 +383,11 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 else if (is_name(arg2, "3"))
                 {
-                        if (ch->pcdata->quest_curr >= QUEST_VALUE3)
+                        if (ch->pcdata->quest_curr >= QuestValue3)
                         {
-                                ch->pcdata->quest_curr -= QUEST_VALUE3;
+                                ch->pcdata->quest_curr -= QuestValue3;
                                 obj = create_object(get_obj_index
-                                                    (QUEST_ITEM3),
+                                                    (QuestItem3),
                                                     ch->top_level);
                         }
                         else
@@ -401,11 +401,11 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 else if (is_name(arg2, "4"))
                 {
-                        if (ch->pcdata->quest_curr >= QUEST_VALUE4)
+                        if (ch->pcdata->quest_curr >= QuestValue4)
                         {
-                                ch->pcdata->quest_curr -= QUEST_VALUE4;
+                                ch->pcdata->quest_curr -= QuestValue4;
                                 obj = create_object(get_obj_index
-                                                    (QUEST_ITEM4),
+                                                    (QuestItem4),
                                                     ch->top_level);
                         }
                         else
@@ -419,11 +419,11 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 else if (is_name(arg2, "5"))
                 {
-                        if (ch->pcdata->quest_curr >= QUEST_VALUE5)
+                        if (ch->pcdata->quest_curr >= QuestValue5)
                         {
-                                ch->pcdata->quest_curr -= QUEST_VALUE5;
+                                ch->pcdata->quest_curr -= QuestValue5;
                                 obj = create_object(get_obj_index
-                                                    (QUEST_ITEM5),
+                                                    (QuestItem5),
                                                     ch->top_level);
                         }
                         else
@@ -452,8 +452,8 @@ CMDF do_aquest(CharData * ch, char *argument)
                                 ch->max_hit += 30;
                                 ch->hit += 30;
                                 ch->questhp += 30;
-                                act(AT_MAGIC, "$N makes you more healthy!",
-                                    ch, NULL, questman, TO_CHAR);
+                                act(AtMagic, "$N makes you more healthy!",
+                                    ch, NULL, questman, ToChar);
                                 return;
                         }
                         else
@@ -472,11 +472,11 @@ CMDF do_aquest(CharData * ch, char *argument)
                         {
                                 ch->pcdata->quest_curr -= 200;
                                 ch->gold += 100000;
-                                act(AT_MAGIC,
+                                act(AtMagic,
                                     "$N gives 100,000 credits to $n.", ch,
-                                    NULL, questman, TO_ROOM);
-                                act(AT_MAGIC, "$N hands you a cred stick.",
-                                    ch, NULL, questman, TO_CHAR);
+                                    NULL, questman, ToRoom);
+                                act(AtMagic, "$N hands you a cred stick.",
+                                    ch, NULL, questman, ToChar);
                                 return;
                         }
                         else
@@ -496,28 +496,28 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 if (obj != NULL)
                 {
-                        act(AT_PLAIN, "$N gives something to $n.", ch, obj,
-                            questman, TO_ROOM);
-                        act(AT_PLAIN, "$N gives you your reward.", ch, obj,
-                            questman, TO_CHAR);
+                        act(AtPlain, "$N gives something to $n.", ch, obj,
+                            questman, ToRoom);
+                        act(AtPlain, "$N gives you your reward.", ch, obj,
+                            questman, ToChar);
                         obj_to_char(obj, ch);
                 }
                 return;
         }
         else if (!str_cmp(arg1, "Request"))
         {
-                act(AT_PLAIN, "$n asks $N for a quest.", ch, NULL, questman,
-                    TO_ROOM);
-                act(AT_PLAIN, "You ask $N for a quest.", ch, NULL, questman,
-                    TO_CHAR);
-                if (IS_SET(ch->act, PLR_QUESTOR))
+                act(AtPlain, "$n asks $N for a quest.", ch, NULL, questman,
+                    ToRoom);
+                act(AtPlain, "You ask $N for a quest.", ch, NULL, questman,
+                    ToChar);
+                if (IsSet(ch->act, PlrQuestor))
                 {
                         snprintf(buf, MSL,
                                  "But you're already on a quest!\n\rBetter hurry up and finish it!");
                         do_say(questman, buf);
                         return;
                 }
-                if (ch->nextquest > 0 && !IS_IMMORTAL(ch))
+                if (ch->nextquest > 0 && !IsImmortal(ch))
                 {
                         snprintf(buf, MSL,
                                  "You're very brave, %s, but let someone else have a chance.",
@@ -545,7 +545,7 @@ CMDF do_aquest(CharData * ch, char *argument)
                 if (ch->questmob > 0 || ch->questobj > 0)
                 {
                         ch->countdown = number_range(12, 28);
-                        SET_BIT(ch->act, PLR_QUESTOR);
+                        SetBit(ch->act, PlrQuestor);
                         snprintf(buf, MSL,
                                  "You have %d minutes to complete this quest.",
                                  ch->countdown);
@@ -557,10 +557,10 @@ CMDF do_aquest(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg1, "complete"))
         {
-                act(AT_PLAIN, "$n informs $N $e has completed $s quest.", ch,
-                    NULL, questman, TO_ROOM);
-                act(AT_PLAIN, "You inform $N you have completed $s quest.",
-                    ch, NULL, questman, TO_CHAR);
+                act(AtPlain, "$n informs $N $e has completed $s quest.", ch,
+                    NULL, questman, ToRoom);
+                act(AtPlain, "You inform $N you have completed $s quest.",
+                    ch, NULL, questman, ToChar);
                 if (ch->questgiver != questman)
                 {
                         snprintf(buf, MSL,
@@ -569,7 +569,7 @@ CMDF do_aquest(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_SET(ch->act, PLR_QUESTOR))
+                if (IsSet(ch->act, PlrQuestor))
                 {
                         if (ch->questmob == -1 && ch->countdown > 0)
                         {
@@ -591,17 +591,17 @@ CMDF do_aquest(CharData * ch, char *argument)
                                         dipexpreward =
                                                 (ch->
                                                  skill_level
-                                                 [DIPLOMACY_ABILITY] * 1000);
+                                                 [DiplomacyAbility] * 1000);
                                         snprintf(buf, MSL,
                                                  "You gain %d diplomatic experience!\n\r",
                                                  dipexpreward);
                                         send_to_char(buf, ch);
                                         gain_exp(ch, dipexpreward,
-                                                 DIPLOMACY_ABILITY);
+                                                 DiplomacyAbility);
                                 }
 
 
-                                REMOVE_BIT(ch->act, PLR_QUESTOR);
+                                RemoveBit(ch->act, PlrQuestor);
                                 ch->questgiver = NULL;
                                 ch->countdown = 0;
                                 ch->questmob = 0;
@@ -637,10 +637,10 @@ CMDF do_aquest(CharData * ch, char *argument)
                                         reward = number_range(1000, 15000);
                                         pointreward = number_range(15, 125);
 
-                                        act(AT_PLAIN, "You hand $p to $N.",
-                                            ch, obj, questman, TO_CHAR);
-                                        act(AT_PLAIN, "$n hands $p to $N.",
-                                            ch, obj, questman, TO_ROOM);
+                                        act(AtPlain, "You hand $p to $N.",
+                                            ch, obj, questman, ToChar);
+                                        act(AtPlain, "$n hands $p to $N.",
+                                            ch, obj, questman, ToRoom);
 
                                         snprintf(buf, MSL,
                                                  "Congratulations on completing your quest!");
@@ -655,18 +655,18 @@ CMDF do_aquest(CharData * ch, char *argument)
                                                 dipexpreward =
                                                         (ch->
                                                          skill_level
-                                                         [DIPLOMACY_ABILITY] *
+                                                         [DiplomacyAbility] *
                                                          1000);
                                                 snprintf(buf, MSL,
                                                          "You gain %d diplomatic experience!\n\r",
                                                          dipexpreward);
                                                 send_to_char(buf, ch);
                                                 gain_exp(ch, dipexpreward,
-                                                         DIPLOMACY_ABILITY);
+                                                         DiplomacyAbility);
                                         }
 
 
-                                        REMOVE_BIT(ch->act, PLR_QUESTOR);
+                                        RemoveBit(ch->act, PlrQuestor);
                                         ch->questgiver = NULL;
                                         ch->countdown = 0;
                                         ch->questmob = 0;
@@ -726,7 +726,7 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
         /*
          * Randomly selects a mob from the world mob list. If you don't
          * want a mob to be selected, make sure it is immune to summon.
-         * Or, you could add a new mob flag called ACT_NOQUEST. The mob
+         * Or, you could add a new mob flag called ActNoquest. The mob
          * is selected for both mob and obj quests, even tho in the obj
          * quest the mob is not used. This is done to assure the level
          * of difficulty for the area isn't too great for the player. 
@@ -751,25 +751,25 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
                                  && vsearch->level > 30
                                  && vsearch->level < 50)
                              || (ch->top_level > 40 && vsearch->level > 40))
-                            && (IS_EVIL(ch) ? IS_EVIL(vsearch) :
-                                IS_GOOD(vsearch)) && vsearch->pShop == NULL
+                            && (IsEvil(ch) ? IsEvil(vsearch) :
+                                IsGood(vsearch)) && vsearch->pShop == NULL
                             && vsearch->rShop == NULL
-                            && !IS_SET(vsearch->act, ACT_TRAIN)
-                            && !IS_SET(vsearch->act, ACT_PRACTICE)
-                            && !IS_SET(vsearch->act, ACT_PROTOTYPE)
+                            && !IsSet(vsearch->act, ActTrain)
+                            && !IsSet(vsearch->act, ActPractice)
+                            && !IsSet(vsearch->act, ActPrototype)
                             &&
                             !((victim =
                                get_char_world(ch,
                                               vsearch->PlayerName)) == NULL)
-                            && IS_NPC(victim)
+                            && IsNpc(victim)
                             && victim->in_room
                             && !xIS_SET(victim->in_room->RoomFlags,
-                                        ROOM_SAFE) && victim->in_room->area
-                            && !IS_SET(victim->in_room->area->flags,
-                                       AFLAG_NOQUEST)
-                            && !IS_SET(vsearch->act, ACT_TRAIN)
-                            && !IS_SET(vsearch->act, ACT_PRACTICE)
-                            && !IS_SET(vsearch->act, ACT_IMMORTAL))
+                                        RoomSafe) && victim->in_room->area
+                            && !IsSet(victim->in_room->area->flags,
+                                       AflagNoquest)
+                            && !IsSet(vsearch->act, ActTrain)
+                            && !IsSet(vsearch->act, ActPractice)
+                            && !IsSet(vsearch->act, ActImmortal))
                                 break;
                         else
                                 vsearch = NULL;
@@ -802,7 +802,7 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
                 return;
         }
 
-        if (IS_SET(room->area->flags,AFLAG_NOQUEST))
+        if (IsSet(room->area->flags,AflagNoquest))
         {
                 snprintf(buf, MSL,
                          "I'm sorry, my intel is unable to locate the object of your quest.");
@@ -825,23 +825,23 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
                 switch (number_range(0, 4))
                 {
                 case 0:
-                        objvnum = QUEST_OBJQUEST1;
+                        objvnum = QuestObjquest1;
                         break;
 
                 case 1:
-                        objvnum = QUEST_OBJQUEST2;
+                        objvnum = QuestObjquest2;
                         break;
 
                 case 2:
-                        objvnum = QUEST_OBJQUEST3;
+                        objvnum = QuestObjquest3;
                         break;
 
                 case 3:
-                        objvnum = QUEST_OBJQUEST4;
+                        objvnum = QuestObjquest4;
                         break;
 
                 case 4:
-                        objvnum = QUEST_OBJQUEST5;
+                        objvnum = QuestObjquest5;
                         break;
                 }
 
@@ -933,7 +933,7 @@ void quest_update(void)
         {
                 ch_next = ch->next;
 
-                if (IS_NPC(ch))
+                if (IsNpc(ch))
                         continue;
 
                 if (ch->nextquest > 0)
@@ -947,7 +947,7 @@ void quest_update(void)
                                 return;
                         }
                 }
-                else if (IS_SET(ch->act, PLR_QUESTOR))
+                else if (IsSet(ch->act, PlrQuestor))
                 {
                         if (--ch->countdown <= 0)
                         {
@@ -958,7 +958,7 @@ void quest_update(void)
                                          "You have run out of time for your quest!\n\rYou may quest again in %d minutes.\n\r",
                                          ch->nextquest);
                                 send_to_char(buf, ch);
-                                REMOVE_BIT(ch->act, PLR_QUESTOR);
+                                RemoveBit(ch->act, PlrQuestor);
                                 ch->questgiver = NULL;
                                 ch->countdown = 0;
                                 ch->questmob = 0;

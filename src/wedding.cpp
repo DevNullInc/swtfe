@@ -59,10 +59,10 @@ CMDF do_propose(CharData * ch, char *argument)
 {
         CharData *victim;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if (IS_SET(ch->pcdata->flags, PCFLAG_MARRIED))
+        if (IsSet(ch->pcdata->flags, PcflagMarried))
         {
                 send_to_char("But you are already married!\n\r", ch);
                 return;
@@ -87,7 +87,7 @@ CMDF do_propose(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("Not on NPC's.\n\r", ch);
                 return;
@@ -95,7 +95,7 @@ CMDF do_propose(CharData * ch, char *argument)
 
         if (victim->pcdata->spouse && victim->pcdata->spouse[0] != '\0')
         {
-                if (IS_SET(victim->pcdata->flags, PCFLAG_MARRIED))
+                if (IsSet(victim->pcdata->flags, PcflagMarried))
                         send_to_char("But they are already married!\n\r", ch);
                 else
                         send_to_char("But they are already engaged!\n\r", ch);
@@ -113,7 +113,7 @@ CMDF do_propose(CharData * ch, char *argument)
 		return;
 	}*/
 
-/*	if ( ch->sex == victim->sex && ch->sex != SEX_NEUTRAL)
+/*	if ( ch->sex == victim->sex && ch->sex != SexNeutral)
 	{
 		send_to_char("Not on this mud bub!\n\r",ch);
 		return;
@@ -126,12 +126,12 @@ CMDF do_propose(CharData * ch, char *argument)
 
         ch->pcdata->propose = victim;
         victim->pcdata->propose = ch;
-        act(AT_WHITE, "You propose marriage to $M.", ch, NULL, victim,
-            TO_CHAR);
-        act(AT_WHITE, "$n gets down on one knee and proposes to $N.", ch,
-            NULL, victim, TO_NOTVICT);
-        act(AT_WHITE, "$n asks you quietly 'Will you marry me?'", ch, NULL,
-            victim, TO_VICT);
+        act(AtWhite, "You propose marriage to $M.", ch, NULL, victim,
+            ToChar);
+        act(AtWhite, "$n gets down on one knee and proposes to $N.", ch,
+            NULL, victim, ToNotvict);
+        act(AtWhite, "$n asks you quietly 'Will you marry me?'", ch, NULL,
+            victim, ToVict);
         return;
 }
 
@@ -141,7 +141,7 @@ CMDF do_accept(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if ((victim = ch->pcdata->propose) == NULL)
@@ -164,13 +164,13 @@ CMDF do_accept(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_SET(ch->pcdata->flags, PCFLAG_MARRIED))
+        if (IsSet(ch->pcdata->flags, PcflagMarried))
         {
                 send_to_char("You are already married!\n\r", ch);
                 return;
         }
 
-        if (IS_SET(victim->pcdata->flags, PCFLAG_MARRIED))
+        if (IsSet(victim->pcdata->flags, PcflagMarried))
         {
                 send_to_char("They are already married!\n\r", ch);
                 return;
@@ -178,22 +178,22 @@ CMDF do_accept(CharData * ch, char *argument)
 
         victim->pcdata->propose = NULL;
         ch->pcdata->propose = NULL;
-        REMOVE_BIT(ch->pcdata->flags, PCFLAG_MARRIED);
-        REMOVE_BIT(victim->pcdata->flags, PCFLAG_MARRIED);
+        RemoveBit(ch->pcdata->flags, PcflagMarried);
+        RemoveBit(victim->pcdata->flags, PcflagMarried);
         if (victim->pcdata->spouse)
                 STRFREE(victim->pcdata->spouse);
         if (ch->pcdata->spouse)
                 STRFREE(ch->pcdata->spouse);
         victim->pcdata->spouse = STRALLOC(ch->name);
         ch->pcdata->spouse = STRALLOC(victim->name);
-        act(AT_WHITE, "You accept $S offer of marriage.", ch, NULL, victim,
-            TO_CHAR);
-        act(AT_WHITE, "$n accepts $N's offer of marriage.", ch, NULL, victim,
-            TO_NOTVICT);
-        act(AT_WHITE, "$n accepts your offer of marriage.", ch, NULL, victim,
-            TO_VICT);
-        act(AT_WHITE, "$n and $N are now engaged!", ch, NULL, victim,
-            TO_NOTVICT);
+        act(AtWhite, "You accept $S offer of marriage.", ch, NULL, victim,
+            ToChar);
+        act(AtWhite, "$n accepts $N's offer of marriage.", ch, NULL, victim,
+            ToNotvict);
+        act(AtWhite, "$n accepts your offer of marriage.", ch, NULL, victim,
+            ToVict);
+        act(AtWhite, "$n and $N are now engaged!", ch, NULL, victim,
+            ToNotvict);
         save_char_obj(victim);
         save_char_obj(ch);
         return;
@@ -206,7 +206,7 @@ CMDF do_refuse(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if ((victim = ch->pcdata->propose) == NULL)
@@ -229,13 +229,13 @@ CMDF do_refuse(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_SET(ch->pcdata->flags, PCFLAG_MARRIED))
+        if (IsSet(ch->pcdata->flags, PcflagMarried))
         {
                 send_to_char("You are already married!\n\r", ch);
                 return;
         }
 
-        if (IS_SET(victim->pcdata->flags, PCFLAG_MARRIED))
+        if (IsSet(victim->pcdata->flags, PcflagMarried))
         {
                 send_to_char("They are already married!\n\r", ch);
                 return;
@@ -244,12 +244,12 @@ CMDF do_refuse(CharData * ch, char *argument)
         victim->pcdata->propose = NULL;
         ch->pcdata->propose = NULL;
 
-        act(AT_WHITE, "$N refused $n's offer of engagement!", ch, NULL,
-            victim, TO_NOTVICT);
-        act(AT_WHITE, "$N refuses your offer of engagement!", ch, NULL,
-            victim, TO_CHAR);
-        act(AT_WHITE, "You refuse $N's offer of engagement!", ch, NULL,
-            victim, TO_VICT);
+        act(AtWhite, "$N refused $n's offer of engagement!", ch, NULL,
+            victim, ToNotvict);
+        act(AtWhite, "$N refuses your offer of engagement!", ch, NULL,
+            victim, ToChar);
+        act(AtWhite, "You refuse $N's offer of engagement!", ch, NULL,
+            victim, ToVict);
 }
 
 CMDF do_marry(CharData * ch, char *argument)
@@ -280,14 +280,14 @@ CMDF do_marry(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim1) || IS_NPC(victim2))
+        if (IsNpc(victim1) || IsNpc(victim2))
         {
                 send_to_char("Not on NPC's.\n\r", ch);
                 return;
         }
 
-        if (IS_SET(victim1->pcdata->flags, PCFLAG_MARRIED) ||
-            IS_SET(victim2->pcdata->flags, PCFLAG_MARRIED))
+        if (IsSet(victim1->pcdata->flags, PcflagMarried) ||
+            IsSet(victim2->pcdata->flags, PcflagMarried))
         {
                 send_to_char("They are already married!\n\r", ch);
                 return;
@@ -296,16 +296,16 @@ CMDF do_marry(CharData * ch, char *argument)
         if (!str_cmp(victim1->name, victim2->pcdata->spouse) &&
             !str_cmp(victim2->name, victim1->pcdata->spouse))
         {
-                SET_BIT(victim1->pcdata->flags, PCFLAG_MARRIED);
-                SET_BIT(victim2->pcdata->flags, PCFLAG_MARRIED);
+                SetBit(victim1->pcdata->flags, PcflagMarried);
+                SetBit(victim2->pcdata->flags, PcflagMarried);
                 save_char_obj(victim1);
                 save_char_obj(victim2);
-                act(AT_WHITE, "You are now married to $N! Congrats!", victim1,
-                    NULL, victim2, TO_VICT);
-                act(AT_WHITE, "You are now married to $n! Congrats!", victim1,
-                    NULL, victim2, TO_CHAR);
-                act(AT_WHITE, "$n and $N are now married!", victim1, NULL,
-                    victim2, TO_NOTVICT);
+                act(AtWhite, "You are now married to $N! Congrats!", victim1,
+                    NULL, victim2, ToVict);
+                act(AtWhite, "You are now married to $n! Congrats!", victim1,
+                    NULL, victim2, ToChar);
+                act(AtWhite, "$n and $N are now married!", victim1, NULL,
+                    victim2, ToNotvict);
                 return;
         }
 
@@ -342,7 +342,7 @@ CMDF do_divorce(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim1) || IS_NPC(victim2))
+        if (IsNpc(victim1) || IsNpc(victim2))
         {
                 send_to_char("Not on NPC's.\n\r", ch);
                 return;
@@ -352,15 +352,15 @@ CMDF do_divorce(CharData * ch, char *argument)
         if (!str_cmp(victim1->name, victim2->pcdata->spouse) &&
             !str_cmp(victim2->name, victim1->pcdata->spouse))
         {
-                if (!IS_SET(victim1->pcdata->flags, PCFLAG_MARRIED) ||
-                    !IS_SET(victim2->pcdata->flags, PCFLAG_MARRIED))
+                if (!IsSet(victim1->pcdata->flags, PcflagMarried) ||
+                    !IsSet(victim2->pcdata->flags, PcflagMarried))
                 {
                         send_to_char("They are not married!\n\r", ch);
                         return;
                 }
 
-                REMOVE_BIT(victim1->pcdata->flags, PCFLAG_MARRIED);
-                REMOVE_BIT(victim2->pcdata->flags, PCFLAG_MARRIED);
+                RemoveBit(victim1->pcdata->flags, PcflagMarried);
+                RemoveBit(victim2->pcdata->flags, PcflagMarried);
                 STRFREE(victim1->pcdata->spouse);
                 STRFREE(victim2->pcdata->spouse);
 
@@ -369,12 +369,12 @@ CMDF do_divorce(CharData * ch, char *argument)
 
                 save_char_obj(victim1);
                 save_char_obj(victim2);
-                act(AT_WHITE, "You are now divorced from $N!", victim1, NULL,
-                    victim2, TO_VICT);
-                act(AT_WHITE, "You are now divorced from $n!", victim1, NULL,
-                    victim2, TO_CHAR);
-                act(AT_WHITE, "$n and $N are now divorced!", victim1, NULL,
-                    victim2, TO_NOTVICT);
+                act(AtWhite, "You are now divorced from $N!", victim1, NULL,
+                    victim2, ToVict);
+                act(AtWhite, "You are now divorced from $n!", victim1, NULL,
+                    victim2, ToChar);
+                act(AtWhite, "$n and $N are now divorced!", victim1, NULL,
+                    victim2, ToNotvict);
                 return;
         }
 

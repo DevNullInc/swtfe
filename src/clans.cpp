@@ -88,7 +88,7 @@ bool load_clan_file args((char *clanfile));
 void write_clan_list args((void));
 void free_clan args((ClanData * clan));
 void free_planet args((PlanetData * planet));
-void free_bounty args((BOUNTY_DATA * bounty));
+void free_bounty args((BountyData * bounty));
 
 /*
  * Get pointer to clan structure from clan name.
@@ -122,7 +122,7 @@ void write_clan_list()
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, MSL, "%s%s", CLAN_DIR, ClanList);
+        snprintf(filename, MSL, "%s%s", ClanDir, ClanList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -141,7 +141,7 @@ void write_planet_list()
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, MSL, "%s%s", PLANET_DIR, PLANET_LIST);
+        snprintf(filename, MSL, "%s%s", PlanetDir, PlanetList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -177,7 +177,7 @@ void save_clan(ClanData * clan)
                 return;
         }
 
-        snprintf(filename, MSL, "%s%s", CLAN_DIR, clan->filename);
+        snprintf(filename, MSL, "%s%s", ClanDir, clan->filename);
 
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) == NULL)
@@ -215,10 +215,10 @@ void save_clan(ClanData * clan)
                 fprintf(fp, "Enliston     %d\n", clan->enliston);
                 fprintf(fp, "Funds        %ld\n", clan->funds);
                 fprintf(fp, "Jail         %d\n", clan->jail);
-                for (count = 0; count < MAX_RANK; count++)
+                for (count = 0; count < MaxRank; count++)
                         fprintf(fp, "Rank%d        %s~\n", count,
                                 clan->rank[count]);
-                for (count = 0; count < MAX_RANK; count++)
+                for (count = 0; count < MaxRank; count++)
                         fprintf(fp, "Salary%d         %d\n", count,
                                 clan->salary[count]);
                 if (clan->mainclan)
@@ -230,7 +230,7 @@ void save_clan(ClanData * clan)
                 fprintf(fp, "#END\n");
                 FCLOSE(fp);
         }
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -259,14 +259,14 @@ void save_planet(PlanetData * planet, bool copyover)
                 return;
         }
 
-        snprintf(filename, MSL, "%s%s", PLANET_DIR, planet->filename);
+        snprintf(filename, MSL, "%s%s", PlanetDir, planet->filename);
 
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) == NULL)
         {
                 bug("save_planet: fopen", 0);
                 perror(filename);
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
         }
         else
         {
@@ -308,12 +308,12 @@ void save_planet(PlanetData * planet, bool copyover)
                                         pArea->filename);
                 if (planet->body && planet->body->name())
                         fprintf(fp, "BodyName   %s~\n", planet->body->name());
-                for (i = 1; i < CARGO_MAX; i++)
+                for (i = 1; i < CargoMax; i++)
                         fprintf(fp, "Resource %d %d %d %d %d %d\n", i,
                                 planet->cargoimport[i],
                                 planet->cargoexport[i], planet->resource[i],
                                 planet->consumes[i], planet->produces[i]);
-                for (i = CONTRABAND_NONE + 1; i < CONTRABAND_MAX; i++)
+                for (i = ContrabandNone + 1; i < ContrabandMax; i++)
                         fprintf(fp, "Contraband %d %d %d %d %d %d\n", i,
                                 planet->cargoimport[i],
                                 planet->cargoexport[i], planet->resource[i],
@@ -322,7 +322,7 @@ void save_planet(PlanetData * planet, bool copyover)
                 fprintf(fp, "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -726,7 +726,7 @@ bool load_clan_file(char *clanfile)
         clan->mainclan = NULL;
         memset(clan->salary, 0, sizeof(clan->salary));
         found = FALSE;
-        snprintf(filename, MSL, "%s%s", CLAN_DIR, clanfile);
+        snprintf(filename, MSL, "%s%s", ClanDir, clanfile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -785,7 +785,7 @@ bool load_clan_file(char *clanfile)
                         return found;
                 }
 
-                snprintf(filename, MSL, "%s%s.vault", CLAN_DIR,
+                snprintf(filename, MSL, "%s%s.vault", ClanDir,
                          clan->filename);
                 if ((fp = fopen(filename, "r")) != NULL)
                 {
@@ -820,7 +820,7 @@ bool load_clan_file(char *clanfile)
 
                                 word = fread_word(fp);
                                 if (!str_cmp(word, "OBJECT"))   /* Objects  */
-                                        fread_obj(supermob, fp, OS_CARRY);
+                                        fread_obj(supermob, fp, OsCarry);
                                 else if (!str_cmp(word, "END")) /* Done     */
                                         break;
                                 else
@@ -875,7 +875,7 @@ bool load_planet_file(char *planetfile)
         planet->attgovern = NULL;
         planet->body = NULL;
         found = FALSE;
-        snprintf(filename, MSL, "%s%s", PLANET_DIR, planetfile);
+        snprintf(filename, MSL, "%s%s", PlanetDir, planetfile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -946,7 +946,7 @@ void load_clans()
         first_clan = NULL;
         last_clan = NULL;
 
-        snprintf(clanlist, MSL, "%s%s", CLAN_DIR, ClanList);
+        snprintf(clanlist, MSL, "%s%s", ClanDir, ClanList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(clanlist, "r")) == NULL)
         {
@@ -970,7 +970,7 @@ void load_clans()
         FCLOSE(fpList);
         boot_log(" Done clans");
         boot_log("Sorting clans....");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
 
         for (clan = first_clan; clan; clan = clan->next)
         {
@@ -1014,7 +1014,7 @@ void load_planets()
         last_planet = NULL;
 
 
-        snprintf(planetlist, MSL, "%s%s", PLANET_DIR, PLANET_LIST);
+        snprintf(planetlist, MSL, "%s%s", PlanetDir, PlanetList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(planetlist, "r")) == NULL)
         {
@@ -1037,7 +1037,7 @@ void load_planets()
         }
         FCLOSE(fpList);
         boot_log(" Done planets ");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -1055,7 +1055,7 @@ CMDF do_induct(CharData * ch, char *argument)
         CharData *victim;
         ClanData *clan;
 
-        if (!IS_CLANNED(ch))
+        if (!IsClanned(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1063,7 +1063,7 @@ CMDF do_induct(CharData * ch, char *argument)
 
         clan = ch->pcdata->clan;
 
-        if (!HAS_CLAN_PERM(ch, clan, "induct"))
+        if (!HasClanPerm(ch, clan, "induct"))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1083,7 +1083,7 @@ CMDF do_induct(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("Not on NPC's.\n\r", ch);
                 return;
@@ -1091,7 +1091,7 @@ CMDF do_induct(CharData * ch, char *argument)
 
         if (victim->pcdata->clan)
         {
-                if (victim->pcdata->clan->ClanType == CLAN_CRIME)
+                if (victim->pcdata->clan->ClanType == ClanCrime)
                 {
                         if (victim->pcdata->clan == clan)
                                 send_to_char
@@ -1103,7 +1103,7 @@ CMDF do_induct(CharData * ch, char *argument)
                                          ch);
                         return;
                 }
-                else if (victim->pcdata->clan->ClanType == CLAN_GUILD)
+                else if (victim->pcdata->clan->ClanType == ClanGuild)
                 {
                         if (victim->pcdata->clan == clan)
                                 send_to_char
@@ -1153,12 +1153,12 @@ CMDF do_induct(CharData * ch, char *argument)
         }
         else
                 clan->roster = STRALLOC(victim->name);
-        act(AT_MAGIC, "You induct $N into $t", ch, clan->name, victim,
-            TO_CHAR);
-        act(AT_MAGIC, "$n inducts $N into $t", ch, clan->name, victim,
-            TO_NOTVICT);
-        act(AT_MAGIC, "$n inducts you into $t", ch, clan->name, victim,
-            TO_VICT);
+        act(AtMagic, "You induct $N into $t", ch, clan->name, victim,
+            ToChar);
+        act(AtMagic, "$n inducts $N into $t", ch, clan->name, victim,
+            ToNotvict);
+        act(AtMagic, "$n inducts you into $t", ch, clan->name, victim,
+            ToVict);
         save_char_obj(victim);
         return;
 }
@@ -1170,14 +1170,14 @@ CMDF do_outcast(CharData * ch, char *argument)
         ClanData *clan;
         char      buf[MaxStringLength];
 
-        if (IS_NPC(ch) || !ch->pcdata->clan)
+        if (IsNpc(ch) || !ch->pcdata->clan)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
         }
 
         clan = ch->pcdata->clan;
-        if (!HAS_CLAN_PERM(ch, clan, "outcast"))
+        if (!HasClanPerm(ch, clan, "outcast"))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1198,7 +1198,7 @@ CMDF do_outcast(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("Not on NPC's.\n\r", ch);
                 return;
@@ -1235,15 +1235,15 @@ CMDF do_outcast(CharData * ch, char *argument)
                         removename(&ch->pcdata->clan->roster, ch->name);
 
         victim->pcdata->clan = NULL;
-        act(AT_MAGIC, "You outcast $N from $t", ch, clan->name, victim,
-            TO_CHAR);
-        act(AT_MAGIC, "$n outcasts $N from $t", ch, clan->name, victim,
-            TO_ROOM);
-        act(AT_MAGIC, "$n outcasts you from $t", ch, clan->name, victim,
-            TO_VICT);
+        act(AtMagic, "You outcast $N from $t", ch, clan->name, victim,
+            ToChar);
+        act(AtMagic, "$n outcasts $N from $t", ch, clan->name, victim,
+            ToRoom);
+        act(AtMagic, "$n outcasts you from $t", ch, clan->name, victim,
+            ToVict);
         snprintf(buf, MSL, "%s has been outcast from %s!", victim->name,
                  clan->name);
-        echo_to_all(AT_MAGIC, buf, EchoTarAll);
+        echo_to_all(AtMagic, buf, EchoTarAll);
 
         STRFREE(victim->pcdata->bestowments);
         victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
@@ -1258,7 +1258,7 @@ CMDF do_setclan(CharData * ch, char *argument)
         char      arg2[MaxInputLength];
         ClanData *clan;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1319,7 +1319,7 @@ CMDF do_setclan(CharData * ch, char *argument)
                         send_to_char("Subclan is not a clan.\n\r", ch);
                         return;
                 }
-                if (subclan->ClanType == CLAN_SUBCLAN || subclan->mainclan)
+                if (subclan->ClanType == ClanSubclan || subclan->mainclan)
                 {
                         send_to_char
                                 ("Subclan is already part of another organization.\n\r",
@@ -1333,7 +1333,7 @@ CMDF do_setclan(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                subclan->ClanType = CLAN_SUBCLAN;
+                subclan->ClanType = ClanSubclan;
                 subclan->mainclan = clan;
                 LINK(subclan, clan->first_subclan, clan->last_subclan,
                      next_subclan, prev_subclan);
@@ -1439,11 +1439,11 @@ CMDF do_setclan(CharData * ch, char *argument)
                         clan->mainclan = NULL;
                 }
                 if (!str_cmp(argument, "crime"))
-                        clan->ClanType = CLAN_CRIME;
+                        clan->ClanType = ClanCrime;
                 else if (!str_cmp(argument, "crime family"))
-                        clan->ClanType = CLAN_CRIME;
+                        clan->ClanType = ClanCrime;
                 else if (!str_cmp(argument, "guild"))
-                        clan->ClanType = CLAN_GUILD;
+                        clan->ClanType = ClanGuild;
                 else
                         clan->ClanType = 0;
                 send_to_char("Done.\n\r", ch);
@@ -1542,7 +1542,7 @@ CMDF do_clanset(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch) || str_cmp(ch->name, clan->leader))
+        if (IsNpc(ch) || str_cmp(ch->name, clan->leader))
         {
                 send_to_char("You are not the leader of your clan.\n\r", ch);
                 return;
@@ -1639,7 +1639,7 @@ CMDF do_clanset(CharData * ch, char *argument)
 
                 argument = one_argument(argument, arg2);
                 rank = atoi(arg2);
-                if (rank > MAX_RANK || rank < 0)
+                if (rank > MaxRank || rank < 0)
                 {
                         send_to_char("Range is 0 - 13", ch);
                         return;
@@ -1659,7 +1659,7 @@ CMDF do_clanset(CharData * ch, char *argument)
 
                 argument = one_argument(argument, arg2);
                 rank = atoi(arg2);
-                if (rank > MAX_RANK || rank < 0)
+                if (rank > MaxRank || rank < 0)
                 {
                         send_to_char("Range is 0 - 13", ch);
                         return;
@@ -1682,7 +1682,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
         PlanetData *planet;
         int       i;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1773,7 +1773,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
         }
         else if (!strcmp(arg2, "initialize"))
         {
-                for (i = 0; i < CARGO_MAX; i++)
+                for (i = 0; i < CargoMax; i++)
                 {
                         planet->resource[i] = 50000;
                         planet->produces[i] = 275;
@@ -1783,7 +1783,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
         }
         else if (!strcmp(arg2, "contraband"))
         {
-                for (i = CARGO_MAX + 1; i < CONTRABAND_MAX; i++)
+                for (i = CargoMax + 1; i < ContrabandMax; i++)
                 {
                         planet->resource[i] = 5000;
                         planet->produces[i] = 10;
@@ -1846,9 +1846,9 @@ CMDF do_setplanet(CharData * ch, char *argument)
                                 break;
 
                         if (!str_cmp(farg, "nocapture"))
-                                TOGGLE_BIT(planet->flags, PLANET_NOCAPTURE);
+                                ToggleBit(planet->flags, PlanetNocapture);
                         else if (!str_cmp(farg, "shield"))
-                                TOGGLE_BIT(planet->flags, PLANET_SHIELD);
+                                ToggleBit(planet->flags, PlanetShield);
                         else
                                 ch_printf(ch, "No such flag: %s\n\r", farg);
                 }
@@ -1856,7 +1856,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
         else if (!strcmp(arg2, "import"))
         {
                 argument = one_argument(argument, arg3);
-                for (i = 0; i < CONTRABAND_MAX; i++)
+                for (i = 0; i < ContrabandMax; i++)
                 {
                         if (!str_cmp(arg3, cargo_names[i]))
                         {
@@ -1865,7 +1865,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
                                 break;
                         }
                 }
-                if (i == CONTRABAND_MAX)
+                if (i == ContrabandMax)
                 {
                         send_to_char("No such resource type\r\n", ch);
                         return;
@@ -1874,7 +1874,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
         else if (!strcmp(arg2, "export"))
         {
                 argument = one_argument(argument, arg3);
-                for (i = 0; i < CONTRABAND_MAX; i++)
+                for (i = 0; i < ContrabandMax; i++)
                 {
                         if (!str_cmp(arg3, cargo_names[i]))
                         {
@@ -1883,7 +1883,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
                                 break;
                         }
                 }
-                if (i == CONTRABAND_MAX)
+                if (i == ContrabandMax)
                 {
                         send_to_char("No such resource type\r\n", ch);
                         return;
@@ -1892,7 +1892,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
         else if (!strcmp(arg2, "resource"))
         {
                 argument = one_argument(argument, arg3);
-                for (i = 0; i < CONTRABAND_MAX; i++)
+                for (i = 0; i < ContrabandMax; i++)
                 {
                         if (!str_cmp(arg3, cargo_names[i]))
                         {
@@ -1900,7 +1900,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
                                 break;
                         }
                 }
-                if (i == CONTRABAND_MAX)
+                if (i == ContrabandMax)
                 {
                         send_to_char("No such resource type\r\n", ch);
                         return;
@@ -1909,7 +1909,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
         else if (!strcmp(arg2, "produces"))
         {
                 argument = one_argument(argument, arg3);
-                for (i = 0; i < CONTRABAND_MAX; i++)
+                for (i = 0; i < ContrabandMax; i++)
                 {
                         if (!str_cmp(arg3, cargo_names[i]))
                         {
@@ -1917,7 +1917,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
                                 break;
                         }
                 }
-                if (i == CONTRABAND_MAX)
+                if (i == ContrabandMax)
                 {
                         send_to_char("No such resource type\r\n", ch);
                         return;
@@ -1926,7 +1926,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
         else if (!strcmp(arg2, "consumes"))
         {
                 argument = one_argument(argument, arg3);
-                for (i = 0; i < CONTRABAND_MAX; i++)
+                for (i = 0; i < ContrabandMax; i++)
                 {
                         if (!str_cmp(arg3, cargo_names[i]))
                         {
@@ -1934,7 +1934,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
                                 break;
                         }
                 }
-                if (i == CONTRABAND_MAX)
+                if (i == ContrabandMax)
                 {
                         send_to_char("No such resource type\r\n", ch);
                         return;
@@ -1971,7 +1971,7 @@ CMDF do_showclan(CharData * ch, char *argument)
 {
         ClanData *clan;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1991,8 +1991,8 @@ CMDF do_showclan(CharData * ch, char *argument)
         }
 
         ch_printf(ch, "%s      : %s\n\rFilename: %s\n\r",
-                  clan->ClanType == CLAN_CRIME ? "Crime Family " :
-                  clan->ClanType == CLAN_GUILD ? "Guild " : "Organization ",
+                  clan->ClanType == ClanCrime ? "Crime Family " :
+                  clan->ClanType == ClanGuild ? "Guild " : "Organization ",
                   clan->name, clan->filename);
         ch_printf(ch, "Description: %s\n\rLeader: %s\n\r",
                   clan->description, clan->leader);
@@ -2021,7 +2021,7 @@ CMDF do_showplanet(CharData * ch, char *argument)
 {
         PlanetData *planet = NULL;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -2041,7 +2041,7 @@ CMDF do_showplanet(CharData * ch, char *argument)
         }
 
         ch_printf(ch, "&W%s\n\r", planet->name);
-        if (IS_IMMORTAL(ch))
+        if (IsImmortal(ch))
         {
                 AreaData *area = NULL;
 
@@ -2113,7 +2113,7 @@ CMDF do_makeclan(CharData * ch, char *argument)
         clan->enliston = 1;
         clan->alignment = 0;
         clan->roster = NULL;
-	for (i=0;i<MAX_RANK ;i++ )
+	for (i=0;i<MaxRank ;i++ )
 		clan->rank[i] = STRALLOC(const_cast<char*>("None"));
 	save_clan(clan);
 	write_clan_list();
@@ -2132,7 +2132,7 @@ CMDF do_makeclan(CharData * ch, char *argument)
         }
 
         found = FALSE;
-        snprintf(filename, MSL, "%s%s", PLANET_DIR, strlower(argument));
+        snprintf(filename, MSL, "%s%s", PlanetDir, strlower(argument));
 
         CREATE(planet, PlanetData, 1);
         LINK(planet, first_planet, last_planet, next, prev);
@@ -2152,16 +2152,16 @@ char     *ClanType(ClanData * clan)
 
         switch (clan->ClanType)
         {
-        case CLAN_PLAIN:
+        case ClanPlain:
                 mudstrlcpy(type, "Government", 250);
                 break;
-        case CLAN_CRIME:
+        case ClanCrime:
                 mudstrlcpy(type, "Crime", 250);
                 break;
-        case CLAN_GUILD:
+        case ClanGuild:
                 mudstrlcpy(type, "Guild", 250);
                 break;
-        case CLAN_SUBCLAN:
+        case ClanSubclan:
                 mudstrlcpy(type, "Subclan", 250);
                 break;
         default:
@@ -2178,14 +2178,14 @@ CMDF do_clans(CharData * ch, char *argument)
 
         if (!first_clan)
         {
-                set_pager_color(AT_BLOOD, ch);
+                set_pager_color(AtBlood, ch);
                 send_to_pager("There are no clans currently formed.\n\r", ch);
                 return;
         }
 
         if (argument[0] == '\0')
         {
-                set_pager_color(AT_WHITE, ch);
+                set_pager_color(AtWhite, ch);
 
 
                 send_to_pager
@@ -2193,9 +2193,9 @@ CMDF do_clans(CharData * ch, char *argument)
                          ch);
                 for (clan = first_clan; clan; clan = clan->next)
                 {
-                        if (    /*clan->ClanType == CLAN_CRIME || 
-                                 * clan->ClanType == CLAN_GUILD ||  */
-                                   clan->ClanType == CLAN_SUBCLAN)
+                        if (    /*clan->ClanType == ClanCrime || 
+                                 * clan->ClanType == ClanGuild ||  */
+                                   clan->ClanType == ClanSubclan)
                                 continue;
 
                         pager_printf(ch,
@@ -2237,7 +2237,7 @@ CMDF do_clans(CharData * ch, char *argument)
                  * for ( clan = first_clan; clan; clan = clan->next )
                  * {
                  * if ( !str_cmp ( clan->name, "none" ) ) continue;
-                 * if ( clan->ClanType != CLAN_CRIME && clan->ClanType != CLAN_GUILD ) continue;
+                 * if ( clan->ClanType != ClanCrime && clan->ClanType != ClanGuild ) continue;
                  * pager_printf( ch, "&BO&zrganization: &W%s\n\r", clan->name);
                  * pager_printf( ch, "  &BE&znlisting?: &W%-3s&B           &BM&zembers: &W%-4d&B           &BM&zin. &BA&zlign: &W%-5d&B\n\r",
                  * clan->enliston == 1 ? "Yes" : 
@@ -2290,10 +2290,10 @@ CMDF do_planets(CharData * ch, char *argument)
 
         if (argument[0] == '\0')
         {
-                set_pager_color(AT_WHITE, ch);
+                set_pager_color(AtWhite, ch);
                 if (!first_planet)
                 {
-                        set_pager_color(AT_BLOOD, ch);
+                        set_pager_color(AtBlood, ch);
                         send_to_pager
                                 ("There are no planets currently formed.\n\r",
                                  ch);
@@ -2310,8 +2310,8 @@ CMDF do_planets(CharData * ch, char *argument)
                                      planet->name,
                                      planet->governed_by ? planet->
                                      governed_by->name : "",
-                                     IS_SET(planet->flags,
-                                            PLANET_NOCAPTURE) ?
+                                     IsSet(planet->flags,
+                                            PlanetNocapture) ?
                                      "&B(&zpermanent&B)" : "");
                         pager_printf(ch, "&BV&zalue: &w%-10ld&z/&w%-10d   ",
                                      get_taxes(planet), planet->base_value);
@@ -2347,8 +2347,8 @@ CMDF do_planets(CharData * ch, char *argument)
                              "&BP&zlanet: &w%-15s        &BG&zoverned &BB&zy: &w%s %s\n\r",
                              planet->name,
                              planet->governed_by ? planet->governed_by->
-                             name : "", IS_SET(planet->flags,
-                                               PLANET_NOCAPTURE) ?
+                             name : "", IsSet(planet->flags,
+                                               PlanetNocapture) ?
                              "&B(&zpermanent&B)" : "");
                 pager_printf(ch, "&BV&zalue: &w%-10ld&z/&w%-10d   ",
                              get_taxes(planet), planet->base_value);
@@ -2361,12 +2361,12 @@ CMDF do_planets(CharData * ch, char *argument)
                 pager_printf(ch,
                              "&BP&zlanetary &BS&zhields: &w%-8d    &BT&zurbolasers: &w%.1d &BI&zon &BC&zannons: &w%.1d\n\r",
                              planetary_installations(planet,
-                                                     BATTERY_INSTALLATION),
+                                                     BatteryInstallation),
                              planetary_installations(planet,
-                                                     TURBOLASER_INSTALLATION),
+                                                     TurbolaserInstallation),
                              planetary_installations(planet,
-                                                     ION_INSTALLATION));
-                if (IS_IMMORTAL(ch))
+                                                     IonInstallation));
+                if (IsImmortal(ch))
                 {
                         pager_printf(ch, "&BA&zreas: &w");
                         for (area = planet->first_area; area;
@@ -2421,10 +2421,10 @@ CMDF do_shove(CharData * ch, char *argument)
                 return;
         }
 
-        if ((victim->position) != POS_STANDING)
+        if ((victim->position) != PosStanding)
         {
-                act(AT_PLAIN, "$N isn't standing up.", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtPlain, "$N isn't standing up.", ch, NULL, victim,
+                    ToChar);
                 return;
         }
 
@@ -2435,25 +2435,25 @@ CMDF do_shove(CharData * ch, char *argument)
         }
 
         exit_dir = get_dir(arg2);
-        if (xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE)
-            && get_timer(victim, TIMER_SHOVEDRAG) <= 0)
+        if (xIS_SET(victim->in_room->RoomFlags, RoomSafe)
+            && get_timer(victim, TimerShovedrag) <= 0)
         {
                 send_to_char("That character cannot be shoved right now.\n\r",
                              ch);
                 return;
         }
-        victim->position = POS_SHOVE;
+        victim->position = PosShove;
         nogo = FALSE;
         if ((pexit = get_exit(ch->in_room, static_cast<sh_int>(exit_dir))) == NULL)
                 nogo = TRUE;
-        else if (IS_SET(pexit->exit_info, EX_CLOSED)
-                 && (!IS_AFFECTED(victim, AFF_PASS_DOOR)
-                     || IS_SET(pexit->exit_info, EX_NOPASSDOOR)))
+        else if (IsSet(pexit->exit_info, ExClosed)
+                 && (!IsAffected(victim, AffPassDoor)
+                     || IsSet(pexit->exit_info, ExNopassdoor)))
                 nogo = TRUE;
         if (nogo)
         {
                 send_to_char("There's no exit in that direction.\n\r", ch);
-                victim->position = POS_STANDING;
+                victim->position = PosStanding;
                 return;
         }
         to_room = pexit->to_room;
@@ -2464,7 +2464,7 @@ CMDF do_shove(CharData * ch, char *argument)
         {
                 send_to_char("That character cannot enter that area.\n\r",
                              ch);
-                victim->position = POS_STANDING;
+                victim->position = PosStanding;
                 return;
         }
 
@@ -2480,27 +2480,27 @@ below 15 */
 /* Debugging purposes - show percentage for testing */
 
 /* snprintf(buf, MSL, "Shove percentage of %s = %d", ch->name, percent_chance);
-act( AT_ACTION, buf, ch, NULL, NULL, TO_ROOM );
+act( AtAction, buf, ch, NULL, NULL, ToRoom );
 */
 
         if (percent_chance < number_percent())
         {
                 send_to_char("You failed.\n\r", ch);
-                victim->position = POS_STANDING;
+                victim->position = PosStanding;
                 return;
         }
-        act(AT_ACTION, "You shove $M.", ch, NULL, victim, TO_CHAR);
-        act(AT_ACTION, "$n shoves you.", ch, NULL, victim, TO_VICT);
+        act(AtAction, "You shove $M.", ch, NULL, victim, ToChar);
+        act(AtAction, "$n shoves you.", ch, NULL, victim, ToVict);
         move_char(victim, get_exit(ch->in_room, static_cast<sh_int>(exit_dir)), 0, FALSE);
         if (!char_died(victim))
-                victim->position = POS_STANDING;
-        WAIT_STATE(ch, 12);
+                victim->position = PosStanding;
+        WaitState(ch, 12);
         /*
          * Remove protection from shove/drag if char shoves -- Blodkai 
          */
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE)
-            && get_timer(ch, TIMER_SHOVEDRAG) <= 0)
-                add_timer(ch, TIMER_SHOVEDRAG, 10, NULL, 0);
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe)
+            && get_timer(ch, TimerShovedrag) <= 0)
+                add_timer(ch, TimerShovedrag, 10, NULL, 0);
 }
 
 CMDF do_drag(CharData * ch, char *argument)
@@ -2553,8 +2553,8 @@ CMDF do_drag(CharData * ch, char *argument)
 
         exit_dir = get_dir(arg2);
 
-        if (xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE)
-            && get_timer(victim, TIMER_SHOVEDRAG) <= 0)
+        if (xIS_SET(victim->in_room->RoomFlags, RoomSafe)
+            && get_timer(victim, TimerShovedrag) <= 0)
         {
                 send_to_char
                         ("That character cannot be dragged right now.\n\r",
@@ -2565,9 +2565,9 @@ CMDF do_drag(CharData * ch, char *argument)
         nogo = FALSE;
         if ((pexit = get_exit(ch->in_room, static_cast<sh_int>(exit_dir))) == NULL)
                 nogo = TRUE;
-        else if (IS_SET(pexit->exit_info, EX_CLOSED)
-                 && (!IS_AFFECTED(victim, AFF_PASS_DOOR)
-                     || IS_SET(pexit->exit_info, EX_NOPASSDOOR)))
+        else if (IsSet(pexit->exit_info, ExClosed)
+                 && (!IsAffected(victim, AffPassDoor)
+                     || IsSet(pexit->exit_info, ExNopassdoor)))
                 nogo = TRUE;
         if (nogo)
         {
@@ -2582,7 +2582,7 @@ CMDF do_drag(CharData * ch, char *argument)
         {
                 send_to_char("That character cannot enter that area.\n\r",
                              ch);
-                victim->position = POS_STANDING;
+                victim->position = PosStanding;
                 return;
         }
 
@@ -2591,30 +2591,30 @@ CMDF do_drag(CharData * ch, char *argument)
 
 /*
 snprintf(buf,MSL,  "Drag percentage of %s = %d", ch->name, percent_chance);
-act( AT_ACTION, buf, ch, NULL, NULL, TO_ROOM );
+act( AtAction, buf, ch, NULL, NULL, ToRoom );
 */
         if (percent_chance < number_percent())
         {
                 send_to_char("You failed.\n\r", ch);
-                victim->position = POS_STANDING;
+                victim->position = PosStanding;
                 return;
         }
-        if (victim->position < POS_STANDING)
+        if (victim->position < PosStanding)
         {
                 sh_int    temp;
 
                 temp = victim->position;
-                victim->position = POS_DRAG;
-                act(AT_ACTION, "You drag $M into the next room.", ch, NULL,
-                    victim, TO_CHAR);
-                act(AT_ACTION, "$n grabs your hair and drags you.", ch, NULL,
-                    victim, TO_VICT);
+                victim->position = PosDrag;
+                act(AtAction, "You drag $M into the next room.", ch, NULL,
+                    victim, ToChar);
+                act(AtAction, "$n grabs your hair and drags you.", ch, NULL,
+                    victim, ToVict);
                 move_char(victim, get_exit(ch->in_room, static_cast<sh_int>(exit_dir)), 0, FALSE);
                 if (!char_died(victim))
                         victim->position = temp;
 /* Move ch to the room too.. they are doing dragging - Scryn */
                 move_char(ch, get_exit(ch->in_room, static_cast<sh_int>(exit_dir)), 0, FALSE);
-                WAIT_STATE(ch, 12);
+                WaitState(ch, 12);
                 return;
         }
         send_to_char("You cannot do that to someone who is standing.\n\r",
@@ -2627,9 +2627,9 @@ CMDF do_enlist(CharData * ch, char *argument)
         (void)argument;  // Currently unused but kept for command interface consistency
 
         ClanData *clan;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
@@ -2654,7 +2654,7 @@ CMDF do_enlist(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_RECRUIT))
+        if (!xIS_SET(ch->in_room->RoomFlags, RoomRecruit))
         {
                 send_to_char
                         ("You don't seem to be in a recruitment office.\n\r",
@@ -2757,7 +2757,7 @@ CMDF do_resign(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
@@ -2796,16 +2796,16 @@ CMDF do_resign(CharData * ch, char *argument)
                 if (hasname(ch->pcdata->clan->roster, ch->name))
                         removename(&ch->pcdata->clan->roster, ch->name);
         ch->pcdata->clan = NULL;
-        act(AT_MAGIC, "You resign your position in $t", ch, clan->name, NULL,
-            TO_CHAR);
+        act(AtMagic, "You resign your position in $t", ch, clan->name, NULL,
+            ToChar);
         snprintf(buf, MSL, "%s has quit %s!", ch->name, clan->name);
-        echo_to_all(AT_MAGIC, buf, EchoTarAll);
+        echo_to_all(AtMagic, buf, EchoTarAll);
 
         lose_exp =
-                UMAX(ch->experience[DIPLOMACY_ABILITY] -
-                     exp_level(ch->skill_level[DIPLOMACY_ABILITY]), 0);
+                UMAX(ch->experience[DiplomacyAbility] -
+                     exp_level(ch->skill_level[DiplomacyAbility]), 0);
         ch_printf(ch, "You lose %ld diplomacy experience.\n\r", lose_exp);
-        ch->experience[DIPLOMACY_ABILITY] -= lose_exp;
+        ch->experience[DiplomacyAbility] -= lose_exp;
 
         STRFREE(ch->pcdata->bestowments);
         ch->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
@@ -2820,7 +2820,7 @@ CMDF do_clan_withdraw(CharData * ch, char *argument)
         ClanData *clan;
         long      amount;
 
-        if (IS_NPC(ch) || !ch->pcdata->clan)
+        if (IsNpc(ch) || !ch->pcdata->clan)
         {
                 send_to_char
                         ("You don't seem to belong to an organization to withdraw funds from...\n\r",
@@ -2828,13 +2828,13 @@ CMDF do_clan_withdraw(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BANK))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBank))
         {
                 send_to_char("You must be in a bank to do that!\n\r", ch);
                 return;
         }
 
-        if (!HAS_CLAN_PERM(ch, ch->pcdata->clan, "withdraw"))
+        if (!HasClanPerm(ch, ch->pcdata->clan, "withdraw"))
         {
                 send_to_char
                         ("&RYour organization hasn't seen fit to bestow you with that ability.",
@@ -2879,7 +2879,7 @@ CMDF do_clan_donate(CharData * ch, char *argument)
         ClanData *clan;
         long      amount;
 
-        if (IS_NPC(ch) || !ch->pcdata->clan)
+        if (IsNpc(ch) || !ch->pcdata->clan)
         {
                 send_to_char
                         ("You don't seem to belong to an organization to donate to...\n\r",
@@ -2887,7 +2887,7 @@ CMDF do_clan_donate(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BANK))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBank))
         {
                 send_to_char("You must be in a bank to do that!\n\r", ch);
                 return;
@@ -2939,7 +2939,7 @@ CMDF do_appoint(CharData * ch, char *argument)
 
         argument = one_argument(argument, arg);
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         if (!ch->pcdata->clan)
@@ -2998,7 +2998,7 @@ CMDF do_appoint(CharData * ch, char *argument)
 CMDF do_demote(CharData * ch, char *argument)
 {
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         if (!ch->pcdata->clan)
@@ -3047,7 +3047,7 @@ CMDF do_capture(CharData * ch, char *argument)
 {
         (void)argument;  // Currently unused but kept for command interface consistency
         ClanData *clan;
-        INSTALLATION_DATA *install;
+        InstallationData *install;
         PlanetData *planet;
 
 /*	float support = 0.0;
@@ -3059,7 +3059,7 @@ CMDF do_capture(CharData * ch, char *argument)
         if (!ch->in_room || !ch->in_room->area)
                 return;
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 send_to_char("huh?\n\r", ch);
                 return;
@@ -3077,7 +3077,7 @@ CMDF do_capture(CharData * ch, char *argument)
         else
                 clan = ch->pcdata->clan;
 
-        if (clan->ClanType == CLAN_CRIME)
+        if (clan->ClanType == ClanCrime)
         {
                 send_to_char
                         ("Crime fimilies aren't in the business of controlling worlds.\n\r",
@@ -3085,7 +3085,7 @@ CMDF do_capture(CharData * ch, char *argument)
                 return;
         }
 
-        if (clan->ClanType == CLAN_GUILD)
+        if (clan->ClanType == ClanGuild)
         {
                 send_to_char
                         ("Your organization serves a much greater purpose.\n\r",
@@ -3103,7 +3103,7 @@ CMDF do_capture(CharData * ch, char *argument)
         /*
          * Always do simple checks first, before the loops 
          */
-        if (IS_SET(planet->flags, PLANET_NOCAPTURE))
+        if (IsSet(planet->flags, PlanetNocapture))
         {
                 send_to_char("This planet cannot be captured.\n\r", ch);
                 return;
@@ -3179,7 +3179,7 @@ CMDF do_capture(CharData * ch, char *argument)
 
         snprintf(buf, MSL, "%s has been captured by %s!", planet->name,
                  clan->name);
-        echo_to_all(AT_RED, buf, 0);
+        echo_to_all(AtRed, buf, 0);
 
         save_planet(planet, FALSE);
 
@@ -3196,14 +3196,14 @@ CMDF do_empower(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         int       ranknum;
 
-        if (IS_NPC(ch) || !ch->pcdata->clan)
+        if (IsNpc(ch) || !ch->pcdata->clan)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
         }
 
         clan = ch->pcdata->clan;
-		if (!HAS_CLAN_PERM(ch, clan, "empower"))
+		if (!HasClanPerm(ch, clan, "empower"))
         {
                 send_to_char
                         ("You clan hasn't seen fit to bestow that ability to you!\n\r",
@@ -3227,7 +3227,7 @@ CMDF do_empower(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("Not on NPC's.\n\r", ch);
                 return;
@@ -3351,12 +3351,12 @@ CMDF do_empower(CharData * ch, char *argument)
                          arg2);
                 STRFREE(victim->pcdata->bestowments);
                 victim->pcdata->bestowments = STRALLOC(buf);
-                act(AT_PLAIN,
+                act(AtPlain,
                     "$n has given you permission to empower members.", ch,
-                    NULL, victim, TO_VICT);
-                act(AT_PLAIN,
+                    NULL, victim, ToVict);
+                act(AtPlain,
                     "Okay, $n now has the ability to empower members.", ch,
-                    NULL, victim, TO_CHAR);
+                    NULL, victim, ToChar);
         }
         else if (!str_cmp(arg2, "clansellship"))
         {
@@ -3364,12 +3364,12 @@ CMDF do_empower(CharData * ch, char *argument)
                          arg2);
                 STRFREE(victim->pcdata->bestowments);
                 victim->pcdata->bestowments = STRALLOC(buf);
-                act(AT_PLAIN,
+                act(AtPlain,
                     "$n has given you permission to sell clan ships.", ch,
-                    NULL, victim, TO_VICT);
-                act(AT_PLAIN,
+                    NULL, victim, ToVict);
+                act(AtPlain,
                     "Okay, $n now has the ability to sell clan ships.", ch,
-                    NULL, victim, TO_CHAR);
+                    NULL, victim, ToChar);
         }
         else if (!str_cmp(arg2, "rank"))
         {
@@ -3382,7 +3382,7 @@ CMDF do_empower(CharData * ch, char *argument)
                 }
 				newrank = atoi(arg3);
 
-				if (newrank >= MAX_RANK) {
+				if (newrank >= MaxRank) {
 						send_to_char("There are not that many ranks available.\n\r", ch);
 						return;
 				}
@@ -3393,19 +3393,19 @@ CMDF do_empower(CharData * ch, char *argument)
                         return;
                 }
 
-                if (newrank == (MAX_RANK - 1) && str_cmp(victim->name, clan->leader))
+                if (newrank == (MaxRank - 1) && str_cmp(victim->name, clan->leader))
                 {
-                        ch_printf(ch, "Only the leaders rank %d.\n\r", (MAX_RANK - 1));
+                        ch_printf(ch, "Only the leaders rank %d.\n\r", (MaxRank - 1));
                         return;
                 }
-                if (newrank == (MAX_RANK - 2) && str_cmp(victim->name, clan->number1))
+                if (newrank == (MaxRank - 2) && str_cmp(victim->name, clan->number1))
                 {
-                        ch_printf(ch, "Only the second in commands get rank %d.\n\r", MAX_RANK - 2);
+                        ch_printf(ch, "Only the second in commands get rank %d.\n\r", MaxRank - 2);
                         return;
                 }
-                if (newrank == (MAX_RANK - 3) && str_cmp(victim->name, clan->number2))
+                if (newrank == (MaxRank - 3) && str_cmp(victim->name, clan->number2))
                 {
-                        ch_printf(ch, "Only the third in commands get rank %d.\n\r", MAX_RANK - 3);
+                        ch_printf(ch, "Only the third in commands get rank %d.\n\r", MaxRank - 3);
                         return;
                 }
 
@@ -3489,14 +3489,14 @@ CMDF do_imports(CharData * ch, char *argument)
                   "&GResource       &CImport     &YExport    &PProduces    &RConsumes         &GAmount\r\n");
         ch_printf(ch,
                   "&G-------------    -------      ------     --------     --------          ------\r\n");
-        for (i = 1; i < CARGO_MAX; i++)
+        for (i = 1; i < CargoMax; i++)
                 ch_printf(ch,
                           "&G%-14.14s    &C%5d/ton  &Y%5d/ton &P%6d tons  &R%6d tons  &G%9d\r\n",
                           cargo_names[i], planet->cargoimport[i],
                           planet->cargoexport[i], planet->produces[i],
                           planet->consumes[i], planet->resource[i]);
-        if (IS_IMMORTAL(ch) || ch->pcdata->learned[gsn_contraband] > 0)
-                for (i = CONTRABAND_NONE + 1; i < CONTRABAND_MAX; i++)
+        if (IsImmortal(ch) || ch->pcdata->learned[gsn_contraband] > 0)
+                for (i = ContrabandNone + 1; i < ContrabandMax; i++)
                         ch_printf(ch,
                                   "&G%-14.14s    &C%5d/ton  &Y%5d/ton &P%6d tons  &R%6d tons  &G%9d\r\n",
                                   cargo_names[i], planet->cargoimport[i],
@@ -3521,7 +3521,7 @@ CMDF do_recruit(CharData * ch, char *argument)
                 return;
         }
 
-        if (!HAS_CLAN_PERM(ch, clan, "battalions"))
+        if (!HasClanPerm(ch, clan, "battalions"))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -3551,7 +3551,7 @@ CMDF do_recruit(CharData * ch, char *argument)
                         return;
                 }
 
-                if (ship->ship_class != CAPITAL_SHIP)
+                if (ship->ship_class != CapitalShip)
                 {
                         send_to_char
                                 ("You can only recruit on capital ships.\n\r",
@@ -3593,7 +3593,7 @@ CMDF do_recruit(CharData * ch, char *argument)
                 }
         }
 
-        percent_chance = IS_NPC(ch) ? ch->top_level
+        percent_chance = IsNpc(ch) ? ch->top_level
                 : static_cast<int>(ch->pcdata->learned[gsn_recruit]);
 
         if (number_percent() > percent_chance)
@@ -3623,15 +3623,15 @@ CMDF do_recruit(CharData * ch, char *argument)
         if (ship)
                 send_to_char("You recruit your battalions!", ch);
         xp = UMIN(cost,
-                  exp_level(ch->skill_level[LEADERSHIP_ABILITY] + 1) * 100);
-        gain_exp(ch, xp, LEADERSHIP_ABILITY);
+                  exp_level(ch->skill_level[LeadershipAbility] + 1) * 100);
+        gain_exp(ch, xp, LeadershipAbility);
         ch_printf(ch, "&WYou gain %ld leadership experience!\n\r", xp);
 
         if (planet)
                 save_planet(planet, FALSE);
         else if (ship)
                 save_ship(ship);
-        WAIT_STATE(ch, skill_table[gsn_recruit]->beats);
+        WaitState(ch, skill_table[gsn_recruit]->beats);
         learn_from_success(ch, gsn_recruit);
         return;
 
@@ -3662,7 +3662,7 @@ CMDF do_load_battalions(CharData * ch, char *argument)
                 return;
         }
 
-        if (!HAS_CLAN_PERM(ch, clan, "battalions"))
+        if (!HasClanPerm(ch, clan, "battalions"))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -3685,8 +3685,8 @@ CMDF do_load_battalions(CharData * ch, char *argument)
 
         if (!ship)
         {
-                act(AT_PLAIN, "I see no $T here.", ch, ship, argument,
-                    TO_CHAR);
+                act(AtPlain, "I see no $T here.", ch, ship, argument,
+                    ToChar);
                 return;
         }
 
@@ -3783,7 +3783,7 @@ CMDF do_deploy_battalions(CharData * ch, char *argument)
         }
 
 
-        if (!HAS_CLAN_PERM(ch, clan, "battalions"))
+        if (!HasClanPerm(ch, clan, "battalions"))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -3804,7 +3804,7 @@ CMDF do_deploy_battalions(CharData * ch, char *argument)
 
         if (!ship)
         {
-                act(AT_PLAIN, "I see no $T here.", ch, NULL, arg2, TO_CHAR);
+                act(AtPlain, "I see no $T here.", ch, NULL, arg2, ToChar);
                 return;
         }
 
@@ -3852,7 +3852,7 @@ CMDF do_deploy_battalions(CharData * ch, char *argument)
                         planet->attgovern = clan;
                         snprintf(buf, MSL, "%s is being attacked by %s!",
                                  planet->name, clan->name);
-                        echo_to_all(AT_RED, buf, 0);
+                        echo_to_all(AtRed, buf, 0);
                 }
                 send_to_char
                         ("You deploy your ships battalions onto the planet.",
@@ -3928,10 +3928,10 @@ CMDF do_clanstat(CharData * ch, char *argument)
         count = 0;
         for (ship = first_ship; ship; ship = ship->next)
         {
-                if (ship->type == MOB_SHIP)
+                if (ship->type == MobShip)
                         continue;
                 if (str_cmp(ship->owner, ch->pcdata->clan->name)
-                    || ship->ship_class > SHIP_PLATFORM)
+                    || ship->ship_class > ShipPlatform)
                         continue;
 
 
@@ -3955,7 +3955,7 @@ CMDF do_clanstat(CharData * ch, char *argument)
         ch_printf(ch, "&BRank Titles\n\r");
         ch_printf(ch,
                   "&c-----------------------------------------------------------------------------&R&W\n\r");
-        for (count = 0; count < MAX_RANK; count++)
+        for (count = 0; count < MaxRank; count++)
         {
                 ch_printf(ch, "&BRank %-2d: &c%-18s ", count,clan->rank[count]);
                 if ((count+1) % 3 == 0 && count != 0)
@@ -3966,7 +3966,7 @@ CMDF do_clanstat(CharData * ch, char *argument)
         ch_printf(ch, "&BRank Salaries\n\r");
         ch_printf(ch,
                   "&c-----------------------------------------------------------------------------&R&W\n\r");
-        for (count = 0; count < MAX_RANK; count++)
+        for (count = 0; count < MaxRank; count++)
         {
                 ch_printf(ch, "&BRank %-2d: &c%-18d ", count, clan->salary[count]);
                 if ((count+1) % 3 == 0 && count != 0)
@@ -4001,7 +4001,7 @@ CMDF do_clanstat(CharData * ch, char *argument)
                           "&c-----------------------------------------------------------------------------&R&W\n\r");
                 ch_printf(ch, "&c%s\n\r", wordwrap(clan->roster, 73));
         }
-        set_pager_color(AT_WHITE, ch);
+        set_pager_color(AtWhite, ch);
 }
 
 CMDF do_overthrow(CharData * ch, char *argument)
@@ -4009,7 +4009,7 @@ CMDF do_overthrow(CharData * ch, char *argument)
         (void)argument;  // Currently unused but kept for command interface consistency
         ClanData *clan;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!ch->pcdata || !ch->pcdata->clan)
@@ -4056,7 +4056,7 @@ CMDF do_overthrow(CharData * ch, char *argument)
         else
                 ch->pcdata->clan->leader = STRALLOC(ch->name);
 
-        ch->pcdata->clanrank = MAX_RANK;
+        ch->pcdata->clanrank = MaxRank;
         save_char_obj(ch);  /* clan gets saved when pfile is saved */
 }
 
@@ -4065,12 +4065,12 @@ bool is_clan_enemy(CharData * ch, CharData * victim)
         ClanData *ch_clan = NULL;
         ClanData *vict_clan = NULL;
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 vict_clan = get_clan(victim->mob_clan);
         else
                 vict_clan = victim->pcdata->clan;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 ch_clan = get_clan(ch->mob_clan);
         else
                 ch_clan = ch->pcdata->clan;
@@ -4098,12 +4098,12 @@ bool is_clan_ally(CharData * ch, CharData * victim)
         ClanData *ch_clan = NULL;
         ClanData *vict_clan = NULL;
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 vict_clan = get_clan(victim->mob_clan);
         else
                 vict_clan = victim->pcdata->clan;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 ch_clan = get_clan(ch->mob_clan);
         else
                 ch_clan = ch->pcdata->clan;
@@ -4131,12 +4131,12 @@ bool is_same_clan(CharData * ch, CharData * victim)
         ClanData *ch_clan = NULL;
         ClanData *vict_clan = NULL;
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 vict_clan = get_clan(victim->mob_clan);
         else
                 vict_clan = victim->pcdata->clan;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 ch_clan = get_clan(ch->mob_clan);
         else
                 ch_clan = ch->pcdata->clan;
@@ -4162,8 +4162,8 @@ void free_clan(ClanData * clan)
         ClanData *tclan;
         ShipData *ship;
         CharData *ch;
-        BOUNTY_DATA *bounty, *next_bounty = NULL;
-        DOCK_DATA *dock;
+        BountyData *bounty, *next_bounty = NULL;
+        DockData *dock;
 
         for (planet = first_planet; planet; planet = planet->next)
         {
@@ -4195,9 +4195,9 @@ void free_clan(ClanData * clan)
                         ship->clan = NULL;
         for (ch = first_char; ch; ch = ch->next)
         {
-                if (!IS_NPC(ch) && ch->pcdata && ch->pcdata->clan)
+                if (!IsNpc(ch) && ch->pcdata && ch->pcdata->clan)
                         ch->pcdata->clan = NULL;
-                else if (IS_NPC(ch) && ch->mob_clan
+                else if (IsNpc(ch) && ch->mob_clan
                          && ch->mob_clan[0] != '\0')
                 {
                         STRFREE(ch->mob_clan);
@@ -4243,7 +4243,7 @@ void free_clan(ClanData * clan)
                 STRFREE(clan->ally_name);
         if (clan->roster)
                 STRFREE(clan->roster);
-        for (x = 0; x < MAX_RANK; x++)
+        for (x = 0; x < MaxRank; x++)
                 if (clan->rank[x])
                         STRFREE(clan->rank[x]);
         DISPOSE(clan);
@@ -4267,7 +4267,7 @@ CMDF do_stepdown(CharData * ch, char *argument)
         (void)argument;  // Currently unused but kept for command interface consistency
         ClanData *clan;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!ch->pcdata || !ch->pcdata->clan)

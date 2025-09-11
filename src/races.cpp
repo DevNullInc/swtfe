@@ -39,7 +39,7 @@
 #include "mud.hpp"
 #include "races.hpp"
 
-RACE_LIST races;
+RaceList races;
 int get_partflag args((char *flag));
 
 /*
@@ -68,7 +68,7 @@ RaceData::RaceData()
         this->_rpneeded = 0;
         this->_start_age = 17;
         xCLEAR_BITS(this->_body_parts);
-        for (int imod = 0; imod <= MAX_ATTR; imod++)
+        for (int imod = 0; imod <= MaxAttr; imod++)
                 this->_attr_mod[imod] = 0;
         for (int iclass = 0; iclass <= MaxAbility; iclass++)
                 this->_class_modifier[iclass] = 0;
@@ -100,7 +100,7 @@ void RaceData::save()
                 return;
         }
 
-        snprintf(filename, 256, "%s%s.race", RACES_DIR,
+        snprintf(filename, 256, "%s%s.race", RacesDir,
                  smash_space(this->_name));
 
         FCLOSE(fpReserve);
@@ -108,7 +108,7 @@ void RaceData::save()
         {
                 bug("fwrite_race: fopen", 0);
                 perror(filename);
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
         }
         else
         {
@@ -144,7 +144,7 @@ void RaceData::save()
                 fprintf(fp, "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -198,20 +198,20 @@ void RaceData::load(FILE * fp)
                         {
                                 if (this->_name == NULL)
                                         bug("Error loading race");
-                                this->_attr_mod[ATTR_STRENGTH] =
+                                this->_attr_mod[AttrStrength] =
                                         this->_str_plus;
-                                this->_attr_mod[ATTR_CONSTITUTION] =
+                                this->_attr_mod[AttrConstitution] =
                                         this->_con_plus;
-                                this->_attr_mod[ATTR_DEXTERITY] =
+                                this->_attr_mod[AttrDexterity] =
                                         this->_dex_plus;
-                                this->_attr_mod[ATTR_WISDOM] =
+                                this->_attr_mod[AttrWisdom] =
                                         this->_wis_plus;
-                                this->_attr_mod[ATTR_INTELLIGENCE] =
+                                this->_attr_mod[AttrIntelligence] =
                                         this->_int_plus;
-                                this->_attr_mod[ATTR_CHARISMA] =
+                                this->_attr_mod[AttrCharisma] =
                                         this->_cha_plus;
-                                this->_attr_mod[ATTR_LUCK] = this->_lck_plus;
-                                this->_attr_mod[ATTR_FORCE] = this->_frc_plus;
+                                this->_attr_mod[AttrLuck] = this->_lck_plus;
+                                this->_attr_mod[AttrForce] = this->_frc_plus;
 
                         }
                         return;
@@ -279,7 +279,7 @@ bool RaceData::load_race_file(char *racefile)
 
         FILE     *fp;
 
-        snprintf(filename, 256, "%s%s", RACES_DIR, racefile);
+        snprintf(filename, 256, "%s%s", RacesDir, racefile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -329,14 +329,14 @@ void RaceData::fwrite_race_list(void)
         char filename[256];
         RaceData *race = NULL;
 
-        snprintf(filename, 256, "%s%s", RACES_DIR, FILE_RACE_LIST);
+        snprintf(filename, 256, "%s%s", RacesDir, FileRaceList);
         fp = fopen(filename, "w");
         if (!fp)
         {
                 bug("FATAL: cannot open race.lst for writing!\n\r", 0);
                 return;
         }
-        FOR_EACH_LIST(RACE_LIST, races, race)
+        ForEachList(RaceList, races, race)
                 fprintf(fp, "%s.race\n", smash_space(race->name()));
         fprintf(fp, "$\n");
         FCLOSE(fp);
@@ -349,12 +349,12 @@ void RaceData::load_races(void)
         char racelist[256];
         char buf[MaxStringLength];
 
-        snprintf(racelist, 256, "%s%s", RACES_DIR, FILE_RACE_LIST);
+        snprintf(racelist, 256, "%s%s", RacesDir, FileRaceList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(racelist, "r")) == NULL)
         {
                 perror(racelist);
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
                 return;
         }
 
@@ -373,7 +373,7 @@ void RaceData::load_races(void)
         }
         FCLOSE(fpList);
         boot_log(" Done races");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -381,11 +381,11 @@ RaceData *get_race(const char *string)
 {
         RaceData *race = NULL;
 
-        FOR_EACH_LIST(RACE_LIST, races, race)
+        ForEachList(RaceList, races, race)
                 if (!str_cmp(string, race->name()))
                 return race;
 
-        FOR_EACH_LIST(RACE_LIST, races, race)
+        ForEachList(RaceList, races, race)
                 if (!str_prefix(string, race->name()))
                 return race;
         return NULL;
@@ -395,7 +395,7 @@ RaceData *get_race_number(int number)
 {
         RaceData *race = NULL;
 
-        FOR_EACH_LIST(RACE_LIST, races, race)
+        ForEachList(RaceList, races, race)
                 if (!str_cmp(race->name(), race_table[number].race_name))
                 return race;
         return get_race("human");
@@ -434,7 +434,7 @@ CMDF do_setrace(CharData * ch, char *argument)
         {
                 if (!str_cmp(arg2, "all"))
                 {
-                        FOR_EACH_LIST(RACE_LIST, races, race) race->save();
+                        ForEachList(RaceList, races, race) race->save();
                         return;
                 }
         }
@@ -444,7 +444,7 @@ CMDF do_setrace(CharData * ch, char *argument)
                 send_to_char
                         ("&RThat is not a Valid race, choose one of the following:\n\r",
                          ch);
-                FOR_EACH_LIST(RACE_LIST, races, race)
+                ForEachList(RaceList, races, race)
                         ch_printf(ch, "&W\t%s\n\r", race->name());
                 return;
         }
@@ -477,7 +477,7 @@ CMDF do_setrace(CharData * ch, char *argument)
                                 {
                                         int affected = race->affected();
 
-                                        TOGGLE_BIT(affected, 1 << value);
+                                        ToggleBit(affected, 1 << value);
                                         race->affected(affected);
                                 }
                         }
@@ -501,19 +501,19 @@ CMDF do_setrace(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "Constitution"))
         {
-                race->attr_modifier(ATTR_CONSTITUTION, atoi(argument));
+                race->attr_modifier(AttrConstitution, atoi(argument));
         }
         else if (!str_cmp(arg2, "Strength"))
         {
-                race->attr_modifier(ATTR_STRENGTH, atoi(argument));
+                race->attr_modifier(AttrStrength, atoi(argument));
         }
         else if (!str_cmp(arg2, "Wisdom"))
         {
-                race->attr_modifier(ATTR_WISDOM, atoi(argument));
+                race->attr_modifier(AttrWisdom, atoi(argument));
         }
         else if (!str_cmp(arg2, "Intelligence"))
         {
-                race->attr_modifier(ATTR_INTELLIGENCE, atoi(argument));
+                race->attr_modifier(AttrIntelligence, atoi(argument));
         }
         else if (!str_cmp(arg2, "lang_bonus"))
         {
@@ -521,11 +521,11 @@ CMDF do_setrace(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "Dexterity"))
         {
-                race->attr_modifier(ATTR_DEXTERITY, atoi(argument));
+                race->attr_modifier(AttrDexterity, atoi(argument));
         }
         else if (!str_cmp(arg2, "Charisma"))
         {
-                race->attr_modifier(ATTR_CHARISMA, atoi(argument));
+                race->attr_modifier(AttrCharisma, atoi(argument));
         }
         else if (!str_cmp(arg2, "hit"))
         {
@@ -541,7 +541,7 @@ CMDF do_setrace(CharData * ch, char *argument)
                         {
                                 int a = race->class_restriction();
 
-                                TOGGLE_BIT(a, 1 << i);
+                                ToggleBit(a, 1 << i);
                                 race->class_restriction(a);
                                 send_to_char("Done.\n\r", ch);
                                 return;
@@ -564,11 +564,11 @@ CMDF do_setrace(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "Luck"))
         {
-                race->attr_modifier(ATTR_LUCK, atoi(argument));
+                race->attr_modifier(AttrLuck, atoi(argument));
         }
         else if (!str_cmp(arg2, "Force"))
         {
-                race->attr_modifier(ATTR_FORCE, atoi(argument));
+                race->attr_modifier(AttrForce, atoi(argument));
         }
         else if (!str_cmp(arg2, "endurance"))
         {
@@ -655,7 +655,7 @@ CMDF do_showrace(CharData * ch, char *argument)
                 send_to_char
                         ("&RThat is not a Valid race, choose one of the following:\n\r",
                          ch);
-                FOR_EACH_LIST(RACE_LIST, races, race)
+                ForEachList(RaceList, races, race)
                         ch_printf(ch, "&W\t%s\n\r", race->name());
                 return;
         }
@@ -674,28 +674,28 @@ CMDF do_showrace(CharData * ch, char *argument)
 
         ch_printf(ch,
                   "&c==== &BStrength     : &w%-5d &c====================================\n\r",
-                  race->attr_modifier(ATTR_STRENGTH));
+                  race->attr_modifier(AttrStrength));
         ch_printf(ch,
                   "&c==== &BConstitution : &w%-5d &c====================================\n\r",
-                  race->attr_modifier(ATTR_CONSTITUTION));
+                  race->attr_modifier(AttrConstitution));
         ch_printf(ch,
                   "&c==== &BDexterity    : &w%-5d &c====================================\n\r",
-                  race->attr_modifier(ATTR_DEXTERITY));
+                  race->attr_modifier(AttrDexterity));
         ch_printf(ch,
                   "&c==== &BIntelligence : &w%-5d &c====================================\n\r",
-                  race->attr_modifier(ATTR_INTELLIGENCE));
+                  race->attr_modifier(AttrIntelligence));
         ch_printf(ch,
                   "&c==== &BWisdom       : &w%-5d &c====================================\n\r",
-                  race->attr_modifier(ATTR_WISDOM));
+                  race->attr_modifier(AttrWisdom));
         ch_printf(ch,
                   "&c==== &BCharisma     : &w%-5d &c====================================\n\r",
-                  race->attr_modifier(ATTR_CHARISMA));
+                  race->attr_modifier(AttrCharisma));
         ch_printf(ch,
                   "&c==== &BLuck         : &w%-5d &c====================================\n\r",
-                  race->attr_modifier(ATTR_LUCK));
+                  race->attr_modifier(AttrLuck));
         ch_printf(ch,
                   "&c==== &BForce        : &w%-5d &c====================================\n\r",
-                  race->attr_modifier(ATTR_FORCE));
+                  race->attr_modifier(AttrForce));
         ch_printf(ch,
                   "&c==== &BHit Points   : &w%-5d &c====================================\n\r",
                   race->hit());
@@ -750,7 +750,7 @@ CMDF do_showrace(CharData * ch, char *argument)
                          ch);
                 for (iClass = 0; iClass < MaxAbility; iClass++)
                 {
-                        if (IS_SET(race->class_restriction(), 1 << iClass))
+                        if (IsSet(race->class_restriction(), 1 << iClass))
                         {
                                 ch_printf(ch,
                                           "&c==== &BClass Name   : &w%-10s &c===============================\n\r",
@@ -798,7 +798,7 @@ CMDF do_makerace(CharData * ch, char *argument)
                 return;
         }
 
-        FOR_EACH_LIST(RACE_LIST, races, race)
+        ForEachList(RaceList, races, race)
         {
                 if (race->name() && race->name()[0])
 

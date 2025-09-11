@@ -59,27 +59,27 @@
 // ============================================================================
 namespace {
     // Virtual room constants
-    constexpr int VROOM_HASH_SIZE = 64;
+    constexpr int VroomHashSize = 64;
     
     // Text formatting constants
-    constexpr int MAX_WORD_LENGTH = 255;
-    constexpr int WORDWRAP_WIDTH = 78;
+    constexpr int MaxWordLength = 255;
+    constexpr int WordwrapWidth = 78;
     
     // Movement and endurance thresholds
-    constexpr int MIN_BASH_ENDURANCE = 15;
-    constexpr int MIN_STRUGGLE_ENDURANCE = 100;
-    constexpr int MIN_SUBDUE_ENDURANCE = 80;
-    constexpr int FALL_DAMAGE_THRESHOLD = 80;
-    constexpr double ENCUMBRANCE_THRESHOLD = 0.95;
+    constexpr int MinBashEndurance = 15;
+    constexpr int MinStruggleEndurance = 100;
+    constexpr int MinSubdueEndurance = 80;
+    constexpr int FallDamageThreshold = 80;
+    constexpr double EncumbranceThreshold = 0.95;
     
     // Wait state timers
-    constexpr int BIND_WAIT_STATE = 2;
-    constexpr int RELEASE_WAIT_STATE = 4;
-    constexpr int STRUGGLE_WAIT_MIN = 2;
-    constexpr int STRUGGLE_WAIT_MAX = 7;
+    constexpr int BindWaitState = 2;
+    constexpr int ReleaseWaitState = 4;
+    constexpr int StruggleWaitMin = 2;
+    constexpr int StruggleWaitMax = 7;
     
     // Auto-description limits
-    constexpr int MAX_ROOM_DESCRIPTIONS = 8;
+    constexpr int MaxRoomDescriptions = 8;
 }
 
 // ============================================================================
@@ -94,7 +94,7 @@ void      remove_bexit_flag(ExitData * pexit, int flag);
 // ============================================================================
 // Movement and Direction Data
 // ============================================================================
-const sh_int movement_loss[SECT_MAX] = {
+const sh_int movement_loss[SectMax] = {
         1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6, 5, 7, 4
 };
 
@@ -104,15 +104,15 @@ const char *const dir_name[] = {
 };
 
 const int trap_door[] = {
-        TRAP_N, TRAP_E, TRAP_S, TRAP_W, TRAP_U, TRAP_D,
-        TRAP_NE, TRAP_NW, TRAP_SE, TRAP_SW
+        TrapN, TrapE, TrapS, TrapW, TrapU, TrapD,
+        TrapNe, TrapNw, TrapSe, TrapSw
 };
 
 const sh_int rev_dir[] = {
         2, 3, 0, 1, 5, 4, 9, 8, 7, 6, 10
 };
 
-RoomIndexData *vroom_hash[VROOM_HASH_SIZE];
+RoomIndexData *vroom_hash[VroomHashSize];
 
 /*
  * Local functions.
@@ -123,7 +123,7 @@ bool has_key(CharData * ch, int key);
 // ============================================================================
 // Sector and Room Description Data
 // ============================================================================
-const char *const sect_names[SECT_MAX][2] = {
+const char *const sect_names[SectMax][2] = {
         {"In a room", "inside"}, {"A City Street", "cities"},
         {"In a field", "fields"}, {"In a forest", "forests"},
         {"hill", "hills"}, {"On a mountain", "mountains"},
@@ -134,11 +134,11 @@ const char *const sect_names[SECT_MAX][2] = {
         {"On a Starship", "starship"}
 };
 
-const int sent_total[SECT_MAX] = {
+const int sent_total[SectMax] = {
         4, 24, 4, 4, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1
 };
 
-const char *const room_sents[SECT_MAX][25] = {
+const char *const room_sents[SectMax][25] = {
         {
          "The room walls are made of durasteel and duraplast.",
          "You can smell the fumes of ships and vehicles wafting in from outside.",
@@ -242,8 +242,8 @@ int wherehome(CharData * ch)
                 return ch->plr_home->vnum;
 
         if (get_trust(ch) >= LevelImmortal)
-                return ROOM_START_IMMORTAL;
-        return ROOM_VNUM_TEMPLE;
+                return RoomStartImmortal;
+        return RoomVnumTemple;
 }
 
 char     *grab_word(char *argument, char *arg_first)
@@ -260,7 +260,7 @@ char     *grab_word(char *argument, char *arg_first)
         if (*argument == '\'' || *argument == '"')
                 cEnd = *argument++;
 
-        while (*argument != '\0' && ++count < MAX_WORD_LENGTH)
+        while (*argument != '\0' && ++count < MaxWordLength)
         {
                 if (*argument == cEnd)
                 {
@@ -368,7 +368,7 @@ void decorate_room(RoomIndexData * room)
 
         room->name = STRALLOC(const_cast<char*>(sect_names[sector][0]));
         buf[0] = '\0';
-        nRand = number_range(1, UMIN(MAX_ROOM_DESCRIPTIONS, sent_total[sector]));
+        nRand = number_range(1, UMIN(MaxRoomDescriptions, sent_total[sector]));
 
         for (iRand = 0; iRand < nRand; iRand++)
                 previous[iRand] = -1;
@@ -402,7 +402,7 @@ void decorate_room(RoomIndexData * room)
                         mudstrlcat(buf, buf2, MSL);
                 }
         }
-        snprintf(buf2, MSL, "%s\n\r", wordwrap(buf, WORDWRAP_WIDTH));
+        snprintf(buf2, MSL, "%s\n\r", wordwrap(buf, WordwrapWidth));
         room->description = STRALLOC(buf2);
 }
 
@@ -417,7 +417,7 @@ CMDF do_autodescription(CharData * ch, [[maybe_unused]] const char *argument)
         char      arg[MaxStringLength];
         int       nRand;
         int       iRand, len;
-        int       previous[MAX_ROOM_DESCRIPTIONS];
+        int       previous[MaxRoomDescriptions];
         int       sector;
         RoomIndexData *room;
 
@@ -438,7 +438,7 @@ CMDF do_autodescription(CharData * ch, [[maybe_unused]] const char *argument)
 
 
         buf[0] = '\0';
-        nRand = number_range(1, UMIN(MAX_ROOM_DESCRIPTIONS, sent_total[sector]));
+        nRand = number_range(1, UMIN(MaxRoomDescriptions, sent_total[sector]));
 
         for (iRand = 0; iRand < nRand; iRand++)
                 previous[iRand] = -1;
@@ -472,7 +472,7 @@ CMDF do_autodescription(CharData * ch, [[maybe_unused]] const char *argument)
                         mudstrlcat(buf, buf2, MSL);
                 }
         }
-        snprintf(buf2, MSL, "%s\n\r", wordwrap(buf, WORDWRAP_WIDTH));
+        snprintf(buf2, MSL, "%s\n\r", wordwrap(buf, WordwrapWidth));
         room->description = STRALLOC(buf2);
 }
 
@@ -488,7 +488,7 @@ void clear_vrooms()
         int       hash;
         RoomIndexData *room, *room_next, *prev;
 
-        for (hash = static_cast<sh_int>(0); hash < VROOM_HASH_SIZE; hash++)
+        for (hash = static_cast<sh_int>(0); hash < VroomHashSize; hash++)
         {
                 while (vroom_hash[hash]
                        && !vroom_hash[hash]->first_person
@@ -592,7 +592,7 @@ sh_int encumbrance(CharData * ch, sh_int endurance)
         cur = ch->carry_weight;
         if (cur >= max)
                 return static_cast<sh_int>(endurance * 7);
-        else if (cur >= max * ENCUMBRANCE_THRESHOLD)
+        else if (cur >= max * EncumbranceThreshold)
                 return static_cast<sh_int>(endurance * 6);
         else if (cur >= max * 0.90)
                 return static_cast<sh_int>(endurance * 5);
@@ -615,23 +615,23 @@ bool will_fall(CharData * ch, int fall)
         if (!ch)
                 return FALSE;
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NOFLOOR)
-            && CAN_GO(ch, DIR_DOWN)
-            && (!IS_AFFECTED(ch, AFF_FLYING)
-                || (ch->mount && !IS_AFFECTED(ch->mount, AFF_FLYING))))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomNofloor)
+            && CanGo(ch, DirDown)
+            && (!IsAffected(ch, AffFlying)
+                || (ch->mount && !IsAffected(ch->mount, AffFlying))))
         {
-                if (fall > FALL_DAMAGE_THRESHOLD)
+                if (fall > FallDamageThreshold)
                 {
                         bug("Falling (in a loop?) more than %d rooms: vnum %d", 
-                            FALL_DAMAGE_THRESHOLD, ch->in_room->vnum);
+                            FallDamageThreshold, ch->in_room->vnum);
                         char_from_room(ch);
                         char_to_room(ch, get_room_index(wherehome(ch)));
                         fall = 0;
                         return TRUE;
                 }
-                set_char_color(AT_FALLING, ch);
+                set_char_color(AtFalling, ch);
                 send_to_char("You're falling down...\n\r", ch);
-                move_char(ch, get_exit(ch->in_room, DIR_DOWN), ++fall, FALSE);
+                move_char(ch, get_exit(ch->in_room, DirDown), ++fall, FALSE);
                 return TRUE;
         }
         return FALSE;
@@ -742,9 +742,9 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
         bool      drunk = FALSE;
         bool      brief = FALSE;
 
-        if (!IS_NPC(ch))
-                if (IS_DRUNK(ch, 2) && (ch->position != POS_SHOVE)
-                    && (ch->position != POS_DRAG))
+        if (!IsNpc(ch))
+                if (IsDrunk(ch, 2) && (ch->position != PosShove)
+                    && (ch->position != PosDrag))
                         drunk = TRUE;
 
         if (drunk && !fall)
@@ -765,7 +765,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
         retcode = rSTOP;
         txt = NULL;
 
-        if (IS_NPC(ch) && IS_SET(ch->act, ACT_MOUNTED))
+        if (IsNpc(ch) && IsSet(ch->act, ActMounted))
                 return retcode;
 
         in_room = ch->in_room;
@@ -788,50 +788,50 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
          * Exit is only a "window", there is no way to travel in that direction
          * unless it's a door with a window in it       -Thoric
          */
-        if (IS_SET(pexit->exit_info, EX_WINDOW)
-            && !IS_SET(pexit->exit_info, EX_ISDOOR))
+        if (IsSet(pexit->exit_info, ExWindow)
+            && !IsSet(pexit->exit_info, ExIsdoor))
         {
                 send_to_char("Alas, you cannot go that way.\n\r", ch);
                 return rSTOP;
         }
 
-        if (IS_SET(pexit->exit_info, EX_PORTAL) && IS_NPC(ch))
+        if (IsSet(pexit->exit_info, ExPortal) && IsNpc(ch))
         {
-                act(AT_PLAIN, "Mobs can't use portals.", ch, NULL, NULL,
-                    TO_CHAR);
+                act(AtPlain, "Mobs can't use portals.", ch, NULL, NULL,
+                    ToChar);
                 return rSTOP;
         }
 
-        if (IS_SET(pexit->exit_info, EX_NOMOB) && IS_NPC(ch))
+        if (IsSet(pexit->exit_info, ExNomob) && IsNpc(ch))
         {
-                act(AT_PLAIN, "Mobs can't enter there.", ch, NULL, NULL,
-                    TO_CHAR);
+                act(AtPlain, "Mobs can't enter there.", ch, NULL, NULL,
+                    ToChar);
                 return rSTOP;
         }
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 if (!check_pos(ch, 8) && !check_pos(ch, 9)
                     && !check_pos(ch, 10) && !check_pos(ch, 11))
                         return rSTOP;
 
-        if (IS_SET(pexit->exit_info, EX_CLOSED)
-            && (!IS_AFFECTED(ch, AFF_PASS_DOOR)
-                || IS_SET(pexit->exit_info, EX_NOPASSDOOR)))
+        if (IsSet(pexit->exit_info, ExClosed)
+            && (!IsAffected(ch, AffPassDoor)
+                || IsSet(pexit->exit_info, ExNopassdoor)))
         {
-                if (!IS_SET(pexit->exit_info, EX_SECRET)
-                    && !IS_SET(pexit->exit_info, EX_DIG))
+                if (!IsSet(pexit->exit_info, ExSecret)
+                    && !IsSet(pexit->exit_info, ExDig))
                 {
                         if (drunk)
                         {
-                                act(AT_PLAIN,
+                                act(AtPlain,
                                     "$n runs into the $d in $s drunken state.",
-                                    ch, NULL, pexit->keyword, TO_ROOM);
-                                act(AT_PLAIN,
+                                    ch, NULL, pexit->keyword, ToRoom);
+                                act(AtPlain,
                                     "You run into the $d in your drunken state.",
-                                    ch, NULL, pexit->keyword, TO_CHAR);
+                                    ch, NULL, pexit->keyword, ToChar);
                         }
                         else
-                                act(AT_PLAIN, "The $d is closed.", ch, NULL,
-                                    pexit->keyword, TO_CHAR);
+                                act(AtPlain, "The $d is closed.", ch, NULL,
+                                    pexit->keyword, ToChar);
                 }
                 else
                 {
@@ -856,7 +856,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                         send_to_char("Alas, you cannot go that way.\n\r", ch);
 
         if (!fall
-            && IS_AFFECTED(ch, AFF_CHARM)
+            && IsAffected(ch, AffCharm)
             && ch->master && in_room == ch->master->in_room)
         {
                 send_to_char("What?  And leave your beloved master?\n\r", ch);
@@ -869,13 +869,13 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                 return rSTOP;
         }
 
-/*    if ( !IS_IMMORTAL(ch)
-    &&  !IS_NPC(ch)
+/*    if ( !IsImmortal(ch)
+    &&  !IsNpc(ch)
     &&  ch->in_room->area != to_room->area )
     {
 	if ( ch->top_level < to_room->area->low_hard_range )
 	{
-	    set_char_color( AT_TELL, ch );
+	    set_char_color( AtTell, ch );
 	    switch( to_room->area->low_hard_range - ch->top_level )
 	    {
 		case 1:
@@ -895,26 +895,26 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
 	else
 	if ( ch->top_level > to_room->area->hi_hard_range )
 	{
-	    set_char_color( AT_TELL, ch );
+	    set_char_color( AtTell, ch );
 	    send_to_char( "A voice in your mind says, 'There is nothing more for you down that path.'", ch );
 	    return rSTOP;
 	}          
     } I don't like these - Gavin */
 
-        if (!fall && !IS_NPC(ch))
+        if (!fall && !IsNpc(ch))
         {
                 int       endurance;
 
-                if (in_room->sector_type == SECT_AIR
-                    || to_room->sector_type == SECT_AIR
-                    || IS_SET(pexit->exit_info, EX_FLY))
+                if (in_room->sector_type == SectAir
+                    || to_room->sector_type == SectAir
+                    || IsSet(pexit->exit_info, ExFly))
                 {
-                        if (ch->mount && !IS_AFFECTED(ch->mount, AFF_FLYING))
+                        if (ch->mount && !IsAffected(ch->mount, AffFlying))
                         {
                                 send_to_char("Your mount can't fly.\n\r", ch);
                                 return rSTOP;
                         }
-                        if (!ch->mount && !IS_AFFECTED(ch, AFF_FLYING))
+                        if (!ch->mount && !IsAffected(ch, AffFlying))
                         {
                                 send_to_char
                                         ("You'd need to fly to go there.\n\r",
@@ -923,8 +923,8 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                         }
                 }
 
-                if (in_room->sector_type == SECT_WATER_NOSWIM
-                    || to_room->sector_type == SECT_WATER_NOSWIM)
+                if (in_room->sector_type == SectWaterNoswim
+                    || to_room->sector_type == SectWaterNoswim)
                 {
                         ObjData *obj;
                         bool      found;
@@ -932,12 +932,12 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                         found = FALSE;
                         if (ch->mount)
                         {
-                                if (IS_AFFECTED(ch->mount, AFF_FLYING)
-                                    || IS_AFFECTED(ch->mount, AFF_FLOATING))
+                                if (IsAffected(ch->mount, AffFlying)
+                                    || IsAffected(ch->mount, AffFloating))
                                         found = TRUE;
                         }
-                        else if (IS_AFFECTED(ch, AFF_FLYING)
-                                 || IS_AFFECTED(ch, AFF_FLOATING))
+                        else if (IsAffected(ch, AffFlying)
+                                 || IsAffected(ch, AffFloating))
                                 found = TRUE;
 
                         /*
@@ -947,7 +947,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                                 for (obj = ch->first_carrying; obj;
                                      obj = obj->next_content)
                                 {
-                                        if (obj->item_type == ITEM_BOAT)
+                                        if (obj->item_type == ItemBoat)
                                         {
                                                 found = TRUE;
                                                 if (drunk)
@@ -967,19 +967,19 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                         }
                 }
 
-                if (IS_SET(pexit->exit_info, EX_CLIMB))
+                if (IsSet(pexit->exit_info, ExClimb))
                 {
                         bool      found;
 
                         found = FALSE;
-                        if (ch->mount && IS_AFFECTED(ch->mount, AFF_FLYING))
+                        if (ch->mount && IsAffected(ch->mount, AffFlying))
                                 found = TRUE;
-                        else if (IS_AFFECTED(ch, AFF_FLYING))
+                        else if (IsAffected(ch, AffFlying))
                                 found = TRUE;
 
                         if (!found && !ch->mount)
                         {
-                                if ((!IS_NPC(ch)
+                                if ((!IsNpc(ch)
                                      && number_percent() >
                                      ch->pcdata->learned[gsn_climb]) || drunk
                                     || ch->mental_state < -90)
@@ -988,7 +988,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                                                 ("You start to climb... but lose your grip and fall!\n\r",
                                                  ch);
                                         learn_from_failure(ch, gsn_climb);
-                                        if (pexit->vdir == DIR_DOWN)
+                                        if (pexit->vdir == DirDown)
                                         {
                                                 retcode =
                                                         move_char(ch, pexit,
@@ -996,45 +996,45 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                                                 return retcode;
                                         }
                                         if (number_percent() > 50
-                                            && !IS_IMMORTAL(ch))
+                                            && !IsImmortal(ch))
                                         {
-                                                if (!IS_NPC(ch)
+                                                if (!IsNpc(ch)
                                                     /*
-                                                     * !IS_SET( ch->pcdata->cyber, CYBER_LEGS ) 
+                                                     * !IsSet( ch->pcdata->cyber, CyberLegs ) 
                                                      */
                                                         )
                                                 {
-                                                        if (!IS_SET
+                                                        if (!IsSet
                                                             (ch->bodyparts,
-                                                             BODY_L_LEG))
-                                                                SET_BIT(ch->
+                                                             BodyLLeg))
+                                                                SetBit(ch->
                                                                         bodyparts,
-                                                                        BODY_L_LEG);
-                                                        else if (!IS_SET
+                                                                        BodyLLeg);
+                                                        else if (!IsSet
                                                                  (ch->
                                                                   bodyparts,
-                                                                  BODY_R_LEG))
-                                                                SET_BIT(ch->
+                                                                  BodyRLeg))
+                                                                SetBit(ch->
                                                                         bodyparts,
-                                                                        BODY_R_LEG);
+                                                                        BodyRLeg);
                                                 }
                                         }
 
-                                        set_char_color(AT_HURT, ch);
+                                        set_char_color(AtHurt, ch);
                                         send_to_char
                                                 ("OUCH! You hit the ground!\n\r",
                                                  ch);
-                                        WAIT_STATE(ch, 20);
+                                        WaitState(ch, 20);
                                         retcode =
                                                 damage(ch, ch,
                                                        (pexit->vdir ==
-                                                        DIR_UP ? 10 : 5),
-                                                       TYPE_UNDEFINED);
+                                                        DirUp ? 10 : 5),
+                                                       TypeUndefined);
                                         return retcode;
                                 }
                                 found = TRUE;
                                 learn_from_success(ch, gsn_climb);
-                                WAIT_STATE(ch, skill_table[gsn_climb]->beats);
+                                WaitState(ch, skill_table[gsn_climb]->beats);
                                 txt = const_cast<char*>("climbs");
                         }
 
@@ -1049,39 +1049,39 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                 {
                         switch (ch->mount->position)
                         {
-                        case POS_DEAD:
+                        case PosDead:
                                 send_to_char("Your mount is dead!\n\r", ch);
                                 return rSTOP;
                                 break;
 
-                        case POS_MORTAL:
-                        case POS_INCAP:
+                        case PosMortal:
+                        case PosIncap:
                                 send_to_char
                                         ("Your mount is hurt far too badly to move.\n\r",
                                          ch);
                                 return rSTOP;
                                 break;
 
-                        case POS_STUNNED:
+                        case PosStunned:
                                 send_to_char
                                         ("Your mount is too stunned to do that.\n\r",
                                          ch);
                                 return rSTOP;
                                 break;
 
-                        case POS_SLEEPING:
+                        case PosSleeping:
                                 send_to_char("Your mount is sleeping.\n\r",
                                              ch);
                                 return rSTOP;
                                 break;
 
-                        case POS_RESTING:
+                        case PosResting:
                                 send_to_char("Your mount is resting.\n\r",
                                              ch);
                                 return rSTOP;
                                 break;
 
-                        case POS_SITTING:
+                        case PosSitting:
                                 send_to_char
                                         ("Your mount is sitting down.\n\r",
                                          ch);
@@ -1092,11 +1092,11 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                                 break;
                         }
 
-                        if (!IS_AFFECTED(ch->mount, AFF_FLYING)
-                            && !IS_AFFECTED(ch->mount, AFF_FLOATING))
+                        if (!IsAffected(ch->mount, AffFlying)
+                            && !IsAffected(ch->mount, AffFloating))
                                 endurance =
                                         movement_loss[UMIN
-                                                      (SECT_MAX - 1,
+                                                      (SectMax - 1,
                                                        in_room->
                                                        sector_type)] * 3;
                         else
@@ -1111,12 +1111,12 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                 }
                 else
                 {
-                        if (!IS_AFFECTED(ch, AFF_FLYING)
-                            && !IS_AFFECTED(ch, AFF_FLOATING))
+                        if (!IsAffected(ch, AffFlying)
+                            && !IsAffected(ch, AffFloating))
                                 endurance =
                                         encumbrance(ch,
                                                     movement_loss[UMIN
-                                                                  (SECT_MAX -
+                                                                  (SectMax -
                                                                    1,
                                                                    in_room->
                                                                    sector_type)]
@@ -1131,7 +1131,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                         }
                 }
 
-                WAIT_STATE(ch, 1);
+                WaitState(ch, 1);
                 if (ch->mount)
                         ch->mount->endurance -= static_cast<sh_int>(endurance);
                 else
@@ -1166,8 +1166,8 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
          * check for traps on exit - later 
          */
 
-        if (!IS_AFFECTED(ch, AFF_SNEAK)
-            && (IS_NPC(ch) || !IS_SET(ch->act, PLR_WIZINVIS)))
+        if (!IsAffected(ch, AffSneak)
+            && (IsNpc(ch) || !IsSet(ch->act, PlrWizinvis)))
         {
                 if (fall)
                         txt = const_cast<char*>("falls");
@@ -1175,32 +1175,32 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                 {
                         if (ch->mount)
                         {
-                                if (IS_AFFECTED(ch->mount, AFF_FLOATING))
+                                if (IsAffected(ch->mount, AffFloating))
                                         txt = const_cast<char*>("floats");
-                                else if (IS_AFFECTED(ch->mount, AFF_FLYING))
+                                else if (IsAffected(ch->mount, AffFlying))
                                         txt = const_cast<char*>("flys");
                                 else
                                         txt = const_cast<char*>("rides");
                         }
                         else
                         {
-                                if (IS_AFFECTED(ch, AFF_FLOATING))
+                                if (IsAffected(ch, AffFloating))
                                 {
                                         if (drunk)
                                                 txt = const_cast<char*>("floats unsteadily");
                                         else
                                                 txt = const_cast<char*>("floats");
                                 }
-                                else if (IS_AFFECTED(ch, AFF_FLYING))
+                                else if (IsAffected(ch, AffFlying))
                                 {
                                         if (drunk)
                                                 txt = const_cast<char*>("flys shakily");
                                         else
                                                 txt = const_cast<char*>("flys");
                                 }
-                                else if (ch->position == POS_SHOVE)
+                                else if (ch->position == PosShove)
                                         txt = const_cast<char*>("is shoved");
-                                else if (ch->position == POS_DRAG)
+                                else if (ch->position == PosDrag)
                                         txt = const_cast<char*>("is dragged");
                                 else
                                 {
@@ -1217,13 +1217,13 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                 {
                         snprintf(buf, MSL, "$n %s %s upon $N.", txt,
                                  dir_name[door]);
-                        act(AT_ACTION, buf, ch, NULL, ch->mount, TO_NOTVICT);
+                        act(AtAction, buf, ch, NULL, ch->mount, ToNotvict);
                 }
                 else
                 {
                         snprintf(buf, MSL, "$n %s $T.", txt);
-                        act(AT_ACTION, buf, ch, NULL, const_cast<void*>(static_cast<const void*>(dir_name[door])),
-                            TO_ROOM);
+                        act(AtAction, buf, ch, NULL, const_cast<void*>(static_cast<const void*>(dir_name[door])),
+                            ToRoom);
                 }
         }
 
@@ -1252,39 +1252,39 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                 }
         }
 
-        if (!IS_AFFECTED(ch, AFF_SNEAK)
-            && (IS_NPC(ch) || !IS_SET(ch->act, PLR_WIZINVIS)))
+        if (!IsAffected(ch, AffSneak)
+            && (IsNpc(ch) || !IsSet(ch->act, PlrWizinvis)))
         {
                 if (fall)
                         txt = const_cast<char*>("falls");
                 else if (ch->mount)
                 {
-                        if (IS_AFFECTED(ch->mount, AFF_FLOATING))
+                        if (IsAffected(ch->mount, AffFloating))
                                 txt = const_cast<char*>("floats in");
-                        else if (IS_AFFECTED(ch->mount, AFF_FLYING))
+                        else if (IsAffected(ch->mount, AffFlying))
                                 txt = const_cast<char*>("flys in");
                         else
                                 txt = const_cast<char*>("rides in");
                 }
                 else
                 {
-                        if (IS_AFFECTED(ch, AFF_FLOATING))
+                        if (IsAffected(ch, AffFloating))
                         {
                                 if (drunk)
                                         txt = const_cast<char*>("floats in unsteadily");
                                 else
                                         txt = const_cast<char*>("floats in");
                         }
-                        else if (IS_AFFECTED(ch, AFF_FLYING))
+                        else if (IsAffected(ch, AffFlying))
                         {
                                 if (drunk)
                                         txt = const_cast<char*>("flys in shakily");
                                 else
                                         txt = const_cast<char*>("flys in");
                         }
-                        else if (ch->position == POS_SHOVE)
+                        else if (ch->position == PosShove)
                                 txt = const_cast<char*>("is shoved in");
-                        else if (ch->position == POS_DRAG)
+                        else if (ch->position == PosDrag)
                                 txt = const_cast<char*>("is dragged in");
                         else
                         {
@@ -1336,12 +1336,12 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                 {
                         snprintf(buf, MSL, "$n %s from %s upon $N.", txt,
                                  dtxt);
-                        act(AT_ACTION, buf, ch, NULL, ch->mount, TO_ROOM);
+                        act(AtAction, buf, ch, NULL, ch->mount, ToRoom);
                 }
                 else
                 {
                         snprintf(buf, MSL, "$n %s from %s.", txt, dtxt);
-                        act(AT_ACTION, buf, ch, NULL, NULL, TO_ROOM);
+                        act(AtAction, buf, ch, NULL, NULL, ToRoom);
                 }
         }
 
@@ -1349,7 +1349,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                 do_look(ch, "auto");
 
         if (brief)
-                SET_BIT(ch->act, PLR_BRIEF);
+                SetBit(ch->act, PlrBrief);
 
 
 
@@ -1376,10 +1376,10 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                         count++;
                         if (fch != ch   /* loop room bug fix here by Thoric */
                             && fch->master == ch
-                            && fch->position == POS_STANDING)
+                            && fch->position == PosStanding)
                         {
-                                act(AT_ACTION, "You follow $N.", fch, NULL,
-                                    ch, TO_CHAR);
+                                act(AtAction, "You follow $N.", fch, NULL,
+                                    ch, ToChar);
                                 move_char(fch, pexit, 0, running);
                         }
                 }
@@ -1387,7 +1387,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
 
         if (ch->in_room->first_content)
         {
-                retcode = check_room_for_traps(ch, TRAP_ENTER_ROOM);
+                retcode = check_room_for_traps(ch, TrapEnterRoom);
         }
 
         if (char_died(ch))
@@ -1411,17 +1411,17 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
 
         if (!will_fall(ch, fall) && fall > 0)
         {
-                if (!IS_AFFECTED(ch, AFF_FLOATING)
-                    || (ch->mount && !IS_AFFECTED(ch->mount, AFF_FLOATING)))
+                if (!IsAffected(ch, AffFloating)
+                    || (ch->mount && !IsAffected(ch->mount, AffFloating)))
                 {
-                        set_char_color(AT_HURT, ch);
+                        set_char_color(AtHurt, ch);
                         send_to_char("OUCH! You hit the ground!\n\r", ch);
-                        WAIT_STATE(ch, 20);
-                        retcode = damage(ch, ch, 50 * fall, TYPE_UNDEFINED);
+                        WaitState(ch, 20);
+                        retcode = damage(ch, ch, 50 * fall, TypeUndefined);
                 }
                 else
                 {
-                        set_char_color(AT_MAGIC, ch);
+                        set_char_color(AtMagic, ch);
                         send_to_char
                                 ("You lightly float down to the ground.\n\r",
                                  ch);
@@ -1436,66 +1436,66 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
 
 CMDF do_north(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_NORTH), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirNorth), 0, FALSE);
         return;
 }
 
 
 CMDF do_east(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_EAST), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirEast), 0, FALSE);
         return;
 }
 
 
 CMDF do_south(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_SOUTH), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirSouth), 0, FALSE);
         return;
 }
 
 
 CMDF do_west(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_WEST), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirWest), 0, FALSE);
         return;
 }
 
 
 CMDF do_up(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_UP), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirUp), 0, FALSE);
         return;
 }
 
 
 CMDF do_down(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_DOWN), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirDown), 0, FALSE);
         return;
 }
 
 CMDF do_northeast(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_NORTHEAST), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirNortheast), 0, FALSE);
         return;
 }
 
 CMDF do_northwest(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_NORTHWEST), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirNorthwest), 0, FALSE);
         return;
 }
 
 CMDF do_southeast(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_SOUTHEAST), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirSoutheast), 0, FALSE);
         return;
 }
 
 CMDF do_southwest(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        move_char(ch, get_exit(ch->in_room, DIR_SOUTHWEST), 0, FALSE);
+        move_char(ch, get_exit(ch->in_room, DirSouthwest), 0, FALSE);
         return;
 }
 
@@ -1535,35 +1535,35 @@ ExitData *find_door(CharData * ch, const char *arg, bool quiet)
                 for (pexit = ch->in_room->first_exit; pexit;
                      pexit = pexit->next)
                 {
-                        if ((quiet || IS_SET(pexit->exit_info, EX_ISDOOR))
+                        if ((quiet || IsSet(pexit->exit_info, ExIsdoor))
                             && pexit->keyword
                             && nifty_is_name(const_cast<char*>(arg), pexit->keyword))
                                 return pexit;
                 }
                 if (!quiet)
-                        act(AT_PLAIN, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)),
-                            TO_CHAR);
+                        act(AtPlain, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)),
+                            ToChar);
                 return NULL;
         }
 
         if ((pexit = get_exit(ch->in_room, static_cast<sh_int>(door))) == NULL)
         {
                 if (!quiet)
-                        act(AT_PLAIN, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)),
-                            TO_CHAR);
+                        act(AtPlain, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)),
+                            ToChar);
                 return NULL;
         }
 
         if (quiet)
                 return pexit;
 
-        if (IS_SET(pexit->exit_info, EX_SECRET))
+        if (IsSet(pexit->exit_info, ExSecret))
         {
-                act(AT_PLAIN, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)), TO_CHAR);
+                act(AtPlain, "You see no $T here.", ch, NULL, const_cast<void*>(static_cast<const void*>(arg)), ToChar);
                 return NULL;
         }
 
-        if (!IS_SET(pexit->exit_info, EX_ISDOOR))
+        if (!IsSet(pexit->exit_info, ExIsdoor))
         {
                 send_to_char("You can't do that.\n\r", ch);
                 return NULL;
@@ -1580,27 +1580,27 @@ void toggle_bexit_flag(ExitData * pexit, int flag)
 {
         ExitData *pexit_rev;
 
-        TOGGLE_BIT(pexit->exit_info, flag);
+        ToggleBit(pexit->exit_info, flag);
         if ((pexit_rev = pexit->rexit) != NULL && pexit_rev != pexit)
-                TOGGLE_BIT(pexit_rev->exit_info, flag);
+                ToggleBit(pexit_rev->exit_info, flag);
 }
 
 void set_bexit_flag(ExitData * pexit, int flag)
 {
         ExitData *pexit_rev;
 
-        SET_BIT(pexit->exit_info, flag);
+        SetBit(pexit->exit_info, flag);
         if ((pexit_rev = pexit->rexit) != NULL && pexit_rev != pexit)
-                SET_BIT(pexit_rev->exit_info, flag);
+                SetBit(pexit_rev->exit_info, flag);
 }
 
 void remove_bexit_flag(ExitData * pexit, int flag)
 {
         ExitData *pexit_rev;
 
-        REMOVE_BIT(pexit->exit_info, flag);
+        RemoveBit(pexit->exit_info, flag);
         if ((pexit_rev = pexit->rexit) != NULL && pexit_rev != pexit)
-                REMOVE_BIT(pexit_rev->exit_info, flag);
+                RemoveBit(pexit_rev->exit_info, flag);
 }
 
 CMDF do_open(CharData * ch, [[maybe_unused]] const char *argument)
@@ -1625,29 +1625,29 @@ CMDF do_open(CharData * ch, [[maybe_unused]] const char *argument)
                  */
                 ExitData *pexit_rev;
 
-                if (!IS_SET(pexit->exit_info, EX_ISDOOR))
+                if (!IsSet(pexit->exit_info, ExIsdoor))
                 {
                         send_to_char("You can't do that.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(pexit->exit_info, EX_CLOSED))
+                if (!IsSet(pexit->exit_info, ExClosed))
                 {
                         send_to_char("It's already open.\n\r", ch);
                         return;
                 }
-                if (IS_SET(pexit->exit_info, EX_LOCKED))
+                if (IsSet(pexit->exit_info, ExLocked))
                 {
                         send_to_char("It's locked.\n\r", ch);
                         return;
                 }
 
-                if (!IS_SET(pexit->exit_info, EX_SECRET)
+                if (!IsSet(pexit->exit_info, ExSecret)
                     || (pexit->keyword && nifty_is_name(arg, pexit->keyword)))
                 {
-                        act(AT_ACTION, "$n opens the $d.", ch, NULL,
-                            pexit->keyword, TO_ROOM);
-                        act(AT_ACTION, "You open the $d.", ch, NULL,
-                            pexit->keyword, TO_CHAR);
+                        act(AtAction, "$n opens the $d.", ch, NULL,
+                            pexit->keyword, ToRoom);
+                        act(AtAction, "You open the $d.", ch, NULL,
+                            pexit->keyword, ToChar);
                         if ((pexit_rev = pexit->rexit) != NULL
                             && pexit_rev->to_room == ch->in_room)
                         {
@@ -1655,12 +1655,12 @@ CMDF do_open(CharData * ch, [[maybe_unused]] const char *argument)
 
                                 for (rch = pexit->to_room->first_person; rch;
                                      rch = rch->next_in_room)
-                                        act(AT_ACTION, "The $d opens.", rch,
+                                        act(AtAction, "The $d opens.", rch,
                                             NULL, pexit_rev->keyword,
-                                            TO_CHAR);
+                                            ToChar);
                                 sound_to_room(pexit->to_room, const_cast<char*>("door"));
                         }
-                        remove_bexit_flag(pexit, EX_CLOSED);
+                        remove_bexit_flag(pexit, ExClosed);
                         if ((door = pexit->vdir) >= 0 && door < 10)
                                 check_room_for_traps(ch, trap_door[door]);
 
@@ -1674,35 +1674,35 @@ CMDF do_open(CharData * ch, [[maybe_unused]] const char *argument)
                 /*
                  * 'open object' 
                  */
-                if (obj->item_type != ITEM_CONTAINER)
+                if (obj->item_type != ItemContainer)
                 {
                         ch_printf(ch, "%s isn't a container.\n\r",
                                   capitalize(obj->short_descr));
                         return;
                 }
-                if (!IS_SET(obj->value[1], CONT_CLOSED))
+                if (!IsSet(obj->value[1], ContClosed))
                 {
                         ch_printf(ch, "%s is already open.\n\r",
                                   capitalize(obj->short_descr));
                         return;
                 }
-                if (!IS_SET(obj->value[1], CONT_CLOSEABLE))
+                if (!IsSet(obj->value[1], ContCloseable))
                 {
                         ch_printf(ch, "%s cannot be opened or closed.\n\r",
                                   capitalize(obj->short_descr));
                         return;
                 }
-                if (IS_SET(obj->value[1], CONT_LOCKED))
+                if (IsSet(obj->value[1], ContLocked))
                 {
                         ch_printf(ch, "%s is locked.\n\r",
                                   capitalize(obj->short_descr));
                         return;
                 }
 
-                REMOVE_BIT(obj->value[1], CONT_CLOSED);
-                act(AT_ACTION, "You open $p.", ch, obj, NULL, TO_CHAR);
-                act(AT_ACTION, "$n opens $p.", ch, obj, NULL, TO_ROOM);
-                check_for_trap(ch, obj, TRAP_OPEN);
+                RemoveBit(obj->value[1], ContClosed);
+                act(AtAction, "You open $p.", ch, obj, NULL, ToChar);
+                act(AtAction, "$n opens $p.", ch, obj, NULL, ToRoom);
+                check_for_trap(ch, obj, TrapOpen);
                 return;
         }
 
@@ -1743,21 +1743,21 @@ CMDF do_close(CharData * ch, [[maybe_unused]] const char *argument)
                  */
                 ExitData *pexit_rev;
 
-                if (!IS_SET(pexit->exit_info, EX_ISDOOR))
+                if (!IsSet(pexit->exit_info, ExIsdoor))
                 {
                         send_to_char("You can't do that.\n\r", ch);
                         return;
                 }
-                if (IS_SET(pexit->exit_info, EX_CLOSED))
+                if (IsSet(pexit->exit_info, ExClosed))
                 {
                         send_to_char("It's already closed.\n\r", ch);
                         return;
                 }
 
-                act(AT_ACTION, "$n closes the $d.", ch, NULL, pexit->keyword,
-                    TO_ROOM);
-                act(AT_ACTION, "You close the $d.", ch, NULL, pexit->keyword,
-                    TO_CHAR);
+                act(AtAction, "$n closes the $d.", ch, NULL, pexit->keyword,
+                    ToRoom);
+                act(AtAction, "You close the $d.", ch, NULL, pexit->keyword,
+                    ToChar);
 
                 /*
                  * close the other side 
@@ -1767,13 +1767,13 @@ CMDF do_close(CharData * ch, [[maybe_unused]] const char *argument)
                 {
                         CharData *rch;
 
-                        SET_BIT(pexit_rev->exit_info, EX_CLOSED);
+                        SetBit(pexit_rev->exit_info, ExClosed);
                         for (rch = pexit->to_room->first_person; rch;
                              rch = rch->next_in_room)
-                                act(AT_ACTION, "The $d closes.", rch, NULL,
-                                    pexit_rev->keyword, TO_CHAR);
+                                act(AtAction, "The $d closes.", rch, NULL,
+                                    pexit_rev->keyword, ToChar);
                 }
-                set_bexit_flag(pexit, EX_CLOSED);
+                set_bexit_flag(pexit, ExClosed);
                 if ((door = pexit->vdir) >= 0 && door < 10)
                         check_room_for_traps(ch, trap_door[door]);
                 return;
@@ -1784,29 +1784,29 @@ CMDF do_close(CharData * ch, [[maybe_unused]] const char *argument)
                 /*
                  * 'close object' 
                  */
-                if (obj->item_type != ITEM_CONTAINER)
+                if (obj->item_type != ItemContainer)
                 {
                         ch_printf(ch, "%s isn't a container.\n\r",
                                   capitalize(obj->short_descr));
                         return;
                 }
-                if (IS_SET(obj->value[1], CONT_CLOSED))
+                if (IsSet(obj->value[1], ContClosed))
                 {
                         ch_printf(ch, "%s is already closed.\n\r",
                                   capitalize(obj->short_descr));
                         return;
                 }
-                if (!IS_SET(obj->value[1], CONT_CLOSEABLE))
+                if (!IsSet(obj->value[1], ContCloseable))
                 {
                         ch_printf(ch, "%s cannot be opened or closed.\n\r",
                                   capitalize(obj->short_descr));
                         return;
                 }
 
-                SET_BIT(obj->value[1], CONT_CLOSED);
-                act(AT_ACTION, "You close $p.", ch, obj, NULL, TO_CHAR);
-                act(AT_ACTION, "$n closes $p.", ch, obj, NULL, TO_ROOM);
-                check_for_trap(ch, obj, TRAP_CLOSE);
+                SetBit(obj->value[1], ContClosed);
+                act(AtAction, "You close $p.", ch, obj, NULL, ToChar);
+                act(AtAction, "$n closes $p.", ch, obj, NULL, ToRoom);
+                check_for_trap(ch, obj, TrapClose);
                 return;
         }
 
@@ -1853,12 +1853,12 @@ CMDF do_lock(CharData * ch, [[maybe_unused]] const char *argument)
                  * 'lock door' 
                  */
 
-                if (!IS_SET(pexit->exit_info, EX_ISDOOR))
+                if (!IsSet(pexit->exit_info, ExIsdoor))
                 {
                         send_to_char("You can't do that.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(pexit->exit_info, EX_CLOSED))
+                if (!IsSet(pexit->exit_info, ExClosed))
                 {
                         send_to_char("It's not closed.\n\r", ch);
                         return;
@@ -1873,19 +1873,19 @@ CMDF do_lock(CharData * ch, [[maybe_unused]] const char *argument)
                         send_to_char("You lack the key.\n\r", ch);
                         return;
                 }
-                if (IS_SET(pexit->exit_info, EX_LOCKED))
+                if (IsSet(pexit->exit_info, ExLocked))
                 {
                         send_to_char("It's already locked.\n\r", ch);
                         return;
                 }
 
-                if (!IS_SET(pexit->exit_info, EX_SECRET)
+                if (!IsSet(pexit->exit_info, ExSecret)
                     || (pexit->keyword && nifty_is_name(arg, pexit->keyword)))
                 {
                         send_to_char("*Click*\n\r", ch);
-                        act(AT_ACTION, "$n locks the $d.", ch, NULL,
-                            pexit->keyword, TO_ROOM);
-                        set_bexit_flag(pexit, EX_LOCKED);
+                        act(AtAction, "$n locks the $d.", ch, NULL,
+                            pexit->keyword, ToRoom);
+                        set_bexit_flag(pexit, ExLocked);
                         return;
                 }
         }
@@ -1895,12 +1895,12 @@ CMDF do_lock(CharData * ch, [[maybe_unused]] const char *argument)
                 /*
                  * 'lock object' 
                  */
-                if (obj->item_type != ITEM_CONTAINER)
+                if (obj->item_type != ItemContainer)
                 {
                         send_to_char("That's not a container.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(obj->value[1], CONT_CLOSED))
+                if (!IsSet(obj->value[1], ContClosed))
                 {
                         send_to_char("It's not closed.\n\r", ch);
                         return;
@@ -1915,15 +1915,15 @@ CMDF do_lock(CharData * ch, [[maybe_unused]] const char *argument)
                         send_to_char("You lack the key.\n\r", ch);
                         return;
                 }
-                if (IS_SET(obj->value[1], CONT_LOCKED))
+                if (IsSet(obj->value[1], ContLocked))
                 {
                         send_to_char("It's already locked.\n\r", ch);
                         return;
                 }
 
-                SET_BIT(obj->value[1], CONT_LOCKED);
+                SetBit(obj->value[1], ContLocked);
                 send_to_char("*Click*\n\r", ch);
-                act(AT_ACTION, "$n locks $p.", ch, obj, NULL, TO_ROOM);
+                act(AtAction, "$n locks $p.", ch, obj, NULL, ToRoom);
                 return;
         }
 
@@ -1953,12 +1953,12 @@ CMDF do_unlock(CharData * ch, [[maybe_unused]] const char *argument)
                  * 'unlock door' 
                  */
 
-                if (!IS_SET(pexit->exit_info, EX_ISDOOR))
+                if (!IsSet(pexit->exit_info, ExIsdoor))
                 {
                         send_to_char("You can't do that.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(pexit->exit_info, EX_CLOSED))
+                if (!IsSet(pexit->exit_info, ExClosed))
                 {
                         send_to_char("It's not closed.\n\r", ch);
                         return;
@@ -1973,19 +1973,19 @@ CMDF do_unlock(CharData * ch, [[maybe_unused]] const char *argument)
                         send_to_char("You lack the key.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(pexit->exit_info, EX_LOCKED))
+                if (!IsSet(pexit->exit_info, ExLocked))
                 {
                         send_to_char("It's already unlocked.\n\r", ch);
                         return;
                 }
 
-                if (!IS_SET(pexit->exit_info, EX_SECRET)
+                if (!IsSet(pexit->exit_info, ExSecret)
                     || (pexit->keyword && nifty_is_name(arg, pexit->keyword)))
                 {
                         send_to_char("*Click*\n\r", ch);
-                        act(AT_ACTION, "$n unlocks the $d.", ch, NULL,
-                            pexit->keyword, TO_ROOM);
-                        remove_bexit_flag(pexit, EX_LOCKED);
+                        act(AtAction, "$n unlocks the $d.", ch, NULL,
+                            pexit->keyword, ToRoom);
+                        remove_bexit_flag(pexit, ExLocked);
                         return;
                 }
         }
@@ -1995,12 +1995,12 @@ CMDF do_unlock(CharData * ch, [[maybe_unused]] const char *argument)
                 /*
                  * 'unlock object' 
                  */
-                if (obj->item_type != ITEM_CONTAINER)
+                if (obj->item_type != ItemContainer)
                 {
                         send_to_char("That's not a container.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(obj->value[1], CONT_CLOSED))
+                if (!IsSet(obj->value[1], ContClosed))
                 {
                         send_to_char("It's not closed.\n\r", ch);
                         return;
@@ -2015,15 +2015,15 @@ CMDF do_unlock(CharData * ch, [[maybe_unused]] const char *argument)
                         send_to_char("You lack the key.\n\r", ch);
                         return;
                 }
-                if (!IS_SET(obj->value[1], CONT_LOCKED))
+                if (!IsSet(obj->value[1], ContLocked))
                 {
                         send_to_char("It's already unlocked.\n\r", ch);
                         return;
                 }
 
-                REMOVE_BIT(obj->value[1], CONT_LOCKED);
+                RemoveBit(obj->value[1], ContLocked);
                 send_to_char("*Click*\n\r", ch);
-                act(AT_ACTION, "$n unlocks $p.", ch, obj, NULL, TO_ROOM);
+                act(AtAction, "$n unlocks $p.", ch, obj, NULL, ToRoom);
                 return;
         }
 
@@ -2036,7 +2036,7 @@ CMDF do_bashdoor(CharData * ch, [[maybe_unused]] const char *argument)
         ExitData *pexit;
         char      arg[MaxInputLength];
 
-        if (!IS_NPC(ch) && ch->pcdata->learned[gsn_bashdoor] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_bashdoor] <= 0)
         {
                 send_to_char
                         ("You're not enough of a warrior to bash doors!\n\r",
@@ -2065,39 +2065,39 @@ CMDF do_bashdoor(CharData * ch, [[maybe_unused]] const char *argument)
                 int       percent_chance;
                 char     *keyword;
 
-                if (!IS_SET(pexit->exit_info, EX_CLOSED))
+                if (!IsSet(pexit->exit_info, ExClosed))
                 {
                         send_to_char("Calm down.  It is already open.\n\r",
                                      ch);
                         return;
                 }
 
-                WAIT_STATE(ch, skill_table[gsn_bashdoor]->beats);
+                WaitState(ch, skill_table[gsn_bashdoor]->beats);
 
-                if (IS_SET(pexit->exit_info, EX_SECRET))
+                if (IsSet(pexit->exit_info, ExSecret))
                         keyword = const_cast<char*>("wall");
                 else
                         keyword = pexit->keyword;
-                if (!IS_NPC(ch))
+                if (!IsNpc(ch))
                         percent_chance =
                                 ch->pcdata->learned[gsn_bashdoor] / 2;
                 else
                         percent_chance = 90;
 
-                if (!IS_SET(pexit->exit_info, EX_BASHPROOF)
-                    && ch->endurance >= MIN_BASH_ENDURANCE
+                if (!IsSet(pexit->exit_info, ExBashproof)
+                    && ch->endurance >= MinBashEndurance
                     && number_percent() <
                     (percent_chance + 4 * (get_curr_str(ch) - 19)))
                 {
-                        REMOVE_BIT(pexit->exit_info, EX_CLOSED);
-                        if (IS_SET(pexit->exit_info, EX_LOCKED))
-                                REMOVE_BIT(pexit->exit_info, EX_LOCKED);
-                        SET_BIT(pexit->exit_info, EX_BASHED);
+                        RemoveBit(pexit->exit_info, ExClosed);
+                        if (IsSet(pexit->exit_info, ExLocked))
+                                RemoveBit(pexit->exit_info, ExLocked);
+                        SetBit(pexit->exit_info, ExBashed);
 
-                        act(AT_SKILL, "Crash!  You bashed open the $d!", ch,
-                            NULL, keyword, TO_CHAR);
-                        act(AT_SKILL, "$n bashes open the $d!", ch, NULL,
-                            keyword, TO_ROOM);
+                        act(AtSkill, "Crash!  You bashed open the $d!", ch,
+                            NULL, keyword, ToChar);
+                        act(AtSkill, "$n bashes open the $d!", ch, NULL,
+                            keyword, ToRoom);
                         learn_from_success(ch, gsn_bashdoor);
 
                         if ((to_room = pexit->to_room) != NULL
@@ -2106,18 +2106,18 @@ CMDF do_bashdoor(CharData * ch, [[maybe_unused]] const char *argument)
                         {
                                 CharData *rch;
 
-                                REMOVE_BIT(pexit_rev->exit_info, EX_CLOSED);
-                                if (IS_SET(pexit_rev->exit_info, EX_LOCKED))
-                                        REMOVE_BIT(pexit_rev->exit_info,
-                                                   EX_LOCKED);
-                                SET_BIT(pexit_rev->exit_info, EX_BASHED);
+                                RemoveBit(pexit_rev->exit_info, ExClosed);
+                                if (IsSet(pexit_rev->exit_info, ExLocked))
+                                        RemoveBit(pexit_rev->exit_info,
+                                                   ExLocked);
+                                SetBit(pexit_rev->exit_info, ExBashed);
 
                                 for (rch = to_room->first_person; rch;
                                      rch = rch->next_in_room)
                                 {
-                                        act(AT_SKILL, "The $d crashes open!",
+                                        act(AtSkill, "The $d crashes open!",
                                             rch, NULL, pexit_rev->keyword,
-                                            TO_CHAR);
+                                            ToChar);
                                 }
                         }
                         damage(ch, ch, (ch->max_hit / 20), gsn_bashdoor);
@@ -2125,24 +2125,24 @@ CMDF do_bashdoor(CharData * ch, [[maybe_unused]] const char *argument)
                 }
                 else
                 {
-                        act(AT_SKILL,
+                        act(AtSkill,
                             "WHAAAAM!!!  You bash against the $d, but it doesn't budge.",
-                            ch, NULL, keyword, TO_CHAR);
-                        act(AT_SKILL,
+                            ch, NULL, keyword, ToChar);
+                        act(AtSkill,
                             "WHAAAAM!!!  $n bashes against the $d, but it holds strong.",
-                            ch, NULL, keyword, TO_ROOM);
+                            ch, NULL, keyword, ToRoom);
                         damage(ch, ch, (ch->max_hit / 20) + 10, gsn_bashdoor);
                         learn_from_failure(ch, gsn_bashdoor);
                 }
         }
         else
         {
-                act(AT_SKILL,
+                act(AtSkill,
                     "WHAAAAM!!!  You bash against the wall, but it doesn't budge.",
-                    ch, NULL, NULL, TO_CHAR);
-                act(AT_SKILL,
+                    ch, NULL, NULL, ToChar);
+                act(AtSkill,
                     "WHAAAAM!!!  $n bashes against the wall, but it holds strong.",
-                    ch, NULL, NULL, TO_ROOM);
+                    ch, NULL, NULL, ToRoom);
                 damage(ch, ch, (ch->max_hit / 20) + 10, gsn_bashdoor);
                 learn_from_failure(ch, gsn_bashdoor);
         }
@@ -2159,8 +2159,8 @@ CMDF do_stand(CharData * ch, [[maybe_unused]] const char *argument)
         argument = NULL;
         switch (ch->position)
         {
-        case POS_SLEEPING:
-                if (IS_AFFECTED(ch, AFF_SLEEP))
+        case PosSleeping:
+                if (IsAffected(ch, AffSleep))
                 {
                         send_to_char("You can't seem to wake up!\n\r", ch);
                         return;
@@ -2168,29 +2168,29 @@ CMDF do_stand(CharData * ch, [[maybe_unused]] const char *argument)
 
                 send_to_char("You wake and climb quickly to your feet.\n\r",
                              ch);
-                act(AT_ACTION, "$n arises from $s slumber.", ch, NULL, NULL,
-                    TO_ROOM);
-                ch->position = POS_STANDING;
+                act(AtAction, "$n arises from $s slumber.", ch, NULL, NULL,
+                    ToRoom);
+                ch->position = PosStanding;
                 break;
 
-        case POS_RESTING:
+        case PosResting:
                 send_to_char("You gather yourself and stand up.\n\r", ch);
-                act(AT_ACTION, "$n rises from $s rest.", ch, NULL, NULL,
-                    TO_ROOM);
-                ch->position = POS_STANDING;
+                act(AtAction, "$n rises from $s rest.", ch, NULL, NULL,
+                    ToRoom);
+                ch->position = PosStanding;
                 break;
 
-        case POS_SITTING:
+        case PosSitting:
                 send_to_char("You move quickly to your feet.\n\r", ch);
-                act(AT_ACTION, "$n rises up.", ch, NULL, NULL, TO_ROOM);
-                ch->position = POS_STANDING;
+                act(AtAction, "$n rises up.", ch, NULL, NULL, ToRoom);
+                ch->position = PosStanding;
                 break;
 
-        case POS_STANDING:
+        case PosStanding:
                 send_to_char("You are already standing.\n\r", ch);
                 break;
 
-        case POS_FIGHTING:
+        case PosFighting:
                 send_to_char("You are already fighting!\n\r", ch);
                 break;
         default:
@@ -2206,7 +2206,7 @@ CMDF do_sit(CharData * ch, [[maybe_unused]] const char *argument)
         ObjData *obj = NULL;
 
 
-        if (ch->position == POS_FIGHTING)
+        if (ch->position == PosFighting)
         {
                 send_to_char("Maybe you should finish this fight first?\n\r",
                              ch);
@@ -2228,7 +2228,7 @@ CMDF do_sit(CharData * ch, [[maybe_unused]] const char *argument)
 
         if (obj != NULL)
         {
-                if (obj->item_type != ITEM_FURNITURE)
+                if (obj->item_type != ItemFurniture)
                 {
                         send_to_char("You can't sit on that.\n\r", ch);
                         return;
@@ -2237,8 +2237,8 @@ CMDF do_sit(CharData * ch, [[maybe_unused]] const char *argument)
                 if (obj != NULL && ch->on != obj
                     && count_users(obj) >= obj->value[0])
                 {
-                        act(AT_ACTION, "There's no more room on $p.", ch, obj,
-                            NULL, TO_CHAR);
+                        act(AtAction, "There's no more room on $p.", ch, obj,
+                            NULL, ToChar);
                         return;
                 }
 
@@ -2246,8 +2246,8 @@ CMDF do_sit(CharData * ch, [[maybe_unused]] const char *argument)
         }
         switch (ch->position)
         {
-        case POS_SLEEPING:
-                if (IS_AFFECTED(ch, AFF_SLEEP))
+        case PosSleeping:
+                if (IsAffected(ch, AffSleep))
                 {
                         send_to_char("You can't wake up!\n\r", ch);
                         return;
@@ -2256,87 +2256,87 @@ CMDF do_sit(CharData * ch, [[maybe_unused]] const char *argument)
                 if (obj == NULL)
                 {
                         send_to_char("You wake and sit up.\n\r", ch);
-                        act(AT_ACTION, "$n wakes and sits up.", ch, NULL,
-                            NULL, TO_ROOM);
+                        act(AtAction, "$n wakes and sits up.", ch, NULL,
+                            NULL, ToRoom);
                 }
-                else if (obj->value[2] == SIT_AT)
+                else if (obj->value[2] == SitAt)
                 {
-                        act(AT_ACTION, "You wake and sit at $p.", ch, obj,
-                            NULL, TO_CHAR);
-                        act(AT_ACTION, "$n wakes and sits at $p.", ch, obj,
-                            NULL, TO_ROOM);
+                        act(AtAction, "You wake and sit at $p.", ch, obj,
+                            NULL, ToChar);
+                        act(AtAction, "$n wakes and sits at $p.", ch, obj,
+                            NULL, ToRoom);
 
                 }
-                else if (obj->value[2] == SIT_ON)
+                else if (obj->value[2] == SitOn)
                 {
-                        act(AT_ACTION, "You wake and sit on $p.", ch, obj,
-                            NULL, TO_CHAR);
-                        act(AT_ACTION, "$n wakes and sits at $p.", ch, obj,
-                            NULL, TO_ROOM);
+                        act(AtAction, "You wake and sit on $p.", ch, obj,
+                            NULL, ToChar);
+                        act(AtAction, "$n wakes and sits at $p.", ch, obj,
+                            NULL, ToRoom);
                 }
                 else
                 {
-                        act(AT_ACTION, "You wake and sit in $p.", ch, obj,
-                            NULL, TO_CHAR);
-                        act(AT_ACTION, "$n wakes and sits in $p.", ch, obj,
-                            NULL, TO_ROOM);
+                        act(AtAction, "You wake and sit in $p.", ch, obj,
+                            NULL, ToChar);
+                        act(AtAction, "$n wakes and sits in $p.", ch, obj,
+                            NULL, ToRoom);
                 }
 
-                ch->position = POS_SITTING;
+                ch->position = PosSitting;
                 break;
-        case POS_RESTING:
+        case PosResting:
                 if (obj == NULL)
                         send_to_char("You stop resting.\n\r", ch);
-                else if (obj->value[2] == SIT_AT)
+                else if (obj->value[2] == SitAt)
                 {
-                        act(AT_ACTION, "You sit at $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n sits at $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You sit at $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n sits at $p.", ch, obj, NULL,
+                            ToRoom);
                 }
 
-                else if (obj->value[2] == SIT_ON)
+                else if (obj->value[2] == SitOn)
                 {
-                        act(AT_ACTION, "You sit on $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n sits on $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You sit on $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n sits on $p.", ch, obj, NULL,
+                            ToRoom);
                 }
-                ch->position = POS_SITTING;
+                ch->position = PosSitting;
                 break;
-        case POS_SITTING:
+        case PosSitting:
                 send_to_char("You are already sitting down.\n\r", ch);
                 break;
 
-        case POS_STANDING:
+        case PosStanding:
                 if (obj == NULL)
                 {
                         send_to_char("You sit down.\n\r", ch);
-                        act(AT_ACTION, "$n sits down on the ground.", ch,
-                            NULL, NULL, TO_ROOM);
+                        act(AtAction, "$n sits down on the ground.", ch,
+                            NULL, NULL, ToRoom);
                 }
-                else if (obj->value[2] == SIT_AT)
+                else if (obj->value[2] == SitAt)
                 {
-                        act(AT_ACTION, "You sit down at $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n sits down at $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You sit down at $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n sits down at $p.", ch, obj, NULL,
+                            ToRoom);
                 }
-                else if (obj->value[2] == SIT_ON)
+                else if (obj->value[2] == SitOn)
                 {
-                        act(AT_ACTION, "You sit on $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n sits on $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You sit on $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n sits on $p.", ch, obj, NULL,
+                            ToRoom);
                 }
                 else
                 {
-                        act(AT_ACTION, "You sit down in $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n sits down in $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You sit down in $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n sits down in $p.", ch, obj, NULL,
+                            ToRoom);
                 }
-                ch->position = POS_SITTING;
+                ch->position = PosSitting;
                 break;
         default:
                 {
@@ -2366,7 +2366,7 @@ CMDF do_rest(CharData * ch, [[maybe_unused]] const char *argument)
 
         if (obj != NULL)
         {
-                if (obj->item_type != ITEM_FURNITURE)
+                if (obj->item_type != ItemFurniture)
                 {
                         send_to_char("You can't rest on that.\n\r", ch);
                         return;
@@ -2375,8 +2375,8 @@ CMDF do_rest(CharData * ch, [[maybe_unused]] const char *argument)
                 if (obj != NULL && ch->on != obj
                     && count_users(obj) >= obj->value[0])
                 {
-                        act(AT_ACTION, "There's no more room on $p.", ch, obj,
-                            NULL, TO_CHAR);
+                        act(AtAction, "There's no more room on $p.", ch, obj,
+                            NULL, ToChar);
                         return;
                 }
 
@@ -2385,8 +2385,8 @@ CMDF do_rest(CharData * ch, [[maybe_unused]] const char *argument)
 
         switch (ch->position)
         {
-        case POS_SLEEPING:
-                if (IS_AFFECTED(ch, AFF_SLEEP))
+        case PosSleeping:
+                if (IsAffected(ch, AffSleep))
                 {
                         send_to_char("You can't wake up!\n\r", ch);
                         return;
@@ -2396,100 +2396,100 @@ CMDF do_rest(CharData * ch, [[maybe_unused]] const char *argument)
                 {
                         send_to_char("You wake up and start resting.\n\r",
                                      ch);
-                        act(AT_ACTION, "$n wakes up and starts resting.", ch,
-                            NULL, NULL, TO_ROOM);
+                        act(AtAction, "$n wakes up and starts resting.", ch,
+                            NULL, NULL, ToRoom);
                 }
-                else if (obj->value[2] == REST_AT)
+                else if (obj->value[2] == RestAt)
                 {
-                        act(AT_ACTION, "You wake up and rest at $p.", ch, obj,
-                            NULL, TO_CHAR);
-                        act(AT_ACTION, "$n wakes up and rests at $p.", ch,
-                            obj, NULL, TO_ROOM);
+                        act(AtAction, "You wake up and rest at $p.", ch, obj,
+                            NULL, ToChar);
+                        act(AtAction, "$n wakes up and rests at $p.", ch,
+                            obj, NULL, ToRoom);
                 }
-                else if (obj->value[2] == REST_ON)
+                else if (obj->value[2] == RestOn)
                 {
-                        act(AT_ACTION, "You wake up and rest on $p.", ch, obj,
-                            NULL, TO_CHAR);
-                        act(AT_ACTION, "$n wakes up and rests on $p.", ch,
-                            obj, NULL, TO_ROOM);
+                        act(AtAction, "You wake up and rest on $p.", ch, obj,
+                            NULL, ToChar);
+                        act(AtAction, "$n wakes up and rests on $p.", ch,
+                            obj, NULL, ToRoom);
                 }
                 else
                 {
-                        act(AT_ACTION, "You wake up and rest in $p.", ch, obj,
-                            NULL, TO_CHAR);
-                        act(AT_ACTION, "$n wakes up and rests in $p.", ch,
-                            obj, NULL, TO_ROOM);
+                        act(AtAction, "You wake up and rest in $p.", ch, obj,
+                            NULL, ToChar);
+                        act(AtAction, "$n wakes up and rests in $p.", ch,
+                            obj, NULL, ToRoom);
                 }
-                ch->position = POS_RESTING;
+                ch->position = PosResting;
                 break;
 
-        case POS_RESTING:
+        case PosResting:
                 send_to_char("You are already resting.\n\r", ch);
                 break;
 
 
-        case POS_STANDING:
+        case PosStanding:
                 if (obj == NULL)
                 {
                         send_to_char("You rest.\n\r", ch);
-                        act(AT_ACTION, "$n sits down and rests.", ch, NULL,
-                            NULL, TO_ROOM);
+                        act(AtAction, "$n sits down and rests.", ch, NULL,
+                            NULL, ToRoom);
                 }
-                else if (obj->value[2] == REST_AT)
+                else if (obj->value[2] == RestAt)
                 {
-                        act(AT_ACTION, "You sit down at $p and rest.", ch,
-                            obj, NULL, TO_CHAR);
-                        act(AT_ACTION, "$n sits down at $p and rests.", ch,
-                            obj, NULL, TO_ROOM);
+                        act(AtAction, "You sit down at $p and rest.", ch,
+                            obj, NULL, ToChar);
+                        act(AtAction, "$n sits down at $p and rests.", ch,
+                            obj, NULL, ToRoom);
                 }
-                else if (obj->value[2] == REST_ON)
+                else if (obj->value[2] == RestOn)
                 {
-                        act(AT_ACTION, "You sit on $p and rest.", ch, obj,
-                            NULL, TO_CHAR);
-                        act(AT_ACTION, "$n sits on $p and rests.", ch, obj,
-                            NULL, TO_ROOM);
+                        act(AtAction, "You sit on $p and rest.", ch, obj,
+                            NULL, ToChar);
+                        act(AtAction, "$n sits on $p and rests.", ch, obj,
+                            NULL, ToRoom);
                 }
                 else
                 {
-                        act(AT_ACTION, "You rest in $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n rests in $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You rest in $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n rests in $p.", ch, obj, NULL,
+                            ToRoom);
                 }
-                ch->position = POS_RESTING;
+                ch->position = PosResting;
                 break;
 
-        case POS_SITTING:
+        case PosSitting:
                 if (obj == NULL)
                 {
                         send_to_char("You rest.\n\r", ch);
-                        act(AT_ACTION, "$n rests.", ch, NULL, NULL, TO_ROOM);
+                        act(AtAction, "$n rests.", ch, NULL, NULL, ToRoom);
                 }
-                else if (obj->value[2] == REST_AT)
+                else if (obj->value[2] == RestAt)
                 {
-                        act(AT_ACTION, "You rest at $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n rests at $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You rest at $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n rests at $p.", ch, obj, NULL,
+                            ToRoom);
                 }
-                else if (obj->value[2] == REST_ON)
+                else if (obj->value[2] == RestOn)
                 {
-                        act(AT_ACTION, "You rest on $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n rests on $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You rest on $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n rests on $p.", ch, obj, NULL,
+                            ToRoom);
                 }
                 else
                 {
-                        act(AT_ACTION, "You rest in $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n rests in $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You rest in $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n rests in $p.", ch, obj, NULL,
+                            ToRoom);
                 }
-                ch->position = POS_RESTING;
+                ch->position = PosResting;
                 break;
 
-        case POS_MOUNTED:
+        case PosMounted:
                 send_to_char("You'd better dismount first.\n\r", ch);
                 return;
         default:
@@ -2508,19 +2508,19 @@ CMDF do_sleep(CharData * ch, [[maybe_unused]] const char *argument)
 
         switch (ch->position)
         {
-        case POS_SLEEPING:
+        case PosSleeping:
                 send_to_char("You are already sleeping.\n\r", ch);
                 break;
 
-        case POS_RESTING:
-        case POS_SITTING:
-        case POS_STANDING:
+        case PosResting:
+        case PosSitting:
+        case PosStanding:
                 if (argument[0] == '\0' && ch->on == NULL)
                 {
                         send_to_char("You go to sleep.\n\r", ch);
-                        act(AT_ACTION, "$n goes to sleep.", ch, NULL, NULL,
-                            TO_ROOM);
-                        ch->position = POS_SLEEPING;
+                        act(AtAction, "$n goes to sleep.", ch, NULL, NULL,
+                            ToRoom);
+                        ch->position = PosSleeping;
                 }
                 else    /* find an object and sleep on it */
                 {
@@ -2537,7 +2537,7 @@ CMDF do_sleep(CharData * ch, [[maybe_unused]] const char *argument)
                                              ch);
                                 return;
                         }
-                        if (obj->item_type != ITEM_FURNITURE)
+                        if (obj->item_type != ItemFurniture)
                         {
                                 send_to_char("You can't sleep on that!\n\r",
                                              ch);
@@ -2547,39 +2547,39 @@ CMDF do_sleep(CharData * ch, [[maybe_unused]] const char *argument)
                         if (ch->on != obj
                             && count_users(obj) >= obj->value[0])
                         {
-                                act(AT_ACTION,
+                                act(AtAction,
                                     "There is no room on $p for you.", ch,
-                                    obj, NULL, TO_CHAR);
+                                    obj, NULL, ToChar);
                                 return;
                         }
 
                         ch->on = obj;
-                        if (obj->value[2] == SLEEP_AT)
+                        if (obj->value[2] == SleepAt)
                         {
-                                act(AT_ACTION, "You go to sleep at $p.", ch,
-                                    obj, NULL, TO_CHAR);
-                                act(AT_ACTION, "$n goes to sleep at $p.", ch,
-                                    obj, NULL, TO_ROOM);
+                                act(AtAction, "You go to sleep at $p.", ch,
+                                    obj, NULL, ToChar);
+                                act(AtAction, "$n goes to sleep at $p.", ch,
+                                    obj, NULL, ToRoom);
                         }
-                        else if (obj->value[2] == SLEEP_ON)
+                        else if (obj->value[2] == SleepOn)
                         {
-                                act(AT_ACTION, "You go to sleep on $p.", ch,
-                                    obj, NULL, TO_CHAR);
-                                act(AT_ACTION, "$n goes to sleep on $p.", ch,
-                                    obj, NULL, TO_ROOM);
+                                act(AtAction, "You go to sleep on $p.", ch,
+                                    obj, NULL, ToChar);
+                                act(AtAction, "$n goes to sleep on $p.", ch,
+                                    obj, NULL, ToRoom);
                         }
                         else
                         {
-                                act(AT_ACTION, "You go to sleep in $p.", ch,
-                                    obj, NULL, TO_CHAR);
-                                act(AT_ACTION, "$n goes to sleep in $p.", ch,
-                                    obj, NULL, TO_ROOM);
+                                act(AtAction, "You go to sleep in $p.", ch,
+                                    obj, NULL, ToChar);
+                                act(AtAction, "$n goes to sleep in $p.", ch,
+                                    obj, NULL, ToRoom);
                         }
-                        ch->position = POS_SLEEPING;
+                        ch->position = PosSleeping;
                 }
                 break;
 
-        case POS_FIGHTING:
+        case PosFighting:
                 send_to_char("You are busy fighting!\n\r", ch);
                 break;
         default:
@@ -2606,7 +2606,7 @@ CMDF do_wake(CharData * ch, [[maybe_unused]] const char *argument)
                 return;
         }
 
-        if (!IS_AWAKE(ch))
+        if (!IsAwake(ch))
         {
                 send_to_char("You are asleep yourself!\n\r", ch);
                 return;
@@ -2618,23 +2618,23 @@ CMDF do_wake(CharData * ch, [[maybe_unused]] const char *argument)
                 return;
         }
 
-        if (IS_AWAKE(victim))
+        if (IsAwake(victim))
         {
-                act(AT_PLAIN, "$N is already awake.", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtPlain, "$N is already awake.", ch, NULL, victim,
+                    ToChar);
                 return;
         }
 
-        if (IS_AFFECTED(victim, AFF_SLEEP) || victim->position < POS_SLEEPING)
+        if (IsAffected(victim, AffSleep) || victim->position < PosSleeping)
         {
-                act(AT_PLAIN, "You can't seem to wake $M!", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtPlain, "You can't seem to wake $M!", ch, NULL, victim,
+                    ToChar);
                 return;
         }
 
-        act(AT_ACTION, "You wake $M.", ch, NULL, victim, TO_CHAR);
-        victim->position = POS_STANDING;
-        act(AT_ACTION, "$n wakes you.", ch, NULL, victim, TO_VICT);
+        act(AtAction, "You wake $M.", ch, NULL, victim, ToChar);
+        victim->position = PosStanding;
+        act(AtAction, "$n wakes you.", ch, NULL, victim, ToVict);
         return;
 }
 
@@ -2650,7 +2650,7 @@ CMDF do_climb(CharData * ch, [[maybe_unused]] const char *argument)
         {
                 for (pexit = ch->in_room->first_exit; pexit;
                      pexit = pexit->next)
-                        if (IS_SET(pexit->exit_info, EX_xCLIMB))
+                        if (IsSet(pexit->exit_info, EX_xCLIMB))
                         {
                                 move_char(ch, pexit, 0, FALSE);
                                 return;
@@ -2660,7 +2660,7 @@ CMDF do_climb(CharData * ch, [[maybe_unused]] const char *argument)
         }
 
         if ((pexit = find_door(ch, argument, TRUE)) != NULL
-            && IS_SET(pexit->exit_info, EX_xCLIMB))
+            && IsSet(pexit->exit_info, EX_xCLIMB))
         {
                 move_char(ch, pexit, 0, FALSE);
                 return;
@@ -2680,7 +2680,7 @@ CMDF do_enter(CharData * ch, [[maybe_unused]] const char *argument)
         {
                 for (pexit = ch->in_room->first_exit; pexit;
                      pexit = pexit->next)
-                        if (IS_SET(pexit->exit_info, EX_xENTER))
+                        if (IsSet(pexit->exit_info, EX_xENTER))
                         {
                                 move_char(ch, pexit, 0, FALSE);
                                 return;
@@ -2690,7 +2690,7 @@ CMDF do_enter(CharData * ch, [[maybe_unused]] const char *argument)
         }
 
         if ((pexit = find_door(ch, argument, TRUE)) != NULL
-            && IS_SET(pexit->exit_info, EX_xENTER))
+            && IsSet(pexit->exit_info, EX_xENTER))
         {
                 move_char(ch, pexit, 0, FALSE);
                 return;
@@ -2710,7 +2710,7 @@ CMDF do_leave(CharData * ch, [[maybe_unused]] const char *argument)
         {
                 for (pexit = ch->in_room->first_exit; pexit;
                      pexit = pexit->next)
-                        if (IS_SET(pexit->exit_info, EX_xLEAVE))
+                        if (IsSet(pexit->exit_info, EX_xLEAVE))
                         {
                                 move_char(ch, pexit, 0, FALSE);
                                 return;
@@ -2720,7 +2720,7 @@ CMDF do_leave(CharData * ch, [[maybe_unused]] const char *argument)
         }
 
         if ((pexit = find_door(ch, argument, TRUE)) != NULL
-            && IS_SET(pexit->exit_info, EX_xLEAVE))
+            && IsSet(pexit->exit_info, EX_xLEAVE))
         {
                 move_char(ch, pexit, 0, FALSE);
                 return;
@@ -2747,7 +2747,7 @@ CMDF do_run(CharData * ch, [[maybe_unused]] const char *argument)
                 return;
         }
 
-        if (ch->position != POS_STANDING && ch->position != POS_MOUNTED)
+        if (ch->position != PosStanding && ch->position != PosMounted)
         {
                 send_to_char
                         ("You are not in the correct position for that.\n\r",
@@ -2781,14 +2781,14 @@ CMDF do_run(CharData * ch, [[maybe_unused]] const char *argument)
         {
                 send_to_char("You try to run but don't get anywhere.\n\r",
                              ch);
-                act(AT_ACTION, "$n tries to run but doesn't get anywhere.",
-                    ch, NULL, NULL, TO_ROOM);
+                act(AtAction, "$n tries to run but doesn't get anywhere.",
+                    ch, NULL, NULL, ToRoom);
                 return;
         }
 
         send_to_char("You slow down after your run.\n\r", ch);
-        act(AT_ACTION, "$n slows down after $s run.", ch, NULL, NULL,
-            TO_ROOM);
+        act(AtAction, "$n slows down after $s run.", ch, NULL, NULL,
+            ToRoom);
 
         do_look(ch, "auto");
         return;
@@ -2809,12 +2809,12 @@ CMDF do_struggle_binding(CharData * ch)
                     ch->name);
                 return;
         }
-        if ((obj = get_eq_char(ch, WEAR_BINDING)) == NULL)
+        if ((obj = get_eq_char(ch, WearBinding)) == NULL)
         {
                 bug("%s is do_struggle_binding with no binding!", ch->name);
                 return;
         }
-        if (ch->endurance < MIN_STRUGGLE_ENDURANCE)
+        if (ch->endurance < MinStruggleEndurance)
         {
                 send_to_char("You're too tired to struggle more.", ch);
                 return;
@@ -2836,24 +2836,24 @@ CMDF do_struggle_binding(CharData * ch)
                         ch->endurance = static_cast<sh_int>(0);  /* Added in to fix strange bug */
                 if (obj->value[2] == 0)
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "You struggle, and break free from $p!", ch, obj,
-                            NULL, TO_CHAR);
-                        act(AT_ACTION,
+                            NULL, ToChar);
+                        act(AtAction,
                             "$n struggles, and breaks free from $p!", ch, obj,
-                            NULL, TO_ROOM);
+                            NULL, ToRoom);
                         unequip_char(ch, obj);
                         make_scraps(obj);
-                        WAIT_STATE(ch, 3);
+                        WaitState(ch, 3);
                         return;
                 }
                 else
                 {
-                        act(AT_ACTION, "You struggle, but $p holds strong.",
-                            ch, obj, NULL, TO_CHAR);
-                        act(AT_ACTION,
+                        act(AtAction, "You struggle, but $p holds strong.",
+                            ch, obj, NULL, ToChar);
+                        act(AtAction,
                             "$n struggles, to no avail, against $p.", ch, obj,
-                            NULL, TO_ROOM);
+                            NULL, ToRoom);
                         return;
                 }
         }
@@ -2885,19 +2885,19 @@ CMDF do_hold_person(CharData * ch, const char *argument)
 			send_to_char("You love yourself that much, huh?\n\r", ch);
 			return;
 		}
-        if (IS_IMMORTAL(victim) && !IS_IMMORTAL(ch))
+        if (IsImmortal(victim) && !IsImmortal(ch))
         {
                 send_to_char("You can't do that.", ch);
                 return;
         }
         if (victim->holding != NULL)
         {
-                act(AT_ACTION, "But $E is holding someone. Try MURDERING $M.",
-                    ch, NULL, victim, TO_CHAR);
+                act(AtAction, "But $E is holding someone. Try MURDERING $M.",
+                    ch, NULL, victim, ToChar);
                 return;
         }
 
-        if (IS_NPC(victim) && victim->pIndexData->pShop != NULL)
+        if (IsNpc(victim) && victim->pIndexData->pShop != NULL)
         {
                 send_to_char
                         ("The shopkeeper struggles too much for you to get a good hold!\n\r",
@@ -2905,16 +2905,16 @@ CMDF do_hold_person(CharData * ch, const char *argument)
                 return;
         }
 
-        act(AT_ACTION, "You grab ahold of $N!", ch, NULL, victim, TO_CHAR);
-        act(AT_ACTION, "$n grabs ahold of $N!", ch, NULL, victim, TO_NOTVICT);
-        act(AT_ACTION, "$n grabs ahold of you!", ch, NULL, victim, TO_VICT);
+        act(AtAction, "You grab ahold of $N!", ch, NULL, victim, ToChar);
+        act(AtAction, "$n grabs ahold of $N!", ch, NULL, victim, ToNotvict);
+        act(AtAction, "$n grabs ahold of you!", ch, NULL, victim, ToVict);
         ch->holding = victim;
         victim->heldby = ch;
         victim->held = TRUE;
-        victim->position = POS_STANDING;
+        victim->position = PosStanding;
         victim->master = ch;
         victim->leader = ch;
-        WAIT_STATE(ch, static_cast<sh_int>(number_range(STRUGGLE_WAIT_MIN, STRUGGLE_WAIT_MAX)));
+        WaitState(ch, static_cast<sh_int>(number_range(StruggleWaitMin, StruggleWaitMax)));
         return;
 }
 
@@ -2929,7 +2929,7 @@ CMDF do_struggle(CharData * ch)
                 send_to_char("You have nothing to struggle against.\n\r", ch);
                 return;
         }
-        if ((obj = get_eq_char(ch, WEAR_BINDING)) != NULL)
+        if ((obj = get_eq_char(ch, WearBinding)) != NULL)
         {
                 do_struggle_binding(ch);
                 return;
@@ -2946,28 +2946,28 @@ CMDF do_struggle(CharData * ch)
         else
                 holder = ch->heldby;
 
-        if (ch->endurance < MIN_STRUGGLE_ENDURANCE)
+        if (ch->endurance < MinStruggleEndurance)
         {
                 send_to_char("You are too tired to struggle more.\n\r", ch);
                 return;
         }
         if ((diff_str = (get_curr_str(ch) - get_curr_str(holder))) > 3)
         {
-                act(AT_ACTION,
+                act(AtAction,
                     "With little effort, you break free of $N's grip on you.",
-                    ch, NULL, holder, TO_CHAR);
-                act(AT_ACTION,
+                    ch, NULL, holder, ToChar);
+                act(AtAction,
                     "With little effort, $n breaks free of your grip!", ch,
-                    NULL, holder, TO_VICT);
-                act(AT_ACTION,
+                    NULL, holder, ToVict);
+                act(AtAction,
                     "With little effort, $n breaks free of $N's grip.", ch,
-                    NULL, holder, TO_NOTVICT);
+                    NULL, holder, ToNotvict);
                 ch->leader = NULL;
                 ch->heldby = NULL;
                 ch->held = FALSE;
                 holder->holding = NULL;
                 ch->master = NULL;
-                WAIT_STATE(holder, static_cast<sh_int>(number_range(2, 7)));
+                WaitState(holder, static_cast<sh_int>(number_range(2, 7)));
                 return;
         }
         else
@@ -2977,39 +2977,39 @@ CMDF do_struggle(CharData * ch)
                                  number_range(10, 40)), 100);
                 if (number_percent() > chance)
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "You struggle against $N's grip on you, to no avail.",
-                            ch, NULL, holder, TO_CHAR);
-                        act(AT_ACTION,
+                            ch, NULL, holder, ToChar);
+                        act(AtAction,
                             "$n struggles against your grip on $m, but fails to escape.",
-                            ch, NULL, holder, TO_VICT);
-                        act(AT_ACTION,
+                            ch, NULL, holder, ToVict);
+                        act(AtAction,
                             "$n struggles against $N's grip on $m, but $N holds strong.",
-                            ch, NULL, holder, TO_NOTVICT);
+                            ch, NULL, holder, ToNotvict);
                         ch->endurance = static_cast<sh_int>(
                                 URANGE(0,
                                        ch->endurance - number_range(120, 700),
                                        ch->max_endurance));
-                        WAIT_STATE(ch, static_cast<sh_int>(number_range(5, 12)));
+                        WaitState(ch, static_cast<sh_int>(number_range(5, 12)));
                         return;
                 }
                 else
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "You struggle against $N's grip, breaking free!",
-                            ch, NULL, holder, TO_CHAR);
-                        act(AT_ACTION,
+                            ch, NULL, holder, ToChar);
+                        act(AtAction,
                             "$n struggles against $N's grip, breaking free!",
-                            ch, NULL, holder, TO_NOTVICT);
-                        act(AT_ACTION,
+                            ch, NULL, holder, ToNotvict);
+                        act(AtAction,
                             "$n struggles against your grip, breaking free!",
-                            ch, NULL, holder, TO_VICT);
+                            ch, NULL, holder, ToVict);
                         ch->heldby = NULL;
                         ch->held = FALSE;
                         holder->holding = NULL;
                         ch->master = NULL;
                         ch->leader = NULL;
-                        WAIT_STATE(holder, static_cast<sh_int>(number_range(2, 7)));
+                        WaitState(holder, static_cast<sh_int>(number_range(2, 7)));
                         return;
                 }
         }
@@ -3035,10 +3035,10 @@ CMDF do_unbind(CharData * ch, [[maybe_unused]] const char *argument)
                 send_to_char("You don't see anyone like that here.\n\r", ch);
                 return;
         }
-        if ((obj = get_eq_char(victim, WEAR_BINDING)) == NULL)
+        if ((obj = get_eq_char(victim, WearBinding)) == NULL)
         {
-                act(AT_ACTION, "$n, $E doesn't seem to be bound.", ch, NULL,
-                    victim, TO_CHAR);
+                act(AtAction, "$n, $E doesn't seem to be bound.", ch, NULL,
+                    victim, ToChar);
                 return;
         }
         if (obj->value[4] != 0)
@@ -3048,14 +3048,14 @@ CMDF do_unbind(CharData * ch, [[maybe_unused]] const char *argument)
         }
         if (obj->value[3] != keycode)
         {
-                act(AT_ACTION, "Thats not the right code to unlock $N's $p.",
-                    ch, obj, victim, TO_CHAR);
-                act(AT_ACTION,
+                act(AtAction, "Thats not the right code to unlock $N's $p.",
+                    ch, obj, victim, ToChar);
+                act(AtAction,
                     "$n presses a few buttons on $p, but nothing happens.",
-                    ch, obj, victim, TO_VICT);
-                act(AT_ACTION,
+                    ch, obj, victim, ToVict);
+                act(AtAction,
                     "$n presses a few buttons on $N's $p, but nothing happens.",
-                    ch, obj, victim, TO_NOTVICT);
+                    ch, obj, victim, ToNotvict);
                 return;
         }
         else
@@ -3068,25 +3068,25 @@ CMDF do_unbind(CharData * ch, [[maybe_unused]] const char *argument)
                         victim->held = FALSE;
                 if (keybind)
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "You enter the code to unlock $p on $N.", ch, obj,
-                            victim, TO_CHAR);
-                        act(AT_ACTION,
+                            victim, ToChar);
+                        act(AtAction,
                             "$n presses a few buttons on $p, and it unlocks!",
-                            ch, obj, victim, TO_VICT);
-                        act(AT_ACTION,
+                            ch, obj, victim, ToVict);
+                        act(AtAction,
                             "$n presses a few buttons on $p, and it unlocks.",
-                            ch, obj, victim, TO_NOTVICT);
+                            ch, obj, victim, ToNotvict);
                         return;
                 }
                 else
                 {
-                        act(AT_ACTION, "You unbind $p from $N.", ch, obj,
-                            victim, TO_CHAR);
-                        act(AT_ACTION, "$n unbinds $p from $N.", ch, obj,
-                            victim, TO_NOTVICT);
-                        act(AT_ACTION, "$n unbinds you, removing $p!", ch,
-                            obj, victim, TO_VICT);
+                        act(AtAction, "You unbind $p from $N.", ch, obj,
+                            victim, ToChar);
+                        act(AtAction, "$n unbinds $p from $N.", ch, obj,
+                            victim, ToNotvict);
+                        act(AtAction, "$n unbinds you, removing $p!", ch,
+                            obj, victim, ToVict);
                         return;
                 }
         }
@@ -3113,14 +3113,14 @@ CMDF do_subdue(CharData * ch, [[maybe_unused]] const char *argument)
         }
         if (!victim->held)
         {
-                act(AT_ACTION, "But $E isn't held or bound.", ch, NULL,
-                    victim, TO_CHAR);
+                act(AtAction, "But $E isn't held or bound.", ch, NULL,
+                    victim, ToChar);
                 return;
         }
-        if (victim->endurance < MIN_SUBDUE_ENDURANCE)
+        if (victim->endurance < MinSubdueEndurance)
         {
-                act(AT_ACTION, "$N looks pretty subdued already.", ch, NULL,
-                    victim, TO_CHAR);
+                act(AtAction, "$N looks pretty subdued already.", ch, NULL,
+                    victim, ToChar);
                 return;
         }
         if ((strain_amount =
@@ -3140,13 +3140,13 @@ CMDF do_subdue(CharData * ch, [[maybe_unused]] const char *argument)
                                                                  strain_amount
                                                                  / 2)),
                                victim->max_endurance));
-                act(AT_ACTION, "You rough $M up, and $E looks weaker.", ch,
-                    NULL, victim, TO_CHAR);
-                act(AT_ACTION, "$n roughs you up, and you feel drained!", ch,
-                    NULL, victim, TO_VICT);
-                act(AT_ACTION, "$n roughs $N up, and $E looks weaker.", ch,
-                    NULL, victim, TO_NOTVICT);
-                WAIT_STATE(ch, static_cast<sh_int>(number_range(4, 8)));
+                act(AtAction, "You rough $M up, and $E looks weaker.", ch,
+                    NULL, victim, ToChar);
+                act(AtAction, "$n roughs you up, and you feel drained!", ch,
+                    NULL, victim, ToVict);
+                act(AtAction, "$n roughs $N up, and $E looks weaker.", ch,
+                    NULL, victim, ToNotvict);
+                WaitState(ch, static_cast<sh_int>(number_range(4, 8)));
                 return;
         }
 }
@@ -3174,25 +3174,25 @@ CMDF do_bind(CharData * ch, [[maybe_unused]] const char *argument)
                              ch);
                 return;
         }
-        if (!victim->held && IS_AWAKE(victim) && victim->endurance > MIN_STRUGGLE_ENDURANCE)
+        if (!victim->held && IsAwake(victim) && victim->endurance > MinStruggleEndurance)
         {
-                act(AT_ACTION,
+                act(AtAction,
                     "Well, $N seems a little too lively to be bound.", ch,
-                    NULL, victim, TO_CHAR);
+                    NULL, victim, ToChar);
                 return;
         }
-        if (victim->held == TRUE && victim->endurance > MIN_STRUGGLE_ENDURANCE)
+        if (victim->held == TRUE && victim->endurance > MinStruggleEndurance)
         {
-                act(AT_ACTION, "Try subduing $M first.", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtAction, "Try subduing $M first.", ch, NULL, victim,
+                    ToChar);
                 return;
         }
-        if ((obj = get_eq_char(ch, WEAR_HOLD)) == NULL
-            || obj->item_type != ITEM_BINDING)
+        if ((obj = get_eq_char(ch, WearHold)) == NULL
+            || obj->item_type != ItemBinding)
         {
-                act(AT_ACTION,
+                act(AtAction,
                     "You need to be holding something to bind $M with.", ch,
-                    NULL, victim, TO_CHAR);
+                    NULL, victim, ToChar);
                 return;
         }
 
@@ -3209,26 +3209,26 @@ CMDF do_bind(CharData * ch, [[maybe_unused]] const char *argument)
                 if (keylock)
                         obj->value[3] = keycode;
                 unequip_char(ch, obj);
-                SET_BIT(obj->wear_loc, WEAR_HOLD);
-                SET_BIT(obj->wear_loc, static_cast<sh_int>(ITEM_WEAR_BINDING));
-                SET_BIT(obj->extra_flags, ITEM_NOREMOVE);
+                SetBit(obj->wear_loc, WearHold);
+                SetBit(obj->wear_loc, static_cast<sh_int>(ItemWearBinding));
+                SetBit(obj->extra_flags, ItemNoremove);
                 separate_obj(obj);
                 obj_from_char(obj);
                 obj = obj_to_char(obj, victim);
-                equip_char(victim, obj, WEAR_BINDING);
+                equip_char(victim, obj, WearBinding);
                 victim->held = TRUE;
                 if (victim->heldby)
                 {
                         victim->heldby->holding = NULL;
                         victim->heldby = NULL;
                 }
-                act(AT_ACTION, "You bind $M up with $p.", ch, obj, victim,
-                    TO_CHAR);
-                act(AT_ACTION, "$n binds you up with $p.", ch, obj, victim,
-                    TO_VICT);
-                act(AT_ACTION, "$n binds $N up with $p.", ch, obj, victim,
-                    TO_NOTVICT);
-                WAIT_STATE(ch, static_cast<sh_int>(number_range(2, 6)));
+                act(AtAction, "You bind $M up with $p.", ch, obj, victim,
+                    ToChar);
+                act(AtAction, "$n binds you up with $p.", ch, obj, victim,
+                    ToVict);
+                act(AtAction, "$n binds $N up with $p.", ch, obj, victim,
+                    ToNotvict);
+                WaitState(ch, static_cast<sh_int>(number_range(2, 6)));
                 return;
         }
 }
@@ -3255,18 +3255,18 @@ CMDF do_release(CharData * ch, [[maybe_unused]] const char *argument)
         }
         else
         {
-                act(AT_ACTION, "You release $N.", ch, NULL, victim, TO_CHAR);
-                act(AT_ACTION, "$n releases $N.", ch, NULL, victim,
-                    TO_NOTVICT);
-                act(AT_ACTION, "$n releases you.", ch, NULL, victim, TO_VICT);
-                if ((obj = get_eq_char(victim, WEAR_BINDING)) == NULL)
+                act(AtAction, "You release $N.", ch, NULL, victim, ToChar);
+                act(AtAction, "$n releases $N.", ch, NULL, victim,
+                    ToNotvict);
+                act(AtAction, "$n releases you.", ch, NULL, victim, ToVict);
+                if ((obj = get_eq_char(victim, WearBinding)) == NULL)
                         victim->held = FALSE;
                 ch->holding = NULL;
                 victim->master = NULL;
                 victim->heldby = NULL;
                 victim->leader = NULL;
-                WAIT_STATE(ch, BIND_WAIT_STATE);
-                WAIT_STATE(victim, RELEASE_WAIT_STATE);
+                WaitState(ch, BindWaitState);
+                WaitState(victim, ReleaseWaitState);
         }
         return;
 }

@@ -63,14 +63,14 @@
 #pragma once
 #include <string_view>
 
-constexpr std::string_view SYSTEM_DIR = "../system/";  // Define the system directory path
-constexpr std::string_view HOTBOOT_FILE = "../system/copyover.dat";  // for hotboots
-constexpr std::string_view HOTBOOT_DIR = "../hotboot/";               // For storing objects across hotboots
-constexpr std::string_view MOB_FILE = "mobs.dat";                     // For storing mobs across hotboots
-constexpr std::string_view SHIP_FILE = "ships.dat";                   // For storing ships across hotboots
-constexpr std::string_view OOCHISTORY_FILE = "../system/oochistory.dat"; // For storing oochistory across hotboots
+constexpr std::string_view SystemDir = "../system/";  // Define the system directory path
+constexpr std::string_view HotbootFile = "../system/copyover.dat";  // for hotboots
+constexpr std::string_view HotbootDir = "../hotboot/";               // For storing objects across hotboots
+constexpr std::string_view MobFile = "mobs.dat";                     // For storing mobs across hotboots
+constexpr std::string_view ShipFile = "ships.dat";                   // For storing ships across hotboots
+constexpr std::string_view OochistoryFile = "../system/oochistory.dat"; // For storing oochistory across hotboots
 
-// HOTBOOT_SHIPS is a build flag, not needed as macro here
+// HotbootShips is a build flag, not needed as macro here
 
 // warmboot code
 void hotboot_recover();

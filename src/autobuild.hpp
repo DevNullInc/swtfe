@@ -74,5 +74,5 @@ CMDF do_remlist(std::shared_ptr<CharData> ch, std::string_view argument);       
 // Note: Implementation constants are in autobuild.cpp anonymous namespace
 // These are the public interface limits
 
-constexpr std::size_t AUTOBUILD_MAX_FILENAME_SIZE = 512;      // Maximum filename length including path
-constexpr std::size_t AUTOBUILD_MAX_LINES_PER_LIST = 10000;   // Safety limit for list file size
+constexpr std::size_t AutobuildMaxFilenameSize = 512;      // Maximum filename length including path
+constexpr std::size_t AutobuildMaxLinesPerList = 10000;   // Safety limit for list file size

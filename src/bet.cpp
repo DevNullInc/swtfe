@@ -94,7 +94,7 @@ int advatoi(char *s)
          */
         while (isdigit(s[0])) {
                 // Security: Prevent overflow during digit accumulation
-                if (number > 214748364) { // (INT_MAX / 10) - 1 for safety
+                if (number > 214748364) { // (IntMax / 10) - 1 for safety
                         return 0; // Return 0 on potential overflow
                 }
                 number = (number * 10) + (*s++ - '0');
@@ -136,7 +136,7 @@ int advatoi(char *s)
                 int additional = (*s++ - '0') * multiplier;
                 
                 // Security: Check for addition overflow
-                if (number > INT_MAX - additional) {
+                if (number > IntMax - additional) {
                         return 0; // Return 0 on potential overflow
                 }
                 number = number + additional;
@@ -208,7 +208,7 @@ int parsebet(const int currentbet, char *s)
                 }
                 
                 // Security: Check for multiplication overflow
-                if (currentbet > INT_MAX / (100 + percentage) * 100) {
+                if (currentbet > IntMax / (100 + percentage) * 100) {
                         return 0;
                 }
                 
@@ -228,7 +228,7 @@ int parsebet(const int currentbet, char *s)
                 }
                 
                 // Security: Check for multiplication overflow
-                if (currentbet > 0 && multiplier > INT_MAX / currentbet) {
+                if (currentbet > 0 && multiplier > IntMax / currentbet) {
                         return 0;
                 }
                 

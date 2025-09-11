@@ -61,7 +61,7 @@
 #include "mxp.hpp"
 #include "msp.hpp"
 #include "web-server.hpp"
-#ifdef OLC_SHUTTLE
+#ifdef OlcShuttle
 #include "olc-shuttle.hpp"
 #endif
 #include "editor.hpp"
@@ -76,23 +76,23 @@
 // CONSTANTS
 // =============================================================================
 namespace {
-    constexpr int    MENTAL_STABILITY_THRESHOLD = 40;
-    constexpr int    DRUNK_DIVISOR = 12;
-    constexpr int    MAX_HALLUCINATION_LEVEL = 20;
-    constexpr int    MIN_HALLUCINATION_RANGE = 6;
-    constexpr int    AGE_SUFFIX_THRESHOLD_LOW = 4;
-    constexpr int    AGE_SUFFIX_THRESHOLD_HIGH = 20;
-    constexpr int    MIN_PASSWORD_LENGTH = 8;
-    constexpr int    PAGER_MIN_LINES = 5;
-    constexpr int    SOCIAL_COLUMNS = 6;
-    constexpr int    COMMAND_COLUMNS = 4;
-    constexpr int    SKILL_LIST_COLUMNS = 3;
-    constexpr size_t REVISION_OFFSET = 11;
-    constexpr size_t REVISION_END_OFFSET = 2;
+    constexpr int    MentalStabilityThreshold = 40;
+    constexpr int    DrunkDivisor = 12;
+    constexpr int    MaxHallucinationLevel = 20;
+    constexpr int    MinHallucinationRange = 6;
+    constexpr int    AgeSuffixThresholdLow = 4;
+    constexpr int    AgeSuffixThresholdHigh = 20;
+    constexpr int    MinPasswordLength = 8;
+    constexpr int    PagerMinLines = 5;
+    constexpr int    SocialColumns = 6;
+    constexpr int    CommandColumns = 4;
+    constexpr int    SkillListColumns = 3;
+    constexpr size_t RevisionOffset = 11;
+    constexpr size_t RevisionEndOffset = 2;
 }
 
 // Define practice restrictions outside namespace to avoid const issues
-#define CANT_PRAC "Tongue"
+#define CantPrac "Tongue"
 
 // =============================================================================
 // EXTERNAL FUNCTION DECLARATIONS
@@ -165,22 +165,22 @@ char* format_obj_to_char(ObjData* obj, CharData* ch, bool fShort)
         static char buf[MaxStringLength];
 
         buf[0] = '\0';
-        if (IS_OBJ_STAT(obj, ITEM_INVIS))
+        if (IsObjStat(obj, ItemInvis))
                 mudstrlcat(buf, "(Invis) ", MSL);
-        if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch))
-            && IS_OBJ_STAT(obj, ITEM_MAGIC))
+        if ((IsAffected(ch, AffDetectMagic) || IsImmortal(ch))
+            && IsObjStat(obj, ItemMagic))
                 mudstrlcat(buf, "&B(Blue Aura)&w ", MSL);
-        if (IS_OBJ_STAT(obj, ITEM_GLOW))
+        if (IsObjStat(obj, ItemGlow))
                 mudstrlcat(buf, "(Glowing) ", MSL);
-        if (IS_OBJ_STAT(obj, ITEM_HUM))
+        if (IsObjStat(obj, ItemHum))
                 mudstrlcat(buf, "(Humming) ", MSL);
-        if (IS_OBJ_STAT(obj, ITEM_HIDDEN))
+        if (IsObjStat(obj, ItemHidden))
                 mudstrlcat(buf, "(Hidden) ", MSL);
-        if (IS_OBJ_STAT(obj, ITEM_BURRIED))
+        if (IsObjStat(obj, ItemBurried))
                 mudstrlcat(buf, "(Burried) ", MSL);
-        if (IS_IMMORTAL(ch) && IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+        if (IsImmortal(ch) && IsObjStat(obj, ItemPrototype))
                 mudstrlcat(buf, "(PROTO) ", MSL);
-        if (IS_AFFECTED(ch, AFF_DETECTTRAPS) && is_trapped(obj))
+        if (IsAffected(ch, AffDetecttraps) && is_trapped(obj))
                 mudstrlcat(buf, "(Trap) ", MSL);
 
         if (fShort)
@@ -209,7 +209,7 @@ const char* halucinated_object(int ms, bool fShort)
         int       sms = URANGE(1, (ms + 10) / 5, 20);
 
         if (fShort)
-                switch (number_range(MIN_HALLUCINATION_RANGE - URANGE(1, sms / 2, 5), sms)) {
+                switch (number_range(MinHallucinationRange - URANGE(1, sms / 2, 5), sms)) {
                 case 1:
                         return "a sword";
                 case 2:
@@ -253,7 +253,7 @@ const char* halucinated_object(int ms, bool fShort)
                 default:
                         return "-error";
                 }
-        switch (number_range(MIN_HALLUCINATION_RANGE - URANGE(1, sms / 2, 5), sms)) {
+        switch (number_range(MinHallucinationRange - URANGE(1, sms / 2, 5), sms)) {
         case 1:
                 return "A nice looking sword catches your eye.";
         case 2:
@@ -330,7 +330,7 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
         {
                 if (fShowNothing)
                 {
-                        if (IS_NPC(ch) || IS_SET(ch->act, PLR_COMBINE))
+                        if (IsNpc(ch) || IsSet(ch->act, PlrCombine))
                                 send_to_char("     ", ch);
                         send_to_char("Nothing.\n\r", ch);
                 }
@@ -345,16 +345,16 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
 
         ms = (ch->mental_state ? ch->mental_state : 1)
                 *
-                (IS_NPC(ch) ? 1
+                (IsNpc(ch) ? 1
                  : (ch->pcdata->
-                    condition[COND_DRUNK] ? (ch->pcdata->
-                                             condition[COND_DRUNK] /
+                    condition[CondDrunk] ? (ch->pcdata->
+                                             condition[CondDrunk] /
                                              12) : 1));
 
         /*
          * If not mentally stable...
          */
-        if (abs(ms) > MENTAL_STABILITY_THRESHOLD) {
+        if (abs(ms) > MentalStabilityThreshold) {
                 offcount = URANGE(-(count), (count * ms) / 100, count * 2);
                 if (offcount < 0)
                         offcount += number_range(0, abs(offcount));
@@ -368,7 +368,7 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
         {
                 if (fShowNothing)
                 {
-                        if (IS_NPC(ch) || IS_SET(ch->act, PLR_COMBINE))
+                        if (IsNpc(ch) || IsSet(ch->act, PlrCombine))
                                 send_to_char("     ", ch);
                         send_to_char("Nothing.\n\r", ch);
                 }
@@ -395,19 +395,19 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
                         prgpstrShow[nShow] =
                                 str_dup(halucinated_object(ms, fShort));
                         prgnShow[nShow] = 1;
-                        pitShow[nShow] = number_range(ITEM_LIGHT, ITEM_BOOK);
+                        pitShow[nShow] = number_range(ItemLight, ItemBook);
                         nShow++;
                         --tmp;
                 }
-                if (obj->wear_loc == WEAR_NONE
+                if (obj->wear_loc == WearNone
                     && can_see_obj(ch, obj)
-                    && (obj->item_type != ITEM_TRAP
-                        || IS_AFFECTED(ch, AFF_DETECTTRAPS)))
+                    && (obj->item_type != ItemTrap
+                        || IsAffected(ch, AffDetecttraps)))
                 {
                         pstrShow = format_obj_to_char(obj, ch, fShort);
                         fCombine = FALSE;
 
-                        if (IS_NPC(ch) || IS_SET(ch->act, PLR_COMBINE))
+                        if (IsNpc(ch) || IsSet(ch->act, PlrCombine))
                         {
                                 /*
                                  * Look for duplicates, case sensitive.
@@ -446,7 +446,7 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
                         prgpstrShow[nShow] =
                                 str_dup(halucinated_object(ms, fShort));
                         prgnShow[nShow] = 1;
-                        pitShow[nShow] = number_range(ITEM_LIGHT, ITEM_BOOK);
+                        pitShow[nShow] = number_range(ItemLight, ItemBook);
                         nShow++;
                 }
         }
@@ -459,35 +459,35 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
                 switch (pitShow[iShow])
                 {
                 default:
-                        set_char_color(AT_OBJECT, ch);
+                        set_char_color(AtObject, ch);
                         break;
-                case ITEM_BLOOD:
-                        set_char_color(AT_BLOOD, ch);
+                case ItemBlood:
+                        set_char_color(AtBlood, ch);
                         break;
-                case ITEM_MONEY:
-                case ITEM_TREASURE:
-                        set_char_color(AT_YELLOW, ch);
+                case ItemMoney:
+                case ItemTreasure:
+                        set_char_color(AtYellow, ch);
                         break;
-                case ITEM_FOOD:
-                        set_char_color(AT_HUNGRY, ch);
+                case ItemFood:
+                        set_char_color(AtHungry, ch);
                         break;
-                case ITEM_DRINK_CON:
-                case ITEM_FOUNTAIN:
-                        set_char_color(AT_THIRSTY, ch);
+                case ItemDrinkCon:
+                case ItemFountain:
+                        set_char_color(AtThirsty, ch);
                         break;
-                case ITEM_FIRE:
-                        set_char_color(AT_FIRE, ch);
+                case ItemFire:
+                        set_char_color(AtFire, ch);
                         break;
-                case ITEM_SCROLL:
-                case ITEM_WAND:
-                case ITEM_STAFF:
-                        set_char_color(AT_MAGIC, ch);
+                case ItemScroll:
+                case ItemWand:
+                case ItemStaff:
+                        set_char_color(AtMagic, ch);
                         break;
                 }
                 if (fShowNothing)
                         send_to_char("     ", ch);
                 send_to_char(prgpstrShow[iShow], ch);
-/*	if ( IS_NPC(ch) || IS_SET(ch->act, PLR_COMBINE) ) */
+/*	if ( IsNpc(ch) || IsSet(ch->act, PlrCombine) ) */
                 {
                         if (prgnShow[iShow] != 1)
                                 ch_printf(ch, " (%d)", prgnShow[iShow]);
@@ -499,7 +499,7 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
 
         if (fShowNothing && nShow == 0)
         {
-                if (IS_NPC(ch) || IS_SET(ch->act, PLR_COMBINE))
+                if (IsNpc(ch) || IsSet(ch->act, PlrCombine))
                         send_to_char("     ", ch);
                 send_to_char("Nothing.\n\r", ch);
         }
@@ -524,76 +524,76 @@ void show_visible_affects_to_char(CharData* victim, CharData* ch)
 {
         char      buf[MaxStringLength];
 
-        if (IS_AFFECTED(victim, AFF_SANCTUARY))
+        if (IsAffected(victim, AffSanctuary))
         {
-                if (IS_GOOD(victim))
+                if (IsGood(victim))
                 {
-                        set_char_color(AT_WHITE, ch);
+                        set_char_color(AtWhite, ch);
                         ch_printf(ch,
                                   "%s glows with an aura of divine radiance.\n\r",
-                                  IS_NPC(victim) ? capitalize(victim->
+                                  IsNpc(victim) ? capitalize(victim->
                                                               short_descr)
                                   : (victim->name));
                 }
-                else if (IS_EVIL(victim))
+                else if (IsEvil(victim))
                 {
-                        set_char_color(AT_WHITE, ch);
+                        set_char_color(AtWhite, ch);
                         ch_printf(ch,
                                   "%s shimmers beneath an aura of dark energy.\n\r",
-                                  IS_NPC(victim) ? capitalize(victim->
+                                  IsNpc(victim) ? capitalize(victim->
                                                               short_descr)
                                   : (victim->name));
                 }
                 else
                 {
-                        set_char_color(AT_WHITE, ch);
+                        set_char_color(AtWhite, ch);
                         ch_printf(ch,
                                   "%s is shrouded in flowing shadow and light.\n\r",
-                                  IS_NPC(victim) ? capitalize(victim->
+                                  IsNpc(victim) ? capitalize(victim->
                                                               short_descr)
                                   : (victim->name));
                 }
         }
-        if (IS_AFFECTED(victim, AFF_FIRESHIELD))
+        if (IsAffected(victim, AffFireshield))
         {
-                set_char_color(AT_FIRE, ch);
+                set_char_color(AtFire, ch);
                 ch_printf(ch,
                           "%s is engulfed within a blaze of mystical flame.\n\r",
-                          IS_NPC(victim) ? capitalize(victim->
+                          IsNpc(victim) ? capitalize(victim->
                                                       short_descr) : (victim->
                                                                       name));
         }
-        if (IS_AFFECTED(victim, AFF_SHOCKSHIELD))
+        if (IsAffected(victim, AffShockshield))
         {
-                set_char_color(AT_BLUE, ch);
+                set_char_color(AtBlue, ch);
                 ch_printf(ch,
                           "%s is surrounded by cascading torrents of energy.\n\r",
-                          IS_NPC(victim) ? capitalize(victim->
+                          IsNpc(victim) ? capitalize(victim->
                                                       short_descr) : (victim->
                                                                       name));
         }
 /*Scryn 8/13*/
-        if (IS_AFFECTED(victim, AFF_ICESHIELD))
+        if (IsAffected(victim, AffIceshield))
         {
-                set_char_color(AT_LBLUE, ch);
+                set_char_color(AtLblue, ch);
                 ch_printf(ch,
                           "%s is ensphered by shards of glistening ice.\n\r",
-                          IS_NPC(victim) ? capitalize(victim->
+                          IsNpc(victim) ? capitalize(victim->
                                                       short_descr) : (victim->
                                                                       name));
         }
-        if (IS_AFFECTED(victim, AFF_CHARM))
+        if (IsAffected(victim, AffCharm))
         {
-                set_char_color(AT_MAGIC, ch);
+                set_char_color(AtMagic, ch);
                 ch_printf(ch, "%s looks ahead free of expression.\n\r",
-                          IS_NPC(victim) ? capitalize(victim->
+                          IsNpc(victim) ? capitalize(victim->
                                                       short_descr) : (victim->
                                                                       name));
         }
-        if (!IS_NPC(victim) && !victim->desc
-            && victim->switched && IS_AFFECTED(victim->switched, AFF_POSSESS))
+        if (!IsNpc(victim) && !victim->desc
+            && victim->switched && IsAffected(victim->switched, AffPossess))
         {
-                set_char_color(AT_MAGIC, ch);
+                set_char_color(AtMagic, ch);
                 mudstrlcpy(buf, PERS(victim, ch), MSL);
                 mudstrlcat(buf, " appears to be in a deep trance...\n\r",
                            MSL);
@@ -611,26 +611,26 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
 
         buf[0] = '\0';
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 mudstrlcat(buf, " ", MSL);
 
-        if (!IS_NPC(victim) && !victim->desc)
+        if (!IsNpc(victim) && !victim->desc)
         {
                 if (!victim->switched)
                         mudstrlcat(buf, "(Link Dead) ", MSL);
-                else if (!IS_AFFECTED(victim->switched, AFF_POSSESS))
+                else if (!IsAffected(victim->switched, AffPossess))
                         mudstrlcat(buf, "(Switched) ", MSL);
         }
-        if (IS_NPC(victim) && ch->questmob > 0
+        if (IsNpc(victim) && ch->questmob > 0
             && victim->pIndexData->vnum == ch->questmob)
                 mudstrlcat(buf, "[TARGET] ", MSL);
-        if (!IS_NPC(victim) && IS_SET(victim->act, PLR_AFK))
+        if (!IsNpc(victim) && IsSet(victim->act, PlrAfk))
                 mudstrlcat(buf, "[AFK] ", MSL);
 
-        if ((!IS_NPC(victim) && IS_SET(victim->act, PLR_WIZINVIS))
-            || (IS_NPC(victim) && IS_SET(victim->act, ACT_MOBINVIS)))
+        if ((!IsNpc(victim) && IsSet(victim->act, PlrWizinvis))
+            || (IsNpc(victim) && IsSet(victim->act, ActMobinvis)))
         {
-                if (!IS_NPC(victim))
+                if (!IsNpc(victim))
                         snprintf(buf1, MSL, "(Invis %d) ",
                                  victim->pcdata->wizinvis);
                 else
@@ -638,28 +638,28 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
                                  victim->mobinvis);
                 mudstrlcat(buf, buf1, MSL);
         }
-        if (IS_AFFECTED(victim, AFF_INVISIBLE))
+        if (IsAffected(victim, AffInvisible))
                 mudstrlcat(buf, "(Invis) ", MSL);
-        if (IS_AFFECTED(victim, AFF_HIDE))
+        if (IsAffected(victim, AffHide))
                 mudstrlcat(buf, "(Hide) ", MSL);
-        if (IS_AFFECTED(victim, AFF_PASS_DOOR))
+        if (IsAffected(victim, AffPassDoor))
                 mudstrlcat(buf, "(Translucent) ", MSL);
-        if (IS_AFFECTED(victim, AFF_FAERIE_FIRE))
+        if (IsAffected(victim, AffFaerieFire))
                 mudstrlcat(buf, "&P(Pink Aura)&w ", MSL);
-        if (IS_EVIL(victim) && IS_AFFECTED(ch, AFF_DETECT_EVIL))
+        if (IsEvil(victim) && IsAffected(ch, AffDetectEvil))
                 mudstrlcat(buf, "&R(Red Aura)&w ", MSL);
         if ((victim->perm_frc > 1 && victim->endurance > 10)
-            && (IS_AFFECTED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch)))
+            && (IsAffected(ch, AffDetectMagic) || IsImmortal(ch)))
                 mudstrlcat(buf, "&B(Blue Aura)&w ", MSL);
-        if (!IS_NPC(victim) && IS_SET(victim->act, PLR_LITTERBUG))
+        if (!IsNpc(victim) && IsSet(victim->act, PlrLitterbug))
                 mudstrlcat(buf, "(LITTERBUG) ", MSL);
-        if (IS_NPC(victim) && IS_IMMORTAL(ch)
-            && IS_SET(victim->act, ACT_PROTOTYPE))
+        if (IsNpc(victim) && IsImmortal(ch)
+            && IsSet(victim->act, ActPrototype))
                 mudstrlcat(buf, "(PROTO) ", MSL);
         if (victim->desc && victim->desc->connected == ConEditing)
                 mudstrlcat(buf, "(Writing) ", MSL);
 
-        set_char_color(AT_PERSON, ch);
+        set_char_color(AtPerson, ch);
         if (victim->position == victim->defposition
             && victim->long_descr[0] != '\0')
         {
@@ -674,7 +674,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
                 temp[0] = UPPER(temp[0]);
                 mudstrlcat(buf, temp ,MSL);
         }
-        else if (IS_IMMORTAL(victim)) {
+        else if (IsImmortal(victim)) {
                 mudstrlcat(buf, "An immortal", MSL);
         }
         else {
@@ -683,34 +683,34 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
 
         switch (victim->position)
         {
-        case POS_DEAD:
+        case PosDead:
                 mudstrlcat(buf, " is DEAD!!", MSL);
                 break;
-        case POS_MORTAL:
+        case PosMortal:
                 mudstrlcat(buf, " is mortally wounded.", MSL);
                 break;
-        case POS_INCAP:
+        case PosIncap:
                 mudstrlcat(buf, " is incapacitated.", MSL);
                 break;
-        case POS_STUNNED:
+        case PosStunned:
                 mudstrlcat(buf, " is lying here stunned.", MSL);
                 break;
-        case POS_SLEEPING:
+        case PosSleeping:
                 if (victim->on != NULL)
                 {
-                        if (victim->on->value[2] == SLEEP_AT)
+                        if (victim->on->value[2] == SleepAt)
                         {
                                 mudstrlcat(buf, " &wis asleep at ", MSL);
                                 mudstrlcat(buf, victim->on->short_descr, MSL);
                                 mudstrlcat(buf, ".", MSL);
                         }
-                        else if (victim->on->value[2] == SLEEP_ON)
+                        else if (victim->on->value[2] == SleepOn)
                         {
                                 mudstrlcat(buf, " &wis asleep on ", MSL);
                                 mudstrlcat(buf, victim->on->short_descr, MSL);
                                 mudstrlcat(buf, ".", MSL);
                         }
-                        else if (victim->on->value[2] == SLEEP_IN)
+                        else if (victim->on->value[2] == SleepIn)
                         {
                                 mudstrlcat(buf, " &wis asleep in ", MSL);
                                 mudstrlcat(buf, victim->on->short_descr, MSL);
@@ -719,8 +719,8 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
                 }
                 else
                 {
-                        if (ch->position == POS_SITTING
-                            || ch->position == POS_RESTING)
+                        if (ch->position == PosSitting
+                            || ch->position == PosResting)
                                 mudstrlcat(buf, " is sleeping nearby.", MSL);
                         else
                                 mudstrlcat(buf, " is deep in slumber here.",
@@ -728,17 +728,17 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
                 }
                 break;
 
-        case POS_RESTING:
+        case PosResting:
 
                 if (victim->on != NULL)
                 {
-                        if (victim->on->value[2] == REST_AT)
+                        if (victim->on->value[2] == RestAt)
                         {
                                 mudstrlcat(buf, " &wis resting at ", MSL);
                                 mudstrlcat(buf, victim->on->short_descr, MSL);
                                 mudstrlcat(buf, ".", MSL);
                         }
-                        else if (victim->on->value[2] == REST_ON)
+                        else if (victim->on->value[2] == RestOn)
                         {
                                 mudstrlcat(buf, " &wis resting on ", MSL);
                                 mudstrlcat(buf, victim->on->short_descr, MSL);
@@ -753,11 +753,11 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
                 }
                 else
                 {
-                        if (ch->position == POS_RESTING)
+                        if (ch->position == PosResting)
                                 mudstrlcat(buf,
                                            " &wis sprawled out alongside you.",
                                            MSL);
-                        else if (ch->position == POS_MOUNTED)
+                        else if (ch->position == PosMounted)
                                 mudstrlcat(buf,
                                            " &wis sprawled out at the foot of your mount.",
                                            MSL);
@@ -766,16 +766,16 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
                                            MSL);
                 }
                 break;
-        case POS_SITTING:
+        case PosSitting:
                 if (victim->on != NULL)
                 {
-                        if (victim->on->value[2] == SIT_AT)
+                        if (victim->on->value[2] == SitAt)
                         {
                                 mudstrlcat(buf, " &wis sitting at ", MSL);
                                 mudstrlcat(buf, victim->on->short_descr, MSL);
                                 mudstrlcat(buf, ".", MSL);
                         }
-                        else if (victim->on->value[2] == SIT_ON)
+                        else if (victim->on->value[2] == SitOn)
                         {
                                 mudstrlcat(buf, " &wis sitting on ", MSL);
                                 mudstrlcat(buf, victim->on->short_descr, MSL);
@@ -793,35 +793,35 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
                 break;
 
 
-        case POS_STANDING:
-                if (IS_IMMORTAL(victim))
+        case PosStanding:
+                if (IsImmortal(victim))
                         mudstrlcat(buf, " is here before you.", MSL);
-                else if ((victim->in_room->sector_type == SECT_UNDERWATER)
-                         && !IS_AFFECTED(victim, AFF_AQUA_BREATH)
-                         && !IS_NPC(victim))
+                else if ((victim->in_room->sector_type == SectUnderwater)
+                         && !IsAffected(victim, AffAquaBreath)
+                         && !IsNpc(victim))
                         mudstrlcat(buf, " is drowning here.", MSL);
-                else if (victim->in_room->sector_type == SECT_UNDERWATER)
+                else if (victim->in_room->sector_type == SectUnderwater)
                         mudstrlcat(buf, " is here in the water.", MSL);
-                else if ((victim->in_room->sector_type == SECT_OCEANFLOOR)
-                         && !IS_AFFECTED(victim, AFF_AQUA_BREATH)
-                         && !IS_NPC(victim))
+                else if ((victim->in_room->sector_type == SectOceanfloor)
+                         && !IsAffected(victim, AffAquaBreath)
+                         && !IsNpc(victim))
                         mudstrlcat(buf, " is drowning here.", MSL);
-                else if (victim->in_room->sector_type == SECT_OCEANFLOOR)
+                else if (victim->in_room->sector_type == SectOceanfloor)
                         mudstrlcat(buf, " is standing here in the water.",
                                    MSL);
-                else if (IS_AFFECTED(victim, AFF_FLOATING)
-                         || IS_AFFECTED(victim, AFF_FLYING))
+                else if (IsAffected(victim, AffFloating)
+                         || IsAffected(victim, AffFlying))
                         mudstrlcat(buf, " is hovering here.", MSL);
                 else
                         mudstrlcat(buf, " is standing here.", MSL);
                 break;
-        case POS_SHOVE:
+        case PosShove:
                 mudstrlcat(buf, " is being shoved around.", MSL);
                 break;
-        case POS_DRAG:
+        case PosDrag:
                 mudstrlcat(buf, " is being dragged around.", MSL);
                 break;
-        case POS_MOUNTED:
+        case PosMounted:
                 mudstrlcat(buf, " is here, upon ", MSL);
                 if (!victim->mount)
                         mudstrlcat(buf, "thin air???", MSL);
@@ -835,7 +835,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
                 else
                         mudstrlcat(buf, "someone who left??", MSL);
                 break;
-        case POS_FIGHTING:
+        case PosFighting:
                 mudstrlcat(buf, " is here, fighting ", MSL);
                 if (!victim->fighting)
                         mudstrlcat(buf, "thin air???", MSL);
@@ -871,8 +871,8 @@ void show_char_to_char_1(CharData * victim, CharData * ch)
 
         if (can_see(victim, ch))
         {
-                act(AT_ACTION, "$n looks at you.", ch, NULL, victim, TO_VICT);
-                act(AT_ACTION, "$n looks at $N.", ch, NULL, victim ,TO_NOTVICT);
+                act(AtAction, "$n looks at you.", ch, NULL, victim, ToVict);
+                act(AtAction, "$n looks at $N.", ch, NULL, victim ,ToNotvict);
         }
         send_to_char
                 ("&B-----------------------------------------------------------------------\n\r&z",
@@ -894,7 +894,7 @@ void show_char_to_char_1(CharData * victim, CharData * ch)
                 ("&B-----------------------------------------------------------------------\n\r&z",
                  ch);
         found = FALSE;
-        for (iWear = 0; iWear < MAX_WEAR; iWear++)
+        for (iWear = 0; iWear < MaxWear; iWear++)
         {
                 if ((obj = get_eq_char(victim, iWear)) != NULL
                     && can_see_obj(ch, obj))
@@ -902,8 +902,8 @@ void show_char_to_char_1(CharData * victim, CharData * ch)
                         if (!found)
                         {
                                 send_to_char("\n\r", ch);
-                                act(AT_PLAIN, "&w$N &zis using:&w", ch, NULL,
-                                    victim, TO_CHAR);
+                                act(AtPlain, "&w$N &zis using:&w", ch, NULL,
+                                    victim, ToChar);
                                 found = TRUE;
                         }
                         // Fix color bleed. -- Kasji
@@ -920,7 +920,7 @@ void show_char_to_char_1(CharData * victim, CharData * ch)
         /*
          * Crash fix here by Thoric
          */
-        if (IS_NPC(ch) || victim == ch)
+        if (IsNpc(ch) || victim == ch)
                 return;
 
         if (number_percent() < ch->pcdata->learned[gsn_peek])
@@ -950,15 +950,15 @@ void show_char_to_char(CharData * list, CharData * ch)
                 }
                 else if (!str_cmp(rch->race->name(), "defel"))
                 {
-                        set_char_color(AT_BLOOD, ch);
+                        set_char_color(AtBlood, ch);
                         send_to_char
                                 ("You see a pair of red eyes staring back at you.\n\r",
                                  ch);
                 }
                 else if (room_is_dark(ch->in_room)
-                         && IS_AFFECTED(rch, AFF_INFRARED))
+                         && IsAffected(rch, AffInfrared))
                 {
-                        set_char_color(AT_BLOOD, ch);
+                        set_char_color(AtBlood, ch);
                         send_to_char
                                 ("The red form of a living creature is here.\n\r",
                                  ch);
@@ -972,13 +972,13 @@ void show_char_to_char(CharData * list, CharData * ch)
 
 bool check_blind(CharData * ch)
 {
-        if (!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT))
+        if (!IsNpc(ch) && IsSet(ch->act, PlrHolylight))
                 return TRUE;
 
-        if (IS_AFFECTED(ch, AFF_TRUESIGHT))
+        if (IsAffected(ch, AffTruesight))
                 return TRUE;
 
-        if (IS_AFFECTED(ch, AFF_BLIND))
+        if (IsAffected(ch, AffBlind))
         {
                 send_to_char("You can't see a thing!\n\r", ch);
                 return FALSE;
@@ -1044,13 +1044,13 @@ CMDF do_look(CharData* ch, const char* argument)
         if (!ch->desc)
                 return;
 
-        if (ch->position < POS_SLEEPING)
+        if (ch->position < PosSleeping)
         {
                 send_to_char("You can't see anything but stars!\n\r", ch);
                 return;
         }
 
-        if (ch->position == POS_SLEEPING)
+        if (ch->position == PosSleeping)
         {
                 send_to_char("You can't see anything, you're sleeping!\n\r",
                              ch);
@@ -1060,11 +1060,11 @@ CMDF do_look(CharData* ch, const char* argument)
         if (!check_blind(ch))
                 return;
 
-        if (!IS_NPC(ch)
-            && !IS_SET(ch->act, PLR_HOLYLIGHT)
-            && !IS_AFFECTED(ch, AFF_TRUESIGHT) && room_is_dark(ch->in_room))
+        if (!IsNpc(ch)
+            && !IsSet(ch->act, PlrHolylight)
+            && !IsAffected(ch, AffTruesight) && room_is_dark(ch->in_room))
         {
-                set_char_color(AT_DGREY, ch);
+                set_char_color(AtDgrey, ch);
                 send_to_char("It is pitch black ... \n\r", ch);
                 show_char_to_char(ch->in_room->first_person, ch);
                 return;
@@ -1087,10 +1087,10 @@ CMDF do_look(CharData* ch, const char* argument)
                         ("&B-----------------------------------------------------------------------&w\n\r",
                          ch);
                 send_to_char("&w", ch);
-                if (IS_MXP(ch))
+                if (IsMxp(ch))
                         send_to_char(MXPTAG("RName"), ch);
                 send_to_char(ch->in_room->name, ch);
-                if (IS_MXP(ch))
+                if (IsMxp(ch))
                         send_to_char(MXPTAG("/RName"), ch);
                 send_to_char(" ", ch);
 
@@ -1099,23 +1099,23 @@ CMDF do_look(CharData* ch, const char* argument)
 
                         if (get_trust(ch) >= LevelImmortal)
                         {
-                                if (IS_SET(ch->act, PLR_ROOMVNUM))
+                                if (IsSet(ch->act, PlrRoomvnum))
                                 {
                                         /*
                                          * Added 10/17 by Kuran of 
                                          */
                                         send_to_char("&B{&w", ch);  /* SWReality */
-                                        if (IS_MXP(ch))
+                                        if (IsMxp(ch))
                                                 send_to_char(MXPTAG("RNum"),
                                                              ch);
                                         ch_printf(ch, "%d",
                                                   ch->in_room->vnum);
-                                        if (IS_MXP(ch))
+                                        if (IsMxp(ch))
                                                 send_to_char(MXPTAG("/RNum"),
                                                              ch);
                                         send_to_char("&B}}", ch);
                                 }
-                                if (IS_SET(ch->pcdata->flags, PCFLAG_ROOM))
+                                if (IsSet(ch->pcdata->flags, PcflagRoom))
                                 {
                                         send_to_char("[&z", ch);
                                         send_to_char(ext_flag_string
@@ -1134,19 +1134,19 @@ CMDF do_look(CharData* ch, const char* argument)
                          ch);
                 send_to_char("&z", ch);
                 if (arg1[0] == '\0'
-                    || (!IS_NPC(ch) && !IS_SET(ch->act, PLR_BRIEF)))
+                    || (!IsNpc(ch) && !IsSet(ch->act, PlrBrief)))
                 {
-                        if (IS_MXP(ch))
+                        if (IsMxp(ch))
                                 send_to_char(MXPTAG("RDesc"), ch);
                         send_to_char(ch->in_room->description, ch);
-                        if (IS_MXP(ch))
+                        if (IsMxp(ch))
                                 send_to_char(MXPTAG("/RDesc"), ch);
                 }
 
                 send_to_char
                         ("&B-----------------------------------------------------------------------&w\n\r",
                          ch);
-                if (!IS_NPC(ch) && IS_SET(ch->act, PLR_AUTOEXIT))
+                if (!IsNpc(ch) && IsSet(ch->act, PlrAutoexit))
                         do_exits(ch, "");
                 send_to_char
                         ("&B-----------------------------------------------------------------------&w\n\r",
@@ -1154,7 +1154,7 @@ CMDF do_look(CharData* ch, const char* argument)
 
 
                 show_ships_to_char(ch->in_room->first_ship, ch);
-#ifdef OLC_SHUTTLE
+#ifdef OlcShuttle
                 show_shuttles_to_char(ch, ch->in_room->first_shuttle);
 #endif
                 show_list_to_char(ch->in_room->first_content, ch, FALSE,
@@ -1181,7 +1181,7 @@ CMDF do_look(CharData* ch, const char* argument)
                         if ((ship =
                              ship_from_cockpit(ch->in_room->vnum)) != NULL)
                         {
-                                set_char_color(AT_WHITE, ch);
+                                set_char_color(AtWhite, ch);
                                 ch_printf(ch,
                                           "\n\rThrough the transparisteel windows you see:\n\r");
                                 if (ship->starsystem)
@@ -1190,36 +1190,36 @@ CMDF do_look(CharData* ch, const char* argument)
                                         ShipData *target = NULL;
                                         BodyData *body = NULL;
 
-                                        set_char_color(AT_GREEN, ch);
+                                        set_char_color(AtGreen, ch);
                                         /*
                                          * I really hate doing 3 for loops for sorting, we should time it 
                                          */
-                                        FOR_EACH_LIST(BodyList,
+                                        ForEachList(BodyList,
                                                       ship->starsystem->
                                                       bodies, body)
                                         {
-                                                if (body->type() == STAR_BODY)
+                                                if (body->type() == StarBody)
                                                         ch_printf(ch,
                                                                   "%s\n\r",
                                                                   body->
                                                                   name());
                                         }
-                                        FOR_EACH_LIST(BodyList,
+                                        ForEachList(BodyList,
                                                       ship->starsystem->
                                                       bodies, body)
                                         {
                                                 if (body->type() ==
-                                                    PLANET_BODY)
+                                                    PlanetBody)
                                                         ch_printf(ch,
                                                                   "%s\n\r",
                                                                   body->
                                                                   name());
                                         }
-                                        FOR_EACH_LIST(BodyList,
+                                        ForEachList(BodyList,
                                                       ship->starsystem->
                                                       bodies, body)
                                         {
-                                                if (body->type() == MOON_BODY)
+                                                if (body->type() == MoonBody)
                                                         ch_printf(ch,
                                                                   "%s\n\r",
                                                                   body->
@@ -1232,8 +1232,8 @@ CMDF do_look(CharData* ch, const char* argument)
                                              target->next_in_starsystem)
                                         {
                                                 if (target != ship
-                                                    && !IS_SET(target->flags,
-                                                               SHIP_CLOAK))
+                                                    && !IsSet(target->flags,
+                                                               ShipCloak))
                                                         ch_printf(ch,
                                                                   "%s\n\r",
                                                                   target->
@@ -1248,15 +1248,15 @@ CMDF do_look(CharData* ch, const char* argument)
                                                 ch_printf(ch, "%s\n\r",
                                                           missile->
                                                           missiletype ==
-                                                          CONCUSSION_MISSILE ?
+                                                          ConcussionMissile ?
                                                           "A Concusion Missile"
                                                           : (missile->
                                                              missiletype ==
-                                                             PROTON_TORPEDO ?
+                                                             ProtonTorpedo ?
                                                              "A Torpedo"
                                                              : (missile->
                                                                 missiletype ==
-                                                                HEAVY_ROCKET ?
+                                                                HeavyRocket ?
                                                                 "A Heavy Rocket"
                                                                 :
                                                                 "A Heavy Bomb")));
@@ -1315,12 +1315,12 @@ CMDF do_look(CharData* ch, const char* argument)
                 }
                 count = obj->count;
                 obj->count = 1;
-                act(AT_PLAIN, "You lift $p and look beneath it:", ch, obj,
-                    NULL, TO_CHAR);
-                act(AT_PLAIN, "$n lifts $p and looks beneath it:", ch, obj,
-                    NULL, TO_ROOM);
+                act(AtPlain, "You lift $p and look beneath it:", ch, obj,
+                    NULL, ToChar);
+                act(AtPlain, "$n lifts $p and looks beneath it:", ch, obj,
+                    NULL, ToRoom);
                 obj->count = static_cast<sh_int>(count);
-                if (IS_OBJ_STAT(obj, ITEM_COVERING))
+                if (IsObjStat(obj, ItemCovering))
                         show_list_to_char(obj->first_content, ch, TRUE, TRUE);
                 else
                         send_to_char("Nothing.\n\r", ch);
@@ -1354,7 +1354,7 @@ CMDF do_look(CharData* ch, const char* argument)
                         send_to_char("That is not a container.\n\r", ch);
                         break;
 
-                case ITEM_DRINK_CON:
+                case ItemDrinkCon:
                         if (obj->value[1] <= 0)
                         {
                                 send_to_char("It is empty.\n\r", ch);
@@ -1374,19 +1374,19 @@ CMDF do_look(CharData* ch, const char* argument)
                                 oprog_examine_trigger(ch, obj);
                         break;
 
-                case ITEM_PORTAL:
+                case ItemPortal:
                         for (pexit = ch->in_room->first_exit; pexit;
                              pexit = pexit->next)
                         {
-                                if (pexit->vdir == DIR_PORTAL
-                                    && IS_SET(pexit->exit_info, EX_PORTAL))
+                                if (pexit->vdir == DirPortal
+                                    && IsSet(pexit->exit_info, ExPortal))
                                 {
                                         if (room_is_private
                                             (ch, pexit->to_room)
                                             && get_trust(ch) <
                                             sysdata.level_override_private)
                                         {
-                                                set_char_color(AT_WHITE, ch);
+                                                set_char_color(AtWhite, ch);
                                                 send_to_char
                                                         ("That room is private buster!\n\r",
                                                          ch);
@@ -1403,12 +1403,12 @@ CMDF do_look(CharData* ch, const char* argument)
                         }
                         send_to_char("You see a swirling chaos...\n\r", ch);
                         break;
-                case ITEM_HOLSTER:
-                case ITEM_CONTAINER:
-                case ITEM_CORPSE_NPC:
-                case ITEM_CORPSE_PC:
-                case ITEM_DROID_CORPSE:
-                        if (IS_SET(obj->value[1], CONT_CLOSED))
+                case ItemHolster:
+                case ItemContainer:
+                case ItemCorpseNpc:
+                case ItemCorpsePc:
+                case ItemDroidCorpse:
+                        if (IsSet(obj->value[1], ContClosed))
                         {
                                 send_to_char("It is closed.\n\r", ch);
                                 break;
@@ -1416,7 +1416,7 @@ CMDF do_look(CharData* ch, const char* argument)
 
                         count = obj->count;
                         obj->count = 1;
-                        act(AT_PLAIN, "$p contains:", ch, obj, NULL, TO_CHAR);
+                        act(AtPlain, "$p contains:", ch, obj, NULL, ToChar);
                         obj->count = static_cast<sh_int>(count);
                         show_list_to_char(obj->first_content, ch, TRUE, TRUE);
                         if (doexaprog)
@@ -1438,23 +1438,23 @@ CMDF do_look(CharData* ch, const char* argument)
         {
                 if (pexit->keyword)
                 {
-                        if (IS_SET(pexit->exit_info, EX_CLOSED)
-                            && !IS_SET(pexit->exit_info, EX_WINDOW))
+                        if (IsSet(pexit->exit_info, ExClosed)
+                            && !IsSet(pexit->exit_info, ExWindow))
                         {
-                                if (IS_SET(pexit->exit_info, EX_SECRET)
+                                if (IsSet(pexit->exit_info, ExSecret)
                                     && door != -1)
                                         send_to_char
                                                 ("Nothing special there.\n\r",
                                                  ch);
                                 else
-                                        act(AT_PLAIN, "The $d is closed.", ch,
-                                            NULL, pexit->keyword, TO_CHAR);
+                                        act(AtPlain, "The $d is closed.", ch,
+                                            NULL, pexit->keyword, ToChar);
                                 return;
                         }
-                        if (IS_SET(pexit->exit_info, EX_BASHED))
-                                act(AT_RED,
+                        if (IsSet(pexit->exit_info, ExBashed))
+                                act(AtRed,
                                     "The $d has been bashed from its hinges!",
-                                    ch, NULL, pexit->keyword, TO_CHAR);
+                                    ch, NULL, pexit->keyword, ToChar);
                 }
 
                 if (pexit->description && pexit->description[0] != '\0')
@@ -1466,21 +1466,21 @@ CMDF do_look(CharData* ch, const char* argument)
                  * Ability to look into the next room         -Thoric
                  */
                 if (pexit->to_room
-                    && (IS_AFFECTED(ch, AFF_SCRYING)
-                        || IS_SET(pexit->exit_info, EX_xLOOK)
+                    && (IsAffected(ch, AffScrying)
+                        || IsSet(pexit->exit_info, EX_xLOOK)
                         || get_trust(ch) >= LevelImmortal))
                 {
-                        if (!IS_SET(pexit->exit_info, EX_xLOOK)
+                        if (!IsSet(pexit->exit_info, EX_xLOOK)
                             && get_trust(ch) < LevelImmortal)
                         {
-                                set_char_color(AT_MAGIC, ch);
+                                set_char_color(AtMagic, ch);
                                 send_to_char("You attempt to scry...\n\r",
                                              ch);
                                 /*
                                  * Change by Narn, Sept 96 to allow characters who don't have the
                                  * scry spell to benefit from objects that are affected by scry.
                                  */
-                                if (!IS_NPC(ch))
+                                if (!IsNpc(ch))
                                 {
                                         int       percent =
                                                 ch->pcdata->
@@ -1499,7 +1499,7 @@ CMDF do_look(CharData* ch, const char* argument)
                         if (room_is_private(ch, pexit->to_room)
                             && get_trust(ch) < sysdata.level_override_private)
                         {
-                                set_char_color(AT_WHITE, ch);
+                                set_char_color(AtWhite, ch);
                                 send_to_char
                                         ("That room is private buster!\n\r",
                                          ch);
@@ -1675,7 +1675,7 @@ void show_condition(CharData * ch, CharData * victim)
 
         mudstrlcpy(buf, "&R&W", MSL);
         mudstrlcat(buf, capitalize(PERS(victim, ch)), MSL);
-        if ((IS_NPC(victim) && IS_SET(victim->act, ACT_DROID))
+        if ((IsNpc(victim) && IsSet(victim->act, ActDroid))
             || !str_cmp(victim->race->name(), "droid"))
         {
 
@@ -1755,13 +1755,13 @@ CMDF do_glance(CharData * ch, const char *argument)
         if (!ch->desc)
                 return;
 
-        if (ch->position < POS_SLEEPING)
+        if (ch->position < PosSleeping)
         {
                 send_to_char("You can't see anything but stars!\n\r", ch);
                 return;
         }
 
-        if (ch->position == POS_SLEEPING)
+        if (ch->position == PosSleeping)
         {
                 send_to_char("You can't see anything, you're sleeping!\n\r",
                              ch);
@@ -1776,7 +1776,7 @@ CMDF do_glance(CharData * ch, const char *argument)
         if (arg1[0] == '\0')
         {
                 save_act = ch->act;
-                SET_BIT(ch->act, PLR_BRIEF);
+                SetBit(ch->act, PlrBrief);
                 do_look(ch, "auto");
                 ch->act = save_act;
                 return;
@@ -1791,10 +1791,10 @@ CMDF do_glance(CharData * ch, const char *argument)
         {
                 if (can_see(victim, ch))
                 {
-                        act(AT_ACTION, "$n glances at you.", ch, NULL, victim,
-                            TO_VICT);
-                        act(AT_ACTION, "$n glances at $N.", ch, NULL, victim,
-                            TO_NOTVICT);
+                        act(AtAction, "$n glances at you.", ch, NULL, victim,
+                            ToVict);
+                        act(AtAction, "$n glances at $N.", ch, NULL, victim,
+                            ToNotvict);
                 }
 
                 show_condition(ch, victim);
@@ -1830,13 +1830,13 @@ CMDF do_viewskills(CharData * ch, char *argument)
 
         col = 0;
 
-        if (!IS_NPC(victim))
+        if (!IsNpc(victim))
         {
                 sh_int    lasttype, cnt;
 
                 col = cnt = 0;
-                lasttype = SKILL_SPELL;
-                set_pager_color(AT_MAGIC, ch);
+                lasttype = SkillSpell;
+                set_pager_color(AtMagic, ch);
                 for (sn = 0; sn < top_sn; sn++)
                 {
                         if (!skill_table[sn]->name)
@@ -1847,7 +1847,7 @@ CMDF do_viewskills(CharData * ch, char *argument)
                                 continue;
 
                         if (strcmp(skill_table[sn]->name, "reserved") == 0
-                            && (IS_IMMORTAL(victim)))
+                            && (IsImmortal(victim)))
                         {
                                 if (col % 3 != 0)
                                         send_to_pager("\n\r", ch);
@@ -1895,7 +1895,7 @@ CMDF do_viewskills(CharData * ch, char *argument)
                                 continue;
 
                         if (victim->pcdata->learned[sn] == 0
-                            && SPELL_FLAG(skill_table[sn], SF_SECRETSKILL))
+                            && SpellFlag(skill_table[sn], SfSecretskill))
                                 continue;
 
                         ++cnt;
@@ -1919,7 +1919,7 @@ CMDF do_examine(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         char      arg[MaxInputLength];
         ObjData *obj;
-        BOARD_DATA *board;
+        BoardData *board;
         sh_int    dam;
 
         if (!argument)
@@ -1968,7 +1968,7 @@ CMDF do_examine(CharData * ch, char *argument)
                 default:
                         break;
 
-                case ITEM_ARMOR:
+                case ItemArmor:
                         if (obj->value[1] == 0)
                                 obj->value[1] = obj->value[0];
                         if (obj->value[1] == 0)
@@ -2008,8 +2008,8 @@ CMDF do_examine(CharData * ch, char *argument)
                         send_to_char(buf, ch);
                         break;
 
-                case ITEM_WEAPON:
-                        dam = static_cast<sh_int>(INIT_WEAPON_CONDITION - obj->value[0]);
+                case ItemWeapon:
+                        dam = static_cast<sh_int>(InitWeaponCondition - obj->value[0]);
                         mudstrlcpy(buf,
                                    "As you look more closely, you notice that it is ",
                                    MSL);
@@ -2047,34 +2047,34 @@ CMDF do_examine(CharData * ch, char *argument)
                                 mudstrlcat(buf, "broken.", MSL);
                         mudstrlcat(buf, "\n\r", MSL);
                         send_to_char(buf, ch);
-                        if (obj->value[3] == WEAPON_BLASTER)
+                        if (obj->value[3] == WeaponBlaster)
                         {
-                                if (obj->blaster_setting == BLASTER_FULL)
+                                if (obj->blaster_setting == BlasterFull)
                                         ch_printf(ch,
                                                   "It is set on FULL power.\n\r");
-                                else if (obj->blaster_setting == BLASTER_HIGH)
+                                else if (obj->blaster_setting == BlasterHigh)
                                         ch_printf(ch,
                                                   "It is set on HIGH power.\n\r");
                                 else if (obj->blaster_setting ==
-                                         BLASTER_NORMAL)
+                                         BlasterNormal)
                                         ch_printf(ch,
                                                   "It is set on NORMAL power.\n\r");
-                                else if (obj->blaster_setting == BLASTER_HALF)
+                                else if (obj->blaster_setting == BlasterHalf)
                                         ch_printf(ch,
                                                   "It is set on HALF power.\n\r");
-                                else if (obj->blaster_setting == BLASTER_LOW)
+                                else if (obj->blaster_setting == BlasterLow)
                                         ch_printf(ch,
                                                   "It is set on LOW power.\n\r");
-                                else if (obj->blaster_setting == BLASTER_STUN)
+                                else if (obj->blaster_setting == BlasterStun)
                                         ch_printf(ch,
                                                   "It is set on STUN.\n\r");
                                 ch_printf(ch,
                                           "It has from %d to %d shots remaining.\n\r",
                                           obj->value[4] / 5, obj->value[4]);
                         }
-                        else if ((obj->value[3] == WEAPON_LIGHTSABER ||
-                                  obj->value[3] == WEAPON_VIBRO_BLADE ||
-                                  obj->value[3] == WEAPON_FORCE_PIKE))
+                        else if ((obj->value[3] == WeaponLightsaber ||
+                                  obj->value[3] == WeaponVibroBlade ||
+                                  obj->value[3] == WeaponForcePike))
                         {
                                 ch_printf(ch,
                                           "It has %d/%d units of charge remaining.\n\r",
@@ -2082,7 +2082,7 @@ CMDF do_examine(CharData * ch, char *argument)
                         }
                         break;
 
-                case ITEM_FOOD:
+                case ItemFood:
                         if (obj->timer > 0 && obj->value[1] > 0)
                                 dam = static_cast<sh_int>((obj->timer * 10) / obj->value[1]);
                         else
@@ -2117,10 +2117,10 @@ CMDF do_examine(CharData * ch, char *argument)
                         send_to_char(buf, ch);
                         break;
 
-                case ITEM_SWITCH:
-                case ITEM_LEVER:
-                case ITEM_PULLCHAIN:
-                        if (IS_SET(obj->value[0], TRIG_UP))
+                case ItemSwitch:
+                case ItemLever:
+                case ItemPullchain:
+                        if (IsSet(obj->value[0], TrigUp))
                                 send_to_char
                                         ("You notice that it is in the up position.\n\r",
                                          ch);
@@ -2129,8 +2129,8 @@ CMDF do_examine(CharData * ch, char *argument)
                                         ("You notice that it is in the down position.\n\r",
                                          ch);
                         break;
-                case ITEM_BUTTON:
-                        if (IS_SET(obj->value[0], TRIG_UP))
+                case ItemButton:
+                        if (IsSet(obj->value[0], TrigUp))
                                 send_to_char
                                         ("You notice that it is depressed.\n\r",
                                          ch);
@@ -2141,18 +2141,18 @@ CMDF do_examine(CharData * ch, char *argument)
                         break;
 
 /* Not needed due to check in do_look already
-	case ITEM_PORTAL:
+	case ItemPortal:
 	    snprintf( buf, MSL, "in %s noprog", arg );
 	    do_look( ch, buf );
 	    break;
 */
 
-                case ITEM_CORPSE_PC:
-                case ITEM_CORPSE_NPC:
+                case ItemCorpsePc:
+                case ItemCorpseNpc:
                         {
                                 sh_int    timerfrac = obj->timer;
 
-                                if (obj->item_type == ITEM_CORPSE_PC)
+                                if (obj->item_type == ItemCorpsePc)
                                         timerfrac = static_cast<int>(obj->timer) / 8 + 1;
 
                                 switch (timerfrac)
@@ -2185,7 +2185,7 @@ CMDF do_examine(CharData * ch, char *argument)
                                         break;
                                 }
                         }
-                        if (IS_OBJ_STAT(obj, ITEM_COVERING))
+                        if (IsObjStat(obj, ItemCovering))
                                 break;
                         send_to_char("When you look inside, you see:\n\r",
                                      ch);
@@ -2193,7 +2193,7 @@ CMDF do_examine(CharData * ch, char *argument)
                         do_look(ch, buf);
                         break;
 
-                case ITEM_DROID_CORPSE:
+                case ItemDroidCorpse:
                         {
                                 sh_int    timerfrac = obj->timer;
 
@@ -2229,18 +2229,18 @@ CMDF do_examine(CharData * ch, char *argument)
                         }
                         [[fallthrough]];
 
-                case ITEM_CONTAINER:
-                        if (IS_OBJ_STAT(obj, ITEM_COVERING))
+                case ItemContainer:
+                        if (IsObjStat(obj, ItemCovering))
                                 break;
                         [[fallthrough]];
 
-                case ITEM_DRINK_CON:
+                case ItemDrinkCon:
                         send_to_char("When you look inside, you see:\n\r",
                                      ch);
                         snprintf(buf, MSL, "in %s noprog", arg);
                         do_look(ch, buf);
                 }
-                if (IS_OBJ_STAT(obj, ITEM_COVERING))
+                if (IsObjStat(obj, ItemCovering))
                 {
                         snprintf(buf, MSL, "under %s noprog", arg);
                         do_look(ch, buf);
@@ -2249,7 +2249,7 @@ CMDF do_examine(CharData * ch, char *argument)
                 if (char_died(ch) || obj_extracted(obj))
                         return;
 
-                check_for_trap(ch, obj, TRAP_EXAMINE);
+                check_for_trap(ch, obj, TrapExamine);
         }
         return;
 }
@@ -2262,31 +2262,31 @@ CMDF do_exits(CharData * ch, const char *argument)
         bool      found;
         bool      fAuto;
 
-        set_char_color(AT_EXITS, ch);
+        set_char_color(AtExits, ch);
         buf[0] = '\0';
         fAuto = !str_cmp(argument, "auto");
 
         if (!check_blind(ch))
                 return;
 
-        if (IS_MXP(ch))
+        if (IsMxp(ch))
                 send_to_char(MXPTAG("RExits"), ch);
         mudstrlcpy(buf, fAuto ? "&BE&xits:" : "&BObvious exits:\n\r&w", MSL);
 
         found = FALSE;
         for (pexit = ch->in_room->first_exit; pexit; pexit = pexit->next)
         {
-                if (pexit->to_room && !IS_SET(pexit->exit_info, EX_HIDDEN))
+                if (pexit->to_room && !IsSet(pexit->exit_info, ExHidden))
                 {
                         found = TRUE;
                         if (!fAuto)
                         {
-                                if (IS_SET(pexit->exit_info, EX_CLOSED))
+                                if (IsSet(pexit->exit_info, ExClosed))
                                 {
                                         /*
                                          * I really dson't like copy and pasting, but its alot cleaner and easier right now than hacking together lines of mudstrlcat and stuff - Gavin 
                                          */
-                                        if (IS_MXP(ch))
+                                        if (IsMxp(ch))
                                                 snprintf(buf + strlen(buf),
                                                          MSL,
                                                          "&w" MXPTAG("Ex")
@@ -2303,9 +2303,9 @@ CMDF do_exits(CharData * ch, const char *argument)
                                                                     [pexit->
                                                                      vdir]));
                                 }
-                                else if (IS_SET(pexit->exit_info, EX_WINDOW))
+                                else if (IsSet(pexit->exit_info, ExWindow))
                                 {
-                                        if (IS_MXP(ch))
+                                        if (IsMxp(ch))
                                                 snprintf(buf + strlen(buf),
                                                          MSL,
                                                          "&w" MXPTAG("Ex")
@@ -2322,9 +2322,9 @@ CMDF do_exits(CharData * ch, const char *argument)
                                                                     [pexit->
                                                                      vdir]));
                                 }
-                                else if (IS_SET(pexit->exit_info, EX_xAUTO))
+                                else if (IsSet(pexit->exit_info, EX_xAUTO))
                                 {
-                                        if (IS_MXP(ch))
+                                        if (IsMxp(ch))
                                                 snprintf(buf + strlen(buf),
                                                          MSL,
                                                          "&w" MXPTAG("ex")
@@ -2349,7 +2349,7 @@ CMDF do_exits(CharData * ch, const char *argument)
                                 }
                                 else
                                 {
-                                        if (IS_MXP(ch))
+                                        if (IsMxp(ch))
                                                 snprintf(buf + strlen(buf),
                                                          MSL,
                                                          "&w" MXPTAG("Ex")
@@ -2379,7 +2379,7 @@ CMDF do_exits(CharData * ch, const char *argument)
                         }
                         else
                         {
-                                if (IS_MXP(ch))
+                                if (IsMxp(ch))
                                         snprintf(buf + strlen(buf), MSL,
                                                  "&w " MXPTAG("Ex") "%s"
                                                  MXPTAG("/Ex"),
@@ -2399,7 +2399,7 @@ CMDF do_exits(CharData * ch, const char *argument)
         else if (fAuto)
                 mudstrlcat(buf, ".\n\r", MSL);
         send_to_char(buf, ch);
-        if (IS_MXP(ch))
+        if (IsMxp(ch))
                 send_to_char(MXPTAG("/RExits"), ch);
         return;
 }
@@ -2432,7 +2432,7 @@ CMDF do_time(CharData * ch, [[maybe_unused]] const char *argument)
         (void)argument;
         day = time_info.day + 1;
 
-        if (day > AGE_SUFFIX_THRESHOLD_LOW && day < AGE_SUFFIX_THRESHOLD_HIGH)
+        if (day > AgeSuffixThresholdLow && day < AgeSuffixThresholdHigh)
                 suf = "th";
         else if (day % 10 == 1)
                 suf = "st";
@@ -2443,7 +2443,7 @@ CMDF do_time(CharData * ch, [[maybe_unused]] const char *argument)
         else
                 suf = "th";
 
-        set_char_color(AT_YELLOW, ch);
+        set_char_color(AtYellow, ch);
         ch_printf(ch,
                   "It is %d o'clock %s, Day of %s, %d%s the Month of %s.\n\r"
                   "The mud started up at:    %s\r"
@@ -2477,13 +2477,13 @@ CMDF do_weather(CharData * ch, const char *argument)
         };
 
         (void)argument; // Mark as unused
-        if (!IS_OUTSIDE(ch))
+        if (!IsOutside(ch))
         {
                 send_to_char("You can't see the sky from here.\n\r", ch);
                 return;
         }
 
-        set_char_color(AT_BLUE, ch);
+        set_char_color(AtBlue, ch);
         ch_printf(ch, "The sky is %s and %s.\n\r",
                   sky_look[weather_info.sky],
                   weather_info.change >= 0
@@ -2689,14 +2689,14 @@ CMDF do_help(CharData * ch, char *argument)
 
         if ((pHelp = get_help(ch, argument)) == NULL)
         {
-                append_file(ch, HELP_FILE, argument);
+                append_file(ch, HelpFile, argument);
 
                 ch_printf(ch, "&C&wNo help on \'%s\' found.\n\r", argument);
 		if ( !is_number(argument)) - I don't think this works... - Gavin
 			similar_help_files(ch, argument); 
                 return;
         }
-        set_pager_color(AT_YELLOW, ch);
+        set_pager_color(AtYellow, ch);
         if (pHelp->level >= 0 && str_cmp(argument, "imotd"))
         {
                 send_to_pager(pHelp->keyword, ch);
@@ -2712,7 +2712,7 @@ CMDF do_help(CharData * ch, char *argument)
             && nifty_is_name(command->name, pHelp->keyword))
                 pager_printf(ch, "Command level: %d\n\r", command->level);
 
-        set_pager_color(AT_HELP, ch);
+        set_pager_color(AtHelp, ch);
         if (pHelp->text[0] == '.')
                 send_to_pager(pHelp->text + 1, ch);
         else
@@ -2745,7 +2745,7 @@ void do_help(CharData* ch, char* argument)
         char      oneword[MSL], lastmatch[MSL];
         sh_int    matched = 0, checked = 0, totalmatched = 0, found = 0;
 
-        set_pager_color(AT_HELP, ch);
+        set_pager_color(AtHelp, ch);
 
         if (!argument || argument[0] == '\0')
         {
@@ -2812,10 +2812,10 @@ void do_help(CharData* ch, char* argument)
                 return;
         }
 
-        if (IS_IMMORTAL(ch))
+        if (IsImmortal(ch))
                 pager_printf(ch, "Help level: %d\n\r", pHelp->level);
 
-        set_pager_color(AT_HELP, ch);
+        set_pager_color(AtHelp, ch);
 
         /*
          * Strip leading '.' to allow initial blanks.
@@ -2927,7 +2927,7 @@ void save_help(void)
         {
                 bug("save_help: fopen", 0);
                 perror("help.are");
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
                 return;
         }
 
@@ -2944,7 +2944,7 @@ void save_help(void)
         }
         fprintf(fpout, "0 $~\n\n\n#$\n");
         FCLOSE(fpout);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
 
 }
 CMDF do_hset(CharData * ch, char *argument)
@@ -2968,7 +2968,7 @@ CMDF do_hset(CharData * ch, char *argument)
 
         if (!str_cmp(arg1, "save"))
         {
-                log_string_plus("Saving help.are...", LOG_NORMAL,
+                log_string_plus("Saving help.are...", LogNormal,
                                 LevelGreater);
                 save_help();
                 send_to_char("Saved.\n\r", ch);
@@ -3058,14 +3058,14 @@ CMDF do_hlist(CharData * ch, char *argument)
                 min = minlimit;
                 max = maxlimit;
         }
-        set_pager_color(AT_GREEN, ch);
+        set_pager_color(AtGreen, ch);
         pager_printf(ch, "Help Topics in level range %d to %d:\n\r\n\r", min,
                      max);
         for (cnt = 0, help = first_help; help; help = help->next)
                 if (help->level >= min && help->level <= max)
                 {
                         one_argument(help->keyword, arg);
-                        if (IS_MXP(ch))
+                        if (IsMxp(ch))
                                 pager_printf(ch,
                                              "   %3d " MXPTAG("help '%s'")
                                              "%s" MXPTAG("/help") "\n\r",
@@ -3135,11 +3135,11 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
         nMatch = 0;
         buf[0] = '\0';
         if (ch)
-                set_pager_color(AT_GREEN, ch);
+                set_pager_color(AtGreen, ch);
 #ifdef WEB
         else
         {
-                whoout = fopen(WHO_FILE, "w");
+                whoout = fopen(WhoFile, "w");
                 if (whoout)
                 {
                         fprintf(whoout,
@@ -3160,15 +3160,15 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                 char const *race;
 
                 wch = CH(d);
-                if ((!IS_PLAYING(d) && d->connected != ConEditing)
+                if ((!IsPlaying(d) && d->connected != ConEditing)
                     || (!can_see_ooc(ch, wch)
-                        && IS_IMMORTAL(wch)) || d->original)
+                        && IsImmortal(wch)) || d->original)
                         continue;
                 if (wch->top_level < iLevelLower
                     || wch->top_level > iLevelUpper
                     || (fImmortalOnly && wch->top_level < LevelImmortal))
                         continue;
-                if (IS_NPC(wch))
+                if (IsNpc(wch))
                         continue;
 
 
@@ -3177,7 +3177,7 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                  **	Using "ClanName" in who list    	**
                  ******************************************/
                 ClanName[0] = '\0'; /* Reset this so it won't print on others */
-                if ( ch && !IS_NPC(ch) && wch->pcdata->clan && (ch->pcdata->clan || IS_IMMORTAL(ch)))
+                if ( ch && !IsNpc(ch) && wch->pcdata->clan && (ch->pcdata->clan || IsImmortal(ch)))
                 {
                         ClanData *pclan;
                         ClanData *zclan;
@@ -3193,7 +3193,7 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                                 if (zclan->mainclan) zclan = zclan->mainclan;
                         }
 
-                        if ( IS_IMMORTAL(ch) || (pclan && zclan && pclan == zclan) )  
+                        if ( IsImmortal(ch) || (pclan && zclan && pclan == zclan) )  
                         {
                                 if ( !str_cmp( wch->name, wch->pcdata->clan->leader ) )
                                 {
@@ -3274,17 +3274,17 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                 }
 
 
-                if (IS_RETIRED(wch))
+                if (IsRetired(wch))
                         race = "Retired";
-                else if (IS_GUEST(wch))
+                else if (IsGuest(wch))
                         race = "Guest";
-                else if (IS_SET(wch->pcdata->flags, PCFLAG_NEWBGUIDE))
+                else if (IsSet(wch->pcdata->flags, PcflagNewbguide))
                         race = "&b[&zNewbie Guide&b]&D";
                 else if (wch->pcdata->rank && wch->pcdata->rank[0] != '\0')
                         race = wch->pcdata->rank;
 
 
-                if (IS_SET(wch->act, PLR_WIZINVIS))
+                if (IsSet(wch->act, PlrWizinvis))
                         snprintf(invis_str, 10, "(%d) ",
                                  wch->pcdata->wizinvis);
                 else
@@ -3300,8 +3300,8 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                 len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.100s &W%.10s%.20s%.20s&W", 
                          race, 
                          invis_str,
-                         NOT_AUTHED(wch) ? "&BN&W " : "",
-                         IS_SET(wch->act, PLR_AFK) ? "[AFK] " : "");
+                         NotAuthed(wch) ? "&BN&W " : "",
+                         IsSet(wch->act, PlrAfk) ? "[AFK] " : "");
                 
                 /* Add titles and clan info (limited to 200 chars) */
                 len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.200s%.200s", 
@@ -3309,8 +3309,8 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                 
                 /* Add status flags (limited space) */
                 len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.50s%.50s%.50s&w",
-                         IS_SET(wch->pcdata->flags, PCFLAG_WORKING) ? "&Y [&RWORKING&Y]&W" : "&W",
-                         IS_SET(wch->act, PLR_SILENCE) ? "&Y [&BS&zilenced&Y]&W" : "&W",
+                         IsSet(wch->pcdata->flags, PcflagWorking) ? "&Y [&RWORKING&Y]&W" : "&W",
+                         IsSet(wch->act, PlrSilence) ? "&Y [&BS&zilenced&Y]&W" : "&W",
                          wch->desc->connected == ConEditing ? "&Y [&cWRITING&Y]" : 
                          (wch->desc->connected == ConIaForked || 
                           wch->desc->connected == ConForked) ? "&Y [&cCOMPILING&Y]" : "");
@@ -3328,7 +3328,7 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                  */
                 CREATE(cur_who, WhoData, 1);
                 cur_who->text = str_dup(buf);
-                if (IS_IMMORTAL(wch))
+                if (IsImmortal(wch))
                         cur_who->type = WtImm;
                 else if (get_trust(wch) <= 10)
                         cur_who->type = WtNewbie;
@@ -3509,7 +3509,7 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
         if (!ch)
                 return;
 
-        set_char_color(AT_YELLOW, ch);
+        set_char_color(AtYellow, ch);
         ch_printf(ch, "%d player%s.\n\r", nMatch, nMatch == 1 ? "" : "s");
         return;
 }
@@ -3544,11 +3544,11 @@ CMDF do_compare(CharData * ch, char *argument)
                 for (obj2 = ch->first_carrying; obj2;
                      obj2 = obj2->next_content)
                 {
-                        if (obj2->wear_loc != WEAR_NONE
+                        if (obj2->wear_loc != WearNone
                             && can_see_obj(ch, obj2)
                             && obj1->item_type == obj2->item_type
                             && (obj1->wear_flags & obj2->
-                                wear_flags & ~ITEM_TAKE) != 0)
+                                wear_flags & ~ItemTake) != 0)
                                 break;
                 }
 
@@ -3589,12 +3589,12 @@ CMDF do_compare(CharData * ch, char *argument)
                         msg = "You can't compare $p and $P.";
                         break;
 
-                case ITEM_ARMOR:
+                case ItemArmor:
                         value1 = obj1->value[0];
                         value2 = obj2->value[0];
                         break;
 
-                case ITEM_WEAPON:
+                case ItemWeapon:
                         value1 = obj1->value[1] + obj1->value[2];
                         value2 = obj2->value[1] + obj2->value[2];
                         break;
@@ -3611,7 +3611,7 @@ CMDF do_compare(CharData * ch, char *argument)
                         msg = "$p looks worse than $P.";
         }
 
-        act(AT_PLAIN, msg, ch, obj1, obj2, TO_CHAR);
+        act(AtPlain, msg, ch, obj1, obj2, ToChar);
         return;
 }
 
@@ -3633,7 +3633,7 @@ CMDF do_where(CharData * ch, char *argument)
 
         one_argument(argument, arg);
 
-        set_pager_color(AT_PERSON, ch);
+        set_pager_color(AtPerson, ch);
         if (arg[0] == '\0')
         {
                 if (get_trust(ch) >= LevelImmortal)
@@ -3643,9 +3643,9 @@ CMDF do_where(CharData * ch, char *argument)
                                      ch->in_room->area->name);
                 found = FALSE;
                 for (d = first_descriptor; d; d = d->next)
-                        if ((IS_PLAYING(d) || d->connected == ConEditing)
+                        if ((IsPlaying(d) || d->connected == ConEditing)
                             && (victim = d->character) != NULL
-                            && !IS_NPC(victim)
+                            && !IsNpc(victim)
                             && victim->in_room
                             && (victim->in_room->area == ch->in_room->area
                                 || get_trust(ch) >= LevelImmortal)
@@ -3665,8 +3665,8 @@ CMDF do_where(CharData * ch, char *argument)
                 for (victim = first_char; victim; victim = victim->next)
                         if (victim->in_room
                             && victim->in_room->area == ch->in_room->area
-                            && !IS_AFFECTED(victim, AFF_HIDE)
-                            && !IS_AFFECTED(victim, AFF_SNEAK)
+                            && !IsAffected(victim, AffHide)
+                            && !IsAffected(victim, AffSneak)
                             && can_see(ch, victim)
                             && is_name(arg, victim->name))
                         {
@@ -3677,8 +3677,8 @@ CMDF do_where(CharData * ch, char *argument)
                                 break;
                         }
                 if (!found)
-                        act(AT_PLAIN, "You didn't find any $T.", ch, NULL,
-                            arg, TO_CHAR);
+                        act(AtPlain, "You didn't find any $T.", ch, NULL,
+                            arg, ToChar);
         }
 
         return;
@@ -3732,7 +3732,7 @@ CMDF do_consider(CharData * ch, char *argument)
                 msg = "Why don't you just attack a star destoyer with a vibroblade?";
         else
                 msg = "$N is built like an AT-AT!";
-        act(AT_CONSIDER, msg, ch, NULL, victim, TO_CHAR);
+        act(AtConsider, msg, ch, NULL, victim, ToChar);
 
         return;
 }
@@ -3751,7 +3751,7 @@ CMDF do_practice(CharData* ch, char* argument)
         int       sn, classtype = -1, iClass;
         bool      parts = FALSE;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         one_argument(argument, arg);
@@ -3779,8 +3779,8 @@ CMDF do_practice(CharData* ch, char* argument)
                         }
                 }
                 col = cnt = 0;
-                lasttype = SKILL_SPELL;
-                set_pager_color(AT_MAGIC, ch);
+                lasttype = SkillSpell;
+                set_pager_color(AtMagic, ch);
                 for (sn = 0; sn < top_sn; sn++)
                 {
                         parts = FALSE;
@@ -3792,7 +3792,7 @@ CMDF do_practice(CharData* ch, char* argument)
                                 continue;
 
                         if (strcmp(skill_table[sn]->name, "reserved") == 0
-                            && (IS_IMMORTAL(ch)))
+                            && (IsImmortal(ch)))
                         {
                                 if (col % 3 != 0)
                                         send_to_pager("\n\r", ch);
@@ -3806,7 +3806,7 @@ CMDF do_practice(CharData* ch, char* argument)
                         {
                                 if (col % 3 != 0)
                                         send_to_pager("\n\r", ch);
-                                if (skill_table[sn]->type != SKILL_UNKNOWN)
+                                if (skill_table[sn]->type != SkillUnknown)
                                         pager_printf(ch,
                                                      "&B--------------------------------&B[&z%ss&B]---------------------------------\n\r",
                                                      skill_tname[skill_table
@@ -3854,13 +3854,13 @@ CMDF do_practice(CharData* ch, char* argument)
                                 continue;
 
                         if (ch->pcdata->learned[sn] == 0
-                            && SPELL_FLAG(skill_table[sn], SF_SECRETSKILL))
+                            && SpellFlag(skill_table[sn], SfSecretskill))
                                 continue;
 
                         ++cnt;
                         if (ch->pcdata->learned[sn] >= 100)
                         {
-                                if (IS_MXP(ch))
+                                if (IsMxp(ch))
                                 {
                                         pager_printf(ch,
                                                      "&w"
@@ -3882,7 +3882,7 @@ CMDF do_practice(CharData* ch, char* argument)
                         }
                         else
                         {
-                                if (IS_MXP(ch))
+                                if (IsMxp(ch))
                                 {
                                         pager_printf(ch,
                                                      "&z"
@@ -3916,7 +3916,7 @@ CMDF do_practice(CharData* ch, char* argument)
                 int       adept;
                 bool      can_prac = TRUE;
 
-                if (!IS_AWAKE(ch))
+                if (!IsAwake(ch))
                 {
                         send_to_char("In your dreams, or what?\n\r", ch);
                         return;
@@ -3924,7 +3924,7 @@ CMDF do_practice(CharData* ch, char* argument)
 
                 for (mob = ch->in_room->first_person; mob;
                      mob = mob->next_in_room)
-                        if (IS_NPC(mob) && IS_SET(mob->act, ACT_PRACTICE))
+                        if (IsNpc(mob) && IsSet(mob->act, ActPractice))
                                 break;
 
                 if (!mob)
@@ -3938,36 +3938,36 @@ CMDF do_practice(CharData* ch, char* argument)
 
                 if (sn == -1)
                 {
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'I've never heard of that one...'",
-                            mob, NULL, ch, TO_VICT);
+                            mob, NULL, ch, ToVict);
                         return;
                 }
 
                 if (skill_table[sn]->guild < 0
                     || skill_table[sn]->guild >= MaxAbility)
                 {
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'I cannot teach you that...'", mob,
-                            NULL, ch, TO_VICT);
+                            NULL, ch, ToVict);
                         return;
                 }
 
-                if (can_prac && !IS_NPC(ch)
+                if (can_prac && !IsNpc(ch)
                     && ch->skill_level[skill_table[sn]->guild] <
                     skill_table[sn]->min_level)
                 {
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'You're not ready to learn that yet...'",
-                            mob, NULL, ch, TO_VICT);
+                            mob, NULL, ch, ToVict);
                         return;
                 }
 
-                if (is_name(skill_tname[skill_table[sn]->type], static_cast<char*>(const_cast<char*>(CANT_PRAC))))
+                if (is_name(skill_tname[skill_table[sn]->type], static_cast<char*>(const_cast<char*>(CantPrac))))
                 {
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'I do not know how to teach that.'",
-                            mob, NULL, ch, TO_VICT);
+                            mob, NULL, ch, ToVict);
                         return;
                 }
 
@@ -3980,17 +3980,17 @@ CMDF do_practice(CharData* ch, char* argument)
                         snprintf(buf, MSL, "%d", mob->pIndexData->vnum);
                         if (!is_name(buf, skill_table[sn]->teachers))
                         {
-                                act(AT_TELL,
+                                act(AtTell,
                                     "$n tells you, 'I know not know how to teach that.'",
-                                    mob, NULL, ch, TO_VICT);
+                                    mob, NULL, ch, ToVict);
                                 return;
                         }
                 }
                 else
                 {
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you, 'I know not know how to teach that.'",
-                            mob, NULL, ch, TO_VICT);
+                            mob, NULL, ch, ToVict);
                         return;
                 }
 
@@ -4000,9 +4000,9 @@ CMDF do_practice(CharData* ch, char* argument)
                         snprintf(buf, MSL, "%s", ch->race->name());
                         if (!is_name(buf, skill_table[sn]->races))
                         {
-                                act(AT_TELL,
+                                act(AtTell,
                                     "$n tells you, 'You are not the right race to learn that skill.'",
-                                    mob, NULL, ch, TO_VICT);
+                                    mob, NULL, ch, ToVict);
                                 return;
                         }
                 }
@@ -4015,9 +4015,9 @@ CMDF do_practice(CharData* ch, char* argument)
                         snprintf(buf, MSL,
                                  "$n tells you, 'I charge %d credits to teach that. You don't have enough.'",
                                  skill_table[sn]->min_level * 10);
-                        act(AT_TELL,
+                        act(AtTell,
                             "$n tells you 'You don't have enough credits.'",
-                            mob, NULL, ch, TO_VICT);
+                            mob, NULL, ch, ToVict);
                         return;
                 }
 
@@ -4026,26 +4026,26 @@ CMDF do_practice(CharData* ch, char* argument)
                         snprintf(buf, MSL,
                                  "$n tells you, 'I've taught you everything I can about %s.'",
                                  skill_table[sn]->name);
-                        act(AT_TELL, buf, mob, NULL, ch, TO_VICT);
-                        act(AT_TELL,
+                        act(AtTell, buf, mob, NULL, ch, ToVict);
+                        act(AtTell,
                             "$n tells you, 'You'll have to practice it on your own now...'",
-                            mob, NULL, ch, TO_VICT);
+                            mob, NULL, ch, ToVict);
                 }
                 else
                 {
                         ch->gold -= skill_table[sn]->min_level * 10;
                         ch->pcdata->learned[sn] +=
                                 IntApp[get_curr_int(ch)].learn;
-                        act(AT_ACTION, "You practice $T.", ch, NULL,
-                            skill_table[sn]->name, TO_CHAR);
-                        act(AT_ACTION, "$n practices $T.", ch, NULL,
-                            skill_table[sn]->name, TO_ROOM);
+                        act(AtAction, "You practice $T.", ch, NULL,
+                            skill_table[sn]->name, ToChar);
+                        act(AtAction, "$n practices $T.", ch, NULL,
+                            skill_table[sn]->name, ToRoom);
                         if (ch->pcdata->learned[sn] >= adept)
                         {
                                 ch->pcdata->learned[sn] = static_cast<sh_int>(adept);
-                                act(AT_TELL,
+                                act(AtTell,
                                     "$n tells you. 'You'll have to practice it on your own now...'",
-                                    mob, NULL, ch, TO_VICT);
+                                    mob, NULL, ch, ToVict);
                         }
                 }
         }
@@ -4058,7 +4058,7 @@ CMDF do_teach(CharData * ch, char *argument)
         int       sn;
         char      arg[MaxInputLength];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         switch (ch->tempnum)
@@ -4076,7 +4076,7 @@ CMDF do_teach(CharData * ch, char *argument)
                         CharData *victim;
                         int       adept;
 
-                        if (!IS_AWAKE(ch))
+                        if (!IsAwake(ch))
                         {
                                 send_to_char("In your dreams, or what?\n\r",
                                              ch);
@@ -4091,7 +4091,7 @@ CMDF do_teach(CharData * ch, char *argument)
                                 return;
                         }
 
-                        if (IS_NPC(victim))
+                        if (IsNpc(victim))
                         {
                                 send_to_char
                                         ("You can't teach that to them!\n\r",
@@ -4103,26 +4103,26 @@ CMDF do_teach(CharData * ch, char *argument)
 
                         if (sn == -1)
                         {
-                                act(AT_TELL, "You have no idea what that is.",
-                                    victim, NULL, ch, TO_VICT);
+                                act(AtTell, "You have no idea what that is.",
+                                    victim, NULL, ch, ToVict);
                                 return;
                         }
 
                         if (skill_table[sn]->guild < 0
                             || skill_table[sn]->guild >= MaxAbility)
                         {
-                                act(AT_TELL,
+                                act(AtTell,
                                     "Thats just not going to happen.", victim,
-                                    NULL, ch, TO_VICT);
+                                    NULL, ch, ToVict);
                                 return;
                         }
 
                         if (is_name
-                            (skill_tname[skill_table[sn]->type], static_cast<char*>(const_cast<char*>(CANT_PRAC))))
+                            (skill_tname[skill_table[sn]->type], static_cast<char*>(const_cast<char*>(CantPrac))))
                         {
-                                act(AT_TELL,
+                                act(AtTell,
                                     "You are unable to teach that skill.",
-                                    victim, NULL, ch, TO_VICT);
+                                    victim, NULL, ch, ToVict);
                                 return;
                         }
 
@@ -4133,18 +4133,18 @@ CMDF do_teach(CharData * ch, char *argument)
                                          victim->race->name());
                                 if (!is_name(buf, skill_table[sn]->races))
                                 {
-                                        act(AT_TELL,
+                                        act(AtTell,
                                             "They are not the right race to learn that skill.",
-                                            victim, NULL, ch, TO_VICT);
+                                            victim, NULL, ch, ToVict);
                                         return;
                                 }
                         }
 
                         if (ch->pcdata->learned[sn] < 100)
                         {
-                                act(AT_TELL,
+                                act(AtTell,
                                     "You must perfect that yourself before teaching others.",
-                                    victim, NULL, ch, TO_VICT);
+                                    victim, NULL, ch, ToVict);
                                 return;
                         }
 
@@ -4158,9 +4158,9 @@ CMDF do_teach(CharData * ch, char *argument)
                         if (victim->skill_level[skill_table[sn]->guild] <
                             skill_table[sn]->min_level)
                         {
-                                act(AT_TELL,
+                                act(AtTell,
                                     "$n isn't ready to learn that yet.",
-                                    victim, NULL, ch, TO_VICT);
+                                    victim, NULL, ch, ToVict);
                                 return;
                         }
 
@@ -4170,20 +4170,20 @@ CMDF do_teach(CharData * ch, char *argument)
 
                         if (victim->pcdata->learned[sn] >= adept)
                         {
-                                act(AT_TELL,
+                                act(AtTell,
                                     "$n must practice that on their own.",
-                                    victim, NULL, ch, TO_VICT);
+                                    victim, NULL, ch, ToVict);
                                 return;
                         }
 /*                else if (!str_cmp(ch->race->name(), "verpine"))
                 {
                         victim->pcdata->learned[sn] += 99;
                         snprintf(buf, MSL, "You teach %s $T.", victim->name);
-                        act(AT_ACTION, buf,
-                            ch, NULL, skill_table[sn]->name, TO_CHAR);
+                        act(AtAction, buf,
+                            ch, NULL, skill_table[sn]->name, ToChar);
                         snprintf(buf, MSL, "%s teaches you $T.", ch->name);
-                        act(AT_ACTION, buf,
-                            victim, NULL, skill_table[sn]->name, TO_CHAR);
+                        act(AtAction, buf,
+                            victim, NULL, skill_table[sn]->name, ToChar);
                 }*/
                         else
                         {
@@ -4191,12 +4191,12 @@ CMDF do_teach(CharData * ch, char *argument)
                                         IntApp[get_curr_int(ch)].learn;
                                 snprintf(buf, MSL, "You teach %s $T.",
                                          victim->name);
-                                act(AT_ACTION, buf, ch, NULL,
-                                    skill_table[sn]->name, TO_CHAR);
+                                act(AtAction, buf, ch, NULL,
+                                    skill_table[sn]->name, ToChar);
                                 snprintf(buf, MSL, "%s teaches you $T.",
                                          ch->name);
-                                act(AT_ACTION, buf, victim, NULL,
-                                    skill_table[sn]->name, TO_CHAR);
+                                act(AtAction, buf, victim, NULL,
+                                    skill_table[sn]->name, ToChar);
                         }
                 }
                 return;
@@ -4248,7 +4248,7 @@ CMDF do_password(CharData* ch, char* argument)
         char     *p;
         char      cEnd;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         /*
@@ -4301,12 +4301,12 @@ CMDF do_password(CharData* ch, char* argument)
 
         if (!verify_password(arg1, ch->pcdata->pwd))
         {
-                WAIT_STATE(ch, 40);
+                WaitState(ch, 40);
                 send_to_char("Wrong password.  Wait 10 seconds.\n\r", ch);
                 return;
         }
 
-        if (strlen(arg2) < MIN_PASSWORD_LENGTH) {
+        if (strlen(arg2) < MinPasswordLength) {
                 send_to_char
                         ("New password must be at least five characters long.\n\r",
                          ch);
@@ -4339,7 +4339,7 @@ CMDF do_password(CharData* ch, char* argument)
 
         DISPOSE(ch->pcdata->pwd);
         ch->pcdata->pwd = str_dup(new_hash.c_str());
-        if (IS_SET(sysdata.save_flags, SV_PASSCHG))
+        if (IsSet(sysdata.save_flags, SvPasschg))
                 save_char_obj(ch);
         send_to_char("Ok.\n\r", ch);
         return;
@@ -4366,7 +4366,7 @@ CMDF do_socials(CharData* ch, char* argument)
 
         (void)argument;
 
-        set_pager_color(AT_PLAIN, ch);
+        set_pager_color(AtPlain, ch);
         for (iHash = 0; iHash < 27; iHash++)
                 for (social = social_index[iHash]; social;
                      social = social->next)
@@ -4374,12 +4374,12 @@ CMDF do_socials(CharData* ch, char* argument)
                         if (social->minarousal == 0)
                         {
                                 pager_printf(ch, "%-12s", social->name);
-                                if (++col % SOCIAL_COLUMNS == 0)
+                                if (++col % SocialColumns == 0)
                                         send_to_pager("\n\r", ch);
                         }
                 }
 
-        if (col % SOCIAL_COLUMNS != 0)
+        if (col % SocialColumns != 0)
                 send_to_pager("\n\r", ch);
         return;
 }
@@ -4395,7 +4395,7 @@ CMDF do_commands(CharData * ch, char *argument)
         (void)argument;
 
         col = 0;
-        set_pager_color(AT_PLAIN, ch);
+        set_pager_color(AtPlain, ch);
         for (hash = 0; hash < 126; hash++)
                 for (command = command_hash[hash]; command;
                      command = command->next)
@@ -4410,10 +4410,10 @@ CMDF do_commands(CharData * ch, char *argument)
                                                                       command->
                                                                       name) ?
                                              "H" : " ", command->name);
-                                if (++col % COMMAND_COLUMNS == 0)
+                                if (++col % CommandColumns == 0)
                                         send_to_pager("\n\r", ch);
                         }
-        if (col % COMMAND_COLUMNS != 0)
+        if (col % CommandColumns != 0)
                 send_to_pager("\n\r", ch);
 
         return;
@@ -4425,15 +4425,15 @@ CMDF do_commands(CharData * ch, char *argument)
 CMDF do_wizlist(CharData * ch, char *argument)
 {
         (void)argument;
-        set_pager_color(AT_IMMORT, ch);
-        show_file(ch, WIZLIST_FILE);
+        set_pager_color(AtImmort, ch);
+        show_file(ch, WizlistFile);
 }
 
 CMDF do_showhelp(CharData * ch, char *argument)
 {
         (void)argument;
-        set_pager_color(AT_IMMORT, ch);
-        show_file(ch, HELP_FILE);
+        set_pager_color(AtImmort, ch);
+        show_file(ch, HelpFile);
 }
 
 CMDF do_showlog(CharData * ch, char *argument)
@@ -4442,7 +4442,7 @@ CMDF do_showlog(CharData * ch, char *argument)
         char      arg[MaxInputLength];
 
         argument = one_argument(argument, arg);
-        set_pager_color(AT_IMMORT, ch);
+        set_pager_color(AtImmort, ch);
 
         if (arg[0] == '\0')
         {
@@ -4459,51 +4459,51 @@ CMDF do_showlog(CharData * ch, char *argument)
         if (!str_cmp(arg, "help"))
         {
                 if (clear)
-                        clear_file(ch, const_cast<char*>(HELP_FILE));
+                        clear_file(ch, const_cast<char*>(HelpFile));
                 else
-                        show_file(ch, HELP_FILE);
+                        show_file(ch, HelpFile);
         }
         else if (!str_cmp(arg, "boot"))
         {
                 if (clear)
-                        clear_file(ch, const_cast<char*>(BOOTLOG_FILE));
+                        clear_file(ch, const_cast<char*>(BootlogFile));
                 else
-                        show_file(ch, BOOTLOG_FILE);
+                        show_file(ch, BootlogFile);
         }
         else if (!str_cmp(arg, "usage"))
         {
                 if (clear)
-                        clear_file(ch, const_cast<char*>(USAGE_FILE));
+                        clear_file(ch, const_cast<char*>(UsageFile));
                 else
-                        show_file(ch, USAGE_FILE);
+                        show_file(ch, UsageFile);
         }
         else if (!str_cmp(arg, "log"))
         {
                 if (clear)
-                        clear_file(ch, const_cast<char*>(LOG_FILE));
+                        clear_file(ch, const_cast<char*>(LogFile));
                 else
-                        show_file(ch, LOG_FILE);
+                        show_file(ch, LogFile);
         }
         else if (!str_cmp(arg, "bug"))
         {
                 if (clear)
-                        clear_file(ch, const_cast<char*>(BUGS_FILE));
+                        clear_file(ch, const_cast<char*>(BugsFile));
                 else
-                        show_file(ch, BUGS_FILE);
+                        show_file(ch, BugsFile);
         }
         else if (!str_cmp(arg, "idea"))
         {
                 if (clear)
-                        clear_file(ch, const_cast<char*>(IDEA_FILE));
+                        clear_file(ch, const_cast<char*>(IdeaFile));
                 else
-                        show_file(ch, IDEA_FILE);
+                        show_file(ch, IdeaFile);
         }
         else if (!str_cmp(arg, "typo"))
         {
                 if (clear)
-                        clear_file(ch, const_cast<char*>(TYPO_FILE));
+                        clear_file(ch, const_cast<char*>(TypoFile));
                 else
-                        show_file(ch, TYPO_FILE);
+                        show_file(ch, TypoFile);
         }
         else
         {
@@ -4520,37 +4520,37 @@ CMDF do_config(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         one_argument(argument, arg);
 
-        set_char_color(AT_WHITE, ch);
+        set_char_color(AtWhite, ch);
         if (arg[0] == '\0')
         {
                 send_to_char("[ Keyword  ] Option\n\r", ch);
 
-                send_to_char(IS_SET(ch->act, PLR_FLEE)
+                send_to_char(IsSet(ch->act, PlrFlee)
                              ?
                              "[+FLEE     ] You flee if you get attacked.\n\r"
                              :
                              "[-flee     ] You fight back if you get attacked.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->pcdata->flags, PCFLAG_NORECALL)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagNorecall)
                              ?
                              "[+NORECALL ] You fight to the death, link-dead or not.\n\r"
                              :
                              "[-norecall ] You try to recall if fighting link-dead.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->act, PLR_AUTOEXIT)
+                send_to_char(IsSet(ch->act, PlrAutoexit)
                              ? "[+AUTOEXIT ] You automatically see exits.\n\r"
                              :
                              "[-autoexit ] You don't automatically see exits.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->act, PLR_AUTOLOOT)
+                send_to_char(IsSet(ch->act, PlrAutoloot)
                              ?
                              "[+AUTOLOOT ] You automatically loot corpses.\n\r"
                              :
@@ -4558,64 +4558,64 @@ CMDF do_config(CharData * ch, char *argument)
                              ch);
 
 
-                send_to_char(IS_SET(ch->act, PLR_AUTOGOLD)
+                send_to_char(IsSet(ch->act, PlrAutogold)
                              ?
                              "[+AUTOCRED ] You automatically split credits from kills in groups.\n\r"
                              :
                              "[-autocred ] You don't automatically split credits from kills in groups.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->pcdata->flags, PCFLAG_GAG)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagGag)
                              ?
                              "[+GAG      ] You see only necessary battle text.\n\r"
                              : "[-gag      ] You see full battle text.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->pcdata->flags, PCFLAG_PAGERON)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagPageron)
                              ? "[+PAGER    ] Long output is page-paused.\n\r"
                              :
                              "[-pager    ] Long output scrolls to the end.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->act, PLR_BLANK)
+                send_to_char(IsSet(ch->act, PlrBlank)
                              ?
                              "[+BLANK    ] You have a blank line before your prompt.\n\r"
                              :
                              "[-blank    ] You have no blank line before your prompt.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->act, PLR_BRIEF)
+                send_to_char(IsSet(ch->act, PlrBrief)
                              ? "[+BRIEF    ] You see brief descriptions.\n\r"
                              : "[-brief    ] You see long descriptions.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->act, PLR_COMBINE)
+                send_to_char(IsSet(ch->act, PlrCombine)
                              ?
                              "[+COMBINE  ] You see object lists in combined format.\n\r"
                              :
                              "[-combine  ] You see object lists in single format.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->pcdata->flags, PCFLAG_NOINTRO)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagNointro)
                              ?
                              "[+NOINTRO  ] You don't see the ascii intro screen on login.\n\r"
                              :
                              "[-nointro  ] You see the ascii intro screen on login.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->act, PLR_PROMPT)
+                send_to_char(IsSet(ch->act, PlrPrompt)
                              ? "[+PROMPT   ] You have a prompt.\n\r"
                              : "[-prompt   ] You don't have a prompt.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->act, PLR_TELNET_GA)
+                send_to_char(IsSet(ch->act, PlrTelnetGa)
                              ?
                              "[+TELNETGA ] You receive a telnet GA sequence.\n\r"
                              :
                              "[-telnetga ] You don't receive a telnet GA sequence.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->act, PLR_ANSI)
+                send_to_char(IsSet(ch->act, PlrAnsi)
                              ?
                              "[+ANSI     ] You receive ANSI color sequences.\n\r"
                              :
@@ -4623,7 +4623,7 @@ CMDF do_config(CharData * ch, char *argument)
                              ch);
 #ifdef ACCOUNT
                 if (ch->pcdata->Account)
-                        send_to_char(IS_SET(ch->pcdata->flags, ACCOUNT_SOUND)
+                        send_to_char(IsSet(ch->pcdata->flags, AccountSound)
                                      ?
                                      "[+SOUND    ] You have MSP support.\n\r"
                                      :
@@ -4631,41 +4631,41 @@ CMDF do_config(CharData * ch, char *argument)
                                      ch);
                 else
 #endif
-                        send_to_char(IS_SET(ch->act, PLR_SOUND)
+                        send_to_char(IsSet(ch->act, PlrSound)
                                      ?
                                      "[+SOUND    ] You have MSP support.\n\r"
                                      :
                                      "[-sound    ] You don't have MSP support.\n\r",
                                      ch);
-                send_to_char(IS_SET(ch->act, PLR_SHOVEDRAG) ?
+                send_to_char(IsSet(ch->act, PlrShovedrag) ?
                              "[+SHOVEDRAG] You allow yourself to be shoved and dragged around.\n\r"
                              :
                              "[-shovedrag] You'd rather not be shoved or dragged around.\n\r",
                              ch);
 
-                send_to_char(IS_SET(ch->pcdata->flags, PCFLAG_NOSUMMON)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagNosummon)
                              ?
                              "[+NOSUMMON ] You do not allow other players to summon you.\n\r"
                              :
                              "[-nosummon ] You allow other players to summon you.\n\r",
                              ch);
                 
-				send_to_char(IS_SET(ch->pcdata->flags, PCFLAG_AUTODRAW)
+				send_to_char(IsSet(ch->pcdata->flags, PcflagAutodraw)
                              ?
                              "[+AUTODRAW ] You autodraw your holsters and put them back away after a fight.\n\r"
                              :
                              "[-autodraw ] No autodrawing, buisness as usual.\n\r",
                              ch);
 
-                if (IS_IMMORTAL(ch)) {
-                        send_to_char(IS_SET(ch->act, PLR_ROOMVNUM)
+                if (IsImmortal(ch)) {
+                        send_to_char(IsSet(ch->act, PlrRoomvnum)
                                      ?
                                      "[+VNUM     ] You can see the VNUM of a room.\n\r"
                                      :
                                      "[-vnum     ] You do not see the VNUM of a room.\n\r",
                                      ch);
 
-                        send_to_char(IS_SET(ch->pcdata->flags, PCFLAG_ROOM)
+                        send_to_char(IsSet(ch->pcdata->flags, PcflagRoom)
                                      ?
                                      "[+ROOMFLAGS] You will see room flags.\n\r"
                                      :
@@ -4676,21 +4676,21 @@ CMDF do_config(CharData * ch, char *argument)
                 /*
                  * Added 12/16/2003 by Gavin of DW 
                  */
-                send_to_char(IS_SET(ch->act, PLR_MXP)
+                send_to_char(IsSet(ch->act, PlrMxp)
                              ? "[+MXP      ] You have MXP support.\n\r"
                              : "[-mxp      ] You don't have MXP support.\n\r",
                              ch);
-                send_to_char(IS_SET(ch->act, PLR_SILENCE) ?
+                send_to_char(IsSet(ch->act, PlrSilence) ?
                              "[+SILENCE  ] You are silenced.\n\r" : "", ch);
 
-                send_to_char(!IS_SET(ch->act, PLR_NO_EMOTE)
+                send_to_char(!IsSet(ch->act, PlrNoEmote)
                              ? "" : "[-emote    ] You can't emote.\n\r", ch);
 
-                send_to_char(!IS_SET(ch->act, PLR_NO_TELL)
+                send_to_char(!IsSet(ch->act, PlrNoTell)
                              ? ""
                              : "[-tell     ] You can't use 'tell'.\n\r", ch);
 
-                send_to_char(!IS_SET(ch->act, PLR_LITTERBUG)
+                send_to_char(!IsSet(ch->act, PlrLitterbug)
                              ? ""
                              :
                              "[-litter  ] A convicted litterbug. You cannot drop anything.\n\r",
@@ -4712,42 +4712,42 @@ CMDF do_config(CharData * ch, char *argument)
                 }
 
                 if (!str_prefix(arg + 1, "autoexit"))
-                        bit = PLR_AUTOEXIT;
+                        bit = PlrAutoexit;
                 else if (!str_prefix(arg + 1, "autoloot"))
-                        bit = PLR_AUTOLOOT;
+                        bit = PlrAutoloot;
                 else if (!str_prefix(arg + 1, "autocred"))
-                        bit = PLR_AUTOGOLD;
+                        bit = PlrAutogold;
                 else if (!str_prefix(arg + 1, "blank"))
-                        bit = PLR_BLANK;
+                        bit = PlrBlank;
                 else if (!str_prefix(arg + 1, "brief"))
-                        bit = PLR_BRIEF;
+                        bit = PlrBrief;
                 else if (!str_prefix(arg + 1, "combine"))
-                        bit = PLR_COMBINE;
+                        bit = PlrCombine;
                 else if (!str_prefix(arg + 1, "prompt"))
-                        bit = PLR_PROMPT;
+                        bit = PlrPrompt;
                 else if (!str_prefix(arg + 1, "telnetga"))
-                        bit = PLR_TELNET_GA;
+                        bit = PlrTelnetGa;
                 else if (!str_prefix(arg + 1, "ansi"))
-                        bit = PLR_ANSI;
+                        bit = PlrAnsi;
                 else if (!str_prefix(arg + 1, "sound"))
                 {
                         send_to_char("Please use sound command instead.", ch);
                         /*
-                         * bit = PLR_SOUND; 
+                         * bit = PlrSound; 
                          */
                         return;
                 }
                 else if (!str_prefix(arg + 1, "flee"))
-                        bit = PLR_FLEE;
+                        bit = PlrFlee;
                 else if (!str_prefix(arg + 1, "nice"))
-                        bit = PLR_NICE;
+                        bit = PlrNice;
                 else if (!str_prefix(arg + 1, "shovedrag"))
-                        bit = PLR_SHOVEDRAG;
-                else if (IS_IMMORTAL(ch) && !str_prefix(arg + 1, "vnum"))
-                        bit = PLR_ROOMVNUM;
+                        bit = PlrShovedrag;
+                else if (IsImmortal(ch) && !str_prefix(arg + 1, "vnum"))
+                        bit = PlrRoomvnum;
                 else if (!str_prefix(arg + 1, "mxp"))
                 {
-                        bit = PLR_MXP;  /* mxp */
+                        bit = PlrMxp;  /* mxp */
                         if (fSet)
                                 do_mxp(ch, "on");
                         else
@@ -4758,29 +4758,29 @@ CMDF do_config(CharData * ch, char *argument)
                 {
 
                         if (fSet)
-                                SET_BIT(ch->act, bit);
+                                SetBit(ch->act, bit);
                         else
-                                REMOVE_BIT(ch->act, bit);
+                                RemoveBit(ch->act, bit);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
                 else
                 {
                         if (!str_prefix(arg + 1, "norecall"))
-                                bit = PCFLAG_NORECALL;
+                                bit = PcflagNorecall;
                         else if (!str_prefix(arg + 1, "nointro"))
-                                bit = PCFLAG_NOINTRO;
+                                bit = PcflagNointro;
                         else if (!str_prefix(arg + 1, "nosummon"))
-                                bit = PCFLAG_NOSUMMON;
+                                bit = PcflagNosummon;
                         else if (!str_prefix(arg + 1, "autodraw"))
-                                bit = PCFLAG_AUTODRAW;
+                                bit = PcflagAutodraw;
                         else if (!str_prefix(arg + 1, "gag"))
-                                bit = PCFLAG_GAG;
+                                bit = PcflagGag;
                         else if (!str_prefix(arg + 1, "pager"))
-                                bit = PCFLAG_PAGERON;
+                                bit = PcflagPageron;
                         else if (!str_prefix(arg + 1, "roomflags")
-                                 && (IS_IMMORTAL(ch)))
-                                bit = PCFLAG_ROOM;
+                                 && (IsImmortal(ch)))
+                                bit = PcflagRoom;
                         else
                         {
                                 send_to_char("Config which option?\n\r", ch);
@@ -4788,9 +4788,9 @@ CMDF do_config(CharData * ch, char *argument)
                         }
 
                         if (fSet)
-                                SET_BIT(ch->pcdata->flags, bit);
+                                SetBit(ch->pcdata->flags, bit);
                         else
-                                REMOVE_BIT(ch->pcdata->flags, bit);
+                                RemoveBit(ch->pcdata->flags, bit);
 
                         send_to_char("Ok.\n\r", ch);
                         return;
@@ -4820,7 +4820,7 @@ CMDF do_areas(CharData* ch, char* argument)
 
         (void)argument;
 
-        set_pager_color(AT_PLAIN, ch);
+        set_pager_color(AtPlain, ch);
         send_to_pager
                 ("\n\r   Author    |             Area                     | Recommended |  Enforced\n\r",
                  ch);
@@ -4840,21 +4840,21 @@ CMDF do_areas(CharData* ch, char* argument)
 CMDF do_afk(CharData * ch, char *argument)
 {
         (void)argument;
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if IS_SET
-                (ch->act, PLR_AFK)
+        if IsSet
+                (ch->act, PlrAfk)
         {
-                REMOVE_BIT(ch->act, PLR_AFK);
+                RemoveBit(ch->act, PlrAfk);
                 send_to_char("You are no longer afk.\n\r", ch);
-                act(AT_GREY, "$n is no longer afk.", ch, NULL, NULL, TO_ROOM);
+                act(AtGrey, "$n is no longer afk.", ch, NULL, NULL, ToRoom);
         }
         else
         {
-                SET_BIT(ch->act, PLR_AFK);
+                SetBit(ch->act, PlrAfk);
                 send_to_char("You are now afk.\n\r", ch);
-                act(AT_GREY, "$n is now afk.", ch, NULL, NULL, TO_ROOM);
+                act(AtGrey, "$n is now afk.", ch, NULL, NULL, ToRoom);
                 return;
         }
 
@@ -4874,7 +4874,7 @@ CMDF do_slist(CharData * ch, char *argument)
    int ability, class, iClass;*/
         int       ability, classtype, iClass;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
 
@@ -4884,7 +4884,7 @@ CMDF do_slist(CharData * ch, char *argument)
                 if (!str_prefix(argument, ability_name[iClass]))
                         classtype = iClass;
         }
-        set_pager_color(AT_MAGIC, ch);
+        set_pager_color(AtMagic, ch);
         send_to_pager("&BS&zPELL &w& &BS&zKILL &BL&zIST\n\r", ch);
         send_to_pager("------------------\n\r", ch);
 
@@ -4918,8 +4918,8 @@ CMDF do_slist(CharData * ch, char *argument)
                                         continue;
 
                                 if (ch->pcdata->learned[sn] == 0
-                                    && SPELL_FLAG(skill_table[sn],
-                                                  SF_SECRETSKILL))
+                                    && SpellFlag(skill_table[sn],
+                                                  SfSecretskill))
                                         continue;
 
                                 if (i == skill_table[sn]->min_level)
@@ -4974,7 +4974,7 @@ CMDF do_whois(CharData * ch, char *argument)
 
         buf[0] = '\0';
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (argument[0] == '\0')
@@ -4993,7 +4993,7 @@ CMDF do_whois(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("That's not a player!\n\r", ch);
                 return;
@@ -5014,14 +5014,14 @@ CMDF do_whois(CharData * ch, char *argument)
         ch_printf(ch, "&B| &BA&zge:&w %-21d &B| %s &w%-16s &B|\n\r",
                   get_age(victim),
                   victim->pcdata->spouse[0] !=
-                  '\0' ? (IS_SET(victim->pcdata->flags, PCFLAG_MARRIED) ?
+                  '\0' ? (IsSet(victim->pcdata->flags, PcflagMarried) ?
                           "&BS&zpouse:" : "&BF&ziance:") : "       ",
                   victim->pcdata->spouse[0] !=
                   '\0' ? victim->pcdata->spouse : "");
         ch_printf(ch, "&B| &BS&zex:&w %-21s &B| &BR&zace: &w%-18s &B|\n\r",
-                  victim->sex == SEX_MALE ? "male" : victim->sex ==
-                  SEX_FEMALE ? "female" : "neutral", victim->race->name());
-        if (IS_IMMORTAL(ch))
+                  victim->sex == SexMale ? "male" : victim->sex ==
+                  SexFemale ? "female" : "neutral", victim->race->name());
+        if (IsImmortal(ch))
                 ch_printf(ch,
                           "&B| &BI&zn Room:&w %-17d &B|                          &B|\n\r",
                           victim->in_room->vnum);
@@ -5045,7 +5045,7 @@ CMDF do_whois(CharData * ch, char *argument)
                         ("&B---------------------------------------------------------&B\n\r",
                          ch);
         }
-        if (IS_IMMORTAL(ch))
+        if (IsImmortal(ch))
         {
                 send_to_char("&zInfo for immortals:\n\r", ch);
                 send_to_char
@@ -5079,8 +5079,8 @@ CMDF do_whois(CharData * ch, char *argument)
                         ch_printf(ch,
                                   "&z%s was helled by &w%s&z, and will be released on &w%24.24s.\n\r",
                                   victim->sex ==
-                                  SEX_MALE ? "He" : victim->sex ==
-                                  SEX_FEMALE ? "She" : "It",
+                                  SexMale ? "He" : victim->sex ==
+                                  SexFemale ? "She" : "It",
                                   victim->pcdata->helled_by,
                                   ctime(&victim->pcdata->release_date));
 
@@ -5090,17 +5090,17 @@ CMDF do_whois(CharData * ch, char *argument)
                         do_comment(ch, buf);
                 }
 
-                if (IS_SET(victim->act, PLR_SILENCE)
-                    || IS_SET(victim->act, PLR_NO_EMOTE)
-                    || IS_SET(victim->act, PLR_NO_TELL))
+                if (IsSet(victim->act, PlrSilence)
+                    || IsSet(victim->act, PlrNoEmote)
+                    || IsSet(victim->act, PlrNoTell))
                 {
                         snprintf(buf, MSL, "%s",
                                  "&zThis player has the following flags set:");
-                        if (IS_SET(victim->act, PLR_SILENCE))
+                        if (IsSet(victim->act, PlrSilence))
                                 mudstrlcat(buf, "&w silence", MSL);
-                        if (IS_SET(victim->act, PLR_NO_EMOTE))
+                        if (IsSet(victim->act, PlrNoEmote))
                                 mudstrlcat(buf, "&w noemote", MSL);
-                        if (IS_SET(victim->act, PLR_NO_TELL))
+                        if (IsSet(victim->act, PlrNoTell))
                                 mudstrlcat(buf, "&w notell", MSL);
                         mudstrlcat(buf, ".\n\r", MSL);
                         send_to_char(buf, ch);
@@ -5145,12 +5145,12 @@ CMDF do_pager(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
         argument = one_argument(argument, arg);
         if (!*arg)
         {
-                if (IS_SET(ch->pcdata->flags, PCFLAG_PAGERON))
+                if (IsSet(ch->pcdata->flags, PcflagPageron))
                         do_config(ch, const_cast<char*>("-pager"));
                 else
                         do_config(ch, const_cast<char*>("+pager"));
@@ -5162,7 +5162,7 @@ CMDF do_pager(CharData * ch, char *argument)
                 return;
         }
         ch->pcdata->pagerlen = static_cast<sh_int>(atoi(arg));
-        if (ch->pcdata->pagerlen < PAGER_MIN_LINES)
+        if (ch->pcdata->pagerlen < PagerMinLines)
                 ch->pcdata->pagerlen = 5;
         ch_printf(ch, "Page pausing set to %d lines.\n\r",
                   ch->pcdata->pagerlen);
@@ -5185,10 +5185,10 @@ CMDF do_steacher(CharData * ch, char *argument)
         SkillType *skill = NULL;
 
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        set_pager_color(AT_MAGIC, ch);
+        set_pager_color(AtMagic, ch);
         send_to_pager("\n\r------------[ Missing Teachers ]-------------\n\r",
                       ch);
         if (str_cmp(argument, "existant"))

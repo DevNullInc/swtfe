@@ -48,34 +48,34 @@
 #include <memory>
 
 struct bounty_data;
-using BOUNTY_DATA = bounty_data;
+using BountyData = bounty_data;
 struct wanted_data;
-using WANTED_DATA = wanted_data;
+using WantedData = wanted_data;
 
-extern BOUNTY_DATA *first_bounty;
-extern BOUNTY_DATA *last_bounty;
-extern BOUNTY_DATA *first_disintigration;
-extern BOUNTY_DATA *last_disintigration;
+extern BountyData *first_bounty;
+extern BountyData *last_bounty;
+extern BountyData *first_disintigration;
+extern BountyData *last_disintigration;
 
-#define BOUNTY_LIST     "bounty.lst"
+#define BountyList     "bounty.lst"
 typedef enum
-{ BOUNTY_PLAYER, BOUNTY_POLICE } bounty_types;
+{ BountyPlayer, BountyPolice } bounty_types;
 
 struct bounty_data
 {
-        BOUNTY_DATA *next;
-        BOUNTY_DATA *prev;
+        BountyData *next;
+        BountyData *prev;
         char     *target;
         long int  amount;
         int       type;
         char     *source;
 };
 
-#define STARTING_WANTED 10
+#define StartingWanted 10
 struct wanted_data
 {
-        WANTED_DATA *next;
-        WANTED_DATA *prev;
+        WantedData *next;
+        WantedData *prev;
         /*
          * This should be government instead 
          */
@@ -85,9 +85,9 @@ struct wanted_data
 
 /* bounty.c */
 
-BOUNTY_DATA *get_disintigration(const char *target);
-BOUNTY_DATA *get_disintigration(std::string_view target);
-BOUNTY_DATA *get_disintigration(std::shared_ptr<std::string> target);
+BountyData *get_disintigration(const char *target);
+BountyData *get_disintigration(std::string_view target);
+BountyData *get_disintigration(std::shared_ptr<std::string> target);
 void load_bounties();
 void save_bounties();
 void save_disintigrations();
@@ -95,8 +95,8 @@ void remove_wanted(CharData *ch, ClanData *clan);
 void remove_wanted(std::shared_ptr<CharData> ch, std::shared_ptr<ClanData> clan);
 void remove_wanted_planet(CharData *ch, PlanetData *planet);
 void remove_wanted_planet(std::shared_ptr<CharData> ch, std::shared_ptr<PlanetData> planet);
-void remove_disintigration(BOUNTY_DATA *bounty);
-void remove_disintigration(std::shared_ptr<BOUNTY_DATA> bounty);
+void remove_disintigration(BountyData *bounty);
+void remove_disintigration(std::shared_ptr<BountyData> bounty);
 void claim_disintigration(CharData *ch, CharData *victim);
 void claim_disintigration(std::shared_ptr<CharData> ch, std::shared_ptr<CharData> victim);
 void add_police_bounty(CharData *ch, PlanetData *planet);
@@ -134,13 +134,13 @@ namespace BountyUtils {
     // Modern bounty safety functions
     bool is_bounty_target_safe(const char* target);
     long sanitize_bounty_amount(long amount);
-    std::string get_safe_bounty_target(BOUNTY_DATA* bounty);
+    std::string get_safe_bounty_target(BountyData* bounty);
     
     // Modern bounty creation (secure wrapper around legacy system)
-    BOUNTY_DATA* create_secure_bounty(const std::string& target, long amount, 
+    BountyData* create_secure_bounty(const std::string& target, long amount, 
                                      int type, const std::string& source = "");
     
     // Example function showing modern/legacy interoperability
-    void display_bounty_info_secure(CharData* ch, BOUNTY_DATA* bounty);
+    void display_bounty_info_secure(CharData* ch, BountyData* bounty);
     
 } // namespace BountyUtils

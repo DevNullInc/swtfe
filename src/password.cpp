@@ -65,12 +65,12 @@
 
 namespace {
     // Argon2id configuration constants
-    constexpr uint32_t ARGON2_TIME_COST = 3;        // iterations
-    constexpr uint32_t ARGON2_MEMORY_COST = 1 << 16; // memory in KiB (64 MiB)
-    constexpr uint32_t ARGON2_PARALLELISM = 1;       // lanes
-    constexpr size_t SALT_LENGTH = 16;               // 128-bit salt
-    constexpr size_t HASH_LENGTH = 32;               // 256-bit hash
-    constexpr const char* ARGON2_PREFIX = "$argon2id$";
+    constexpr uint32_t Argon2TimeCost = 3;        // iterations
+    constexpr uint32_t Argon2MemoryCost = 1 << 16; // memory in KiB (64 MiB)
+    constexpr uint32_t Argon2Parallelism = 1;       // lanes
+    constexpr size_t SaltLength = 16;               // 128-bit salt
+    constexpr size_t HashLength = 32;               // 256-bit hash
+    constexpr const char* Argon2Prefix = "$argon2id$";
     
     /**
      * @brief Generate cryptographically secure random bytes
@@ -102,23 +102,23 @@ std::string hash_password(std::string_view password, std::string_view salt_in) {
     if (!salt_in.empty()) {
         salt_bytes.assign(salt_in.begin(), salt_in.end());
     } else {
-        salt_bytes.resize(SALT_LENGTH);
-        generate_secure_random(salt_bytes.data(), SALT_LENGTH);
+        salt_bytes.resize(SaltLength);
+        generate_secure_random(salt_bytes.data(), SaltLength);
     }
 
     // Compute required encoded length and allocate string buffer
-    size_t encoded_len = argon2_encodedlen(ARGON2_TIME_COST, ARGON2_MEMORY_COST,
-                                           ARGON2_PARALLELISM, salt_bytes.size(),
-                                           HASH_LENGTH, Argon2_id);
+    size_t encoded_len = argon2_encodedlen(Argon2TimeCost, Argon2MemoryCost,
+                                           Argon2Parallelism, salt_bytes.size(),
+                                           HashLength, Argon2_id);
     std::string encoded;
     encoded.resize(encoded_len);
 
-    int rc = argon2id_hash_encoded(ARGON2_TIME_COST, ARGON2_MEMORY_COST, ARGON2_PARALLELISM,
+    int rc = argon2id_hash_encoded(Argon2TimeCost, Argon2MemoryCost, Argon2Parallelism,
                                    password.data(), password.size(),
                                    salt_bytes.data(), salt_bytes.size(),
-                                   HASH_LENGTH,
+                                   HashLength,
                                    &encoded[0], encoded_len);
-    if (rc != ARGON2_OK) {
+    if (rc != Argon2Ok) {
         bug("argon2id_hash_encoded failed: %s", argon2_error_message(rc));
         return std::string();
     }
@@ -134,9 +134,9 @@ bool verify_password(std::string_view password, std::string_view stored_hash) {
     }
 
     // Check if this is an Argon2 hash
-    if (stored_hash.substr(0, strlen(ARGON2_PREFIX)) == ARGON2_PREFIX) {
+    if (stored_hash.substr(0, strlen(Argon2Prefix)) == Argon2Prefix) {
         int rc = argon2id_verify(stored_hash.data(), password.data(), password.size());
-        return rc == ARGON2_OK;
+        return rc == Argon2Ok;
     } else {
         // Legacy verification using crypt
         const char* encrypted = crypt(password.data(), stored_hash.data());
@@ -146,8 +146,8 @@ bool verify_password(std::string_view password, std::string_view stored_hash) {
 
 std::string generate_salt() {
     std::string salt;
-    salt.resize(SALT_LENGTH);
-    generate_secure_random(reinterpret_cast<uint8_t*>(&salt[0]), SALT_LENGTH);
+    salt.resize(SaltLength);
+    generate_secure_random(reinterpret_cast<uint8_t*>(&salt[0]), SaltLength);
     return salt;
 }
 
@@ -170,5 +170,5 @@ std::string migrate_password(std::string_view password, std::string_view old_has
 // Utility function to check if we should upgrade a password hash
 bool should_upgrade_hash(std::string_view hash) {
     // If it doesn't start with the Argon2 prefix, it needs to be upgraded
-    return hash.empty() || hash.substr(0, strlen(ARGON2_PREFIX)) != ARGON2_PREFIX;
+    return hash.empty() || hash.substr(0, strlen(Argon2Prefix)) != Argon2Prefix;
 }

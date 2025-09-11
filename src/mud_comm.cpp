@@ -52,70 +52,70 @@ char     *mprog_type_to_name(int type)
 {
         switch (type)
         {
-        case IN_FILE_PROG:
+        case InFileProg:
                 return "in_file_prog";
-        case ACT_PROG:
+        case ActProg:
                 return "act_prog";
-        case SPEECH_PROG:
+        case SpeechProg:
                 return "speech_prog";
-        case RAND_PROG:
+        case RandProg:
                 return "rand_prog";
-        case FIGHT_PROG:
+        case FightProg:
                 return "fight_prog";
-        case HITPRCNT_PROG:
+        case HitprcntProg:
                 return "hitprcnt_prog";
-        case DEATH_PROG:
+        case DeathProg:
                 return "death_prog";
-        case ENTRY_PROG:
+        case EntryProg:
                 return "entry_prog";
-        case GREET_PROG:
+        case GreetProg:
                 return "greet_prog";
-        case ALL_GREET_PROG:
+        case AllGreetProg:
                 return "all_greet_prog";
-        case GIVE_PROG:
+        case GiveProg:
                 return "give_prog";
-        case BRIBE_PROG:
+        case BribeProg:
                 return "bribe_prog";
-        case HOUR_PROG:
+        case HourProg:
                 return "hour_prog";
-        case TIME_PROG:
+        case TimeProg:
                 return "time_prog";
-        case WEAR_PROG:
+        case WearProg:
                 return "wear_prog";
-        case REMOVE_PROG:
+        case RemoveProg:
                 return "remove_prog";
-        case SAC_PROG:
+        case SacProg:
                 return "sac_prog";
-        case LOOK_PROG:
+        case LookProg:
                 return "look_prog";
-        case EXA_PROG:
+        case ExaProg:
                 return "exa_prog";
-        case ZAP_PROG:
+        case ZapProg:
                 return "zap_prog";
-        case GET_PROG:
+        case GetProg:
                 return "get_prog";
-        case DROP_PROG:
+        case DropProg:
                 return "drop_prog";
-        case REPAIR_PROG:
+        case RepairProg:
                 return "repair_prog";
-        case DAMAGE_PROG:
+        case DamageProg:
                 return "damage_prog";
-        case PULL_PROG:
+        case PullProg:
                 return "pull_prog";
-        case PUSH_PROG:
+        case PushProg:
                 return "push_prog";
-        case SCRIPT_PROG:
+        case ScriptProg:
                 return "script_prog";
-        case SLEEP_PROG:
+        case SleepProg:
                 return "sleep_prog";
-        case REST_PROG:
+        case RestProg:
                 return "rest_prog";
-        case LEAVE_PROG:
+        case LeaveProg:
                 return "leave_prog";
-        case USE_PROG:
+        case UseProg:
                 return "use_prog";
         default:
-                return "ERROR_PROG";
+                return "ErrorProg";
         }
 }
 
@@ -129,7 +129,7 @@ CMDF do_mpstat(CharData * ch, char *argument)
         MProgData *mprg;
         CharData *victim;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
         one_argument(argument, arg);
@@ -146,7 +146,7 @@ CMDF do_mpstat(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_NPC(victim))
+        if (!IsNpc(victim))
         {
                 send_to_char("Only Mobiles can have MobPrograms!\n\r", ch);
                 return;
@@ -173,7 +173,7 @@ CMDF do_mpstat(CharData * ch, char *argument)
         ch_printf(ch,
                   "Lv: %d.  Align: %d.  AC: %d.  Credits: %d.\n\r",
                   victim->top_level, victim->alignment,
-                  GET_AC(victim), victim->gold);
+                  GetAc(victim), victim->gold);
 
 		int count = 0;
         for (mprg = victim->pIndexData->mudprogs; mprg; mprg = mprg->next)
@@ -272,10 +272,10 @@ CMDF do_mpasound(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -288,7 +288,7 @@ CMDF do_mpasound(CharData * ch, char *argument)
         }
 
         actflags = ch->act;
-        REMOVE_BIT(ch->act, ACT_SECRETIVE);
+        RemoveBit(ch->act, ActSecretive);
         was_in_room = ch->in_room;
         for (pexit = was_in_room->first_exit; pexit; pexit = pexit->next)
         {
@@ -296,7 +296,7 @@ CMDF do_mpasound(CharData * ch, char *argument)
                 {
                         ch->in_room = pexit->to_room;
                         MOBtrigger = FALSE;
-                        act(AT_SAY, argument, ch, NULL, NULL, TO_ROOM);
+                        act(AtSay, argument, ch, NULL, NULL, ToRoom);
                 }
         }
         ch->act = actflags;
@@ -317,10 +317,10 @@ CMDF do_mpkill(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -346,19 +346,19 @@ CMDF do_mpkill(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_AFFECTED(ch, AFF_CHARM) && ch->master == victim)
+        if (IsAffected(ch, AffCharm) && ch->master == victim)
         {
                 progbug("MpKill - Charmed mob attacking master", ch);
                 return;
         }
 
-        if (ch->position == POS_FIGHTING)
+        if (ch->position == PosFighting)
         {
                 progbug("MpKill - Already fighting", ch);
                 return;
         }
 
-        multi_hit(ch, victim, TYPE_UNDEFINED);
+        multi_hit(ch, victim, TypeUndefined);
         return;
 }
 
@@ -373,10 +373,10 @@ CMDF do_mpjunk(CharData * ch, char *argument)
         ObjData *obj;
         ObjData *obj_next;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -408,7 +408,7 @@ CMDF do_mpjunk(CharData * ch, char *argument)
                         obj_next = obj->next_content;
                         if (arg[3] == '\0' || is_name(&arg[4], obj->name))
                         {
-                                if (obj->wear_loc != WEAR_NONE)
+                                if (obj->wear_loc != WearNone)
                                         unequip_char(ch, obj);
                                 extract_obj(obj);
                         }
@@ -437,7 +437,7 @@ int get_color(char *argument)   /* get color code from command string */
         if ((cptr = const_cast<char*>(strstr(color_list, color))))
                 return (cptr - color_list) / 4;
         if ((cptr = const_cast<char*>(strstr(blink_list, color))))
-                return (cptr - blink_list) / 4 + AT_BLINK;
+                return (cptr - blink_list) / 4 + AtBlink;
         return 0;
 }
 
@@ -451,10 +451,10 @@ CMDF do_mpechoaround(CharData * ch, char *argument)
         int       actflags;
         sh_int    color;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -475,15 +475,15 @@ CMDF do_mpechoaround(CharData * ch, char *argument)
         }
 
         actflags = ch->act;
-        REMOVE_BIT(ch->act, ACT_SECRETIVE);
+        RemoveBit(ch->act, ActSecretive);
 
         if ((color = get_color(argument)))
         {
                 argument = one_argument(argument, arg);
-                act(color, argument, ch, NULL, victim, TO_NOTVICT);
+                act(color, argument, ch, NULL, victim, ToNotvict);
         }
         else
-                act(AT_ACTION, argument, ch, NULL, victim, TO_NOTVICT);
+                act(AtAction, argument, ch, NULL, victim, ToNotvict);
 
         ch->act = actflags;
 }
@@ -498,10 +498,10 @@ CMDF do_mpechoat(CharData * ch, char *argument)
         int       actflags;
         sh_int    color;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -522,15 +522,15 @@ CMDF do_mpechoat(CharData * ch, char *argument)
         }
 
         actflags = ch->act;
-        REMOVE_BIT(ch->act, ACT_SECRETIVE);
+        RemoveBit(ch->act, ActSecretive);
 
         if ((color = get_color(argument)))
         {
                 argument = one_argument(argument, arg);
-                act(color, argument, ch, NULL, victim, TO_VICT);
+                act(color, argument, ch, NULL, victim, ToVict);
         }
         else
-                act(AT_ACTION, argument, ch, NULL, victim, TO_VICT);
+                act(AtAction, argument, ch, NULL, victim, ToVict);
 
         ch->act = actflags;
 }
@@ -544,10 +544,10 @@ CMDF do_mpecho(CharData * ch, char *argument)
         sh_int    color;
         int       actflags;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -560,15 +560,15 @@ CMDF do_mpecho(CharData * ch, char *argument)
         }
 
         actflags = ch->act;
-        REMOVE_BIT(ch->act, ACT_SECRETIVE);
+        RemoveBit(ch->act, ActSecretive);
 
         if ((color = get_color(argument)))
         {
                 argument = one_argument(argument, arg1);
-                act(color, argument, ch, NULL, NULL, TO_ROOM);
+                act(color, argument, ch, NULL, NULL, ToRoom);
         }
         else
-                act(AT_ACTION, argument, ch, NULL, NULL, TO_ROOM);
+                act(AtAction, argument, ch, NULL, NULL, ToRoom);
 
         ch->act = actflags;
 }
@@ -584,10 +584,10 @@ CMDF do_mpmload(CharData * ch, char *argument)
         MobIndexData *pMobIndex;
         CharData *victim;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -621,10 +621,10 @@ CMDF do_mpoload(CharData * ch, char *argument)
         int       level;
         int       timer = 0;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -677,7 +677,7 @@ CMDF do_mpoload(CharData * ch, char *argument)
 
         obj = create_object(pObjIndex, level);
         obj->timer = timer;
-        if (CAN_WEAR(obj, ITEM_TAKE))
+        if (CanWear(obj, ItemTake))
                 obj_to_char(obj, ch);
         else
                 obj_to_room(obj, ch->in_room);
@@ -696,10 +696,10 @@ CMDF do_mppurge(CharData * ch, char *argument)
         CharData *victim;
         ObjData *obj;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -718,7 +718,7 @@ CMDF do_mppurge(CharData * ch, char *argument)
                      victim = vnext)
                 {
                         vnext = victim->next_in_room;
-                        if (IS_NPC(victim) && victim != ch)
+                        if (IsNpc(victim) && victim != ch)
                                 extract_char(victim, TRUE);
                 }
                 while (ch->in_room->first_content)
@@ -736,13 +736,13 @@ CMDF do_mppurge(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_NPC(victim))
+        if (!IsNpc(victim))
         {
                 progbug("Mppurge - Trying to purge a PC", ch);
                 return;
         }
 
-        if (IS_NPC(victim) && victim->pIndexData->vnum == 3)
+        if (IsNpc(victim) && victim->pIndexData->vnum == 3)
         {
                 progbug("Mppurge: trying to purge supermob", ch);
                 return;
@@ -760,10 +760,10 @@ CMDF do_mpinvis(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         sh_int    level;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -792,18 +792,18 @@ CMDF do_mpinvis(CharData * ch, char *argument)
         if (ch->mobinvis < 2)
                 ch->mobinvis = ch->top_level;
 
-        if (IS_SET(ch->act, ACT_MOBINVIS))
+        if (IsSet(ch->act, ActMobinvis))
         {
-                REMOVE_BIT(ch->act, ACT_MOBINVIS);
-                act(AT_IMMORT, "$n slowly fades into existence.", ch, NULL,
-                    NULL, TO_ROOM);
+                RemoveBit(ch->act, ActMobinvis);
+                act(AtImmort, "$n slowly fades into existence.", ch, NULL,
+                    NULL, ToRoom);
                 send_to_char("You slowly fade back into existence.\n\r", ch);
         }
         else
         {
-                SET_BIT(ch->act, ACT_MOBINVIS);
-                act(AT_IMMORT, "$n slowly fades into thin air.", ch, NULL,
-                    NULL, TO_ROOM);
+                SetBit(ch->act, ActMobinvis);
+                act(AtImmort, "$n slowly fades into thin air.", ch, NULL,
+                    NULL, ToRoom);
                 send_to_char("You slowly vanish into thin air.\n\r", ch);
         }
         return;
@@ -816,10 +816,10 @@ CMDF do_mpgoto(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         RoomIndexData *location;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -856,10 +856,10 @@ CMDF do_mpat(CharData * ch, char *argument)
         RoomIndexData *original;
         CharData *wch;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -903,7 +903,7 @@ CMDF do_mpat(CharData * ch, char *argument)
 CMDF do_mpadvance(CharData * ch, char *argument)
 {
         argument = NULL;
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
         return;
@@ -923,10 +923,10 @@ CMDF do_mptransfer(CharData * ch, char *argument)
         CharData *victim;
         CharData *nextinroom;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -950,7 +950,7 @@ CMDF do_mptransfer(CharData * ch, char *argument)
                 {
                         nextinroom = victim->next_in_room;
                         if (victim != ch
-                            && !NOT_AUTHED(victim) && can_see(ch, victim))
+                            && !NotAuthed(victim) && can_see(ch, victim))
                         {
                                 snprintf(buf, MSL, "%s %s", victim->name,
                                          arg2);
@@ -994,7 +994,7 @@ CMDF do_mptransfer(CharData * ch, char *argument)
                 return;
         }
 
-        if (NOT_AUTHED(victim) && location->area != victim->in_room->area)
+        if (NotAuthed(victim) && location->area != victim->in_room->area)
         {
                 progbug("Mptransfer - transferring unauthorized player", ch);
                 return;
@@ -1003,7 +1003,7 @@ CMDF do_mptransfer(CharData * ch, char *argument)
 
 /* If victim not in area's level range, do not transfer */
         if (!in_hard_range(victim, location->area)
-            && !xIS_SET(location->RoomFlags, ROOM_PROTOTYPE))
+            && !xIS_SET(location->RoomFlags, RoomPrototype))
                 return;
 
         if (victim->fighting)
@@ -1023,10 +1023,10 @@ CMDF do_mpforce(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         CMDType  *command;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) || ch->desc)
+        if (!IsNpc(ch) || ch->desc)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1068,7 +1068,7 @@ CMDF do_mpforce(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!IS_NPC(victim) && IS_IMMORTAL(victim))
+                if (!IsNpc(victim) && IsImmortal(victim))
                 {
                         progbug("Mpforce - Attempting to Force immortal", ch);
                         return;
@@ -1095,7 +1095,7 @@ CMDF do_mpforce(CharData * ch, char *argument)
 CMDF do_mp_practice(CharData * ch, char *argument)
 {
         argument = NULL;
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 }
 
@@ -1105,7 +1105,7 @@ CMDF do_mp_practice(CharData * ch, char *argument)
 CMDF do_mp_slay(CharData * ch, char *argument)
 {
         argument = NULL;
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
         return;
@@ -1121,10 +1121,10 @@ CMDF do_mp_damage(CharData * ch, char *argument)
         CharData *victim;
         int       dam;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
+        if (!IsNpc(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1170,7 +1170,7 @@ CMDF do_mp_damage(CharData * ch, char *argument)
          * Wouldn't it be better to call damage(ch, ch, dam, dt)?
          * I hate redundant code
          */
-        if (simple_damage(ch, victim, dam, TYPE_UNDEFINED) == rVICT_DIED)
+        if (simple_damage(ch, victim, dam, TypeUndefined) == rVICT_DIED)
         {
                 stop_fighting(ch, FALSE);
                 stop_hating(ch);
@@ -1192,10 +1192,10 @@ CMDF do_mp_restore(CharData * ch, char *argument)
         CharData *victim;
         int       hp;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
+        if (!IsNpc(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1246,10 +1246,10 @@ CMDF do_mpgain(CharData * ch, char *argument)
         long      experience;
         int       ability;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) && !IS_IMM_ADMIN(ch))
+        if (!IsNpc(ch) && !IsImmAdmin(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1348,10 +1348,10 @@ CMDF do_mp_open_passage(CharData * ch, char *argument)
         int       targetRoomVnum, fromRoomVnum, exit_num;
         ExitData *pexit;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
+        if (!IsNpc(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1400,7 +1400,7 @@ CMDF do_mp_open_passage(CharData * ch, char *argument)
         }
 
         exit_num = atoi(arg3);
-        if ((exit_num < 0) || (exit_num > MAX_DIR))
+        if ((exit_num < 0) || (exit_num > MaxDir))
         {
                 progbug("MpOpenPassage - Bad syntax", ch);
                 return;
@@ -1408,7 +1408,7 @@ CMDF do_mp_open_passage(CharData * ch, char *argument)
 
         if ((pexit = get_exit(fromRoom, exit_num)) != NULL)
         {
-                if (!IS_SET(pexit->exit_info, EX_PASSAGE))
+                if (!IsSet(pexit->exit_info, ExPassage))
                         return;
                 progbug("MpOpenPassage - Exit exists", ch);
                 return;
@@ -1418,10 +1418,10 @@ CMDF do_mp_open_passage(CharData * ch, char *argument)
         pexit->keyword = STRALLOC("");
         pexit->description = STRALLOC("");
         pexit->key = -1;
-        pexit->exit_info = EX_PASSAGE;
+        pexit->exit_info = ExPassage;
 
-        act(AT_PLAIN, "A passage opens!", ch, NULL, NULL, TO_CHAR);
-        act(AT_PLAIN, "A passage opens!", ch, NULL, NULL, TO_ROOM);
+        act(AtPlain, "A passage opens!", ch, NULL, NULL, ToChar);
+        act(AtPlain, "A passage opens!", ch, NULL, NULL, ToRoom);
 
         return;
 }
@@ -1431,7 +1431,7 @@ CMDF do_mp_open_passage(CharData * ch, char *argument)
  *
  * closes a passage in room x leading in direction y
  *
- * the exit must have EX_PASSAGE set
+ * the exit must have ExPassage set
  */
 CMDF do_mp_close_passage(CharData * ch, char *argument)
 {
@@ -1442,10 +1442,10 @@ CMDF do_mp_close_passage(CharData * ch, char *argument)
         int       fromRoomVnum, exit_num;
         ExitData *pexit;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
+        if (!IsNpc(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1481,7 +1481,7 @@ CMDF do_mp_close_passage(CharData * ch, char *argument)
         }
 
         exit_num = atoi(arg2);
-        if ((exit_num < 0) || (exit_num > MAX_DIR))
+        if ((exit_num < 0) || (exit_num > MaxDir))
         {
                 progbug("MpClosePassage - Bad syntax", ch);
                 return;
@@ -1495,7 +1495,7 @@ CMDF do_mp_close_passage(CharData * ch, char *argument)
                  */
         }
 
-        if (!IS_SET(pexit->exit_info, EX_PASSAGE))
+        if (!IsSet(pexit->exit_info, ExPassage))
         {
                 progbug("MpClosePassage - Exit not a passage", ch);
                 return;
@@ -1504,10 +1504,10 @@ CMDF do_mp_close_passage(CharData * ch, char *argument)
         extract_exit(fromRoom, pexit);
 
         /*
-         * act( AT_PLAIN, "A passage closes!", ch, NULL, NULL, TO_CHAR ); 
+         * act( AtPlain, "A passage closes!", ch, NULL, NULL, ToChar ); 
          */
         /*
-         * act( AT_PLAIN, "A passage closes!", ch, NULL, NULL, TO_ROOM ); 
+         * act( AtPlain, "A passage closes!", ch, NULL, NULL, ToRoom ); 
          */
 
         return;
@@ -1521,10 +1521,10 @@ CMDF do_mp_close_passage(CharData * ch, char *argument)
 CMDF do_mpnothing(CharData * ch, char *argument)
 {
         argument = NULL;
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
+        if (!IsNpc(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1538,10 +1538,10 @@ CMDF do_mpsector(CharData * ch, char *argument)
         char      arg1[MaxInputLength];
 
         argument = one_argument(argument, arg1);
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
+        if (!IsNpc(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1565,7 +1565,7 @@ CMDF do_mpsector(CharData * ch, char *argument)
         }
 
         wroom->sector_type = atoi(arg1);
-        if (wroom->sector_type < 0 || wroom->sector_type >= SECT_MAX)
+        if (wroom->sector_type < 0 || wroom->sector_type >= SectMax)
         {
                 wroom->sector_type = 1;
                 progbug("Mpsector - Not a Valid sector", ch);
@@ -1585,10 +1585,10 @@ CMDF do_mpdream(CharData * ch, char *argument)
         char      arg1[MaxStringLength];
         CharData *vict;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
+        if (!IsNpc(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1602,7 +1602,7 @@ CMDF do_mpdream(CharData * ch, char *argument)
                 return;
         }
 
-        if (vict->position <= POS_SLEEPING)
+        if (vict->position <= PosSleeping)
         {
                 send_to_char(argument, vict);
                 send_to_char("\n\r", vict);
@@ -1614,10 +1614,10 @@ CMDF do_mpapply(CharData * ch, char *argument)
 {
         CharData *victim;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1641,7 +1641,7 @@ CMDF do_mpapply(CharData * ch, char *argument)
                 return;
         }
 
-        if (!NOT_AUTHED(victim))
+        if (!NotAuthed(victim))
                 return;
 
         if (victim->pcdata->AuthState >= 1)
@@ -1658,10 +1658,10 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
 {
         CharData *victim;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1685,10 +1685,10 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
                 return;
         }
 
-        if (!NOT_AUTHED(victim))
+        if (!NotAuthed(victim))
                 return;
 
-        if (get_timer(victim, TIMER_APPLIED) >= 1)
+        if (get_timer(victim, TimerApplied) >= 1)
                 return;
 
         switch (victim->pcdata->AuthState)
@@ -1703,7 +1703,7 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
                          victim->name, victim->desc->host,
                          victim->race->name());
                 log_string(log_buf);
-                add_timer(victim, TIMER_APPLIED, 10, NULL, 0);
+                add_timer(victim, TimerApplied, 10, NULL, 0);
                 victim->pcdata->AuthState = 1;
                 break;
 
@@ -1711,20 +1711,20 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
                 send_to_char
                         ("Your name has been deemed unsuitable by the gods.  Please choose a more apropriate name with the 'name' command.\n\r",
                          victim);
-                add_timer(victim, TIMER_APPLIED, 10, NULL, 0);
+                add_timer(victim, TimerApplied, 10, NULL, 0);
                 break;
 
         case 3:
                 send_to_char("The gods permit you to enter the SWR.\n\r",
                              victim);
-                REMOVE_BIT(victim->pcdata->flags, PCFLAG_UNAUTHED);
+                RemoveBit(victim->pcdata->flags, PcflagUnauthed);
                 if (victim->fighting)
                         stop_fighting(victim, TRUE);
                 char_from_room(victim);
-                char_to_room(victim, get_room_index(ROOM_VNUM_SCHOOL));
-                act(AT_WHITE,
+                char_to_room(victim, get_room_index(RoomVnumSchool));
+                act(AtWhite,
                     "$n enters this world from within a column of blinding light!",
-                    victim, NULL, NULL, TO_ROOM);
+                    victim, NULL, NULL, ToRoom);
                 do_look(victim, "auto");
                 break;
         }
@@ -1740,10 +1740,10 @@ CMDF do_mp_deposit(CharData * ch, char *argument)
         char      arg[MaxStringLength];
         int       gold;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1773,10 +1773,10 @@ CMDF do_mp_withdraw(CharData * ch, char *argument)
         char      arg[MaxStringLength];
         int       gold;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1802,7 +1802,7 @@ CMDF do_mp_withdraw(CharData * ch, char *argument)
 CMDF do_mppkset(CharData * ch, char *argument)
 {
         argument = NULL;
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
         send_to_char
@@ -1820,10 +1820,10 @@ CMDF do_mprat(CharData * ch, char *argument)
         RoomIndexData *original;
         int       Start, End, vnum;
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
                 return;
 
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1895,33 +1895,33 @@ ch_ret simple_damage(CharData * ch, CharData * victim, int dam, int dt)
                 return rVICT_DIED;
         }
 
-        if (victim->position == POS_DEAD)
+        if (victim->position == PosDead)
         {
                 return rVICT_DIED;
         }
 
-        npcvict = IS_NPC(victim);
+        npcvict = IsNpc(victim);
 
         if (dam)
         {
-                if (IS_FIRE(dt))
-                        dam = ris_damage(victim, dam, RIS_FIRE);
-                else if (IS_COLD(dt))
-                        dam = ris_damage(victim, dam, RIS_COLD);
-                else if (IS_ACID(dt))
-                        dam = ris_damage(victim, dam, RIS_ACID);
-                else if (IS_ELECTRICITY(dt))
-                        dam = ris_damage(victim, dam, RIS_ELECTRICITY);
-                else if (IS_ENERGY(dt))
-                        dam = ris_damage(victim, dam, RIS_ENERGY);
+                if (IsFire(dt))
+                        dam = ris_damage(victim, dam, RisFire);
+                else if (IsCold(dt))
+                        dam = ris_damage(victim, dam, RisCold);
+                else if (IsAcid(dt))
+                        dam = ris_damage(victim, dam, RisAcid);
+                else if (IsElectricity(dt))
+                        dam = ris_damage(victim, dam, RisElectricity);
+                else if (IsEnergy(dt))
+                        dam = ris_damage(victim, dam, RisEnergy);
                 else if (dt == gsn_poison)
-                        dam = ris_damage(victim, dam, RIS_POISON);
-                else if (dt == (TYPE_HIT + 7) || dt == (TYPE_HIT + 8))
-                        dam = ris_damage(victim, dam, RIS_BLUNT);
-                else if (dt == (TYPE_HIT + 2) || dt == (TYPE_HIT + 11))
-                        dam = ris_damage(victim, dam, RIS_PIERCE);
-                else if (dt == (TYPE_HIT + 1) || dt == (TYPE_HIT + 3))
-                        dam = ris_damage(victim, dam, RIS_SLASH);
+                        dam = ris_damage(victim, dam, RisPoison);
+                else if (dt == (TypeHit + 7) || dt == (TypeHit + 8))
+                        dam = ris_damage(victim, dam, RisBlunt);
+                else if (dt == (TypeHit + 2) || dt == (TypeHit + 11))
+                        dam = ris_damage(victim, dam, RisPierce);
+                else if (dt == (TypeHit + 1) || dt == (TypeHit + 3))
+                        dam = ris_damage(victim, dam, RisSlash);
                 if (dam < 0)
                         dam = 0;
         }
@@ -1931,10 +1931,10 @@ ch_ret simple_damage(CharData * ch, CharData * victim, int dam, int dt)
                 /*
                  * Damage modifiers.
                  */
-                if (IS_AFFECTED(victim, AFF_SANCTUARY))
+                if (IsAffected(victim, AffSanctuary))
                         dam /= 2;
 
-                if (IS_AFFECTED(victim, AFF_PROTECT) && IS_EVIL(ch))
+                if (IsAffected(victim, AffProtect) && IsEvil(ch))
                         dam -= (int) (dam / 4);
 
                 if (dam < 0)
@@ -1954,7 +1954,7 @@ ch_ret simple_damage(CharData * ch, CharData * victim, int dam, int dt)
                 /*
                  * get a random body eq part 
                  */
-                dameq = number_range(WEAR_LIGHT, WEAR_EYES);
+                dameq = number_range(WearLight, WearEyes);
                 damobj = get_eq_char(victim, dameq);
                 if (damobj)
                 {
@@ -1971,7 +1971,7 @@ ch_ret simple_damage(CharData * ch, CharData * victim, int dam, int dt)
          * Inform the victim of his new state.
          */
         victim->hit -= dam;
-        if (!IS_NPC(victim)
+        if (!IsNpc(victim)
             && get_trust(victim) >= LevelImmortal && victim->hit < 1)
                 victim->hit = 1;
 
@@ -1983,63 +1983,63 @@ ch_ret simple_damage(CharData * ch, CharData * victim, int dam, int dt)
 
         switch (victim->position)
         {
-        case POS_MORTAL:
-                act(AT_DYING,
+        case PosMortal:
+                act(AtDying,
                     "$n is mortally wounded, and will die soon, if not aided.",
-                    victim, NULL, NULL, TO_ROOM);
-                act(AT_DANGER,
+                    victim, NULL, NULL, ToRoom);
+                act(AtDanger,
                     "You are mortally wounded, and will die soon, if not aided.",
-                    victim, NULL, NULL, TO_CHAR);
+                    victim, NULL, NULL, ToChar);
                 break;
 
-        case POS_INCAP:
-                act(AT_DYING,
+        case PosIncap:
+                act(AtDying,
                     "$n is incapacitated and will slowly die, if not aided.",
-                    victim, NULL, NULL, TO_ROOM);
-                act(AT_DANGER,
+                    victim, NULL, NULL, ToRoom);
+                act(AtDanger,
                     "You are incapacitated and will slowly die, if not aided.",
-                    victim, NULL, NULL, TO_CHAR);
+                    victim, NULL, NULL, ToChar);
                 break;
 
-        case POS_STUNNED:
-                if (!IS_AFFECTED(victim, AFF_PARALYSIS))
+        case PosStunned:
+                if (!IsAffected(victim, AffParalysis))
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "$n is stunned, but will probably recover.",
-                            victim, NULL, NULL, TO_ROOM);
-                        act(AT_HURT,
+                            victim, NULL, NULL, ToRoom);
+                        act(AtHurt,
                             "You are stunned, but will probably recover.",
-                            victim, NULL, NULL, TO_CHAR);
+                            victim, NULL, NULL, ToChar);
                 }
                 break;
 
-        case POS_DEAD:
-                act(AT_DEAD, "$n is DEAD!!", victim, 0, 0, TO_ROOM);
-                act(AT_DEAD, "You have been KILLED!!\n\r", victim, 0, 0,
-                    TO_CHAR);
+        case PosDead:
+                act(AtDead, "$n is DEAD!!", victim, 0, 0, ToRoom);
+                act(AtDead, "You have been KILLED!!\n\r", victim, 0, 0,
+                    ToChar);
                 break;
 
         default:
                 if (dam > victim->max_hit / 4)
-                        act(AT_HURT, "That really did HURT!", victim, 0, 0,
-                            TO_CHAR);
+                        act(AtHurt, "That really did HURT!", victim, 0, 0,
+                            ToChar);
                 if (victim->hit < victim->max_hit / 4)
-                        act(AT_DANGER,
+                        act(AtDanger,
                             "You wish that your wounds would stop BLEEDING so much!",
-                            victim, 0, 0, TO_CHAR);
+                            victim, 0, 0, ToChar);
                 break;
         }
 
         /*
          * Payoff for killing things.
          */
-        if (victim->position == POS_DEAD)
+        if (victim->position == PosDead)
         {
                 if (!npcvict)
                 {
                         snprintf(log_buf, MSL, "%s killed by %s at %d",
                                  victim->name,
-                                 (IS_NPC(ch) ? ch->short_descr : ch->name),
+                                 (IsNpc(ch) ? ch->short_descr : ch->name),
                                  victim->in_room->vnum);
                         log_string(log_buf);
 
@@ -2071,9 +2071,9 @@ ch_ret simple_damage(CharData * ch, CharData * victim, int dam, int dt)
          */
         if (npcvict && dam > 0)
         {
-                if ((IS_SET(victim->act, ACT_WIMPY) && number_bits(1) == 0
+                if ((IsSet(victim->act, ActWimpy) && number_bits(1) == 0
                      && victim->hit < victim->max_hit / 2)
-                    || (IS_AFFECTED(victim, AFF_CHARM) && victim->master
+                    || (IsAffected(victim, AffCharm) && victim->master
                         && victim->master->in_room != victim->in_room))
                 {
                         start_fearing(victim, ch);
@@ -2086,7 +2086,7 @@ ch_ret simple_damage(CharData * ch, CharData * victim, int dam, int dt)
             && victim->hit > 0
             && victim->hit <= victim->wimpy && victim->wait == 0)
                 do_flee(victim, "");
-        else if (!npcvict && IS_SET(victim->act, PLR_FLEE))
+        else if (!npcvict && IsSet(victim->act, PlrFlee))
                 do_flee(victim, "");
 
         tail_chain();
@@ -2112,9 +2112,9 @@ CharData *get_char_room_mp(CharData * ch, char *argument)
 
         for (rch = ch->in_room->first_person; rch; rch = rch->next_in_room)
                 if ((nifty_is_name(arg, rch->name)
-                     || (IS_NPC(rch) && vnum == rch->pIndexData->vnum)))
+                     || (IsNpc(rch) && vnum == rch->pIndexData->vnum)))
                 {
-                        if (number == 0 && !IS_NPC(rch))
+                        if (number == 0 && !IsNpc(rch))
                                 return rch;
                         else if (++count == number)
                                 return rch;
@@ -2127,7 +2127,7 @@ CharData *get_char_room_mp(CharData * ch, char *argument)
         {
                 if (!nifty_is_name_prefix(arg, rch->name))
                         continue;
-                if (number == 0 && !IS_NPC(rch))
+                if (number == 0 && !IsNpc(rch))
                         return rch;
                 else if (++count == number)
                         return rch;

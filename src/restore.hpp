@@ -50,9 +50,9 @@
 #include <memory>
 #include <string_view>
 
-constexpr std::string_view RESTORE_FILE = "restore.dat";   // Restore data file for online editing - Gavin 5-26-2000
-constexpr int RESTORE_INTERVAL = 21600;
-constexpr int MAX_RESTORE_TYPES = 50;
+constexpr std::string_view RestoreFile = "restore.dat";   // Restore data file for online editing - Gavin 5-26-2000
+constexpr int RestoreInterval = 21600;
+constexpr int MaxRestoreTypes = 50;
 
 class RestoreData {
 public:

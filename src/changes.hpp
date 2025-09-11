@@ -47,11 +47,11 @@
 #include <memory>
 #include <ctime>
 
-#define CHANGES_SNIPPET
+#define ChangesSnippet
 
-#define CHANGES_FILE SYSTEM_DIR "changes.dat"
+#define ChangesFile SystemDir "changes.dat"
 struct changes_data;
-using CHANGE_DATA = changes_data;
+using ChangeData = changes_data;
 
 // changes.c
 int num_changes();
@@ -75,5 +75,5 @@ struct changes_data
 extern int maxChanges;
 extern int immortal_changes;
 
-#define CHANGES_VERSION 0
-extern CHANGE_DATA *changes_table;
+#define ChangesVersion 0
+extern ChangeData *changes_table;

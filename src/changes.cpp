@@ -69,7 +69,7 @@ char     *current_date args((void));
 
 int       maxChanges;
 int       immortal_changes;
-CHANGE_DATA *changes_table;
+ChangeData *changes_table;
 
 /* Hacktastic to make sure warning doesn't show up.. thats what man pages says todo :D */
 size_t my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm)
@@ -83,7 +83,7 @@ void load_changes(void)
         FILE     *fp;
         int       i;
 
-        if (!(fp = fopen(CHANGES_FILE, "r")))
+        if (!(fp = fopen(ChangesFile, "r")))
         {
                 bug("Could not open Changes File for reading.", 0);
                 return;
@@ -102,7 +102,7 @@ void load_changes(void)
         // later REALLOC/STRFREE/DISPOSE patterns elsewhere in legacy code.
         // (Earlier modernization briefly switched to new[] which conflicted with
         // existing free()/REALLOC based macros, triggering allocator mismatch risk.)
-        changes_table = static_cast<CHANGE_DATA*>(calloc(static_cast<size_t>(maxChanges + 1), sizeof(CHANGE_DATA)));
+        changes_table = static_cast<ChangeData*>(calloc(static_cast<size_t>(maxChanges + 1), sizeof(ChangeData)));
         if (!changes_table) {
                 bug("Allocation failure for changes_table", 0);
                 FCLOSE(fp);
@@ -143,9 +143,9 @@ void write_webchanges(void)
         FILE     *fp;
         int       i, count = 1;
 
-        if ((fp = fopen(WEBCHANGES_FILE, "w")) == NULL)
+        if ((fp = fopen(WebchangesFile, "w")) == NULL)
         {
-                perror(WEBCHANGES_FILE);
+                perror(WebchangesFile);
                 return;
         }
         fprintf(fp,
@@ -201,9 +201,9 @@ void save_changes(void)
         FILE     *fp;
         int       i;
 
-        if (!(fp = fopen(CHANGES_FILE, "w")))
+        if (!(fp = fopen(ChangesFile, "w")))
         {
-                perror(CHANGES_FILE);
+                perror(ChangesFile);
                 return;
         }
 
@@ -248,7 +248,7 @@ void delete_change(int iChange)
 {
         int       i, j;
         // Rebuild the table without the removed entry. Keep C allocation semantics.
-        CHANGE_DATA *new_table = static_cast<CHANGE_DATA*>(calloc(static_cast<size_t>(UMAX(maxChanges,0)), sizeof(CHANGE_DATA)));
+        ChangeData *new_table = static_cast<ChangeData*>(calloc(static_cast<size_t>(UMAX(maxChanges,0)), sizeof(ChangeData)));
         if (!new_table)
                 return; // allocation failed; leave original intact
 
@@ -283,7 +283,7 @@ CMDF do_addchange(CharData * ch, char *argument)
 {
         char      buf[MaxStringLength];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (argument[0] == '\0')
@@ -296,14 +296,14 @@ CMDF do_addchange(CharData * ch, char *argument)
         maxChanges++;
         {
                 size_t newCount = static_cast<size_t>(maxChanges + 1);
-                void *tmp = REALLOC(changes_table, sizeof(CHANGE_DATA) * newCount);
+                void *tmp = REALLOC(changes_table, sizeof(ChangeData) * newCount);
                 if (!tmp)
                 {
                         --maxChanges; // rollback
                         send_to_char("Memory allocation failed. Brace for impact.\n\r", ch);
                         return;
                 }
-                changes_table = static_cast<CHANGE_DATA*>(tmp);
+                changes_table = static_cast<ChangeData*>(tmp);
         }
 
         changes_table[maxChanges - 1].change = STRALLOC(argument);
@@ -326,7 +326,7 @@ CMDF do_addchange(CharData * ch, char *argument)
 CMDF do_addimmchange(CharData * ch, char *argument)
 {
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (argument[0] == '\0')
@@ -339,14 +339,14 @@ CMDF do_addimmchange(CharData * ch, char *argument)
         maxChanges++;
         {
                 size_t newCount = static_cast<size_t>(maxChanges + 1);
-                void *tmp = REALLOC(changes_table, sizeof(CHANGE_DATA) * newCount);
+                void *tmp = REALLOC(changes_table, sizeof(ChangeData) * newCount);
                 if (!tmp)
                 {
                         --maxChanges; // rollback
                         send_to_char("Memory allocation failed. Brace for impact.\n\r", ch);
                         return;
                 }
-                changes_table = static_cast<CHANGE_DATA*>(tmp);
+                changes_table = static_cast<ChangeData*>(tmp);
         }
 
         changes_table[maxChanges - 1].change = STRALLOC(argument);
@@ -366,7 +366,7 @@ CMDF do_chedit(CharData * ch, char *argument)
         int       change;
         char      arg1[MaxInputLength];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!ch->desc || NULLSTR(argument))
@@ -464,7 +464,7 @@ CMDF do_news(CharData * ch, char *argument)
         int       i, immchanges = 0;
         int       start = 0, count;
 
-        if (!ch && IS_NPC(ch))
+        if (!ch && IsNpc(ch))
                 return;
 
         if (maxChanges < 1)
@@ -475,7 +475,7 @@ CMDF do_news(CharData * ch, char *argument)
         today = 0;
         for (i = 0; i < maxChanges; i++)
         {
-                if (!IS_IMMORTAL(ch) && changes_table[i].immchange == 1)
+                if (!IsImmortal(ch) && changes_table[i].immchange == 1)
                         continue;
                 if (NULLSTR(changes_table[i].coder)
                     || NULLSTR(changes_table[i].change)
@@ -491,12 +491,12 @@ CMDF do_news(CharData * ch, char *argument)
 
         pager_printf(ch,
                      "&z[&w  #&z]&B|&z[&wCoder   &z    ]&B|&z%s[&wDate &z   ]&B|&wChange\n\r",
-                     ch && IS_IMMORTAL(ch) ? "[&wImm&z]&B|&z" : "");
+                     ch && IsImmortal(ch) ? "[&wImm&z]&B|&z" : "");
         pager_printf(ch,
                      "&B-----|--------------|%s----------&B|&B-----------------------------\n\r",
-                     ch && IS_IMMORTAL(ch) ? "-----|" : "");
+                     ch && IsImmortal(ch) ? "-----|" : "");
 
-        if (!IS_IMMORTAL(ch) && start != 0)
+        if (!IsImmortal(ch) && start != 0)
         {
                 for (count = 0, i = maxChanges - 1; count < 9; i--)
                         if (changes_table[i].immchange == 0)
@@ -509,7 +509,7 @@ CMDF do_news(CharData * ch, char *argument)
         for (i = 0; i < maxChanges; i++)
         {
                 if (changes_table[i].immchange == 1
-                    && (!ch || !IS_IMMORTAL(ch)))
+                    && (!ch || !IsImmortal(ch)))
                 {
                         immchanges++;
                         continue;
@@ -524,9 +524,9 @@ CMDF do_news(CharData * ch, char *argument)
                              "&z[&w%3d&z]&B|&z[&w%-12s&z]&B|&z%s[&W%-6s&z]&B|&w%-55s\n\r",
                              (i + 1 -
                               (ch
-                               && IS_IMMORTAL(ch) ? 0 : immchanges)),
+                               && IsImmortal(ch) ? 0 : immchanges)),
                              capitalize(changes_table[i].coder), ch
-                             && IS_IMMORTAL(ch) ? changes_table[i].
+                             && IsImmortal(ch) ? changes_table[i].
                              immchange ==
                              1 ? "[&w * &z]&B|&z" : "[&w   &z]&B|&z" : "",
                              changes_table[i].date, changes_table[i].change);
@@ -537,7 +537,7 @@ CMDF do_news(CharData * ch, char *argument)
         pager_printf(ch,
                      "&zThere is a total of &B[&w %3d &B]&z changes in the database.\n\r",
                      maxChanges - (ch
-                                   && IS_IMMORTAL(ch) ? 0 :
+                                   && IsImmortal(ch) ? 0 :
                                    immortal_changes));
         send_to_pager
                 ("&zAlso see: &B'&wchanges all&B'&z for a list of all the changes.\n\r",

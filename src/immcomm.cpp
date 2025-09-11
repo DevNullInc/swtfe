@@ -55,7 +55,7 @@
 
 void list_resets args((CharData * ch, AreaData * pArea,
                        RoomIndexData * pRoom, int start, int end));
-void save_sysdata args((SYSTEM_DATA sys));
+void save_sysdata args((SystemData sys));
 void save_banlist args((void));
 
 
@@ -64,20 +64,20 @@ CMDF do_fakequit(CharData * ch, char *argument)
         char      buf[MaxInputLength];
 
         argument = NULL;
-        set_char_color(AT_WHITE, ch);
+        set_char_color(AtWhite, ch);
         send_to_char
                 ("You have quit, how funny\n\rYou left the game, well not completly\n\r",
                  ch);
-        act(AT_BYE, "$n has left the game.", ch, NULL, NULL, TO_ROOM);
-        set_char_color(AT_GREY, ch);
+        act(AtBye, "$n has left the game.", ch, NULL, NULL, ToRoom);
+        set_char_color(AtGrey, ch);
         snprintf(log_buf, MSL, "%s has quit.", ch->name);
         snprintf(buf, MSL, "%s has left %s", ch->name, sysdata.mud_name);
         info_chan(buf);
 
 
-        if (!IS_SET(ch->act, PLR_WIZINVIS))
+        if (!IsSet(ch->act, PlrWizinvis))
         {
-                SET_BIT(ch->act, PLR_WIZINVIS);
+                SetBit(ch->act, PlrWizinvis);
         }
 
 
@@ -87,16 +87,16 @@ CMDF do_fakeenter(CharData * ch, char *argument)
         char      buf[MaxInputLength];
 
         argument = NULL;
-        set_char_color(AT_WHITE, ch);
-        act(AT_WHITE, "$n has entered the game.", ch, NULL, NULL, TO_ROOM);
-        set_char_color(AT_GREY, ch);
+        set_char_color(AtWhite, ch);
+        act(AtWhite, "$n has entered the game.", ch, NULL, NULL, ToRoom);
+        set_char_color(AtGrey, ch);
         snprintf(buf, MSL, "%s has entered %s", ch->name, sysdata.mud_name);
         info_chan(buf);
 
 
-        if (IS_SET(ch->act, PLR_WIZINVIS))
+        if (IsSet(ch->act, PlrWizinvis))
         {
-                REMOVE_BIT(ch->act, PLR_WIZINVIS);
+                RemoveBit(ch->act, PlrWizinvis);
         }
 
 
@@ -146,7 +146,7 @@ CMDF do_lagout(CharData * ch, char *argument)
         }
 
         send_to_char("Your getting some lag right about now...\n\r", victim);
-        WAIT_STATE(victim, x);
+        WaitState(victim, x);
         send_to_char("Adding lag...\n\r", ch);
         return;
 }
@@ -200,7 +200,7 @@ CMDF do_mudsave(CharData * ch, char *argument)
         AreaData *tarea;
         BodyData *body = NULL;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         one_argument(argument, arg);
@@ -219,7 +219,7 @@ CMDF do_mudsave(CharData * ch, char *argument)
         save_changes();
         send_to_char("Saving Fingers..................Done.\n\r", ch);
         send_to_char("Saving Homes....................Done.\n\r", ch);
-        for (HOME_DATA * home = first_home; home; home = home->next)
+        for (HomeData * home = first_home; home; home = home->next)
                 home->save();
 
         for (wch = first_char; wch; wch = wch->next)
@@ -253,12 +253,12 @@ CMDF do_mudsave(CharData * ch, char *argument)
                 save_starsystem(starsystem);
         }
         send_to_char("Saving Body.....................Done.\n\r", ch);
-        FOR_EACH_LIST(BodyList, bodies, body) body->save();
+        ForEachList(BodyList, bodies, body) body->save();
         send_to_char("Done.\n\r", ch);
-#ifdef OLC_HOMES
+#ifdef OlcHomes
         send_to_char("Saving Homes.....................", ch);
         {
-                HOME_DATA *home = NULL;
+                HomeData *home = NULL;
 
                 for (home = first_home; home; home = home->next)
                         home->save();
@@ -271,7 +271,7 @@ CMDF do_mudsave(CharData * ch, char *argument)
                 for (tarea = first_area; tarea; tarea = tarea->next)
                         fold_area(tarea, tarea->filename, FALSE, FALSE);
                 for (tarea = first_bsort; tarea; tarea = tarea->next_sort)
-                        if (IS_SET(tarea->status, AREA_LOADED))
+                        if (IsSet(tarea->status, AreaLoaded))
                                 fold_area(tarea, tarea->filename, FALSE,
                                           TRUE);
 
@@ -286,15 +286,15 @@ CMDF do_working(CharData * ch, char *argument)
         char      buf[MaxStringLength];
 
         argument = NULL;
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
 
-        if (IS_SET(ch->pcdata->flags, PCFLAG_WORKING))
+        if (IsSet(ch->pcdata->flags, PcflagWorking))
         {
-                REMOVE_BIT(ch->pcdata->flags, PCFLAG_WORKING);
+                RemoveBit(ch->pcdata->flags, PcflagWorking);
                 send_to_char("You relax after working so hard!&R&W\n\r", ch);
-                if (!IS_SET(ch->act, PLR_WIZINVIS))
+                if (!IsSet(ch->act, PlrWizinvis))
                 {
                         snprintf(buf, MSL, "%s is no longer working.",
                                  ch->name);
@@ -303,11 +303,11 @@ CMDF do_working(CharData * ch, char *argument)
         }
         else
         {
-                SET_BIT(ch->pcdata->flags, PCFLAG_WORKING);
+                SetBit(ch->pcdata->flags, PcflagWorking);
                 send_to_char
                         ("You get ready to start working really hard!\n\r",
                          ch);
-                if (!IS_SET(ch->act, PLR_WIZINVIS))
+                if (!IsSet(ch->act, PlrWizinvis))
                 {
                         snprintf(buf, MSL, "%s is now working.", ch->name);
                         info_chan(buf);

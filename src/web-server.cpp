@@ -150,7 +150,7 @@ char conv_result[MaxStringLength];    /* Color Token Filtering */
 /* Locals */
 int sockfd;
 int portid = 4850;
-bool WEBSERVER_STATUS;
+bool WebserverStatus;
 WebDescriptor *first_webdesc;
 WebDescriptor *last_webdesc;
 int top_web_desc;
@@ -317,7 +317,7 @@ void web_broadcast(char *argument)
         char buf[MaxStringLength];
 
         snprintf(buf, MSL * 2, "&B[&zWeb Broadcast&B] &w%s&R&W", argument);
-        echo_to_all(AT_GOSSIP, buf, EchoTarAll);
+        echo_to_all(AtGossip, buf, EchoTarAll);
 }
 
 /*
@@ -413,7 +413,7 @@ void init_web(int port)
         snprintf(buf, MSL * 2, "Web features starting on port: %d", port);
         log_string(buf);
 
-        WEBSERVER_STATUS = TRUE;
+        WebserverStatus = TRUE;
 
         /*
          * Lets clear these out .. --GW 
@@ -422,15 +422,15 @@ void init_web(int port)
         last_webdesc = NULL;
         top_web_desc = 0;
 
-        if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        if ((sockfd = socket(AfInet, SockStream, 0)) == -1)
         {
                 perror("web-socket");
                 exit(1);
         }
 
-        my_addr.sin_family = AF_INET;
+        my_addr.sin_family = AfInet;
         my_addr.sin_port = htons(port);
-        my_addr.sin_addr.s_addr = htons(INADDR_ANY);
+        my_addr.sin_addr.s_addr = htons(InaddrAny);
         bzero(&(my_addr.sin_zero), 8);
 
         if ((bind
@@ -439,7 +439,7 @@ void init_web(int port)
         {
                 perror("web-bind");
                 log_string("WebServer Disabled.");
-                WEBSERVER_STATUS = FALSE;
+                WebserverStatus = FALSE;
                 return;
         }
 
@@ -453,7 +453,7 @@ void init_web(int port)
 
 }
 
-struct timeval ZERO_TIME = { 0, 0 };
+struct timeval ZeroTime = { 0, 0 };
 
 void handle_web(void)
 {
@@ -461,11 +461,11 @@ void handle_web(void)
         WebDescriptor *current, *next;
         fd_set readfds;
 
-        if (WEBSERVER_STATUS == FALSE)
+        if (WebserverStatus == FALSE)
                 return;
 
-        FD_ZERO(&readfds);
-        FD_SET(sockfd, &readfds);
+        FdZero(&readfds);
+        FdSet(sockfd, &readfds);
 
         /*
          * it *will* be atleast sockfd 
@@ -480,7 +480,7 @@ void handle_web(void)
          */
         for (current = first_webdesc; current; current = current->next)
         {
-                FD_SET(current->Fd, &readfds);
+                FdSet(current->Fd, &readfds);
                 if (max_fd < current->Fd)
                         max_fd = current->Fd;
         }
@@ -488,9 +488,9 @@ void handle_web(void)
         /*
          * Wait for ONE descriptor to have activity 
          */
-        select(max_fd + 1, &readfds, NULL, NULL, &ZERO_TIME);
+        select(max_fd + 1, &readfds, NULL, NULL, &ZeroTime);
 
-        if (FD_ISSET(sockfd, &readfds))
+        if (FdIsset(sockfd, &readfds))
         {
                 socklen_t temp;
 
@@ -535,7 +535,7 @@ void handle_web(void)
          */
         for (current = first_webdesc; current; current = current->next)
         {
-                if (FD_ISSET(current->Fd, &readfds))    /* We Got Data! */
+                if (FdIsset(current->Fd, &readfds))    /* We Got Data! */
                 {
                         char buf[1024];
                         int numbytes;
@@ -777,7 +777,7 @@ void shutdown_web(void)
          * Stop Listening 
          */
         close(sockfd);
-        WEBSERVER_STATUS = FALSE;
+        WebserverStatus = FALSE;
 }
 
 void handle_web_empty_request(WebDescriptor * wdesc)
@@ -815,7 +815,7 @@ void handle_web_who_request(WebDescriptor * wdesc)
  * Modified version of Show File, used in here --GW
  */
 
-        if ((fp = fopen(WHO_FILE, "r")) != NULL)
+        if ((fp = fopen(WhoFile, "r")) != NULL)
         {
                 while (!feof(fp))
                 {
@@ -848,7 +848,7 @@ void handle_web_who_request(WebDescriptor * wdesc)
 }
 
 
-#define WEBWIZLIST_FILE SYSTEM_DIR "WIZLIST"
+#define WebwizlistFile SystemDir "WIZLIST"
 
 void handle_web_wizlist_request(WebDescriptor * wdesc)
 {
@@ -863,7 +863,7 @@ void handle_web_wizlist_request(WebDescriptor * wdesc)
 /*
  * Modified version of Show File, used in here --GW
  */
-        snprintf(buf, MSL * 2, "%swizlist.html", HTML_MUDINFO_WRITE_DIR);
+        snprintf(buf, MSL * 2, "%swizlist.html", HtmlMudinfoWriteDir);
         if ((fp = fopen(buf, "r")) != NULL)
         {
                 send_buf(wdesc->Fd, "<CENTER>", FALSE);
@@ -1371,8 +1371,8 @@ void handle_web_skill_request(WebDescriptor * wdesc)
                                 if (skill_table[sn]->guild != ability)
                                         continue;
 
-                                if (SPELL_FLAG
-                                    (skill_table[sn], SF_SECRETSKILL))
+                                if (SpellFlag
+                                    (skill_table[sn], SfSecretskill))
                                         continue;
 
                                 if (i == skill_table[sn]->min_level)
@@ -1532,7 +1532,7 @@ void handle_web_clan_request(WebDescriptor * wdesc)
 
         for (clan = first_clan; clan; clan = clan->next)
         {
-                if (clan->ClanType == CLAN_SUBCLAN)
+                if (clan->ClanType == ClanSubclan)
                         continue;
 
 
@@ -1609,7 +1609,7 @@ void handle_web_race_request(WebDescriptor * wdesc)
         send_buf(wdesc->Fd,
                  "&B-----------------------------------------------------------------------------\n<br>",
                  2);
-        FOR_EACH_LIST(RACE_LIST, races, race)
+        ForEachList(RaceList, races, race)
         {
                 send_buf(wdesc->Fd, "&BN&zame: &W", 2);
                 snprintf(buf, MSL * 2, "<a href=/races/%s.htm>",
@@ -1643,7 +1643,7 @@ bool check_race_net(WebDescriptor * wdesc)
         HelpData *help;
 
         web_header(wdesc, "Race Listing");
-        FOR_EACH_LIST(RACE_LIST, races, race)
+        ForEachList(RaceList, races, race)
         {
 
                 snprintf(buf3, MSL, "/races/%s.htm ",
@@ -1680,35 +1680,35 @@ bool check_race_net(WebDescriptor * wdesc)
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BS&ztrength:           &W%+d<br>\n",
-                                 race->attr_modifier(ATTR_STRENGTH));
+                                 race->attr_modifier(AttrStrength));
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BW&zisdom:             &W%+d<br>\n",
-                                 race->attr_modifier(ATTR_WISDOM));
+                                 race->attr_modifier(AttrWisdom));
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BI&zntelligence:       &W%+d<br>\n",
-                                 race->attr_modifier(ATTR_INTELLIGENCE));
+                                 race->attr_modifier(AttrIntelligence));
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BD&zexterity:          &W%+d<br>\n",
-                                 race->attr_modifier(ATTR_WISDOM));
+                                 race->attr_modifier(AttrWisdom));
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BC&zonstitution:       &W%+d<br>\n",
-                                 race->attr_modifier(ATTR_CONSTITUTION));
+                                 race->attr_modifier(AttrConstitution));
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BC&zharisma:           &W%+d<br>\n",
-                                 race->attr_modifier(ATTR_CHARISMA));
+                                 race->attr_modifier(AttrCharisma));
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BF&zorce:              &W%+d<br>\n",
-                                 race->attr_modifier(ATTR_FORCE));
+                                 race->attr_modifier(AttrForce));
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BL&zuck:               &W%+d<br>\n",
-                                 race->attr_modifier(ATTR_LUCK));
+                                 race->attr_modifier(AttrLuck));
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BH&zit point modifier: &W%+d<br>\n",
@@ -1758,7 +1758,7 @@ bool check_race_net(WebDescriptor * wdesc)
                                 for (iClass = 0; iClass < MaxAbility;
                                      iClass++)
                                 {
-                                        if (IS_SET
+                                        if (IsSet
                                             (race->class_restriction(),
                                              1 << iClass))
                                         {
@@ -1938,8 +1938,8 @@ void handle_web_planet_request(WebDescriptor * wdesc)
                 send_buf(wdesc->Fd, "</a> ", 2);
                 snprintf(buf, MSL * 2, "&BG&zoverned &BB&zy: &w%s %s\n",
                          planet->governed_by ? planet->governed_by->name : "",
-                         IS_SET(planet->flags,
-                                PLANET_NOCAPTURE) ? "&B(&zpermanent&B)" : "");
+                         IsSet(planet->flags,
+                                PlanetNocapture) ? "&B(&zpermanent&B)" : "");
                 send_buf(wdesc->Fd, buf, 2);
                 snprintf(buf, MSL * 2, "&BV&zalue: &w%-10ld&z/&w%-10ld   ",
                          get_taxes(planet), planet->base_value);
@@ -2116,8 +2116,8 @@ bool check_planet_net(WebDescriptor * wdesc)
                                  "&BP&zlanet: &w%-15s        &BG&zoverned &BB&zy: &w%s %s\n",
                                  planet->name,
                                  planet->governed_by ? planet->governed_by->
-                                 name : "", IS_SET(planet->flags,
-                                                   PLANET_NOCAPTURE) ?
+                                 name : "", IsSet(planet->flags,
+                                                   PlanetNocapture) ?
                                  "&B(&zpermanent&B)" : "");
                         send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
@@ -2136,11 +2136,11 @@ bool check_planet_net(WebDescriptor * wdesc)
                         snprintf(buf, MSL * 2,
                                  "&BP&zlanetary &BS&zhields: &w%-8d    &BT&zurbolasers: &w%.1d &BI&zon &BC&zannons: &w%.1d\n",
                                  planetary_installations(planet,
-                                                         BATTERY_INSTALLATION),
+                                                         BatteryInstallation),
                                  planetary_installations(planet,
-                                                         TURBOLASER_INSTALLATION),
+                                                         TurbolaserInstallation),
                                  planetary_installations(planet,
-                                                         ION_INSTALLATION));
+                                                         IonInstallation));
                         send_buf(wdesc->Fd, buf, 2);
                         send_buf(wdesc->Fd,
                                  "&B-----------------------------------------------------------------------------\n",
@@ -2164,7 +2164,7 @@ CMDF do_webserver(CharData * ch, char *argument)
         {
                 ch_printf(ch, "&BW&zebserver Information\n\r");
                 ch_printf(ch, "&BS&ztatus: %s&z\n\r",
-                          WEBSERVER_STATUS ? "&wOnline" : "&ROffline");
+                          WebserverStatus ? "&wOnline" : "&ROffline");
                 ch_printf(ch, "&BS&zocket ID: &w%d  &B[&zPort: &w%d&B]\n\r",
                           sockfd ? sockfd : 0, portid ? portid : 0);
                 ch_printf(ch, "\n\r");
@@ -2183,7 +2183,7 @@ CMDF do_webserver(CharData * ch, char *argument)
                                   atoi(arg2));
                         return;
                 }
-                if (WEBSERVER_STATUS)
+                if (WebserverStatus)
                 {
                         ch_printf(ch, "Already Running the Web service.\n\r");
                         return;
@@ -2193,7 +2193,7 @@ CMDF do_webserver(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg1, "stop"))
         {
-                if (!WEBSERVER_STATUS)
+                if (!WebserverStatus)
                 {
                         ch_printf(ch,
                                   "The web service is not currently running.\n\r");
@@ -2206,7 +2206,7 @@ CMDF do_webserver(CharData * ch, char *argument)
         {
                 int       count = 0;
 
-                if (!WEBSERVER_STATUS)
+                if (!WebserverStatus)
                 {
                         send_to_char("&YThe webserver isn't running!\n\r",
                                      ch);
@@ -2272,7 +2272,7 @@ void web_footer(WebDescriptor * wdesc)
 
 void print_ooc_history(WebDescriptor * wdesc)
 {
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
         char buf[MaxStringLength];
         char buf1[MaxStringLength];
         int count = 0;

@@ -55,12 +55,12 @@
 
 /*
  * This package supports both compile-time and run-time determination of CPU
- * byte order.  If ARCH_IS_BIG_ENDIAN is defined as 0, the code will be
- * compiled to run only on little-endian CPUs; if ARCH_IS_BIG_ENDIAN is
+ * byte order.  If ArchIsBigEndian is defined as 0, the code will be
+ * compiled to run only on little-endian CPUs; if ArchIsBigEndian is
  * defined as non-zero, the code will be compiled to run only on big-endian
- * CPUs; if ARCH_IS_BIG_ENDIAN is not defined, the code will be compiled to
+ * CPUs; if ArchIsBigEndian is not defined, the code will be compiled to
  * run on either big- or little-endian CPUs, but will run slightly less
- * efficiently on either one than if ARCH_IS_BIG_ENDIAN is defined.
+ * efficiently on either one than if ArchIsBigEndian is defined.
  */
 
 

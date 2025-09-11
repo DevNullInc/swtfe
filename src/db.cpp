@@ -72,15 +72,15 @@
 #include "installations.hpp"
 
 int const lang_array[] =
-        { LANG_BASIC, LANG_WOOKIEE, LANG_TWI_LEK, LANG_RODIAN,
-        LANG_HUTT, LANG_MON_CALAMARI, LANG_NOGHRI, LANG_EWOK,
-        LANG_ITHORIAN, LANG_DEVARONIAN,
-        LANG_GAMORREAN, LANG_JAWA,
-        LANG_CLAN, LANG_ADARIAN, LANG_VERPINE, LANG_DEFEL,
-        LANG_TRANDOSHAN, LANG_SHISTAVANAN, LANG_BINARY,
-        LANG_DUINUOGWUIN, LANG_CSILLIAN, LANG_KEL_DOR,
-        LANG_BOTHAN, LANG_BARABEL, LANG_DUROSIAN, LANG_GOTAL,
-        LANG_TALZ, LANG_HO_DIN, LANG_FALLEEN, LANG_GIVIN, LANG_UNKNOWN
+        { LangBasic, LangWookiee, LangTwiLek, LangRodian,
+        LangHutt, LangMonCalamari, LangNoghri, LangEwok,
+        LangIthorian, LangDevaronian,
+        LangGamorrean, LangJawa,
+        LangClan, LangAdarian, LangVerpine, LangDefel,
+        LangTrandoshan, LangShistavanan, LangBinary,
+        LangDuinuogwuin, LangCsillian, LangKelDor,
+        LangBothan, LangBarabel, LangDurosian, LangGotal,
+        LangTalz, LangHoDin, LangFalleen, LangGivin, LangUnknown
 };
 
 extern int _filbuf args((FILE *));
@@ -377,9 +377,9 @@ sh_int    gsn_top_sn = 0;
 /*
  * Locals.
  */
-MobIndexData *mob_index_hash[MAX_KEY_HASH];
-ObjIndexData *obj_index_hash[MAX_KEY_HASH];
-RoomIndexData *room_index_hash[MAX_KEY_HASH];
+MobIndexData *mob_index_hash[MaxKeyHash];
+ObjIndexData *obj_index_hash[MaxKeyHash];
+RoomIndexData *room_index_hash[MaxKeyHash];
 
 AreaData *first_area;
 AreaData *last_area;
@@ -389,7 +389,7 @@ AreaData *first_asort;
 AreaData *last_asort;
 AreaData *first_bsort;
 AreaData *last_bsort;
-SYSTEM_DATA sysdata;
+SystemData sysdata;
 
 int       top_affect;
 int       top_area;
@@ -443,7 +443,7 @@ void load_specials args((AreaData * tarea, FILE * fp));
 void load_ranges args((AreaData * tarea, FILE * fp));
 void load_protoships args((void));
 void load_buildlist args((void));
-bool load_systemdata args((SYSTEM_DATA * sys));
+bool load_systemdata args((SystemData * sys));
 void load_changes args((void));
 void load_illness args((void));
 void initialize_economy args((void));
@@ -480,7 +480,7 @@ void shutdown_mud(const char *reason)
 {
         FILE     *fp;
 
-        if ((fp = fopen(SHUTDOWN_FILE, "a")) != NULL)
+        if ((fp = fopen(ShutdownFile, "a")) != NULL)
         {
                 fprintf(fp, "%s\n", reason);
                 FCLOSE(fp);
@@ -515,9 +515,9 @@ void initialize_sysdata(void)
         sysdata.level_getobjnotake = LevelGreater;
         sysdata.save_frequency = 20;    /* minutes */
         sysdata.channellog = 20;    /* entries into ooc log */
-        sysdata.save_flags = SV_DEATH | SV_PASSCHG | SV_AUTO
-                | SV_PUT | SV_DROP | SV_GIVE
-                | SV_AUCTION | SV_ZAPDROP | SV_IDLE;
+        sysdata.save_flags = SvDeath | SvPasschg | SvAuto
+                | SvPut | SvDrop | SvGive
+                | SvAuction | SvZapdrop | SvIdle;
         sysdata.alltimemax = 0;
         sysdata.GREET = 0;
         sysdata.DEBUG = 0;
@@ -536,12 +536,12 @@ void initialize_timeweather(void)
         long      lhour, lday, lmonth;
 
         lhour = (current_time - 650336715) / (PulseTick / PulsePerSecond);
-        time_info.hour = INT_TO_SHINT(lhour % 24);
+        time_info.hour = IntToShint(lhour % 24);
         lday = lhour / 24;
-        time_info.day = INT_TO_SHINT(lday % 35);
+        time_info.day = IntToShint(lday % 35);
         lmonth = lday / 35;
-        time_info.month = INT_TO_SHINT(lmonth % 17);
-        time_info.year = INT_TO_SHINT(lmonth / 17);
+        time_info.month = IntToShint(lmonth % 17);
+        time_info.year = IntToShint(lmonth / 17);
 
         if (time_info.hour < 5)
                 weather_info.sunlight = SunDark;
@@ -605,237 +605,237 @@ void initialize_globals(void)
         saving_char = NULL;
         CREATE(auction, AuctionData, 1);
         auction->item = NULL;
-        for (wear = 0; wear < MAX_WEAR; wear++)
+        for (wear = 0; wear < MaxWear; wear++)
                 for (x = 0; x < MaxLayers; x++)
                         save_equipment[wear][x] = NULL;
 }
 
 void initialize_gsns(void)
 {
-        ASSIGN_GSN(gsn_dishwasher, "dishwasher");
-        ASSIGN_GSN(gsn_cook, "cook");
-        ASSIGN_GSN(gsn_busser, "busser");
-        ASSIGN_GSN(gsn_waiter, "waiter");
-        ASSIGN_GSN(gsn_chef, "chef");
-        ASSIGN_GSN(gsn_bartender, "bartender");
-        ASSIGN_GSN(gsn_streetcleaner, "streetcleaner");
-        ASSIGN_GSN(gsn_interiorcleaner, "interiorcleaner");
-        ASSIGN_GSN(gsn_hotelcleaner, "hotelcleaner");
-        ASSIGN_GSN(gsn_secretary, "secretary");
-        ASSIGN_GSN(gsn_clerk, "clerk");
-        ASSIGN_GSN(gsn_commmarketer, "commmarketer");
-        ASSIGN_GSN(gsn_repair, "item_repair");
-        ASSIGN_GSN(gsn_marketer, "marketer");
-        ASSIGN_GSN(gsn_solicitor, "solicitor");
-        ASSIGN_GSN(gsn_advertiser, "advertiser");
-        ASSIGN_GSN(gsn_banker, "banker");
-        ASSIGN_GSN(gsn_realitor, "realitor");
-        ASSIGN_GSN(gsn_accountant, "accountant");
-        ASSIGN_GSN(gsn_investor, "investor");
-        ASSIGN_GSN(gsn_makebase, "makeinstallation");
-        ASSIGN_GSN(gsn_makebinding, "makebinding");
-        ASSIGN_GSN(gsn_broker, "broker");
-        ASSIGN_GSN(gsn_boardmember, "boardmember");
-        ASSIGN_GSN(gsn_ceo, "ceo");
-        ASSIGN_GSN(gsn_scan1, "sweep1");
-        ASSIGN_GSN(gsn_scan2, "sweep2");
-        ASSIGN_GSN(gsn_scan3, "sweep3");
-        ASSIGN_GSN(gsn_stealth, "stealth");
-        ASSIGN_GSN(gsn_cloak, "cloak");
-        ASSIGN_GSN(gsn_dock, "dock");
-        ASSIGN_GSN(gsn_elite_guard, "elite_guard");
-        ASSIGN_GSN(gsn_gather_intelligence, "gather_intelligence");
-        ASSIGN_GSN(gsn_special_forces, "special_forces");
-        ASSIGN_GSN(gsn_jail, "jail");
-        ASSIGN_GSN(gsn_imprison, "imprison");
-        ASSIGN_GSN(gsn_smalltalk, "smalltalk");
-        ASSIGN_GSN(gsn_propeganda, "propeganda");
-        ASSIGN_GSN(gsn_bribe, "bribe");
-        ASSIGN_GSN(gsn_seduce, "seduce");
-        ASSIGN_GSN(gsn_sharpen, "sharpen");
-        ASSIGN_GSN(gsn_force_healing, "Force healing");
-        ASSIGN_GSN(gsn_masspropeganda, "mass_propeganda");
-        ASSIGN_GSN(gsn_beg, "beg");
-        ASSIGN_GSN(gsn_hijack, "hijack");
-        ASSIGN_GSN(gsn_makejewelry, "makejewelry");
-        ASSIGN_GSN(gsn_grenades, "grenades");
-        ASSIGN_GSN(gsn_makeblade, "makeblade");
-        ASSIGN_GSN(gsn_makepike, "makepike");
-        ASSIGN_GSN(gsn_makeknife, "makeknife");
-        ASSIGN_GSN(gsn_makeblaster, "makeblaster");
-        ASSIGN_GSN(gsn_makebowcaster, "makebowcaster");
-        ASSIGN_GSN(gsn_makelight, "makeflashlight");
-        ASSIGN_GSN(gsn_makecomlink, "makecomlink");
-        ASSIGN_GSN(gsn_makegrenade, "makegrenade");
-        ASSIGN_GSN(gsn_makelandmine, "makelandmine");
-        ASSIGN_GSN(gsn_makekey, "makekey");
-        ASSIGN_GSN(gsn_lockdoor, "lockdoor");
-        ASSIGN_GSN(gsn_modifyexit, "modifyexit");
-        ASSIGN_GSN(gsn_makefurniture, "makefurniture");
-        ASSIGN_GSN(gsn_makearmor, "makearmor");
-        ASSIGN_GSN(gsn_makeshield, "makeshield");
-        ASSIGN_GSN(gsn_juke, "juke");
-        ASSIGN_GSN(gsn_extrapolate, "extrapolate");
-        ASSIGN_GSN(gsn_evade, "evade");
-        ASSIGN_GSN(gsn_roll, "roll");
-        ASSIGN_GSN(gsn_makecontainer, "makecontainer");
-        ASSIGN_GSN(gsn_identify, "identify");
-        ASSIGN_GSN(gsn_gemcutting, "cutgem");
-        ASSIGN_GSN(gsn_reinforcements, "reinforcements");
-        ASSIGN_GSN(gsn_add_patrol, "add_patrol");
-        ASSIGN_GSN(gsn_postguard, "post guard");
-        ASSIGN_GSN(gsn_torture, "torture");
-        ASSIGN_GSN(gsn_throw, "throw");
-        ASSIGN_GSN(gsn_snipe, "snipe");
-        ASSIGN_GSN(gsn_throwsaber, "throwsaber");
-        ASSIGN_GSN(gsn_disguise, "disguise");
-        ASSIGN_GSN(gsn_changesex, "changesex");
-        ASSIGN_GSN(gsn_slight, "slight");
-        ASSIGN_GSN(gsn_mine, "mine");
-        ASSIGN_GSN(gsn_first_aid, "first aid");
-        ASSIGN_GSN(gsn_lightsaber_crafting, "lightsaber crafting");
-        ASSIGN_GSN(gsn_spice_refining, "makespice");
-        ASSIGN_GSN(gsn_spacecombat, "space combat 1");
-        ASSIGN_GSN(gsn_makeimplant, "makeimplant");
-        ASSIGN_GSN(gsn_implant, "implant");
-        ASSIGN_GSN(gsn_spacecombat2, "space combat 2");
-        ASSIGN_GSN(gsn_spacecombat3, "space combat 3");
-        ASSIGN_GSN(gsn_bomb, "bomb");
-        ASSIGN_GSN(gsn_boardship, "boardship");
-        ASSIGN_GSN(gsn_weaponsystems, "weapon systems");
-        ASSIGN_GSN(gsn_starfighters, "starfighters");
-        ASSIGN_GSN(gsn_navigation, "navigation");
-        ASSIGN_GSN(gsn_shipsystems, "ship systems");
-        ASSIGN_GSN(gsn_midships, "midships");
-        ASSIGN_GSN(gsn_capitalships, "capital ships");
-        ASSIGN_GSN(gsn_tractorbeams, "tractor beams");
-        ASSIGN_GSN(gsn_shipmaintenance, "ship maintenance");
-        ASSIGN_GSN(gsn_craftpike, "craftpike");
-        ASSIGN_GSN(gsn_craftknife, "craftknife");
-        ASSIGN_GSN(gsn_cuteness, "cuteness");
-        ASSIGN_GSN(gsn_jimmyshiplock, "jimmyshiplock");
-        ASSIGN_GSN(gsn_systemmaintenance, "system maintenance");
-        ASSIGN_GSN(gsn_hydrolic_strength, "hydrolic_strength");
-        ASSIGN_GSN(gsn_camouflage, "camouflage");
-        ASSIGN_GSN(gsn_gowithout, "gowithout");
-        ASSIGN_GSN(gsn_gamorrean_strength, "gamorrean_strength");
-        ASSIGN_GSN(gsn_jab, "jab");
-        ASSIGN_GSN(gsn_coerce, "coerce");
-        ASSIGN_GSN(gsn_cajole, "cajole");
-        ASSIGN_GSN(gsn_pretend, "pretend");
-        ASSIGN_GSN(gsn_placebeacon, "placebeacon");
-        ASSIGN_GSN(gsn_recruit, "recruit");
-        ASSIGN_GSN(gsn_blasters, "blasters");
-        ASSIGN_GSN(gsn_modifyship, "modifyship");
-        ASSIGN_GSN(gsn_bowcasters, "bowcasters");
-        ASSIGN_GSN(gsn_force_pikes, "Force pikes");
-        ASSIGN_GSN(gsn_lightsabers, "lightsabers");
-        ASSIGN_GSN(gsn_vibro_blades, "vibro-blades");
-        ASSIGN_GSN(gsn_meditate, "meditate");
-        ASSIGN_GSN(gsn_knives, "knives");
-        ASSIGN_GSN(gsn_flexible_arms, "flexible arms");
-        ASSIGN_GSN(gsn_talonous_arms, "talonous arms");
-        ASSIGN_GSN(gsn_bludgeons, "bludgeons");
-        ASSIGN_GSN(gsn_detrap, "detrap");
-        ASSIGN_GSN(gsn_backstab, "backstab");
-        ASSIGN_GSN(gsn_circle, "circle");
-        ASSIGN_GSN(gsn_dodge, "dodge");
-        ASSIGN_GSN(gsn_hide, "hide");
-        ASSIGN_GSN(gsn_peek, "peek");
-        ASSIGN_GSN(gsn_pick_lock, "pick lock");
-        ASSIGN_GSN(gsn_pickshiplock, "pick ship lock");
-        ASSIGN_GSN(gsn_sneak, "sneak");
-        ASSIGN_GSN(gsn_steal, "pilfer");
-        ASSIGN_GSN(gsn_gouge, "gouge");
-        ASSIGN_GSN(gsn_poison_weapon, "poison weapon");
-        ASSIGN_GSN(gsn_disarm, "disarm");
-        ASSIGN_GSN(gsn_enhanced_damage, "enhanced damage");
-        ASSIGN_GSN(gsn_kick, "kick");
-        ASSIGN_GSN(gsn_parry, "parry");
-        ASSIGN_GSN(gsn_fleet_command1, "fleet command 1");
-        ASSIGN_GSN(gsn_rescue, "rescue");
-        ASSIGN_GSN(gsn_second_attack, "second attack");
-        ASSIGN_GSN(gsn_third_attack, "third attack");
-        ASSIGN_GSN(gsn_dual_wield, "dual wield");
-        ASSIGN_GSN(gsn_hone, "hone");
-        ASSIGN_GSN(gsn_punch, "punch");
-        ASSIGN_GSN(gsn_claw, "claw");
-        ASSIGN_GSN(gsn_bite, "bite");
-        ASSIGN_GSN(gsn_tail, "tail");
-        ASSIGN_GSN(gsn_sting, "sting");
-        ASSIGN_GSN(gsn_bash, "bash");
-        ASSIGN_GSN(gsn_stun, "stun");
-        ASSIGN_GSN(gsn_sabotage, "sabotage");
-        ASSIGN_GSN(gsn_bashdoor, "doorbash");
-        ASSIGN_GSN(gsn_grip, "grip");
-        ASSIGN_GSN(gsn_berserk, "berserk");
-        ASSIGN_GSN(gsn_hitall, "hitall");
-        ASSIGN_GSN(gsn_aid, "aid");
-        ASSIGN_GSN(gsn_track, "track");
-        ASSIGN_GSN(gsn_addpersonel, "addpersonel");
-        ASSIGN_GSN(gsn_search, "search");
-        ASSIGN_GSN(gsn_dig, "dig");
-        ASSIGN_GSN(gsn_mount, "mount");
-        ASSIGN_GSN(gsn_scribe, "scribe");
-        ASSIGN_GSN(gsn_climb, "climb");
-        ASSIGN_GSN(gsn_shipdesign, "shipdesign");
-        ASSIGN_GSN(gsn_dismantle_ship, "dismantle ship");
-        ASSIGN_GSN(gsn_scan, "scan");
-        ASSIGN_GSN(gsn_fireball, "fireball");
-        ASSIGN_GSN(gsn_lightning_bolt, "Force bolt");
-        ASSIGN_GSN(gsn_aqua_breath, "aqua breath");
-        ASSIGN_GSN(gsn_blindness, "blindness");
-        ASSIGN_GSN(gsn_charm_person, "affect mind");
-        ASSIGN_GSN(gsn_invis, "mask");
-        ASSIGN_GSN(gsn_mass_invis, "group masking");
-        ASSIGN_GSN(gsn_poison, "poison");
-        ASSIGN_GSN(gsn_diagnose, "diagnose");
-        ASSIGN_GSN(gsn_sleep, "sleep");
-        ASSIGN_GSN(gsn_possess, "possess");
-        ASSIGN_GSN(gsn_basic, "basic");
-        ASSIGN_GSN(gsn_wookiee, "wookiee");
-        ASSIGN_GSN(gsn_twilek, "twilek");
-        ASSIGN_GSN(gsn_rodian, "rodian");
-        ASSIGN_GSN(gsn_hutt, "hutt");
-        ASSIGN_GSN(gsn_mon_calamari, "mon calamari");
-        ASSIGN_GSN(gsn_noghri, "noghri");
-        ASSIGN_GSN(gsn_csillian, "csillian");
-        ASSIGN_GSN(gsn_gamorrean, "gamorrean");
-        ASSIGN_GSN(gsn_jawa, "jawa");
-        ASSIGN_GSN(gsn_adarian, "adarian");
-        ASSIGN_GSN(gsn_ewok, "ewok");
-        ASSIGN_GSN(gsn_verpine, "verpine");
-        ASSIGN_GSN(gsn_defel, "defel");
-        ASSIGN_GSN(gsn_trandoshan, "trandoshan");
-        ASSIGN_GSN(gsn_shistavanan, "shistavanan");
-        ASSIGN_GSN(gsn_binary, "binary");
-        ASSIGN_GSN(gsn_duinuogwuin, "duinuogwuin");
-        ASSIGN_GSN(gsn_bothan, "bothan");
-        ASSIGN_GSN(gsn_kel_dor, "kel dor");
-        ASSIGN_GSN(gsn_barabel, "barabel");
-        ASSIGN_GSN(gsn_ithorian, "ithorian");
-        ASSIGN_GSN(gsn_devaronian, "devaronian");
-        ASSIGN_GSN(gsn_durosian, "durosian");
-        ASSIGN_GSN(gsn_gotal, "gotal");
-        ASSIGN_GSN(gsn_talz, "talz");
-        ASSIGN_GSN(gsn_ho_din, "hodin");
-        ASSIGN_GSN(gsn_falleen, "falleen");
-        ASSIGN_GSN(gsn_givin, "givin");
-        ASSIGN_GSN(gsn_causedesertion, "causedesertion");
-        ASSIGN_GSN(gsn_causedissension, "causedissension");
-        ASSIGN_GSN(gsn_boostmorale, "boostmorale");
-        ASSIGN_GSN(gsn_splint, "splint");
-        ASSIGN_GSN(gsn_autopsy, "autopsy");
-        ASSIGN_GSN(gsn_makemedkit, "makemedkit");
-        ASSIGN_GSN(gsn_makebeacon, "makebeacon");
-        ASSIGN_GSN(gsn_roomconstruction, "room construction");
+        AssignGsn(gsn_dishwasher, "dishwasher");
+        AssignGsn(gsn_cook, "cook");
+        AssignGsn(gsn_busser, "busser");
+        AssignGsn(gsn_waiter, "waiter");
+        AssignGsn(gsn_chef, "chef");
+        AssignGsn(gsn_bartender, "bartender");
+        AssignGsn(gsn_streetcleaner, "streetcleaner");
+        AssignGsn(gsn_interiorcleaner, "interiorcleaner");
+        AssignGsn(gsn_hotelcleaner, "hotelcleaner");
+        AssignGsn(gsn_secretary, "secretary");
+        AssignGsn(gsn_clerk, "clerk");
+        AssignGsn(gsn_commmarketer, "commmarketer");
+        AssignGsn(gsn_repair, "item_repair");
+        AssignGsn(gsn_marketer, "marketer");
+        AssignGsn(gsn_solicitor, "solicitor");
+        AssignGsn(gsn_advertiser, "advertiser");
+        AssignGsn(gsn_banker, "banker");
+        AssignGsn(gsn_realitor, "realitor");
+        AssignGsn(gsn_accountant, "accountant");
+        AssignGsn(gsn_investor, "investor");
+        AssignGsn(gsn_makebase, "makeinstallation");
+        AssignGsn(gsn_makebinding, "makebinding");
+        AssignGsn(gsn_broker, "broker");
+        AssignGsn(gsn_boardmember, "boardmember");
+        AssignGsn(gsn_ceo, "ceo");
+        AssignGsn(gsn_scan1, "sweep1");
+        AssignGsn(gsn_scan2, "sweep2");
+        AssignGsn(gsn_scan3, "sweep3");
+        AssignGsn(gsn_stealth, "stealth");
+        AssignGsn(gsn_cloak, "cloak");
+        AssignGsn(gsn_dock, "dock");
+        AssignGsn(gsn_elite_guard, "elite_guard");
+        AssignGsn(gsn_gather_intelligence, "gather_intelligence");
+        AssignGsn(gsn_special_forces, "special_forces");
+        AssignGsn(gsn_jail, "jail");
+        AssignGsn(gsn_imprison, "imprison");
+        AssignGsn(gsn_smalltalk, "smalltalk");
+        AssignGsn(gsn_propeganda, "propeganda");
+        AssignGsn(gsn_bribe, "bribe");
+        AssignGsn(gsn_seduce, "seduce");
+        AssignGsn(gsn_sharpen, "sharpen");
+        AssignGsn(gsn_force_healing, "Force healing");
+        AssignGsn(gsn_masspropeganda, "mass_propeganda");
+        AssignGsn(gsn_beg, "beg");
+        AssignGsn(gsn_hijack, "hijack");
+        AssignGsn(gsn_makejewelry, "makejewelry");
+        AssignGsn(gsn_grenades, "grenades");
+        AssignGsn(gsn_makeblade, "makeblade");
+        AssignGsn(gsn_makepike, "makepike");
+        AssignGsn(gsn_makeknife, "makeknife");
+        AssignGsn(gsn_makeblaster, "makeblaster");
+        AssignGsn(gsn_makebowcaster, "makebowcaster");
+        AssignGsn(gsn_makelight, "makeflashlight");
+        AssignGsn(gsn_makecomlink, "makecomlink");
+        AssignGsn(gsn_makegrenade, "makegrenade");
+        AssignGsn(gsn_makelandmine, "makelandmine");
+        AssignGsn(gsn_makekey, "makekey");
+        AssignGsn(gsn_lockdoor, "lockdoor");
+        AssignGsn(gsn_modifyexit, "modifyexit");
+        AssignGsn(gsn_makefurniture, "makefurniture");
+        AssignGsn(gsn_makearmor, "makearmor");
+        AssignGsn(gsn_makeshield, "makeshield");
+        AssignGsn(gsn_juke, "juke");
+        AssignGsn(gsn_extrapolate, "extrapolate");
+        AssignGsn(gsn_evade, "evade");
+        AssignGsn(gsn_roll, "roll");
+        AssignGsn(gsn_makecontainer, "makecontainer");
+        AssignGsn(gsn_identify, "identify");
+        AssignGsn(gsn_gemcutting, "cutgem");
+        AssignGsn(gsn_reinforcements, "reinforcements");
+        AssignGsn(gsn_add_patrol, "add_patrol");
+        AssignGsn(gsn_postguard, "post guard");
+        AssignGsn(gsn_torture, "torture");
+        AssignGsn(gsn_throw, "throw");
+        AssignGsn(gsn_snipe, "snipe");
+        AssignGsn(gsn_throwsaber, "throwsaber");
+        AssignGsn(gsn_disguise, "disguise");
+        AssignGsn(gsn_changesex, "changesex");
+        AssignGsn(gsn_slight, "slight");
+        AssignGsn(gsn_mine, "mine");
+        AssignGsn(gsn_first_aid, "first aid");
+        AssignGsn(gsn_lightsaber_crafting, "lightsaber crafting");
+        AssignGsn(gsn_spice_refining, "makespice");
+        AssignGsn(gsn_spacecombat, "space combat 1");
+        AssignGsn(gsn_makeimplant, "makeimplant");
+        AssignGsn(gsn_implant, "implant");
+        AssignGsn(gsn_spacecombat2, "space combat 2");
+        AssignGsn(gsn_spacecombat3, "space combat 3");
+        AssignGsn(gsn_bomb, "bomb");
+        AssignGsn(gsn_boardship, "boardship");
+        AssignGsn(gsn_weaponsystems, "weapon systems");
+        AssignGsn(gsn_starfighters, "starfighters");
+        AssignGsn(gsn_navigation, "navigation");
+        AssignGsn(gsn_shipsystems, "ship systems");
+        AssignGsn(gsn_midships, "midships");
+        AssignGsn(gsn_capitalships, "capital ships");
+        AssignGsn(gsn_tractorbeams, "tractor beams");
+        AssignGsn(gsn_shipmaintenance, "ship maintenance");
+        AssignGsn(gsn_craftpike, "craftpike");
+        AssignGsn(gsn_craftknife, "craftknife");
+        AssignGsn(gsn_cuteness, "cuteness");
+        AssignGsn(gsn_jimmyshiplock, "jimmyshiplock");
+        AssignGsn(gsn_systemmaintenance, "system maintenance");
+        AssignGsn(gsn_hydrolic_strength, "hydrolic_strength");
+        AssignGsn(gsn_camouflage, "camouflage");
+        AssignGsn(gsn_gowithout, "gowithout");
+        AssignGsn(gsn_gamorrean_strength, "gamorrean_strength");
+        AssignGsn(gsn_jab, "jab");
+        AssignGsn(gsn_coerce, "coerce");
+        AssignGsn(gsn_cajole, "cajole");
+        AssignGsn(gsn_pretend, "pretend");
+        AssignGsn(gsn_placebeacon, "placebeacon");
+        AssignGsn(gsn_recruit, "recruit");
+        AssignGsn(gsn_blasters, "blasters");
+        AssignGsn(gsn_modifyship, "modifyship");
+        AssignGsn(gsn_bowcasters, "bowcasters");
+        AssignGsn(gsn_force_pikes, "Force pikes");
+        AssignGsn(gsn_lightsabers, "lightsabers");
+        AssignGsn(gsn_vibro_blades, "vibro-blades");
+        AssignGsn(gsn_meditate, "meditate");
+        AssignGsn(gsn_knives, "knives");
+        AssignGsn(gsn_flexible_arms, "flexible arms");
+        AssignGsn(gsn_talonous_arms, "talonous arms");
+        AssignGsn(gsn_bludgeons, "bludgeons");
+        AssignGsn(gsn_detrap, "detrap");
+        AssignGsn(gsn_backstab, "backstab");
+        AssignGsn(gsn_circle, "circle");
+        AssignGsn(gsn_dodge, "dodge");
+        AssignGsn(gsn_hide, "hide");
+        AssignGsn(gsn_peek, "peek");
+        AssignGsn(gsn_pick_lock, "pick lock");
+        AssignGsn(gsn_pickshiplock, "pick ship lock");
+        AssignGsn(gsn_sneak, "sneak");
+        AssignGsn(gsn_steal, "pilfer");
+        AssignGsn(gsn_gouge, "gouge");
+        AssignGsn(gsn_poison_weapon, "poison weapon");
+        AssignGsn(gsn_disarm, "disarm");
+        AssignGsn(gsn_enhanced_damage, "enhanced damage");
+        AssignGsn(gsn_kick, "kick");
+        AssignGsn(gsn_parry, "parry");
+        AssignGsn(gsn_fleet_command1, "fleet command 1");
+        AssignGsn(gsn_rescue, "rescue");
+        AssignGsn(gsn_second_attack, "second attack");
+        AssignGsn(gsn_third_attack, "third attack");
+        AssignGsn(gsn_dual_wield, "dual wield");
+        AssignGsn(gsn_hone, "hone");
+        AssignGsn(gsn_punch, "punch");
+        AssignGsn(gsn_claw, "claw");
+        AssignGsn(gsn_bite, "bite");
+        AssignGsn(gsn_tail, "tail");
+        AssignGsn(gsn_sting, "sting");
+        AssignGsn(gsn_bash, "bash");
+        AssignGsn(gsn_stun, "stun");
+        AssignGsn(gsn_sabotage, "sabotage");
+        AssignGsn(gsn_bashdoor, "doorbash");
+        AssignGsn(gsn_grip, "grip");
+        AssignGsn(gsn_berserk, "berserk");
+        AssignGsn(gsn_hitall, "hitall");
+        AssignGsn(gsn_aid, "aid");
+        AssignGsn(gsn_track, "track");
+        AssignGsn(gsn_addpersonel, "addpersonel");
+        AssignGsn(gsn_search, "search");
+        AssignGsn(gsn_dig, "dig");
+        AssignGsn(gsn_mount, "mount");
+        AssignGsn(gsn_scribe, "scribe");
+        AssignGsn(gsn_climb, "climb");
+        AssignGsn(gsn_shipdesign, "shipdesign");
+        AssignGsn(gsn_dismantle_ship, "dismantle ship");
+        AssignGsn(gsn_scan, "scan");
+        AssignGsn(gsn_fireball, "fireball");
+        AssignGsn(gsn_lightning_bolt, "Force bolt");
+        AssignGsn(gsn_aqua_breath, "aqua breath");
+        AssignGsn(gsn_blindness, "blindness");
+        AssignGsn(gsn_charm_person, "affect mind");
+        AssignGsn(gsn_invis, "mask");
+        AssignGsn(gsn_mass_invis, "group masking");
+        AssignGsn(gsn_poison, "poison");
+        AssignGsn(gsn_diagnose, "diagnose");
+        AssignGsn(gsn_sleep, "sleep");
+        AssignGsn(gsn_possess, "possess");
+        AssignGsn(gsn_basic, "basic");
+        AssignGsn(gsn_wookiee, "wookiee");
+        AssignGsn(gsn_twilek, "twilek");
+        AssignGsn(gsn_rodian, "rodian");
+        AssignGsn(gsn_hutt, "hutt");
+        AssignGsn(gsn_mon_calamari, "mon calamari");
+        AssignGsn(gsn_noghri, "noghri");
+        AssignGsn(gsn_csillian, "csillian");
+        AssignGsn(gsn_gamorrean, "gamorrean");
+        AssignGsn(gsn_jawa, "jawa");
+        AssignGsn(gsn_adarian, "adarian");
+        AssignGsn(gsn_ewok, "ewok");
+        AssignGsn(gsn_verpine, "verpine");
+        AssignGsn(gsn_defel, "defel");
+        AssignGsn(gsn_trandoshan, "trandoshan");
+        AssignGsn(gsn_shistavanan, "shistavanan");
+        AssignGsn(gsn_binary, "binary");
+        AssignGsn(gsn_duinuogwuin, "duinuogwuin");
+        AssignGsn(gsn_bothan, "bothan");
+        AssignGsn(gsn_kel_dor, "kel dor");
+        AssignGsn(gsn_barabel, "barabel");
+        AssignGsn(gsn_ithorian, "ithorian");
+        AssignGsn(gsn_devaronian, "devaronian");
+        AssignGsn(gsn_durosian, "durosian");
+        AssignGsn(gsn_gotal, "gotal");
+        AssignGsn(gsn_talz, "talz");
+        AssignGsn(gsn_ho_din, "hodin");
+        AssignGsn(gsn_falleen, "falleen");
+        AssignGsn(gsn_givin, "givin");
+        AssignGsn(gsn_causedesertion, "causedesertion");
+        AssignGsn(gsn_causedissension, "causedissension");
+        AssignGsn(gsn_boostmorale, "boostmorale");
+        AssignGsn(gsn_splint, "splint");
+        AssignGsn(gsn_autopsy, "autopsy");
+        AssignGsn(gsn_makemedkit, "makemedkit");
+        AssignGsn(gsn_makebeacon, "makebeacon");
+        AssignGsn(gsn_roomconstruction, "room construction");
 }
 
 void initialize_areas(void)
 {
         FILE     *fpList;
 
-        if ((fpList = fopen(FILE_AREA_LIST, "r")) == NULL)
+        if ((fpList = fopen(FileAreaList, "r")) == NULL)
         {
                 shutdown_mud("Unable to open area list");
                 exit(1);
@@ -859,27 +859,27 @@ void initialize_skills(void)
 
         load_skill_table();
         sort_skill_table();
-        gsn_top_sn = INT_TO_SHINT(top_sn);
+        gsn_top_sn = IntToShint(top_sn);
 
         for (x = 0; x < top_sn; x++)
         {
-                if (!gsn_first_spell && skill_table[x]->type == SKILL_SPELL)
-                        gsn_first_spell = INT_TO_SHINT(x);
+                if (!gsn_first_spell && skill_table[x]->type == SkillSpell)
+                        gsn_first_spell = IntToShint(x);
                 else if (!gsn_first_skill
-                         && skill_table[x]->type == SKILL_SKILL)
-                        gsn_first_skill = INT_TO_SHINT(x);
+                         && skill_table[x]->type == SkillSkill)
+                        gsn_first_skill = IntToShint(x);
                 else if (!gsn_first_weapon
-                         && skill_table[x]->type == SKILL_WEAPON)
-                        gsn_first_weapon = INT_TO_SHINT(x);
+                         && skill_table[x]->type == SkillWeapon)
+                        gsn_first_weapon = IntToShint(x);
                 else if (!gsn_first_tongue
-                         && skill_table[x]->type == SKILL_TONGUE)
-                        gsn_first_tongue = INT_TO_SHINT(x);
+                         && skill_table[x]->type == SkillTongue)
+                        gsn_first_tongue = IntToShint(x);
         }
 }
 
 void initialize_libdl(void)
 {
-        sysdata.dlHandle = dlopen(NULL, RTLD_NOW);
+        sysdata.dlHandle = dlopen(NULL, RtldNow);
         if (!sysdata.dlHandle)
         {
                 boot_log("dl: Error opening local system executable as handle, please check compile flags.");
@@ -894,7 +894,7 @@ void initialize_libdl(void)
 void boot_db(bool fCopyOver)
 {
         show_hash(32);
-        unlink(BOOTLOG_FILE);
+        unlink(BootlogFile);
         fBootDb = TRUE;
 
         boot_log("---------------------[ Boot Log ]--------------------");
@@ -1008,7 +1008,7 @@ void boot_db(bool fCopyOver)
         load_watchlist();
 
 
-#ifdef OLC_SHUTTLE
+#ifdef OlcShuttle
         boot_log("Loading shuttles");
         load_shuttles();
 #endif
@@ -1030,7 +1030,7 @@ void boot_db(bool fCopyOver)
                 area_update();
         }
 
-#ifdef OLC_HOMES
+#ifdef OlcHomes
         boot_log("Loading homes");
         load_homes();
 #endif
@@ -1175,9 +1175,9 @@ void load_flags(AreaData * tarea, FILE * fp)
         x1 = x2 = 0;
         sscanf(ln, "%d %d", &x1, &x2);
         tarea->flags = x1;
-        tarea->reset_frequency = INT_TO_SHINT(x2);
+        tarea->reset_frequency = IntToShint(x2);
         if (x2)
-                tarea->age = INT_TO_SHINT(x2);
+                tarea->age = IntToShint(x2);
         return;
 }
 
@@ -1264,7 +1264,7 @@ void load_helps([[maybe_unused]] AreaData * tarea, FILE * fp)
         for (;;)
         {
                 CREATE(pHelp, HelpData, 1);
-                pHelp->level = INT_TO_SHINT(fread_number(fp));
+                pHelp->level = IntToShint(fread_number(fp));
                 pHelp->keyword = fread_string(fp);
                 /*
                  * WTF? - Greven REPORTED BY VALGRIND 
@@ -1368,7 +1368,7 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                                 pMobIndex = get_mob_index(vnum);
                                 snprintf(buf, MSL, "Cleaning mobile: %d",
                                          vnum);
-                                log_string_plus(buf, LOG_BUILD,
+                                log_string_plus(buf, LogBuild,
                                                 sysdata.log_level);
                                 clean_mob(pMobIndex);
                                 oldmob = TRUE;
@@ -1409,44 +1409,44 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                 pMobIndex->long_descr[0] = UPPER(pMobIndex->long_descr[0]);
                 pMobIndex->description[0] = UPPER(pMobIndex->description[0]);
 
-                pMobIndex->act = fread_number(fp) | ACT_IS_NPC;
+                pMobIndex->act = fread_number(fp) | ActIsNpc;
                 pMobIndex->affected_by = fread_number(fp);
                 pMobIndex->pShop = NULL;
                 pMobIndex->rShop = NULL;
-                pMobIndex->alignment = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->alignment = IntToShint(fread_number(fp));
                 letter = fread_letter(fp);
-                pMobIndex->level = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->level = IntToShint(fread_number(fp));
 
-                pMobIndex->mobthac0 = INT_TO_SHINT(fread_number(fp));
-                pMobIndex->ac = INT_TO_SHINT(fread_number(fp));
-                pMobIndex->hitnodice = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->mobthac0 = IntToShint(fread_number(fp));
+                pMobIndex->ac = IntToShint(fread_number(fp));
+                pMobIndex->hitnodice = IntToShint(fread_number(fp));
                 /*
                  * 'd'      
                  */ fread_letter(fp);
-                pMobIndex->hitsizedice = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->hitsizedice = IntToShint(fread_number(fp));
                 /*
                  * '+'      
                  */ fread_letter(fp);
-                pMobIndex->hitplus = INT_TO_SHINT(fread_number(fp));
-                pMobIndex->damnodice = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->hitplus = IntToShint(fread_number(fp));
+                pMobIndex->damnodice = IntToShint(fread_number(fp));
                 /*
                  * 'd'      
                  */ fread_letter(fp);
-                pMobIndex->damsizedice = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->damsizedice = IntToShint(fread_number(fp));
                 /*
                  * '+'      
                  */ fread_letter(fp);
-                pMobIndex->damplus = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->damplus = IntToShint(fread_number(fp));
                 pMobIndex->max_hit = fread_number(fp);
                 pMobIndex->gold = static_cast<unsigned int>(fread_number(fp));
                 pMobIndex->exp = fread_number(fp);
-                pMobIndex->position = INT_TO_SHINT(fread_number(fp));
-                pMobIndex->defposition = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->position = IntToShint(fread_number(fp));
+                pMobIndex->defposition = IntToShint(fread_number(fp));
 
                 /*
                  * Back to meaningful values.
                  */
-                pMobIndex->sex = INT_TO_SHINT(fread_number(fp));
+                pMobIndex->sex = IntToShint(fread_number(fp));
 
                 if (letter != 'S' && letter != 'C' && letter != 'Z')
                 {
@@ -1456,30 +1456,30 @@ void load_mobiles(AreaData * tarea, FILE * fp)
 
                 if (letter == 'C' || letter == 'Z') /* Realms complex mob     -Thoric  */
                 {
-                        pMobIndex->perm_str = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->perm_int = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->perm_wis = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->perm_dex = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->perm_con = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->perm_cha = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->perm_lck = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->SavingPoisonDeath = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->SavingWand = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->SavingParaPetri = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->SavingBreath = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->SavingSpellStaff = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->perm_str = IntToShint(fread_number(fp));
+                        pMobIndex->perm_int = IntToShint(fread_number(fp));
+                        pMobIndex->perm_wis = IntToShint(fread_number(fp));
+                        pMobIndex->perm_dex = IntToShint(fread_number(fp));
+                        pMobIndex->perm_con = IntToShint(fread_number(fp));
+                        pMobIndex->perm_cha = IntToShint(fread_number(fp));
+                        pMobIndex->perm_lck = IntToShint(fread_number(fp));
+                        pMobIndex->SavingPoisonDeath = IntToShint(fread_number(fp));
+                        pMobIndex->SavingWand = IntToShint(fread_number(fp));
+                        pMobIndex->SavingParaPetri = IntToShint(fread_number(fp));
+                        pMobIndex->SavingBreath = IntToShint(fread_number(fp));
+                        pMobIndex->SavingSpellStaff = IntToShint(fread_number(fp));
                         ln = fread_line(fp);
                         x1 = x2 = x3 = x4 = x5 = x6 = x7 = 0;
                         sscanf(ln, "%d %d %d %d %d %d %d", &x1, &x2, &x3, &x4,
                                &x5, &x6, &x7);
                         if (tarea->version == 0)
                                 pMobIndex->race = get_race_number(x1);
-                        pMobIndex->height = INT_TO_SHINT(x3);
-                        pMobIndex->weight = INT_TO_SHINT(x4);
+                        pMobIndex->height = IntToShint(x3);
+                        pMobIndex->weight = IntToShint(x4);
                         if (tarea->version == 0)
                                 pMobIndex->speaking =
                                         pMobIndex->race->language();
-                        pMobIndex->numattacks = INT_TO_SHINT(x7);
+                        pMobIndex->numattacks = IntToShint(x7);
                         if (!pMobIndex->speaking)
                                 pMobIndex->speaking =
                                         pMobIndex->race->language();
@@ -1491,10 +1491,10 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                                 x1 = x2 = x3 = x4 = x5 = x6 = x7 = x8 = 0;
                                 sscanf(ln, "%d %d %d %d %d %d %d %d", &x1,
                                        &x2, &x3, &x4, &x5, &x6, &x7, &x8);
-                                pMobIndex->Hitroll = INT_TO_SHINT(x1);
-                                pMobIndex->Damroll = INT_TO_SHINT(x2);
+                                pMobIndex->Hitroll = IntToShint(x1);
+                                pMobIndex->Damroll = IntToShint(x2);
                                 for (i = 0; i < 32; i++)
-                                        if (IS_SET(x1, 1 << i))
+                                        if (IsSet(x1, 1 << i))
                                                 xSET_BIT(pMobIndex->xflags,
                                                          i);
                                 pMobIndex->resistant = x4;
@@ -1505,8 +1505,8 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                         }
                         else
                         {
-                                pMobIndex->Hitroll = INT_TO_SHINT(fread_number(fp));
-                                pMobIndex->Damroll = INT_TO_SHINT(fread_number(fp));
+                                pMobIndex->Hitroll = IntToShint(fread_number(fp));
+                                pMobIndex->Damroll = IntToShint(fread_number(fp));
                                 pMobIndex->xflags = fread_bitvector(fp);
                                 pMobIndex->resistant = fread_number(fp);
                                 pMobIndex->immune = fread_number(fp);
@@ -1540,7 +1540,7 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                         sscanf(ln, "%d %d %d %d %d %d %d %d", &x1, &x2, &x3,
                                &x4, &x5, &x6, &x7, &x8);
                         if (x1)
-                                SET_BIT(pMobIndex->act, ACT_CITIZEN);
+                                SetBit(pMobIndex->act, ActCitizen);
                 }
 
                 letter = fread_letter(fp);
@@ -1553,7 +1553,7 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                         ungetc(letter, fp);
                 if (!oldmob)
                 {
-                        iHash = vnum % MAX_KEY_HASH;
+                        iHash = vnum % MaxKeyHash;
                         pMobIndex->next = mob_index_hash[iHash];
                         mob_index_hash[iHash] = pMobIndex;
                         top_mob_index++;
@@ -1624,7 +1624,7 @@ void load_objects(AreaData * tarea, FILE * fp)
                                 pObjIndex = get_obj_index(vnum);
                                 snprintf(buf, MSL, "Cleaning object: %d",
                                          vnum);
-                                log_string_plus(buf, LOG_BUILD,
+                                log_string_plus(buf, LogBuild,
                                                 sysdata.log_level);
                                 clean_obj(pObjIndex);
                                 oldobj = TRUE;
@@ -1656,10 +1656,10 @@ void load_objects(AreaData * tarea, FILE * fp)
                 ln = fread_line(fp);
                 x1 = x2 = x3 = x4 = 0;
                 sscanf(ln, "%d %d %d %d", &x1, &x2, &x3, &x4);
-                pObjIndex->item_type = INT_TO_SHINT(x1);
+                pObjIndex->item_type = IntToShint(x1);
                 pObjIndex->extra_flags = x2;
                 pObjIndex->wear_flags = x3;
-                pObjIndex->layers = INT_TO_SHINT(x4);
+                pObjIndex->layers = IntToShint(x4);
 
                 ln = fread_line(fp);
                 x1 = x2 = x3 = x4 = x5 = x6 = 0;
@@ -1670,7 +1670,7 @@ void load_objects(AreaData * tarea, FILE * fp)
                 pObjIndex->value[3] = x4;
                 pObjIndex->value[4] = x5;
                 pObjIndex->value[5] = x6;
-                pObjIndex->weight = INT_TO_SHINT(fread_number(fp));
+                pObjIndex->weight = IntToShint(fread_number(fp));
                 pObjIndex->weight = UMAX(1, pObjIndex->weight);
                 pObjIndex->cost = fread_number(fp);
                 pObjIndex->rent = fread_number(fp); /* unused */
@@ -1686,11 +1686,11 @@ void load_objects(AreaData * tarea, FILE * fp)
                                 CREATE(paf, AffectData, 1);
                                 paf->type = -1;
                                 paf->duration = -1;
-                                paf->location = INT_TO_SHINT(fread_number(fp));
-                                if (paf->location == APPLY_WEAPONSPELL
-                                    || paf->location == APPLY_WEARSPELL
-                                    || paf->location == APPLY_REMOVESPELL
-                                    || paf->location == APPLY_STRIPSN)
+                                paf->location = IntToShint(fread_number(fp));
+                                if (paf->location == ApplyWeaponspell
+                                    || paf->location == ApplyWearspell
+                                    || paf->location == ApplyRemovespell
+                                    || paf->location == ApplyStripsn)
                                         paf->modifier =
                                                 slot_lookup(fread_number(fp));
                                 else
@@ -1731,8 +1731,8 @@ void load_objects(AreaData * tarea, FILE * fp)
                  */
                 switch (pObjIndex->item_type)
                 {
-                case ITEM_PILL:
-                case ITEM_POTION:
+                case ItemPill:
+                case ItemPotion:
                         pObjIndex->value[1] =
                                 slot_lookup(pObjIndex->value[1]);
                         pObjIndex->value[2] =
@@ -1741,11 +1741,11 @@ void load_objects(AreaData * tarea, FILE * fp)
                                 slot_lookup(pObjIndex->value[3]);
                         break;
 
-                case ITEM_DEVICE:
+                case ItemDevice:
                         pObjIndex->value[3] =
                                 slot_lookup(pObjIndex->value[3]);
                         break;
-                case ITEM_SALVE:
+                case ItemSalve:
                         pObjIndex->value[4] =
                                 slot_lookup(pObjIndex->value[4]);
                         pObjIndex->value[5] =
@@ -1755,7 +1755,7 @@ void load_objects(AreaData * tarea, FILE * fp)
 
                 if (!oldobj)
                 {
-                        iHash = vnum % MAX_KEY_HASH;
+                        iHash = vnum % MaxKeyHash;
                         pObjIndex->next = obj_index_hash[iHash];
                         obj_index_hash[iHash] = pObjIndex;
                         top_obj_index++;
@@ -1804,7 +1804,7 @@ void load_resets(AreaData * tarea, FILE * fp)
                          */
                         snprintf(buf, MSL, "Cleaning resets: %s",
                                  tarea->name);
-                        log_string_plus(buf, LOG_BUILD, sysdata.log_level);
+                        log_string_plus(buf, LogBuild, sysdata.log_level);
                         clean_resets(tarea);
                 }
         }
@@ -1899,9 +1899,9 @@ void load_resets(AreaData * tarea, FILE * fp)
                                 break;
                         }
 
-                        if (arg2 < 0 || arg2 > MAX_DIR + 1
-                            || (pexit = get_exit(pRoomIndex, INT_TO_SHINT(arg2))) == NULL
-                            || !IS_SET(pexit->exit_info, EX_ISDOOR))
+                        if (arg2 < 0 || arg2 > MaxDir + 1
+                            || (pexit = get_exit(pRoomIndex, IntToShint(arg2))) == NULL
+                            || !IsSet(pexit->exit_info, ExIsdoor))
                         {
                                 bug("Load_resets: 'D': exit %d not door.",
                                     arg2);
@@ -2001,7 +2001,7 @@ void load_rooms(AreaData * tarea, FILE * fp)
                         {
                                 pRoomIndex = get_room_index(vnum);
                                 snprintf(buf, MSL, "Cleaning room: %d", vnum);
-                                log_string_plus(buf, LOG_BUILD,
+                                log_string_plus(buf, LogBuild,
                                                 sysdata.log_level);
                                 clean_room(pRoomIndex);
                                 oldroom = TRUE;
@@ -2038,20 +2038,20 @@ void load_rooms(AreaData * tarea, FILE * fp)
                 pRoomIndex->RoomFlags = fread_bitvector(fp);
                 ln = fread_line(fp);
                 sscanf(ln, "%d %d %d %d %d %d", &x3, &x4, &x5, &x6, &x7, &x8);
-                pRoomIndex->sector_type = INT_TO_SHINT(x5);
-                pRoomIndex->tunnel = INT_TO_SHINT(x8);
+                pRoomIndex->sector_type = IntToShint(x5);
+                pRoomIndex->tunnel = IntToShint(x8);
 
                 if (tarea->version < 2)
                 {
                         sh_int    i = 0;
 
                         for (i = 0; i < 32; i++)
-                                if (IS_SET(x3, 1 << i))
+                                if (IsSet(x3, 1 << i))
                                         xSET_BIT(pRoomIndex->RoomFlags,
                                                  i + 32);
                 }
                 if (pRoomIndex->sector_type < 0
-                    || pRoomIndex->sector_type >= SECT_MAX)
+                    || pRoomIndex->sector_type >= SectMax)
                 {
                         bug("Fread_rooms: vnum %d has bad sector_type %d.",
                             vnum, pRoomIndex->sector_type);
@@ -2084,7 +2084,7 @@ void load_rooms(AreaData * tarea, FILE * fp)
                                 else
                                 {
                                         pexit = make_exit(pRoomIndex, NULL,
-                                                          INT_TO_SHINT(door));
+                                                          IntToShint(door));
                                         pexit->description = fread_string(fp);
                                         pexit->keyword = fread_string(fp);
                                         pexit->exit_info = 0;
@@ -2096,18 +2096,18 @@ void load_rooms(AreaData * tarea, FILE * fp)
                                         locks = x1;
                                         pexit->key = x2;
                                         pexit->vnum = x3;
-                                        pexit->vdir = INT_TO_SHINT(door);
-                                        pexit->distance = INT_TO_SHINT(x4);
+                                        pexit->vdir = IntToShint(door);
+                                        pexit->distance = IntToShint(x4);
 
                                         switch (locks)
                                         {
                                         case 1:
-                                                pexit->exit_info = EX_ISDOOR;
+                                                pexit->exit_info = ExIsdoor;
                                                 break;
                                         case 2:
                                                 pexit->exit_info =
-                                                        EX_ISDOOR |
-                                                        EX_PICKPROOF;
+                                                        ExIsdoor |
+                                                        ExPickproof;
                                                 break;
                                         default:
                                                 pexit->exit_info = locks;
@@ -2141,7 +2141,7 @@ void load_rooms(AreaData * tarea, FILE * fp)
 
                 if (!oldroom)
                 {
-                        iHash = vnum % MAX_KEY_HASH;
+                        iHash = vnum % MaxKeyHash;
                         pRoomIndex->next = room_index_hash[iHash];
                         room_index_hash[iHash] = pRoomIndex;
                         top_room++;
@@ -2173,17 +2173,17 @@ void load_shops([[maybe_unused]] AreaData * tarea, FILE * fp)
                         DISPOSE(pShop);
                         break;
                 }
-                for (iTrade = 0; iTrade < MAX_TRADE; iTrade++)
-                        pShop->buy_type[iTrade] = INT_TO_SHINT(fread_number(fp));
-                pShop->profit_buy = INT_TO_SHINT(fread_number(fp));
-                pShop->profit_sell = INT_TO_SHINT(fread_number(fp));
+                for (iTrade = 0; iTrade < MaxTrade; iTrade++)
+                        pShop->buy_type[iTrade] = IntToShint(fread_number(fp));
+                pShop->profit_buy = IntToShint(fread_number(fp));
+                pShop->profit_sell = IntToShint(fread_number(fp));
                 pShop->profit_buy =
                         URANGE(pShop->profit_sell + 5, pShop->profit_buy,
                                1000);
                 pShop->profit_sell =
                         URANGE(0, pShop->profit_sell, pShop->profit_buy - 5);
-                pShop->open_hour = INT_TO_SHINT(fread_number(fp));
-                pShop->close_hour = INT_TO_SHINT(fread_number(fp));
+                pShop->open_hour = IntToShint(fread_number(fp));
+                pShop->close_hour = IntToShint(fread_number(fp));
                 fread_to_eol(fp);
                 pMobIndex = get_mob_index(pShop->keeper);
                 pMobIndex->pShop = pShop;
@@ -2221,12 +2221,12 @@ void load_repairs([[maybe_unused]] AreaData * tarea, FILE * fp)
                         DISPOSE(rShop);
                         break;
                 }
-                for (iFix = 0; iFix < MAX_FIX; iFix++)
-                        rShop->fix_type[iFix] = INT_TO_SHINT(fread_number(fp));
-                rShop->profit_fix = INT_TO_SHINT(fread_number(fp));
-                rShop->shop_type = INT_TO_SHINT(fread_number(fp));
-                rShop->open_hour = INT_TO_SHINT(fread_number(fp));
-                rShop->close_hour = INT_TO_SHINT(fread_number(fp));
+                for (iFix = 0; iFix < MaxFix; iFix++)
+                        rShop->fix_type[iFix] = IntToShint(fread_number(fp));
+                rShop->profit_fix = IntToShint(fread_number(fp));
+                rShop->shop_type = IntToShint(fread_number(fp));
+                rShop->open_hour = IntToShint(fread_number(fp));
+                rShop->close_hour = IntToShint(fread_number(fp));
                 fread_to_eol(fp);
                 pMobIndex = get_mob_index(rShop->keeper);
                 pMobIndex->rShop = rShop;
@@ -2389,7 +2389,7 @@ void fix_exits(void)
         ExitData *pexit, *pexit_next, *rev_exit;
         int       iHash;
 
-        for (iHash = 0; iHash < MAX_KEY_HASH; iHash++)
+        for (iHash = 0; iHash < MaxKeyHash; iHash++)
         {
                 for (pRoomIndex = room_index_hash[iHash]; pRoomIndex;
                      pRoomIndex = pRoomIndex->next)
@@ -2418,14 +2418,14 @@ void fix_exits(void)
                                         fexit = TRUE;
                         }
                         if (!fexit)
-                                xSET_BIT(pRoomIndex->RoomFlags, ROOM_NO_MOB);
+                                xSET_BIT(pRoomIndex->RoomFlags, RoomNoMob);
                 }
         }
 
         /*
          * Set all the rexit pointers   -Thoric 
          */
-        for (iHash = 0; iHash < MAX_KEY_HASH; iHash++)
+        for (iHash = 0; iHash < MaxKeyHash; iHash++)
         {
                 for (pRoomIndex = room_index_hash[iHash]; pRoomIndex;
                      pRoomIndex = pRoomIndex->next)
@@ -2550,7 +2550,7 @@ void randomize_exits(RoomIndexData * room, sh_int maxdir)
         }
         count = 0;
         for (pexit = room->first_exit; pexit; pexit = pexit->next)
-                pexit->vdir = INT_TO_SHINT(vdirs[count++]);
+                pexit->vdir = IntToShint(vdirs[count++]);
 
         sort_exits(room);
 }
@@ -2591,11 +2591,11 @@ void area_update(void)
                                            MSL);
                         for (pch = first_char; pch; pch = pch->next)
                         {
-                                if (!IS_NPC(pch) && IS_AWAKE(pch)
+                                if (!IsNpc(pch) && IsAwake(pch)
                                     && pch->in_room
                                     && pch->in_room->area == pArea)
                                 {
-                                        set_char_color(AT_RESET, pch);
+                                        set_char_color(AtReset, pch);
                                         send_to_char(buf, pch);
                                 }
                         }
@@ -2613,8 +2613,8 @@ void area_update(void)
                         if (reset_age == -1)
                                 pArea->age = -1;
                         else
-                                pArea->age = INT_TO_SHINT(number_range(0, reset_age / 5));
-                        pRoomIndex = get_room_index(ROOM_VNUM_SCHOOL);
+                                pArea->age = IntToShint(number_range(0, reset_age / 5));
+                        pRoomIndex = get_room_index(RoomVnumSchool);
                         if (pRoomIndex != NULL && pArea == pRoomIndex->area
                             && pArea->reset_frequency == 0)
                                 pArea->age = 15 - 3;
@@ -2654,7 +2654,7 @@ CharData *create_mobile(MobIndexData * pMobIndex)
         if (pMobIndex->spec2_funname)
                 mob->spec2_funname = QUICKLINK(pMobIndex->spec2_funname);
         mob->mpscriptpos = 0;
-        mob->top_level = INT_TO_SHINT(number_fuzzy(pMobIndex->level));
+        mob->top_level = IntToShint(number_fuzzy(pMobIndex->level));
         {
                 int       ability;
 
@@ -2684,17 +2684,17 @@ CharData *create_mobile(MobIndexData * pMobIndex)
 
         if (!pMobIndex->max_hit)
                 mob->max_hit =
-                        INT_TO_SHINT(mob->top_level * 10 + number_range(mob->top_level,
+                        IntToShint(mob->top_level * 10 + number_range(mob->top_level,
                                                            mob->top_level *
                                                            10));
         else
-                mob->max_hit = INT_TO_SHINT(pMobIndex->max_hit);
+                mob->max_hit = IntToShint(pMobIndex->max_hit);
         mob->hit = mob->max_hit;
         /*
          * lets put things back the way they used to be! -Thoric 
          */
         mob->gold = pMobIndex->gold;
-        mob->position = INT_TO_SHINT(pMobIndex->position);
+        mob->position = IntToShint(pMobIndex->position);
         mob->defposition = pMobIndex->defposition;
         mob->barenumdie = pMobIndex->damnodice;
         mob->baresizedie = pMobIndex->damsizedice;
@@ -2757,7 +2757,7 @@ ObjData *create_object(ObjIndexData * pObjIndex, int level)
 
         obj->pIndexData = pObjIndex;
         obj->in_room = NULL;
-        obj->level = INT_TO_SHINT(level);
+        obj->level = IntToShint(level);
         obj->wear_loc = -1;
         obj->count = 1;
         cur_obj_serial = UMAX((cur_obj_serial + 1) & (BV30 - 1), 1);
@@ -2795,96 +2795,96 @@ ObjData *create_object(ObjIndexData * pObjIndex, int level)
                 bug("------------------------>     ", obj->item_type);
                 break;
 
-        case ITEM_GOVERNMENT:
-        case ITEM_SPACECRAFT:
-        case ITEM_RAWSPICE:
-        case ITEM_LENS:
-        case ITEM_CRYSTAL:
-        case ITEM_DURAPLAST:
-        case ITEM_DURASTEEL:
-        case ITEM_SUPERCONDUCTOR:
-        case ITEM_COMLINK:
-        case ITEM_BINDING:
-        case ITEM_MEDPAC:
-        case ITEM_FABRIC:
-        case ITEM_RARE_METAL:
-        case ITEM_MAGNET:
-        case ITEM_THREAD:
-        case ITEM_CHEMICAL:
-        case ITEM_SPICE:
-        case ITEM_SMUT:
-        case ITEM_OVEN:
-        case ITEM_MIRROR:
-        case ITEM_CIRCUIT:
-        case ITEM_TOOLKIT:
-        case ITEM_LIGHT:
-        case ITEM_TREASURE:
-        case ITEM_FURNITURE:
-        case ITEM_TRASH:
-        case ITEM_CONTAINER:
-        case ITEM_DRINK_CON:
-        case ITEM_IMPLANT:
-        case ITEM_KEY:
-        case ITEM_DROID_CORPSE:
-        case ITEM_CORPSE_NPC:
-        case ITEM_CORPSE_PC:
-        case ITEM_FOUNTAIN:
-        case ITEM_SCRAPS:
-        case ITEM_GRENADE:
-        case ITEM_LANDMINE:
-        case ITEM_FIRE:
-        case ITEM_BOOK:
-        case ITEM_BEACON:
-        case ITEM_SWITCH:
-        case ITEM_LEVER:
-        case ITEM_BUTTON:
-        case ITEM_PAPER:
-        case ITEM_PEN:
-        case ITEM_LOCKPICK:
-        case ITEM_FUEL:
-        case ITEM_MISSILE:
-        case ITEM_SHOVEL:
-        case ITEM_CANISTER:
+        case ItemGovernment:
+        case ItemSpacecraft:
+        case ItemRawspice:
+        case ItemLens:
+        case ItemCrystal:
+        case ItemDuraplast:
+        case ItemDurasteel:
+        case ItemSuperconductor:
+        case ItemComlink:
+        case ItemBinding:
+        case ItemMedpac:
+        case ItemFabric:
+        case ItemRareMetal:
+        case ItemMagnet:
+        case ItemThread:
+        case ItemChemical:
+        case ItemSpice:
+        case ItemSmut:
+        case ItemOven:
+        case ItemMirror:
+        case ItemCircuit:
+        case ItemToolkit:
+        case ItemLight:
+        case ItemTreasure:
+        case ItemFurniture:
+        case ItemTrash:
+        case ItemContainer:
+        case ItemDrinkCon:
+        case ItemImplant:
+        case ItemKey:
+        case ItemDroidCorpse:
+        case ItemCorpseNpc:
+        case ItemCorpsePc:
+        case ItemFountain:
+        case ItemScraps:
+        case ItemGrenade:
+        case ItemLandmine:
+        case ItemFire:
+        case ItemBook:
+        case ItemBeacon:
+        case ItemSwitch:
+        case ItemLever:
+        case ItemButton:
+        case ItemPaper:
+        case ItemPen:
+        case ItemLockpick:
+        case ItemFuel:
+        case ItemMissile:
+        case ItemShovel:
+        case ItemCanister:
                 break;
 
-        case ITEM_FOOD:
+        case ItemFood:
                 /*
                  * optional food condition (rotting food)       -Thoric
                  * value1 is the max condition of the food
                  * value4 is the optional initial condition
                  */
                 if (obj->value[4])
-                        obj->timer = INT_TO_SHINT(obj->value[4]);
+                        obj->timer = IntToShint(obj->value[4]);
                 else
-                        obj->timer = INT_TO_SHINT(obj->value[1]);
+                        obj->timer = IntToShint(obj->value[1]);
                 break;
 
-        case ITEM_SALVE:
+        case ItemSalve:
                 obj->value[3] = number_fuzzy(obj->value[3]);
                 break;
 
-        case ITEM_DEVICE:
+        case ItemDevice:
                 obj->value[0] = number_fuzzy(obj->value[0]);
                 obj->value[1] = number_fuzzy(obj->value[1]);
                 obj->value[2] = obj->value[1];
                 break;
 
-        case ITEM_BATTERY:
+        case ItemBattery:
                 if (obj->value[0] <= 0)
                         obj->value[0] = number_fuzzy(95);
                 break;
 
-        case ITEM_BOLT:
+        case ItemBolt:
                 if (obj->value[0] <= 0)
                         obj->value[0] = number_fuzzy(95);
                 break;
 
-        case ITEM_AMMO:
+        case ItemAmmo:
                 if (obj->value[0] <= 0)
                         obj->value[0] = number_fuzzy(495);
                 break;
 
-        case ITEM_WEAPON:
+        case ItemWeapon:
                 if (obj->value[1] && obj->value[2])
                         obj->value[2] *= obj->value[1];
                 else
@@ -2897,39 +2897,39 @@ ObjData *create_object(ObjIndexData * pObjIndex, int level)
                 if (obj->value[1] > obj->value[2])
                         obj->value[1] = obj->value[2] / 3;
                 if (obj->value[0] == 0)
-                        obj->value[0] = INIT_WEAPON_CONDITION;
+                        obj->value[0] = InitWeaponCondition;
                 switch (obj->value[3])
                 {
-                case WEAPON_BLASTER:
-                case WEAPON_LIGHTSABER:
-                case WEAPON_VIBRO_BLADE:
-                case WEAPON_KNIFE:
-                case WEAPON_FORCE_PIKE:
-                case WEAPON_BOWCASTER:
+                case WeaponBlaster:
+                case WeaponLightsaber:
+                case WeaponVibroBlade:
+                case WeaponKnife:
+                case WeaponForcePike:
+                case WeaponBowcaster:
                         if (obj->value[5] <= 0)
                                 obj->value[5] = number_fuzzy(1000);
                 }
                 obj->value[4] = obj->value[5];
                 break;
 
-        case ITEM_ARMOR:
+        case ItemArmor:
                 if (obj->value[0] == 0)
                         obj->value[0] = obj->value[1];
-                obj->timer = INT_TO_SHINT(obj->value[3]);
+                obj->timer = IntToShint(obj->value[3]);
                 break;
 
-        case ITEM_POTION:
-        case ITEM_PILL:
+        case ItemPotion:
+        case ItemPill:
                 obj->value[0] = number_fuzzy(number_fuzzy(obj->value[0]));
                 break;
 
-        case ITEM_MONEY:
+        case ItemMoney:
                 obj->value[0] = obj->cost;
                 break;
 
-        case ITEM_HOLSTER:
-		case ITEM_TRAP:
-        case ITEM_LANDDEED:
+        case ItemHolster:
+		case ItemTrap:
+        case ItemLanddeed:
                 break;
         }
 
@@ -2976,7 +2976,7 @@ void clear_char(CharData * ch)
         ch->affected_by = 0;
         ch->logon = current_time;
         ch->Armor = 100;
-        ch->position = POS_STANDING;
+        ch->position = PosStanding;
         ch->hit = 500;
         ch->max_hit = 500;
         ch->endurance = 1000;
@@ -3019,8 +3019,8 @@ void free_char(CharData * ch)
         AffectData *paf;
         Timer    *timer;
         MProgActList *mpact, *mpact_next;
-        NOTE_DATA *comments, *comments_next;
-        WANTED_DATA *wanted, *wanted_next;
+        NoteData *comments, *comments_next;
+        WantedData *wanted, *wanted_next;
         int       pos;
 
         if (!ch)
@@ -3206,7 +3206,7 @@ MobIndexData *get_mob_index(int vnum)
         if (vnum < 0)
                 vnum = 0;
 
-        for (pMobIndex = mob_index_hash[vnum % MAX_KEY_HASH]; pMobIndex;
+        for (pMobIndex = mob_index_hash[vnum % MaxKeyHash]; pMobIndex;
              pMobIndex = pMobIndex->next)
                 if (pMobIndex->vnum == vnum)
                         return pMobIndex;
@@ -3230,7 +3230,7 @@ ObjIndexData *get_obj_index(int vnum)
         if (vnum < 0)
                 vnum = 0;
 
-        for (pObjIndex = obj_index_hash[vnum % MAX_KEY_HASH]; pObjIndex;
+        for (pObjIndex = obj_index_hash[vnum % MaxKeyHash]; pObjIndex;
              pObjIndex = pObjIndex->next)
                 if (pObjIndex->vnum == vnum)
                         return pObjIndex;
@@ -3254,7 +3254,7 @@ RoomIndexData *get_room_index(int vnum)
         if (vnum < 0)
                 vnum = 0;
 
-        for (pRoomIndex = room_index_hash[vnum % MAX_KEY_HASH]; pRoomIndex;
+        for (pRoomIndex = room_index_hash[vnum % MaxKeyHash]; pRoomIndex;
              pRoomIndex = pRoomIndex->next)
                 if (pRoomIndex->vnum == vnum)
                         return pRoomIndex;
@@ -4385,7 +4385,7 @@ void append_file(CharData * ch, char *file, char *str)
 {
         FILE     *fp;
 
-        if (IS_NPC(ch) || str[0] == '\0')
+        if (IsNpc(ch) || str[0] == '\0')
                 return;
 
         FCLOSE(fpLOG);
@@ -4400,7 +4400,7 @@ void append_file(CharData * ch, char *file, char *str)
                 FCLOSE(fp);
         }
 
-        fpLOG = fopen(NULL_FILE, "r");
+        fpLOG = fopen(NullFile, "r");
         return;
 }
 
@@ -4463,9 +4463,9 @@ void bug(const char *str, ...)
                                 iLine);
                 log_string(buf);
 
-                if (stat(SHUTDOWN_FILE, &fst) != -1)
+                if (stat(ShutdownFile, &fst) != -1)
                 {
-                        if ((fp = fopen(SHUTDOWN_FILE, "a")) != NULL)
+                        if ((fp = fopen(ShutdownFile, "a")) != NULL)
                         {
                                 fprintf(fp, "[*****] %s\n", buf);
                                 FCLOSE(fp);
@@ -4517,12 +4517,12 @@ void boot_log(const char *str, ...)
         log_string(buf);
 
         FCLOSE(fpLOG);
-        if ((fp = fopen(BOOTLOG_FILE, "a")) != NULL)
+        if ((fp = fopen(BootlogFile, "a")) != NULL)
         {
                 fprintf(fp, "%s\n", buf);
                 FCLOSE(fp);
         }
-        fpLOG = fopen(NULL_FILE, "r");
+        fpLOG = fopen(NullFile, "r");
 
         return;
 }
@@ -4583,8 +4583,8 @@ void show_file(CharData * ch, char *filename)
 CMDF do_dmesg(CharData * ch, [[maybe_unused]] char *argument)
 {
         argument = NULL;
-        set_pager_color(AT_LOG, ch);
-        show_file(ch, BOOTLOG_FILE);
+        set_pager_color(AtLog, ch);
+        show_file(ch, BootlogFile);
 }
 
 /*
@@ -4605,15 +4605,15 @@ void log_string_plus(const char *str, sh_int log_type, sh_int level)
         switch (log_type)
         {
         default:
-                to_channel(str + offset, CHANNEL_LOG, "Log", level);
+                to_channel(str + offset, ChannelLog, "Log", level);
                 break;
-        case LOG_BUILD:
-                to_channel(str + offset, CHANNEL_BUILD, "Build", level);
+        case LogBuild:
+                to_channel(str + offset, ChannelBuild, "Build", level);
                 break;
-        case LOG_COMM:
-                to_channel(str + offset, CHANNEL_COMM, "Comm", level);
+        case LogComm:
+                to_channel(str + offset, ChannelComm, "Comm", level);
                 break;
-        case LOG_ALL:
+        case LogAll:
                 break;
         }
         return;
@@ -4675,7 +4675,7 @@ void towizfile(const char *line, bool Border)
                 mudstrlcpy(outline2, outline, MSL);
 
         mudstrlcat(outline2, "\n\r", MSL);
-        wfp = fopen(WIZLIST_FILE, "a");
+        wfp = fopen(WizlistFile, "a");
         if (wfp)
         {
                 fputs(outline2, wfp);
@@ -4740,7 +4740,7 @@ void towwwwizfile(const char *line, bool Border)
 #ifdef WEB
 		web_colourconv(outline2, mainline);
 #endif
-        snprintf(filename, MSL, "%swizlist.html", HTML_MUDINFO_WRITE_DIR);
+        snprintf(filename, MSL, "%swizlist.html", HtmlMudinfoWriteDir);
         fp = fopen(filename, "a");
         if (fp)
         {
@@ -4759,7 +4759,7 @@ void add_to_wizlist(char *name, int level, int flags)
 
         CREATE(wiz, WizEnt, 1);
         wiz->name = str_dup(name);
-        wiz->level = INT_TO_SHINT(level);
+        wiz->level = IntToShint(level);
         wiz->flags = flags;
 
         if (!first_wiz)
@@ -4816,7 +4816,7 @@ void make_wizlist()
         first_wiz = NULL;
         last_wiz = NULL;
 
-        dp = opendir(GOD_DIR);
+        dp = opendir(GodDir);
 
         ilevel = 0;
         dentry = readdir(dp);
@@ -4824,7 +4824,7 @@ void make_wizlist()
         {
                 if (dentry->d_name[0] != '.')
                 {
-                        snprintf(buf, MSL, "%s%s", GOD_DIR, dentry->d_name);
+                        snprintf(buf, MSL, "%s%s", GodDir, dentry->d_name);
                         gfp = fopen(buf, "r");
                         if (gfp)
                         {
@@ -4837,9 +4837,9 @@ void make_wizlist()
                                 else
                                         iflags = 0;
                                 FCLOSE(gfp);
-                                if (IS_SET(iflags, PCFLAG_RETIRED))
+                                if (IsSet(iflags, PcflagRetired))
                                         ilevel = MaxLevel - 5;
-                                if (IS_SET(iflags, PCFLAG_GUEST))
+                                if (IsSet(iflags, PcflagGuest))
                                         ilevel = MaxLevel - 10;
                                 add_to_wizlist(dentry->d_name, ilevel,
                                                iflags);
@@ -4849,7 +4849,7 @@ void make_wizlist()
         }
         closedir(dp);
 #ifdef WEB
-        snprintf(filename, MSL, "%swizlist.html", HTML_MUDINFO_WRITE_DIR);
+        snprintf(filename, MSL, "%swizlist.html", HtmlMudinfoWriteDir);
         if ((fp = fopen(filename, "w")) == NULL)
         {
                 bug("immortalwritehtl: fopen %s", filename);
@@ -4868,7 +4868,7 @@ void make_wizlist()
 #endif
 
         buf[0] = '\0';
-        unlink(WIZLIST_FILE);
+        unlink(WizlistFile);
         towizfile(" ", 0);
         towizfile
                 ("&w<>&B---------------------------------------------------------------------&w<>&B",
@@ -4894,49 +4894,49 @@ void make_wizlist()
         {
                 if (!wiz->name || wiz->name[0] == '\0')
                         continue;
-                else if (IS_SET(wiz->flags, IMM_OWNER))
+                else if (IsSet(wiz->flags, ImmOwner))
                 {
                         if (owner[0] != '\0')
                                 mudstrlcat(owner, " ", MSL);
                         mudstrlcat(owner, wiz->name, MSL);
                 }
-                else if (IS_SET(wiz->flags, IMM_CODER))
+                else if (IsSet(wiz->flags, ImmCoder))
                 {
                         if (coder[0] != '\0')
                                 mudstrlcat(coder, " ", MSL);
                         mudstrlcat(coder, wiz->name, MSL);
                 }
-                else if (IS_SET(wiz->flags, IMM_ADMIN))
+                else if (IsSet(wiz->flags, ImmAdmin))
                 {
                         if (admin[0] != '\0')
                                 mudstrlcat(admin, " ", MSL);
                         mudstrlcat(admin, wiz->name, MSL);
                 }
-                else if (IS_SET(wiz->flags, IMM_HIGHBUILDER))
+                else if (IsSet(wiz->flags, ImmHighbuilder))
                 {
                         if (highbuilder[0] != '\0')
                                 mudstrlcat(highbuilder, " ", MSL);
                         mudstrlcat(highbuilder, wiz->name, MSL);
                 }
-                else if (IS_SET(wiz->flags, IMM_BUILDER))
+                else if (IsSet(wiz->flags, ImmBuilder))
                 {
                         if (builder[0] != '\0')
                                 mudstrlcat(builder, " ", MSL);
                         mudstrlcat(builder, wiz->name, MSL);
                 }
-                else if (IS_SET(wiz->flags, IMM_HIGHENFORCER))
+                else if (IsSet(wiz->flags, ImmHighenforcer))
                 {
                         if (enforcer[0] != '\0')
                                 mudstrlcat(highenforcer, " ", MSL);
                         mudstrlcat(highenforcer, wiz->name, MSL);
                 }
-                else if (IS_SET(wiz->flags, IMM_ENFORCER))
+                else if (IsSet(wiz->flags, ImmEnforcer))
                 {
                         if (enforcer[0] != '\0')
                                 mudstrlcat(enforcer, " ", MSL);
                         mudstrlcat(enforcer, wiz->name, MSL);
                 }
-                else if (IS_SET(wiz->flags, IMM_QUEST))
+                else if (IsSet(wiz->flags, ImmQuest))
                 {
                         if (quest[0] != '\0')
                                 mudstrlcat(quest, " ", MSL);
@@ -5049,80 +5049,80 @@ CMDF do_makewizlist([[maybe_unused]] CharData * ch, [[maybe_unused]] char *argum
 int mprog_name_to_type(char *name)
 {
         if (!str_cmp(name, "in_file_prog"))
-                return IN_FILE_PROG;
+                return InFileProg;
         if (!str_cmp(name, "act_prog"))
-                return ACT_PROG;
+                return ActProg;
         if (!str_cmp(name, "speech_prog"))
-                return SPEECH_PROG;
+                return SpeechProg;
         if (!str_cmp(name, "rand_prog"))
-                return RAND_PROG;
+                return RandProg;
         if (!str_cmp(name, "fight_prog"))
-                return FIGHT_PROG;
+                return FightProg;
         if (!str_cmp(name, "hitprcnt_prog"))
-                return HITPRCNT_PROG;
+                return HitprcntProg;
         if (!str_cmp(name, "death_prog"))
-                return DEATH_PROG;
+                return DeathProg;
         if (!str_cmp(name, "entry_prog"))
-                return ENTRY_PROG;
+                return EntryProg;
         if (!str_cmp(name, "greet_prog"))
-                return GREET_PROG;
+                return GreetProg;
         if (!str_cmp(name, "all_greet_prog"))
-                return ALL_GREET_PROG;
+                return AllGreetProg;
         if (!str_cmp(name, "give_prog"))
-                return GIVE_PROG;
+                return GiveProg;
         if (!str_cmp(name, "bribe_prog"))
-                return BRIBE_PROG;
+                return BribeProg;
         if (!str_cmp(name, "time_prog"))
-                return TIME_PROG;
+                return TimeProg;
         if (!str_cmp(name, "hour_prog"))
-                return HOUR_PROG;
+                return HourProg;
         if (!str_cmp(name, "wear_prog"))
-                return WEAR_PROG;
+                return WearProg;
         if (!str_cmp(name, "remove_prog"))
-                return REMOVE_PROG;
+                return RemoveProg;
         if (!str_cmp(name, "sac_prog"))
-                return SAC_PROG;
+                return SacProg;
         if (!str_cmp(name, "look_prog"))
-                return LOOK_PROG;
+                return LookProg;
         if (!str_cmp(name, "exa_prog"))
-                return EXA_PROG;
+                return ExaProg;
         if (!str_cmp(name, "zap_prog"))
-                return ZAP_PROG;
+                return ZapProg;
         if (!str_cmp(name, "get_prog"))
-                return GET_PROG;
+                return GetProg;
         if (!str_cmp(name, "drop_prog"))
-                return DROP_PROG;
+                return DropProg;
         if (!str_cmp(name, "damage_prog"))
-                return DAMAGE_PROG;
+                return DamageProg;
         if (!str_cmp(name, "repair_prog"))
-                return REPAIR_PROG;
+                return RepairProg;
         if (!str_cmp(name, "greet_prog"))
-                return GREET_PROG;
+                return GreetProg;
         if (!str_cmp(name, "randiw_prog"))
-                return RANDIW_PROG;
+                return RandiwProg;
         if (!str_cmp(name, "speechiw_prog"))
-                return SPEECHIW_PROG;
+                return SpeechiwProg;
         if (!str_cmp(name, "pull_prog"))
-                return PULL_PROG;
+                return PullProg;
         if (!str_cmp(name, "push_prog"))
-                return PUSH_PROG;
+                return PushProg;
         if (!str_cmp(name, "sleep_prog"))
-                return SLEEP_PROG;
+                return SleepProg;
         if (!str_cmp(name, "rest_prog"))
-                return REST_PROG;
+                return RestProg;
         if (!str_cmp(name, "rfight_prog"))
-                return FIGHT_PROG;
+                return FightProg;
         if (!str_cmp(name, "enter_prog"))
-                return ENTRY_PROG;
+                return EntryProg;
         if (!str_cmp(name, "leave_prog"))
-                return LEAVE_PROG;
+                return LeaveProg;
         if (!str_cmp(name, "rdeath_prog"))
-                return DEATH_PROG;
+                return DeathProg;
         if (!str_cmp(name, "script_prog"))
-                return SCRIPT_PROG;
+                return ScriptProg;
         if (!str_cmp(name, "use_prog"))
-                return USE_PROG;
-        return (ERROR_PROG);
+                return UseProg;
+        return (ErrorProg);
 }
 
 MProgData *mprog_file_read(char *f, MProgData * mprg,
@@ -5135,7 +5135,7 @@ MProgData *mprog_file_read(char *f, MProgData * mprg,
         MProgData *mprg_next, *mprg2;
         bool      done = FALSE;
 
-        snprintf(MUDProgfile, MSL, "%s%s", PROG_DIR, f);
+        snprintf(MUDProgfile, MSL, "%s%s", ProgDir, f);
 
         progfile = fopen(MUDProgfile, "r");
         if (!progfile)
@@ -5164,11 +5164,11 @@ MProgData *mprog_file_read(char *f, MProgData * mprg,
                 mprg2->type = mprog_name_to_type(fread_word(progfile));
                 switch (mprg2->type)
                 {
-                case ERROR_PROG:
+                case ErrorProg:
                         bug("mudprog file type error");
                         exit(1);
                         break;
-                case IN_FILE_PROG:
+                case InFileProg:
                         bug("mprog file contains a call to file.");
                         exit(1);
                         break;
@@ -5283,12 +5283,12 @@ void mprog_read_programs(FILE * fp, MobIndexData * pMobIndex)
                 mprg->type = mprog_name_to_type(fread_word(fp));
                 switch (mprg->type)
                 {
-                case ERROR_PROG:
+                case ErrorProg:
                         bug("Load_mobiles: vnum %d MUDPROG type.",
                             pMobIndex->vnum);
                         exit(1);
                         break;
-                case IN_FILE_PROG:
+                case InFileProg:
                         mprg = mprog_file_read(fread_string(fp), mprg,
                                                pMobIndex);
                         fread_to_eol(fp);
@@ -5364,7 +5364,7 @@ MProgData *oprog_file_read(char *f, MProgData * mprg,
         MProgData *mprg_next, *mprg2;
         bool      done = FALSE;
 
-        snprintf(MUDProgfile, MSL, "%s%s", PROG_DIR, f);
+        snprintf(MUDProgfile, MSL, "%s%s", ProgDir, f);
 
         progfile = fopen(MUDProgfile, "r");
         if (!progfile)
@@ -5393,11 +5393,11 @@ MProgData *oprog_file_read(char *f, MProgData * mprg,
                 mprg2->type = mprog_name_to_type(fread_word(progfile));
                 switch (mprg2->type)
                 {
-                case ERROR_PROG:
+                case ErrorProg:
                         bug("objprog file type error");
                         exit(1);
                         break;
-                case IN_FILE_PROG:
+                case InFileProg:
                         bug("objprog file contains a call to file.");
                         exit(1);
                         break;
@@ -5512,12 +5512,12 @@ void oprog_read_programs(FILE * fp, ObjIndexData * pObjIndex)
                 mprg->type = mprog_name_to_type(fread_word(fp));
                 switch (mprg->type)
                 {
-                case ERROR_PROG:
+                case ErrorProg:
                         bug("Load_objects: vnum %d OBJPROG type.",
                             pObjIndex->vnum);
                         exit(1);
                         break;
-                case IN_FILE_PROG:
+                case InFileProg:
                         mprg = oprog_file_read(fread_string(fp), mprg,
                                                pObjIndex);
                         fread_to_eol(fp);
@@ -5590,7 +5590,7 @@ MProgData *rprog_file_read(char *f, MProgData * mprg,
         MProgData *mprg_next, *mprg2;
         bool      done = FALSE;
 
-        snprintf(MUDProgfile, MSL, "%s%s", PROG_DIR, f);
+        snprintf(MUDProgfile, MSL, "%s%s", ProgDir, f);
 
         progfile = fopen(MUDProgfile, "r");
         if (!progfile)
@@ -5619,11 +5619,11 @@ MProgData *rprog_file_read(char *f, MProgData * mprg,
                 mprg2->type = mprog_name_to_type(fread_word(progfile));
                 switch (mprg2->type)
                 {
-                case ERROR_PROG:
+                case ErrorProg:
                         bug("roomprog file type error");
                         exit(1);
                         break;
-                case IN_FILE_PROG:
+                case InFileProg:
                         bug("roomprog file contains a call to file.");
                         exit(1);
                         break;
@@ -5738,12 +5738,12 @@ void rprog_read_programs(FILE * fp, RoomIndexData * pRoomIndex)
                 mprg->type = mprog_name_to_type(fread_word(fp));
                 switch (mprg->type)
                 {
-                case ERROR_PROG:
+                case ErrorProg:
                         bug("Load_rooms: vnum %d ROOMPROG type.",
                             pRoomIndex->vnum);
                         exit(1);
                         break;
-                case IN_FILE_PROG:
+                case InFileProg:
                         mprg = rprog_file_read(fread_string_noalloc(fp), mprg,
                                                pRoomIndex);
                         fread_to_eol(fp);
@@ -5815,7 +5815,7 @@ bool delete_room(RoomIndexData * room)
                 return FALSE;
         wipe_resets(room->area, room);
 
-        iHash = room->vnum % MAX_KEY_HASH;
+        iHash = room->vnum % MaxKeyHash;
 
         /*
          * Take the room index out of the hash list. 
@@ -5928,7 +5928,7 @@ bool delete_obj(ObjIndexData * obj)
         STRFREE(obj->description);
         STRFREE(obj->action_desc);
 
-        hash = obj->vnum % MAX_KEY_HASH;
+        hash = obj->vnum % MaxKeyHash;
         if (obj == obj_index_hash[hash])
                 obj_index_hash[hash] = obj->next;
         else
@@ -5994,7 +5994,7 @@ bool delete_mob(MobIndexData * mob)
         if (mob->spec2_funname)
                 STRFREE(mob->spec2_funname);
 
-        hash = mob->vnum % MAX_KEY_HASH;
+        hash = mob->vnum % MaxKeyHash;
         if (mob == mob_index_hash[hash])
                 mob_index_hash[hash] = mob->next;
         else
@@ -6036,14 +6036,14 @@ RoomIndexData *make_room( int vnum, AreaData *area )
         pRoomIndex->vnum = vnum;
         pRoomIndex->name = STRALLOC("Floating in a void");
         pRoomIndex->description = STRALLOC("");
-        pRoomIndex->RoomFlags = meb(ROOM_PROTOTYPE);
+        pRoomIndex->RoomFlags = meb(RoomPrototype);
         pRoomIndex->sector_type = 1;
         pRoomIndex->light = 0;
         pRoomIndex->first_exit = NULL;
         pRoomIndex->last_exit = NULL;
 		pRoomIndex->home = NULL;
 
-        iHash = vnum % MAX_KEY_HASH;
+        iHash = vnum % MaxKeyHash;
         pRoomIndex->next = room_index_hash[iHash];
         room_index_hash[iHash] = pRoomIndex;
         top_room++;
@@ -6081,8 +6081,8 @@ ObjIndexData *make_object(int vnum, int cvnum, char *name)
                 pObjIndex->action_desc = STRALLOC("");
                 pObjIndex->short_descr[0] = LOWER(pObjIndex->short_descr[0]);
                 pObjIndex->description[0] = UPPER(pObjIndex->description[0]);
-                pObjIndex->item_type = ITEM_TRASH;
-                pObjIndex->extra_flags = ITEM_PROTOTYPE;
+                pObjIndex->item_type = ItemTrash;
+                pObjIndex->extra_flags = ItemPrototype;
                 pObjIndex->wear_flags = 0;
                 pObjIndex->value[0] = 0;
                 pObjIndex->value[1] = 0;
@@ -6103,7 +6103,7 @@ ObjIndexData *make_object(int vnum, int cvnum, char *name)
                 pObjIndex->action_desc = QUICKLINK(cObjIndex->action_desc);
                 pObjIndex->item_type = cObjIndex->item_type;
                 pObjIndex->extra_flags = cObjIndex->extra_flags
-                        | ITEM_PROTOTYPE;
+                        | ItemPrototype;
                 pObjIndex->wear_flags = cObjIndex->wear_flags;
                 pObjIndex->value[0] = cObjIndex->value[0];
                 pObjIndex->value[1] = cObjIndex->value[1];
@@ -6136,7 +6136,7 @@ ObjIndexData *make_object(int vnum, int cvnum, char *name)
                 }
         }
         pObjIndex->count = 0;
-        iHash = vnum % MAX_KEY_HASH;
+        iHash = vnum % MaxKeyHash;
         pObjIndex->next = obj_index_hash[iHash];
         obj_index_hash[iHash] = pObjIndex;
         top_obj_index++;
@@ -6175,7 +6175,7 @@ MobIndexData *make_mobile(int vnum, int cvnum, char *name)
                 pMobIndex->short_descr[0] = LOWER(pMobIndex->short_descr[0]);
                 pMobIndex->long_descr[0] = UPPER(pMobIndex->long_descr[0]);
                 pMobIndex->description[0] = UPPER(pMobIndex->description[0]);
-                pMobIndex->act = ACT_IS_NPC | ACT_PROTOTYPE;
+                pMobIndex->act = ActIsNpc | ActPrototype;
                 pMobIndex->affected_by = 0;
                 pMobIndex->pShop = NULL;
                 pMobIndex->rShop = NULL;
@@ -6221,7 +6221,7 @@ MobIndexData *make_mobile(int vnum, int cvnum, char *name)
                 pMobIndex->short_descr = QUICKLINK(cMobIndex->short_descr);
                 pMobIndex->long_descr = QUICKLINK(cMobIndex->long_descr);
                 pMobIndex->description = QUICKLINK(cMobIndex->description);
-                pMobIndex->act = cMobIndex->act | ACT_PROTOTYPE;
+                pMobIndex->act = cMobIndex->act | ActPrototype;
                 pMobIndex->affected_by = cMobIndex->affected_by;
                 pMobIndex->pShop = NULL;
                 pMobIndex->rShop = NULL;
@@ -6260,7 +6260,7 @@ MobIndexData *make_mobile(int vnum, int cvnum, char *name)
                 pMobIndex->attacks = cMobIndex->attacks;
                 pMobIndex->defenses = cMobIndex->defenses;
         }
-        iHash = vnum % MAX_KEY_HASH;
+        iHash = vnum % MaxKeyHash;
         pMobIndex->next = mob_index_hash[iHash];
         mob_index_hash[iHash] = pMobIndex;
         top_mob_index++;
@@ -6353,7 +6353,7 @@ void fix_area_exits(AreaData * tarea)
                                 pexit->to_room = get_room_index(pexit->vnum);
                 }
                 if (!fexit)
-                        xSET_BIT(pRoomIndex->RoomFlags, ROOM_NO_MOB);
+                        xSET_BIT(pRoomIndex->RoomFlags, RoomNoMob);
         }
 
 
@@ -6497,7 +6497,7 @@ void load_area_file(AreaData * tarea, char *filename)
                 boot_log("%-24s: Rooms: %5d - %-5d Objs: %5d - %-5d Mobs: %5d - %d", tarea->filename, tarea->low_r_vnum, tarea->hi_r_vnum, tarea->low_o_vnum, tarea->hi_o_vnum, tarea->low_m_vnum, tarea->hi_m_vnum);
                 if (!tarea->author)
                         tarea->author = STRALLOC("");
-                SET_BIT(tarea->status, AREA_LOADED);
+                SetBit(tarea->status, AreaLoaded);
         }
         else
                 boot_log("(%s)", filename);
@@ -6506,7 +6506,7 @@ void load_area_file(AreaData * tarea, char *filename)
 
 
 /* Build list of in_progress areas.  Do not load areas.
- * define AREA_READ if you want it to build area names rather than reading
+ * define AreaRead if you want it to build area names rather than reading
  * them out of the area files. -- Altrag */
 void load_buildlist(void)
 {
@@ -6522,13 +6522,13 @@ void load_buildlist(void)
         bool      badfile = FALSE;
         char      temp;
 
-        dp = opendir(GOD_DIR);
+        dp = opendir(GodDir);
         dentry = readdir(dp);
         while (dentry)
         {
                 if (dentry->d_name[0] != '.')
                 {
-                        snprintf(buf, MSL, "%s%s", GOD_DIR, dentry->d_name);
+                        snprintf(buf, MSL, "%s%s", GodDir, dentry->d_name);
                         if (!(fp = fopen(buf, "r")))
                         {
                                 bug("Load_buildlist: invalid file");
@@ -6572,7 +6572,7 @@ void load_buildlist(void)
                         FCLOSE(fp);
                         if (rlow && rhi && !badfile)
                         {
-                                snprintf(buf, MSL, "%s%s.are", BUILD_DIR,
+                                snprintf(buf, MSL, "%s%s.are", BuildDir,
                                          dentry->d_name);
                                 if (!(fp = fopen(buf, "r")))
                                 {
@@ -6580,7 +6580,7 @@ void load_buildlist(void)
                                         dentry = readdir(dp);
                                         continue;
                                 }
-#if !defined(READ_AREA) /* Dont always want to read stuff.. dunno.. shrug */
+#if !defined(ReadArea) /* Dont always want to read stuff.. dunno.. shrug */
 
                                 mudstrlcpy(word, fread_word(fp), 81);
                                 if (word[0] != '#'
@@ -6598,7 +6598,7 @@ void load_buildlist(void)
                                 snprintf(buf, MSL, "%s.are", dentry->d_name);
                                 pArea->author = STRALLOC(dentry->d_name);
                                 pArea->filename = str_dup(buf);
-#if !defined(READ_AREA)
+#if !defined(ReadArea)
                                 pArea->name = fread_string_nohash(fp);
 #else
                                 snprintf(buf, MSL,
@@ -6619,7 +6619,7 @@ void load_buildlist(void)
                                 pArea->hi_hard_range = -1;
                                 pArea->first_reset = NULL;
                                 pArea->last_reset = NULL;
-								SET_BIT( pArea->flags, AFLAG_PROTOTYPE );
+								SetBit( pArea->flags, AflagPrototype );
                                 LINK(pArea, first_build, last_build, next,
                                      prev);
                                 boot_log("%-14s: Rooms: %5d - %-5d Objs: %5d - %-5d " "Mobs: %5d - %-5d", pArea->filename, pArea->low_r_vnum, pArea->hi_r_vnum, pArea->low_o_vnum, pArea->hi_o_vnum, pArea->low_m_vnum, pArea->hi_m_vnum);
@@ -6718,20 +6718,20 @@ void show_vnums(CharData * ch, int low, int high, bool proto, bool shownl,
 
         count = 0;
         loaded = 0;
-        set_pager_color(AT_PLAIN, ch);
+        set_pager_color(AtPlain, ch);
         if (proto)
                 first_sort = first_bsort;
         else
                 first_sort = first_asort;
         for (pArea = first_sort; pArea; pArea = pArea->next_sort)
         {
-                if (IS_SET(pArea->status, AREA_DELETED))
+                if (IsSet(pArea->status, AreaDeleted))
                         continue;
                 if (pArea->low_r_vnum < low)
                         continue;
                 if (pArea->hi_r_vnum > high)
                         break;
-                if (IS_SET(pArea->status, AREA_LOADED))
+                if (IsSet(pArea->status, AreaLoaded))
                         loaded++;
                 else if (!shownl)
                         continue;
@@ -6741,8 +6741,8 @@ void show_vnums(CharData * ch, int low, int high, bool proto, bool shownl,
                               filename : "(invalid)"), pArea->low_r_vnum,
                              pArea->hi_r_vnum, pArea->low_o_vnum,
                              pArea->hi_o_vnum, pArea->low_m_vnum,
-                             pArea->hi_m_vnum, IS_SET(pArea->status,
-                                                      AREA_LOADED) ? loadst :
+                             pArea->hi_m_vnum, IsSet(pArea->status,
+                                                      AreaLoaded) ? loadst :
                              notloadst);
                 count++;
         }
@@ -6826,12 +6826,12 @@ CMDF do_newzones(CharData * ch, char *argument)
 /*
  * Save system info to data file
  */
-void save_sysdata(SYSTEM_DATA sys)
+void save_sysdata(SystemData sys)
 {
         FILE     *fp;
         char      filename[MaxInputLength];
 
-        snprintf(filename, MSL, "%ssysdata.dat", SYSTEM_DIR);
+        snprintf(filename, MSL, "%ssysdata.dat", SystemDir);
 
         FCLOSE(fpReserve);
         if ((fp = fopen(filename, "w")) == NULL)
@@ -6843,8 +6843,8 @@ void save_sysdata(SYSTEM_DATA sys)
                 fprintf(fp, "#SYSTEM\n");
                 fprintf(fp, "Highplayers    %d\n", sys.alltimemax);
                 fprintf(fp, "Highplayertime %s~\n", sys.time_of_max);
-                fprintf(fp, "Nameresolving  %d\n", sys.NO_NAME_RESOLVING);
-                fprintf(fp, "Waitforauth    %d\n", sys.WAIT_FOR_AUTH);
+                fprintf(fp, "Nameresolving  %d\n", sys.NoNameResolving);
+                fprintf(fp, "Waitforauth    %d\n", sys.WaitForAuth);
                 fprintf(fp, "Readallmail    %d\n", sys.read_all_mail);
                 fprintf(fp, "Readmailfree   %d\n", sys.read_mail_free);
                 fprintf(fp, "Writemailfree  %d\n", sys.write_mail_free);
@@ -6885,12 +6885,12 @@ void save_sysdata(SYSTEM_DATA sys)
                 fprintf(fp, "#END\n");
                 FCLOSE(fp);
         }
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
 
-void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
+void fread_sysdata(SystemData * sys, FILE * fp)
 {
         const char *word;
         bool      fMatch;
@@ -6911,28 +6911,28 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
                         KEY("Autopurge", sys->CLEANPFILES, fread_number(fp));
                         break;
                 case 'B':
-                        KEY("Build", sys->build_level, INT_TO_SHINT(fread_number(fp)));
+                        KEY("Build", sys->build_level, IntToShint(fread_number(fp)));
                         KEY("BanSiteLevel", sys->ban_site_level,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("BanClassLevel", sys->ban_class_level,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("BanRaceLevel", sys->ban_race_level,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         break;
                 case 'C':
-                        KEY("Channellog", sys->channellog, INT_TO_SHINT(fread_number(fp)));
+                        KEY("Channellog", sys->channellog, IntToShint(fread_number(fp)));
                         break;
 
                 case 'D':
                         KEY("DEBUG", sys->DEBUG, fread_number(fp));
                         KEY("Damplrvsplr", sys->dam_plr_vs_plr,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Damplrvsmob", sys->dam_plr_vs_mob,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Dammobvsplr", sys->dam_mob_vs_plr,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Dammobvsmob", sys->dam_mob_vs_mob,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         break;
 
                 case 'E':
@@ -6946,7 +6946,7 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
                         break;
 
                 case 'F':
-                        KEY("Forcepc", sys->level_forcepc, INT_TO_SHINT(fread_number(fp)));
+                        KEY("Forcepc", sys->level_forcepc, IntToShint(fread_number(fp)));
                         break;
 
                 case 'G':
@@ -6960,69 +6960,69 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
                         break;
 
                 case 'L':
-                        KEY("Log", sys->log_level, INT_TO_SHINT(fread_number(fp)));
+                        KEY("Log", sys->log_level, IntToShint(fread_number(fp)));
                         KEY("Logsize", sys->log_size, fread_number(fp));
                         break;
 
                 case 'M':
                         KEY("Msetplayer", sys->level_mset_player,
-                            INT_TO_SHINT(fread_number(fp)));
-                        KEY("Muse", sys->muse_level, INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
+                        KEY("Muse", sys->muse_level, IntToShint(fread_number(fp)));
                         KEY("Mud_Name", sys->mud_name, fread_string(fp));
                         KEY("Mud_Url", sys->mud_url, fread_string(fp));
                         KEY("Mud_Email", sys->mud_email, fread_string(fp));
                         break;
 
                 case 'N':
-                        KEY("Nameresolving", sys->NO_NAME_RESOLVING,
+                        KEY("Nameresolving", sys->NoNameResolving,
                             fread_number(fp));
                         KEY("Newbie_purge", sys->newbie_purge,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         break;
 
                 case 'O':
                         KEY("Overridepriv", sys->level_override_private,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         break;
 
                 case 'P':
                         KEY("Protoflag", sys->level_modify_proto,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Port", sys->PORT, fread_number(fp));
                         break;
 
                 case 'R':
                         KEY("Readallmail", sys->read_all_mail,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Readmailfree", sys->read_mail_free,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Regular_purge", sys->regular_purge,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         break;
 
                 case 'S':
                         KEY("Stunplrvsplr", sys->stun_plr_vs_plr,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Stunregular", sys->stun_regular,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Saveflags", sys->save_flags, fread_number(fp));
                         KEY("Savefreq", sys->save_frequency,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("SendmailPath", sys->mail_path, fread_string(fp));
                         break;
 
                 case 'T':
                         KEY("Takeothersmail", sys->take_others_mail,
-                            INT_TO_SHINT(fread_number(fp)));
-                        KEY("Think", sys->think_level, INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
+                        KEY("Think", sys->think_level, IntToShint(fread_number(fp)));
                         break;
 
 
                 case 'W':
-                        KEY("Waitforauth", sys->WAIT_FOR_AUTH,
+                        KEY("Waitforauth", sys->WaitForAuth,
                             fread_number(fp));
                         KEY("Writemailfree", sys->write_mail_free,
-                            INT_TO_SHINT(fread_number(fp)));
+                            IntToShint(fread_number(fp)));
                         KEY("Web", sys->web, fread_number(fp));
                         break;
                 }
@@ -7040,14 +7040,14 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
 /*
  * Load the sysdata file
  */
-bool load_systemdata(SYSTEM_DATA * sys)
+bool load_systemdata(SystemData * sys)
 {
         char      filename[MaxInputLength];
         FILE     *fp;
         bool      found;
 
         found = FALSE;
-        snprintf(filename, MSL, "%ssysdata.dat", SYSTEM_DIR);
+        snprintf(filename, MSL, "%ssysdata.dat", SystemDir);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -7187,12 +7187,12 @@ CMDF do_check_vnums(CharData * ch, char *argument)
                 do_check_vnums(ch, buf);
                 return;
         }
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
 
         for (pArea = first_asort; pArea; pArea = pArea->next_sort)
         {
                 area_conflict = FALSE;
-                if (IS_SET(pArea->status, AREA_DELETED))
+                if (IsSet(pArea->status, AreaDeleted))
                         continue;
                 else if (room)
                 {
@@ -7272,7 +7272,7 @@ CMDF do_check_vnums(CharData * ch, char *argument)
         for (pArea = first_bsort; pArea; pArea = pArea->next_sort)
         {
                 area_conflict = FALSE;
-                if (IS_SET(pArea->status, AREA_DELETED))
+                if (IsSet(pArea->status, AreaDeleted))
                         continue;
                 else if (room)
                 {
@@ -7354,7 +7354,7 @@ CMDF do_check_vnums(CharData * ch, char *argument)
     for ( pArea = first_asort; pArea; pArea = pArea->next_sort )
     {
         area_conflict = FALSE;
-	if ( IS_SET( pArea->status, AREA_DELETED ) )
+	if ( IsSet( pArea->status, AreaDeleted ) )
 	   continue;
 	else
 	if (room)
@@ -7384,7 +7384,7 @@ CMDF do_check_vnums(CharData * ch, char *argument)
     for ( pArea = first_bsort; pArea; pArea = pArea->next_sort )
     {
         area_conflict = FALSE;
-	if ( IS_SET( pArea->status, AREA_DELETED ) )
+	if ( IsSet( pArea->status, AreaDeleted ) )
 	   continue;
 	else
 	if (room)
@@ -7433,7 +7433,7 @@ int file_size(char *buf)
         /*
          * Seek to end of file 
          */
-        if (fseek(fp, 0, SEEK_END) != 0)
+        if (fseek(fp, 0, SeekEnd) != 0)
         {
                 bug("file_size: failed seek-to-end operation.");
                 FCLOSE(fp);
@@ -7627,7 +7627,7 @@ void load_watchlist(void)
 
         version = 0;
 
-        if (!(fp = fopen(SYSTEM_DIR WATCH_LIST, "r")))
+        if (!(fp = fopen(SystemDir WatchList, "r")))
                 return;
 
         for (;;)
@@ -7649,7 +7649,7 @@ void load_watchlist(void)
 
                 CREATE(pwatch, WatchData, 1);
 
-                pwatch->imm_level = INT_TO_SHINT(number);
+                pwatch->imm_level = IntToShint(number);
                 pwatch->imm_name = fread_string_nohash(fp);
                 pwatch->target_name = fread_string_nohash(fp);
                 if (strlen(pwatch->target_name) < 2)
@@ -7664,7 +7664,7 @@ void load_watchlist(void)
                         long      pos = ftell(fp);
                         char      tmp = static_cast<char>(getc(fp));
 
-                        fseek(fp, pos, SEEK_SET);
+                        fseek(fp, pos, SeekSet);
                         if (tmp != '\n' && tmp != '\r')
                         {
                                 pwatch->player_account =
@@ -7683,7 +7683,7 @@ void load_watchlist(void)
                         {
                                 if (!str_cmp(pwatch->target_name, cmd->name))
                                 {
-                                        SET_BIT(cmd->flags, CMD_WATCH);
+                                        SetBit(cmd->flags, CmdWatch);
                                         break;
                                 }
                         }

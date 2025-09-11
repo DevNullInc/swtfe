@@ -62,11 +62,11 @@
 // ============================================================================
 namespace {
     // Alias system limits
-    constexpr int MAX_ALIAS_ARGS = 9;           // Maximum $1-$9 substitutions
-    constexpr int MAX_ALIAS_RECURSION = 10;    // Prevent infinite loops
+    constexpr int MaxAliasArgs = 9;           // Maximum $1-$9 substitutions
+    constexpr int MaxAliasRecursion = 10;    // Prevent infinite loops
     
     // String constants
-    constexpr const char* ALIAS_SYNTAX = 
+    constexpr const char* AliasSyntax = 
         "Syntax:\n\r"
         "\talias list\n\r"
         "\talias <alias name> create\n\r"
@@ -74,14 +74,14 @@ namespace {
         "\talias <alias name> delete\n\r"
         "\talias <alias name> show\n\r";
         
-    constexpr const char* NO_ALIASES_MSG = "\t&GYou have no aliases.\n\r";
-    constexpr const char* ALIAS_LIST_HEADER = "Your Aliases:\n\r";
-    constexpr const char* ALIAS_EXISTS_MSG = "That alias already exists";
-    constexpr const char* ALIAS_NOT_EXISTS_MSG = "That alias doesn't exist";
-    constexpr const char* ALIAS_CREATED_MSG = "Created.\n\r";
-    constexpr const char* ALIAS_DELETED_MSG = "Deleted.\n\r";
-    constexpr const char* ALIAS_EMPTY_MSG = "Alias command empty.\n\r";
-    constexpr const char* INVALID_COMMAND_MSG = "What....\n\r";
+    constexpr const char* NoAliasesMsg = "\t&GYou have no aliases.\n\r";
+    constexpr const char* AliasListHeader = "Your Aliases:\n\r";
+    constexpr const char* AliasExistsMsg = "That alias already exists";
+    constexpr const char* AliasNotExistsMsg = "That alias doesn't exist";
+    constexpr const char* AliasCreatedMsg = "Created.\n\r";
+    constexpr const char* AliasDeletedMsg = "Deleted.\n\r";
+    constexpr const char* AliasEmptyMsg = "Alias command empty.\n\r";
+    constexpr const char* InvalidCommandMsg = "What....\n\r";
 }
 
 // ============================================================================
@@ -129,11 +129,11 @@ char *one_line(char *argument, char *arg_first)
 // Section: Alias Lookup and Management
 // ============================================================================
 
-ALIAS_DATA *get_alias(CharData *ch, char *argument)
+AliasData *get_alias(CharData *ch, char *argument)
 {
-        ALIAS_DATA *ali;
+        AliasData *ali;
 
-        if (!ch || !argument || IS_NPC(ch))
+        if (!ch || !argument || IsNpc(ch))
                 return nullptr;
 
         // First try exact match
@@ -153,7 +153,7 @@ ALIAS_DATA *get_alias(CharData *ch, char *argument)
         return nullptr;
 }
 
-void free_alias(ACCOUNT_DATA *Account, ALIAS_DATA *alias)
+void free_alias(AccountData *Account, AliasData *alias)
 {
         STRFREE(alias->name);
         STRFREE(alias->cmd);
@@ -161,9 +161,9 @@ void free_alias(ACCOUNT_DATA *Account, ALIAS_DATA *alias)
         DISPOSE(alias);
 }
 
-void free_aliases(ACCOUNT_DATA *Account)
+void free_aliases(AccountData *Account)
 {
-        ALIAS_DATA *alias, *al_next;
+        AliasData *alias, *al_next;
 
         if (!Account)
                 return;
@@ -181,14 +181,14 @@ void free_aliases(ACCOUNT_DATA *Account)
 
 CMDF do_alias(CharData *ch, char *argument)
 {
-        ALIAS_DATA *alias;
+        AliasData *alias;
         char cmd[MSL];
         char arg[MSL];
 
-        if (!ch || !argument || IS_NPC(ch))
+        if (!ch || !argument || IsNpc(ch))
                 return;
 
-        CHECK_SUBRESTRICTED(ch);
+        CheckSubrestricted(ch);
 
         switch (ch->substate)
         {
@@ -196,7 +196,7 @@ CMDF do_alias(CharData *ch, char *argument)
                 break;
 
         case SubAliasMsg:
-                alias = static_cast<ALIAS_DATA*>(ch->dest_buf);
+                alias = static_cast<AliasData*>(ch->dest_buf);
                 if (!alias)
                 {
                         bug("%s has no alias coming out of edit", ch->name);
@@ -212,7 +212,7 @@ CMDF do_alias(CharData *ch, char *argument)
 
         if (argument[0] == '\0')
         {
-                send_to_char(ALIAS_SYNTAX, ch);
+                send_to_char(AliasSyntax, ch);
                 return;
         }
 
@@ -220,10 +220,10 @@ CMDF do_alias(CharData *ch, char *argument)
         {
                 int count = 0;
 
-                send_to_char(ALIAS_LIST_HEADER, ch);
+                send_to_char(AliasListHeader, ch);
                 if (!ch->pcdata->Account->first_alias)
                 {
-                        send_to_char(NO_ALIASES_MSG, ch);
+                        send_to_char(NoAliasesMsg, ch);
                         return;
                 }
 
@@ -255,15 +255,15 @@ CMDF do_alias(CharData *ch, char *argument)
                 }
                 if (alias != nullptr)
                 {
-                        send_to_char(ALIAS_EXISTS_MSG, ch);
+                        send_to_char(AliasExistsMsg, ch);
                         return;
                 }
-                CREATE(alias, ALIAS_DATA, 1);
+                CREATE(alias, AliasData, 1);
                 alias->name = STRALLOC(cmd);
                 alias->cmd = STRALLOC(const_cast<char*>(""));
                 LINK(alias, ch->pcdata->Account->first_alias,
                      ch->pcdata->Account->last_alias, next, prev);
-                send_to_char(ALIAS_CREATED_MSG, ch);
+                send_to_char(AliasCreatedMsg, ch);
 
                 // Now move to editing
                 if (ch->substate == SubRepeatCmd)
@@ -278,7 +278,7 @@ CMDF do_alias(CharData *ch, char *argument)
 
         if ((alias = get_alias(ch, cmd)) == nullptr)
         {
-                send_to_char(ALIAS_NOT_EXISTS_MSG, ch);
+                send_to_char(AliasNotExistsMsg, ch);
                 return;
         }
 
@@ -296,7 +296,7 @@ CMDF do_alias(CharData *ch, char *argument)
         else if (!str_cmp(arg, "delete"))
         {
                 free_alias(ch->pcdata->Account, alias);
-                send_to_char(ALIAS_DELETED_MSG, ch);
+                send_to_char(AliasDeletedMsg, ch);
                 return;
         }
         else if (!str_cmp(arg, "show"))
@@ -307,7 +307,7 @@ CMDF do_alias(CharData *ch, char *argument)
         }
         else
         {
-                send_to_char(INVALID_COMMAND_MSG, ch);
+                send_to_char(InvalidCommandMsg, ch);
                 do_alias(ch, const_cast<char*>(""));
                 return;
         }
@@ -319,11 +319,11 @@ CMDF do_alias(CharData *ch, char *argument)
 
 bool check_alias(CharData *ch, char *command, char *argument)
 {
-        ALIAS_DATA *alias;
+        AliasData *alias;
 
-        if (!ch || !command || IS_NPC(ch) || !ch->desc)
+        if (!ch || !command || IsNpc(ch) || !ch->desc)
                 return FALSE;
-        if (!IS_PLAYING(ch->desc))
+        if (!IsPlaying(ch->desc))
                 return FALSE;
         if (!ch->pcdata->Account->first_alias)
                 return FALSE;
@@ -337,7 +337,7 @@ bool check_alias(CharData *ch, char *command, char *argument)
                 
         if (alias->cmd[0] == '\0')
         {
-                send_to_char(ALIAS_EMPTY_MSG, ch);
+                send_to_char(AliasEmptyMsg, ch);
                 return TRUE;
         }
         
@@ -352,7 +352,7 @@ bool check_alias(CharData *ch, char *command, char *argument)
                 int count = 0;
 
                 argument = one_argument(argument, arg);
-                while (arg[0] != '\0' && ++count < MAX_ALIAS_ARGS)
+                while (arg[0] != '\0' && ++count < MaxAliasArgs)
                 {
                         src = ch->desc->InComm;
                         while (*src && *src != '\0')
@@ -387,11 +387,11 @@ bool check_aliases(DescriptorData *d)
 
         if (!d || !d->character)
                 return FALSE;
-        if (!IS_PLAYING(d))
+        if (!IsPlaying(d))
                 return FALSE;
                 
         ch = d->original ? d->original : d->character;
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return FALSE;
         if (!ch->pcdata->Account->first_alias)
                 return FALSE;
@@ -420,9 +420,9 @@ bool check_aliases(DescriptorData *d)
 // Section: File I/O Operations
 // ============================================================================
 
-void fwrite_alias(ACCOUNT_DATA *Account, FILE *fp)
+void fwrite_alias(AccountData *Account, FILE *fp)
 {
-        ALIAS_DATA *alias;
+        AliasData *alias;
 
         if (!Account)
                 return;
@@ -436,16 +436,16 @@ void fwrite_alias(ACCOUNT_DATA *Account, FILE *fp)
         }
 }
 
-void fread_alias(ACCOUNT_DATA *Account, FILE *fp)
+void fread_alias(AccountData *Account, FILE *fp)
 {
         const char *word;
         bool fMatch;
-        ALIAS_DATA *alias;
+        AliasData *alias;
 
         if (!Account)
                 return;
 
-        CREATE(alias, ALIAS_DATA, 1);
+        CREATE(alias, AliasData, 1);
 
         for (;;)
         {

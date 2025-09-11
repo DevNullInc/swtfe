@@ -89,7 +89,7 @@
  *
  * 1.  Edit color.h, and:
  *     1.  Add a new AT_ define.
- *     2.  Increment MAX_COLORS by however many AT_'s you added.
+ *     2.  Increment MaxColors by however many AT_'s you added.
  * 2.  Edit color.c and:
  *     1.  Add the name(s) for your new color(s) to the end of the pc_displays array.
  *     2.  Add the default color(s) to the end of the default_set array.
@@ -102,9 +102,9 @@
 #include "mxp.hpp"
 #include "cpp_compat.hpp"
 
-extern const char *const pc_displays[MAX_COLORS];
+extern const char *const pc_displays[MaxColors];
 
-const char *const pc_displays[MAX_COLORS] = {
+const char *const pc_displays[MaxColors] = {
         "black", "dred", "dgreen", "orange",
         "dblue", "purple", "cyan", "grey",
         "dgrey", "red", "green", "yellow",
@@ -134,33 +134,33 @@ const char *const pc_displays[MAX_COLORS] = {
 
 /* All defaults are set to Alsherok default scheme, if you don't 
 like it, change it around to suite your own needs - Samson */
-const sh_int default_set[MAX_COLORS] = {
-        AT_BLACK, AT_BLOOD, AT_DGREEN, AT_ORANGE,   /*  3 */
-        AT_DBLUE, AT_PURPLE, AT_CYAN, AT_GREY,  /*  7 */
-        AT_DGREY, AT_RED, AT_GREEN, AT_YELLOW,  /* 11 */
-        AT_BLUE, AT_PINK, AT_LBLUE, AT_WHITE,   /* 15 */
+const sh_int default_set[MaxColors] = {
+        AtBlack, AtBlood, AtDgreen, AtOrange,   /*  3 */
+        AtDblue, AtPurple, AtCyan, AtGrey,  /*  7 */
+        AtDgrey, AtRed, AtGreen, AtYellow,  /* 11 */
+        AtBlue, AtPink, AtLblue, AtWhite,   /* 15 */
 
-        AT_RED + AT_BLINK, AT_GREY, AT_GREY, AT_LBLUE,  /* 19 */
-        AT_GREEN, AT_LBLUE, AT_WHITE, AT_GREY,  /* 23 */
-        AT_GREY, AT_YELLOW, AT_GREY, AT_GREY,   /* 27 */
-        AT_GREY, AT_BLUE, AT_GREY, AT_GREY, /* 31 */
-        AT_DGREEN, AT_CYAN, AT_GREY, AT_GREY,   /* 35 */
-        AT_BLUE, AT_BLUE, AT_GREY, AT_GREY, /* 39 */
-        AT_WHITE, AT_DGREY, AT_GREEN, AT_PINK,  /* 43 */
-        AT_GREY, AT_GREY, AT_YELLOW, AT_GREY,   /* 47 */
-        AT_GREY, AT_ORANGE, AT_BLUE, AT_RED,    /* 51 */
-        AT_GREY, AT_GREY, AT_GREEN, AT_DGREEN,  /* 55 */
-        AT_DGREEN, AT_PURPLE, AT_GREY, AT_RED,  /* 59 */
-        AT_GREY, AT_DGREEN, AT_RED, AT_BLUE,    /* 63 */
-        AT_RED, AT_CYAN, AT_YELLOW, AT_PINK,    /* 67 */
-        AT_DGREEN, AT_PINK, AT_WHITE, AT_BLUE,  /* 71 */
-        AT_BLUE, AT_BLUE, AT_GREEN, AT_GREY,    /* 75 */
-        AT_GREEN, AT_GREEN, AT_YELLOW, AT_DGREY,    /* 79 */
-        AT_GREEN, AT_PINK, AT_DGREEN, AT_CYAN,  /* 83 */
-        AT_RED, AT_WHITE, AT_BLUE, AT_DGREEN,   /* 87 */
-        AT_CYAN, AT_BLOOD, AT_RED, AT_DGREEN,   /* 91 */
-        AT_PINK, AT_CYAN, AT_PINK, AT_YELLOW,   /* 95 */
-        AT_BLUE, AT_DGREEN
+        AtRed + AtBlink, AtGrey, AtGrey, AtLblue,  /* 19 */
+        AtGreen, AtLblue, AtWhite, AtGrey,  /* 23 */
+        AtGrey, AtYellow, AtGrey, AtGrey,   /* 27 */
+        AtGrey, AtBlue, AtGrey, AtGrey, /* 31 */
+        AtDgreen, AtCyan, AtGrey, AtGrey,   /* 35 */
+        AtBlue, AtBlue, AtGrey, AtGrey, /* 39 */
+        AtWhite, AtDgrey, AtGreen, AtPink,  /* 43 */
+        AtGrey, AtGrey, AtYellow, AtGrey,   /* 47 */
+        AtGrey, AtOrange, AtBlue, AtRed,    /* 51 */
+        AtGrey, AtGrey, AtGreen, AtDgreen,  /* 55 */
+        AtDgreen, AtPurple, AtGrey, AtRed,  /* 59 */
+        AtGrey, AtDgreen, AtRed, AtBlue,    /* 63 */
+        AtRed, AtCyan, AtYellow, AtPink,    /* 67 */
+        AtDgreen, AtPink, AtWhite, AtBlue,  /* 71 */
+        AtBlue, AtBlue, AtGreen, AtGrey,    /* 75 */
+        AtGreen, AtGreen, AtYellow, AtDgrey,    /* 79 */
+        AtGreen, AtPink, AtDgreen, AtCyan,  /* 83 */
+        AtRed, AtWhite, AtBlue, AtDgreen,   /* 87 */
+        AtCyan, AtBlood, AtRed, AtDgreen,   /* 91 */
+        AtPink, AtCyan, AtPink, AtYellow,   /* 95 */
+        AtBlue, AtDgreen
 };
 
 const char *const valid_color[] = {
@@ -187,19 +187,19 @@ const char *const valid_color[] = {
 int const_color_str_len(const char *argument)
 {
         int       str, count = 0;
-        bool      IS_COLOR = FALSE;
+        bool      IsColor = FALSE;
 
         for (str = 0; argument[str] != '\0'; str++)
         {
                 if (argument[str] == '&')
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
 #ifdef OVERLANDCODE
                 else if (argument[str] == '{')
@@ -207,30 +207,30 @@ int const_color_str_len(const char *argument)
                 else if (argument[str] == '^')
 #endif
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
                 else if (argument[str] == '}')
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
                 else
                 {
-                        if (IS_COLOR == FALSE)
+                        if (IsColor == FALSE)
                                 count++;
                         else
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                 }
         }
 
@@ -240,19 +240,19 @@ int const_color_str_len(const char *argument)
 int const_color_strnlen(const char *argument, int maxlength)
 {
         int       str, count = 0;
-        bool      IS_COLOR = FALSE;
+        bool      IsColor = FALSE;
 
         for (str = 0; argument[str] != '\0'; str++)
         {
                 if (argument[str] == '&')
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
 #ifdef OVERLANDCODE
                 else if (argument[str] == '{')
@@ -260,30 +260,30 @@ int const_color_strnlen(const char *argument, int maxlength)
                 else if (argument[str] == '^')
 #endif
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
                 else if (argument[str] == '}')
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
                 else
                 {
-                        if (IS_COLOR == FALSE)
+                        if (IsColor == FALSE)
                                 count++;
                         else
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                 }
 
                 if (count >= maxlength)
@@ -299,19 +299,19 @@ int const_color_strnlen(const char *argument, int maxlength)
 int color_str_len(char *argument)
 {
         int       str, count = 0;
-        bool      IS_COLOR = FALSE;
+        bool      IsColor = FALSE;
 
         for (str = 0; argument[str] != '\0'; str++)
         {
                 if (argument[str] == '&')
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
 #ifdef OVERLANDCODE
                 else if (argument[str] == '{')
@@ -319,30 +319,30 @@ int color_str_len(char *argument)
                 else if (argument[str] == '^')
 #endif
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
                 else if (argument[str] == '}')
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
                 else
                 {
-                        if (IS_COLOR == FALSE)
+                        if (IsColor == FALSE)
                                 count++;
                         else
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                 }
         }
 
@@ -352,19 +352,19 @@ int color_str_len(char *argument)
 int color_strnlen(char *argument, int maxlength)
 {
         int       str, count = 0;
-        bool      IS_COLOR = FALSE;
+        bool      IsColor = FALSE;
 
         for (str = 0; argument[str] != '\0'; str++)
         {
                 if (argument[str] == '&')
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
 #ifdef OVERLANDCODE
                 else if (argument[str] == '{')
@@ -372,30 +372,30 @@ int color_strnlen(char *argument, int maxlength)
                 else if (argument[str] == '^')
 #endif
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
                 else if (argument[str] == '}')
                 {
-                        if (IS_COLOR == TRUE)
+                        if (IsColor == TRUE)
                         {
                                 count++;
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                         }
                         else
-                                IS_COLOR = TRUE;
+                                IsColor = TRUE;
                 }
                 else
                 {
-                        if (IS_COLOR == FALSE)
+                        if (IsColor == FALSE)
                                 count++;
                         else
-                                IS_COLOR = FALSE;
+                                IsColor = FALSE;
                 }
 
                 if (count >= maxlength)
@@ -413,11 +413,11 @@ const char *const_color_align(const char *argument, int size, int align)
         int       space = (size - const_color_str_len(argument));
         static char buf[MaxStringLength];
 
-        if (align == ALIGN_RIGHT || const_color_str_len(argument) >= size)
+        if (align == AlignRight || const_color_str_len(argument) >= size)
                 snprintf(buf, MSL, "%*.*s",
                          const_color_strnlen(argument, size),
                          const_color_strnlen(argument, size), argument);
-        else if (align == ALIGN_CENTER)
+        else if (align == AlignCenter)
                 snprintf(buf, MSL, "%*s%s%*s", (space / 2), "", argument,
                          ((space / 2) * 2) ==
                          space ? (space / 2) : ((space / 2) + 1), "");
@@ -432,14 +432,14 @@ char     *color_align(char *argument, int size, int align)
         int       space = (size - color_str_len(argument));
         static char buf[MaxStringLength];
 
-        if (align == ALIGN_RIGHT || color_str_len(argument) >= size)
+        if (align == AlignRight || color_str_len(argument) >= size)
                 snprintf(buf, MSL, "%*.*s", color_strnlen(argument, size),
                          color_strnlen(argument, size), argument);
-        else if (align == ALIGN_CENTER)
+        else if (align == AlignCenter)
                 snprintf(buf, MSL, "%*s%s%*s", (space / 2), "", argument,
                          ((space / 2) * 2) ==
                          space ? (space / 2) : ((space / 2) + 1), "");
-        else if (align == ALIGN_LEFT)
+        else if (align == AlignLeft)
                 snprintf(buf, MSL, "%s%*s", argument, space, "");
 
         return buf;
@@ -476,14 +476,14 @@ void show_colors(CharData * ch)
                 ("\n\r\n\r&W******************************[ COLOR TYPES ]******************************\n\r",
                  ch);
 
-        for (count = 16; count < MAX_COLORS; ++count)
+        for (count = 16; count < MaxColors; ++count)
         {
                 if ((count % 8) == 0 && count != 16)
                 {
                         send_to_pager("\n\r", ch);
                 }
                 pager_printf(ch, "%s%-10s%s", color_str(count, ch),
-                             pc_displays[count], ANSI_RESET);
+                             pc_displays[count], AnsiReset);
         }
         send_to_pager("\n\r\n\r", ch);
         send_to_pager("&YAvailable colors are:\n\r", ch);
@@ -493,7 +493,7 @@ void show_colors(CharData * ch)
                 if ((count % 8) == 0 && count != 0)
                         send_to_pager("\n\r", ch);
 
-                pager_printf(ch, "%s%-10s", color_str(AT_PLAIN, ch),
+                pager_printf(ch, "%s%-10s", color_str(AtPlain, ch),
                              valid_color[count]);
         }
         send_to_pager("\n\r", ch);
@@ -512,7 +512,7 @@ CMDF do_color(CharData * ch, char *argument)
         dMatch = FALSE;
         cMatch = FALSE;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_pager("Only PC's can change colors.\n\r", ch);
                 return;
@@ -528,94 +528,94 @@ CMDF do_color(CharData * ch, char *argument)
 
         if (!str_cmp(arg, "ansitest"))
         {
-                snprintf(log_buf, MSL, "%sBlack\n\r", ANSI_BLACK);
+                snprintf(log_buf, MSL, "%sBlack\n\r", AnsiBlack);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sDark Red\n\r", ANSI_DRED);
+                snprintf(log_buf, MSL, "%sDark Red\n\r", AnsiDred);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sDark Green\n\r", ANSI_DGREEN);
+                snprintf(log_buf, MSL, "%sDark Green\n\r", AnsiDgreen);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sOrange/Brown\n\r", ANSI_ORANGE);
+                snprintf(log_buf, MSL, "%sOrange/Brown\n\r", AnsiOrange);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sDark Blue\n\r", ANSI_DBLUE);
+                snprintf(log_buf, MSL, "%sDark Blue\n\r", AnsiDblue);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sPurple\n\r", ANSI_PURPLE);
+                snprintf(log_buf, MSL, "%sPurple\n\r", AnsiPurple);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sCyan\n\r", ANSI_CYAN);
+                snprintf(log_buf, MSL, "%sCyan\n\r", AnsiCyan);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sGrey\n\r", ANSI_GREY);
+                snprintf(log_buf, MSL, "%sGrey\n\r", AnsiGrey);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sDark Grey\n\r", ANSI_DGREY);
+                snprintf(log_buf, MSL, "%sDark Grey\n\r", AnsiDgrey);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sRed\n\r", ANSI_RED);
+                snprintf(log_buf, MSL, "%sRed\n\r", AnsiRed);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sGreen\n\r", ANSI_GREEN);
+                snprintf(log_buf, MSL, "%sGreen\n\r", AnsiGreen);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sYellow\n\r", ANSI_YELLOW);
+                snprintf(log_buf, MSL, "%sYellow\n\r", AnsiYellow);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sBlue\n\r", ANSI_BLUE);
+                snprintf(log_buf, MSL, "%sBlue\n\r", AnsiBlue);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sPink\n\r", ANSI_PINK);
+                snprintf(log_buf, MSL, "%sPink\n\r", AnsiPink);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sLight Blue\n\r", ANSI_LBLUE);
+                snprintf(log_buf, MSL, "%sLight Blue\n\r", AnsiLblue);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sWhite\n\r", ANSI_WHITE);
+                snprintf(log_buf, MSL, "%sWhite\n\r", AnsiWhite);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sBlack\n\r", BLINK_BLACK);
+                snprintf(log_buf, MSL, "%sBlack\n\r", BlinkBlack);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sDark Red\n\r", BLINK_DRED);
+                snprintf(log_buf, MSL, "%sDark Red\n\r", BlinkDred);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sDark Green\n\r", BLINK_DGREEN);
+                snprintf(log_buf, MSL, "%sDark Green\n\r", BlinkDgreen);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sOrange/Brown\n\r", BLINK_ORANGE);
+                snprintf(log_buf, MSL, "%sOrange/Brown\n\r", BlinkOrange);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sDark Blue\n\r", BLINK_DBLUE);
+                snprintf(log_buf, MSL, "%sDark Blue\n\r", BlinkDblue);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sPurple\n\r", BLINK_PURPLE);
+                snprintf(log_buf, MSL, "%sPurple\n\r", BlinkPurple);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sCyan\n\r", BLINK_CYAN);
+                snprintf(log_buf, MSL, "%sCyan\n\r", BlinkCyan);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sGrey\n\r", BLINK_GREY);
+                snprintf(log_buf, MSL, "%sGrey\n\r", BlinkGrey);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sDark Grey\n\r", BLINK_DGREY);
+                snprintf(log_buf, MSL, "%sDark Grey\n\r", BlinkDgrey);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sRed\n\r", BLINK_RED);
+                snprintf(log_buf, MSL, "%sRed\n\r", BlinkRed);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sGreen\n\r", BLINK_GREEN);
+                snprintf(log_buf, MSL, "%sGreen\n\r", BlinkGreen);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sYellow\n\r", BLINK_YELLOW);
+                snprintf(log_buf, MSL, "%sYellow\n\r", BlinkYellow);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sBlue\n\r", BLINK_BLUE);
+                snprintf(log_buf, MSL, "%sBlue\n\r", BlinkBlue);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sPink\n\r", BLINK_PINK);
+                snprintf(log_buf, MSL, "%sPink\n\r", BlinkPink);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sLight Blue\n\r", BLINK_LBLUE);
+                snprintf(log_buf, MSL, "%sLight Blue\n\r", BlinkLblue);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%sWhite\n\r", BLINK_WHITE);
+                snprintf(log_buf, MSL, "%sWhite\n\r", BlinkWhite);
                 write_to_buffer(ch->desc, log_buf, 0);
-                write_to_buffer(ch->desc, ANSI_RESET, 0);
-                snprintf(log_buf, MSL, "%s%sBlack\n\r", ANSI_WHITE,
-                         BACK_BLACK);
+                write_to_buffer(ch->desc, AnsiReset, 0);
+                snprintf(log_buf, MSL, "%s%sBlack\n\r", AnsiWhite,
+                         BackBlack);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%s%sDark Red\n\r", ANSI_BLACK,
-                         BACK_DRED);
+                snprintf(log_buf, MSL, "%s%sDark Red\n\r", AnsiBlack,
+                         BackDred);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%s%sDark Green\n\r", ANSI_BLACK,
-                         BACK_DGREEN);
+                snprintf(log_buf, MSL, "%s%sDark Green\n\r", AnsiBlack,
+                         BackDgreen);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%s%sOrange/Brown\n\r", ANSI_BLACK,
-                         BACK_ORANGE);
+                snprintf(log_buf, MSL, "%s%sOrange/Brown\n\r", AnsiBlack,
+                         BackOrange);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%s%sDark Blue\n\r", ANSI_BLACK,
-                         BACK_DBLUE);
+                snprintf(log_buf, MSL, "%s%sDark Blue\n\r", AnsiBlack,
+                         BackDblue);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%s%sPurple\n\r", ANSI_BLACK,
-                         BACK_PURPLE);
+                snprintf(log_buf, MSL, "%s%sPurple\n\r", AnsiBlack,
+                         BackPurple);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%s%sCyan\n\r", ANSI_BLACK, BACK_CYAN);
+                snprintf(log_buf, MSL, "%s%sCyan\n\r", AnsiBlack, BackCyan);
                 write_to_buffer(ch->desc, log_buf, 0);
-                snprintf(log_buf, MSL, "%s%sGrey\n\r", ANSI_BLACK, BACK_GREY);
+                snprintf(log_buf, MSL, "%s%sGrey\n\r", AnsiBlack, BackGrey);
                 write_to_buffer(ch->desc, log_buf, 0);
-                write_to_buffer(ch->desc, ANSI_RESET, 0);
+                write_to_buffer(ch->desc, AnsiReset, 0);
 
                 return;
         }
@@ -664,7 +664,7 @@ CMDF do_color(CharData * ch, char *argument)
                 /*
                  * search for the display type and str_cmp
                  */
-                for (count = 0; count < MAX_COLORS; count++)
+                for (count = 0; count < MaxColors; count++)
                 {
                         if (!str_prefix(arg, pc_displays[count]))
                         {
@@ -739,14 +739,14 @@ CMDF do_color(CharData * ch, char *argument)
 
         if (!str_cmp(arg3, "blink"))
         {
-                y += AT_BLINK;
+                y += AtBlink;
         }
 
         if (count == -1)
         {
                 int       ccount;
 
-                for (ccount = 0; ccount < MAX_COLORS; ++ccount)
+                for (ccount = 0; ccount < MaxColors; ++ccount)
                 {
                         ch->colors[ccount] = y;
                 }
@@ -754,8 +754,8 @@ CMDF do_color(CharData * ch, char *argument)
                 set_pager_color(y, ch);
 
                 snprintf(buf, MSL, "All color types set to color %s%s.%s\n\r",
-                         valid_color[y > AT_BLINK ? y - AT_BLINK : y],
-                         y > AT_BLINK ? " [BLINKING]" : "", ANSI_RESET);
+                         valid_color[y > AtBlink ? y - AtBlink : y],
+                         y > AtBlink ? " [BLINKING]" : "", AnsiReset);
 
                 send_to_pager(buf, ch);
         }
@@ -769,14 +769,14 @@ CMDF do_color(CharData * ch, char *argument)
                         snprintf(buf, MSL,
                                  "Display %s set to color %s [BLINKING]%s\n\r",
                                  pc_displays[count],
-                                 valid_color[y - AT_BLINK], ANSI_RESET);
+                                 valid_color[y - AtBlink], AnsiReset);
                 else
                         snprintf(buf, MSL, "Display %s set to color %s.\n\r",
                                  pc_displays[count], valid_color[y]);
 
                 send_to_pager(buf, ch);
         }
-        set_pager_color(AT_PLAIN, ch);
+        set_pager_color(AtPlain, ch);
 
         return;
 }
@@ -794,114 +794,114 @@ const char *color_str(sh_int AType, CharData * ch)
                 return ("");
         }
 
-        if (IS_NPC(ch) || !IS_SET(ch->act, PLR_ANSI))
+        if (IsNpc(ch) || !IsSet(ch->act, PlrAnsi))
                 return ("");
 
         switch (ch->colors[AType])
         {
         case 0:
-                return (ANSI_BLACK);
+                return (AnsiBlack);
                 break;
         case 1:
-                return (ANSI_DRED);
+                return (AnsiDred);
                 break;
         case 2:
-                return (ANSI_DGREEN);
+                return (AnsiDgreen);
                 break;
         case 3:
-                return (ANSI_ORANGE);
+                return (AnsiOrange);
                 break;
         case 4:
-                return (ANSI_DBLUE);
+                return (AnsiDblue);
                 break;
         case 5:
-                return (ANSI_PURPLE);
+                return (AnsiPurple);
                 break;
         case 6:
-                return (ANSI_CYAN);
+                return (AnsiCyan);
                 break;
         case 7:
-                return (ANSI_GREY);
+                return (AnsiGrey);
                 break;
         case 8:
-                return (ANSI_DGREY);
+                return (AnsiDgrey);
                 break;
         case 9:
-                return (ANSI_RED);
+                return (AnsiRed);
                 break;
         case 10:
-                return (ANSI_GREEN);
+                return (AnsiGreen);
                 break;
         case 11:
-                return (ANSI_YELLOW);
+                return (AnsiYellow);
                 break;
         case 12:
-                return (ANSI_BLUE);
+                return (AnsiBlue);
                 break;
         case 13:
-                return (ANSI_PINK);
+                return (AnsiPink);
                 break;
         case 14:
-                return (ANSI_LBLUE);
+                return (AnsiLblue);
                 break;
         case 15:
-                return (ANSI_WHITE);
+                return (AnsiWhite);
                 break;
 
                 /*
                  * 16 thru 31 are for blinking colors 
                  */
         case 16:
-                return (BLINK_BLACK);
+                return (BlinkBlack);
                 break;
         case 17:
-                return (BLINK_DRED);
+                return (BlinkDred);
                 break;
         case 18:
-                return (BLINK_DGREEN);
+                return (BlinkDgreen);
                 break;
         case 19:
-                return (BLINK_ORANGE);
+                return (BlinkOrange);
                 break;
         case 20:
-                return (BLINK_DBLUE);
+                return (BlinkDblue);
                 break;
         case 21:
-                return (BLINK_PURPLE);
+                return (BlinkPurple);
                 break;
         case 22:
-                return (BLINK_CYAN);
+                return (BlinkCyan);
                 break;
         case 23:
-                return (BLINK_GREY);
+                return (BlinkGrey);
                 break;
         case 24:
-                return (BLINK_DGREY);
+                return (BlinkDgrey);
                 break;
         case 25:
-                return (BLINK_RED);
+                return (BlinkRed);
                 break;
         case 26:
-                return (BLINK_GREEN);
+                return (BlinkGreen);
                 break;
         case 27:
-                return (BLINK_YELLOW);
+                return (BlinkYellow);
                 break;
         case 28:
-                return (BLINK_BLUE);
+                return (BlinkBlue);
                 break;
         case 29:
-                return (BLINK_PINK);
+                return (BlinkPink);
                 break;
         case 30:
-                return (BLINK_LBLUE);
+                return (BlinkLblue);
                 break;
         case 31:
-                return (BLINK_WHITE);
+                return (BlinkWhite);
                 break;
 
         default:
-                return (ANSI_RESET);
+                return (AnsiReset);
                 break;
         }
 }
@@ -916,7 +916,7 @@ int colorcode(const char *col, char *code, CharData * ch)
         if (!ch || ch->gold == 0)
                 ansi = TRUE;
         else
-                ansi = (!IS_NPC(ch) && IS_SET(ch->act, PLR_ANSI));
+                ansi = (!IsNpc(ch) && IsSet(ch->act, PlrAnsi));
 
         col++;
 
@@ -959,76 +959,76 @@ int colorcode(const char *col, char *code, CharData * ch)
                                 return 2;
                         case 'i':  /* Italic text */
                         case 'I':
-                                mudstrlcpy(code, ANSI_ITALIC, 20);
+                                mudstrlcpy(code, AnsiItalic, 20);
                                 break;
                         case 'v':  /* Reverse colors */
                         case 'V':
-                                mudstrlcpy(code, ANSI_REVERSE, 20);
+                                mudstrlcpy(code, AnsiReverse, 20);
                                 break;
                         case 'u':  /* Underline */
                         case 'U':
-                                mudstrlcpy(code, ANSI_UNDERLINE, 20);
+                                mudstrlcpy(code, AnsiUnderline, 20);
                                 break;
                         case 's':  /* Strikeover */
                         case 'S':
-                                mudstrlcpy(code, ANSI_STRIKEOUT, 20);
+                                mudstrlcpy(code, AnsiStrikeout, 20);
                                 break;
                         case 'd':  /* Player's Client default color */
-                                mudstrlcpy(code, ANSI_RESET, 20);
+                                mudstrlcpy(code, AnsiReset, 20);
                                 break;
                         case 'D':  /* Reset to custom color for whatever is being displayed */
-                                mudstrlcpy(code, ANSI_RESET, 20);   /* Yes, this reset here is quite necessary to cancel out other things */
+                                mudstrlcpy(code, AnsiReset, 20);   /* Yes, this reset here is quite necessary to cancel out other things */
                                 mudstrlcat(code,
                                            color_str(ch->desc->PageColor, ch),
                                            20);
                                 break;
                         case 'x':  /* Black */
-                                mudstrlcpy(code, ANSI_BLACK, 20);
+                                mudstrlcpy(code, AnsiBlack, 20);
                                 break;
                         case 'O':  /* Orange/Brown */
-                                mudstrlcpy(code, ANSI_ORANGE, 20);
+                                mudstrlcpy(code, AnsiOrange, 20);
                                 break;
                         case 'c':  /* Cyan */
-                                mudstrlcpy(code, ANSI_CYAN, 20);
+                                mudstrlcpy(code, AnsiCyan, 20);
                                 break;
                         case 'z':  /* Dark Grey */
-                                mudstrlcpy(code, ANSI_DGREY, 20);
+                                mudstrlcpy(code, AnsiDgrey, 20);
                                 break;
                         case 'g':  /* Dark Green */
-                                mudstrlcpy(code, ANSI_DGREEN, 20);
+                                mudstrlcpy(code, AnsiDgreen, 20);
                                 break;
                         case 'G':  /* Light Green */
-                                mudstrlcpy(code, ANSI_GREEN, 20);
+                                mudstrlcpy(code, AnsiGreen, 20);
                                 break;
                         case 'P':  /* Pink/Light Purple */
-                                mudstrlcpy(code, ANSI_PINK, 20);
+                                mudstrlcpy(code, AnsiPink, 20);
                                 break;
                         case 'r':  /* Dark Red */
-                                mudstrlcpy(code, ANSI_DRED, 20);
+                                mudstrlcpy(code, AnsiDred, 20);
                                 break;
                         case 'b':  /* Dark Blue */
-                                mudstrlcpy(code, ANSI_DBLUE, 20);
+                                mudstrlcpy(code, AnsiDblue, 20);
                                 break;
                         case 'w':  /* Grey */
-                                mudstrlcpy(code, ANSI_GREY, 20);
+                                mudstrlcpy(code, AnsiGrey, 20);
                                 break;
                         case 'Y':  /* Yellow */
-                                mudstrlcpy(code, ANSI_YELLOW, 20);
+                                mudstrlcpy(code, AnsiYellow, 20);
                                 break;
                         case 'C':  /* Light Blue */
-                                mudstrlcpy(code, ANSI_LBLUE, 20);
+                                mudstrlcpy(code, AnsiLblue, 20);
                                 break;
                         case 'p':  /* Purple */
-                                mudstrlcpy(code, ANSI_PURPLE, 20);
+                                mudstrlcpy(code, AnsiPurple, 20);
                                 break;
                         case 'R':  /* Red */
-                                mudstrlcpy(code, ANSI_RED, 20);
+                                mudstrlcpy(code, AnsiRed, 20);
                                 break;
                         case 'B':  /* Blue */
-                                mudstrlcpy(code, ANSI_BLUE, 20);
+                                mudstrlcpy(code, AnsiBlue, 20);
                                 break;
                         case 'W':  /* White */
-                                mudstrlcpy(code, ANSI_WHITE, 20);
+                                mudstrlcpy(code, AnsiWhite, 20);
                                 break;
                         }
                 }
@@ -1045,52 +1045,52 @@ int colorcode(const char *col, char *code, CharData * ch)
                                 code[2] = '\0';
                                 return 2;
                         case 'x':  /* Black */
-                                mudstrlcpy(code, BLINK_BLACK, 20);
+                                mudstrlcpy(code, BlinkBlack, 20);
                                 break;
                         case 'O':  /* Orange/Brown */
-                                mudstrlcpy(code, BLINK_ORANGE, 20);
+                                mudstrlcpy(code, BlinkOrange, 20);
                                 break;
                         case 'c':  /* Cyan */
-                                mudstrlcpy(code, BLINK_CYAN, 20);
+                                mudstrlcpy(code, BlinkCyan, 20);
                                 break;
                         case 'z':  /* Dark Grey */
-                                mudstrlcpy(code, BLINK_DGREY, 20);
+                                mudstrlcpy(code, BlinkDgrey, 20);
                                 break;
                         case 'g':  /* Dark Green */
-                                mudstrlcpy(code, BLINK_DGREEN, 20);
+                                mudstrlcpy(code, BlinkDgreen, 20);
                                 break;
                         case 'G':  /* Light Green */
-                                mudstrlcpy(code, BLINK_GREEN, 20);
+                                mudstrlcpy(code, BlinkGreen, 20);
                                 break;
                         case 'P':  /* Pink/Light Purple */
-                                mudstrlcpy(code, BLINK_PINK, 20);
+                                mudstrlcpy(code, BlinkPink, 20);
                                 break;
                         case 'r':  /* Dark Red */
-                                mudstrlcpy(code, BLINK_DRED, 20);
+                                mudstrlcpy(code, BlinkDred, 20);
                                 break;
                         case 'b':  /* Dark Blue */
-                                mudstrlcpy(code, BLINK_DBLUE, 20);
+                                mudstrlcpy(code, BlinkDblue, 20);
                                 break;
                         case 'w':  /* Grey */
-                                mudstrlcpy(code, BLINK_GREY, 20);
+                                mudstrlcpy(code, BlinkGrey, 20);
                                 break;
                         case 'Y':  /* Yellow */
-                                mudstrlcpy(code, BLINK_YELLOW, 20);
+                                mudstrlcpy(code, BlinkYellow, 20);
                                 break;
                         case 'C':  /* Light Blue */
-                                mudstrlcpy(code, BLINK_LBLUE, 20);
+                                mudstrlcpy(code, BlinkLblue, 20);
                                 break;
                         case 'p':  /* Purple */
-                                mudstrlcpy(code, BLINK_PURPLE, 20);
+                                mudstrlcpy(code, BlinkPurple, 20);
                                 break;
                         case 'R':  /* Red */
-                                mudstrlcpy(code, BLINK_RED, 20);
+                                mudstrlcpy(code, BlinkRed, 20);
                                 break;
                         case 'B':  /* Blue */
-                                mudstrlcpy(code, BLINK_BLUE, 20);
+                                mudstrlcpy(code, BlinkBlue, 20);
                                 break;
                         case 'W':  /* White */
-                                mudstrlcpy(code, BLINK_WHITE, 20);
+                                mudstrlcpy(code, BlinkWhite, 20);
                                 break;
                         }
                 }
@@ -1111,28 +1111,28 @@ int colorcode(const char *col, char *code, CharData * ch)
                                 code[2] = '\0';
                                 return 2;
                         case 'x':  /* Black */
-                                mudstrlcpy(code, BACK_BLACK, 20);
+                                mudstrlcpy(code, BackBlack, 20);
                                 break;
                         case 'r':  /* Dark Red */
-                                mudstrlcpy(code, BACK_DRED, 20);
+                                mudstrlcpy(code, BackDred, 20);
                                 break;
                         case 'g':  /* Dark Green */
-                                mudstrlcpy(code, BACK_DGREEN, 20);
+                                mudstrlcpy(code, BackDgreen, 20);
                                 break;
                         case 'O':  /* Orange/Brown */
-                                mudstrlcpy(code, BACK_ORANGE, 20);
+                                mudstrlcpy(code, BackOrange, 20);
                                 break;
                         case 'b':  /* Dark Blue */
-                                mudstrlcpy(code, BACK_DBLUE, 20);
+                                mudstrlcpy(code, BackDblue, 20);
                                 break;
                         case 'p':  /* Purple */
-                                mudstrlcpy(code, BACK_PURPLE, 20);
+                                mudstrlcpy(code, BackPurple, 20);
                                 break;
                         case 'c':  /* Cyan */
-                                mudstrlcpy(code, BACK_CYAN, 20);
+                                mudstrlcpy(code, BackCyan, 20);
                                 break;
                         case 'w':  /* Grey */
-                                mudstrlcpy(code, BACK_GREY, 20);
+                                mudstrlcpy(code, BackGrey, 20);
                                 break;
                         }
                 }
@@ -1242,7 +1242,7 @@ void send_to_desc_color(const char *txt, DescriptorData * d)
         if (!txt || !d->descriptor)
                 return;
 
-        while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&^}")) != NULL)
+        while ((colstr = strpbrk(StringLiteral(prevstr), "&^}")) != NULL)
         {
                 if (colstr > prevstr)
                         write_to_buffer(d, prevstr, static_cast<int>(colstr - prevstr));
@@ -1283,9 +1283,9 @@ void send_to_char_color(const char *txt, CharData * ch)
         if (txt && ch->desc)
         {
 #ifdef OVERLANDCODE
-                while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&{}")) != NULL)
+                while ((colstr = strpbrk(StringLiteral(prevstr), "&{}")) != NULL)
 #else
-                while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&^}")) != NULL)
+                while ((colstr = strpbrk(StringLiteral(prevstr), "&^}")) != NULL)
 #endif
                 {
                         if (colstr > prevstr)
@@ -1316,7 +1316,7 @@ void send_to_pager_color(const char *txt, CharData * ch)
         char      colbuf[20];
         int       ln;
 
-        if (IS_NPC(ch)) /* NPCs can't do pager */
+        if (IsNpc(ch)) /* NPCs can't do pager */
                 send_to_char_color(txt, ch);
 
         if (!ch)
@@ -1330,15 +1330,15 @@ void send_to_pager_color(const char *txt, CharData * ch)
                 DescriptorData *d = ch->desc;
 
                 ch = d->original ? d->original : d->character;
-                if (IS_NPC(ch) || !IS_SET(ch->pcdata->flags, PCFLAG_PAGERON))
+                if (IsNpc(ch) || !IsSet(ch->pcdata->flags, PcflagPageron))
                 {
                         send_to_char_color(txt, d->character);
                         return;
                 }
 #ifdef OVERLANDCODE
-                while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&{}")) != NULL)
+                while ((colstr = strpbrk(StringLiteral(prevstr), "&{}")) != NULL)
 #else
-                while ((colstr = strpbrk(STRING_LITERAL(prevstr), "&^}")) != NULL)
+                while ((colstr = strpbrk(StringLiteral(prevstr), "&^}")) != NULL)
 #endif
                 {
                         if (colstr > prevstr)
@@ -1368,7 +1368,7 @@ void send_to_char(const char *txt, CharData * ch)
 
 void send_to_pager(const char *txt, CharData * ch)
 {
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 send_to_char_color(txt, ch);
         else
                 send_to_pager_color(txt, ch);

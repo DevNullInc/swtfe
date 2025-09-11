@@ -63,7 +63,7 @@
 #include <sys/stat.h>
 #include "mud.hpp"
 
-#define VENDOR_FEE  .05 /*fee vendor charges, taken out of all gode with teh GETGOLD command */
+#define VendorFee  .05 /*fee vendor charges, taken out of all gode with teh GETGOLD command */
 
 CharData *find_keepernotext args((CharData * ch));
 bool      char_exists(char *player);
@@ -82,7 +82,7 @@ CMDF do_buyvendor(CharData * ch, char *argument)
 
 
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if ((keeper = find_keeper(ch)) == NULL)
@@ -142,7 +142,7 @@ CMDF do_placevendor(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
 
@@ -167,14 +167,14 @@ CMDF do_placevendor(CharData * ch, char *argument)
          * checks to see if there in arena.. might want to pull this out if you dont have
          * arena
          */
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_ARENA))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomArena))
         {
                 send_to_char("Not here\n\r", ch);
                 log_string("do_placevendor: in the arena");
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_PLAYERSHOP))
+        if (!xIS_SET(ch->in_room->RoomFlags, RoomPlayershop))
         {
                 send_to_char("This is not an empty player shop.\n\r", ch);
                 return;
@@ -228,8 +228,8 @@ around in hell do we?*/
         extract_obj(obj);
 
 
-        act(AT_ACTION, "$n appears in a swirl of smoke.\n", vendor, NULL,
-            NULL, TO_ROOM);
+        act(AtAction, "$n appears in a swirl of smoke.\n", vendor, NULL,
+            NULL, ToRoom);
 }
 
 
@@ -339,22 +339,22 @@ CMDF do_collectcredits(CharData * ch, char *argument)
         }
 
         gold = vendor->gold;
-        gold -= (long int) (gold * VENDOR_FEE);
+        gold -= (long int) (gold * VendorFee);
         vendor->gold = 0;
         ch->gold += gold;
 
         send_to_char_color
                 ("&GYour vendor gladly hands over his earnings minus a small fee of course..\n\r",
                  ch);
-        act(AT_ACTION, "$n hands over some money.\n\r", vendor, NULL, NULL,
-            TO_ROOM);
+        act(AtAction, "$n hands over some money.\n\r", vendor, NULL, NULL,
+            ToRoom);
 }
 
 
 /* Write vendor to file */
 void fwrite_vendor(FILE * fp, CharData * mob)
 {
-        if (!IS_NPC(mob) || !fp)
+        if (!IsNpc(mob) || !fp)
                 return;
         fprintf(fp, "Vnum     %d\n", mob->pIndexData->vnum);
         if (mob->gold > 0)
@@ -431,7 +431,7 @@ CharData *fread_vendor(FILE * fp)
                 case '#':
                         if (!strcmp(word, "#OBJECT"))
                         {
-                                fread_obj(mob, fp, OS_CARRY);
+                                fread_obj(mob, fp, OsCarry);
                         }
                         break;
                 case 'D':
@@ -447,7 +447,7 @@ CharData *fread_vendor(FILE * fp)
                                         if (!mob->in_room)
                                                 mob->in_room =
                                                         get_room_index
-                                                        (ROOM_VNUM_LIMBO);
+                                                        (RoomVnumLimbo);
                                         extract_char(mob, TRUE);
                                         return NULL;
                                 }
@@ -517,7 +517,7 @@ CharData *fread_vendor(FILE * fp)
                                         if (!mob->in_room)
                                                 mob->in_room =
                                                         get_room_index
-                                                        (ROOM_VNUM_LIMBO);
+                                                        (RoomVnumLimbo);
                                         extract_char(mob, TRUE);
                                         STRFREE(temp);
                                         return NULL;
@@ -563,7 +563,7 @@ void save_vendor(CharData * ch)
 
 
 
-        if ((fp = fopen(TEMP_FILE, "w")) == NULL)
+        if ((fp = fopen(TempFile, "w")) == NULL)
         {
                 perror(strsave);
                 bug("Save_vendor: fopen", 0);
@@ -579,7 +579,7 @@ void save_vendor(CharData * ch)
                 fwrite_vendor(fp, ch);
 
                 if (ch->first_carrying)
-                        fwrite_obj(ch, ch->last_carrying, fp, 0, OS_CARRY,
+                        fwrite_obj(ch, ch->last_carrying, fp, 0, OsCarry,
                                    FALSE);
 
                 fprintf(fp, "#END\n");
@@ -594,7 +594,7 @@ void save_vendor(CharData * ch)
                 }
 
                 else
-                        rename(TEMP_FILE, strsave);
+                        rename(TempFile, strsave);
         }
 
         re_equip_char(ch);
@@ -606,10 +606,10 @@ CMDF do_nameshop(CharData * ch, char *argument)
         CharData *vendor;
         CharData *wch;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_PLAYERSHOP))
+        if (!xIS_SET(ch->in_room->RoomFlags, RoomPlayershop))
         {
                 send_to_char("This is not a player shop.\n\r", ch);
                 return;

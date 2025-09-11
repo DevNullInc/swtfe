@@ -48,7 +48,7 @@
 #include <memory>
 
 struct editor_data;
-using EDITOR_DATA = editor_data;
+using EditorData = editor_data;
 
 struct editor_data
 {

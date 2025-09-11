@@ -15,13 +15,13 @@ enum class OlcBountyType : int {
 };
 
 constexpr std::array<std::string_view, 3> olc_bounty_types = {
-        "Alive", "Dead", "MAX_TYPE"
+        "Alive", "Dead", "MaxType"
 };
 
-constexpr std::string_view OLC_BOUNTY_FILE = SYSTEM_DIR "olcbounty.dat";
+constexpr std::string_view OlcBountyFile = SystemDir "olcbounty.dat";
 
 
-class OLC_BOUNTY_DATA {
+class OlcBountyData {
 private:
         int _owner{0};
         int _vnum{0};
@@ -31,9 +31,9 @@ private:
         int _exp{0};
 
 public:
-        OLC_BOUNTY_DATA() = default;
-        explicit OLC_BOUNTY_DATA(int vnum);
-        ~OLC_BOUNTY_DATA() = default;
+        OlcBountyData() = default;
+        explicit OlcBountyData(int vnum);
+        ~OlcBountyData() = default;
 
         OlcBountyType type() const { return _type; }
         bool set_type(OlcBountyType t) {
@@ -64,10 +64,10 @@ public:
 
 
 
-using OLC_BOUNTY_LIST = std::vector<std::shared_ptr<OLC_BOUNTY_DATA>>;
-extern OLC_BOUNTY_LIST olc_bounties;
+using OlcBountyList = std::vector<std::shared_ptr<OlcBountyData>>;
+extern OlcBountyList olc_bounties;
 
-std::shared_ptr<OLC_BOUNTY_DATA> has_olc_bounty(const CharData* victim);
+std::shared_ptr<OlcBountyData> has_olc_bounty(const CharData* victim);
 void mset_bounty(CharData* ch, CharData* mob, std::string_view argument);
 void print_olc_bounties_mob(CharData* ch, CharData* mob);
 void load_olc_bounties();

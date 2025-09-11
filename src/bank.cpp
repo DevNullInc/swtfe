@@ -50,14 +50,14 @@
 // Security and Configuration Constants
 // ============================================================================
 namespace BankSecurity {
-    constexpr long MAX_TRANSACTION_AMOUNT = 1000000000L;    // 1 billion credits max per transaction
-    constexpr long BALANCE_THRESHOLD = 999999999L;          // Threshold for hi/lo balance management
-    constexpr long SAFE_ADDITION_LIMIT = LONG_MAX / 2;      // Safe limit to prevent overflow
-    constexpr int MAX_ACCOUNTS_PER_PLAYER = 10;             // Maximum accounts per player
-    constexpr double MIN_INTEREST_RATE = 0.01;              // Minimum 1% interest
-    constexpr double MAX_INTEREST_RATE = 1.10;              // Maximum 110% interest (10% gain)
-    constexpr double DEFAULT_INTEREST_RATE = 0.05;          // Default 5% interest
-    constexpr long MINIMUM_TRANSACTION = 1L;                // Minimum transaction amount
+    constexpr long MaxTransactionAmount = 1000000000L;    // 1 billion credits max per transaction
+    constexpr long BalanceThreshold = 999999999L;          // Threshold for hi/lo balance management
+    constexpr long SafeAdditionLimit = LongMax / 2;      // Safe limit to prevent overflow
+    constexpr int MaxAccountsPerPlayer = 10;             // Maximum accounts per player
+    constexpr double MinInterestRate = 0.01;              // Minimum 1% interest
+    constexpr double MaxInterestRate = 1.10;              // Maximum 110% interest (10% gain)
+    constexpr double DefaultInterestRate = 0.05;          // Default 5% interest
+    constexpr long MinimumTransaction = 1L;                // Minimum transaction amount
 }
 
 // ============================================================================
@@ -162,7 +162,7 @@ void load_baccount_list()
         FCLOSE(fpReserve);
         if ((fpList = fopen(filename, "r")) == NULL)
         {
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
                 perror(filename);
                 bug("load_baccount: couldn't open Account list", 0);
                 return;
@@ -179,7 +179,7 @@ void load_baccount_list()
         }
         FCLOSE(fpList);
         log_string("Done loading accounts");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -276,7 +276,7 @@ BankAccount *create_baccount(CharData * ch)
         // ============================================================================
         
         // Enhanced input validation
-        if (!ch || IS_NPC(ch) || !ch->pcdata || !ch->name) {
+        if (!ch || IsNpc(ch) || !ch->pcdata || !ch->name) {
                 bug("create_baccount: Invalid character data", 0);
                 return nullptr;
         }
@@ -289,7 +289,7 @@ BankAccount *create_baccount(CharData * ch)
                 }
         }
         
-        if (player_account_count >= BankSecurity::MAX_ACCOUNTS_PER_PLAYER) {
+        if (player_account_count >= BankSecurity::MaxAccountsPerPlayer) {
                 bug("create_baccount: Player %s attempting to exceed Account limit", ch->name);
                 return nullptr;
         }
@@ -304,7 +304,7 @@ BankAccount *create_baccount(CharData * ch)
         Account->owner = STRALLOC(ch->name);
         Account->trustees = STRALLOC(const_cast<char*>(""));
         Account->flags = 0;
-        Account->interest = static_cast<float>(BankSecurity::DEFAULT_INTEREST_RATE);
+        Account->interest = static_cast<float>(BankSecurity::DefaultInterestRate);
         Account->amounthi = 0;
         Account->amountlo = 0;
 
@@ -415,22 +415,22 @@ bool account_add(BankAccount* Account, long amount)
     }
 
     // Validate transaction limits
-    if (amount > BankSecurity::MAX_TRANSACTION_AMOUNT) {
+    if (amount > BankSecurity::MaxTransactionAmount) {
         bug("account_add: Transaction exceeds maximum limit (%ld > %ld)", 
-            amount, BankSecurity::MAX_TRANSACTION_AMOUNT);
+            amount, BankSecurity::MaxTransactionAmount);
         return false;
     }
 
     // Check for potential overflow in amountlo
-    if (Account->amountlo > BankSecurity::SAFE_ADDITION_LIMIT) {
+    if (Account->amountlo > BankSecurity::SafeAdditionLimit) {
         bug("account_add: Account balance too high for safe addition");
         return false;
     }
 
     // Process large amounts safely by moving to amounthi first
-    while (amount > BankSecurity::BALANCE_THRESHOLD) {
-        amount -= (BankSecurity::BALANCE_THRESHOLD + 1);
-        if (Account->amounthi >= LONG_MAX) {
+    while (amount > BankSecurity::BalanceThreshold) {
+        amount -= (BankSecurity::BalanceThreshold + 1);
+        if (Account->amounthi >= LongMax) {
             bug("account_add: Account amounthi overflow detected");
             return false;
         }
@@ -441,9 +441,9 @@ bool account_add(BankAccount* Account, long amount)
     unsigned long temp = static_cast<unsigned long>(Account->amountlo) + static_cast<unsigned long>(amount);
     
     // Handle overflow to amounthi
-    while (temp > BankSecurity::BALANCE_THRESHOLD) {
-        temp -= (BankSecurity::BALANCE_THRESHOLD + 1);
-        if (Account->amounthi >= LONG_MAX) {
+    while (temp > BankSecurity::BalanceThreshold) {
+        temp -= (BankSecurity::BalanceThreshold + 1);
+        if (Account->amounthi >= LongMax) {
             bug("account_add: Account amounthi overflow during carry");
             return false;
         }
@@ -466,9 +466,9 @@ bool account_sub(BankAccount* Account, long amount)
     }
 
     // Validate transaction limits
-    if (amount > BankSecurity::MAX_TRANSACTION_AMOUNT) {
+    if (amount > BankSecurity::MaxTransactionAmount) {
         bug("account_sub: Transaction exceeds maximum limit (%ld > %ld)", 
-            amount, BankSecurity::MAX_TRANSACTION_AMOUNT);
+            amount, BankSecurity::MaxTransactionAmount);
         return false;
     }
 
@@ -478,10 +478,10 @@ bool account_sub(BankAccount* Account, long amount)
     }
 
     // Process withdrawal from high-order amount first
-    while (amount > BankSecurity::BALANCE_THRESHOLD && Account->amounthi > 0) {
-        amount -= (BankSecurity::BALANCE_THRESHOLD + 1);
+    while (amount > BankSecurity::BalanceThreshold && Account->amounthi > 0) {
+        amount -= (BankSecurity::BalanceThreshold + 1);
         Account->amounthi -= 1;
-        Account->amountlo += BankSecurity::BALANCE_THRESHOLD + 1;
+        Account->amountlo += BankSecurity::BalanceThreshold + 1;
     }
 
     // Handle remaining amount from low-order balance
@@ -490,7 +490,7 @@ bool account_sub(BankAccount* Account, long amount)
     } else if (Account->amounthi > 0) {
         // Need to borrow from amounthi
         Account->amounthi -= 1;
-        Account->amountlo = (BankSecurity::BALANCE_THRESHOLD + 1) + Account->amountlo - amount;
+        Account->amountlo = (BankSecurity::BalanceThreshold + 1) + Account->amountlo - amount;
     } else {
         // This should never happen due to our funds check above
         bug("account_sub: Insufficient funds error - this should not occur");
@@ -623,8 +623,8 @@ void apply_interest(BankAccount* Account)
     }
 
     // Validate interest rate to prevent exploits
-    if (Account->interest < BankSecurity::MIN_INTEREST_RATE || 
-        Account->interest > BankSecurity::MAX_INTEREST_RATE) {
+    if (Account->interest < BankSecurity::MinInterestRate || 
+        Account->interest > BankSecurity::MaxInterestRate) {
         bug("apply_interest: Invalid interest rate %f for Account %s", 
             Account->interest, Account->code ? Account->code : "UNKNOWN");
         Account->interest = static_cast<float>(BankInterest); // Reset to default safe value
@@ -647,11 +647,11 @@ void apply_interest(BankAccount* Account)
     long interest_hi = 0;
     if (original_hi > 0) {
         // Safe calculation: multiply by (interest - 1) and convert back
-        double hi_credits = static_cast<double>(original_hi) * (BankSecurity::BALANCE_THRESHOLD + 1);
+        double hi_credits = static_cast<double>(original_hi) * (BankSecurity::BalanceThreshold + 1);
         double hi_interest = hi_credits * (Account->interest - 1.0);
         
         // Validate result is within safe bounds
-        if (hi_interest > static_cast<double>(BankSecurity::SAFE_ADDITION_LIMIT)) {
+        if (hi_interest > static_cast<double>(BankSecurity::SafeAdditionLimit)) {
             bug("apply_interest: Interest calculation overflow for Account %s", 
                 Account->code ? Account->code : "UNKNOWN");
             return;
@@ -664,7 +664,7 @@ void apply_interest(BankAccount* Account)
     long total_interest = interest_lo + interest_hi;
     
     // Validate total interest is reasonable
-    if (total_interest < 0 || total_interest > BankSecurity::MAX_TRANSACTION_AMOUNT) {
+    if (total_interest < 0 || total_interest > BankSecurity::MaxTransactionAmount) {
         bug("apply_interest: Calculated interest %ld is out of bounds for Account %s", 
             total_interest, Account->code ? Account->code : "UNKNOWN");
         return;
@@ -732,10 +732,10 @@ CMDF do_bank_new(CharData * ch, char *argument)
         char      arg3[MaxInputLength];
         char      arg4[MaxInputLength];
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
-        if (get_trust(ch) < LevelImplementor && IS_IMMORTAL(ch))
+        if (get_trust(ch) < LevelImplementor && IsImmortal(ch))
         {
                 ch_printf(ch,
                           "Only level %d immortals can access the banking system.\n\r",
@@ -743,7 +743,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 return;
         }
 
-        if (NOT_AUTHED(ch))
+        if (NotAuthed(ch))
         {
                 send_to_char
                         ("It's against the academy rules for students to access bank accounts while in the academy.\n\r",
@@ -751,8 +751,8 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_BANK)
-            && get_comlink(ch) == NULL && !IS_IMMORTAL(ch))
+        if (!xIS_SET(ch->in_room->RoomFlags, RoomBank)
+            && get_comlink(ch) == NULL && !IsImmortal(ch))
         {
                 send_to_char
                         ("You need to be at the bank, or have a comlink to do that.\n\r",
@@ -770,7 +770,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 send_to_char
                         ("Syntax: BANK <open|close|list|status|transfer|deposit|withdraw> [Account] [amount] [Account|arguments]\n\r",
                          ch);
-/*	if (IS_IMMORTAL(ch)) {
+/*	if (IsImmortal(ch)) {
 	    send_to_char("(IMM)   BANK <block|freeze|empty|hotwire> <Account>\n\r", ch);
 	    send_to_char("(IMM)   BANK <showall|closeall|taxall|tripinterest> [argument]\n\r", ch); } */
                 return;
@@ -873,7 +873,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
                                           Account->code, "Trustee",
                                           account_sum(Account));
                         }
-/*						else if (IS_IMMORTAL(ch))
+/*						else if (IsImmortal(ch))
                         {
                                 count++;
                                 ch_printf(ch, "&C%-25s %-21s %s\n\r",
@@ -910,14 +910,14 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 }
 
                 // Validate deposit amount using security constants
-                if (num > BankSecurity::MAX_TRANSACTION_AMOUNT)
+                if (num > BankSecurity::MaxTransactionAmount)
                 {
                         ch_printf(ch, "The bank won't let you deposit more than %ld credits at a time.\n\r",
-                                 BankSecurity::MAX_TRANSACTION_AMOUNT);
+                                 BankSecurity::MaxTransactionAmount);
                         return;
                 }
 
-                if (num < BankSecurity::MINIMUM_TRANSACTION)
+                if (num < BankSecurity::MinimumTransaction)
                 {
                         send_to_char("Be a little more generous.\n\r", ch);
                         return;
@@ -978,21 +978,21 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 }
 
                 // Validate withdrawal amount using security constants
-                if (num < BankSecurity::MINIMUM_TRANSACTION)
+                if (num < BankSecurity::MinimumTransaction)
                 {
                         send_to_char("Try deposit instead.\n\r", ch);
                         return;
                 }
 
-                if (num > BankSecurity::MAX_TRANSACTION_AMOUNT)
+                if (num > BankSecurity::MaxTransactionAmount)
                 {
                         ch_printf(ch, "The bank won't let you withdraw more than %ld credits at a time.\n\r",
-                                 BankSecurity::MAX_TRANSACTION_AMOUNT);
+                                 BankSecurity::MaxTransactionAmount);
                         return;
                 }
                 
                 // Enhanced overflow protection for player gold
-                if (ch->gold > LONG_MAX - num)
+                if (ch->gold > LongMax - num)
                 {
                         send_to_char("You are not able to carry that many credits.\n\r", ch);
                         return;
@@ -1036,7 +1036,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 if (arg3[0] == '\0')
                 {
                         ch_printf(ch, "Specify an amount up to %ld.\n\r",
-                                 BankSecurity::MAX_TRANSACTION_AMOUNT);
+                                 BankSecurity::MaxTransactionAmount);
                         return;
                 }
 
@@ -1066,16 +1066,16 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 }
 
                 // Validate transfer amount using security constants
-                if (num < BankSecurity::MINIMUM_TRANSACTION)
+                if (num < BankSecurity::MinimumTransaction)
                 {
                         send_to_char("Transfer amount must be at least 1 credit.\n\r", ch);
                         return;
                 }
 
-                if (num > BankSecurity::MAX_TRANSACTION_AMOUNT)
+                if (num > BankSecurity::MaxTransactionAmount)
                 {
                         ch_printf(ch, "The bank will allow you to transfer up to %ld credits at a time.\n\r",
-                                 BankSecurity::MAX_TRANSACTION_AMOUNT);
+                                 BankSecurity::MaxTransactionAmount);
                         return;
                 }
 
@@ -1130,7 +1130,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
 
                 if (strcmp(ch->name, Account->owner)
                     && !nifty_is_name(ch->name, Account->trustees) &&
-                    !IS_IMMORTAL(ch))
+                    !IsImmortal(ch))
                 {
                         send_to_char
                                 ("You don't have access to that Account.\n\r",
@@ -1236,13 +1236,13 @@ CMDF do_entrust(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 send_to_char("You can't entrust an NPC.\n\r", ch);
                 return;
         }
 
-        if (IS_IMMORTAL(vict) && !IS_IMMORTAL(ch))
+        if (IsImmortal(vict) && !IsImmortal(ch))
         {
                 send_to_char("You can't entrust immortals.\n\r", ch);
                 return;

@@ -40,8 +40,8 @@
  *                              SWR Installation Module                                  *
  ****************************************************************************************/
 
-//typedef struct dock_data DOCK_DATA;
-//typedef struct InstallationData INSTALLATION_DATA;
+//typedef struct dock_data DockData;
+//typedef struct InstallationData InstallationData;
 
 
 #pragma once
@@ -68,8 +68,8 @@ public:
         InstallationPtr prev;
         InstallationPtr next_on_planet;
         InstallationPtr prev_on_planet;
-        std::shared_ptr<DOCK_DATA> first_dock;
-        std::shared_ptr<DOCK_DATA> last_dock;
+        std::shared_ptr<DockData> first_dock;
+        std::shared_ptr<DockData> last_dock;
         std::shared_ptr<ClanData> clan;
         std::string filename;
         int32_t first_room = 0;
@@ -113,20 +113,20 @@ enum class InstallationLocation : int32_t {
         Underwater = 2
 };
 
-constexpr int INS_SECURE = 1 << 0;
-constexpr int MAX_INSTALLATION = static_cast<int>(InstallationType::Max);
+constexpr int InsSecure = 1 << 0;
+constexpr int MaxInstallation = static_cast<int>(InstallationType::Max);
 
-inline constexpr auto INSTALLATIONS_DIR   = "../installations/";
-inline constexpr auto INSTALLATION_LIST   = "installations.lst";
-inline constexpr auto INSTALLATION_AREA   = "pinstalls.are";
+inline constexpr auto InstallationsDir   = "../installations/";
+inline constexpr auto InstallationList   = "installations.lst";
+inline constexpr auto InstallationArea   = "pinstalls.are";
 
-inline constexpr int MOB_VNUM_INSTALL_GUARD           = 33001;
-inline constexpr int MOB_VNUM_INSTALL_ENTRANCE_GUARD  = 33002;
-inline constexpr int MOB_VNUM_INSTALL_DOCTOR          = 33003;
-inline constexpr int MOB_VNUM_INSTALL_CUSTOMS         = 33004;
+inline constexpr int MobVnumInstallGuard           = 33001;
+inline constexpr int MobVnumInstallEntranceGuard  = 33002;
+inline constexpr int MobVnumInstallDoctor          = 33003;
+inline constexpr int MobVnumInstallCustoms         = 33004;
 
-inline constexpr int OBJ_VNUM_INSTALL_BACTA_SPRAY     = 33001;
-inline constexpr int OBJ_VNUM_INSTALL_MEDPAC          = 33002;
+inline constexpr int ObjVnumInstallBactaSpray     = 33001;
+inline constexpr int ObjVnumInstallMedpac          = 33002;
 
 
 int find_pvnum_block(int num_needed, const std::string& areaname);

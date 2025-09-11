@@ -54,12 +54,12 @@
 namespace cpp_compat {
 #ifdef __cplusplus
     // Modern C++ safe string literal conversion
-    #define STRING_LITERAL(s) const_cast<char*>(s)
+    #define StringLiteral(s) const_cast<char*>(s)
     inline char* safe_strdup(const char* str) {
         return str ? strdup(str) : nullptr;
     }
-    #define MUTABLE_CAPITALIZE(s) cpp_compat::safe_strdup(capitalize(s))
-    #define STRALLOC_CAPITALIZE(s) STRALLOC(const_cast<char*>(capitalize(s)))
+    #define MutableCapitalize(s) cpp_compat::safe_strdup(capitalize(s))
+    #define StrallocCapitalize(s) STRALLOC(const_cast<char*>(capitalize(s)))
     inline int safe_snprintf(char *buf, size_t size, const char *format, ...) {
         va_list args;
         va_start(args, format);
@@ -68,30 +68,30 @@ namespace cpp_compat {
         buf[size-1] = '\0';
         return result;
     }
-    #define SAFE_BUFFER_COPY(dest_buf, dest_size, src_buf) \
+    #define SafeBufferCopy(dest_buf, dest_size, src_buf) \
         do { \
             strncpy((dest_buf), (src_buf), (dest_size)-1); \
             (dest_buf)[(dest_size)-1] = '\0'; \
         } while(0)
-    #define SAFE_BUFFER_CAT(dest_buf, dest_size, src_buf) \
+    #define SafeBufferCat(dest_buf, dest_size, src_buf) \
         do { \
             strncat((dest_buf), (src_buf), (dest_size)-strlen(dest_buf)-1); \
             (dest_buf)[(dest_size)-1] = '\0'; \
         } while(0)
 #else
-    #define STRING_LITERAL(s) (s)
+    #define StringLiteral(s) (s)
     #define safe_strdup(str) strdup(str)
-    #define MUTABLE_CAPITALIZE(s) capitalize(s)
-    #define STRALLOC_CAPITALIZE(s) STRALLOC(capitalize(s))
+    #define MutableCapitalize(s) capitalize(s)
+    #define StrallocCapitalize(s) STRALLOC(capitalize(s))
     #define safe_snprintf snprintf
-    #define SAFE_BUFFER_COPY(dest_buf, dest_size, src_buf) strncpy((dest_buf), (src_buf), (dest_size)-1); (dest_buf)[(dest_size)-1] = '\0'
-    #define SAFE_BUFFER_CAT(dest_buf, dest_size, src_buf) strncat((dest_buf), (src_buf), (dest_size)-strlen(dest_buf)-1); (dest_buf)[(dest_size)-1] = '\0'
+    #define SafeBufferCopy(dest_buf, dest_size, src_buf) strncpy((dest_buf), (src_buf), (dest_size)-1); (dest_buf)[(dest_size)-1] = '\0'
+    #define SafeBufferCat(dest_buf, dest_size, src_buf) strncat((dest_buf), (src_buf), (dest_size)-strlen(dest_buf)-1); (dest_buf)[(dest_size)-1] = '\0'
 #endif
 } // namespace cpp_compat
 
 
 // Legacy compatibility: Only needed for old glibc (<2.38)
-#ifndef HAVE_STRLCPY
+#ifndef HaveStrlcpy
 #if !defined(__GLIBC__) || __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 38)
 namespace cpp_compat {
 #ifdef __cplusplus
@@ -109,9 +109,9 @@ namespace cpp_compat {
     }
 } // namespace cpp_compat
 #endif // glibc version check
-#endif // HAVE_STRLCPY
+#endif // HaveStrlcpy
 
-#ifndef HAVE_STRLCAT
+#ifndef HaveStrlcat
 #if !defined(__GLIBC__) || __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 38)
 namespace cpp_compat {
 #ifdef __cplusplus
@@ -134,4 +134,4 @@ namespace cpp_compat {
     }
 } // namespace cpp_compat
 #endif // glibc version check
-#endif // HAVE_STRLCAT
+#endif // HaveStrlcat

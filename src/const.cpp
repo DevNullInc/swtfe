@@ -61,50 +61,50 @@ const struct race_type race_table[MaxRace] = {
         /*
          * Race name      Racial Affects   str dex wis int con cha lck frc hp mn re su  RESTRICTION  LANGUAGE 
          */
-        {"Human", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, LANG_BASIC},
+        {"Human", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, LangBasic},
         {"Wookiee", 0, 8, -1, -4, -1, 2, -4, 0, 0, 3, 0, 0, 0, 0,
-         LANG_WOOKIEE},
-        {"Twi'lek", 0, -2, 2, 0, 3, -3, 0, 0, 0, 0, 0, 0, 0, 0, LANG_TWI_LEK},
-        {"Rodian", 0, 3, -1, 0, 0, -2, 0, 0, 0, 0, 0, 0, 0, 0, LANG_RODIAN},
-        {"Hutt", 0, 3, -5, 1, 3, 3, -5, 0, 0, 3, 0, 0, 0, 0, LANG_HUTT},
-        {"Mon Calamari", AFF_AQUA_BREATH, 0, -1, -1, 0, 4, 0, -2, 0, 0, 0, 0,
-         0, 0, LANG_MON_CALAMARI},
-        {"Noghri", AFF_SNEAK, 0, 8, -2, -1, 0, -5, 0, 0, 0, 0, 0, 0, 0,
-         LANG_NOGHRI},
+         LangWookiee},
+        {"Twi'lek", 0, -2, 2, 0, 3, -3, 0, 0, 0, 0, 0, 0, 0, 0, LangTwiLek},
+        {"Rodian", 0, 3, -1, 0, 0, -2, 0, 0, 0, 0, 0, 0, 0, 0, LangRodian},
+        {"Hutt", 0, 3, -5, 1, 3, 3, -5, 0, 0, 3, 0, 0, 0, 0, LangHutt},
+        {"Mon Calamari", AffAquaBreath, 0, -1, -1, 0, 4, 0, -2, 0, 0, 0, 0,
+         0, 0, LangMonCalamari},
+        {"Noghri", AffSneak, 0, 8, -2, -1, 0, -5, 0, 0, 0, 0, 0, 0, 0,
+         LangNoghri},
         {"Gamorrean", 0, 8, 0, -4, -5, 6, -5, 0, 0, 3, 0, 0, 0, 0,
-         LANG_GAMORREAN},
-        {"Jawa", 0, -3, 3, 2, 2, -1, -3, 0, 0, 0, 0, 0, 0, 0, LANG_JAWA},
+         LangGamorrean},
+        {"Jawa", 0, -3, 3, 2, 2, -1, -3, 0, 0, 0, 0, 0, 0, 0, LangJawa},
         {"Adarian", 0, -2, -2, 2, 2, -2, 2, 0, 0, 0, 0, 0, 0, 0,
-         LANG_ADARIAN},
-        {"Ewok", 0, -3, -1, -1, 0, -3, 8, 0, 0, 0, 0, 0, 0, 0, LANG_EWOK},
+         LangAdarian},
+        {"Ewok", 0, -3, -1, -1, 0, -3, 8, 0, 0, 0, 0, 0, 0, 0, LangEwok},
         {"Verpine", 0, -1, 1, -1, 6, -3, -2, 0, 0, 0, 0, 0, 0, 0,
-         LANG_VERPINE},
-        {"Defel", AFF_INVISIBLE, 1, 4, -2, -2, 3, -4, 0, 0, 0, 0, 0, 0, 0,
-         LANG_DEFEL},
-        {"Trandoshan", AFF_INFRARED, 2, 0, -3, -2, 6, -3, 0, 0, 0, 0, 0, 0, 0,
-         LANG_TRANDOSHAN},
+         LangVerpine},
+        {"Defel", AffInvisible, 1, 4, -2, -2, 3, -4, 0, 0, 0, 0, 0, 0, 0,
+         LangDefel},
+        {"Trandoshan", AffInfrared, 2, 0, -3, -2, 6, -3, 0, 0, 0, 0, 0, 0, 0,
+         LangTrandoshan},
         {"Shistavanan", 0, 1, 1, 1, 1, 0, -4, 0, 0, 0, 0, 0, 0, 0,
-         LANG_SHISTAVANAN},
-        {"Droid", AFF_INFRARED, -2, -2, 6, 6, -2, -2, -4, 0, 0, 0, 0, 0, 0,
-         LANG_BINARY},
-        {"Duinuogwuin", AFF_FLYING, 0, -3, 0, 0, 7, -4, 0, 0, 0, 10, 0, 0, 0,
-         LANG_DUINUOGWUIN},
-        {"Chiss", 0, -1, -2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, LANG_CSILLIAN},
-        {"Kel Dor", 0, 0, -2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, LANG_KEL_DOR},
-        {"Bothan", 0, -3, 2, 0, 1, -3, 3, 0, 0, 0, 0, 0, 0, 0, LANG_BOTHAN},
+         LangShistavanan},
+        {"Droid", AffInfrared, -2, -2, 6, 6, -2, -2, -4, 0, 0, 0, 0, 0, 0,
+         LangBinary},
+        {"Duinuogwuin", AffFlying, 0, -3, 0, 0, 7, -4, 0, 0, 0, 10, 0, 0, 0,
+         LangDuinuogwuin},
+        {"Chiss", 0, -1, -2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, LangCsillian},
+        {"Kel Dor", 0, 0, -2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, LangKelDor},
+        {"Bothan", 0, -3, 2, 0, 1, -3, 3, 0, 0, 0, 0, 0, 0, 0, LangBothan},
         {"Barabel", 0, 4, 1, -3, -3, 4, -3, 0, 0, 0, 0, 0, 0, 0,
-         LANG_BARABEL},
+         LangBarabel},
         {"Ithorian", 0, -2, 1, 2, 2, -3, 0, 0, 0, 0, 0, 0, 0, 0,
-         LANG_ITHORIAN},
+         LangIthorian},
         {"Devaronian", 0, 1, 1, -2, 1, 1, -3, 0, 0, 0, 0, 0, 0, 0,
-         LANG_DEVARONIAN},
-        {"Duro", 0, -2, 3, 1, 2, -2, -2, 0, 0, 0, 0, 0, 0, 0, LANG_DUROSIAN},
-        {"Gotal", 0, 1, 1, 2, -2, 1, -3, 0, 0, 0, 0, 0, 0, 0, LANG_GOTAL},
-        {"Talz", 0, 3, -1, -2, -1, 3, -2, 0, 0, 0, 0, 0, 0, 0, LANG_TALZ},
-        {"Ho'Din", 0, -1, 1, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, LANG_HO_DIN},
+         LangDevaronian},
+        {"Duro", 0, -2, 3, 1, 2, -2, -2, 0, 0, 0, 0, 0, 0, 0, LangDurosian},
+        {"Gotal", 0, 1, 1, 2, -2, 1, -3, 0, 0, 0, 0, 0, 0, 0, LangGotal},
+        {"Talz", 0, 3, -1, -2, -1, 3, -2, 0, 0, 0, 0, 0, 0, 0, LangTalz},
+        {"Ho'Din", 0, -1, 1, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, LangHoDin},
         {"Falleen", 0, 2, -2, 0, 5, -2, -3, 0, 0, 0, 0, 0, 0, 0,
-         LANG_FALLEEN},
-        {"Givin", 0, -4, -4, 3, 6, 3, -4, 0, 0, 0, 0, 0, 0, 0, LANG_GIVIN}
+         LangFalleen},
+        {"Givin", 0, -4, -4, 3, 6, 3, -4, 0, 0, 0, 0, 0, 0, 0, LangGivin}
 };
 
 
@@ -559,7 +559,7 @@ const struct frc_app_type frc_app[41] = {
  * Liquid properties.
  * Used in #OBJECT section of area file.
  */
-const struct liq_type liq_table[LIQ_MAX] = {
+const struct liq_type liq_table[LiqMax] = {
         {"water", "clear", {0, 1, 10}}, /*  0 */
         {"beer", "amber", {3, 2, 5}},
         {"wine", "rose", {5, 2, 5}},
@@ -591,7 +591,7 @@ const char *const attack_table[13] = {
         "pierce", "suction"
 };
 
-const char *const body_parts[MAX_BODY_PARTS] = {
+const char *const body_parts[MaxBodyParts] = {
         "left leg", "right leg", "left foot", "right foot", "left arm",
         "right arm", "left wrist", "right wrist", "left knee", "right knee",
         "left ankle", "right ankle", "left sholder", "right sholder",
@@ -600,11 +600,11 @@ const char *const body_parts[MAX_BODY_PARTS] = {
 };
 
 
-const char *const npc_sex[SEX_MAX] = {
+const char *const npc_sex[SexMax] = {
         "neuter", "male", "female"
 };
 
-const char *const npc_position[POS_MAX] = {
+const char *const npc_position[PosMax] = {
         "dead", "mortal", "incapacitated", "stunned", "sleeping",
         "resting", "sitting", "fighting", "standing", "mounted",
         "shove", "drag"

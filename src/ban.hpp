@@ -55,37 +55,37 @@
 // Forward Declarations
 // ============================================================================
 struct ban_data;
-using BAN_DATA = ban_data;
+using BanData = ban_data;
 struct reserve_data;
-using RESERVE_DATA = reserve_data;
+using ReserveData = reserve_data;
 
 // ============================================================================
 // Configuration Constants
 // ============================================================================
 
 // Ban types
-#define BAN_SITE        1
-#define BAN_CLASS       2
-#define BAN_RACE        3
-#define BAN_WARN        -1
+#define BanSite        1
+#define BanClass       2
+#define BanRace        3
+#define BanWarn        -1
 
 // Ban levels
-#define BAN_NEWBIE      1
-#define BAN_MORTAL      50
-#define BAN_ALL         999
+#define BanNewbie      1
+#define BanMortal      50
+#define BanAll         999
 
 // Time constants (in seconds for consistency)
-#define SECONDS_PER_DAY     86400
-#define SECONDS_PER_HOUR    3600
-#define SECONDS_PER_MINUTE  60
+#define SecondsPerDay     86400
+#define SecondsPerHour    3600
+#define SecondsPerMinute  60
 
 // Ban duration limits (in days)
-#define MIN_BAN_DURATION    1
-#define MAX_BAN_DURATION    1000
-#define PERMANENT_BAN       -1
+#define MinBanDuration    1
+#define MaxBanDuration    1000
+#define PermanentBan       -1
 
 // File constants
-#define RESERVED_LIST       "reserved.lst"
+#define ReservedList       "reserved.lst"
 
 // ============================================================================
 // Data Structures
@@ -96,8 +96,8 @@ using RESERVE_DATA = reserve_data;
  */
 struct ban_data
 {
-    BAN_DATA* next;                 // Linked list pointers
-    BAN_DATA* prev;
+    BanData* next;                 // Linked list pointers
+    BanData* prev;
     
     // Ban target information
     char* name;                     // Name of site/class/race banned
@@ -125,23 +125,23 @@ struct ban_data
  */
 struct reserve_data
 {
-    RESERVE_DATA* next;
-    RESERVE_DATA* prev;
+    ReserveData* next;
+    ReserveData* prev;
     char* name;
 };
 
 // ============================================================================
 // Global Variables
 // ============================================================================
-extern BAN_DATA* first_ban;
-extern BAN_DATA* last_ban;
-extern BAN_DATA* first_ban_class;
-extern BAN_DATA* last_ban_class;
-extern BAN_DATA* first_ban_race;
-extern BAN_DATA* last_ban_race;
+extern BanData* first_ban;
+extern BanData* last_ban;
+extern BanData* first_ban_class;
+extern BanData* last_ban_class;
+extern BanData* first_ban_race;
+extern BanData* last_ban_race;
 
-extern RESERVE_DATA* first_reserved;
-extern RESERVE_DATA* last_reserved;
+extern ReserveData* first_reserved;
+extern ReserveData* last_reserved;
 
 // ============================================================================
 // Function Declarations
@@ -161,23 +161,23 @@ int add_ban(CharData* ch, std::string_view arg1, std::string_view arg2, int time
 int add_ban(std::shared_ptr<CharData> ch, std::string_view arg1, std::string_view arg2, int time, int type);
 void show_bans(CharData* ch, int type);
 void show_bans(std::shared_ptr<CharData> ch, int type);
-bool check_expire(BAN_DATA* ban);
-void dispose_ban(BAN_DATA* ban, int type);
-void free_ban(BAN_DATA* ban);
+bool check_expire(BanData* ban);
+void dispose_ban(BanData* ban, int type);
+void free_ban(BanData* ban);
 
 // Time utilities
 std::time_t calculate_unban_time(int duration_days);
-bool is_ban_expired(const BAN_DATA* ban);
-std::string format_ban_time_remaining(const BAN_DATA* ban);
-std::string format_ban_creation_time(const BAN_DATA* ban);
+bool is_ban_expired(const BanData* ban);
+std::string format_ban_time_remaining(const BanData* ban);
+std::string format_ban_creation_time(const BanData* ban);
 
 // Reserved names
 void load_reserved();
 void save_reserved();
 bool is_reserved_name(const char* name);
 bool is_reserved_name(std::string_view name);
-void sort_reserved(RESERVE_DATA* pRes);
-void sort_reserved(std::shared_ptr<RESERVE_DATA> pRes);
+void sort_reserved(ReserveData* pRes);
+void sort_reserved(std::shared_ptr<ReserveData> pRes);
 
 // Command functions
 CMDF do_ban(CharData* ch, const char* argument);

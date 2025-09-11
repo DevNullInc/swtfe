@@ -124,7 +124,7 @@ CMDF do_mudexec(CharData* ch, const char* argument)
         }
 
         desc = ch->desc->descriptor;
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
 
 #ifdef MCCP
         Compressing = ch->desc->Compressing;
@@ -142,17 +142,17 @@ CMDF do_mudexec(CharData* ch, const char* argument)
                 fcntl(desc, F_SETFL, flags);
                 if (iafork)
                 {
-                        send_telcode(desc, WILL, TELOPT_SGA);
-                        send_telcode(desc, DO, TELOPT_LFLOW);
-                        send_telcode(desc, DONT, TELOPT_LINEMODE);
-                        send_telcode(desc, WILL, TELOPT_STATUS);
-                        send_telcode(desc, DO, TELOPT_ECHO);
-                        send_telcode(desc, WILL, TELOPT_ECHO);
+                        send_telcode(desc, WILL, TeloptSga);
+                        send_telcode(desc, DO, TeloptLflow);
+                        send_telcode(desc, DONT, TeloptLinemode);
+                        send_telcode(desc, WILL, TeloptStatus);
+                        send_telcode(desc, DO, TeloptEcho);
+                        send_telcode(desc, WILL, TeloptEcho);
                         read(desc, buf, 1024);  /* read replies */
                 }
-                dup2(desc, STDIN_FILENO);
-                dup2(desc, STDOUT_FILENO);
-                dup2(desc, STDERR_FILENO);
+                dup2(desc, StdinFileno);
+                dup2(desc, StdoutFileno);
+                dup2(desc, StderrFileno);
                 setenv("TERM", "vt100", 1);
                 setenv("COLUMNS", "80", 1);
                 setenv("LINES", "24", 1);
@@ -208,13 +208,13 @@ bool check_forks(const DescriptorData& d, std::string_view cmdline) noexcept {
 int copy_file(CharData* ch, std::string_view filename) {
         // Security: Only allow files within allowed directories
         if (filename.find("..") != std::string_view::npos || filename.find('$') != std::string_view::npos || filename.find(';') != std::string_view::npos) {
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 ch_printf(ch, "The file %.*s contains unsafe characters.\n\r", static_cast<int>(filename.size()), filename.data());
                 return 1;
         }
         FILE* fp = fopen(std::string(filename).c_str(), "r");
         if (!fp) {
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 ch_printf(ch, "The file %.*s does not exist, or cannot be opened. Check your spelling.\n\r", static_cast<int>(filename.size()), filename.data());
                 return 1;
         }
@@ -222,10 +222,10 @@ int copy_file(CharData* ch, std::string_view filename) {
         return 0;
 }
 
-// Modernize: Use shell::SOURCE_DIR for src path
+// Modernize: Use shell::SourceDir for src path
 void compile_code(CharData* ch, std::string_view argument) {
         std::string buf;
-        std::string src_path = std::string(shell::SOURCE_DIR);
+        std::string src_path = std::string(shell::SourceDir);
         if (argument == "cvs") {
                 buf = "make -C ../" + src_path + " cvs";
                 do_mudexec(ch, buf.c_str());
@@ -257,10 +257,10 @@ CMDF do_compile(CharData* ch, std::string_view argument) {
                 return;
         }
         compilelock = true;
-        set_char_color(AT_RED, ch);
+        set_char_color(AtRed, ch);
         std::ostringstream oss;
         oss << "Compiler operation initiated by " << ch->name << ". Reboot and shutdown commands are locked.";
-        echo_to_all(AT_RED, oss.str().c_str(), EchoTarImm);
+        echo_to_all(AtRed, oss.str().c_str(), EchoTarImm);
         compile_code(ch, argument);
 }
 
@@ -284,7 +284,7 @@ CMDF do_grep(CharData* ch, std::string_view argument) {
                 arg1 = argument;
                 argument = "";
         }
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         // Double-check: reject empty, unsafe, or shell metacharacter input
         auto is_unsafe = [](std::string_view s) {
                 return s.empty() || s.find("..") != std::string_view::npos || s.find('$') != std::string_view::npos || s.find(';') != std::string_view::npos || s.find('|') != std::string_view::npos || s.find('&') != std::string_view::npos || s.find('`') != std::string_view::npos || s.find('>') != std::string_view::npos || s.find('<') != std::string_view::npos;

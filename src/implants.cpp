@@ -63,7 +63,7 @@ char     *const implant_affect_names[] = {
 
 int get_implant_affect(CharData * ch, int implant)
 {
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
                 return 0;
         else if (ch->pcdata->implants[implant] >= 1
                  && ch->pcdata->implants[implant] <= 3)
@@ -76,7 +76,7 @@ int get_type_number(char *name)
 {
         int       count;
 
-        for (count = 0; count < MAX_IMPLANT_TYPES; count++)
+        for (count = 0; count < MaxImplantTypes; count++)
                 if (!str_cmp(name, implant_names[count]))
                         return count;
         return -1;
@@ -102,7 +102,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                 {
                         send_to_char("&RUsage: Makeimplant <type>\n\r&w", ch);
                         send_to_char("Availbable types are:\n\r", ch);
-                        for (count = 0; count < MAX_IMPLANT_TYPES; count++)
+                        for (count = 0; count < MaxImplantTypes; count++)
                                 ch_printf(ch, "\t&B%d&z) &w%s\n\r", count,
                                           implant_names[count]);
                         return;
@@ -120,17 +120,17 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                 else
                         type = get_type_number(arg);
 
-                if ((type < 0 || type >= MAX_IMPLANT_TYPES))
+                if ((type < 0 || type >= MaxImplantTypes))
                 {
                         send_to_char
                                 ("That is an invalid type, your option are:\n\r",
                                  ch);
-                        for (count = 0; count < MAX_IMPLANT_TYPES; count++)
+                        for (count = 0; count < MaxImplantTypes; count++)
                                 ch_printf(ch, "\t&B%d&z) &w%s\n\r", count,
                                           implant_names[count]);
                         return;
                 }
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomFactory))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -140,18 +140,18 @@ CMDF do_makeimplant(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_DURASTEEL
-                            || obj->item_type == ITEM_DURAPLAST)
+                        if (obj->item_type == ItemDurasteel
+                            || obj->item_type == ItemDuraplast)
                                 checkdura = TRUE;
-                        if (obj->item_type == ITEM_BATTERY)
+                        if (obj->item_type == ItemBattery)
                                 checkbatt = TRUE;
-                        if (obj->item_type == ITEM_OVEN)
+                        if (obj->item_type == ItemOven)
                                 checkoven = TRUE;
-                        if (obj->item_type == ITEM_CHEMICAL)
+                        if (obj->item_type == ItemChemical)
                                 checkchem = TRUE;
-                        if (obj->item_type == ITEM_CIRCUIT)
+                        if (obj->item_type == ItemCircuit)
                                 checkcirc = TRUE;
                 }
 
@@ -202,17 +202,17 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_makeimplant]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou gather your supplies, and start to design the small implant.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s supplies and starts to work on something very small.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 35, do_makeimplant, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 35, do_makeimplant, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -245,10 +245,10 @@ CMDF do_makeimplant(CharData * ch, char *argument)
         else
                 type = get_type_number(arg);
 
-        level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeimplant]);
 
-        if ((pObjIndex = get_obj_index(OBJ_VNUM_IMPLANT)) == NULL)
+        if ((pObjIndex = get_obj_index(ObjVnumImplant)) == NULL)
         {
                 send_to_char
                         ("&RThe item you are trying to create is missing from the database.\n\rPlease inform the administration of this error.\n\r",
@@ -265,12 +265,12 @@ CMDF do_makeimplant(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_OVEN)
+                if (obj->item_type == ItemOven)
                         checkoven = TRUE;
-                if ((obj->item_type == ITEM_DURASTEEL
-                     || obj->item_type == ITEM_DURAPLAST)
+                if ((obj->item_type == ItemDurasteel
+                     || obj->item_type == ItemDuraplast)
                     && checkdura == FALSE)
                 {
                         checkdura = TRUE;
@@ -278,21 +278,21 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_CHEMICAL && checkchem == FALSE)
+                if (obj->item_type == ItemChemical && checkchem == FALSE)
                 {
                         checkchem = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_CIRCUIT && checkcirc == FALSE)
+                if (obj->item_type == ItemCircuit && checkcirc == FALSE)
                 {
                         checkcirc = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_BATTERY && checkbatt == FALSE)
+                if (obj->item_type == ItemBattery && checkbatt == FALSE)
                 {
                         charge = UMAX(5, obj->value[0]);
                         separate_obj(obj);
@@ -302,7 +302,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                 }
         }
 
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_makeimplant]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura)
@@ -323,8 +323,8 @@ CMDF do_makeimplant(CharData * ch, char *argument)
 
         obj = create_object(pObjIndex, level);
 
-        obj->item_type = ITEM_IMPLANT;
-        SET_BIT(obj->wear_flags, ITEM_TAKE);
+        obj->item_type = ItemImplant;
+        SetBit(obj->wear_flags, ItemTake);
         obj->level = level;
         obj->weight = 1;
         stralloc_printf(&obj->name, "%s implant", implant_names[type]);
@@ -338,7 +338,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                 URANGE(0,
                        get_curr_int(ch) +
                        ch->pcdata->learned[gsn_makeimplant] / 5 +
-                       ch->skill_level[MEDIC_ABILITY], 100);
+                       ch->skill_level[MedicAbility], 100);
         /*
          * type of implant 
          */
@@ -353,18 +353,18 @@ CMDF do_makeimplant(CharData * ch, char *argument)
         send_to_char
                 ("&GYou test the implant with a small piece of machinery, and conclude that the item is working.&w\n\r",
                  ch);
-        act(AT_PLAIN, "$n finishes crafting a small piece of technology.", ch,
-            NULL, argument, TO_ROOM);
+        act(AtPlain, "$n finishes crafting a small piece of technology.", ch,
+            NULL, argument, ToRoom);
 
         {
                 long      xpgain;
 
                 xpgain = UMIN(obj->cost * 2,
                               (exp_level
-                               (ch->skill_level[ENGINEERING_ABILITY] + 1) -
+                               (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[ENGINEERING_ABILITY])));
-                gain_exp(ch, xpgain, ENGINEERING_ABILITY);
+                                         skill_level[EngineeringAbility])));
+                gain_exp(ch, xpgain, EngineeringAbility);
                 ch_printf(ch, "You gain %d engineering experience.", xpgain);
         }
 
@@ -408,7 +408,7 @@ CMDF do_implant(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                npc = IS_NPC(victim);
+                npc = IsNpc(victim);
                 if (ch == victim)
                 {
                         send_to_char
@@ -417,7 +417,7 @@ CMDF do_implant(CharData * ch, char *argument)
                         return;
                 }
 
-                if (victim->position != POS_SLEEPING)
+                if (victim->position != PosSleeping)
                 {
                         send_to_char
                                 ("How do you expect to operate on them while they are awake?",
@@ -429,7 +429,7 @@ CMDF do_implant(CharData * ch, char *argument)
                 }
 
                 if ((obj = get_obj_carry(ch, arg2)) == NULL
-                    || obj->item_type != ITEM_IMPLANT)
+                    || obj->item_type != ItemImplant)
                 {
                         send_to_char
                                 ("How do you expect to do that without an implant?",
@@ -449,8 +449,8 @@ CMDF do_implant(CharData * ch, char *argument)
                 }
 
 
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE)
-                    || !xIS_SET(ch->in_room->RoomFlags, ROOM_INDOORS))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomSafe)
+                    || !xIS_SET(ch->in_room->RoomFlags, RoomIndoors))
                 {
                         send_to_char
                                 ("&RYou must be indoors somewhere, where it is safe to operate.\n\r",
@@ -460,11 +460,11 @@ CMDF do_implant(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_THREAD)
+                        if (obj->item_type == ItemThread)
                                 checkneed = TRUE;
-                        if (obj->item_type == ITEM_IMPLANT)
+                        if (obj->item_type == ItemImplant)
                                 checkimpl = TRUE;
                 }
 
@@ -492,7 +492,7 @@ CMDF do_implant(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_implant]);
                 if (number_percent() < percentage)
                 {
@@ -501,7 +501,7 @@ CMDF do_implant(CharData * ch, char *argument)
                                  ch);
                         send_to_char("&GThey begin the operation on you.\n\r",
                                      victim);
-                        add_timer(ch, TIMER_DO_FUN, 35, do_implant, 1);
+                        add_timer(ch, TimerDoFun, 35, do_implant, 1);
                         ch->dest_buf = str_dup(arg);
                         ch->dest_buf_2 = str_dup(arg2);
                         return;
@@ -512,7 +512,7 @@ CMDF do_implant(CharData * ch, char *argument)
                 send_to_char
                         ("&RThey begin the operation on you, but they slip and slice you.\n\r",
                          victim);
-                damage(victim, victim, 100, TYPE_UNDEFINED);
+                damage(victim, victim, 100, TypeUndefined);
                 learn_from_failure(ch, gsn_implant);
                 return;
 
@@ -539,7 +539,7 @@ CMDF do_implant(CharData * ch, char *argument)
                                 send_to_char
                                         ("&RThey stopped in the middle of your surgery, and did nothing to heal you from your incisions.\n\r",
                                          victim);
-                                damage(victim, victim, 600, TYPE_UNDEFINED);
+                                damage(victim, victim, 600, TypeUndefined);
                         }
                         else
                         {
@@ -549,7 +549,7 @@ CMDF do_implant(CharData * ch, char *argument)
                                 send_to_char
                                         ("&RSince you were being operated on, and then got up and left without noticing your cuts, you suddenly feel a sharp pain as the anesthetic wears off.\n\r",
                                          victim);
-                                damage(victim, victim, 600, TYPE_UNDEFINED);
+                                damage(victim, victim, 600, TypeUndefined);
                         }
                 }
                 send_to_char
@@ -571,9 +571,9 @@ CMDF do_implant(CharData * ch, char *argument)
                          ch);
                 return;
         }
-        npc = IS_NPC(victim);
+        npc = IsNpc(victim);
 
-        if (victim->position != POS_SLEEPING)
+        if (victim->position != PosSleeping)
         {
                 send_to_char
                         ("They woke up in the middl of the operation, and felt severe pain!",
@@ -581,7 +581,7 @@ CMDF do_implant(CharData * ch, char *argument)
                 send_to_char
                         ("You awoke in the middle of surgey to the horror of feeling a knife cut your flesh!",
                          victim);
-                damage(victim, victim, 300, TYPE_UNDEFINED);
+                damage(victim, victim, 300, TypeUndefined);
         }
 
         checktool = FALSE;
@@ -590,11 +590,11 @@ CMDF do_implant(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_THREAD)
+                if (obj->item_type == ItemThread)
                         checkneed = TRUE;
-                if (obj->item_type == ITEM_IMPLANT
+                if (obj->item_type == ItemImplant
                     && get_obj_carry(ch, arg2) == obj)
                 {
                         checkimpl = TRUE;
@@ -606,7 +606,7 @@ CMDF do_implant(CharData * ch, char *argument)
                 }
         }
 
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_implant]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkneed)
@@ -621,7 +621,7 @@ CMDF do_implant(CharData * ch, char *argument)
                 send_to_char
                         ("&RThey finish the sergury, and you awake, but you feel no different.\n\r",
                          victim);
-                damage(victim, victim, 100, TYPE_UNDEFINED);
+                damage(victim, victim, 100, TypeUndefined);
                 learn_from_failure(ch, gsn_implant);
                 return;
         }
@@ -657,13 +657,13 @@ CMDF do_implant(CharData * ch, char *argument)
 
                 xpgain = UMIN(victim->top_level * 100,
                               (exp_level
-                               (ch->skill_level[MEDIC_ABILITY] + 1) -
-                               exp_level(ch->skill_level[MEDIC_ABILITY])));
+                               (ch->skill_level[MedicAbility] + 1) -
+                               exp_level(ch->skill_level[MedicAbility])));
                 if (!npc)
                 {
-                        xpgain -= 10 * (ch->skill_level[MEDIC_ABILITY] + 1);
+                        xpgain -= 10 * (ch->skill_level[MedicAbility] + 1);
                 }
-                gain_exp(ch, xpgain, MEDIC_ABILITY);
+                gain_exp(ch, xpgain, MedicAbility);
                 ch_printf(ch, "You gain %d engineering experience.\n\r",
                           xpgain);
         }

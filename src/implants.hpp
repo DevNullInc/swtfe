@@ -45,12 +45,12 @@
 #include <array>
 #include <string>
 
-constexpr int MAX_IMPLANT_TYPES = 7;
-constexpr int OBJ_VNUM_IMPLANT = 10439;
+constexpr int MaxImplantTypes = 7;
+constexpr int ObjVnumImplant = 10439;
 
-extern const std::array<std::string, MAX_IMPLANT_TYPES> implant_names;
-extern const std::array<std::string, MAX_IMPLANT_TYPES> implant_affect_names;
-extern const std::array<int, MAX_IMPLANT_TYPES> implant_affect_modifier;
+extern const std::array<std::string, MaxImplantTypes> implant_names;
+extern const std::array<std::string, MaxImplantTypes> implant_affect_names;
+extern const std::array<int, MaxImplantTypes> implant_affect_modifier;
 
 int get_implant_affect(CharData* ch, int implant);
 

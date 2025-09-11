@@ -65,7 +65,7 @@ CMDF do_buyhome(CharData * ch, char *argument)
         if (!ch->in_room)
                 return;
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         if (ch->plr_home != NULL)
@@ -86,14 +86,14 @@ CMDF do_buyhome(CharData * ch, char *argument)
                 }
         }
 
-        if (!xIS_SET(room->RoomFlags, ROOM_EMPTY_HOME))
+        if (!xIS_SET(room->RoomFlags, RoomEmptyHome))
         {
                 send_to_char("&RThis room isn't for sale!\n\r&w", ch);
                 return;
         }
 
         for (vch = ch->in_room->first_person; vch; vch = vch->next_in_room)
-                if (vch != ch && !IS_IMMORTAL(vch))
+                if (vch != ch && !IsImmortal(vch))
                         ppl++;
         if (ppl > 0)
         {
@@ -128,8 +128,8 @@ CMDF do_buyhome(CharData * ch, char *argument)
 
         send_to_char("You have just bought your home.\n\r", ch);
 
-        xREMOVE_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
-        xSET_BIT(room->RoomFlags, ROOM_PLR_HOME);
+        xREMOVE_BIT(room->RoomFlags, RoomEmptyHome);
+        xSET_BIT(room->RoomFlags, RoomPlrHome);
 
         fold_area(room->area, room->area->filename, FALSE, TRUE);
 
@@ -149,7 +149,7 @@ CMDF do_sellhome(CharData * ch, char *argument)
         if (!ch->in_room)
                 return;
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         if (ch->plr_home == NULL)
@@ -169,7 +169,7 @@ CMDF do_sellhome(CharData * ch, char *argument)
                         return;
                 }
         }
-        if (xIS_SET(room->RoomFlags, ROOM_PLR_HOME))
+        if (xIS_SET(room->RoomFlags, RoomPlrHome))
         {
                 send_to_char("&RYou sell your apartment!\n\r&w", ch);
                 STRFREE(room->name);
@@ -178,8 +178,8 @@ CMDF do_sellhome(CharData * ch, char *argument)
                 send_to_char
                         ("&RYou receive 50000 credits for your apartment.\n\r&w",
                          ch);
-                xREMOVE_BIT(room->RoomFlags, ROOM_PLR_HOME);
-                xSET_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
+                xREMOVE_BIT(room->RoomFlags, RoomPlrHome);
+                xSET_BIT(room->RoomFlags, RoomEmptyHome);
                 fold_area(room->area, room->area->filename, FALSE, TRUE);
                 ch->plr_home = NULL;
                 do_save(ch, "");
@@ -204,17 +204,17 @@ CMDF do_clone(CharData * ch, char *argument)
         int       flags, i;
         int       bodyparts;
         RoomIndexData *home;
-        int       implants[MAX_IMPLANT_TYPES];
+        int       implants[MaxImplantTypes];
 
         argument = NULL;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 ch_printf(ch, "Yeah right!\n\r");
                 return;
         }
 
-        if (ch->in_room->vnum != ROOM_CLONE_BEGIN)
+        if (ch->in_room->vnum != RoomCloneBegin)
         {
                 ch_printf(ch, "You can't do that here!\n\r");
                 return;
@@ -237,10 +237,10 @@ CMDF do_clone(CharData * ch, char *argument)
         }
 
         char_from_room(ch);
-        char_to_room(ch, get_room_index(ROOM_CLONE_END));
+        char_to_room(ch, get_room_index(RoomCloneEnd));
 
         flags = ch->act;
-        REMOVE_BIT(ch->act, PLR_KILLER);
+        RemoveBit(ch->act, PlrKiller);
         credits = ch->gold;
         ch->gold = 5000;
         played = ch->played;
@@ -251,7 +251,7 @@ CMDF do_clone(CharData * ch, char *argument)
         ch->plr_home = NULL;
         bodyparts = ch->bodyparts;
         ch->bodyparts = 0;
-        for (i = 0; i < MAX_IMPLANT_TYPES; i++)
+        for (i = 0; i < MaxImplantTypes; i++)
         {
                 implants[i] = ch->pcdata->implants[i];
                 ch->pcdata->implants[i] = -1;
@@ -273,7 +273,7 @@ CMDF do_clone(CharData * ch, char *argument)
                 STRFREE(ch->pcdata->bestowments);
                 ch->pcdata->bestowments = STRALLOC(bestowments);
         }
-        for (i = 0; i < MAX_IMPLANT_TYPES; i++)
+        for (i = 0; i < MaxImplantTypes; i++)
         {
                 ch->pcdata->implants[i] = implants[i];
         }
@@ -321,8 +321,8 @@ CMDF do_arm(CharData * ch, char *argument)
         {
                 timer = 1;
         }
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -330,7 +330,7 @@ CMDF do_arm(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 ch_printf(ch, "You have no idea how to do that.\n\r");
                 return;
@@ -342,9 +342,9 @@ CMDF do_arm(CharData * ch, char *argument)
                 return;
         }
 
-        obj = get_eq_char(ch, WEAR_HOLD);
+        obj = get_eq_char(ch, WearHold);
 
-        if (!obj || obj->item_type != ITEM_GRENADE)
+        if (!obj || obj->item_type != ItemGrenade)
         {
                 ch_printf(ch, "You don't seem to be holding a grenade!\n\r");
                 return;
@@ -355,7 +355,7 @@ CMDF do_arm(CharData * ch, char *argument)
         obj->armed_by = STRALLOC(ch->name);
 
         ch_printf(ch, "You arm %s.\n\r", obj->short_descr);
-        act(AT_PLAIN, "$n arms $p.", ch, obj, NULL, TO_ROOM);
+        act(AtPlain, "$n arms $p.", ch, obj, NULL, ToRoom);
 
         learn_from_success(ch, gsn_grenades);
 }
@@ -372,8 +372,8 @@ CMDF do_ammo(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -382,30 +382,30 @@ CMDF do_ammo(CharData * ch, char *argument)
         }
 
         obj = NULL;
-        wield = get_eq_char(ch, WEAR_WIELD);
+        wield = get_eq_char(ch, WearWield);
         if (wield)
         {
-                obj = get_eq_char(ch, WEAR_DUAL_WIELD);
+                obj = get_eq_char(ch, WearDualWield);
                 if (!obj)
-                        obj = get_eq_char(ch, WEAR_HOLD);
+                        obj = get_eq_char(ch, WearHold);
         }
         else
         {
-                wield = get_eq_char(ch, WEAR_HOLD);
+                wield = get_eq_char(ch, WearHold);
                 obj = NULL;
         }
 
-        if (!wield || wield->item_type != ITEM_WEAPON)
+        if (!wield || wield->item_type != ItemWeapon)
         {
                 send_to_char("&RYou don't seem to be holding a weapon.\n\r&w",
                              ch);
                 return;
         }
 
-        if (wield->value[3] == WEAPON_BLASTER)
+        if (wield->value[3] == WeaponBlaster)
         {
 
-                if (obj && obj->item_type != ITEM_AMMO)
+                if (obj && obj->item_type != ItemAmmo)
                 {
                         send_to_char
                                 ("&RYour hands are too full to reload your blaster.\n\r&w",
@@ -433,7 +433,7 @@ CMDF do_ammo(CharData * ch, char *argument)
                         for (obj = ch->last_carrying; obj;
                              obj = obj->prev_content)
                         {
-                                if (obj->item_type == ITEM_AMMO)
+                                if (obj->item_type == ItemAmmo)
                                 {
                                         if (obj->value[0] > wield->value[5])
                                         {
@@ -462,14 +462,14 @@ CMDF do_ammo(CharData * ch, char *argument)
                 ch_printf(ch,
                           "You replace your ammunition cartridge.\n\rYour blaster is charged with %d shots at high power to %d shots on low.\n\r",
                           charge / 5, charge);
-                act(AT_PLAIN, "$n replaces the ammunition cell in $p.", ch,
-                    wield, NULL, TO_ROOM);
+                act(AtPlain, "$n replaces the ammunition cell in $p.", ch,
+                    wield, NULL, ToRoom);
 
         }
-        else if (wield->value[3] == WEAPON_BOWCASTER)
+        else if (wield->value[3] == WeaponBowcaster)
         {
 
-                if (obj && obj->item_type != ITEM_BOLT)
+                if (obj && obj->item_type != ItemBolt)
                 {
                         send_to_char
                                 ("&RYour hands are too full to reload your bowcaster.\n\r&w",
@@ -497,7 +497,7 @@ CMDF do_ammo(CharData * ch, char *argument)
                         for (obj = ch->last_carrying; obj;
                              obj = obj->prev_content)
                         {
-                                if (obj->item_type == ITEM_BOLT)
+                                if (obj->item_type == ItemBolt)
                                 {
                                         if (obj->value[0] > wield->value[5])
                                         {
@@ -526,14 +526,14 @@ CMDF do_ammo(CharData * ch, char *argument)
                 ch_printf(ch,
                           "You replace your quarrel pack.\n\rYour bowcaster is charged with %d energy bolts.\n\r",
                           charge);
-                act(AT_PLAIN, "$n replaces the quarrels in $p.", ch, wield,
-                    NULL, TO_ROOM);
+                act(AtPlain, "$n replaces the quarrels in $p.", ch, wield,
+                    NULL, ToRoom);
 
         }
         else
         {
 
-                if (obj && obj->item_type != ITEM_BATTERY)
+                if (obj && obj->item_type != ItemBattery)
                 {
                         send_to_char
                                 ("&RYour hands are too full to replace the power cell.\n\r&w",
@@ -554,7 +554,7 @@ CMDF do_ammo(CharData * ch, char *argument)
                         for (obj = ch->last_carrying; obj;
                              obj = obj->prev_content)
                         {
-                                if (obj->item_type == ITEM_BATTERY)
+                                if (obj->item_type == ItemBattery)
                                 {
                                         checkammo = TRUE;
                                         charge = obj->value[0];
@@ -573,37 +573,37 @@ CMDF do_ammo(CharData * ch, char *argument)
                         return;
                 }
 
-                if (wield->value[3] == WEAPON_LIGHTSABER)
+                if (wield->value[3] == WeaponLightsaber)
                 {
                         ch_printf(ch,
                                   "You replace your power cell.\n\rYour lightsaber is charged to %d/%d units.\n\r",
                                   charge, charge);
-                        act(AT_PLAIN, "$n replaces the power cell in $p.", ch,
-                            wield, NULL, TO_ROOM);
-                        act(AT_PLAIN, "$p ignites with a bright glow.", ch,
-                            wield, NULL, TO_ROOM);
+                        act(AtPlain, "$n replaces the power cell in $p.", ch,
+                            wield, NULL, ToRoom);
+                        act(AtPlain, "$p ignites with a bright glow.", ch,
+                            wield, NULL, ToRoom);
                 }
-                else if (wield->value[3] == WEAPON_VIBRO_BLADE)
+                else if (wield->value[3] == WeaponVibroBlade)
                 {
                         ch_printf(ch,
                                   "You replace your power cell.\n\rYour vibro-blade is charged to %d/%d units.\n\r",
                                   charge, charge);
-                        act(AT_PLAIN, "$n replaces the power cell in $p.", ch,
-                            wield, NULL, TO_ROOM);
+                        act(AtPlain, "$n replaces the power cell in $p.", ch,
+                            wield, NULL, ToRoom);
                 }
-                else if (wield->value[3] == WEAPON_FORCE_PIKE)
+                else if (wield->value[3] == WeaponForcePike)
                 {
                         ch_printf(ch,
                                   "You replace your power cell.\n\rYour Force-pike is charged to %d/%d units.\n\r",
                                   charge, charge);
-                        act(AT_PLAIN, "$n replaces the power cell in $p.", ch,
-                            wield, NULL, TO_ROOM);
+                        act(AtPlain, "$n replaces the power cell in $p.", ch,
+                            wield, NULL, ToRoom);
                 }
                 else
                 {
                         ch_printf(ch, "You feel very foolish.\n\r");
-                        act(AT_PLAIN, "$n tries to jam a power cell into $p.",
-                            ch, wield, NULL, TO_ROOM);
+                        act(AtPlain, "$n tries to jam a power cell into $p.",
+                            ch, wield, NULL, ToRoom);
                 }
         }
 
@@ -619,8 +619,8 @@ CMDF do_setblaster(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -628,15 +628,15 @@ CMDF do_setblaster(CharData * ch, char *argument)
                 return;
         }
 
-        wield = get_eq_char(ch, WEAR_WIELD);
+        wield = get_eq_char(ch, WearWield);
         if (wield
-            && !(wield->item_type == ITEM_WEAPON
-                 && wield->value[3] == WEAPON_BLASTER))
+            && !(wield->item_type == ItemWeapon
+                 && wield->value[3] == WeaponBlaster))
                 wield = NULL;
-        wield2 = get_eq_char(ch, WEAR_DUAL_WIELD);
+        wield2 = get_eq_char(ch, WearDualWield);
         if (wield2
-            && !(wield2->item_type == ITEM_WEAPON
-                 && wield2->value[3] == WEAPON_BLASTER))
+            && !(wield2->item_type == ItemWeapon
+                 && wield2->value[3] == WeaponBlaster))
                 wield2 = NULL;
 
         if (!wield && !wield2)
@@ -656,25 +656,25 @@ CMDF do_setblaster(CharData * ch, char *argument)
         }
 
         if (wield)
-                act(AT_PLAIN, "$n adjusts the settings on $p.", ch, wield,
-                    NULL, TO_ROOM);
+                act(AtPlain, "$n adjusts the settings on $p.", ch, wield,
+                    NULL, ToRoom);
 
         if (wield2)
-                act(AT_PLAIN, "$n adjusts the settings on $p.", ch, wield2,
-                    NULL, TO_ROOM);
+                act(AtPlain, "$n adjusts the settings on $p.", ch, wield2,
+                    NULL, ToRoom);
 
         if (!str_cmp(argument, "full"))
         {
                 if (wield)
                 {
-                        wield->blaster_setting = BLASTER_FULL;
+                        wield->blaster_setting = BlasterFull;
                         send_to_char
                                 ("&YWielded blaster set to FULL Power\n\r&w",
                                  ch);
                 }
                 if (wield2)
                 {
-                        wield2->blaster_setting = BLASTER_FULL;
+                        wield2->blaster_setting = BlasterFull;
                         send_to_char
                                 ("&YDual wielded blaster set to FULL Power\n\r&w",
                                  ch);
@@ -685,14 +685,14 @@ CMDF do_setblaster(CharData * ch, char *argument)
         {
                 if (wield)
                 {
-                        wield->blaster_setting = BLASTER_HIGH;
+                        wield->blaster_setting = BlasterHigh;
                         send_to_char
                                 ("&YWielded blaster set to HIGH Power\n\r&w",
                                  ch);
                 }
                 if (wield2)
                 {
-                        wield2->blaster_setting = BLASTER_HIGH;
+                        wield2->blaster_setting = BlasterHigh;
                         send_to_char
                                 ("&YDual wielded blaster set to HIGH Power\n\r&w",
                                  ch);
@@ -703,14 +703,14 @@ CMDF do_setblaster(CharData * ch, char *argument)
         {
                 if (wield)
                 {
-                        wield->blaster_setting = BLASTER_NORMAL;
+                        wield->blaster_setting = BlasterNormal;
                         send_to_char
                                 ("&YWielded blaster set to NORMAL Power\n\r&w",
                                  ch);
                 }
                 if (wield2)
                 {
-                        wield2->blaster_setting = BLASTER_NORMAL;
+                        wield2->blaster_setting = BlasterNormal;
                         send_to_char
                                 ("&YDual wielded blaster set to NORMAL Power\n\r&w",
                                  ch);
@@ -721,14 +721,14 @@ CMDF do_setblaster(CharData * ch, char *argument)
         {
                 if (wield)
                 {
-                        wield->blaster_setting = BLASTER_HALF;
+                        wield->blaster_setting = BlasterHalf;
                         send_to_char
                                 ("&YWielded blaster set to HALF Power\n\r&w",
                                  ch);
                 }
                 if (wield2)
                 {
-                        wield2->blaster_setting = BLASTER_HALF;
+                        wield2->blaster_setting = BlasterHalf;
                         send_to_char
                                 ("&YDual wielded blaster set to HALF Power\n\r&w",
                                  ch);
@@ -739,14 +739,14 @@ CMDF do_setblaster(CharData * ch, char *argument)
         {
                 if (wield)
                 {
-                        wield->blaster_setting = BLASTER_LOW;
+                        wield->blaster_setting = BlasterLow;
                         send_to_char
                                 ("&YWielded blaster set to LOW Power\n\r&w",
                                  ch);
                 }
                 if (wield2)
                 {
-                        wield2->blaster_setting = BLASTER_LOW;
+                        wield2->blaster_setting = BlasterLow;
                         send_to_char
                                 ("&YDual wielded blaster set to LOW Power\n\r&w",
                                  ch);
@@ -757,13 +757,13 @@ CMDF do_setblaster(CharData * ch, char *argument)
         {
                 if (wield)
                 {
-                        wield->blaster_setting = BLASTER_STUN;
+                        wield->blaster_setting = BlasterStun;
                         send_to_char("&YWielded blaster set to STUN\n\r&w",
                                      ch);
                 }
                 if (wield2)
                 {
-                        wield2->blaster_setting = BLASTER_STUN;
+                        wield2->blaster_setting = BlasterStun;
                         send_to_char
                                 ("&YDual wielded blaster set to STUN\n\r&w",
                                  ch);
@@ -787,8 +787,8 @@ CMDF do_use(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -808,20 +808,20 @@ CMDF do_use(CharData * ch, char *argument)
                 return;
         }
 
-        if ((device = get_eq_char(ch, WEAR_HOLD)) == NULL ||
+        if ((device = get_eq_char(ch, WearHold)) == NULL ||
             !nifty_is_name(argd, device->name))
         {
                 do_takedrug(ch, argd);
                 return;
         }
 
-        if (device->item_type == ITEM_SPICE)
+        if (device->item_type == ItemSpice)
         {
                 do_takedrug(ch, argd);
                 return;
         }
 
-        if (device->item_type != ITEM_DEVICE)
+        if (device->item_type != ItemDevice)
         {
                 send_to_char
                         ("You can't figure out what it is your supposed to do with it.\n\r",
@@ -858,7 +858,7 @@ CMDF do_use(CharData * ch, char *argument)
                 }
         }
 
-        WAIT_STATE(ch, 1 * PulseViolence);
+        WaitState(ch, 1 * PulseViolence);
 
         if (device->value[2] > 0)
         {
@@ -868,20 +868,20 @@ CMDF do_use(CharData * ch, char *argument)
                         if (!oprog_use_trigger
                             (ch, device, victim, NULL, NULL))
                         {
-                                act(AT_MAGIC, "$n uses $p on $N.", ch, device,
-                                    victim, TO_ROOM);
-                                act(AT_MAGIC, "You use $p on $N.", ch, device,
-                                    victim, TO_CHAR);
+                                act(AtMagic, "$n uses $p on $N.", ch, device,
+                                    victim, ToRoom);
+                                act(AtMagic, "You use $p on $N.", ch, device,
+                                    victim, ToChar);
                         }
                 }
                 else
                 {
                         if (!oprog_use_trigger(ch, device, NULL, obj, NULL))
                         {
-                                act(AT_MAGIC, "$n uses $p on $P.", ch, device,
-                                    obj, TO_ROOM);
-                                act(AT_MAGIC, "You use $p on $P.", ch, device,
-                                    obj, TO_CHAR);
+                                act(AtMagic, "$n uses $p on $P.", ch, device,
+                                    obj, ToRoom);
+                                act(AtMagic, "You use $p on $P.", ch, device,
+                                    obj, ToChar);
                         }
                 }
 
@@ -910,8 +910,8 @@ CMDF do_takedrug(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -928,7 +928,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
         if ((obj = find_obj(ch, argument, TRUE)) == NULL)
                 return;
 
-        if (obj->item_type == ITEM_DEVICE)
+        if (obj->item_type == ItemDevice)
         {
                 send_to_char("Try holding it first.\n\r", ch);
                 return;
@@ -943,45 +943,45 @@ CMDF do_takedrug(CharData * ch, char *argument)
                 return;
         }
 
-        if (obj->item_type != ITEM_SPICE)
+        if (obj->item_type != ItemSpice)
         {
-                act(AT_ACTION, "$n looks at $p and scratches $s head.", ch,
-                    obj, NULL, TO_ROOM);
-                act(AT_ACTION,
+                act(AtAction, "$n looks at $p and scratches $s head.", ch,
+                    obj, NULL, ToRoom);
+                act(AtAction,
                     "You can't quite figure out what to do with $p.", ch, obj,
-                    NULL, TO_CHAR);
+                    NULL, ToChar);
                 return;
         }
 
         separate_obj(obj);
         if (obj->in_obj)
         {
-                act(AT_PLAIN, "You take $p from $P.", ch, obj, obj->in_obj,
-                    TO_CHAR);
-                act(AT_PLAIN, "$n takes $p from $P.", ch, obj, obj->in_obj,
-                    TO_ROOM);
+                act(AtPlain, "You take $p from $P.", ch, obj, obj->in_obj,
+                    ToChar);
+                act(AtPlain, "$n takes $p from $P.", ch, obj, obj->in_obj,
+                    ToRoom);
         }
 
         if (ch->fighting && number_percent() > (get_curr_dex(ch) * 2 + 48))
         {
-                act(AT_MAGIC,
+                act(AtMagic,
                     "$n accidentally drops $p rendering it useless.", ch, obj,
-                    NULL, TO_ROOM);
-                act(AT_MAGIC,
+                    NULL, ToRoom);
+                act(AtMagic,
                     "Oops... $p gets knocked from your hands rendering it completely useless!",
-                    ch, obj, NULL, TO_CHAR);
+                    ch, obj, NULL, ToChar);
         }
         else
         {
                 if (!oprog_use_trigger(ch, obj, NULL, NULL, NULL))
                 {
-                        act(AT_ACTION, "$n takes $p.", ch, obj, NULL,
-                            TO_ROOM);
-                        act(AT_ACTION, "You take $p.", ch, obj, NULL,
-                            TO_CHAR);
+                        act(AtAction, "$n takes $p.", ch, obj, NULL,
+                            ToRoom);
+                        act(AtAction, "You take $p.", ch, obj, NULL,
+                            ToChar);
                 }
 
-                if (IS_NPC(ch))
+                if (IsNpc(ch))
                 {
                         extract_obj(obj);
                         return;
@@ -989,9 +989,9 @@ CMDF do_takedrug(CharData * ch, char *argument)
 
                 drug = obj->value[0];
 
-                WAIT_STATE(ch, PulsePerSecond / 4);
+                WaitState(ch, PulsePerSecond / 4);
 
-                gain_condition(ch, COND_THIRST, 1);
+                gain_condition(ch, CondThirst, 1);
 
                 ch->pcdata->drug_level[drug] =
                         UMIN(ch->pcdata->drug_level[drug] + obj->value[1],
@@ -1000,18 +1000,18 @@ CMDF do_takedrug(CharData * ch, char *argument)
                     || ch->pcdata->drug_level[drug] >
                     (ch->pcdata->addiction[drug] + 100))
                 {
-                        act(AT_POISON, "$n sputters and gags.", ch, NULL,
-                            NULL, TO_ROOM);
-                        act(AT_POISON,
+                        act(AtPoison, "$n sputters and gags.", ch, NULL,
+                            NULL, ToRoom);
+                        act(AtPoison,
                             "You feel sick. You may have taken too much.", ch,
-                            NULL, NULL, TO_CHAR);
+                            NULL, NULL, ToChar);
                         ch->mental_state =
                                 URANGE(20, ch->mental_state + 5, 100);
                         af.type = gsn_poison;
-                        af.location = APPLY_INT;
+                        af.location = ApplyInt;
                         af.modifier = -5;
                         af.duration = ch->pcdata->drug_level[drug];
-                        af.bitvector = AFF_POISON;
+                        af.bitvector = AffPoison;
                         affect_to_char(ch, &af);
                         ch->hit = 1;
                 }
@@ -1019,90 +1019,90 @@ CMDF do_takedrug(CharData * ch, char *argument)
                 switch (drug)
                 {
                 default:
-                case SPICE_GLITTERSTIM:
+                case SpiceGlitterstim:
 
                         sn = skill_lookup("true sight");
-                        if (sn < MaxSkill && !IS_AFFECTED(ch, AFF_TRUESIGHT))
+                        if (sn < MaxSkill && !IsAffected(ch, AffTruesight))
                         {
                                 af.type = sn;
-                                af.location = APPLY_AC;
+                                af.location = ApplyAc;
                                 af.modifier = -10;
                                 af.duration =
                                         URANGE(1,
                                                ch->pcdata->drug_level[drug] -
                                                ch->pcdata->addiction[drug],
                                                obj->value[1]);
-                                af.bitvector = AFF_TRUESIGHT;
+                                af.bitvector = AffTruesight;
                                 affect_to_char(ch, &af);
                         }
                         break;
 
-                case SPICE_CARSANUM:
+                case SpiceCarsanum:
 
                         sn = skill_lookup("sanctuary");
-                        if (sn < MaxSkill && !IS_AFFECTED(ch, AFF_SANCTUARY))
+                        if (sn < MaxSkill && !IsAffected(ch, AffSanctuary))
                         {
                                 af.type = sn;
-                                af.location = APPLY_NONE;
+                                af.location = ApplyNone;
                                 af.modifier = 0;
                                 af.duration =
                                         URANGE(1,
                                                ch->pcdata->drug_level[drug] -
                                                ch->pcdata->addiction[drug],
                                                obj->value[1]);
-                                af.bitvector = AFF_SANCTUARY;
+                                af.bitvector = AffSanctuary;
                                 affect_to_char(ch, &af);
                         }
                         break;
 
-                case SPICE_RYLL:
+                case SpiceRyll:
 
                         af.type = -1;
-                        af.location = APPLY_DEX;
+                        af.location = ApplyDex;
                         af.modifier = 1;
                         af.duration =
                                 URANGE(1,
                                        2 * (ch->pcdata->drug_level[drug] -
                                             ch->pcdata->addiction[drug]),
                                        2 * obj->value[1]);
-                        af.bitvector = AFF_NONE;
+                        af.bitvector = AffNone;
                         affect_to_char(ch, &af);
 
                         af.type = -1;
-                        af.location = APPLY_HITROLL;
+                        af.location = ApplyHitroll;
                         af.modifier = 1;
                         af.duration =
                                 URANGE(1,
                                        2 * (ch->pcdata->drug_level[drug] -
                                             ch->pcdata->addiction[drug]),
                                        2 * obj->value[1]);
-                        af.bitvector = AFF_NONE;
+                        af.bitvector = AffNone;
                         affect_to_char(ch, &af);
 
                         break;
 
-                case SPICE_ANDRIS:
+                case SpiceAndris:
 
                         af.type = -1;
-                        af.location = APPLY_HIT;
+                        af.location = ApplyHit;
                         af.modifier = 10;
                         af.duration =
                                 URANGE(1,
                                        2 * (ch->pcdata->drug_level[drug] -
                                             ch->pcdata->addiction[drug]),
                                        2 * obj->value[1]);
-                        af.bitvector = AFF_NONE;
+                        af.bitvector = AffNone;
                         affect_to_char(ch, &af);
 
                         af.type = sn;
-                        af.location = APPLY_CON;
+                        af.location = ApplyCon;
                         af.modifier = 1;
                         af.duration =
                                 URANGE(1,
                                        2 * (ch->pcdata->drug_level[drug] -
                                             ch->pcdata->addiction[drug]),
                                        2 * obj->value[1]);
-                        af.bitvector = AFF_NONE;
+                        af.bitvector = AffNone;
                         affect_to_char(ch, &af);
 
                         break;
@@ -1159,8 +1159,8 @@ CMDF do_fill(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -1199,31 +1199,31 @@ CMDF do_fill(CharData * ch, char *argument)
         switch (dest_item)
         {
         default:
-                act(AT_ACTION, "$n tries to fill $p... (Don't ask me how)",
-                    ch, obj, NULL, TO_ROOM);
+                act(AtAction, "$n tries to fill $p... (Don't ask me how)",
+                    ch, obj, NULL, ToRoom);
                 send_to_char("You cannot fill that.\n\r", ch);
                 return;
                 /*
                  * place all fillable item types here 
                  */
-        case ITEM_DRINK_CON:
-                src_item1 = ITEM_FOUNTAIN;
-                src_item2 = ITEM_BLOOD;
+        case ItemDrinkCon:
+                src_item1 = ItemFountain;
+                src_item2 = ItemBlood;
                 break;
-        case ITEM_CONTAINER:
-                src_item1 = ITEM_CONTAINER;
-                src_item2 = ITEM_CORPSE_NPC;
-                src_item3 = ITEM_CORPSE_PC;
-                src_item4 = ITEM_CORPSE_NPC;
+        case ItemContainer:
+                src_item1 = ItemContainer;
+                src_item2 = ItemCorpseNpc;
+                src_item3 = ItemCorpsePc;
+                src_item4 = ItemCorpseNpc;
                 break;
         }
 
-        if (dest_item == ITEM_CONTAINER)
+        if (dest_item == ItemContainer)
         {
-                if (IS_SET(obj->value[1], CONT_CLOSED))
+                if (IsSet(obj->value[1], ContClosed))
                 {
-                        act(AT_PLAIN, "The $d is closed.", ch, NULL,
-                            obj->name, TO_CHAR);
+                        act(AtPlain, "The $d is closed.", ch, NULL,
+                            obj->name, ToChar);
                         return;
                 }
                 if (get_obj_weight(obj) / obj->count >= obj->value[0])
@@ -1244,7 +1244,7 @@ CMDF do_fill(CharData * ch, char *argument)
                 }
         }
 
-        if (dest_item == ITEM_PIPE && IS_SET(obj->value[3], PIPE_FULLOFASH))
+        if (dest_item == ItemPipe && IsSet(obj->value[3], PipeFullofash))
         {
                 send_to_char
                         ("It's full of ashes, and needs to be emptied first.\n\r",
@@ -1254,7 +1254,7 @@ CMDF do_fill(CharData * ch, char *argument)
 
         if (arg2[0] != '\0')
         {
-                if (dest_item == ITEM_CONTAINER
+                if (dest_item == ItemContainer
                     && (!str_cmp(arg2, "all") || !str_prefix("all.", arg2)))
                 {
                         all = TRUE;
@@ -1267,7 +1267,7 @@ CMDF do_fill(CharData * ch, char *argument)
                          * It's nitpicking, but I needed to change it to get a mobprog to work
                          * right.  Check out Lord Fitzgibbon if you're curious.  -Narn 
                          */
-                if (dest_item == ITEM_PIPE)
+                if (dest_item == ItemPipe)
                 {
                         if ((source = get_obj_carry(ch, arg2)) == NULL)
                         {
@@ -1280,8 +1280,8 @@ CMDF do_fill(CharData * ch, char *argument)
                             && source->item_type != src_item3
                             && source->item_type != src_item4)
                         {
-                                act(AT_PLAIN, "You cannot fill $p with $P!",
-                                    ch, obj, source, TO_CHAR);
+                                act(AtPlain, "You cannot fill $p with $P!",
+                                    ch, obj, source, ToChar);
                                 return;
                         }
                 }
@@ -1298,7 +1298,7 @@ CMDF do_fill(CharData * ch, char *argument)
         else
                 source = NULL;
 
-        if (!source && dest_item == ITEM_PIPE)
+        if (!source && dest_item == ItemPipe)
         {
                 send_to_char("Fill it with what?\n\r", ch);
                 return;
@@ -1315,10 +1315,10 @@ CMDF do_fill(CharData * ch, char *argument)
                      source; source = src_next)
                 {
                         src_next = source->next_content;
-                        if (dest_item == ITEM_CONTAINER)
+                        if (dest_item == ItemContainer)
                         {
-                                if (!CAN_WEAR(source, ITEM_TAKE)
-                                    || (IS_OBJ_STAT(source, ITEM_PROTOTYPE)
+                                if (!CanWear(source, ItemTake)
+                                    || (IsObjStat(source, ItemPrototype)
                                         && !can_take_proto(ch))
                                     || ch->carry_weight +
                                     get_obj_weight(source) > can_carry_w(ch)
@@ -1330,7 +1330,7 @@ CMDF do_fill(CharData * ch, char *argument)
                                     && !nifty_is_name(&arg2[4], source->name))
                                         continue;
                                 obj_from_room(source);
-                                if (source->item_type == ITEM_MONEY)
+                                if (source->item_type == ItemMoney)
                                 {
                                         ch->gold += source->value[0];
                                         extract_obj(source);
@@ -1357,29 +1357,29 @@ CMDF do_fill(CharData * ch, char *argument)
                                         ("There is nothing appropriate here!\n\r",
                                          ch);
                                 return;
-                        case ITEM_FOUNTAIN:
+                        case ItemFountain:
                                 send_to_char
                                         ("There is no fountain or pool here!\n\r",
                                          ch);
                                 return;
-                        case ITEM_BLOOD:
+                        case ItemBlood:
                                 send_to_char
                                         ("There is no blood pool here!\n\r",
                                          ch);
                                 return;
                         }
                 }
-                if (dest_item == ITEM_CONTAINER)
+                if (dest_item == ItemContainer)
                 {
-                        act(AT_ACTION, "You fill $p.", ch, obj, NULL,
-                            TO_CHAR);
-                        act(AT_ACTION, "$n fills $p.", ch, obj, NULL,
-                            TO_ROOM);
+                        act(AtAction, "You fill $p.", ch, obj, NULL,
+                            ToChar);
+                        act(AtAction, "$n fills $p.", ch, obj, NULL,
+                            ToRoom);
                         return;
                 }
         }
 
-        if (dest_item == ITEM_CONTAINER)
+        if (dest_item == ItemContainer)
         {
                 ObjData *otmp, *otmp_next;
                 char      name[MaxInputLength];
@@ -1399,8 +1399,8 @@ CMDF do_fill(CharData * ch, char *argument)
                 {
                 default:   /* put something in container */
                         if (!source->in_room    /* disallow inventory items */
-                            || !CAN_WEAR(source, ITEM_TAKE)
-                            || (IS_OBJ_STAT(source, ITEM_PROTOTYPE)
+                            || !CanWear(source, ItemTake)
+                            || (IsObjStat(source, ItemPrototype)
                                 && !can_take_proto(ch))
                             || ch->carry_weight + get_obj_weight(source) >
                             can_carry_w(ch)
@@ -1412,18 +1412,18 @@ CMDF do_fill(CharData * ch, char *argument)
                                 return;
                         }
                         separate_obj(obj);
-                        act(AT_ACTION, "You take $P and put it inside $p.",
-                            ch, obj, source, TO_CHAR);
-                        act(AT_ACTION, "$n takes $P and puts it inside $p.",
-                            ch, obj, source, TO_ROOM);
+                        act(AtAction, "You take $P and put it inside $p.",
+                            ch, obj, source, ToChar);
+                        act(AtAction, "$n takes $P and puts it inside $p.",
+                            ch, obj, source, ToRoom);
                         obj_from_room(source);
                         obj_to_obj(source, obj);
                         break;
-                case ITEM_MONEY:
+                case ItemMoney:
                         send_to_char("You can't do that... yet.\n\r", ch);
                         break;
-                case ITEM_CORPSE_PC:
-                        if (IS_NPC(ch))
+                case ItemCorpsePc:
+                        if (IsNpc(ch))
                         {
                                 send_to_char("You can't do that.\n\r", ch);
                                 return;
@@ -1435,14 +1435,14 @@ CMDF do_fill(CharData * ch, char *argument)
                         pd = one_argument(pd, name);
                         pd = one_argument(pd, name);
 
-                        if (str_cmp(name, ch->name) && !IS_IMMORTAL(ch))
+                        if (str_cmp(name, ch->name) && !IsImmortal(ch))
                         {
                                 bool      fGroup;
 
                                 fGroup = FALSE;
                                 for (gch = first_char; gch; gch = gch->next)
                                 {
-                                        if (!IS_NPC(gch)
+                                        if (!IsNpc(gch)
                                             && is_same_group(ch, gch)
                                             && !str_cmp(name, gch->name))
                                         {
@@ -1459,16 +1459,16 @@ CMDF do_fill(CharData * ch, char *argument)
                                 }
                         }
 
-                case ITEM_CONTAINER:
-                        if (source->item_type == ITEM_CONTAINER /* don't remove */
-                            && IS_SET(source->value[1], CONT_CLOSED))
+                case ItemContainer:
+                        if (source->item_type == ItemContainer /* don't remove */
+                            && IsSet(source->value[1], ContClosed))
                         {
-                                act(AT_PLAIN, "The $d is closed.", ch, NULL,
-                                    source->name, TO_CHAR);
+                                act(AtPlain, "The $d is closed.", ch, NULL,
+                                    source->name, ToChar);
                                 return;
                         }
-                case ITEM_DROID_CORPSE:
-                case ITEM_CORPSE_NPC:
+                case ItemDroidCorpse:
+                case ItemCorpseNpc:
                         if ((otmp = source->first_content) == NULL)
                         {
                                 send_to_char("It's empty.\n\r", ch);
@@ -1479,8 +1479,8 @@ CMDF do_fill(CharData * ch, char *argument)
                         {
                                 otmp_next = otmp->next_content;
 
-                                if (!CAN_WEAR(otmp, ITEM_TAKE)
-                                    || (IS_OBJ_STAT(otmp, ITEM_PROTOTYPE)
+                                if (!CanWear(otmp, ItemTake)
+                                    || (IsObjStat(otmp, ItemPrototype)
                                         && !can_take_proto(ch))
                                     || ch->carry_number + otmp->count >
                                     can_carry_n(ch)
@@ -1496,10 +1496,10 @@ CMDF do_fill(CharData * ch, char *argument)
                         }
                         if (found)
                         {
-                                act(AT_ACTION, "You fill $p from $P.", ch,
-                                    obj, source, TO_CHAR);
-                                act(AT_ACTION, "$n fills $p from $P.", ch,
-                                    obj, source, TO_ROOM);
+                                act(AtAction, "You fill $p from $P.", ch,
+                                    obj, source, ToChar);
+                                act(AtAction, "$n fills $p from $P.", ch,
+                                    obj, source, ToRoom);
                         }
                         else
                                 send_to_char
@@ -1515,7 +1515,7 @@ CMDF do_fill(CharData * ch, char *argument)
                 send_to_char("There's none left!\n\r", ch);
                 return;
         }
-        if (source->count > 1 && source->item_type != ITEM_FOUNTAIN)
+        if (source->count > 1 && source->item_type != ItemFountain)
                 separate_obj(source);
         separate_obj(obj);
 
@@ -1525,7 +1525,7 @@ CMDF do_fill(CharData * ch, char *argument)
                 bug("do_fill: got bad item type: %d", source->item_type);
                 send_to_char("Something went wrong...\n\r", ch);
                 return;
-        case ITEM_FOUNTAIN:
+        case ItemFountain:
                 if (obj->value[1] != 0 && obj->value[2] != 0)
                 {
                         send_to_char
@@ -1535,12 +1535,12 @@ CMDF do_fill(CharData * ch, char *argument)
                 }
                 obj->value[2] = 0;
                 obj->value[1] = obj->value[0];
-                act(AT_ACTION, "You fill $p from $P.", ch, obj, source,
-                    TO_CHAR);
-                act(AT_ACTION, "$n fills $p from $P.", ch, obj, source,
-                    TO_ROOM);
+                act(AtAction, "You fill $p from $P.", ch, obj, source,
+                    ToChar);
+                act(AtAction, "$n fills $p from $P.", ch, obj, source,
+                    ToRoom);
                 return;
-        case ITEM_BLOOD:
+        case ItemBlood:
                 if (obj->value[1] != 0 && obj->value[2] != 13)
                 {
                         send_to_char
@@ -1552,17 +1552,17 @@ CMDF do_fill(CharData * ch, char *argument)
                 if (source->value[1] < diff)
                         diff = source->value[1];
                 obj->value[1] += diff;
-                act(AT_ACTION, "You fill $p from $P.", ch, obj, source,
-                    TO_CHAR);
-                act(AT_ACTION, "$n fills $p from $P.", ch, obj, source,
-                    TO_ROOM);
+                act(AtAction, "You fill $p from $P.", ch, obj, source,
+                    ToChar);
+                act(AtAction, "$n fills $p from $P.", ch, obj, source,
+                    ToRoom);
                 if ((source->value[1] -= diff) < 1)
                 {
                         extract_obj(source);
                         make_bloodstain(ch);
                 }
                 return;
-        case ITEM_DRINK_CON:
+        case ItemDrinkCon:
                 if (obj->value[1] != 0 && obj->value[2] != source->value[2])
                 {
                         send_to_char
@@ -1575,10 +1575,10 @@ CMDF do_fill(CharData * ch, char *argument)
                         diff = source->value[1];
                 obj->value[1] += diff;
                 source->value[1] -= diff;
-                act(AT_ACTION, "You fill $p from $P.", ch, obj, source,
-                    TO_CHAR);
-                act(AT_ACTION, "$n fills $p from $P.", ch, obj, source,
-                    TO_ROOM);
+                act(AtAction, "You fill $p from $P.", ch, obj, source,
+                    ToChar);
+                act(AtAction, "$n fills $p from $P.", ch, obj, source,
+                    ToRoom);
                 return;
         }
 }
@@ -1604,7 +1604,7 @@ CMDF do_drink(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_JAW))
+        if (IsSet(ch->bodyparts, BodyJaw))
         {
                 send_to_char("Your jaw hurts too much to drink.", ch);
                 return;
@@ -1622,8 +1622,8 @@ CMDF do_drink(CharData * ch, char *argument)
         {
                 for (obj = ch->in_room->first_content; obj;
                      obj = obj->next_content)
-                        if (obj->item_type == ITEM_FOUNTAIN
-                            || obj->item_type == ITEM_BLOOD)
+                        if (obj->item_type == ItemFountain
+                            || obj->item_type == ItemBlood)
                                 break;
 
                 if (!obj)
@@ -1637,8 +1637,8 @@ CMDF do_drink(CharData * ch, char *argument)
                 /*
                  * Should we check for wrist, arm, and sholder too? 
                  */
-                if (IS_SET(ch->bodyparts, BODY_R_HAND)
-                    || IS_SET(ch->bodyparts, BODY_L_HAND))
+                if (IsSet(ch->bodyparts, BodyRHand)
+                    || IsSet(ch->bodyparts, BodyLHand))
                 {
                         send_to_char
                                 ("How do you expect to drink with your hands broken?",
@@ -1653,10 +1653,10 @@ CMDF do_drink(CharData * ch, char *argument)
                 }
         }
 
-        if (obj->count > 1 && obj->item_type != ITEM_FOUNTAIN)
+        if (obj->count > 1 && obj->item_type != ItemFountain)
                 separate_obj(obj);
 
-        if (!IS_NPC(ch) && ch->pcdata->condition[COND_DRUNK] > 40)
+        if (!IsNpc(ch) && ch->pcdata->condition[CondDrunk] > 40)
         {
                 send_to_char("You fail to reach your mouth.  *Hic*\n\r", ch);
                 return;
@@ -1667,53 +1667,53 @@ CMDF do_drink(CharData * ch, char *argument)
         default:
                 if (obj->carried_by == ch)
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "$n lifts $p up to $s mouth and tries to drink from it...",
-                            ch, obj, NULL, TO_ROOM);
-                        act(AT_ACTION,
+                            ch, obj, NULL, ToRoom);
+                        act(AtAction,
                             "You bring $p up to your mouth and try to drink from it...",
-                            ch, obj, NULL, TO_CHAR);
+                            ch, obj, NULL, ToChar);
                 }
                 else
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "$n gets down and tries to drink from $p... (Is $e feeling ok?)",
-                            ch, obj, NULL, TO_ROOM);
-                        act(AT_ACTION,
+                            ch, obj, NULL, ToRoom);
+                        act(AtAction,
                             "You get down on the ground and try to drink from $p...",
-                            ch, obj, NULL, TO_CHAR);
+                            ch, obj, NULL, ToChar);
                 }
                 break;
 
-        case ITEM_POTION:
+        case ItemPotion:
                 if (obj->carried_by == ch)
                         do_quaff(ch, obj->name);
                 else
                         send_to_char("You're not carrying that.\n\r", ch);
                 break;
 
-        case ITEM_FOUNTAIN:
+        case ItemFountain:
                 if (!oprog_use_trigger(ch, obj, NULL, NULL, NULL))
                 {
-                        act(AT_ACTION, "$n drinks from the fountain.", ch,
-                            NULL, NULL, TO_ROOM);
+                        act(AtAction, "$n drinks from the fountain.", ch,
+                            NULL, NULL, ToRoom);
                         send_to_char
                                 ("You take a long thirst quenching drink.\n\r",
                                  ch);
                 }
 
-                if (!IS_NPC(ch))
-                        ch->pcdata->condition[COND_THIRST] = 40;
+                if (!IsNpc(ch))
+                        ch->pcdata->condition[CondThirst] = 40;
                 break;
 
-        case ITEM_DRINK_CON:
+        case ItemDrinkCon:
                 if (obj->value[1] <= 0)
                 {
                         send_to_char("It is already empty.\n\r", ch);
                         return;
                 }
 
-                if ((liquid = obj->value[2]) >= LIQ_MAX)
+                if ((liquid = obj->value[2]) >= LiqMax)
                 {
                         bug("Do_drink: bad liquid number %d.", liquid);
                         liquid = obj->value[2] = 0;
@@ -1721,10 +1721,10 @@ CMDF do_drink(CharData * ch, char *argument)
 
                 if (!oprog_use_trigger(ch, obj, NULL, NULL, NULL))
                 {
-                        act(AT_ACTION, "$n drinks $T from $p.",
-                            ch, obj, liq_table[liquid].liq_name, TO_ROOM);
-                        act(AT_ACTION, "You drink $T from $p.",
-                            ch, obj, liq_table[liquid].liq_name, TO_CHAR);
+                        act(AtAction, "$n drinks $T from $p.",
+                            ch, obj, liq_table[liquid].liq_name, ToRoom);
+                        act(AtAction, "You drink $T from $p.",
+                            ch, obj, liq_table[liquid].liq_name, ToChar);
                 }
 
                 amount = 1; /* UMIN(amount, obj->value[1]); */
@@ -1733,42 +1733,42 @@ CMDF do_drink(CharData * ch, char *argument)
                  * * too I suppose... sheesh! 
                  */
 
-                gain_condition(ch, COND_DRUNK,
+                gain_condition(ch, CondDrunk,
                                amount *
-                               liq_table[liquid].liq_affect[COND_DRUNK]);
-                gain_condition(ch, COND_FULL,
+                               liq_table[liquid].liq_affect[CondDrunk]);
+                gain_condition(ch, CondFull,
                                amount *
-                               liq_table[liquid].liq_affect[COND_FULL]);
-                gain_condition(ch, COND_THIRST,
+                               liq_table[liquid].liq_affect[CondFull]);
+                gain_condition(ch, CondThirst,
                                amount *
-                               liq_table[liquid].liq_affect[COND_THIRST]);
+                               liq_table[liquid].liq_affect[CondThirst]);
 
-                if (!IS_NPC(ch))
+                if (!IsNpc(ch))
                 {
-                        if (ch->pcdata->condition[COND_DRUNK] > 24)
+                        if (ch->pcdata->condition[CondDrunk] > 24)
                                 send_to_char("You feel quite sloshed.\n\r",
                                              ch);
-                        else if (ch->pcdata->condition[COND_DRUNK] > 18)
+                        else if (ch->pcdata->condition[CondDrunk] > 18)
                                 send_to_char("You feel very drunk.\n\r", ch);
-                        else if (ch->pcdata->condition[COND_DRUNK] > 12)
+                        else if (ch->pcdata->condition[CondDrunk] > 12)
                                 send_to_char("You feel drunk.\n\r", ch);
-                        else if (ch->pcdata->condition[COND_DRUNK] > 8)
+                        else if (ch->pcdata->condition[CondDrunk] > 8)
                                 send_to_char("You feel a little drunk.\n\r",
                                              ch);
-                        else if (ch->pcdata->condition[COND_DRUNK] > 5)
+                        else if (ch->pcdata->condition[CondDrunk] > 5)
                                 send_to_char("You feel light headed.\n\r",
                                              ch);
 
-                        if (ch->pcdata->condition[COND_FULL] > 40)
+                        if (ch->pcdata->condition[CondFull] > 40)
                                 send_to_char("You are full.\n\r", ch);
 
-                        if (ch->pcdata->condition[COND_THIRST] > 40)
+                        if (ch->pcdata->condition[CondThirst] > 40)
                                 send_to_char("You feel bloated.\n\r", ch);
-                        else if (ch->pcdata->condition[COND_THIRST] > 36)
+                        else if (ch->pcdata->condition[CondThirst] > 36)
                                 send_to_char
                                         ("Your stomach is sloshing around.\n\r",
                                          ch);
-                        else if (ch->pcdata->condition[COND_THIRST] > 30)
+                        else if (ch->pcdata->condition[CondThirst] > 30)
                                 send_to_char("You do not feel thirsty.\n\r",
                                              ch);
                 }
@@ -1780,17 +1780,17 @@ CMDF do_drink(CharData * ch, char *argument)
                          */
                         AffectData af;
 
-                        act(AT_POISON, "$n sputters and gags.", ch, NULL,
-                            NULL, TO_ROOM);
-                        act(AT_POISON, "You sputter and gag.", ch, NULL, NULL,
-                            TO_CHAR);
+                        act(AtPoison, "$n sputters and gags.", ch, NULL,
+                            NULL, ToRoom);
+                        act(AtPoison, "You sputter and gag.", ch, NULL, NULL,
+                            ToChar);
                         ch->mental_state =
                                 URANGE(20, ch->mental_state + 5, 100);
                         af.type = gsn_poison;
                         af.duration = 3 * obj->value[3];
-                        af.location = APPLY_NONE;
+                        af.location = ApplyNone;
                         af.modifier = 0;
-                        af.bitvector = AFF_POISON;
+                        af.bitvector = AffPoison;
                         affect_join(ch, &af);
                 }
 
@@ -1798,7 +1798,7 @@ CMDF do_drink(CharData * ch, char *argument)
                 break;
         }
 
-        WAIT_STATE(ch, PulsePerSecond);
+        WaitState(ch, PulsePerSecond);
         return;
 }
 
@@ -1825,7 +1825,7 @@ CMDF do_eat(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_JAW))
+        if (IsSet(ch->bodyparts, BodyJaw))
         {
                 send_to_char("Your jaw hurts too much to eat.", ch);
                 return;
@@ -1834,8 +1834,8 @@ CMDF do_eat(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to eat with your hands broken?",
@@ -1843,7 +1843,7 @@ CMDF do_eat(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch) || ch->pcdata->condition[COND_FULL] > 5)
+        if (IsNpc(ch) || ch->pcdata->condition[CondFull] > 5)
                 if (ms_find_obj(ch))
                         return;
 
@@ -1851,20 +1851,20 @@ CMDF do_eat(CharData * ch, char *argument)
                 return;
 
 
-        if (!IS_IMMORTAL(ch))
+        if (!IsImmortal(ch))
         {
-                if (obj->item_type != ITEM_FOOD
-                    && obj->item_type != ITEM_PILL)
+                if (obj->item_type != ItemFood
+                    && obj->item_type != ItemPill)
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "$n starts to nibble on $p... ($e must really be hungry)",
-                            ch, obj, NULL, TO_ROOM);
-                        act(AT_ACTION, "You try to nibble on $p...", ch, obj,
-                            NULL, TO_CHAR);
+                            ch, obj, NULL, ToRoom);
+                        act(AtAction, "You try to nibble on $p...", ch, obj,
+                            NULL, ToChar);
                         return;
                 }
 
-                if (!IS_NPC(ch) && ch->pcdata->condition[COND_FULL] > 40)
+                if (!IsNpc(ch) && ch->pcdata->condition[CondFull] > 40)
                 {
                         send_to_char("You are too full to eat more.\n\r", ch);
                         return;
@@ -1876,21 +1876,21 @@ CMDF do_eat(CharData * ch, char *argument)
          */
         separate_obj(obj);
 
-        WAIT_STATE(ch, PulsePerSecond / 2);
+        WaitState(ch, PulsePerSecond / 2);
 
         if (obj->in_obj)
         {
-                act(AT_PLAIN, "You take $p from $P.", ch, obj, obj->in_obj,
-                    TO_CHAR);
-                act(AT_PLAIN, "$n takes $p from $P.", ch, obj, obj->in_obj,
-                    TO_ROOM);
+                act(AtPlain, "You take $p from $P.", ch, obj, obj->in_obj,
+                    ToChar);
+                act(AtPlain, "$n takes $p from $P.", ch, obj, obj->in_obj,
+                    ToRoom);
         }
         if (!oprog_use_trigger(ch, obj, NULL, NULL, NULL))
         {
                 if (!obj->action_desc || obj->action_desc[0] == '\0')
                 {
-                        act(AT_ACTION, "$n eats $p.", ch, obj, NULL, TO_ROOM);
-                        act(AT_ACTION, "You eat $p.", ch, obj, NULL, TO_CHAR);
+                        act(AtAction, "$n eats $p.", ch, obj, NULL, ToRoom);
+                        act(AtAction, "You eat $p.", ch, obj, NULL, ToChar);
                 }
                 else
                         actiondesc(ch, obj, NULL);
@@ -1899,24 +1899,24 @@ CMDF do_eat(CharData * ch, char *argument)
         switch (obj->item_type)
         {
 
-        case ITEM_FOOD:
+        case ItemFood:
                 if (obj->timer > 0 && obj->value[1] > 0)
                         foodcond = (obj->timer * 10) / obj->value[1];
                 else
                         foodcond = 10;
 
-                if (!IS_NPC(ch))
+                if (!IsNpc(ch))
                 {
                         int       condition;
 
-                        condition = ch->pcdata->condition[COND_FULL];
-                        gain_condition(ch, COND_FULL,
+                        condition = ch->pcdata->condition[CondFull];
+                        gain_condition(ch, CondFull,
                                        (obj->value[0] * foodcond) / 10);
                         if (condition <= 1
-                            && ch->pcdata->condition[COND_FULL] > 1)
+                            && ch->pcdata->condition[CondFull] > 1)
                                 send_to_char("You are no longer hungry.\n\r",
                                              ch);
-                        else if (ch->pcdata->condition[COND_FULL] > 40)
+                        else if (ch->pcdata->condition[CondFull] > 40)
                                 send_to_char("You are full.\n\r", ch);
                 }
 
@@ -1930,19 +1930,19 @@ CMDF do_eat(CharData * ch, char *argument)
 
                         if (obj->value[3] != 0)
                         {
-                                act(AT_POISON, "$n chokes and gags.", ch,
-                                    NULL, NULL, TO_ROOM);
-                                act(AT_POISON, "You choke and gag.", ch, NULL,
-                                    NULL, TO_CHAR);
+                                act(AtPoison, "$n chokes and gags.", ch,
+                                    NULL, NULL, ToRoom);
+                                act(AtPoison, "You choke and gag.", ch, NULL,
+                                    NULL, ToChar);
                                 ch->mental_state =
                                         URANGE(20, ch->mental_state + 5, 100);
                         }
                         else
                         {
-                                act(AT_POISON, "$n gags on $p.", ch, obj,
-                                    NULL, TO_ROOM);
-                                act(AT_POISON, "You gag on $p.", ch, obj,
-                                    NULL, TO_CHAR);
+                                act(AtPoison, "$n gags on $p.", ch, obj,
+                                    NULL, ToRoom);
+                                act(AtPoison, "You gag on $p.", ch, obj,
+                                    NULL, ToChar);
                                 ch->mental_state =
                                         URANGE(15, ch->mental_state + 5, 100);
                         }
@@ -1951,28 +1951,28 @@ CMDF do_eat(CharData * ch, char *argument)
                         af.duration =
                                 2 * obj->value[0] * (obj->value[3] >
                                                      0 ? obj->value[3] : 1);
-                        af.location = APPLY_NONE;
+                        af.location = ApplyNone;
                         af.modifier = 0;
-                        af.bitvector = AFF_POISON;
+                        af.bitvector = AffPoison;
                         affect_join(ch, &af);
                 }
                 break;
 
-        case ITEM_PILL:
+        case ItemPill:
                 /*
                  * allow pills to fill you, if so desired 
                  */
-                if (!IS_NPC(ch) && obj->value[4])
+                if (!IsNpc(ch) && obj->value[4])
                 {
                         int       condition;
 
-                        condition = ch->pcdata->condition[COND_FULL];
-                        gain_condition(ch, COND_FULL, obj->value[4]);
+                        condition = ch->pcdata->condition[CondFull];
+                        gain_condition(ch, CondFull, obj->value[4]);
                         if (condition <= 1
-                            && ch->pcdata->condition[COND_FULL] > 1)
+                            && ch->pcdata->condition[CondFull] > 1)
                                 send_to_char("You are no longer hungry.\n\r",
                                              ch);
-                        else if (ch->pcdata->condition[COND_FULL] > 40)
+                        else if (ch->pcdata->condition[CondFull] > 40)
                                 send_to_char("You are full.\n\r", ch);
                 }
                 retcode =
@@ -2007,7 +2007,7 @@ CMDF do_quaff(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_JAW))
+        if (IsSet(ch->bodyparts, BodyJaw))
         {
                 send_to_char("Your jaw hurts too much to quaff.", ch);
                 return;
@@ -2016,8 +2016,8 @@ CMDF do_quaff(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to drink with your hands broken?",
@@ -2028,18 +2028,18 @@ CMDF do_quaff(CharData * ch, char *argument)
         if ((obj = find_obj(ch, argument, TRUE)) == NULL)
                 return;
 
-        if (obj->item_type != ITEM_POTION)
+        if (obj->item_type != ItemPotion)
         {
-                if (obj->item_type == ITEM_DRINK_CON)
+                if (obj->item_type == ItemDrinkCon)
                         do_drink(ch, obj->name);
                 else
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "$n lifts $p up to $s mouth and tries to drink from it...",
-                            ch, obj, NULL, TO_ROOM);
-                        act(AT_ACTION,
+                            ch, obj, NULL, ToRoom);
+                        act(AtAction,
                             "You bring $p up to your mouth and try to drink from it...",
-                            ch, obj, NULL, TO_CHAR);
+                            ch, obj, NULL, ToChar);
                 }
                 return;
         }
@@ -2047,9 +2047,9 @@ CMDF do_quaff(CharData * ch, char *argument)
         /*
          * Fullness checking                    -Thoric
          */
-        if (!IS_NPC(ch)
-            && (ch->pcdata->condition[COND_FULL] >= 48
-                || ch->pcdata->condition[COND_THIRST] >= 48))
+        if (!IsNpc(ch)
+            && (ch->pcdata->condition[CondFull] >= 48
+                || ch->pcdata->condition[CondThirst] >= 48))
         {
                 send_to_char("Your stomach cannot contain any more.\n\r", ch);
                 return;
@@ -2058,10 +2058,10 @@ CMDF do_quaff(CharData * ch, char *argument)
         separate_obj(obj);
         if (obj->in_obj)
         {
-                act(AT_PLAIN, "You take $p from $P.", ch, obj, obj->in_obj,
-                    TO_CHAR);
-                act(AT_PLAIN, "$n takes $p from $P.", ch, obj, obj->in_obj,
-                    TO_ROOM);
+                act(AtPlain, "You take $p from $P.", ch, obj, obj->in_obj,
+                    ToChar);
+                act(AtPlain, "$n takes $p from $P.", ch, obj, obj->in_obj,
+                    ToRoom);
         }
 
         /*
@@ -2069,26 +2069,26 @@ CMDF do_quaff(CharData * ch, char *argument)
          */
         if (ch->fighting && number_percent() > (get_curr_dex(ch) * 2 + 48))
         {
-                act(AT_MAGIC,
+                act(AtMagic,
                     "$n accidentally drops $p and it smashes into a thousand fragments.",
-                    ch, obj, NULL, TO_ROOM);
-                act(AT_MAGIC,
+                    ch, obj, NULL, ToRoom);
+                act(AtMagic,
                     "Oops... $p gets knocked from your hands and smashes into pieces!",
-                    ch, obj, NULL, TO_CHAR);
+                    ch, obj, NULL, ToChar);
         }
         else
         {
                 if (!oprog_use_trigger(ch, obj, NULL, NULL, NULL))
                 {
-                        act(AT_ACTION, "$n quaffs $p.", ch, obj, NULL,
-                            TO_ROOM);
-                        act(AT_ACTION, "You quaff $p.", ch, obj, NULL,
-                            TO_CHAR);
+                        act(AtAction, "$n quaffs $p.", ch, obj, NULL,
+                            ToRoom);
+                        act(AtAction, "You quaff $p.", ch, obj, NULL,
+                            ToChar);
                 }
 
-                WAIT_STATE(ch, PulsePerSecond / 4);
+                WaitState(ch, PulsePerSecond / 4);
 
-                gain_condition(ch, COND_THIRST, 1);
+                gain_condition(ch, CondThirst, 1);
                 retcode =
                         obj_cast_spell(obj->value[1], obj->value[0], ch, ch,
                                        NULL);
@@ -2128,7 +2128,7 @@ CMDF do_recite(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_JAW))
+        if (IsSet(ch->bodyparts, BodyJaw))
         {
                 send_to_char
                         ("How do you expect to do that with your jaw broken?",
@@ -2145,25 +2145,25 @@ CMDF do_recite(CharData * ch, char *argument)
                 return;
         }
 
-        if (scroll->item_type != ITEM_SCROLL)
+        if (scroll->item_type != ItemScroll)
         {
-                act(AT_ACTION,
+                act(AtAction,
                     "$n attempts to activate $p ... the silly fool.", ch,
-                    scroll, NULL, TO_ROOM);
-                act(AT_ACTION, "You try to activate $p. (Now what?)", ch,
-                    scroll, NULL, TO_CHAR);
+                    scroll, NULL, ToRoom);
+                act(AtAction, "You try to activate $p. (Now what?)", ch,
+                    scroll, NULL, ToChar);
                 return;
         }
 
-        if (IS_NPC(ch)
-            && (scroll->pIndexData->vnum == OBJ_VNUM_SCROLL_SCRIBING))
+        if (IsNpc(ch)
+            && (scroll->pIndexData->vnum == ObjVnumScrollScribing))
         {
                 send_to_char("As a mob, this dialect is foreign to you.\n\r",
                              ch);
                 return;
         }
 
-        if ((scroll->pIndexData->vnum == OBJ_VNUM_SCROLL_SCRIBING)
+        if ((scroll->pIndexData->vnum == ObjVnumScrollScribing)
             && (ch->top_level + 10 < scroll->value[0]))
         {
                 send_to_char
@@ -2186,11 +2186,11 @@ CMDF do_recite(CharData * ch, char *argument)
         }
 
         separate_obj(scroll);
-        act(AT_MAGIC, "$n activate $p.", ch, scroll, NULL, TO_ROOM);
-        act(AT_MAGIC, "You activate $p.", ch, scroll, NULL, TO_CHAR);
+        act(AtMagic, "$n activate $p.", ch, scroll, NULL, ToRoom);
+        act(AtMagic, "You activate $p.", ch, scroll, NULL, ToChar);
 
 
-        WAIT_STATE(ch, PulsePerSecond / 2);
+        WaitState(ch, PulsePerSecond / 2);
 
         retcode =
                 obj_cast_spell(scroll->value[1], scroll->value[0], ch, victim,
@@ -2222,7 +2222,7 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
         int       edir;
         char     *txt;
 
-        if (IS_SET(obj->value[0], TRIG_UP))
+        if (IsSet(obj->value[0], TrigUp))
                 isup = TRUE;
         else
                 isup = FALSE;
@@ -2234,9 +2234,9 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
                 send_to_char(buf, ch);
                 return;
                 break;
-        case ITEM_SWITCH:
-        case ITEM_LEVER:
-        case ITEM_PULLCHAIN:
+        case ItemSwitch:
+        case ItemLever:
+        case ItemPullchain:
                 if ((!pull && isup) || (pull && !isup))
                 {
                         snprintf(buf, MSL, "It is already %s.\n\r",
@@ -2244,7 +2244,7 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
                         send_to_char(buf, ch);
                         return;
                 }
-        case ITEM_BUTTON:
+        case ItemButton:
                 if ((!pull && isup) || (pull & !isup))
                 {
                         snprintf(buf, MSL, "It is already %s.\n\r",
@@ -2254,17 +2254,17 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
                 }
                 break;
         }
-        if ((pull) && IS_SET(obj->pIndexData->progtypes, PULL_PROG))
+        if ((pull) && IsSet(obj->pIndexData->progtypes, PullProg))
         {
-                if (!IS_SET(obj->value[0], TRIG_AUTORETURN))
-                        REMOVE_BIT(obj->value[0], TRIG_UP);
+                if (!IsSet(obj->value[0], TrigAutoreturn))
+                        RemoveBit(obj->value[0], TrigUp);
                 oprog_pull_trigger(ch, obj);
                 return;
         }
-        if ((!pull) && IS_SET(obj->pIndexData->progtypes, PUSH_PROG))
+        if ((!pull) && IsSet(obj->pIndexData->progtypes, PushProg))
         {
-                if (!IS_SET(obj->value[0], TRIG_AUTORETURN))
-                        SET_BIT(obj->value[0], TRIG_UP);
+                if (!IsSet(obj->value[0], TrigAutoreturn))
+                        SetBit(obj->value[0], TrigUp);
                 oprog_push_trigger(ch, obj);
                 return;
         }
@@ -2272,21 +2272,21 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
         if (!oprog_use_trigger(ch, obj, NULL, NULL, NULL))
         {
                 snprintf(buf, MSL, "$n %s $p.", pull ? "pulls" : "pushes");
-                act(AT_ACTION, buf, ch, obj, NULL, TO_ROOM);
+                act(AtAction, buf, ch, obj, NULL, ToRoom);
                 snprintf(buf, MSL, "You %s $p.", pull ? "pull" : "push");
-                act(AT_ACTION, buf, ch, obj, NULL, TO_CHAR);
+                act(AtAction, buf, ch, obj, NULL, ToChar);
         }
 
-        if (!IS_SET(obj->value[0], TRIG_AUTORETURN))
+        if (!IsSet(obj->value[0], TrigAutoreturn))
         {
                 if (pull)
-                        REMOVE_BIT(obj->value[0], TRIG_UP);
+                        RemoveBit(obj->value[0], TrigUp);
                 else
-                        SET_BIT(obj->value[0], TRIG_UP);
+                        SetBit(obj->value[0], TrigUp);
         }
 
-        if (IS_SET(obj->value[0], TRIG_RAND4)
-            || IS_SET(obj->value[0], TRIG_RAND6))
+        if (IsSet(obj->value[0], TrigRand4)
+            || IsSet(obj->value[0], TrigRand6))
         {
                 int       maxd;
 
@@ -2297,7 +2297,7 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
                         return;
                 }
 
-                if (IS_SET(obj->value[0], TRIG_RAND4))
+                if (IsSet(obj->value[0], TrigRand4))
                         maxd = 3;
                 else
                         maxd = 5;
@@ -2310,7 +2310,7 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
                         send_to_char("Something seems different...\n\r", rch);
                 }
         }
-        if (IS_SET(obj->value[0], TRIG_DOOR))
+        if (IsSet(obj->value[0], TrigDoor))
         {
                 room = get_room_index(obj->value[1]);
                 if (!room)
@@ -2321,34 +2321,34 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
                             obj->value[1]);
                         return;
                 }
-                if (IS_SET(obj->value[0], TRIG_D_NORTH))
+                if (IsSet(obj->value[0], TrigDNorth))
                 {
-                        edir = DIR_NORTH;
+                        edir = DirNorth;
                         txt = "to the north";
                 }
-                else if (IS_SET(obj->value[0], TRIG_D_SOUTH))
+                else if (IsSet(obj->value[0], TrigDSouth))
                 {
-                        edir = DIR_SOUTH;
+                        edir = DirSouth;
                         txt = "to the south";
                 }
-                else if (IS_SET(obj->value[0], TRIG_D_EAST))
+                else if (IsSet(obj->value[0], TrigDEast))
                 {
-                        edir = DIR_EAST;
+                        edir = DirEast;
                         txt = "to the east";
                 }
-                else if (IS_SET(obj->value[0], TRIG_D_WEST))
+                else if (IsSet(obj->value[0], TrigDWest))
                 {
-                        edir = DIR_WEST;
+                        edir = DirWest;
                         txt = "to the west";
                 }
-                else if (IS_SET(obj->value[0], TRIG_D_UP))
+                else if (IsSet(obj->value[0], TrigDUp))
                 {
-                        edir = DIR_UP;
+                        edir = DirUp;
                         txt = "from above";
                 }
-                else if (IS_SET(obj->value[0], TRIG_D_DOWN))
+                else if (IsSet(obj->value[0], TrigDDown))
                 {
-                        edir = DIR_DOWN;
+                        edir = DirDown;
                         txt = "from below";
                 }
                 else
@@ -2359,7 +2359,7 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
                 pexit = get_exit(room, edir);
                 if (!pexit)
                 {
-                        if (!IS_SET(obj->value[0], TRIG_PASSAGE))
+                        if (!IsSet(obj->value[0], TrigPassage))
                         {
                                 bug("PullOrPush: obj points to non-exit %d",
                                     obj->value[1]);
@@ -2377,76 +2377,76 @@ void pullorpush(CharData * ch, ObjData * obj, bool pull)
                         pexit->key = -1;
                         pexit->exit_info = 0;
                         top_exit++;
-                        act(AT_PLAIN, "A passage opens!", ch, NULL, NULL,
-                            TO_CHAR);
-                        act(AT_PLAIN, "A passage opens!", ch, NULL, NULL,
-                            TO_ROOM);
+                        act(AtPlain, "A passage opens!", ch, NULL, NULL,
+                            ToChar);
+                        act(AtPlain, "A passage opens!", ch, NULL, NULL,
+                            ToRoom);
                         return;
                 }
-                if (IS_SET(obj->value[0], TRIG_UNLOCK)
-                    && IS_SET(pexit->exit_info, EX_LOCKED))
+                if (IsSet(obj->value[0], TrigUnlock)
+                    && IsSet(pexit->exit_info, ExLocked))
                 {
-                        REMOVE_BIT(pexit->exit_info, EX_LOCKED);
-                        act(AT_PLAIN, "You hear a faint click $T.", ch, NULL,
-                            txt, TO_CHAR);
-                        act(AT_PLAIN, "You hear a faint click $T.", ch, NULL,
-                            txt, TO_ROOM);
+                        RemoveBit(pexit->exit_info, ExLocked);
+                        act(AtPlain, "You hear a faint click $T.", ch, NULL,
+                            txt, ToChar);
+                        act(AtPlain, "You hear a faint click $T.", ch, NULL,
+                            txt, ToRoom);
                         if ((pexit_rev = pexit->rexit) != NULL
                             && pexit_rev->to_room == ch->in_room)
-                                REMOVE_BIT(pexit_rev->exit_info, EX_LOCKED);
+                                RemoveBit(pexit_rev->exit_info, ExLocked);
                         return;
                 }
-                if (IS_SET(obj->value[0], TRIG_LOCK)
-                    && !IS_SET(pexit->exit_info, EX_LOCKED))
+                if (IsSet(obj->value[0], TrigLock)
+                    && !IsSet(pexit->exit_info, ExLocked))
                 {
-                        SET_BIT(pexit->exit_info, EX_LOCKED);
-                        act(AT_PLAIN, "You hear a faint click $T.", ch, NULL,
-                            txt, TO_CHAR);
-                        act(AT_PLAIN, "You hear a faint click $T.", ch, NULL,
-                            txt, TO_ROOM);
+                        SetBit(pexit->exit_info, ExLocked);
+                        act(AtPlain, "You hear a faint click $T.", ch, NULL,
+                            txt, ToChar);
+                        act(AtPlain, "You hear a faint click $T.", ch, NULL,
+                            txt, ToRoom);
                         if ((pexit_rev = pexit->rexit) != NULL
                             && pexit_rev->to_room == ch->in_room)
-                                SET_BIT(pexit_rev->exit_info, EX_LOCKED);
+                                SetBit(pexit_rev->exit_info, ExLocked);
                         return;
                 }
-                if (IS_SET(obj->value[0], TRIG_OPEN)
-                    && IS_SET(pexit->exit_info, EX_CLOSED))
+                if (IsSet(obj->value[0], TrigOpen)
+                    && IsSet(pexit->exit_info, ExClosed))
                 {
-                        REMOVE_BIT(pexit->exit_info, EX_CLOSED);
+                        RemoveBit(pexit->exit_info, ExClosed);
                         for (rch = room->first_person; rch;
                              rch = rch->next_in_room)
-                                act(AT_ACTION, "The $d opens.", rch, NULL,
-                                    pexit->keyword, TO_CHAR);
+                                act(AtAction, "The $d opens.", rch, NULL,
+                                    pexit->keyword, ToChar);
                         if ((pexit_rev = pexit->rexit) != NULL
                             && pexit_rev->to_room == ch->in_room)
                         {
-                                REMOVE_BIT(pexit_rev->exit_info, EX_CLOSED);
+                                RemoveBit(pexit_rev->exit_info, ExClosed);
                                 for (rch = to_room->first_person; rch;
                                      rch = rch->next_in_room)
-                                        act(AT_ACTION, "The $d opens.", rch,
+                                        act(AtAction, "The $d opens.", rch,
                                             NULL, pexit_rev->keyword,
-                                            TO_CHAR);
+                                            ToChar);
                         }
                         check_room_for_traps(ch, trap_door[edir]);
                         return;
                 }
-                if (IS_SET(obj->value[0], TRIG_CLOSE)
-                    && !IS_SET(pexit->exit_info, EX_CLOSED))
+                if (IsSet(obj->value[0], TrigClose)
+                    && !IsSet(pexit->exit_info, ExClosed))
                 {
-                        SET_BIT(pexit->exit_info, EX_CLOSED);
+                        SetBit(pexit->exit_info, ExClosed);
                         for (rch = room->first_person; rch;
                              rch = rch->next_in_room)
-                                act(AT_ACTION, "The $d closes.", rch, NULL,
-                                    pexit->keyword, TO_CHAR);
+                                act(AtAction, "The $d closes.", rch, NULL,
+                                    pexit->keyword, ToChar);
                         if ((pexit_rev = pexit->rexit) != NULL
                             && pexit_rev->to_room == ch->in_room)
                         {
-                                SET_BIT(pexit_rev->exit_info, EX_CLOSED);
+                                SetBit(pexit_rev->exit_info, ExClosed);
                                 for (rch = to_room->first_person; rch;
                                      rch = rch->next_in_room)
-                                        act(AT_ACTION, "The $d closes.", rch,
+                                        act(AtAction, "The $d closes.", rch,
                                             NULL, pexit_rev->keyword,
-                                            TO_CHAR);
+                                            ToChar);
                         }
                         check_room_for_traps(ch, trap_door[edir]);
                         return;
@@ -2463,8 +2463,8 @@ CMDF do_pull(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -2484,7 +2484,7 @@ CMDF do_pull(CharData * ch, char *argument)
 
         if ((obj = get_obj_here(ch, arg)) == NULL)
         {
-                act(AT_PLAIN, "I see no $T here.", ch, NULL, arg, TO_CHAR);
+                act(AtPlain, "I see no $T here.", ch, NULL, arg, ToChar);
                 return;
         }
 
@@ -2499,8 +2499,8 @@ CMDF do_push(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -2520,7 +2520,7 @@ CMDF do_push(CharData * ch, char *argument)
 
         if ((obj = get_obj_here(ch, arg)) == NULL)
         {
-                act(AT_PLAIN, "I see no $T here.", ch, NULL, arg, TO_CHAR);
+                act(AtPlain, "I see no $T here.", ch, NULL, arg, ToChar);
                 return;
         }
 
@@ -2536,8 +2536,8 @@ CMDF do_empty(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -2569,36 +2569,36 @@ CMDF do_empty(CharData * ch, char *argument)
         switch (obj->item_type)
         {
         default:
-                act(AT_ACTION, "You shake $p in an attempt to empty it...",
-                    ch, obj, NULL, TO_CHAR);
-                act(AT_ACTION,
+                act(AtAction, "You shake $p in an attempt to empty it...",
+                    ch, obj, NULL, ToChar);
+                act(AtAction,
                     "$n begins to shake $p in an attempt to empty it...", ch,
-                    obj, NULL, TO_ROOM);
+                    obj, NULL, ToRoom);
                 return;
-        case ITEM_PIPE:
-                act(AT_ACTION, "You gently tap $p and empty it out.", ch, obj,
-                    NULL, TO_CHAR);
-                act(AT_ACTION, "$n gently taps $p and empties it out.", ch,
-                    obj, NULL, TO_ROOM);
-                REMOVE_BIT(obj->value[3], PIPE_FULLOFASH);
-                REMOVE_BIT(obj->value[3], PIPE_LIT);
+        case ItemPipe:
+                act(AtAction, "You gently tap $p and empty it out.", ch, obj,
+                    NULL, ToChar);
+                act(AtAction, "$n gently taps $p and empties it out.", ch,
+                    obj, NULL, ToRoom);
+                RemoveBit(obj->value[3], PipeFullofash);
+                RemoveBit(obj->value[3], PipeLit);
                 obj->value[1] = 0;
                 return;
-        case ITEM_DRINK_CON:
+        case ItemDrinkCon:
                 if (obj->value[1] < 1)
                 {
                         send_to_char("It's already empty.\n\r", ch);
                         return;
                 }
-                act(AT_ACTION, "You empty $p.", ch, obj, NULL, TO_CHAR);
-                act(AT_ACTION, "$n empties $p.", ch, obj, NULL, TO_ROOM);
+                act(AtAction, "You empty $p.", ch, obj, NULL, ToChar);
+                act(AtAction, "$n empties $p.", ch, obj, NULL, ToRoom);
                 obj->value[1] = 0;
                 return;
-        case ITEM_CONTAINER:
-                if (IS_SET(obj->value[1], CONT_CLOSED))
+        case ItemContainer:
+                if (IsSet(obj->value[1], ContClosed))
                 {
-                        act(AT_PLAIN, "The $d is closed.", ch, NULL,
-                            obj->name, TO_CHAR);
+                        act(AtPlain, "The $d is closed.", ch, NULL,
+                            obj->name, ToChar);
                         return;
                 }
                 if (!obj->first_content)
@@ -2608,20 +2608,20 @@ CMDF do_empty(CharData * ch, char *argument)
                 }
                 if (arg2[0] == '\0')
                 {
-                        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NODROP)
-                            || (!IS_NPC(ch)
-                                && IS_SET(ch->act, PLR_LITTERBUG)))
+                        if (xIS_SET(ch->in_room->RoomFlags, RoomNodrop)
+                            || (!IsNpc(ch)
+                                && IsSet(ch->act, PlrLitterbug)))
                         {
-                                set_char_color(AT_MAGIC, ch);
+                                set_char_color(AtMagic, ch);
                                 send_to_char("A magical Force stops you!\n\r",
                                              ch);
-                                set_char_color(AT_TELL, ch);
+                                set_char_color(AtTell, ch);
                                 send_to_char
                                         ("Someone tells you, 'No littering here!'\n\r",
                                          ch);
                                 return;
                         }
-                        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NODROPALL))
+                        if (xIS_SET(ch->in_room->RoomFlags, RoomNodropall))
                         {
                                 send_to_char
                                         ("You can't seem to do that here...\n\r",
@@ -2630,11 +2630,11 @@ CMDF do_empty(CharData * ch, char *argument)
                         }
                         if (empty_obj(obj, NULL, ch->in_room))
                         {
-                                act(AT_ACTION, "You empty $p.", ch, obj, NULL,
-                                    TO_CHAR);
-                                act(AT_ACTION, "$n empties $p.", ch, obj,
-                                    NULL, TO_ROOM);
-                                if (IS_SET(sysdata.save_flags, SV_DROP))
+                                act(AtAction, "You empty $p.", ch, obj, NULL,
+                                    ToChar);
+                                act(AtAction, "$n empties $p.", ch, obj,
+                                    NULL, ToRoom);
+                                if (IsSet(sysdata.save_flags, SvDrop))
                                         save_char_obj(ch);
                         }
                         else
@@ -2656,32 +2656,32 @@ CMDF do_empty(CharData * ch, char *argument)
                                          ch);
                                 return;
                         }
-                        if (dest->item_type != ITEM_CONTAINER)
+                        if (dest->item_type != ItemContainer)
                         {
                                 send_to_char("That's not a container!\n\r",
                                              ch);
                                 return;
                         }
-                        if (IS_SET(dest->value[1], CONT_CLOSED))
+                        if (IsSet(dest->value[1], ContClosed))
                         {
-                                act(AT_PLAIN, "The $d is closed.", ch, NULL,
-                                    dest->name, TO_CHAR);
+                                act(AtPlain, "The $d is closed.", ch, NULL,
+                                    dest->name, ToChar);
                                 return;
                         }
                         separate_obj(dest);
                         if (empty_obj(obj, dest, NULL))
                         {
-                                act(AT_ACTION, "You empty $p into $P.", ch,
-                                    obj, dest, TO_CHAR);
-                                act(AT_ACTION, "$n empties $p into $P.", ch,
-                                    obj, dest, TO_ROOM);
+                                act(AtAction, "You empty $p into $P.", ch,
+                                    obj, dest, ToChar);
+                                act(AtAction, "$n empties $p into $P.", ch,
+                                    obj, dest, ToRoom);
                                 if (!dest->carried_by
-                                    && IS_SET(sysdata.save_flags, SV_PUT))
+                                    && IsSet(sysdata.save_flags, SvPut))
                                         save_char_obj(ch);
                         }
                         else
-                                act(AT_ACTION, "$P is too full.", ch, obj,
-                                    dest, TO_CHAR);
+                                act(AtAction, "$P is too full.", ch, obj,
+                                    dest, ToChar);
                 }
                 return;
         }
@@ -2710,12 +2710,12 @@ CMDF do_apply(CharData * ch, char *argument)
                 return;
         }
 
-        if (obj->item_type != ITEM_SALVE)
+        if (obj->item_type != ItemSalve)
         {
-                act(AT_ACTION, "$n starts to rub $p on $mself...", ch, obj,
-                    NULL, TO_ROOM);
-                act(AT_ACTION, "You try to rub $p on yourself...", ch, obj,
-                    NULL, TO_CHAR);
+                act(AtAction, "$n starts to rub $p on $mself...", ch, obj,
+                    NULL, ToRoom);
+                act(AtAction, "You try to rub $p on yourself...", ch, obj,
+                    NULL, ToChar);
                 return;
         }
 
@@ -2726,21 +2726,21 @@ CMDF do_apply(CharData * ch, char *argument)
         {
                 if (!obj->action_desc || obj->action_desc[0] == '\0')
                 {
-                        act(AT_ACTION, "$n rubs $p onto $s body.", ch, obj,
-                            NULL, TO_ROOM);
+                        act(AtAction, "$n rubs $p onto $s body.", ch, obj,
+                            NULL, ToRoom);
                         if (obj->value[1] <= 0)
-                                act(AT_ACTION,
+                                act(AtAction,
                                     "You apply the last of $p onto your body.",
-                                    ch, obj, NULL, TO_CHAR);
+                                    ch, obj, NULL, ToChar);
                         else
-                                act(AT_ACTION, "You apply $p onto your body.",
-                                    ch, obj, NULL, TO_CHAR);
+                                act(AtAction, "You apply $p onto your body.",
+                                    ch, obj, NULL, ToChar);
                 }
                 else
                         actiondesc(ch, obj, NULL);
         }
 
-        WAIT_STATE(ch, obj->value[2]);
+        WaitState(ch, obj->value[2]);
         retcode = obj_cast_spell(obj->value[4], obj->value[0], ch, ch, NULL);
         if (retcode == rNONE)
                 retcode =
@@ -2808,7 +2808,7 @@ void actiondesc(CharData * ch, ObjData * obj, void *vo)
                 else if (*srcptr == '%' && *++srcptr == 's')
                 {
                         ichar = "You";
-                        iroom = IS_NPC(ch) ? ch->short_descr : ch->name;
+                        iroom = IsNpc(ch) ? ch->short_descr : ch->name;
                 }
                 else
                 {
@@ -2837,40 +2837,40 @@ void actiondesc(CharData * ch, ObjData * obj, void *vo)
 
 /*
 snprintf( buf, MSL, "Charbuf: %s", charbuf );
-log_string_plus( buf, LOG_HIGH, LevelLesser ); 
+log_string_plus( buf, LogHigh, LevelLesser ); 
 snprintf( buf, MSL, "Roombuf: %s", roombuf );
-log_string_plus( buf, LOG_HIGH, LevelLesser ); 
+log_string_plus( buf, LogHigh, LevelLesser ); 
 */
 
         switch (obj->item_type)
         {
-        case ITEM_BLOOD:
-        case ITEM_FOUNTAIN:
-                act(AT_ACTION, charbuf, ch, obj, ch, TO_CHAR);
-                act(AT_ACTION, roombuf, ch, obj, ch, TO_ROOM);
+        case ItemBlood:
+        case ItemFountain:
+                act(AtAction, charbuf, ch, obj, ch, ToChar);
+                act(AtAction, roombuf, ch, obj, ch, ToRoom);
                 return;
 
-        case ITEM_DRINK_CON:
-                act(AT_ACTION, charbuf, ch, obj,
-                    liq_table[obj->value[2]].liq_name, TO_CHAR);
-                act(AT_ACTION, roombuf, ch, obj,
-                    liq_table[obj->value[2]].liq_name, TO_ROOM);
+        case ItemDrinkCon:
+                act(AtAction, charbuf, ch, obj,
+                    liq_table[obj->value[2]].liq_name, ToChar);
+                act(AtAction, roombuf, ch, obj,
+                    liq_table[obj->value[2]].liq_name, ToRoom);
                 return;
 
-        case ITEM_PIPE:
+        case ItemPipe:
                 return;
 
-        case ITEM_ARMOR:
-        case ITEM_WEAPON:
-        case ITEM_LIGHT:
-                act(AT_ACTION, charbuf, ch, obj, ch, TO_CHAR);
-                act(AT_ACTION, roombuf, ch, obj, ch, TO_ROOM);
+        case ItemArmor:
+        case ItemWeapon:
+        case ItemLight:
+                act(AtAction, charbuf, ch, obj, ch, ToChar);
+                act(AtAction, roombuf, ch, obj, ch, ToRoom);
                 return;
 
-        case ITEM_FOOD:
-        case ITEM_PILL:
-                act(AT_ACTION, charbuf, ch, obj, ch, TO_CHAR);
-                act(AT_ACTION, roombuf, ch, obj, ch, TO_ROOM);
+        case ItemFood:
+        case ItemPill:
+                act(AtAction, charbuf, ch, obj, ch, ToChar);
+                act(AtAction, roombuf, ch, obj, ch, ToRoom);
                 return;
 
         default:
@@ -2893,32 +2893,32 @@ CMDF do_hail(CharData * ch, char *argument)
         if (!ch->in_room)
                 return;
 
-        if (ch->position < POS_FIGHTING)
+        if (ch->position < PosFighting)
         {
                 send_to_char("You might want to stop fighting first!\n\r",
                              ch);
                 return;
         }
 
-        if (ch->position < POS_STANDING)
+        if (ch->position < PosStanding)
         {
                 send_to_char("You might want to stand up first!\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_INDOORS))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomIndoors))
         {
                 send_to_char("You'll have to go outside to do that!\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SPACECRAFT))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSpacecraft))
         {
                 send_to_char("You can't do that on spacecraft!\n\r", ch);
                 return;
         }
 
-        if (IS_SET(ch->affected_by, AFF_RESTRAINED))
+        if (IsSet(ch->affected_by, AffRestrained))
         {
                 send_to_char
                         ("How do you expect to do that while restrained?\n\r",
@@ -2943,23 +2943,23 @@ CMDF do_hail(CharData * ch, char *argument)
 
         if (arg1[0] == '\0')
         {
-                type = ROOM_HOTEL;
+                type = RoomHotel;
         }
         else if (!str_cmp(arg1, "hotel"))
         {
-                type = ROOM_HOTEL;
+                type = RoomHotel;
         }
         else if (!str_cmp(arg1, "bank"))
         {
-                type = ROOM_BANK;
+                type = RoomBank;
         }
         else if (!str_cmp(arg1, "factory"))
         {
-                type = ROOM_FACTORY;
+                type = RoomFactory;
         }
         else if (!str_cmp(arg1, "auction"))
         {
-                type = ROOM_AUCTION;
+                type = RoomAuction;
         }
         else if (!str_cmp(arg1, "home"))
         {
@@ -2988,9 +2988,9 @@ CMDF do_hail(CharData * ch, char *argument)
                         {
                                 ch->gold -= UMAX(ch->top_level, 0);
 
-                                act(AT_ACTION,
+                                act(AtAction,
                                     "$n hails a speederbike, and drives off to seek shelter.",
-                                    ch, NULL, NULL, TO_ROOM);
+                                    ch, NULL, NULL, ToRoom);
 
                                 char_from_room(ch);
                                 char_to_room(ch, ch->plr_home);
@@ -2998,10 +2998,10 @@ CMDF do_hail(CharData * ch, char *argument)
                                 send_to_char
                                         ("A speederbike picks you up and drives you to a you destination\n\rYou pay the driver some credits.\n\r\n\n",
                                          ch);
-                                act(AT_ACTION, "$n $T", ch, NULL,
+                                act(AtAction, "$n $T", ch, NULL,
                                     (void *)
                                     "arrives on a speederbike, gets off and pays the driver before it leaves.",
-                                    TO_ROOM);
+                                    ToRoom);
 
                                 do_look(ch, "auto");
                                 return;
@@ -3013,7 +3013,7 @@ CMDF do_hail(CharData * ch, char *argument)
         }
         else
         {
-                type = ROOM_HOTEL;
+                type = RoomHotel;
         }
 
         for (vnum = ch->in_room->area->low_r_vnum;
@@ -3023,11 +3023,11 @@ CMDF do_hail(CharData * ch, char *argument)
 
                 if (room != NULL)
                 {
-                        if (xIS_SET(room->RoomFlags, ROOM_PLR_HOME))
+                        if (xIS_SET(room->RoomFlags, RoomPlrHome))
                                 continue;
-                        else if (xIS_SET(room->RoomFlags, ROOM_EMPTY_HOME))
+                        else if (xIS_SET(room->RoomFlags, RoomEmptyHome))
                                 continue;
-                        else if (xIS_SET(room->RoomFlags, ROOM_NO_HAIL_TO))
+                        else if (xIS_SET(room->RoomFlags, RoomNoHailTo))
                                 continue;
                         else if (xIS_SET(room->RoomFlags, type))
                                 break;
@@ -3048,9 +3048,9 @@ CMDF do_hail(CharData * ch, char *argument)
 
         ch->gold -= UMAX(ch->top_level, 0);
 
-        act(AT_ACTION,
+        act(AtAction,
             "$n hails a speederbike, and drives off to seek shelter.", ch,
-            NULL, NULL, TO_ROOM);
+            NULL, NULL, ToRoom);
 
         char_from_room(ch);
         char_to_room(ch, room);
@@ -3058,10 +3058,10 @@ CMDF do_hail(CharData * ch, char *argument)
         send_to_char
                 ("A speederbike picks you up and drives you to a you destination\n\rYou pay the driver some credits.\n\r\n\n",
                  ch);
-        act(AT_ACTION, "$n $T", ch, NULL,
+        act(AtAction, "$n $T", ch, NULL,
             (void *)
             "arrives on a speederbike, gets off and pays the driver before it leaves.",
-            TO_ROOM);
+            ToRoom);
 
         do_look(ch, "auto");
 }
@@ -3070,7 +3070,7 @@ CMDF do_train(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         /*
@@ -3079,8 +3079,8 @@ CMDF do_train(CharData * ch, char *argument)
         /*
          * Should we check for wrist, arm, and sholder too? 
          */
-        if (IS_SET(ch->bodyparts, BODY_R_HAND)
-            || IS_SET(ch->bodyparts, BODY_L_HAND))
+        if (IsSet(ch->bodyparts, BodyRHand)
+            || IsSet(ch->bodyparts, BodyLHand))
         {
                 send_to_char
                         ("How do you expect to do that with your hands broken?",
@@ -3103,7 +3103,7 @@ CMDF do_train(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!IS_AWAKE(ch))
+                if (!IsAwake(ch))
                 {
                         send_to_char("In your dreams, or what?\n\r", ch);
                         return;
@@ -3123,7 +3123,7 @@ CMDF do_train(CharData * ch, char *argument)
                 if (!str_cmp(arg, "str") || !str_cmp(arg, "Strength"))
                 {
                         if (ch->perm_str >=
-                            20 + ch->race->attr_modifier(ATTR_STRENGTH)
+                            20 + ch->race->attr_modifier(AttrStrength)
                             || ch->perm_str >= 30)
                         {
                                 send_to_char
@@ -3137,7 +3137,7 @@ CMDF do_train(CharData * ch, char *argument)
                 if (!str_cmp(arg, "dex") || !str_cmp(arg, "Dexterity"))
                 {
                         if (ch->perm_dex >=
-                            20 + ch->race->attr_modifier(ATTR_DEXTERITY)
+                            20 + ch->race->attr_modifier(AttrDexterity)
                             || ch->perm_dex >= 30)
                         {
                                 send_to_char
@@ -3152,7 +3152,7 @@ CMDF do_train(CharData * ch, char *argument)
                 if (!str_cmp(arg, "int") || !str_cmp(arg, "Intelligence"))
                 {
                         if (ch->perm_int >=
-                            20 + ch->race->attr_modifier(ATTR_INTELLIGENCE)
+                            20 + ch->race->attr_modifier(AttrIntelligence)
                             || ch->perm_int >= 30)
                         {
                                 send_to_char
@@ -3165,7 +3165,7 @@ CMDF do_train(CharData * ch, char *argument)
                 if (!str_cmp(arg, "wis") || !str_cmp(arg, "Wisdom"))
                 {
                         if (ch->perm_wis >=
-                            20 + ch->race->attr_modifier(ATTR_WISDOM)
+                            20 + ch->race->attr_modifier(AttrWisdom)
                             || ch->perm_wis >= 30)
                         {
                                 send_to_char
@@ -3180,7 +3180,7 @@ CMDF do_train(CharData * ch, char *argument)
                 if (!str_cmp(arg, "con") || !str_cmp(arg, "Constitution"))
                 {
                         if (ch->perm_con >=
-                            20 + ch->race->attr_modifier(ATTR_CONSTITUTION)
+                            20 + ch->race->attr_modifier(AttrConstitution)
                             || ch->perm_con >= 30)
                         {
                                 send_to_char
@@ -3195,7 +3195,7 @@ CMDF do_train(CharData * ch, char *argument)
                 if (!str_cmp(arg, "cha") || !str_cmp(arg, "Charisma"))
                 {
                         if (ch->perm_cha >=
-                            20 + ch->race->attr_modifier(ATTR_CHARISMA)
+                            20 + ch->race->attr_modifier(AttrCharisma)
                             || ch->perm_cha >= 30)
                         {
                                 send_to_char
@@ -3207,7 +3207,7 @@ CMDF do_train(CharData * ch, char *argument)
                                 ("&GYou begin lessons in maners and ettiquite.\n\r",
                                  ch);
                 }
-                add_timer(ch, TIMER_DO_FUN, 1, do_train, 1);
+                add_timer(ch, TimerDoFun, 1, do_train, 1);
                 ch->dest_buf = str_dup(arg);
                 return;
 
@@ -3291,7 +3291,7 @@ CMDF do_suicide(CharData * ch, char *argument)
 {
         char      logbuf[MaxStringLength];
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 send_to_char("Yeah right!\n\r", ch);
                 return;
@@ -3317,22 +3317,22 @@ CMDF do_suicide(CharData * ch, char *argument)
 
         if (!str_cmp(ch->race->name(), "droid"))
         {
-                act(AT_BLOOD,
+                act(AtBlood,
                     "You start your self destruct program, and your power source ignites and fuses all your circuits!",
-                    ch, NULL, NULL, TO_CHAR);
-                act(AT_BLOOD,
+                    ch, NULL, NULL, ToChar);
+                act(AtBlood,
                     "You watch as $n starts to tremble, and they fall over, powerless and smoking!",
-                    ch, NULL, NULL, TO_ROOM);
+                    ch, NULL, NULL, ToRoom);
         }
 
         else
         {
-                act(AT_BLOOD,
+                act(AtBlood,
                     "With a sad determination and trembling hands you slit your own throat!",
-                    ch, NULL, NULL, TO_CHAR);
-                act(AT_BLOOD,
+                    ch, NULL, NULL, ToChar);
+                act(AtBlood,
                     "Cold shivers run down your spine as you watch $n slit $s own throat!",
-                    ch, NULL, NULL, TO_ROOM);
+                    ch, NULL, NULL, ToRoom);
         }
         raw_kill(ch, ch);
         snprintf(logbuf, MSL, "%s has committed suicide!", ch->name);
@@ -3349,10 +3349,10 @@ CMDF do_bank(CharData * ch, char *argument)
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BANK))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBank))
         {
                 send_to_char("You must be in a bank to do that!\n\r", ch);
                 return;
@@ -3459,10 +3459,10 @@ CMDF do_invest( CharData *ch, char *argument )
     
     argument = one_argument( argument , arg1 );
     
-    if ( IS_NPC(ch) || !ch->pcdata )
+    if ( IsNpc(ch) || !ch->pcdata )
        return;
     
-    if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BANK) )
+    if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBank) )
     {
        send_to_char( "You must be in a bank to do that!\n\r", ch );
        return;
@@ -3494,8 +3494,8 @@ CMDF do_invest( CharData *ch, char *argument )
 
     obj = create_object( pObjIndex, level );
     
-    obj->item_type = ITEM_BOND;
-    SET_BIT( obj->wear_flags, ITEM_TAKE );
+    obj->item_type = ItemBond;
+    SetBit( obj->wear_flags, ItemTake );
     obj->level = 1;
     obj->weight = 1;
     STRFREE( obj->name );
@@ -3506,10 +3506,10 @@ CMDF do_invest( CharData *ch, char *argument )
     STRFREE( obj->description );
     mudstrlcat( buf, " was left here." ,MSL);
     obj->description = STRALLOC( buf );
-    obj->value[0] = INIT_WEAPON_CONDITION;      
+    obj->value[0] = InitWeaponCondition;      
     obj->value[1] = (int) (level/20+10);      
     obj->value[2] = (int) (level/10+20);      
-    obj->value[3] = WEAPON_VIBRO_BLADE;
+    obj->value[3] = WeaponVibroBlade;
     obj->value[4] = charge;
     obj->value[5] = charge;
     obj->cost = obj->value[2]*10;
@@ -3544,7 +3544,7 @@ CMDF do_junk(CharData * ch, char *argument)
         {
                 obj_next = obj->next_content;
                 if ((nifty_is_name(arg, obj->name)) && can_see_obj(ch, obj)
-                    && obj->wear_loc == WEAR_NONE)
+                    && obj->wear_loc == WearNone)
                 {
                         found = TRUE;
                         break;
@@ -3561,8 +3561,8 @@ CMDF do_junk(CharData * ch, char *argument)
                 separate_obj(obj);
                 obj_from_char(obj);
                 extract_obj(obj);
-                act(AT_ACTION, "$n junks $p.", ch, obj, NULL, TO_ROOM);
-                act(AT_ACTION, "You junk $p.", ch, obj, NULL, TO_CHAR);
+                act(AtAction, "$n junks $p.", ch, obj, NULL, ToRoom);
+                act(AtAction, "You junk $p.", ch, obj, NULL, ToChar);
         }
         else
 
@@ -3628,7 +3628,7 @@ void send_email(char *subject, char *email, char *message, CharData * ch)
         mudstrlcpy(sendstring, "", 1000);
 
         message = clean_message(message);
-        fp = fopen(EMAIL_FILE, "w");
+        fp = fopen(EmailFile, "w");
         fprintf(fp, "%s", message);
         fprintf(fp, "\n\n---\n");
         fprintf(fp, "%s\n", ch ? ch->name : "Automated Email");
@@ -3639,7 +3639,7 @@ void send_email(char *subject, char *email, char *message, CharData * ch)
 
         snprintf(sendstring, MSL, "%s -s \"%s: %s\" \"%s\" < %s",
                  sysdata.mail_path, ch ? ch->name : "Automated Email",
-                 subject, email, EMAIL_FILE);
+                 subject, email, EmailFile);
         if ((mfp = popen(sendstring, "w")) == NULL)
         {
                 if (ch)
@@ -3650,7 +3650,7 @@ void send_email(char *subject, char *email, char *message, CharData * ch)
                 return;
         }
         pclose(mfp);
-        remove(EMAIL_FILE);
+        remove(EmailFile);
         if (ch)
                 ch_printf(ch, "Your email has been sent to %s\n\r", email);
 }
@@ -3660,7 +3660,7 @@ CMDF do_sendmail(CharData * ch, char *argument)
         char      arg1[MSL];
         char      passargument[MSL];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Monsters are too dumb to do that!\n\r", ch);
                 return;
@@ -3679,7 +3679,7 @@ CMDF do_sendmail(CharData * ch, char *argument)
 
         mudstrlcpy(passargument, argument, MSL);
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;

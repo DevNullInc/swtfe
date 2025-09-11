@@ -45,7 +45,7 @@
 #include <string>
 #include <memory>
 
-class GREET_INFO {
+class GreetInfo {
 public:
         int last_seen;
         int last_heard;
@@ -54,10 +54,10 @@ public:
         std::string CharName;
 };
 
-using GREET_MAP = std::map<std::string, std::shared_ptr<GREET_INFO>>;
+using GreetMap = std::map<std::string, std::shared_ptr<GreetInfo>>;
 
 struct temp_greet_ptr {
-        GREET_MAP greet_info;
+        GreetMap greet_info;
 };
 
 std::string get_char_desc(CharData *ch, CharData *looker);

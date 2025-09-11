@@ -46,19 +46,19 @@
 #include "installations.hpp"
 #include "space2.hpp"
 
-INSTALLATION_DATA *first_installation;
-INSTALLATION_DATA *last_installation;
+InstallationData *first_installation;
+InstallationData *last_installation;
 
 /* Local Functions */
 
-void fread_installations args((INSTALLATION_DATA * installation, FILE * fp));
+void fread_installations args((InstallationData * installation, FILE * fp));
 bool load_installation_file args((char *installationfile));
 void write_installation_list args((void));
-void save_installations args((INSTALLATION_DATA * installation));
+void save_installations args((InstallationData * installation));
 
 #define  NULLSTR( str )  ( str == NULL || str[0] == '\0' )
 
-const struct InstallationType installation_table[MAX_INSTALLATION] = {
+const struct InstallationType installation_table[MaxInstallation] = {
         /*
          * Installation Name   Shields     Ions     Turbo    Rooms    Name of main room 
          */
@@ -75,11 +75,11 @@ const struct InstallationType installation_table[MAX_INSTALLATION] = {
 
 void write_installation_list()
 {
-        INSTALLATION_DATA *tinstallation;
+        InstallationData *tinstallation;
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, MSL, "%s%s", INSTALLATIONS_DIR, INSTALLATION_LIST);
+        snprintf(filename, MSL, "%s%s", InstallationsDir, InstallationList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -94,7 +94,7 @@ void write_installation_list()
         FCLOSE(fpout);
 }
 
-void save_installations(INSTALLATION_DATA * installation)
+void save_installations(InstallationData * installation)
 {
         FILE     *fp;
         char      filename[256];
@@ -116,7 +116,7 @@ void save_installations(INSTALLATION_DATA * installation)
                 return;
         }
 
-        snprintf(filename, MSL, "%s%s", INSTALLATIONS_DIR,
+        snprintf(filename, MSL, "%s%s", InstallationsDir,
                  installation->filename);
 
         FCLOSE(fpReserve);
@@ -127,7 +127,7 @@ void save_installations(INSTALLATION_DATA * installation)
         }
         else
         {
-                DOCK_DATA *dock;
+                DockData *dock;
 
                 fprintf(fp, "#INSTALLATION\n");
                 fprintf(fp, "Planet       %s~\n", installation->planet->name);
@@ -148,11 +148,11 @@ void save_installations(INSTALLATION_DATA * installation)
                 fprintf(fp, "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
-void fread_installations(INSTALLATION_DATA * installation, FILE * fp)
+void fread_installations(InstallationData * installation, FILE * fp)
 {
         const char *word;
         bool      fMatch;
@@ -182,7 +182,7 @@ void fread_installations(INSTALLATION_DATA * installation, FILE * fp)
                                 installation->timer = 0;
                                 installation->weapon_time = 8;
                                 /*
-                                 * if ( installation->type == SHIPYARD_INSTALLATION && installation->mainroom > 0)
+                                 * if ( installation->type == ShipyardInstallation && installation->mainroom > 0)
                                  * makedock( installation ); 
                                  */
                                 return;
@@ -240,15 +240,15 @@ void fread_installations(INSTALLATION_DATA * installation, FILE * fp)
 bool load_installation_file(char *installationfile)
 {
         char      filename[256];
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         FILE     *fp;
         bool      found;
 
-        CREATE(installation, INSTALLATION_DATA, 1);
+        CREATE(installation, InstallationData, 1);
         installation->filename = STRALLOC("");
 
         found = FALSE;
-        snprintf(filename, MSL, "%s%s", INSTALLATIONS_DIR, installationfile);
+        snprintf(filename, MSL, "%s%s", InstallationsDir, installationfile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -280,9 +280,9 @@ bool load_installation_file(char *installationfile)
                         }
                         else if (!str_cmp(word, "DOCK"))
                         {
-                                DOCK_DATA *dock;
+                                DockData *dock;
 
-                                CREATE(dock, DOCK_DATA, 1);
+                                CREATE(dock, DockData, 1);
                                 fread_dock(dock, fp);
                                 DISPOSE(dock);
                                 bug("found an installation dock");
@@ -326,8 +326,8 @@ void load_installations()
         first_installation = NULL;
         last_installation = NULL;
 
-        snprintf(installationlist, MSL, "%s%s", INSTALLATIONS_DIR,
-                 INSTALLATION_LIST);
+        snprintf(installationlist, MSL, "%s%s", InstallationsDir,
+                 InstallationList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(installationlist, "r")) == NULL)
         {
@@ -351,7 +351,7 @@ void load_installations()
         }
         FCLOSE(fpList);
         boot_log(" Done installations ");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -366,7 +366,7 @@ int reserve_rooms_installation(int firstroom, int numrooms)
          */
 
         for (tarea = first_area; tarea; tarea = tarea->next)
-                if (!str_cmp(INSTALLATION_AREA, tarea->filename))
+                if (!str_cmp(InstallationArea, tarea->filename))
                         break;
 
         for (i = firstroom; i < firstroom + numrooms; i++)
@@ -378,17 +378,17 @@ int reserve_rooms_installation(int firstroom, int numrooms)
                         return -1;
                 }
                 room->area = tarea;
-                xSET_BIT(room->RoomFlags, ROOM_INSTALLATION);
-                xSET_BIT(room->RoomFlags, ROOM_NO_MOB);
-                xSET_BIT(room->RoomFlags, ROOM_INDOORS);
+                xSET_BIT(room->RoomFlags, RoomInstallation);
+                xSET_BIT(room->RoomFlags, RoomNoMob);
+                xSET_BIT(room->RoomFlags, RoomIndoors);
         }
         fold_area(tarea, tarea->filename, TRUE, FALSE);
         return i;
 }
 
-INSTALLATION_DATA *installation_from_room(int vnum)
+InstallationData *installation_from_room(int vnum)
 {
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
 
         for (installation = first_installation; installation;
              installation = installation->next)
@@ -400,7 +400,7 @@ INSTALLATION_DATA *installation_from_room(int vnum)
 
 int planetary_installations(PlanetData * planet, int type)
 {
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         int       count = 0;
 
         for (installation = first_installation; installation;
@@ -412,7 +412,7 @@ int planetary_installations(PlanetData * planet, int type)
         return count;
 }
 
-void destroy_installation(INSTALLATION_DATA * installation)
+void destroy_installation(InstallationData * installation)
 {
         RoomIndexData *room;
         AreaData *area;
@@ -443,7 +443,7 @@ void destroy_installation(INSTALLATION_DATA * installation)
                         rch = room->first_person;
                         while (rch)
                         {
-                                if (IS_IMMORTAL(rch))
+                                if (IsImmortal(rch))
                                 {
                                         char_from_room(rch);
                                         char_to_room(rch,
@@ -490,7 +490,7 @@ void destroy_installation(INSTALLATION_DATA * installation)
 
         fold_area(area, area->filename, FALSE, FALSE);
 
-        snprintf(file, MSL, "%s%s", INSTALLATIONS_DIR,
+        snprintf(file, MSL, "%s%s", InstallationsDir,
                  installation->filename);
 
         if (installation->filename)
@@ -517,8 +517,8 @@ void destroy_installation(INSTALLATION_DATA * installation)
         return;
 }
 
-void echo_to_installation(sh_int AT_COLOR, char *argument,
-                          INSTALLATION_DATA * installation)
+void echo_to_installation(sh_int AtColor, char *argument,
+                          InstallationData * installation)
 {
         DescriptorData *d;
 
@@ -531,13 +531,13 @@ void echo_to_installation(sh_int AT_COLOR, char *argument,
                  * Added showing echoes to players who are editing, so they won't
                  * * miss out on important info like upcoming reboots. --Narn 
                  */
-                if ((IS_PLAYING(d) || d->connected == ConEditing)
+                if ((IsPlaying(d) || d->connected == ConEditing)
                     &&
                     ((d->character->in_room->vnum >= installation->first_room)
                      && (d->character->in_room->vnum <=
                          installation->last_room)))
                 {
-                        set_char_color(AT_COLOR, d->character);
+                        set_char_color(AtColor, d->character);
                         send_to_char(argument, d->character);
                         send_to_char("\n\r", d->character);
                 }
@@ -551,7 +551,7 @@ bool mob_reset(CharData * ch, char *type, bool check)
         RoomIndexData *room;
         ObjData *obj;
 
-        if (!IS_NPC(ch) && !check)
+        if (!IsNpc(ch) && !check)
         {
                 send_to_char("You cannot do that. What the hell? Tell Greven",
                              ch);
@@ -576,7 +576,7 @@ bool mob_reset(CharData * ch, char *type, bool check)
                           ch->pIndexData->count, ch->in_room->vnum);
                 for (obj = ch->first_carrying; obj; obj = obj->next_content)
                 {
-                    if (obj->wear_loc == WEAR_NONE)
+                    if (obj->wear_loc == WearNone)
                         add_obj_reset(ch->in_room->area, 'G', obj, 1, 0);
                     else
                         add_obj_reset(ch->in_room->area, 'E', obj, 1,
@@ -600,13 +600,13 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         int       vnum, duracrete, electronics, cost, iInstall, type =
                 0, count;
         ClanData *clan;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         ExitData *pexit;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if ((clan = ch->pcdata->clan) == NULL || !ch->in_room->area->planet
@@ -634,8 +634,8 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_INDOORS) ||
-            xIS_SET(ch->in_room->RoomFlags, ROOM_SPACECRAFT))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomIndoors) ||
+            xIS_SET(ch->in_room->RoomFlags, RoomSpacecraft))
         {
                 send_to_char("You can't build that here!! Try elsewhere.\r\n",
                              ch);
@@ -667,7 +667,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                                  ch);
                         buf[0] = '\0';
                         mudstrlcat(buf, "&RTypes:&w", MSL);
-                        for (iInstall = 0; iInstall < MAX_INSTALLATION - 1;
+                        for (iInstall = 0; iInstall < MaxInstallation - 1;
                              iInstall++)
                         {
                                 if (installation_table[iInstall].
@@ -687,7 +687,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                         return;
                 }
 
-                for (iInstall = 0; iInstall < MAX_INSTALLATION - 1;
+                for (iInstall = 0; iInstall < MaxInstallation - 1;
                      iInstall++)
                 {
                         if (!str_prefix
@@ -698,7 +698,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                                 break;
                         }
                 }
-                if (iInstall == MAX_INSTALLATION ||
+                if (iInstall == MaxInstallation ||
                     !installation_table[iInstall].InstallationName ||
                     installation_table[iInstall].InstallationName[0] == '\0')
                 {
@@ -707,7 +707,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                                  ch);
                         buf[0] = '\0';
                         mudstrlcat(buf, "&RTypes:&w", MSL);
-                        for (iInstall = 0; iInstall < MAX_INSTALLATION - 1;
+                        for (iInstall = 0; iInstall < MaxInstallation - 1;
                              iInstall++)
                         {
                                 if (installation_table[iInstall].
@@ -760,7 +760,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 duracrete = 30 * installation_table[type].rooms;
                 electronics = 10 * installation_table[type].rooms;
 
-                if (planet->resource[CARGO_DURACRETE] < duracrete)
+                if (planet->resource[CargoDuracrete] < duracrete)
                 {
                         send_to_char
                                 ("&RYou'll have to wait till this planet either import or produce more duracrete&C&w\r\n",
@@ -768,7 +768,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                         return;
                 }
 
-                if (planet->resource[CARGO_ELECTRONICS] < electronics)
+                if (planet->resource[CargoElectronics] < electronics)
                 {
                         send_to_char
                                 ("&RYou'll have to wait till this planet either import or produce more electronics&C&w\r\n",
@@ -777,19 +777,19 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 }
 
                 cost = 10;
-                if (planet->cargoimport[CARGO_DURACRETE] > 0)
-                        cost += planet->cargoimport[CARGO_DURACRETE] +
-                                planet->cargoimport[CARGO_DURACRETE] / 2;
-                else if (planet->cargoexport[CARGO_DURACRETE] > 0)
-                        cost += planet->cargoexport[CARGO_DURACRETE];
+                if (planet->cargoimport[CargoDuracrete] > 0)
+                        cost += planet->cargoimport[CargoDuracrete] +
+                                planet->cargoimport[CargoDuracrete] / 2;
+                else if (planet->cargoexport[CargoDuracrete] > 0)
+                        cost += planet->cargoexport[CargoDuracrete];
                 else
                         cost += 10;
 
-                if (planet->cargoimport[CARGO_ELECTRONICS] > 0)
-                        cost += planet->cargoimport[CARGO_ELECTRONICS] +
-                                planet->cargoimport[CARGO_ELECTRONICS] / 2;
-                else if (planet->cargoexport[CARGO_ELECTRONICS] > 0)
-                        cost += planet->cargoexport[CARGO_ELECTRONICS];
+                if (planet->cargoimport[CargoElectronics] > 0)
+                        cost += planet->cargoimport[CargoElectronics] +
+                                planet->cargoimport[CargoElectronics] / 2;
+                else if (planet->cargoexport[CargoElectronics] > 0)
+                        cost += planet->cargoexport[CargoElectronics];
                 else
                         cost += 10;
 
@@ -804,13 +804,13 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_CIRCUIT)
+                        if (obj->item_type == ItemCircuit)
                                 checkcir = TRUE;
-                        if (obj->item_type == ITEM_SUPERCONDUCTOR)
+                        if (obj->item_type == ItemSuperconductor)
                                 checksuper = TRUE;
-                        if (obj->item_type == ITEM_BATTERY)
+                        if (obj->item_type == ItemBattery)
                                 checkbatt = TRUE;
                 }
 
@@ -843,17 +843,17 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_makebase]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou begin the long Process of starting an installation.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s tools and starts the production of an installation.\r\n",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 35, do_makeinstallation,
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 35, do_makeinstallation,
                                   1);
                         ch->dest_buf = str_dup(arg1);
                         ch->dest_buf_2 = str_dup(arg2);
@@ -900,22 +900,22 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_CIRCUIT && checkcir == FALSE)
+                if (obj->item_type == ItemCircuit && checkcir == FALSE)
                 {
                         checkcir = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                 }
-                if (obj->item_type == ITEM_SUPERCONDUCTOR
+                if (obj->item_type == ItemSuperconductor
                     && checksuper == FALSE)
                 {
                         checksuper = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                 }
-                if (obj->item_type == ITEM_BATTERY && checkbatt == FALSE)
+                if (obj->item_type == ItemBattery && checkbatt == FALSE)
                 {
                         checkbatt = TRUE;
                         separate_obj(obj);
@@ -923,7 +923,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 }
         }
 
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_makebase]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkbatt)
@@ -947,7 +947,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 return;
         }
 
-        for (iInstall = 0; iInstall < MAX_INSTALLATION; iInstall++)
+        for (iInstall = 0; iInstall < MaxInstallation; iInstall++)
         {
                 if (toupper(arg1[0]) ==
                     toupper(installation_table[iInstall].InstallationName[0])
@@ -959,7 +959,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                         break;
                 }
         }
-        if (iInstall == MAX_INSTALLATION - 1 ||
+        if (iInstall == MaxInstallation - 1 ||
             !installation_table[iInstall].InstallationName ||
             installation_table[iInstall].InstallationName[0] == '\0')
         {
@@ -968,7 +968,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                          ch);
                 send_to_char("&RTypes:&w", ch);
 
-                for (iInstall = 0; iInstall < MAX_INSTALLATION - 1;
+                for (iInstall = 0; iInstall < MaxInstallation - 1;
                      iInstall++)
                 {
                         if (installation_table[iInstall].InstallationName &&
@@ -984,7 +984,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         duracrete = 30 * installation_table[type].rooms;
         electronics = 10 * installation_table[type].rooms;
 
-        if (planet->resource[CARGO_DURACRETE] < duracrete)
+        if (planet->resource[CargoDuracrete] < duracrete)
         {
                 send_to_char
                         ("&RYou'll have to wait till this planet either import or produce more duracrete&C&w\r\n",
@@ -992,7 +992,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if (planet->resource[CARGO_ELECTRONICS] < electronics)
+        if (planet->resource[CargoElectronics] < electronics)
         {
                 send_to_char
                         ("&RYou'll have to wait till this planet either import or produce more electronics&C&w\r\n",
@@ -1001,19 +1001,19 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         }
 
         cost = 10;
-        if (planet->cargoimport[CARGO_DURACRETE] > 0)
-                cost += planet->cargoimport[CARGO_DURACRETE] +
-                        planet->cargoimport[CARGO_DURACRETE] / 2;
-        else if (planet->cargoexport[CARGO_DURACRETE] > 0)
-                cost += planet->cargoexport[CARGO_DURACRETE];
+        if (planet->cargoimport[CargoDuracrete] > 0)
+                cost += planet->cargoimport[CargoDuracrete] +
+                        planet->cargoimport[CargoDuracrete] / 2;
+        else if (planet->cargoexport[CargoDuracrete] > 0)
+                cost += planet->cargoexport[CargoDuracrete];
         else
                 cost += 10;
 
-        if (planet->cargoimport[CARGO_ELECTRONICS] > 0)
-                cost += planet->cargoimport[CARGO_ELECTRONICS] +
-                        planet->cargoimport[CARGO_ELECTRONICS] / 2;
-        else if (planet->cargoexport[CARGO_ELECTRONICS] > 0)
-                cost += planet->cargoexport[CARGO_ELECTRONICS];
+        if (planet->cargoimport[CargoElectronics] > 0)
+                cost += planet->cargoimport[CargoElectronics] +
+                        planet->cargoimport[CargoElectronics] / 2;
+        else if (planet->cargoexport[CargoElectronics] > 0)
+                cost += planet->cargoexport[CargoElectronics];
         else
                 cost += 10;
 
@@ -1028,11 +1028,11 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
 
         clan->funds -= cost;
         save_clan(clan);
-        planet->resource[CARGO_DURACRETE] -= duracrete;
-        planet->resource[CARGO_ELECTRONICS] -= electronics;
+        planet->resource[CargoDuracrete] -= duracrete;
+        planet->resource[CargoElectronics] -= electronics;
 
         vnum = find_pvnum_block(installation_table[type].rooms,
-                                INSTALLATION_AREA);
+                                InstallationArea);
         if (vnum < 0)
         {
                 bug("player installation area out of vnums", 0);
@@ -1050,7 +1050,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                          ch);
                 return;
         }
-        CREATE(installation, INSTALLATION_DATA, 1);
+        CREATE(installation, InstallationData, 1);
         LINK(installation, first_installation, last_installation, next, prev);
         stralloc_printf(&installation->filename, "%d.pinstall", vnum);
         installation->clan = clan;
@@ -1067,9 +1067,9 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                   "&GYour clan pays a total of &R%d&G credits for the construction of this installation.\r\n",
                   cost);
         learn_from_success(ch, gsn_makebase);
-        act(AT_PLAIN,
+        act(AtPlain,
             "$n finishes constructing the entrance to the installation, and enters.",
-            ch, NULL, argument, TO_ROOM);
+            ch, NULL, argument, ToRoom);
         room = get_room_index(vnum);
         if (!room)
         {
@@ -1134,21 +1134,21 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                  */
                 xpgain = UMIN(installation_table[type].rooms * 1000,
                               (exp_level
-                               (ch->skill_level[ENGINEERING_ABILITY] + 1) -
+                               (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[ENGINEERING_ABILITY])));
-                gain_exp(ch, xpgain, ENGINEERING_ABILITY);
+                                         skill_level[EngineeringAbility])));
+                gain_exp(ch, xpgain, EngineeringAbility);
                 ch_printf(ch, "You gain %d engineering experience.", xpgain);
         }
 }
 
 CMDF do_istat(CharData * ch, char *argument)
 {
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         PlanetData *planet = NULL;
         int       count = 0;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1238,9 +1238,9 @@ CMDF do_addpersonel(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
         int       percentage, credits;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         if (ch->pcdata->clan == NULL)
@@ -1312,7 +1312,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
 					return;
 				}
                 if (ch->pcdata->clan->funds <
-                    ch->skill_level[LEADERSHIP_ABILITY] * 30)
+                    ch->skill_level[LeadershipAbility] * 30)
                 {
                         ch_printf(ch, "&RYou dont have enough credits.\n\r",
                                   ch);
@@ -1325,10 +1325,10 @@ CMDF do_addpersonel(CharData * ch, char *argument)
                         send_to_char
                                 ("&GYou begin to arrange for personel.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n begins issuing orders into $s comlink.", ch,
-                            NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 25, do_addpersonel, 1);
+                            NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 25, do_addpersonel, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -1363,7 +1363,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
         /*
          * Its actually better todo this with no money? ... 
          */
-        credits = ch->skill_level[LEADERSHIP_ABILITY] * 30;
+        credits = ch->skill_level[LeadershipAbility] * 30;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
         ch->pcdata->clan->funds -= UMIN(credits, ch->pcdata->clan->funds);
 
@@ -1371,25 +1371,25 @@ CMDF do_addpersonel(CharData * ch, char *argument)
 
         if (!str_cmp("guard", arg))
         {
-                ch->backup_mob = MOB_VNUM_INSTALL_GUARD;
+                ch->backup_mob = MobVnumInstallGuard;
                 add_reinforcements(ch);
                 return;
         }
         if (!str_cmp("entranceguard", arg))
         {
-                ch->backup_mob = MOB_VNUM_INSTALL_ENTERANCE_GUARD;
+                ch->backup_mob = MobVnumInstallEnteranceGuard;
                 add_reinforcements(ch);
                 return;
         }
         if (!str_cmp("doctor", arg))
         {
-                ch->backup_mob = MOB_VNUM_INSTALL_DOCTOR;
+                ch->backup_mob = MobVnumInstallDoctor;
                 add_reinforcements(ch);
                 return;
         }
         if (!str_cmp("customs", arg))
         {
-                ch->backup_mob = MOB_VNUM_INSTALL_CUSTOMS;
+                ch->backup_mob = MobVnumInstallCustoms;
                 add_reinforcements(ch);
                 return;
         }
@@ -1405,7 +1405,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
         ObjIndexData *pObjIndex;
         ObjData *obj;
         int       vnum;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         ShipData *ship;
 
         argument = one_argument(argument, arg);
@@ -1453,9 +1453,9 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_DURASTEEL)
+                        if (obj->item_type == ItemDurasteel)
                                 checkdura = TRUE;
                 }
 
@@ -1475,9 +1475,9 @@ CMDF do_lockdoor(CharData * ch, char *argument)
                         return;
                 }
 
-                if ((pexit = get_exit(ch->in_room, get_door(arg))) != NULL && IS_SET(pexit->exit_info, EX_LOCKED))
+                if ((pexit = get_exit(ch->in_room, get_door(arg))) != NULL && IsSet(pexit->exit_info, ExLocked))
                 {
-                         act(AT_GREY, "The exit $t is already locked.", ch, dir_name[get_door(arg)], NULL, TO_CHAR);
+                         act(AtGrey, "The exit $t is already locked.", ch, dir_name[get_door(arg)], NULL, ToChar);
                          return;
                 }
 
@@ -1488,17 +1488,17 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 				}
 
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_lockdoor]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou begin the long Process of creating a locked door.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s tools and begins to work on something.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 25, do_lockdoor, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 25, do_lockdoor, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -1526,7 +1526,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_lockdoor]);
         vnum = 10438;
 
@@ -1543,9 +1543,9 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_DURASTEEL && checkdura == FALSE)
+                if (obj->item_type == ItemDurasteel && checkdura == FALSE)
                 {
                         checkdura = TRUE;
                         separate_obj(obj);
@@ -1554,7 +1554,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
                 }
         }
 
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_lockdoor]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura))
@@ -1574,8 +1574,8 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
         obj = create_object(pObjIndex, level);
 
-        obj->item_type = ITEM_KEY;
-        SET_BIT(obj->wear_flags, ITEM_TAKE);
+        obj->item_type = ItemKey;
+        SetBit(obj->wear_flags, ItemTake);
         obj->level = level;
         obj->weight = 1;
         stralloc_printf(&obj->name, "key card to door in %s",
@@ -1605,9 +1605,9 @@ CMDF do_lockdoor(CharData * ch, char *argument)
                 }
                 else
                 {
-                        set_bexit_flag(xit, EX_ISDOOR);
-                        set_bexit_flag(xit, EX_CLOSED);
-                        set_bexit_flag(xit, EX_LOCKED);
+                        set_bexit_flag(xit, ExIsdoor);
+                        set_bexit_flag(xit, ExClosed);
+                        set_bexit_flag(xit, ExLocked);
                         xit->key = lock;
                         if ((pexit = xit->rexit) != NULL && pexit != xit)
                                 pexit->key = lock;
@@ -1627,18 +1627,18 @@ CMDF do_lockdoor(CharData * ch, char *argument)
         send_to_char
                 ("&GYou finish your work and hold up your newly created key card, and you check your keypad.&w\n\r",
                  ch);
-        act(AT_PLAIN, "$n finishes crafting a door and lock.", ch, NULL,
-            argument, TO_ROOM);
+        act(AtPlain, "$n finishes crafting a door and lock.", ch, NULL,
+            argument, ToRoom);
 
         {
                 long      xpgain;
 
                 xpgain = UMIN(20000,
                               (exp_level
-                               (ch->skill_level[ENGINEERING_ABILITY] + 1) -
+                               (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[ENGINEERING_ABILITY])));
-                gain_exp(ch, xpgain, ENGINEERING_ABILITY);
+                                         skill_level[EngineeringAbility])));
+                gain_exp(ch, xpgain, EngineeringAbility);
                 ch_printf(ch, "You gain %d engineering experience.", xpgain);
         }
 
@@ -1646,7 +1646,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
         ship = ship_from_room(ch->in_room->vnum);
         if (ship)
-                if (ship->type == PLAYER_SHIP)
+                if (ship->type == PlayerShip)
                         fold_area(ch->in_room->area,
                                   ch->in_room->area->filename, FALSE, FALSE);
 
@@ -1693,9 +1693,9 @@ CMDF do_makekey(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_DURASTEEL)
+                        if (obj->item_type == ItemDurasteel)
                                 checkdura = TRUE;
                 }
 
@@ -1738,14 +1738,14 @@ CMDF do_makekey(CharData * ch, char *argument)
                                                  ch);
                                         return;
                                 }
-                                if (!IS_SET(xit->exit_info, EX_ISDOOR))
+                                if (!IsSet(xit->exit_info, ExIsdoor))
                                 {
                                         send_to_char
                                                 ("&RThat exit does not have a door.\n\r",
                                                  ch);
                                         return;
                                 }
-                                if (!IS_SET(xit->exit_info, EX_CLOSED))
+                                if (!IsSet(xit->exit_info, ExClosed))
                                 {
                                         send_to_char("&RIt's not closed.\n\r",
                                                      ch);
@@ -1758,7 +1758,7 @@ CMDF do_makekey(CharData * ch, char *argument)
                                                  ch);
                                         return;
                                 }
-                                if (!IS_SET(xit->exit_info, EX_LOCKED))
+                                if (!IsSet(xit->exit_info, ExLocked))
                                 {
                                         send_to_char
                                                 ("&RThe door must be locked for you to get a proper scan.\n\r",
@@ -1782,7 +1782,7 @@ CMDF do_makekey(CharData * ch, char *argument)
                                          ch);
                                 return;
                         }
-                        if (key->item_type != ITEM_KEY)
+                        if (key->item_type != ItemKey)
                         {
                                 send_to_char("&RThat is not a key!.\n\r", ch);
                                 return;
@@ -1795,17 +1795,17 @@ CMDF do_makekey(CharData * ch, char *argument)
                                 return;
                         }
                 }
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_makekey]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou begin the long Process of creating a key.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s tools and begins to work on something.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 25, do_makekey, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 25, do_makekey, 1);
                         ch->dest_buf = str_dup(arg);
                         ch->dest_buf_2 = str_dup(arg2);
                         return;
@@ -1840,7 +1840,7 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makekey]);
         vnum = 10438;
 
@@ -1857,9 +1857,9 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_DURASTEEL && checkdura == FALSE)
+                if (obj->item_type == ItemDurasteel && checkdura == FALSE)
                 {
                         checkdura = TRUE;
                         separate_obj(obj);
@@ -1873,13 +1873,13 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         if (!str_cmp(arg, "lock"))
                 percentage =
-                        IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                             learned
                                                             [gsn_makekey] /
                                                             4);
         else
                 percentage =
-                        IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                             learned
                                                             [gsn_makekey]);
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura))
@@ -1897,8 +1897,8 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         obj = create_object(pObjIndex, level);
 
-        obj->item_type = ITEM_KEY;
-        SET_BIT(obj->wear_flags, ITEM_TAKE);
+        obj->item_type = ItemKey;
+        SetBit(obj->wear_flags, ItemTake);
         obj->level = level;
         obj->weight = 1;
         stralloc_printf(&obj->name, "a copy of a key card to door in %s",
@@ -1926,8 +1926,8 @@ CMDF do_makekey(CharData * ch, char *argument)
                 send_to_char
                         ("&GYou finish your work and hold up a copy of the key card.&w\n\r",
                          ch);
-                act(AT_PLAIN, "$n finishes copying a key card.", ch, NULL,
-                    argument, TO_ROOM);
+                act(AtPlain, "$n finishes copying a key card.", ch, NULL,
+                    argument, ToRoom);
                 obj->value[0] = key->value[0];
         }
         if (!str_cmp(arg, "lock"))
@@ -1955,9 +1955,9 @@ CMDF do_makekey(CharData * ch, char *argument)
                                 send_to_char
                                         ("&GYou finish your work and hold up a the key card.&w\n\r",
                                          ch);
-                                act(AT_PLAIN,
+                                act(AtPlain,
                                     "$n finishes making a new key card.", ch,
-                                    NULL, argument, TO_ROOM);
+                                    NULL, argument, ToRoom);
                                 obj->value[0] = xit->key;
 
                         }
@@ -1977,10 +1977,10 @@ CMDF do_makekey(CharData * ch, char *argument)
 
                 xpgain = UMIN(20000,
                               (exp_level
-                               (ch->skill_level[ENGINEERING_ABILITY] + 1) -
+                               (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[ENGINEERING_ABILITY])));
-                gain_exp(ch, xpgain, ENGINEERING_ABILITY);
+                                         skill_level[EngineeringAbility])));
+                gain_exp(ch, xpgain, EngineeringAbility);
                 ch_printf(ch, "You gain %d engineering experience.", xpgain);
         }
 
@@ -1989,7 +1989,7 @@ CMDF do_makekey(CharData * ch, char *argument)
 
 CMDF do_purgeinstallation(CharData * ch, char *argument)
 {
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         CharData *victim;
         char      arg[MaxInputLength];
         char      arg2[MaxInputLength];
@@ -2073,7 +2073,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
         bool      checktool, checksteel, checkchem, checksuper, checkdrink,
                 checkcircuit, checkbatt;
         ObjData *obj;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -2099,7 +2099,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
                 }
 
                 if (installation->mainroom != ch->in_room->vnum
-                    && !IS_IMMORTAL(ch))
+                    && !IsImmortal(ch))
                 {
                         send_to_char
                                 ("&RThis room is not critical enough to destroy the whole facility. Try else where.\n\r",
@@ -2109,20 +2109,20 @@ CMDF do_sabotage(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_DURASTEEL)
+                        if (obj->item_type == ItemDurasteel)
                                 checksteel = TRUE;
-                        if (obj->item_type == ITEM_CHEMICAL)
+                        if (obj->item_type == ItemChemical)
                                 checkchem = TRUE;
-                        if (obj->item_type == ITEM_SUPERCONDUCTOR)
+                        if (obj->item_type == ItemSuperconductor)
                                 checksuper = TRUE;
-                        if (obj->item_type == ITEM_DRINK_CON
+                        if (obj->item_type == ItemDrinkCon
                             && obj->value[1] == 0)
                                 checkdrink = TRUE;
-                        if (obj->item_type == ITEM_CIRCUIT)
+                        if (obj->item_type == ItemCircuit)
                                 checkcircuit = TRUE;
-                        if (obj->item_type == ITEM_BATTERY)
+                        if (obj->item_type == ItemBattery)
                                 checkbatt = TRUE;
                 }
 
@@ -2182,14 +2182,14 @@ CMDF do_sabotage(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_sabotage]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou start to construct your bomb.\n\r",
                                  ch);
-                        add_timer(ch, TIMER_DO_FUN, 35, do_sabotage, 1);
+                        add_timer(ch, TimerDoFun, 35, do_sabotage, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -2220,12 +2220,12 @@ CMDF do_sabotage(CharData * ch, char *argument)
                                  installation_table[installation->type].
                                  InstallationName,
                                  installation->planet->name, ch->name);
-                        echo_to_clan(AT_PINK, buf, installation->clan);
+                        echo_to_clan(AtPink, buf, installation->clan);
                         snprintf(buf, MSL,
                                  "&P%s Security speaks over the installation intercom, 'This installation is being sabotaged by %s!'\n\r",
                                  installation_table[installation->type].
                                  InstallationName, ch->name);
-                        echo_to_installation(AT_RED, buf, installation);
+                        echo_to_installation(AtRed, buf, installation);
                 }
                 return;
         }
@@ -2242,23 +2242,23 @@ CMDF do_sabotage(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_DURASTEEL)
+                if (obj->item_type == ItemDurasteel)
                 {
                         checksteel = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_CHEMICAL)
+                if (obj->item_type == ItemChemical)
                 {
                         checkchem = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_SUPERCONDUCTOR)
+                if (obj->item_type == ItemSuperconductor)
                 {
                         checksuper = TRUE;
                         separate_obj(obj);
@@ -2266,7 +2266,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
                         extract_obj(obj);
                 }
 
-                if (obj->item_type == ITEM_DRINK_CON && obj->value[1] == 0)
+                if (obj->item_type == ItemDrinkCon && obj->value[1] == 0)
                 {
                         checkdrink = TRUE;
                         separate_obj(obj);
@@ -2274,7 +2274,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
                         extract_obj(obj);
                 }
 
-                if (obj->item_type == ITEM_CIRCUIT)
+                if (obj->item_type == ItemCircuit)
                 {
                         checkcircuit = TRUE;
                         separate_obj(obj);
@@ -2282,7 +2282,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
                         extract_obj(obj);
                 }
 
-                if (obj->item_type == ITEM_BATTERY)
+                if (obj->item_type == ItemBattery)
                 {
                         checkbatt = TRUE;
                         separate_obj(obj);
@@ -2302,7 +2302,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
         }
 
         percentage =
-                IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_sabotage]);
 
         if (number_percent() > percentage / 2 || (!checkchem) || (!checksuper)
@@ -2323,12 +2323,12 @@ CMDF do_sabotage(CharData * ch, char *argument)
                          installation_table[installation->type].
                          InstallationName, installation->planet->name,
                          ch->name);
-                echo_to_clan(AT_PINK, buf, installation->clan);
+                echo_to_clan(AtPink, buf, installation->clan);
                 snprintf(buf, MSL,
                          "&P%s Security speaks over the installation intercom, 'This installation is being sabotaged by %s!'\n\r",
                          installation_table[installation->type].
                          InstallationName, ch->name);
-                echo_to_installation(AT_RED, buf, installation);
+                echo_to_installation(AtRed, buf, installation);
 
                 return;
         }
@@ -2345,10 +2345,10 @@ CMDF do_sabotage(CharData * ch, char *argument)
                 xpgain = UMIN(installation_table[installation->type].rooms *
                               200,
                               (exp_level
-                               (ch->skill_level[ENGINEERING_ABILITY] + 1) -
+                               (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[ENGINEERING_ABILITY])));
-                gain_exp(ch, xpgain, ENGINEERING_ABILITY);
+                                         skill_level[EngineeringAbility])));
+                gain_exp(ch, xpgain, EngineeringAbility);
                 ch_printf(ch, "You gain %d engineering experience.", xpgain);
         }
 
@@ -2362,7 +2362,7 @@ void addroominstallation(CharData * ch, char *argument)
         char      arg1[MaxInputLength];
         char      arg2[MaxInputLength];
         RoomIndexData *room;
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         bool      match;
         ExitData *pexit;
 
@@ -2380,7 +2380,7 @@ void addroominstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch) || !ch->pcdata || !ch->pcdata->clan
+        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
             || ch->pcdata->clan != installation->clan)
         {
                 send_to_char
@@ -2459,11 +2459,11 @@ void addroominstallation(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "workshop"))
         {
-                if (installation->type != RESEARCH_INSTALLATION &&
-                    installation->type != CLANHQ_INSTALLATION &&
-                    installation->type != TRAINING_INSTALLATION &&
-                    installation->type != SHIPYARD_INSTALLATION &&
-                    installation->type != MINING_INSTALLATION)
+                if (installation->type != ResearchInstallation &&
+                    installation->type != ClanhqInstallation &&
+                    installation->type != TrainingInstallation &&
+                    installation->type != ShipyardInstallation &&
+                    installation->type != MiningInstallation)
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2479,16 +2479,16 @@ void addroominstallation(CharData * ch, char *argument)
                 }
                 installation->clan->funds -= 10000;
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_FACTORY);
-                xSET_BIT(room->RoomFlags, ROOM_REFINERY);
+                xSET_BIT(room->RoomFlags, RoomFactory);
+                xSET_BIT(room->RoomFlags, RoomRefinery);
                 stralloc_printf(&room->name, "%s", "A Workshop");
         }
         else if (!str_cmp(arg2, "bacta"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION) &&
-                    (installation->type != TRAINING_INSTALLATION) &&
-                    (installation->type != GOVERNMENT_INSTALLATION) &&
-                    (installation->type != MINING_INSTALLATION))
+                if ((installation->type != ClanhqInstallation) &&
+                    (installation->type != TrainingInstallation) &&
+                    (installation->type != GovernmentInstallation) &&
+                    (installation->type != MiningInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2504,15 +2504,15 @@ void addroominstallation(CharData * ch, char *argument)
                 }
                 installation->clan->funds -= 25000;
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_BACTA);
+                xSET_BIT(room->RoomFlags, RoomBacta);
                 STRFREE(room->name);
                 room->name = STRALLOC("Bacta Tank");
         }
         else if (!str_cmp(arg2, "meditate"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION) &&
-                    (installation->type != TRAINING_INSTALLATION)
-                    && (installation->type != GOVERNMENT_INSTALLATION))
+                if ((installation->type != ClanhqInstallation) &&
+                    (installation->type != TrainingInstallation)
+                    && (installation->type != GovernmentInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2530,15 +2530,15 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 100000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_SILENCE);
-                xSET_BIT(room->RoomFlags, ROOM_SAFE);
+                xSET_BIT(room->RoomFlags, RoomSilence);
+                xSET_BIT(room->RoomFlags, RoomSafe);
                 stralloc_printf(&room->name, "%s",
                                 "A Quiet Meditation Chamber");
         }
         else if (!str_cmp(arg2, "hotel"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION)
-                    && (installation->type != GOVERNMENT_INSTALLATION))
+                if ((installation->type != ClanhqInstallation)
+                    && (installation->type != GovernmentInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2555,14 +2555,14 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_HOTEL);
-                xSET_BIT(room->RoomFlags, ROOM_INN);
+                xSET_BIT(room->RoomFlags, RoomHotel);
+                xSET_BIT(room->RoomFlags, RoomInn);
                 stralloc_printf(&room->name, "%s", "The Passenger's Lounge");
         }
         else if (!str_cmp(arg2, "bank"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION)
-                    && (installation->type != GOVERNMENT_INSTALLATION))
+                if ((installation->type != ClanhqInstallation)
+                    && (installation->type != GovernmentInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2579,7 +2579,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_BANK);
+                xSET_BIT(room->RoomFlags, RoomBank);
                 stralloc_printf(&room->name, "%s",
                                 "Local Office of the Galactic Banking Guild");
         }
@@ -2613,9 +2613,9 @@ void addroominstallation(CharData * ch, char *argument)
                                 installation_table[installation->type].
                                 main_name);
                 installation->mainroom = room->vnum;
-                if (installation->type == SHIPYARD_INSTALLATION)
+                if (installation->type == ShipyardInstallation)
                 {
-                        xSET_BIT(room->RoomFlags, ROOM_IMPORT);
+                        xSET_BIT(room->RoomFlags, RoomImport);
                         /*
                          * makedock ( installation); 
                          */
@@ -2623,8 +2623,8 @@ void addroominstallation(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "auction"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION)
-                    && (installation->type != GOVERNMENT_INSTALLATION))
+                if ((installation->type != ClanhqInstallation)
+                    && (installation->type != GovernmentInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2641,13 +2641,13 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_AUCTION);
+                xSET_BIT(room->RoomFlags, RoomAuction);
                 stralloc_printf(&room->name, "%s", "Local Auction Hall");
         }
         else if (!str_cmp(arg2, "arena"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION)
-                    && (installation->type != TRAINING_INSTALLATION))
+                if ((installation->type != ClanhqInstallation)
+                    && (installation->type != TrainingInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2664,13 +2664,13 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 75000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_ARENA);
+                xSET_BIT(room->RoomFlags, RoomArena);
                 stralloc_printf(&room->name, "%s", "Training Arena");
         }
         else if (!str_cmp(arg2, "recruitment"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION)
-                    && (installation->type != GOVERNMENT_INSTALLATION))
+                if ((installation->type != ClanhqInstallation)
+                    && (installation->type != GovernmentInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2687,13 +2687,13 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 500000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_RECRUIT);
+                xSET_BIT(room->RoomFlags, RoomRecruit);
                 stralloc_printf(&room->name, "%s", "A Recruitment Office");
         }
         else if (!str_cmp(arg2, "home"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION)
-                    && (installation->type != GOVERNMENT_INSTALLATION))
+                if ((installation->type != ClanhqInstallation)
+                    && (installation->type != GovernmentInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2711,14 +2711,14 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 10000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
-                xSET_BIT(room->RoomFlags, ROOM_HOTEL);
+                xSET_BIT(room->RoomFlags, RoomEmptyHome);
+                xSET_BIT(room->RoomFlags, RoomHotel);
                 stralloc_printf(&room->name, "%s", "An Empty Apartment");
         }
         else if (!str_cmp(arg2, "restaurant"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION)
-                    && (installation->type != GOVERNMENT_INSTALLATION))
+                if ((installation->type != ClanhqInstallation)
+                    && (installation->type != GovernmentInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2737,15 +2737,15 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 1000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_BAR);
-                xSET_BIT(room->RoomFlags, ROOM_KITCHEN);
-                xSET_BIT(room->RoomFlags, ROOM_CAFE);
+                xSET_BIT(room->RoomFlags, RoomBar);
+                xSET_BIT(room->RoomFlags, RoomKitchen);
+                xSET_BIT(room->RoomFlags, RoomCafe);
                 stralloc_printf(&room->name, "%s", "A Restaurant");
         }
         else if (!str_cmp(arg2, "office"))
         {
-                if ((installation->type != CLANHQ_INSTALLATION)
-                    && (installation->type != GOVERNMENT_INSTALLATION))
+                if ((installation->type != ClanhqInstallation)
+                    && (installation->type != GovernmentInstallation))
                 {
                         send_to_char
                                 ("You cannot put that into this type of installation!\r\n",
@@ -2763,9 +2763,9 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 1000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_OFFICE);
-                xSET_BIT(room->RoomFlags, ROOM_EXECUTIVE);
-                xSET_BIT(room->RoomFlags, ROOM_BOARDROOM);
+                xSET_BIT(room->RoomFlags, RoomOffice);
+                xSET_BIT(room->RoomFlags, RoomExecutive);
+                xSET_BIT(room->RoomFlags, RoomBoardroom);
                 stralloc_printf(&room->name, "%s", "An Office");
         }
         else if (!str_cmp(arg2, "turbolift"))
@@ -2854,7 +2854,7 @@ void addroominstallation(CharData * ch, char *argument)
 
 void fireplanet_update()
 {
-        INSTALLATION_DATA *installation;
+        InstallationData *installation;
         ShipData *ship;
         int       wepnum, hit, percentage;
         char      buf[MSL];
@@ -2944,13 +2944,13 @@ void fireplanet_update()
                                                                  body->
                                                                  name());
                                                         echo_to_cockpit
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  ship, buf);
                                                         snprintf(buf, MSL,
                                                                  "The installations ion cannons fire at %s, but miss",
                                                                  ship->name);
                                                         echo_to_installation
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  buf,
                                                                  installation);
                                                         snprintf(buf, MSL,
@@ -2960,7 +2960,7 @@ void fireplanet_update()
                                                                  body->name(),
                                                                  ship->name);
                                                         echo_to_system
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  ship, buf,
                                                                  ship);
                                                         installation->
@@ -2977,13 +2977,13 @@ void fireplanet_update()
                                                                  body->
                                                                  name());
                                                         echo_to_cockpit
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  ship, buf);
                                                         snprintf(buf, MSL,
                                                                  "Ion cannon fire from the installation hits %s",
                                                                  ship->name);
                                                         echo_to_installation
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  buf,
                                                                  installation);
                                                         snprintf(buf, MSL,
@@ -2993,7 +2993,7 @@ void fireplanet_update()
                                                                  body->name(),
                                                                  ship->name);
                                                         echo_to_system
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  ship, buf,
                                                                  ship);
                                                         damage_ship_ion(ship,
@@ -3032,13 +3032,13 @@ void fireplanet_update()
                                                                  body->
                                                                  name());
                                                         echo_to_cockpit
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  ship, buf);
                                                         snprintf(buf, MSL,
                                                                  "The installations turbolasers fire at %s, but miss",
                                                                  ship->name);
                                                         echo_to_installation
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  buf,
                                                                  installation);
                                                         snprintf(buf, MSL,
@@ -3048,7 +3048,7 @@ void fireplanet_update()
                                                                  body->name(),
                                                                  ship->name);
                                                         echo_to_system
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  ship, buf,
                                                                  ship);
                                                         installation->
@@ -3064,13 +3064,13 @@ void fireplanet_update()
                                                                  body->
                                                                  name());
                                                         echo_to_cockpit
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  ship, buf);
                                                         snprintf(buf, MSL,
                                                                  "Turbolaser fire from the installation hits %s",
                                                                  ship->name);
                                                         echo_to_installation
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  buf,
                                                                  installation);
                                                         snprintf(buf, MSL,
@@ -3080,7 +3080,7 @@ void fireplanet_update()
                                                                  body->name(),
                                                                  ship->name);
                                                         echo_to_system
-                                                                (AT_ORANGE,
+                                                                (AtOrange,
                                                                  ship, buf,
                                                                  ship);
                                                         damage_ship(ship,
@@ -3116,7 +3116,7 @@ void fireplanet_update()
                                  "&P%s Security speaks over the installation intercom, 'Explosives have been detected inside this faciltiy!'",
                                  installation_table[installation->type].
                                  InstallationName);
-                        echo_to_installation(AT_RED, buf, installation);
+                        echo_to_installation(AtRed, buf, installation);
                 }
 
                 if (installation->timer == 15)
@@ -3125,7 +3125,7 @@ void fireplanet_update()
                                  "&P%s Security speaks over the installation intercom, 'The timer has been identified as having approximately 15 seconds left!'",
                                  installation_table[installation->type].
                                  InstallationName);
-                        echo_to_installation(AT_RED, buf, installation);
+                        echo_to_installation(AtRed, buf, installation);
                 }
 
                 if (installation->timer == 10)
@@ -3134,7 +3134,7 @@ void fireplanet_update()
                                  "&P%s Security speaks over the installation intercom, 'Installation destruction imminent, explosion in 10 seconds!'",
                                  installation_table[installation->type].
                                  InstallationName);
-                        echo_to_installation(AT_RED, buf, installation);
+                        echo_to_installation(AtRed, buf, installation);
                 }
 
                 if (installation->timer == 5)
@@ -3143,14 +3143,14 @@ void fireplanet_update()
                                  "&P%s Security speaks over the installation intercom, 'Installation destruction imminent, explosion in 5 seconds! I'm leaving, now!'",
                                  installation_table[installation->type].
                                  InstallationName);
-                        echo_to_installation(AT_RED, buf, installation);
+                        echo_to_installation(AtRed, buf, installation);
                 }
 
                 if (installation->timer == 1)
                 {
                         snprintf(buf, MSL,
                                  "&PThe installation shakes as the explosion begins!\n\r&w&WThe heat and flames rush at you, and in a last moment of sensation,\n\ryou scream in horrible agony.");
-                        echo_to_installation(AT_RED, buf, installation);
+                        echo_to_installation(AtRed, buf, installation);
                         destroy_installation(installation);
                 }
         }

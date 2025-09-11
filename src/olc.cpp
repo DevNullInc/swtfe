@@ -43,16 +43,16 @@
 #include "mud.hpp"
 #include "races.hpp"
 
-PROTOSHIP_DATA *first_protoship;
-PROTOSHIP_DATA *last_protoship;
-LANGUAGE_DATA *first_language;
-LANGUAGE_DATA *last_language;
-CLASS_DATA *first_class;
-CLASS_DATA *last_class;
-PROTOSHIP_DATA *first_list;
-PROTOSHIP_DATA *last_list;
-ILLNESS_DATA *first_illness;
-ILLNESS_DATA *last_illness;
+ProtoshipData *first_protoship;
+ProtoshipData *last_protoship;
+LanguageData *first_language;
+LanguageData *last_language;
+ClassData *first_class;
+ClassData *last_class;
+ProtoshipData *first_list;
+ProtoshipData *last_list;
+IllnessData *first_illness;
+IllnessData *last_illness;
 
 /* Local Routines */
 void write_protoship_list args((void));
@@ -74,9 +74,9 @@ void fwrite_language_list(void)
 {
         FILE     *fp;
         char      filename[256];
-        LANGUAGE_DATA *language;
+        LanguageData *language;
 
-        snprintf(filename, 256, "%s%s", RACES_DIR, LANGUAGE_LIST);
+        snprintf(filename, 256, "%s%s", RacesDir, LanguageList);
         fp = fopen(filename, "w");
         if (!fp)
         {
@@ -89,7 +89,7 @@ void fwrite_language_list(void)
         FCLOSE(fp);
 }
 
-void fread_language(LANGUAGE_DATA * language, FILE * fp)
+void fread_language(LanguageData * language, FILE * fp)
 {
         char      buf[MaxStringLength];
         const char *word;
@@ -127,7 +127,7 @@ void fread_language(LANGUAGE_DATA * language, FILE * fp)
 }
 
 
-void fwrite_language(LANGUAGE_DATA * language)
+void fwrite_language(LanguageData * language)
 {
         FILE     *fp;
         char      filename[256];
@@ -147,7 +147,7 @@ void fwrite_language(LANGUAGE_DATA * language)
                 return;
         }
 
-        snprintf(filename, 256, "%s%s.language", RACES_DIR,
+        snprintf(filename, 256, "%s%s.language", RacesDir,
                  smash_space(language->name));
 
         FCLOSE(fpReserve);
@@ -166,7 +166,7 @@ void fwrite_language(LANGUAGE_DATA * language)
                 fprintf(fp, "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -174,16 +174,16 @@ void fwrite_language(LANGUAGE_DATA * language)
 bool load_language_file(char *languagefile)
 {
         char      filename[256];
-        LANGUAGE_DATA *language;
+        LanguageData *language;
         FILE     *fp;
         bool      found;
 
-        CREATE(language, LANGUAGE_DATA, 1);
+        CREATE(language, LanguageData, 1);
         language->next = NULL;
         language->prev = NULL;
 
         found = FALSE;
-        snprintf(filename, 256, "%s%s", RACES_DIR, languagefile);
+        snprintf(filename, 256, "%s%s", RacesDir, languagefile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -248,12 +248,12 @@ void load_languages(void)
         first_language = NULL;
         last_language = NULL;
 
-        snprintf(languagelist, 256, "%s%s", RACES_DIR, LANGUAGE_LIST);
+        snprintf(languagelist, 256, "%s%s", RacesDir, LanguageList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(languagelist, "r")) == NULL)
         {
                 perror(languagelist);
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
                 return;
         }
 
@@ -272,14 +272,14 @@ void load_languages(void)
         }
         FCLOSE(fpList);
         boot_log(" Done languages");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
 
-LANGUAGE_DATA *get_language(const char *string)
+LanguageData *get_language(const char *string)
 {
-        LANGUAGE_DATA *language;
+        LanguageData *language;
 
         for (language = first_language; language; language = language->next)
                 if (!str_cmp(string, language->name))
@@ -288,9 +288,9 @@ LANGUAGE_DATA *get_language(const char *string)
 }
 
 
-PROTOSHIP_DATA *get_protoship(char *name)
+ProtoshipData *get_protoship(char *name)
 {
-        PROTOSHIP_DATA *ship;
+        ProtoshipData *ship;
 
         for (ship = first_protoship; ship; ship = ship->next)
                 if (!str_cmp(name, ship->name))
@@ -306,7 +306,7 @@ PROTOSHIP_DATA *get_protoship(char *name)
 
 CMDF do_setlanguage(CharData * ch, char *argument)
 {
-        LANGUAGE_DATA *language;
+        LanguageData *language;
         char      arg1[MSL];
         char      arg2[MSL];
 
@@ -355,7 +355,7 @@ CMDF do_setlanguage(CharData * ch, char *argument)
 
 CMDF do_showlanguages(CharData * ch, char *argument)
 {
-        LANGUAGE_DATA *language;
+        LanguageData *language;
 
         argument = NULL;
 
@@ -366,7 +366,7 @@ CMDF do_showlanguages(CharData * ch, char *argument)
 
 CMDF do_makelanguage(CharData * ch, char *argument)
 {
-        LANGUAGE_DATA *language;
+        LanguageData *language;
         int       sn;
 
         for (language = first_language; language; language = language->next)
@@ -376,7 +376,7 @@ CMDF do_makelanguage(CharData * ch, char *argument)
                         return;
                 }
 
-        CREATE(language, LANGUAGE_DATA, 1);
+        CREATE(language, LanguageData, 1);
         language->next = NULL;
         language->prev = NULL;
         LINK(language, first_language, last_language, next, prev);
@@ -389,7 +389,7 @@ CMDF do_makelanguage(CharData * ch, char *argument)
         if ((sn = skill_lookup(language->name)) < 0)
         {
                 struct skill_type *skill;
-                sh_int    type = SKILL_TONGUE;
+                sh_int    type = SkillTongue;
 
                 ch_printf(ch,
                           "Language \"%s\" does not exist, attempting to create...",
@@ -415,11 +415,11 @@ CMDF do_makelanguage(CharData * ch, char *argument)
 }
 
 
-PROTOSHIP_DATA *create_protoship(void)
+ProtoshipData *create_protoship(void)
 {
-        PROTOSHIP_DATA *ship;
+        ProtoshipData *ship;
 
-        CREATE(ship, PROTOSHIP_DATA, 1);
+        CREATE(ship, ProtoshipData, 1);
         ship->name = STRALLOC("");
         ship->description = STRALLOC("");
         ship->mingroundspeed = 0;
@@ -469,11 +469,11 @@ PROTOSHIP_DATA *create_protoship(void)
 
 void write_protoship_list()
 {
-        PROTOSHIP_DATA *tprotoship;
+        ProtoshipData *tprotoship;
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, MSL, "%s%s", PROTOSHIP_DIR, PROTOSHIP_LIST);
+        snprintf(filename, MSL, "%s%s", ProtoshipDir, ProtoshipList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -489,7 +489,7 @@ void write_protoship_list()
         FCLOSE(fpout);
 }
 
-void save_protoship(PROTOSHIP_DATA * ship)
+void save_protoship(ProtoshipData * ship)
 {
         FILE     *fp;
         char      filename[256];
@@ -508,7 +508,7 @@ void save_protoship(PROTOSHIP_DATA * ship)
                 return;
         }
 
-        snprintf(filename, 256, "%s%s.proto", PROTOSHIP_DIR,
+        snprintf(filename, 256, "%s%s.proto", ProtoshipDir,
                  smash_space(ship->name));
 
         FCLOSE(fpReserve);
@@ -571,11 +571,11 @@ void save_protoship(PROTOSHIP_DATA * ship)
                 fprintf(fp, "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
-void fread_protoship(PROTOSHIP_DATA * ship, FILE * fp)
+void fread_protoship(ProtoshipData * ship, FILE * fp)
 {
         char      buf[MaxStringLength];
         const char *word;
@@ -703,7 +703,7 @@ void fread_protoship(PROTOSHIP_DATA * ship, FILE * fp)
 bool load_protoship_file(char *shipfile)
 {
         char      filename[256];
-        PROTOSHIP_DATA *ship;
+        ProtoshipData *ship;
         FILE     *fp;
         bool      found;
 
@@ -714,7 +714,7 @@ bool load_protoship_file(char *shipfile)
         }
 
         found = FALSE;
-        snprintf(filename, 256, "%s%s", PROTOSHIP_DIR, shipfile);
+        snprintf(filename, 256, "%s%s", ProtoshipDir, shipfile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -772,24 +772,24 @@ void load_protoships(void)
         const char *filename;
         char      shiplist[256];
         char      buf[MaxStringLength];
-        PROTOSHIP_DATA *ship;
+        ProtoshipData *ship;
 
 
         first_protoship = NULL;
         last_protoship = NULL;
 
 
-        CREATE(ship, PROTOSHIP_DATA, 1);
+        CREATE(ship, ProtoshipData, 1);
         LINK(ship, first_protoship, last_protoship, next, prev);
         ship->name = STRALLOC("generic");
         ship->description = STRALLOC("");
 
-        snprintf(shiplist, 256, "%s%s", PROTOSHIP_DIR, PROTOSHIP_LIST);
+        snprintf(shiplist, 256, "%s%s", ProtoshipDir, ProtoshipList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(shiplist, "r")) == NULL)
         {
                 perror(shiplist);
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
                 return;
         }
 
@@ -812,7 +812,7 @@ void load_protoships(void)
         }
         FCLOSE(fpList);
         boot_log(" Done Ship Prototypes ");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -820,9 +820,9 @@ CMDF do_setprotoship(CharData * ch, char *argument)
 {
         char      arg1[MaxInputLength];
         char      arg2[MaxInputLength];
-        PROTOSHIP_DATA *ship;
+        ProtoshipData *ship;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1243,9 +1243,9 @@ CMDF do_setprotoship(CharData * ch, char *argument)
 
 CMDF do_showprotoship(CharData * ch, char *argument)
 {
-        PROTOSHIP_DATA *ship;
+        ProtoshipData *ship;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1373,7 +1373,7 @@ CMDF do_showability(CharData * ch, char *argument)
                 for (iclass = 0; iclass < MaxAbility; iclass++)
                         ch_printf(ch, "-----&z+&B", ability_name[iclass]);
                 send_to_char("-----\n\r", ch);
-                FOR_EACH_LIST(RACE_LIST, races, race)
+                ForEachList(RaceList, races, race)
                 {
                         total = 0;
                         ch_printf(ch, "&BN&zame&w: &B[&w%-20s&B]&z|",
@@ -1396,7 +1396,7 @@ CMDF do_showability(CharData * ch, char *argument)
         {
                 if (!str_cmp(ability_name[iclass], argument))
                 {
-                        FOR_EACH_LIST(RACE_LIST, races, race)
+                        ForEachList(RaceList, races, race)
                         {
                                 pager_printf(ch,
                                              "&BN&zame&w:     &B[&w%-20s&B] &BR&zace Modifier&w: &B[&w%-3d&B]\n\r",
@@ -1409,11 +1409,11 @@ CMDF do_showability(CharData * ch, char *argument)
         return;
 }
 
-ILLNESS_DATA *create_illness(void)
+IllnessData *create_illness(void)
 {
-        ILLNESS_DATA *illness;
+        IllnessData *illness;
 
-        CREATE(illness, ILLNESS_DATA, 1);
+        CREATE(illness, IllnessData, 1);
         illness->name = STRALLOC("");
         illness->next = NULL;
         illness->prev = NULL;
@@ -1432,9 +1432,9 @@ void fwrite_illness_list(void)
 {
         FILE     *fp;
         char      filename[256];
-        ILLNESS_DATA *illness;
+        IllnessData *illness;
 
-        snprintf(filename, 256, "%s%s", ILLNESS_DIR, ILLNESS_LIST);
+        snprintf(filename, 256, "%s%s", IllnessDir, IllnessList);
         fp = fopen(filename, "w");
         if (!fp)
         {
@@ -1447,7 +1447,7 @@ void fwrite_illness_list(void)
         FCLOSE(fp);
 }
 
-void fwrite_illness(ILLNESS_DATA * illness)
+void fwrite_illness(IllnessData * illness)
 {
         FILE     *fp;
         char      filename[256];
@@ -1467,7 +1467,7 @@ void fwrite_illness(ILLNESS_DATA * illness)
                 return;
         }
 
-        snprintf(filename, MSL, "%s%s.illness", ILLNESS_DIR,
+        snprintf(filename, MSL, "%s%s.illness", IllnessDir,
                  smash_space(illness->name));
 
         FCLOSE(fpReserve);
@@ -1506,11 +1506,11 @@ void fwrite_illness(ILLNESS_DATA * illness)
                 fprintf(fp, "#END\n");
         }
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
-void fread_illness(ILLNESS_DATA * illness, FILE * fp)
+void fread_illness(IllnessData * illness, FILE * fp)
 {
         char      buf[MaxStringLength];
         const char *word;
@@ -1568,11 +1568,11 @@ void fread_illness(ILLNESS_DATA * illness, FILE * fp)
 bool load_illness_file(char *illnessfile)
 {
         char      filename[256];
-        ILLNESS_DATA *illness;
+        IllnessData *illness;
 
         FILE     *fp;
 
-        snprintf(filename, 256, "%s%s", ILLNESS_DIR, illnessfile);
+        snprintf(filename, 256, "%s%s", IllnessDir, illnessfile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -1632,12 +1632,12 @@ void load_illness(void)
         first_illness = NULL;
         last_illness = NULL;
 
-        snprintf(illnesslist, 256, "%s%s", ILLNESS_DIR, ILLNESS_LIST);
+        snprintf(illnesslist, 256, "%s%s", IllnessDir, IllnessList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(illnesslist, "r")) == NULL)
         {
                 perror(illnesslist);
-                fpReserve = fopen(NULL_FILE, "r");
+                fpReserve = fopen(NullFile, "r");
                 return;
         }
 
@@ -1656,13 +1656,13 @@ void load_illness(void)
         }
         FCLOSE(fpList);
         boot_log(" Done Illnesses");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
-ILLNESS_DATA *get_illness(char *string)
+IllnessData *get_illness(char *string)
 {
-        ILLNESS_DATA *illness;
+        IllnessData *illness;
 
         for (illness = first_illness; illness; illness = illness->next)
                 if (!str_cmp(string, illness->name))
@@ -1672,7 +1672,7 @@ ILLNESS_DATA *get_illness(char *string)
 
 CMDF do_makeillness(CharData * ch, char *argument)
 {
-        ILLNESS_DATA *illness = NULL;
+        IllnessData *illness = NULL;
 
         if (!argument || argument[0] == '\0')
         {
@@ -1702,7 +1702,7 @@ CMDF do_makeillness(CharData * ch, char *argument)
 
 CMDF do_showillness(CharData * ch, char *argument)
 {
-        ILLNESS_DATA *illness;
+        IllnessData *illness;
 
         if (NULLSTR(argument) || (illness = get_illness(argument)) == NULL)
         {
@@ -1754,7 +1754,7 @@ CMDF do_showillness(CharData * ch, char *argument)
 
 CMDF do_setillness(CharData * ch, char *argument)
 {
-        ILLNESS_DATA *illness;
+        IllnessData *illness;
         char      arg1[MSL];
         char      arg2[MSL];
 
@@ -1842,7 +1842,7 @@ CMDF do_setillness(CharData * ch, char *argument)
         send_to_char("Illness set.", ch);
 }
 
-void free_protoship(PROTOSHIP_DATA * ship)
+void free_protoship(ProtoshipData * ship)
 {
         if (ship->description)
                 STRFREE(ship->description);
@@ -1853,7 +1853,7 @@ void free_protoship(PROTOSHIP_DATA * ship)
         DISPOSE(ship);
 }
 
-void free_illness(ILLNESS_DATA * illness)
+void free_illness(IllnessData * illness)
 {
         if (illness->name)
                 STRFREE(illness->name);

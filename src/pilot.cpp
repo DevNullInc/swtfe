@@ -53,11 +53,11 @@ BodyData *get_body_here(SpaceData * star, char *name)
         if (!star)
                 return NULL;
 
-        FOR_EACH_LIST(BodyList, star->bodies, body)
+        ForEachList(BodyList, star->bodies, body)
                 if (!str_cmp(name, body->name()))
                 return body;
 
-        FOR_EACH_LIST(BodyList, star->bodies, body)
+        ForEachList(BodyList, star->bodies, body)
                 if (nifty_is_name_prefix(name, const_cast<char*>(body->name())))
                 return body;
         return NULL;
@@ -77,7 +77,7 @@ CMDF do_bomb(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(ch) || !ch->pcdata || !ch->in_room)
+        if (IsNpc(ch) || !ch->pcdata || !ch->in_room)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
                 return;
@@ -85,21 +85,21 @@ CMDF do_bomb(CharData * ch, char *argument)
 
         if (!(ship = ship_from_cockpit(ch->in_room->vnum)))
         {
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 send_to_char
                         ("You have to be in the cockpit of a ship to bomb a planet",
                          ch);
                 return;
         }
 
-        act(AT_PLAIN, "$n presses the fire button marked \"Space Bombs\".",
-            ch, NULL, argument, TO_ROOM);
-        act(AT_PLAIN, "You press the fire button marked \"Space Bombs\".", ch,
-            NULL, argument, TO_CHAR);
+        act(AtPlain, "$n presses the fire button marked \"Space Bombs\".",
+            ch, NULL, argument, ToRoom);
+        act(AtPlain, "You press the fire button marked \"Space Bombs\".", ch,
+            NULL, argument, ToChar);
 
-        if (IS_SET(ship->flags, SHIP_CLOAK))
+        if (IsSet(ship->flags, ShipCloak))
         {
-                echo_to_cockpit(AT_RED, ship,
+                echo_to_cockpit(AtRed, ship,
                                 "&B[&zShip Weapons&B]&w You are unable todo so when cloaked.");
                 return;
         }
@@ -107,12 +107,12 @@ CMDF do_bomb(CharData * ch, char *argument)
         if ((body = get_body_here(ship->starsystem, argument)) == NULL)
         {
                 send_to_char("You can't find that.", ch);
-                act(AT_PLAIN, "$n can't seem to find the target.", ch, NULL,
-                    argument, TO_ROOM);
+                act(AtPlain, "$n can't seem to find the target.", ch, NULL,
+                    argument, ToRoom);
                 return;
         }
 
-        if (ch->position <= POS_SLEEPING)
+        if (ch->position <= PosSleeping)
         {
                 send_to_char("In your dreams or what?\n\r", ch);
                 return;
@@ -120,7 +120,7 @@ CMDF do_bomb(CharData * ch, char *argument)
 
         if (ship->bombs <= 0)
         {
-                echo_to_cockpit(AT_RED, ship,
+                echo_to_cockpit(AtRed, ship,
                                 "&B[}RWARNING&B]&w You are out of bombs, trying to fire can damage your launcher!.");
                 return;
         }
@@ -138,9 +138,9 @@ CMDF do_bomb(CharData * ch, char *argument)
 
         ship->bombs--;
 
-        WAIT_STATE(ch, skill_table[gsn_bomb]->beats);
+        WaitState(ch, skill_table[gsn_bomb]->beats);
 
-        chance = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                      learned[gsn_bomb]);
 
         if (number_percent() > chance)
@@ -148,21 +148,21 @@ CMDF do_bomb(CharData * ch, char *argument)
                 snprintf(buf, MSL,
                          "%s's space bomb veers off course and crashes into an uninhabited area of %s",
                          ship->name, body->name());
-                echo_to_system(AT_SAY, ship, buf, NULL);
-                echo_to_cockpit(AT_YELLOW, ship,
+                echo_to_system(AtSay, ship, buf, NULL);
+                echo_to_cockpit(AtYellow, ship,
                                 "Your space bomb flies wide of the target.");
                 return;
         }
 
         snprintf(buf, MSL,
                  "&B[}RNOTICE&B]&w Sensors indicate %s drops a space bomb onto %s.",
-                 (IS_SET(ship->flags, SHIP_STEALTH) ? "a ship" : ship->name),
+                 (IsSet(ship->flags, ShipStealth) ? "a ship" : ship->name),
                  body->name());
-        echo_to_system(AT_LBLUE, ship, buf, ship);
+        echo_to_system(AtLblue, ship, buf, ship);
         snprintf(buf, MSL,
                  "&B[}RNOTICE&B]&w A space bomb drops slowly towards the surface of %s",
                  body->name());
-        echo_to_cockpit(AT_YELLOW, ship, buf);
+        echo_to_cockpit(AtYellow, ship, buf);
 
         if (body->planet())
                 body->planet()->pop_support =
@@ -171,7 +171,7 @@ CMDF do_bomb(CharData * ch, char *argument)
                                (ch->top_level / 50), 100);
 
 
-        if (body->planet() && !IS_SET(body->planet()->flags, PLANET_SHIELD))
+        if (body->planet() && !IsSet(body->planet()->flags, PlanetShield))
         {
                 CharData *vch;
 
@@ -183,11 +183,11 @@ CMDF do_bomb(CharData * ch, char *argument)
 			planet->controls--;
 			if ( planet->controls <= 0 )
 			{
-				REMOVE_BIT(planet->flags, PLANET_PSHIELD);
+				RemoveBit(planet->flags, PlanetPshield);
 				snprintf( buf, MSL, "&G&W[&R^zNOTICE&W^x] Sensors Indicate that %s's shields are now down" , planet->name);
-				echo_to_system( AT_SAY , ship , buf , NULL );
+				echo_to_system( AtSay , ship , buf , NULL );
 				snprintf( buf, MSL, "&G&W[&R^zNOTICE&W^x] Sensors Indicate that %s's shields are now down" , planet->name);
-				echo_to_cockpit( AT_YELLOW , ship , buf );
+				echo_to_cockpit( AtYellow , ship , buf );
 			}
 		}*/
 
@@ -206,7 +206,7 @@ CMDF do_bomb(CharData * ch, char *argument)
                 for (d = first_descriptor; d; d = d->next)
                 {
                         vch = d->character;
-                        if (!IS_PLAYING(d))
+                        if (!IsPlaying(d))
                                 continue;
                         if (!vch->in_room->area->planet)
                                 continue;
@@ -214,7 +214,7 @@ CMDF do_bomb(CharData * ch, char *argument)
                             vch->in_room->area->planet->body != body)
                                 continue;
 
-                        if (IS_OUTSIDE(vch))
+                        if (IsOutside(vch))
                         {
                                 switch (number)
                                 {
@@ -268,7 +268,7 @@ CMDF do_bomb(CharData * ch, char *argument)
                         }
                         update_pos(vch);
                 }
-                echo_to_cockpit(AT_YELLOW, ship,
+                echo_to_cockpit(AtYellow, ship,
                                 "You notice the bomb exploding on the shielding.");
         }
         /*
@@ -284,18 +284,18 @@ CMDF do_bomb(CharData * ch, char *argument)
 			planet->controls--;
 			if ( planet->controls <= 0 )
 			{
-				REMOVE_BIT(planet->flags, PLANET_PSHIELD);
+				RemoveBit(planet->flags, PlanetPshield);
 				snprintf( buf, MSL, "&G&W[&R^zNOTICE&W^x] Sensors Indicate that %s's shields are now down" , planet->name);
-				echo_to_system( AT_SAY , ship , buf , NULL );
+				echo_to_system( AtSay , ship , buf , NULL );
 				snprintf( buf, MSL, "&G&W[&R^zNOTICE&W^x] Sensors Indicate that %s's shields are now down" , planet->name);
-				echo_to_cockpit( AT_YELLOW , ship , buf );
+				echo_to_cockpit( AtYellow , ship , buf );
 			}
 		}*/
 
                 for (d = first_descriptor; d; d = d->next)
                 {
                         vch = d->character;
-                        if (!IS_PLAYING(d))
+                        if (!IsPlaying(d))
                                 continue;
                         if (!vch->in_room->area->planet)
                                 continue;
@@ -303,7 +303,7 @@ CMDF do_bomb(CharData * ch, char *argument)
                             vch->in_room->area->planet->body != body)
                                 continue;
 
-                        if (IS_OUTSIDE(vch))
+                        if (IsOutside(vch))
                                 send_to_char
                                         ("Up above, you notice a bright light!",
                                          vch);
@@ -312,11 +312,11 @@ CMDF do_bomb(CharData * ch, char *argument)
                                         ("You hear an explosion high above you.!",
                                          vch);
                 }
-                echo_to_cockpit(AT_YELLOW, ship,
+                echo_to_cockpit(AtYellow, ship,
                                 "You notice the bomb exploding on the surface");
         }
 
-        gain_exp(ch, (10 /*Shield Mod */ ) * 100, PILOTING_ABILITY);
+        gain_exp(ch, (10 /*Shield Mod */ ) * 100, PilotingAbility);
         ch_printf(ch, "You gain %d piloting experience.\n\r",
                   (10 /*shield Mod */ ) * 100);
         learn_from_success(ch, gsn_bomb);
@@ -345,7 +345,7 @@ CMDF do_dock(CharData * ch, char *argument)
                 return;
         }
 
-        if (ship->ship_class > SHIP_PLATFORM)
+        if (ship->ship_class > ShipPlatform)
         {
                 send_to_char("&RThis isn't a spacecraft!\n\r", ch);
                 return;
@@ -365,21 +365,21 @@ CMDF do_dock(CharData * ch, char *argument)
         }
 
 
-        if (ship->shipstate == SHIP_DISABLED)
+        if (ship->shipstate == ShipDisabled)
         {
                 send_to_char("&RYour ship is disabled. You can't dock.\n\r",
                              ch);
                 return;
         }
 
-        if (ship->shipstate == SHIP_HYPERSPACE)
+        if (ship->shipstate == ShipHyperspace)
         {
 
                 send_to_char("&RYou can only do that in realspace!\n\r", ch);
                 return;
         }
 
-        if (ship->shipstate != SHIP_READY)
+        if (ship->shipstate != ShipReady)
         {
                 send_to_char
                         ("&RPlease wait until the ship has finished its current manouver.\n\r",
@@ -401,7 +401,7 @@ CMDF do_dock(CharData * ch, char *argument)
                 return;
         }
 
-        if (target->shipstate != SHIP_DISABLED && target->currspeed > 0)
+        if (target->shipstate != ShipDisabled && target->currspeed > 0)
         {
                 send_to_char
                         ("&RThat ship is not suffeciently disabled to dock with it!\n\r",
@@ -409,7 +409,7 @@ CMDF do_dock(CharData * ch, char *argument)
                 return;
         }
 
-        if (target->shipstate == SHIP_LAND)
+        if (target->shipstate == ShipLand)
         {
                 send_to_char
                         ("&RThat ship is already in a landing sequence.\n\r",
@@ -436,7 +436,7 @@ CMDF do_dock(CharData * ch, char *argument)
                 return;
         }
 
-        if (target->ship_class == SHIP_PLATFORM)
+        if (target->ship_class == ShipPlatform)
         {
                 send_to_char("&RYou can't dock to a platforms.\n\r", ch);
                 return;
@@ -449,7 +449,7 @@ CMDF do_dock(CharData * ch, char *argument)
         }
 
         percent_chance =
-                IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_dock]);
 
         /*
@@ -458,16 +458,16 @@ CMDF do_dock(CharData * ch, char *argument)
 
         if (number_percent() < percent_chance)
         {
-                set_char_color(AT_GREEN, ch);
+                set_char_color(AtGreen, ch);
                 send_to_char("Docking sequence initiated.\n\r", ch);
-                act(AT_PLAIN, "$n begins to dock with the target.", ch, NULL,
-                    argument, TO_ROOM);
-                echo_to_ship(AT_YELLOW, target,
+                act(AtPlain, "$n begins to dock with the target.", ch, NULL,
+                    argument, ToRoom);
+                echo_to_ship(AtYellow, target,
                              "ALERT: Your ship is being docked!");
                 snprintf(buf, MSL, "You are being docked by %s.", ship->name);
-                echo_to_cockpit(AT_BLOOD, target, buf);
-                WAIT_STATE(ch, 10);
-                echo_to_ship(AT_RED, ship, "Docking sequence Complete.\n\r");
+                echo_to_cockpit(AtBlood, target, buf);
+                WaitState(ch, 10);
+                echo_to_ship(AtRed, ship, "Docking sequence Complete.\n\r");
 
                 ship->currspeed = target->currspeed = 0;
                 ship->vx = target->vx;
@@ -490,12 +490,12 @@ CMDF do_dock(CharData * ch, char *argument)
         damage_ship(ship, 10, 20);
         damage_ship(target, 10, 20);
         send_to_char("You fail to work the controls properly.\n\r", ch);
-        echo_to_ship(AT_YELLOW, target,
+        echo_to_ship(AtYellow, target,
                      "The ship shudders and then continues as someone tries to dock to you!.");
-        echo_to_ship(AT_YELLOW, ship,
+        echo_to_ship(AtYellow, ship,
                      "The ship shudders and then continues as the ship tries to dock with someone!.");
         snprintf(buf, MSL, "The %s attempted to dock your ship!", ship->name);
-        echo_to_cockpit(AT_BLOOD, target, buf);
+        echo_to_cockpit(AtBlood, target, buf);
         if (autofly(target) && !target->target0)
                 target->target0 = ship;
 
@@ -513,12 +513,12 @@ CMDF do_undock(CharData * ch, char *argument)
         argument = NULL;
 
         percent_chance =
-                IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_dock]);
         if (percent_chance == 0)
         {
                 /*
-                 * interp("dock", ch) or UNKNOWN_COMMAND instead of magic phrase - Gavin 
+                 * interp("dock", ch) or UnknownCommand instead of magic phrase - Gavin 
                  */
                 send_to_char("Huh?", ch);
                 return;
@@ -533,7 +533,7 @@ CMDF do_undock(CharData * ch, char *argument)
                 return;
         }
 
-        if (ship->ship_class > SHIP_PLATFORM)
+        if (ship->ship_class > ShipPlatform)
         {
                 send_to_char("&RThis isn't a spacecraft!\n\r", ch);
                 return;
@@ -557,14 +557,14 @@ CMDF do_undock(CharData * ch, char *argument)
                 return;
         }
 
-        if (ship->shipstate == SHIP_DISABLED)
+        if (ship->shipstate == ShipDisabled)
         {
                 send_to_char("&RYour ship is disabled. You can't undock.\n\r",
                              ch);
                 return;
         }
 
-        if (ship->shipstate != SHIP_READY)
+        if (ship->shipstate != ShipReady)
         {
                 send_to_char
                         ("&RPlease wait until the ship has finished its current manouver.\n\r",
@@ -579,7 +579,7 @@ CMDF do_undock(CharData * ch, char *argument)
         }
 
         percent_chance =
-                IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_dock]);
 
         /*
@@ -588,29 +588,29 @@ CMDF do_undock(CharData * ch, char *argument)
 
         if (number_percent() < percent_chance)
         {
-                set_char_color(AT_GREEN, ch);
+                set_char_color(AtGreen, ch);
                 send_to_char("Undocking sequence initiated.\n\r", ch);
-                act(AT_PLAIN, "$n begins detaching with $t.", ch,
-                    ship->dockedto->name, NULL, TO_ROOM);
-                echo_to_ship(AT_YELLOW, ship->dockedto,
+                act(AtPlain, "$n begins detaching with $t.", ch,
+                    ship->dockedto->name, NULL, ToRoom);
+                echo_to_ship(AtYellow, ship->dockedto,
                              "ALERT: Your ship is undocking!");
                 snprintf(buf, MSL, "You are seperating from %s.", ship->name);
-                echo_to_cockpit(AT_BLOOD, ship->dockedto, buf);
-                WAIT_STATE(ch, 10);
-                echo_to_ship(AT_RED, ship, "Ship seperation Complete.\n\r");
-                echo_to_ship(AT_RED, ship->dockedto,
+                echo_to_cockpit(AtBlood, ship->dockedto, buf);
+                WaitState(ch, 10);
+                echo_to_ship(AtRed, ship, "Ship seperation Complete.\n\r");
+                echo_to_ship(AtRed, ship->dockedto,
                              "Ship seperation Complete.\n\r");
 
                 if (ship->dockedto->hatchopen)
                 {
-                        echo_to_ship(AT_RED, ship->dockedto,
+                        echo_to_ship(AtRed, ship->dockedto,
                                      "Warning: Hatch left open, damaging shipe.\n\r");
                         damage_ship(ship->dockedto, 10, 20);
                         ship->dockedto->hatchopen = FALSE;
                 }
                 if (ship->hatchopen)
                 {
-                        echo_to_ship(AT_RED, ship,
+                        echo_to_ship(AtRed, ship,
                                      "Warning: Hatch left open, damaging shipe.\n\r");
                         damage_ship(ship, 10, 20);
                         ship->hatchopen = FALSE;
@@ -625,9 +625,9 @@ CMDF do_undock(CharData * ch, char *argument)
         damage_ship(ship, 10, 20);
         damage_ship(ship->dockedto, 10, 20);
         send_to_char("You fail to work the controls properly.\n\r", ch);
-        echo_to_ship(AT_YELLOW, ship->dockedto,
+        echo_to_ship(AtYellow, ship->dockedto,
                      "The ship shudders and sounds of scraping can be heard as the ships try to seperate.");
-        echo_to_ship(AT_YELLOW, ship,
+        echo_to_ship(AtYellow, ship,
                      "The ship shudders and sounds of scraping can be heard as the ships try to seperate.");
 
         learn_from_failure(ch, gsn_dock);
@@ -655,13 +655,13 @@ CMDF do_extrapolate(CharData * ch, char *argument)
                 return;
         }
 
-        if (ship->ship_class > SHIP_PLATFORM)
+        if (ship->ship_class > ShipPlatform)
         {
                 send_to_char("&RThis isn't a spacecraft!\n\r", ch);
                 return;
         }
 
-        if (ship->shipstate == SHIP_DOCKED)
+        if (ship->shipstate == ShipDocked)
         {
                 send_to_char
                         ("&RYou can't do that until after you've launched!\n\r",
@@ -678,7 +678,7 @@ CMDF do_extrapolate(CharData * ch, char *argument)
         }
 
         percent_chance =
-                IS_NPC(ch) ? ch->top_level : ch->pcdata->
+                IsNpc(ch) ? ch->top_level : ch->pcdata->
                 learned[gsn_extrapolate];
         if (percent_chance < number_percent())
         {
@@ -700,7 +700,7 @@ CMDF do_extrapolate(CharData * ch, char *argument)
         send_to_char
                 ("&C---------------------------------------------------------------\n\r",
                  ch);
-        set_char_color(AT_LBLUE, ch);
+        set_char_color(AtLblue, ch);
         ch_printf(ch, " %-20.20s %-5d %-5d %-5d (%s)\n\r",
                   body->name(), body->xpos(), body->ypos(), body->zpos(),
                   percent_chance > 50
@@ -711,7 +711,7 @@ CMDF do_extrapolate(CharData * ch, char *argument)
                  ch);
 
         xp = (number_percent());
-        gain_exp(ch, xp, PILOTING_ABILITY);
+        gain_exp(ch, xp, PilotingAbility);
         ch_printf(ch, "&YYou gain %ld piloting experience!\n\r", xp);
         learn_from_success(ch, gsn_extrapolate);
         return;

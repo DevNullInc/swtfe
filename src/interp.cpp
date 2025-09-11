@@ -84,38 +84,38 @@ bool check_pos(CharData * ch, sh_int position)
         {
                 switch (ch->position)
                 {
-                case POS_DEAD:
+                case PosDead:
                         send_to_char
                                 ("A little difficult to do when you are DEAD...\n\r",
                                  ch);
                         break;
 
-                case POS_MORTAL:
-                case POS_INCAP:
+                case PosMortal:
+                case PosIncap:
                         send_to_char("You are hurt far too bad for that.\n\r",
                                      ch);
                         break;
 
-                case POS_STUNNED:
+                case PosStunned:
                         send_to_char("You are too stunned to do that.\n\r",
                                      ch);
                         break;
 
-                case POS_SLEEPING:
+                case PosSleeping:
                         send_to_char("In your dreams, or what?\n\r", ch);
                         break;
 
-                case POS_RESTING:
+                case PosResting:
                         send_to_char("Nah... You feel too relaxed...\n\r",
                                      ch);
                         break;
 
-                case POS_SITTING:
+                case PosSitting:
                         send_to_char("You can't do that sitting down.\n\r",
                                      ch);
                         break;
 
-                case POS_FIGHTING:
+                case PosFighting:
                         send_to_char("No way!  You are still fighting!\n\r",
                                      ch);
                         break;
@@ -220,16 +220,16 @@ void interpret(CharData * ch, char *argument)
                 if (argument[0] == '\0')
                         return;
 
-                timer = get_timerptr(ch, TIMER_DO_FUN);
+                timer = get_timerptr(ch, TimerDoFun);
 
                 /*
-                 * REMOVE_BIT( ch->affected_by, AFF_HIDE ); 
+                 * RemoveBit( ch->affected_by, AffHide ); 
                  */
 
                 /*
                  * Implement freeze command.
                  */
-                if (!IS_NPC(ch) && IS_SET(ch->act, PLR_FREEZE))
+                if (!IsNpc(ch) && IsSet(ch->act, PlrFreeze))
                 {
                         send_to_char("You're totally frozen!\n\r", ch);
                         return;
@@ -264,7 +264,7 @@ void interpret(CharData * ch, char *argument)
                      cmd = cmd->next)
                         if (!str_prefix(command, cmd->name)
                             && (check_command(ch, cmd)
-                                || (!IS_NPC(ch) && ch->pcdata->bestowments
+                                || (!IsNpc(ch) && ch->pcdata->bestowments
                                     && ch->pcdata->bestowments[0] != '\0'
                                     && is_name(cmd->name,
                                                ch->pcdata->bestowments))))
@@ -276,11 +276,11 @@ void interpret(CharData * ch, char *argument)
                 /*
                  * Turn off afk bit when any command performed.
                  */
-                if (IS_SET(ch->act, PLR_AFK) && (str_cmp(command, "AFK")))
+                if (IsSet(ch->act, PlrAfk) && (str_cmp(command, "AFK")))
                 {
-                        REMOVE_BIT(ch->act, PLR_AFK);
-                        act(AT_GREY, "$n is no longer afk.", ch, NULL, NULL,
-                            TO_ROOM);
+                        RemoveBit(ch->act, PlrAfk);
+                        act(AtGrey, "$n is no longer afk.", ch, NULL, NULL,
+                            ToRoom);
                 }
         }
 
@@ -289,26 +289,26 @@ void interpret(CharData * ch, char *argument)
          */
                 snprintf(lastplayercmd, MSL, "** %s: %s", ch->name, logline);
 
-        if (found && cmd->log == LOG_NEVER)
+        if (found && cmd->log == LogNever)
                 mudstrlcpy(logline, "XXXXXXXX XXXXXXXX XXXXXXXX", MIL);
 
-        loglvl = found ? cmd->log : (int) LOG_NORMAL;
+        loglvl = found ? cmd->log : (int) LogNormal;
 
         /*
          * Write input line to watch files if applicable
          */
-        if (!IS_NPC(ch) && ch->desc && valid_watch(logline))
+        if (!IsNpc(ch) && ch->desc && valid_watch(logline))
         {
-                if (found && IS_SET(cmd->flags, CMD_WATCH))
+                if (found && IsSet(cmd->flags, CmdWatch))
                         write_watch_files(ch, cmd, logline);
-                else if (IS_SET(ch->pcdata->flags, PCFLAG_WATCH))
+                else if (IsSet(ch->pcdata->flags, PcflagWatch))
                         write_watch_files(ch, NULL, logline);
         }
 
-        if ((!IS_NPC(ch) && IS_SET(ch->act, PLR_LOG))
+        if ((!IsNpc(ch) && IsSet(ch->act, PlrLog))
             || fLogAll
-            || loglvl == LOG_BUILD
-            || loglvl == LOG_HIGH || loglvl == LOG_ALWAYS)
+            || loglvl == LogBuild
+            || loglvl == LogHigh || loglvl == LogAlways)
         {
                 /*
                  * Added by Narn to show who is switched into a mob that executes
@@ -325,9 +325,9 @@ void interpret(CharData * ch, char *argument)
                  * Make it so a 'log all' will send most output to the log
                  * file only, and not spam the log channel to death -Thoric
                  */
-                if (fLogAll && loglvl == LOG_NORMAL
-                    && (IS_NPC(ch) || !IS_SET(ch->act, PLR_LOG)))
-                        loglvl = LOG_ALL;
+                if (fLogAll && loglvl == LogNormal
+                    && (IsNpc(ch) || !IsSet(ch->act, PlrLog)))
+                        loglvl = LogAll;
 
                 log_string_plus(log_buf, loglvl, get_trust(ch));
         }
@@ -339,7 +339,7 @@ void interpret(CharData * ch, char *argument)
                 write_to_buffer(ch->desc->snoop_by, "% ", 2);
                 write_to_buffer(ch->desc->snoop_by, logline, 0);
                 write_to_buffer(ch->desc->snoop_by, "\n\r", 2);
-                append_file(ch, LOG_FILE, logline);
+                append_file(ch, LogFile, logline);
         }
 
 
@@ -349,14 +349,14 @@ void interpret(CharData * ch, char *argument)
                 /*
                  * all imm commands are ooc 
                  */
-                if (IS_SET(cmd->flags, CMD_OOC)
+                if (IsSet(cmd->flags, CmdOoc)
                     || cmd->level > LevelImmortal)
                         ooc = TRUE;
-                if (IS_SET(cmd->flags, CMD_HELD))
+                if (IsSet(cmd->flags, CmdHeld))
                         held = TRUE;
 
-				if (IS_SET(cmd->flags, CMD_FULLNAME) && strcmp(command,cmd->name) ) {
-					set_char_color(AT_RED, ch);
+				if (IsSet(cmd->flags, CmdFullname) && strcmp(command,cmd->name) ) {
+					set_char_color(AtRed, ch);
 					ch_printf(ch, "If you want to %s, you have to spell it out.\n\r",strupper(cmd->name));
 					return;
 				}
@@ -376,10 +376,10 @@ void interpret(CharData * ch, char *argument)
         }
         if (!found)
         {
-                CHANNEL_DATA *channel;
+                ChannelData *channel;
 
                 if ((channel = get_channel(command)) != NULL
-                    && channel->type == CHANNEL_OOC)
+                    && channel->type == ChannelOoc)
                         chan = TRUE;
         }
 
@@ -430,19 +430,19 @@ void interpret(CharData * ch, char *argument)
                          * check for an auto-matic exit command 
                          */
                         if ((pexit = find_door(ch, command, TRUE)) != NULL
-                            && IS_SET(pexit->exit_info, EX_xAUTO))
+                            && IsSet(pexit->exit_info, EX_xAUTO))
                         {
-                                if (IS_SET(pexit->exit_info, EX_CLOSED)
-                                    && (!IS_AFFECTED(ch, AFF_PASS_DOOR)
-                                        || IS_SET(pexit->exit_info,
-                                                  EX_NOPASSDOOR)))
+                                if (IsSet(pexit->exit_info, ExClosed)
+                                    && (!IsAffected(ch, AffPassDoor)
+                                        || IsSet(pexit->exit_info,
+                                                  ExNopassdoor)))
                                 {
-                                        if (!IS_SET
-                                            (pexit->exit_info, EX_SECRET))
-                                                act(AT_PLAIN,
+                                        if (!IsSet
+                                            (pexit->exit_info, ExSecret))
+                                                act(AtPlain,
                                                     "The $d is closed.", ch,
                                                     NULL, pexit->keyword,
-                                                    TO_CHAR);
+                                                    ToChar);
                                         else
                                                 send_to_char
                                                         ("You cannot do that here.\n\r",
@@ -467,7 +467,7 @@ void interpret(CharData * ch, char *argument)
          * Berserk check for flee.. maybe add drunk to this?.. but too much
          * hardcoding is annoying.. -- Altrag 
          */
-        if (!str_cmp(cmd->name, "flee") && IS_AFFECTED(ch, AFF_BERSERK))
+        if (!str_cmp(cmd->name, "flee") && IsAffected(ch, AffBerserk))
         {
                 send_to_char("You aren't thinking very clearly..\n\r", ch);
                 return;
@@ -495,10 +495,10 @@ void interpret(CharData * ch, char *argument)
                 snprintf(log_buf, MSL,
                          "[*****] LAG: %s: %s %s (R:%d S:%d.%06d)", ch->name,
                          cmd->name,
-                         (cmd->log == LOG_NEVER ? "XXX" : argument),
+                         (cmd->log == LogNever ? "XXX" : argument),
                          ch->in_room ? ch->in_room->vnum : 0,
                          (int) (time_used.tv_sec), (int) (time_used.tv_usec));
-                log_string_plus(log_buf, LOG_NORMAL, get_trust(ch));
+                log_string_plus(log_buf, LogNormal, get_trust(ch));
         }
 
         if (!sysdata.PORT && string_count < allocated_strings())
@@ -581,7 +581,7 @@ bool check_social(CharData * ch, char *command, char *argument)
         if ((social = find_social(command)) == NULL)
                 return FALSE;
 
-        if (!IS_NPC(ch) && IS_SET(ch->act, PLR_NO_EMOTE))
+        if (!IsNpc(ch) && IsSet(ch->act, PlrNoEmote))
         {
                 send_to_char("You are anti-social!\n\r", ch);
                 return TRUE;
@@ -589,20 +589,20 @@ bool check_social(CharData * ch, char *command, char *argument)
 
         switch (ch->position)
         {
-        case POS_DEAD:
+        case PosDead:
                 send_to_char("Lie still; you are DEAD.\n\r", ch);
                 return TRUE;
 
-        case POS_INCAP:
-        case POS_MORTAL:
+        case PosIncap:
+        case PosMortal:
                 send_to_char("You are hurt far too bad for that.\n\r", ch);
                 return TRUE;
 
-        case POS_STUNNED:
+        case PosStunned:
                 send_to_char("You are too stunned to do that.\n\r", ch);
                 return TRUE;
 
-        case POS_SLEEPING:
+        case PosSleeping:
                 /*
                  * I just know this is the path to a 12" 'if' statement.  :(
                  * But two players asked for it already!  -- Furey
@@ -618,10 +618,10 @@ bool check_social(CharData * ch, char *command, char *argument)
         victim = NULL;
         if (arg[0] == '\0')
         {
-                act(AT_SOCIAL, social->others_no_arg, ch, NULL, victim,
-                    TO_ROOM);
-                act(AT_SOCIAL, social->char_no_arg, ch, NULL, victim,
-                    TO_CHAR);
+                act(AtSocial, social->others_no_arg, ch, NULL, victim,
+                    ToRoom);
+                act(AtSocial, social->char_no_arg, ch, NULL, victim,
+                    ToChar);
         }
         else if ((victim = get_char_room(ch, arg)) == NULL)
         {
@@ -629,48 +629,48 @@ bool check_social(CharData * ch, char *command, char *argument)
         }
         else if (victim == ch)
         {
-                act(AT_SOCIAL, social->others_auto, ch, NULL, victim,
-                    TO_ROOM);
-                act(AT_SOCIAL, social->char_auto, ch, NULL, victim, TO_CHAR);
+                act(AtSocial, social->others_auto, ch, NULL, victim,
+                    ToRoom);
+                act(AtSocial, social->char_auto, ch, NULL, victim, ToChar);
         }
         else
         {
-                act(AT_SOCIAL, social->others_found, ch, NULL, victim,
-                    TO_NOTVICT);
-                act(AT_SOCIAL, social->char_found, ch, NULL, victim, TO_CHAR);
-                act(AT_SOCIAL, social->vict_found, ch, NULL, victim, TO_VICT);
+                act(AtSocial, social->others_found, ch, NULL, victim,
+                    ToNotvict);
+                act(AtSocial, social->char_found, ch, NULL, victim, ToChar);
+                act(AtSocial, social->vict_found, ch, NULL, victim, ToVict);
 
-                if (!IS_NPC(ch) && IS_NPC(victim)
-                    && !IS_AFFECTED(victim, AFF_CHARM)
-                    && IS_AWAKE(victim)
-                    && !IS_SET(victim->pIndexData->progtypes, ACT_PROG))
+                if (!IsNpc(ch) && IsNpc(victim)
+                    && !IsAffected(victim, AffCharm)
+                    && IsAwake(victim)
+                    && !IsSet(victim->pIndexData->progtypes, ActProg))
                 {
                         switch (number_bits(4))
                         {
                         case 0:
                                 if (!xIS_SET
-                                    (ch->in_room->RoomFlags, ROOM_SAFE)
-                                    || IS_EVIL(ch))
-                                        multi_hit(victim, ch, TYPE_UNDEFINED);
-                                else if (IS_NEUTRAL(ch))
+                                    (ch->in_room->RoomFlags, RoomSafe)
+                                    || IsEvil(ch))
+                                        multi_hit(victim, ch, TypeUndefined);
+                                else if (IsNeutral(ch))
                                 {
-                                        act(AT_ACTION, "$n slaps $N.", victim,
-                                            NULL, ch, TO_NOTVICT);
-                                        act(AT_ACTION, "You slap $N.", victim,
-                                            NULL, ch, TO_CHAR);
-                                        act(AT_ACTION, "$n slaps you.",
-                                            victim, NULL, ch, TO_VICT);
+                                        act(AtAction, "$n slaps $N.", victim,
+                                            NULL, ch, ToNotvict);
+                                        act(AtAction, "You slap $N.", victim,
+                                            NULL, ch, ToChar);
+                                        act(AtAction, "$n slaps you.",
+                                            victim, NULL, ch, ToVict);
                                 }
                                 else
                                 {
-                                        act(AT_ACTION,
+                                        act(AtAction,
                                             "$n acts like $N doesn't even exist.",
-                                            victim, NULL, ch, TO_NOTVICT);
-                                        act(AT_ACTION, "You just ignore $N.",
-                                            victim, NULL, ch, TO_CHAR);
-                                        act(AT_ACTION,
+                                            victim, NULL, ch, ToNotvict);
+                                        act(AtAction, "You just ignore $N.",
+                                            victim, NULL, ch, ToChar);
+                                        act(AtAction,
                                             "$n appears to be ignoring you.",
-                                            victim, NULL, ch, TO_VICT);
+                                            victim, NULL, ch, ToVict);
                                 }
                                 break;
 
@@ -682,24 +682,24 @@ bool check_social(CharData * ch, char *command, char *argument)
                         case 6:
                         case 7:
                         case 8:
-                                act(AT_SOCIAL, social->others_found,
-                                    victim, NULL, ch, TO_NOTVICT);
-                                act(AT_SOCIAL, social->char_found,
-                                    victim, NULL, ch, TO_CHAR);
-                                act(AT_SOCIAL, social->vict_found,
-                                    victim, NULL, ch, TO_VICT);
+                                act(AtSocial, social->others_found,
+                                    victim, NULL, ch, ToNotvict);
+                                act(AtSocial, social->char_found,
+                                    victim, NULL, ch, ToChar);
+                                act(AtSocial, social->vict_found,
+                                    victim, NULL, ch, ToVict);
                                 break;
 
                         case 9:
                         case 10:
                         case 11:
                         case 12:
-                                act(AT_ACTION, "$n slaps $N.", victim, NULL,
-                                    ch, TO_NOTVICT);
-                                act(AT_ACTION, "You slap $N.", victim, NULL,
-                                    ch, TO_CHAR);
-                                act(AT_ACTION, "$n slaps you.", victim, NULL,
-                                    ch, TO_VICT);
+                                act(AtAction, "$n slaps $N.", victim, NULL,
+                                    ch, ToNotvict);
+                                act(AtAction, "You slap $N.", victim, NULL,
+                                    ch, ToChar);
+                                act(AtAction, "$n slaps you.", victim, NULL,
+                                    ch, ToVict);
                                 break;
                         }
                 }
@@ -785,14 +785,14 @@ CMDF do_timecmd(CharData * ch, char *argument)
                 }
                 return;
         }
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         send_to_char("Starting timer.\n\r", ch);
         timing = TRUE;
         gettimeofday(&systime, NULL);
         interpret(ch, argument);
         gettimeofday(&etime, NULL);
         timing = FALSE;
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         send_to_char("Timing complete.\n\r", ch);
         subtract_times(&etime, &systime);
         ch_printf(ch, "Timing took %d.%06d seconds.\n\r",
@@ -885,7 +885,7 @@ bool check_command(CharData * ch, CMDType * command)
         if (ch->desc && ch->desc->original)
                 ch = ch->desc->original;
 
-        if (!IS_IMMORTAL(ch))
+        if (!IsImmortal(ch))
         {
                 if (command->level <= get_trust(ch))
                         return TRUE;
@@ -896,17 +896,17 @@ bool check_command(CharData * ch, CMDType * command)
         if (command->level < (MaxLevel - 4))
                 return TRUE;
 
-        if (!ch || IS_NPC(ch) || !ch->pcdata || !ch->pcdata->godflags)
+        if (!ch || IsNpc(ch) || !ch->pcdata || !ch->pcdata->godflags)
                 return FALSE;
 
-        if (command->perm_flags == 0 || IS_SET(ch->pcdata->godflags, IMM_ALL)
-            || IS_SET(ch->pcdata->godflags, IMM_OWNER)
-            || IS_SET(command->perm_flags, COMMAND_ALL))
+        if (command->perm_flags == 0 || IsSet(ch->pcdata->godflags, ImmAll)
+            || IsSet(ch->pcdata->godflags, ImmOwner)
+            || IsSet(command->perm_flags, CommandAll))
                 return TRUE;
 
         for (i = 0; i < 32; i++)
-                if (IS_SET(ch->pcdata->godflags, 1 << i)
-                    && IS_SET(command->perm_flags, 1 << i))
+                if (IsSet(ch->pcdata->godflags, 1 << i)
+                    && IsSet(command->perm_flags, 1 << i))
                         return TRUE;
 
         return FALSE;
@@ -985,7 +985,7 @@ void write_watch_files(CharData * ch, CMDType * cmd, char *logline)
                                                      ch->pcdata->Account->
                                                      name))))
                                 {
-                                        sprintf(fname, "%s%s", WATCH_DIR,
+                                        sprintf(fname, "%s%s", WatchDir,
                                                 strlower(pw->imm_name));
                                         if (!(fp = fopen(fname, "a+")))
                                         {
@@ -1022,7 +1022,7 @@ void write_watch_files(CharData * ch, CMDType * cmd, char *logline)
                                              ch->pcdata->Account->name)))
                             && get_trust(ch) < pw->imm_level && ch->desc)
                         {
-                                sprintf(fname, "%s%s", WATCH_DIR,
+                                sprintf(fname, "%s%s", WatchDir,
                                         strlower(pw->imm_name));
                                 if (!(fp = fopen(fname, "a+")))
                                 {

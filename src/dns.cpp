@@ -63,17 +63,17 @@
 #include "mud.hpp"
 
 
-DNS_DATA *first_cache = nullptr;
-DNS_DATA *last_cache = nullptr;
+DnsData *first_cache = nullptr;
+DnsData *last_cache = nullptr;
 
 void      save_dns(void);
 
 
 void prune_dns()
 {
-        DNS_DATA *cache = first_cache;
+        DnsData *cache = first_cache;
         while (cache) {
-                DNS_DATA *cache_next = cache->next;
+                DnsData *cache_next = cache->next;
                 if (current_time - cache->time >= 1209600
                         || cache->ip == "Unknown??"
                         || cache->name == "Unknown??") {
@@ -99,7 +99,7 @@ void check_dns(void)
 
 void add_dns(const std::string& dhost, const std::string& address)
 {
-        auto* cache = new DNS_DATA;
+        auto* cache = new DnsData;
         cache->ip = dhost;
         cache->name = address;
         cache->time = current_time;
@@ -114,7 +114,7 @@ void add_dns(const std::string& dhost, const std::string& address)
 
 std::string in_dns_cache(const std::string& ip)
 {
-        for (DNS_DATA* cache = first_cache; cache; cache = cache->next) {
+        for (DnsData* cache = first_cache; cache; cache = cache->next) {
                 if (ip == cache->ip) {
                         return cache->name;
                 }
@@ -122,7 +122,7 @@ std::string in_dns_cache(const std::string& ip)
         return "";
 }
 
-void fread_dns(DNS_DATA * cache, FILE * fp)
+void fread_dns(DnsData * cache, FILE * fp)
 {
         char     *word;
         bool      fMatch;
@@ -171,13 +171,13 @@ void fread_dns(DNS_DATA * cache, FILE * fp)
 void load_dns(void)
 {
         char      filename[256];
-        DNS_DATA *cache;
+        DnsData *cache;
         FILE     *fp;
 
         first_cache = NULL;
         last_cache = NULL;
 
-        snprintf(filename, 256, "%s", DNS_FILE);
+        snprintf(filename, 256, "%s", DnsFile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -202,7 +202,7 @@ void load_dns(void)
                         word = fread_word(fp);
                         if (!str_cmp(word, "CACHE"))
                         {
-                                CREATE(cache, DNS_DATA, 1);
+                                CREATE(cache, DnsData, 1);
                                 fread_dns(cache, fp);
                                 LINK(cache, first_cache, last_cache, next,
                                      prev);
@@ -225,11 +225,11 @@ void load_dns(void)
 
 void save_dns(void)
 {
-        DNS_DATA *cache;
+        DnsData *cache;
         FILE     *fp = NULL;
         char      filename[256];
 
-        snprintf(filename, 256, "%s", DNS_FILE);
+        snprintf(filename, 256, "%s", DnsFile);
 
         if ((fp = fopen(filename, "w")) == NULL)
         {
@@ -401,7 +401,7 @@ void resolve_dns(DescriptorData * d, long ip)
                 return;
         }
 
-        if (dup2(fds[1], STDOUT_FILENO) != STDOUT_FILENO)
+        if (dup2(fds[1], StdoutFileno) != StdoutFileno)
         {
                 perror("resolve_dns: dup2(stdout): ");
                 return;
@@ -455,7 +455,7 @@ void resolve_dns(DescriptorData * d, long ip)
 void do_cache(CharData *ch, char *argument)
 {
         // Only allow access for authorized users (immortal/admin)
-        if (!IS_IMMORTAL(ch)) {
+        if (!IsImmortal(ch)) {
                 send_to_char("You do not have permission to view DNS cache information.\n\r", ch);
                 return;
         }
@@ -463,7 +463,7 @@ void do_cache(CharData *ch, char *argument)
         send_to_pager("&YCached DNS Information\n\r", ch);
         send_to_pager("IP               | Address\n\r", ch);
         send_to_pager("------------------------------------------------------------------------------\n\r", ch);
-        for (DNS_DATA* cache = first_cache; cache; cache = cache->next) {
+        for (DnsData* cache = first_cache; cache; cache = cache->next) {
                 pager_printf(ch, "&W%16.16s  &Y%s\n\r", cache->ip.c_str(), cache->name.c_str());
                 ip_count++;
         }
@@ -471,7 +471,7 @@ void do_cache(CharData *ch, char *argument)
 }
 
 
-void free_dns(DNS_DATA *cache)
+void free_dns(DnsData *cache)
 {
         delete cache;
 }

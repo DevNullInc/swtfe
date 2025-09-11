@@ -55,9 +55,9 @@
 #include <ctype.h>
 #include "mud.hpp"
 
-#define NOT_FOUND (-1)
+#define NotFound (-1)
 enum
-{ REN_ROOM, REN_OBJ, REN_MOB };
+{ RenRoom, RenObj, RenMob };
 struct renumber_data
 {
         int       old_vnum;
@@ -65,51 +65,51 @@ struct renumber_data
 
         struct renumber_data *next;
 };
-typedef struct renumber_data RENUMBER_DATA;
+typedef struct renumber_data RenumberData;
 struct renumber_area
 {
         int       low_obj, hi_obj;
-        RENUMBER_DATA *r_obj;
+        RenumberData *r_obj;
         int       low_mob, hi_mob;
-        RENUMBER_DATA *r_mob;
+        RenumberData *r_mob;
         int       low_room, hi_room;
-        RENUMBER_DATA *r_room;
+        RenumberData *r_room;
 };
-typedef struct renumber_area RENUMBER_AREA;
+typedef struct renumber_area RenumberArea;
 
 void      renumber_area(CharData * ch, AreaData * area,
-                        RENUMBER_AREA * r_area, bool area_is_proto,
+                        RenumberArea * r_area, bool area_is_proto,
                         bool verbose);
 
-RENUMBER_AREA *gather_renumber_data(AreaData * area, int new_base,
+RenumberArea *gather_renumber_data(AreaData * area, int new_base,
                                     bool fill_gaps);
-RENUMBER_DATA *gather_one_list(sh_int type, int low, int high, int new_base,
+RenumberData *gather_one_list(sh_int type, int low, int high, int new_base,
                                bool fill_gaps, int *max_vnum);
-void      free_renumber_data(RENUMBER_DATA * r_data);
+void      free_renumber_data(RenumberData * r_data);
 
 AreaData *find_area(char *filename, bool * p_is_proto);
 bool      check_vnums(CharData * ch, AreaData * tarea,
-                      RENUMBER_AREA * r_area);
+                      RenumberArea * r_area);
 
-int       find_translation(int vnum, RENUMBER_DATA * r_data);
-void      translate_reset(ResetData * reset, RENUMBER_AREA * r_data);
+int       find_translation(int vnum, RenumberData * r_data);
+void      translate_reset(ResetData * reset, RenumberArea * r_data);
 void      translate_objvals(CharData * ch, AreaData * area,
-                            RENUMBER_AREA * r_data, bool verbose);
+                            RenumberArea * r_data, bool verbose);
 void      translate_exits(CharData * ch, AreaData * area,
-                          RENUMBER_AREA * r_area, bool verbose);
+                          RenumberArea * r_area, bool verbose);
 void      warn_progs(CharData * ch, int low, int high, AreaData * area,
-                     RENUMBER_AREA * r_area);
+                     RenumberArea * r_area);
 void      warn_in_prog(CharData * ch, int low, int high, char *where,
-                       int vnum, MProgData * mprog, RENUMBER_AREA * r_area);
+                       int vnum, MProgData * mprog, RenumberArea * r_area);
 
 /* from db.c */
-extern RoomIndexData *room_index_hash[MAX_KEY_HASH];
-extern MobIndexData *mob_index_hash[MAX_KEY_HASH];
-extern ObjIndexData *obj_index_hash[MAX_KEY_HASH];
+extern RoomIndexData *room_index_hash[MaxKeyHash];
+extern MobIndexData *mob_index_hash[MaxKeyHash];
+extern ObjIndexData *obj_index_hash[MaxKeyHash];
 
 CMDF do_renumber(CharData * ch, char *argument)
 {
-        RENUMBER_AREA *r_area;
+        RenumberArea *r_area;
         AreaData *area;
         bool      is_proto;
         char      arg1[MaxInputLength];
@@ -190,7 +190,7 @@ CMDF do_renumber(CharData * ch, char *argument)
         /*
          * some restrictions 
          */
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 ch_printf(ch, "Yeah, right.\n\r");
                 return;
@@ -293,7 +293,7 @@ CMDF do_renumber(CharData * ch, char *argument)
         DISPOSE(r_area);
 }
 
-bool check_vnums(CharData * ch, AreaData * tarea, RENUMBER_AREA * r_area)
+bool check_vnums(CharData * ch, AreaData * tarea, RenumberArea * r_area)
 {
         int       high, low;
         AreaData *area;
@@ -337,29 +337,29 @@ bool check_vnums(CharData * ch, AreaData * tarea, RENUMBER_AREA * r_area)
         return FALSE;
 }
 
-RENUMBER_AREA *gather_renumber_data(AreaData * area, int new_base,
+RenumberArea *gather_renumber_data(AreaData * area, int new_base,
                                     bool fill_gaps)
 /* this function actualy gathers all the renumber data for an area */
 {
-        RENUMBER_AREA *r_area;
+        RenumberArea *r_area;
         int       max;
 
-        CREATE(r_area, RENUMBER_AREA, 1);
+        CREATE(r_area, RenumberArea, 1);
 
         r_area->r_mob =
-                gather_one_list(REN_MOB, area->low_m_vnum, area->hi_m_vnum,
+                gather_one_list(RenMob, area->low_m_vnum, area->hi_m_vnum,
                                 new_base, fill_gaps, &max);
         r_area->low_mob = new_base;
         r_area->hi_mob = max;
 
         r_area->r_obj =
-                gather_one_list(REN_OBJ, area->low_o_vnum, area->hi_o_vnum,
+                gather_one_list(RenObj, area->low_o_vnum, area->hi_o_vnum,
                                 new_base, fill_gaps, &max);
         r_area->low_obj = new_base;
         r_area->hi_obj = max;
 
         r_area->r_room =
-                gather_one_list(REN_ROOM, area->low_r_vnum, area->hi_r_vnum,
+                gather_one_list(RenRoom, area->low_r_vnum, area->hi_r_vnum,
                                 new_base, fill_gaps, &max);
         r_area->low_room = new_base;
         r_area->hi_room = max;
@@ -367,12 +367,12 @@ RENUMBER_AREA *gather_renumber_data(AreaData * area, int new_base,
         return r_area;
 }
 
-RENUMBER_DATA *gather_one_list(sh_int type, int low, int high, int new_base,
+RenumberData *gather_one_list(sh_int type, int low, int high, int new_base,
                                bool fill_gaps, int *max_vnum)
 /* this function builds a list of renumber data for a type (obj, room, or mob) */
 {
         int       cur_vnum;
-        RENUMBER_DATA *r_data, root;
+        RenumberData *r_data, root;
         bool      found;
         RoomIndexData *room;
         ObjIndexData *obj;
@@ -380,7 +380,7 @@ RENUMBER_DATA *gather_one_list(sh_int type, int low, int high, int new_base,
         int       i;
         int       highest;
 
-        memset(&root, 0, sizeof(RENUMBER_DATA));
+        memset(&root, 0, sizeof(RenumberData));
         r_data = &root;
 
         cur_vnum = new_base;
@@ -390,17 +390,17 @@ RENUMBER_DATA *gather_one_list(sh_int type, int low, int high, int new_base,
                 found = FALSE;
                 switch (type)
                 {
-                case REN_ROOM:
+                case RenRoom:
                         room = get_room_index(i);
                         if (room != NULL)
                                 found = TRUE;
                         break;
-                case REN_OBJ:
+                case RenObj:
                         obj = get_obj_index(i);
                         if (obj != NULL)
                                 found = TRUE;
                         break;
-                case REN_MOB:
+                case RenMob:
                         mob = get_mob_index(i);
                         if (mob != NULL)
                                 found = TRUE;
@@ -413,7 +413,7 @@ RENUMBER_DATA *gather_one_list(sh_int type, int low, int high, int new_base,
                                 highest = cur_vnum;
                         if (cur_vnum != i)
                         {
-                                CREATE(r_data->next, RENUMBER_DATA, 1);
+                                CREATE(r_data->next, RenumberData, 1);
                                 r_data = r_data->next;
                                 r_data->old_vnum = i;
                                 r_data->new_vnum = cur_vnum;
@@ -427,10 +427,10 @@ RENUMBER_DATA *gather_one_list(sh_int type, int low, int high, int new_base,
         return root.next;
 }
 
-void free_renumber_data(RENUMBER_DATA * r_data)
+void free_renumber_data(RenumberData * r_data)
 /* disposes of a list of renumber data items */
 {
-        RENUMBER_DATA *r_next;
+        RenumberData *r_next;
 
         while (r_data != NULL)
         {
@@ -440,12 +440,12 @@ void free_renumber_data(RENUMBER_DATA * r_data)
         }
 }
 
-void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
+void renumber_area(CharData * ch, AreaData * area, RenumberArea * r_area,
                    bool area_is_proto, bool verbose)
 /* this is the function that actualy does the renumbering of "area" according
    to the renumber data in "r_area". "ch" is to show messages. */
 {
-        RENUMBER_DATA *r_data;
+        RenumberData *r_data;
         RoomIndexData *room, *room_prev, *room_list, *room_next;
         MobIndexData *mob, *mob_prev, *mob_list, *mob_next;
         ObjIndexData *obj, *obj_prev, *obj_list, *obj_next;
@@ -490,7 +490,7 @@ void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                 /*
                  * remove it from the hash list 
                  */
-                iHash = r_data->old_vnum % MAX_KEY_HASH;
+                iHash = r_data->old_vnum % MaxKeyHash;
                 if (room_index_hash[iHash] == room)
                         room_index_hash[iHash] = room->next;
                 else
@@ -528,7 +528,7 @@ void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                 /*
                  * add it to the hash list again (new position) 
                  */
-                iHash = room->vnum % MAX_KEY_HASH;
+                iHash = room->vnum % MaxKeyHash;
                 room->next = room_index_hash[iHash];
                 room_index_hash[iHash] = room;
         }
@@ -581,7 +581,7 @@ void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                 /*
                  * remove it from the hash list 
                  */
-                iHash = r_data->old_vnum % MAX_KEY_HASH;
+                iHash = r_data->old_vnum % MaxKeyHash;
                 if (mob_index_hash[iHash] == mob)
                         mob_index_hash[iHash] = mob->next;
                 else
@@ -616,7 +616,7 @@ void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                 /*
                  * add it to the hash list again 
                  */
-                iHash = mob->vnum % MAX_KEY_HASH;
+                iHash = mob->vnum % MaxKeyHash;
                 mob->next = mob_index_hash[iHash];
                 mob_index_hash[iHash] = mob;
         }
@@ -643,7 +643,7 @@ void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                 /*
                  * remove it from the hash list 
                  */
-                iHash = r_data->old_vnum % MAX_KEY_HASH;
+                iHash = r_data->old_vnum % MaxKeyHash;
                 if (obj_index_hash[iHash] == obj)
                         obj_index_hash[iHash] = obj->next;
                 else
@@ -678,7 +678,7 @@ void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                 /*
                  * add it to the hash list again 
                  */
-                iHash = obj->vnum % MAX_KEY_HASH;
+                iHash = obj->vnum % MaxKeyHash;
                 obj->next = obj_index_hash[iHash];
                 obj_index_hash[iHash] = obj;
         }
@@ -708,7 +708,7 @@ void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
         }
 }
 
-void translate_exits(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
+void translate_exits(CharData * ch, AreaData * area, RenumberArea * r_area,
                      bool verbose)
 {
         int       i, new_vnum;
@@ -730,7 +730,7 @@ void translate_exits(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                          */
                         new_vnum =
                                 find_translation(pexit->vnum, r_area->r_room);
-                        if (new_vnum != NOT_FOUND)
+                        if (new_vnum != NotFound)
                                 pexit->vnum = new_vnum;
                         /*
                          * if this room was moved 
@@ -767,7 +767,7 @@ void translate_exits(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                                 new_vnum =
                                         find_translation(pexit->key,
                                                          r_area->r_obj);
-                                if (new_vnum == NOT_FOUND)
+                                if (new_vnum == NotFound)
                                         continue;
                                 pexit->key = new_vnum;
                         }
@@ -776,7 +776,7 @@ void translate_exits(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
 }
 
 void translate_objvals(CharData * ch, AreaData * area,
-                       RENUMBER_AREA * r_area, bool verbose)
+                       RenumberArea * r_area, bool verbose)
 {
         int       i, new_vnum;
         ObjIndexData *obj;
@@ -787,12 +787,12 @@ void translate_objvals(CharData * ch, AreaData * area,
                 if (!obj)
                         continue;
 
-                if (obj->item_type == ITEM_CONTAINER)
+                if (obj->item_type == ItemContainer)
                 {
                         new_vnum =
                                 find_translation(obj->value[2],
                                                  r_area->r_obj);
-                        if (new_vnum != NOT_FOUND)
+                        if (new_vnum != NotFound)
                         {
                                 if (verbose)
                                         pager_printf(ch,
@@ -806,22 +806,22 @@ void translate_objvals(CharData * ch, AreaData * area,
                                              "...    container %d; no need to fix.\n\r",
                                              i);
                 }
-                else if (obj->item_type == ITEM_SWITCH
-                         || obj->item_type == ITEM_LEVER
-                         || obj->item_type == ITEM_PULLCHAIN
-                         || obj->item_type == ITEM_BUTTON)
+                else if (obj->item_type == ItemSwitch
+                         || obj->item_type == ItemLever
+                         || obj->item_type == ItemPullchain
+                         || obj->item_type == ItemButton)
                 {
                         /*
                          * levers might have room vnum references in their objvals 
                          */
-                        if (IS_SET(obj->value[0], TRIG_RAND4)
-                            || IS_SET(obj->value[0], TRIG_RAND6)
-                            || IS_SET(obj->value[0], TRIG_DOOR))
+                        if (IsSet(obj->value[0], TrigRand4)
+                            || IsSet(obj->value[0], TrigRand6)
+                            || IsSet(obj->value[0], TrigDoor))
                         {
                                 new_vnum =
                                         find_translation(obj->value[1],
                                                          r_area->r_room);
-                                if (new_vnum != NOT_FOUND)
+                                if (new_vnum != NotFound)
                                 {
                                         if (verbose)
                                                 pager_printf(ch,
@@ -830,15 +830,15 @@ void translate_objvals(CharData * ch, AreaData * area,
                                                              new_vnum);
                                         obj->value[1] = new_vnum;
                                 }
-                                if (IS_SET(obj->value[0], TRIG_DOOR)
-                                    && IS_SET(obj->value[0], TRIG_PASSAGE))
+                                if (IsSet(obj->value[0], TrigDoor)
+                                    && IsSet(obj->value[0], TrigPassage))
                                 {
                                         new_vnum =
                                                 find_translation(obj->
                                                                  value[2],
                                                                  r_area->
                                                                  r_room);
-                                        if (new_vnum != NOT_FOUND)
+                                        if (new_vnum != NotFound)
                                         {
                                                 if (verbose)
                                                         pager_printf(ch,
@@ -856,7 +856,7 @@ void translate_objvals(CharData * ch, AreaData * area,
 }
 
 void warn_progs(CharData * ch, int low, int high, AreaData * area,
-                RENUMBER_AREA * r_area)
+                RenumberArea * r_area)
 {
         RoomIndexData *room;
         ObjIndexData *obj;
@@ -907,7 +907,7 @@ void warn_progs(CharData * ch, int low, int high, AreaData * area,
 
 
 void warn_in_prog(CharData * ch, int low, int high, char *where, int vnum,
-                  MProgData * mprog, RENUMBER_AREA * r_area)
+                  MProgData * mprog, RenumberArea * r_area)
 {
         char     *p, *start_number, cTmp;
         int       num;
@@ -945,7 +945,7 @@ void warn_in_prog(CharData * ch, int low, int high, char *where, int vnum,
 }
 
 
-void translate_reset(ResetData * reset, RENUMBER_AREA * r_data)
+void translate_reset(ResetData * reset, RenumberArea * r_data)
 /* this function translates a reset according to the renumber data in r_data */
 {
         /*
@@ -958,7 +958,7 @@ void translate_reset(ResetData * reset, RENUMBER_AREA * r_data)
                 "Go1", "Eo1", "Dr1", "Rr1", NULL
         };
         char     *p;
-        RENUMBER_DATA *r_table;
+        RenumberData *r_table;
         int      *parg, new_vnum, i;
 
         /*
@@ -966,9 +966,9 @@ void translate_reset(ResetData * reset, RENUMBER_AREA * r_data)
          */
         if (reset->command == 'T')
         {
-                if (IS_SET(reset->extra, TRAP_ROOM))
+                if (IsSet(reset->extra, TrapRoom))
                         r_table = r_data->r_room;
-                else if (IS_SET(reset->extra, TRAP_OBJ))
+                else if (IsSet(reset->extra, TrapObj))
                         r_table = r_data->r_obj;
                 else
                 {
@@ -976,7 +976,7 @@ void translate_reset(ResetData * reset, RENUMBER_AREA * r_data)
                         return;
                 }
                 new_vnum = find_translation(reset->arg3, r_table);
-                if (new_vnum != NOT_FOUND)
+                if (new_vnum != NotFound)
                         reset->arg3 = new_vnum;
                 return;
         }
@@ -987,12 +987,12 @@ void translate_reset(ResetData * reset, RENUMBER_AREA * r_data)
         if (reset->command == 'B')
         {
                 bug("translate_reset: B command found.");
-                if ((reset->arg2 & BIT_RESET_TYPE_MASK) == BIT_RESET_DOOR ||
-                    (reset->arg2 & BIT_RESET_TYPE_MASK) == BIT_RESET_ROOM)
+                if ((reset->arg2 & BitResetTypeMask) == BitResetDoor ||
+                    (reset->arg2 & BitResetTypeMask) == BitResetRoom)
                 {
                         new_vnum =
                                 find_translation(reset->arg1, r_data->r_obj);
-                        if (new_vnum != NOT_FOUND)
+                        if (new_vnum != NotFound)
                                 reset->arg1 = new_vnum;
                 }
                 return;
@@ -1034,7 +1034,7 @@ void translate_reset(ResetData * reset, RENUMBER_AREA * r_data)
                                 p++;
 
                                 new_vnum = find_translation(*parg, r_table);
-                                if (new_vnum != NOT_FOUND)
+                                if (new_vnum != NotFound)
                                         *parg = new_vnum;
 
                         }
@@ -1047,19 +1047,19 @@ void translate_reset(ResetData * reset, RENUMBER_AREA * r_data)
                     reset->command);
 }
 
-int find_translation(int vnum, RENUMBER_DATA * r_data)
+int find_translation(int vnum, RenumberData * r_data)
 /* returns the new vnum for the old vnum "vnum" according to the info in
  * r_data 
  */
 {
-        RENUMBER_DATA *r_temp;
+        RenumberData *r_temp;
 
         for (r_temp = r_data; r_temp; r_temp = r_temp->next)
         {
                 if (r_temp->old_vnum == vnum)
                         return r_temp->new_vnum;
         }
-        return NOT_FOUND;
+        return NotFound;
 }
 
 

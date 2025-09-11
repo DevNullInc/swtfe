@@ -6,15 +6,15 @@
 #include <memory>
 #include <string_view>
 
-constexpr std::string_view CLASSES_DIR = "../classes/";
-constexpr std::string_view PROTOSHIP_DIR = "../protoships/";
-constexpr std::string_view LIST_DIR = "../list/";
-constexpr std::string_view ILLNESS_DIR = "../illness/";
-constexpr std::string_view PROTOSHIP_LIST = "protoship.lst";
-constexpr std::string_view CLASS_LIST = "class.lst";
-constexpr std::string_view LIST_LIST = "list.lst";
-constexpr std::string_view LANGUAGE_LIST = "language.lst";
-constexpr std::string_view ILLNESS_LIST = "illness.lst";
+constexpr std::string_view ClassesDir = "../classes/";
+constexpr std::string_view ProtoshipDir = "../protoships/";
+constexpr std::string_view ListDir = "../list/";
+constexpr std::string_view IllnessDir = "../illness/";
+constexpr std::string_view ProtoshipList = "protoship.lst";
+constexpr std::string_view ClassList = "class.lst";
+constexpr std::string_view ListList = "list.lst";
+constexpr std::string_view LanguageList = "language.lst";
+constexpr std::string_view IllnessList = "illness.lst";
 
 class ClassData {
 public:

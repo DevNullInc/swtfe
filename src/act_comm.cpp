@@ -62,19 +62,19 @@
 // CONSTANTS
 // =============================================================================
 namespace {
-    constexpr int    DEFAULT_COMCHAN = 0;
-    constexpr int    NPC_COMFREQ = -1;
-    constexpr size_t LOG_BUFFER_SIZE = MaxStringLength;
-    constexpr size_t SOCIAL_NAME_SIZE = 256;
-    constexpr size_t SOCIAL_DESC_SIZE = 512;
-    constexpr size_t COMMUNICATION_BUFFER = MaxInputLength;
-    constexpr int    MIN_SPLIT_MEMBERS = 2;
-    constexpr int    MAX_FOLLOW_DISTANCE = 3;
-    constexpr int    MIN_LANGUAGE_SKILL = 60;
-    constexpr int    MAX_LANGUAGE_SKILL = 99;
-    constexpr int    AROUSAL_BASE = 70;
-    constexpr double AROUSAL_MULTIPLIER = 0.5;
-    constexpr double RANDOM_PERCENT = 0.1;
+    constexpr int    DefaultComchan = 0;
+    constexpr int    NpcComfreq = -1;
+    constexpr size_t LogBufferSize = MaxStringLength;
+    constexpr size_t SocialNameSize = 256;
+    constexpr size_t SocialDescSize = 512;
+    constexpr size_t CommunicationBuffer = MaxInputLength;
+    constexpr int    MinSplitMembers = 2;
+    constexpr int    MaxFollowDistance = 3;
+    constexpr int    MinLanguageSkill = 60;
+    constexpr int    MaxLanguageSkill = 99;
+    constexpr int    ArousalBase = 70;
+    constexpr double ArousalMultiplier = 0.5;
+    constexpr double RandomPercent = 0.1;
 }
 
 // =============================================================================
@@ -90,7 +90,7 @@ extern bool is_ignoring(CharData* ch, CharData* victim);
 // LOCAL FUNCTION PROTOTYPES
 // =============================================================================
 void talk_channel(CharData* ch, char* argument, int channel, const char* verb);
-char* scramble(const char* argument, LANGUAGE_DATA* language);
+char* scramble(const char* argument, LanguageData* language);
 char* drunk_speech(const char* argument, CharData* ch);
 
 // =============================================================================
@@ -104,11 +104,11 @@ bool has_comlink(CharData* ch)
 {
     ObjData* obj;
 
-    if (IS_IMMORTAL(ch) || IS_NPC(ch))
+    if (IsImmortal(ch) || IsNpc(ch))
         return TRUE;
 
 #ifdef CYBER
-    if (ch->pcdata->cyber & CYBER_COMM)
+    if (ch->pcdata->cyber & CyberComm)
         return TRUE;
 #endif
 
@@ -116,7 +116,7 @@ bool has_comlink(CharData* ch)
         return TRUE;
 
     for (obj = ch->last_carrying; obj; obj = obj->prev_content) {
-        if (obj->pIndexData->item_type == ITEM_COMLINK)
+        if (obj->pIndexData->item_type == ItemComlink)
             return TRUE;
     }
     return FALSE;
@@ -127,13 +127,13 @@ bool has_comlink(CharData* ch)
  */
 int get_comfreq(CharData* ch)
 {
-    if (IS_NPC(ch))
-        return NPC_COMFREQ;
+    if (IsNpc(ch))
+        return NpcComfreq;
 
     if (!has_comlink(ch))
-        return DEFAULT_COMCHAN;
+        return DefaultComchan;
     
-    return ch->pcdata->comchan ? ch->pcdata->comchan : DEFAULT_COMCHAN;
+    return ch->pcdata->comchan ? ch->pcdata->comchan : DefaultComchan;
 }
 
 /*
@@ -142,7 +142,7 @@ int get_comfreq(CharData* ch)
 ObjData* get_comlink(CharData* ch)
 {
     for (ObjData* obj = ch->last_carrying; obj; obj = obj->prev_content) {
-        if (obj->item_type == ITEM_COMLINK)
+        if (obj->item_type == ItemComlink)
             return obj;
     }
     return nullptr;
@@ -165,7 +165,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
         int       col = 0;
 
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 return;
         }
@@ -183,7 +183,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
 
         if (command[0] == '\0')
         {
-                set_pager_color(AT_PLAIN, ch);
+                set_pager_color(AtPlain, ch);
                 send_to_pager
                         ("&w<>&B----------------------------------------------------------------------&w<>\n\r",
                          ch);
@@ -218,14 +218,14 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 return;
         }
 
-        xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        xREMOVE_BIT(ch->deaf, ChannelTells);
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("&BY&zou can't do that here.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(ch) && (IS_SET(ch->act, PLR_SILENCE)))
+        if (!IsNpc(ch) && (IsSet(ch->act, PlrSilence)))
         {
                 send_to_char("&BY&zou can't do that.\n\r", ch);
                 return;
@@ -244,18 +244,18 @@ CMDF do_xsocial(CharData* ch, char* argument)
 
         switch (ch->position)
         {
-        case POS_DEAD:
+        case PosDead:
                 send_to_char("&BL&zie still; you are DEAD.\n\r", ch);
                 return;
-        case POS_INCAP:
-        case POS_MORTAL:
+        case PosIncap:
+        case PosMortal:
                 send_to_char("&BY&zou are hurt far too bad for that.\n\r",
                              ch);
                 return;
-        case POS_STUNNED:
+        case PosStunned:
                 send_to_char("&BY&zou are too stunned to do that.\n\r", ch);
                 return;
-        case POS_SLEEPING:
+        case PosSleeping:
                 break;
         default:
                 {
@@ -268,9 +268,9 @@ CMDF do_xsocial(CharData* ch, char* argument)
         if (arg[0] == '\0')
         {
                 snprintf(buf, MaxInputLength, "%s", social->others_no_arg);
-                act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
+                act(AtSocial, buf, ch, NULL, victim, ToRoom);
                 snprintf(buf, MaxInputLength, "%s", social->char_no_arg);
-                act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
+                act(AtSocial, buf, ch, NULL, victim, ToChar);
                 ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
                 return;
         }
@@ -282,13 +282,13 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("&BT&zhat person isn't here on!\n\r", ch);
                 return;
         }
 
-        if (IS_SET(victim->act, PLR_AFK) || victim->pcdata->realage != 1)
+        if (IsSet(victim->act, PlrAfk) || victim->pcdata->realage != 1)
         {
                 send_to_char("&BY&zou cannot do that to that person!", ch);
                 return;
@@ -315,35 +315,35 @@ CMDF do_xsocial(CharData* ch, char* argument)
         if (victim == ch)
         {
                 snprintf(buf, MaxInputLength, "%s", social->others_auto);
-                act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
+                act(AtSocial, buf, ch, NULL, victim, ToRoom);
                 snprintf(buf, MaxInputLength, "%s", social->char_auto);
-                act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
-                ch->pcdata->arousal += static_cast<sh_int>(social->arousal * AROUSAL_MULTIPLIER);
+                act(AtSocial, buf, ch, NULL, victim, ToChar);
+                ch->pcdata->arousal += static_cast<sh_int>(social->arousal * ArousalMultiplier);
                 /*
                  * FIXME - 
                  * * Gavin - Uh... all 3 of these victim->sex lines had ; at the end.
                  * * ie, if (victim->sex == 0);
                  * * which if thats the case, could be alot easier to write another way.
                  */
-                if (victim->sex == SEX_NEUTRAL) {
+                if (victim->sex == SexNeutral) {
                         if (victim->pcdata->arousal >=
-                            (AROUSAL_BASE +
+                            (ArousalBase +
                              (2 * (get_curr_con(victim)) +
-                              (RANDOM_PERCENT * number_percent())))) {
+                              (RandomPercent * number_percent())))) {
                         }
                 }
-                if (victim->sex == SEX_MALE) {
+                if (victim->sex == SexMale) {
                         if (victim->pcdata->arousal >=
-                            (AROUSAL_BASE +
+                            (ArousalBase +
                              (3 * (get_curr_con(victim)) +
-                              (RANDOM_PERCENT * number_percent())))) {
+                              (RandomPercent * number_percent())))) {
                         }
                 }
-                if (victim->sex == SEX_FEMALE) {
+                if (victim->sex == SexFemale) {
                         if (victim->pcdata->arousal >=
-                            (AROUSAL_BASE +
+                            (ArousalBase +
                              (1 * (get_curr_con(victim)) +
-                              (RANDOM_PERCENT * number_percent())))) {
+                              (RandomPercent * number_percent())))) {
                         }
                 }
                 return;
@@ -351,14 +351,14 @@ CMDF do_xsocial(CharData* ch, char* argument)
         else
         {
                 snprintf(buf, MaxInputLength, "%s", social->others_found);
-                act(AT_SOCIAL, buf, ch, NULL, victim, TO_NOTVICT);
+                act(AtSocial, buf, ch, NULL, victim, ToNotvict);
                 snprintf(buf, MaxInputLength, "%s", social->char_found);
-                act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
+                act(AtSocial, buf, ch, NULL, victim, ToChar);
                 snprintf(buf, MaxInputLength, "%s", social->vict_found);
-                act(AT_SOCIAL, buf, ch, NULL, victim, TO_VICT);
+                act(AtSocial, buf, ch, NULL, victim, ToVict);
                 victim->pcdata->arousal += social->arousal;
                 ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
-                if (victim->sex == SEX_NEUTRAL)
+                if (victim->sex == SexNeutral)
                 {
                         if (victim->pcdata->arousal >=
                             (70 +
@@ -367,7 +367,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
                         {
                         }
                 }
-                if (victim->sex == SEX_MALE)
+                if (victim->sex == SexMale)
                 {
                         if (victim->pcdata->arousal >=
                             (70 +
@@ -376,7 +376,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
                         {
                         }
                 }
-                if (victim->sex == SEX_FEMALE)
+                if (victim->sex == SexFemale)
                 {
                         if (victim->pcdata->arousal >=
                             (70 +
@@ -403,15 +403,15 @@ CMDF do_beep(CharData* ch, char* argument)
 
         argument = one_argument(argument, arg);
 
-        xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        xREMOVE_BIT(ch->deaf, ChannelTells);
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(ch) &&
-            (IS_SET(ch->act, PLR_SILENCE) || IS_SET(ch->act, PLR_NO_TELL)))
+        if (!IsNpc(ch) &&
+            (IsSet(ch->act, PlrSilence) || IsSet(ch->act, PlrNoTell)))
         {
                 send_to_char("&BY&zou can't do that.\n\r", ch);
                 return;
@@ -424,14 +424,14 @@ CMDF do_beep(CharData* ch, char* argument)
         }
 
         if ((victim = get_char_world(ch, arg)) == NULL
-            || (IS_NPC(victim) && victim->in_room != ch->in_room)
-            || (!NOT_AUTHED(ch) && NOT_AUTHED(victim) && !IS_IMMORTAL(ch)))
+            || (IsNpc(victim) && victim->in_room != ch->in_room)
+            || (!NotAuthed(ch) && NotAuthed(victim) && !IsImmortal(ch)))
         {
                 send_to_char("&BT&zhey aren't here.\n\r", ch);
                 return;
         }
 
-        if (NOT_AUTHED(ch) && !NOT_AUTHED(victim) && !IS_IMMORTAL(victim))
+        if (NotAuthed(ch) && !NotAuthed(victim) && !IsImmortal(victim))
         {
                 send_to_char
                         ("&BT&zhey can't hear you because you are not authorized.\n\r",
@@ -439,28 +439,28 @@ CMDF do_beep(CharData* ch, char* argument)
                 return;
         }
 
-        if (!IS_NPC(victim) && (victim->switched)
+        if (!IsNpc(victim) && (victim->switched)
             && (get_trust(ch) > LevelAvatar))
         {
                 send_to_char("&BT&zhat player is switched.\n\r", ch);
                 return;
         }
 
-        else if (!IS_NPC(victim) && (!victim->desc))
+        else if (!IsNpc(victim) && (!victim->desc))
         {
                 send_to_char("&BT&zhat player is link-dead.\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(victim->deaf, CHANNEL_TELLS)
-            && (!IS_IMMORTAL(ch) || (get_trust(ch) < get_trust(victim))))
+        if (xIS_SET(victim->deaf, ChannelTells)
+            && (!IsImmortal(ch) || (get_trust(ch) < get_trust(victim))))
         {
-                act(AT_PLAIN, "$E has $S tells turned off.", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtPlain, "$E has $S tells turned off.", ch, NULL, victim,
+                    ToChar);
                 return;
         }
 
-        if (IS_SET(victim->pcdata->flags, PCFLAG_WORKING) && !IS_IMMORTAL(ch))
+        if (IsSet(victim->pcdata->flags, PcflagWorking) && !IsImmortal(ch))
         {
                 send_to_char
                         ("That person is working right now. Don't bother them.\n\r",
@@ -468,18 +468,18 @@ CMDF do_beep(CharData* ch, char* argument)
                 return;
         }
 
-        if (!IS_NPC(victim) && (IS_SET(victim->act, PLR_SILENCE)))
+        if (!IsNpc(victim) && (IsSet(victim->act, PlrSilence)))
         {
                 send_to_char
                         ("That player is silenced.  They will receive your message but can not respond.\n\r",
                          ch);
         }
 
-        if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
-            || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
+        if ((!IsImmortal(ch) && !IsAwake(victim))
+            || (!IsNpc(victim)
+                && xIS_SET(victim->in_room->RoomFlags, RoomSilence)))
         {
-                act(AT_PLAIN, "$E can't hear you.", ch, 0, victim, TO_CHAR);
+                act(AtPlain, "$E can't hear you.", ch, 0, victim, ToChar);
                 return;
         }
 
@@ -487,30 +487,30 @@ CMDF do_beep(CharData* ch, char* argument)
             && victim->desc->connected == ConEditing
             && get_trust(ch) < LevelGod)
         {
-                act(AT_PLAIN,
+                act(AtPlain,
                     "$E is currently in a writing buffer.  Please try again in a few minutes.",
-                    ch, 0, victim, TO_CHAR);
+                    ch, 0, victim, ToChar);
                 return;
         }
 
-        if (IS_MXP(ch))
-                act(AT_WHITE,
+        if (IsMxp(ch))
+                act(AtWhite,
                     "\aYou beep " MXPTAG("player $G") "$N" MXPTAG("/player")
-                    ": '$t'", ch, argument, victim, TO_CHAR_OOC);
+                    ": '$t'", ch, argument, victim, ToCharOoc);
         else
-                act(AT_WHITE, "\aYou beep $N: '$t'", ch, argument, victim,
-                    TO_CHAR_OOC);
-        if (IS_MXP(victim))
-                act(AT_WHITE,
+                act(AtWhite, "\aYou beep $N: '$t'", ch, argument, victim,
+                    ToCharOoc);
+        if (IsMxp(victim))
+                act(AtWhite,
                     "\a" MXPTAG("player $g") "$n" MXPTAG("/player")
-                    " beeps: '$t'", ch, argument, victim, TO_VICT_OOC);
+                    " beeps: '$t'", ch, argument, victim, ToVictOoc);
         else
-                act(AT_WHITE, "\a$n beeps: '$t'", ch, argument, victim,
-                    TO_VICT_OOC);
+                act(AtWhite, "\a$n beeps: '$t'", ch, argument, victim,
+                    ToVictOoc);
 }
 
 /* Text scrambler -- Altrag */
-char     *scramble(const char *argument, [[maybe_unused]] LANGUAGE_DATA * language)
+char     *scramble(const char *argument, [[maybe_unused]] LanguageData * language)
 {
         static char arg[MaxInputLength];
         sh_int    position, modifier;
@@ -591,17 +591,17 @@ char     *drunk_speech(const char *argument, CharData * ch)
         char     *txt;
         char     *txt1;
 
-        if (IS_NPC(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 mudstrlcpy(buf, argument, MIL * 2);
                 return buf;
         }
 
-        drunk = ch->pcdata->condition[COND_DRUNK];
+        drunk = ch->pcdata->condition[CondDrunk];
         /*
          * Speak funny if you have a broken jaw - Gavin 
          */
-        if (IS_SET(ch->bodyparts, BODY_JAW))
+        if (IsSet(ch->bodyparts, BodyJaw))
                 drunk += 15;
 
         if (drunk <= 0)
@@ -742,7 +742,7 @@ void info_chan(char *argument)
         char      buf[MaxStringLength];
 
         snprintf(buf, MSL, "&B[&zINFO&B] &w%s&R&W", argument);
-        echo_to_all(AT_GOSSIP, buf, EchoTarAll);
+        echo_to_all(AtGossip, buf, EchoTarAll);
 }
 
 void to_channel(const char *argument, int channel, const char *verb,
@@ -766,19 +766,19 @@ void to_channel(const char *argument, int channel, const char *verb,
 
                 if (!och || !vch)
                         continue;
-                if (!IS_IMMORTAL(vch)
+                if (!IsImmortal(vch)
                     || (get_trust(vch) < sysdata.build_level
-                        && channel == CHANNEL_BUILD)
+                        && channel == ChannelBuild)
                     || (get_trust(vch) < sysdata.log_level
-                        && (channel == CHANNEL_LOG
-                            || channel == CHANNEL_COMM)))
+                        && (channel == ChannelLog
+                            || channel == ChannelComm)))
                         continue;
 
-                if (IS_PLAYING(d)
+                if (IsPlaying(d)
                     && !xIS_SET(och->deaf, channel)
                     && get_trust(vch) >= level)
                 {
-                        set_char_color(AT_LOG, vch);
+                        set_char_color(AtLog, vch);
                         send_to_char(buf, vch);
                 }
         }
@@ -800,7 +800,7 @@ CMDF do_shout(CharData * ch, const char *argument)
         room = ch->in_room;
 
         /*
-         * if (NOT_AUTHED(ch))
+         * if (NotAuthed(ch))
          * {
          * send_to_char("Huh?\n\r", ch);
          * return;
@@ -810,25 +810,25 @@ CMDF do_shout(CharData * ch, const char *argument)
         /*
          * Need to scrable 
          */
-        act(AT_SHOUT, "You shout '$t&c'", ch, drunk_speech(argument, ch), ch,
-            TO_CHAR);
-        act(AT_SHOUT, "$n shouts '$t&c'", ch, drunk_speech(argument, ch), ch,
-            TO_ROOM);
+        act(AtShout, "You shout '$t&c'", ch, drunk_speech(argument, ch), ch,
+            ToChar);
+        act(AtShout, "$n shouts '$t&c'", ch, drunk_speech(argument, ch), ch,
+            ToRoom);
         char_from_room(ch);
         for (pexit = room->first_exit; pexit; pexit = pexit->next)
         {
                 if (pexit->to_room && room != pexit->to_room
-                    && !IS_SET(pexit->exit_info, EX_CLOSED))
+                    && !IsSet(pexit->exit_info, ExClosed))
                 {
                         char_to_room(ch, pexit->to_room);
-                        act(AT_SHOUT, "$n shouts '$t&c'", ch,
-                            drunk_speech(argument, ch), ch, TO_ROOM);
+                        act(AtShout, "$n shouts '$t&c'", ch,
+                            drunk_speech(argument, ch), ch, ToRoom);
                         char_from_room(ch);
                 }
         }
         char_to_room(ch, room);
-/*	talk_channel( ch, drunk_speech( argument, ch ), CHANNEL_SHOUT, "shout" );*/
-        WAIT_STATE(ch, 12);
+/*	talk_channel( ch, drunk_speech( argument, ch ), ChannelShout, "shout" );*/
+        WaitState(ch, 12);
         return;
 }
 
@@ -841,21 +841,21 @@ CMDF do_osay(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
         }
 
-        act(AT_FLEE, "$n osays &R[&Y$t&R]", ch, argument, ch, TO_ROOM_OOC);
-        act(AT_SAY, "You osay &R[&Y$t&R]", ch, argument, ch, TO_CHAR_OOC);
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        act(AtFlee, "$n osays &R[&Y$t&R]", ch, argument, ch, ToRoomOoc);
+        act(AtSay, "You osay &R[&Y$t&R]", ch, argument, ch, ToCharOoc);
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 char      buf[MaxStringLength];
 
                 snprintf(buf, MSL, "%s: %s",
-                         IS_NPC(ch) ? ch->short_descr : ch->name, argument);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(ch) ? ch->short_descr : ch->name, argument);
+                append_to_file(LogFile, buf);
         }
 }
 
@@ -877,14 +877,14 @@ CMDF do_whisper(CharData * ch, char *argument)
                 return;
         }
         if ((victim = get_char_room(ch, arg)) == NULL
-            || IS_NPC(victim)
-            || (!NOT_AUTHED(ch) && NOT_AUTHED(victim) && !IS_IMMORTAL(ch)))
+            || IsNpc(victim)
+            || (!NotAuthed(ch) && NotAuthed(victim) && !IsImmortal(ch)))
         {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -903,41 +903,41 @@ CMDF do_whisper(CharData * ch, char *argument)
 
         sbuf = argument;
 
-        if (IS_NPC(ch))
-                REMOVE_BIT(ch->act, ACT_SECRETIVE);
+        if (IsNpc(ch))
+                RemoveBit(ch->act, ActSecretive);
 
         if (!knows_language(victim, ch->speaking, ch)
-            && (!IS_NPC(ch) || ch->speaking != 0))
+            && (!IsNpc(ch) || ch->speaking != 0))
                 sbuf = scramble(argument, ch->speaking);
 
         switch (_last_char)
         {
         case '?':
-                act(AT_WHITE, "You whisper to $N, '$t&w'", ch,
-                    drunk_speech(sbuf, ch), victim, TO_CHAR);
-                act(AT_WHITE, "$n quietly asks you '$t&w'", ch,
-                    drunk_speech(sbuf, ch), victim, TO_VICT);
+                act(AtWhite, "You whisper to $N, '$t&w'", ch,
+                    drunk_speech(sbuf, ch), victim, ToChar);
+                act(AtWhite, "$n quietly asks you '$t&w'", ch,
+                    drunk_speech(sbuf, ch), victim, ToVict);
                 break;
 
         default:
-                act(AT_WHITE, "You whisper to $N '$t&w'", ch,
-                    drunk_speech(sbuf, ch), victim, TO_CHAR);
-                act(AT_WHITE, "$n whispers to you '$t&w'", ch,
-                    drunk_speech(sbuf, ch), victim, TO_VICT);
+                act(AtWhite, "You whisper to $N '$t&w'", ch,
+                    drunk_speech(sbuf, ch), victim, ToChar);
+                act(AtWhite, "$n whispers to you '$t&w'", ch,
+                    drunk_speech(sbuf, ch), victim, ToVict);
                 break;
         }
-        act(AT_WHITE, "$n whispers something to $N", ch, NULL, victim,
-            TO_NOTVICT);
+        act(AtWhite, "$n whispers something to $N", ch, NULL, victim,
+            ToNotvict);
         ch->act = actflags;
         MOBtrigger = TRUE;
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 char      buf[MaxStringLength];
 
                 snprintf(buf, MSL, "%s: %s",
-                         IS_NPC(ch) ? ch->short_descr : ch->name, argument);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(ch) ? ch->short_descr : ch->name, argument);
+                append_to_file(LogFile, buf);
         }
         mprog_speech_trigger(argument, ch);
         if (char_died(ch))
@@ -963,22 +963,22 @@ CMDF do_tell(CharData* ch, char* argument)
         int       position;
         char     *sbuf = argument;
 
-        if (xIS_SET(ch->deaf, CHANNEL_TELLS) && !IS_IMMORTAL(ch))
+        if (xIS_SET(ch->deaf, ChannelTells) && !IsImmortal(ch))
         {
-                act(AT_PLAIN,
+                act(AtPlain,
                     "You have tells turned off... try chan +tells first", ch,
-                    NULL, NULL, TO_CHAR);
+                    NULL, NULL, ToChar);
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(ch) &&
-            (IS_SET(ch->act, PLR_SILENCE) || IS_SET(ch->act, PLR_NO_TELL)))
+        if (!IsNpc(ch) &&
+            (IsSet(ch->act, PlrSilence) || IsSet(ch->act, PlrNoTell)))
         {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
@@ -994,8 +994,8 @@ CMDF do_tell(CharData* ch, char* argument)
         sbuf = argument;
 
         if ((victim = get_char_world(ch, arg)) == NULL
-            || IS_NPC(victim)
-            || (!NOT_AUTHED(ch) && NOT_AUTHED(victim) && !IS_IMMORTAL(ch)))
+            || IsNpc(victim)
+            || (!NotAuthed(ch) && NotAuthed(victim) && !IsImmortal(ch)))
         {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
@@ -1009,7 +1009,7 @@ CMDF do_tell(CharData* ch, char* argument)
                 return;
         }
 
-        if (NOT_AUTHED(ch) && !NOT_AUTHED(victim) && !IS_IMMORTAL(victim))
+        if (NotAuthed(ch) && !NotAuthed(victim) && !IsImmortal(victim))
         {
                 send_to_char
                         ("They can't hear you because you are not authorized.\n\r",
@@ -1017,38 +1017,38 @@ CMDF do_tell(CharData* ch, char* argument)
                 return;
         }
 
-        if (!IS_NPC(victim) && (victim->switched) &&
+        if (!IsNpc(victim) && (victim->switched) &&
             (get_trust(ch) > LevelAvatar) &&
-            !IS_SET(victim->switched->act, ACT_POLYMORPHED) &&
-            !IS_AFFECTED(victim->switched, AFF_POSSESS))
+            !IsSet(victim->switched->act, ActPolymorphed) &&
+            !IsAffected(victim->switched, AffPossess))
         {
                 send_to_char("That player is switched.\n\r", ch);
                 return;
         }
-        else if (!IS_NPC(victim) && (victim->switched) &&
-                 (IS_SET(victim->switched->act, ACT_POLYMORPHED) ||
-                  IS_AFFECTED(victim->switched, AFF_POSSESS)))
+        else if (!IsNpc(victim) && (victim->switched) &&
+                 (IsSet(victim->switched->act, ActPolymorphed) ||
+                  IsAffected(victim->switched, AffPossess)))
                 victim = victim->switched;
-        else if (!IS_NPC(victim) && (!victim->desc))
+        else if (!IsNpc(victim) && (!victim->desc))
         {
                 send_to_char("That player is link-dead.\n\r", ch);
                 return;
         }
 
-        if (!has_comlink(ch) && !IS_IMMORTAL(ch) && !IS_IMMORTAL(victim))
+        if (!has_comlink(ch) && !IsImmortal(ch) && !IsImmortal(victim))
         {
                 send_to_char("You do not have a comlink.", ch);
                 return;
         }
 
-        if (!has_comlink(victim) && !IS_IMMORTAL(victim) && !IS_IMMORTAL(ch))
+        if (!has_comlink(victim) && !IsImmortal(victim) && !IsImmortal(ch))
         {
                 send_to_char("They don't have a comlink.", ch);
                 return;
         }
 
 
-        if (IS_SET(victim->pcdata->flags, PCFLAG_WORKING)
+        if (IsSet(victim->pcdata->flags, PcflagWorking)
             && get_trust(ch) <= get_trust(victim))
         {
                 send_to_char
@@ -1058,32 +1058,32 @@ CMDF do_tell(CharData* ch, char* argument)
         }
 
 
-        if (!IS_NPC(victim) && (IS_SET(victim->act, PLR_AFK)))
+        if (!IsNpc(victim) && (IsSet(victim->act, PlrAfk)))
         {
                 send_to_char("That player is afk.\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(victim->deaf, CHANNEL_TELLS)
-            && (!IS_IMMORTAL(ch) || (get_trust(ch) < get_trust(victim))))
+        if (xIS_SET(victim->deaf, ChannelTells)
+            && (!IsImmortal(ch) || (get_trust(ch) < get_trust(victim))))
         {
-                act(AT_PLAIN, "$E has $S tells turned off.", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtPlain, "$E has $S tells turned off.", ch, NULL, victim,
+                    ToChar);
                 return;
         }
 
-        if (!IS_NPC(victim) && (IS_SET(victim->act, PLR_SILENCE)))
+        if (!IsNpc(victim) && (IsSet(victim->act, PlrSilence)))
         {
                 send_to_char
                         ("That player is silenced.  They will receive your message but can not respond.\n\r",
                          ch);
         }
 
-        if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
-            || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
+        if ((!IsImmortal(ch) && !IsAwake(victim))
+            || (!IsNpc(victim)
+                && xIS_SET(victim->in_room->RoomFlags, RoomSilence)))
         {
-                act(AT_PLAIN, "$E can't hear you.", ch, 0, victim, TO_CHAR);
+                act(AtPlain, "$E can't hear you.", ch, 0, victim, ToChar);
                 return;
         }
 
@@ -1091,47 +1091,47 @@ CMDF do_tell(CharData* ch, char* argument)
             && victim->desc->connected == ConEditing
             && get_trust(ch) < LevelGod)
         {
-                act(AT_PLAIN,
+                act(AtPlain,
                     "$E is currently in a writing buffer.  Please try again in a few minutes.",
-                    ch, 0, victim, TO_CHAR);
+                    ch, 0, victim, ToChar);
                 return;
         }
 
 
-        if (IS_MXP(ch))
-                act(AT_TELL,
+        if (IsMxp(ch))
+                act(AtTell,
                     "You tell " MXPTAG("player $G") "$N" MXPTAG("/player")
-                    " '$t'", ch, argument, victim, TO_CHAR);
+                    " '$t'", ch, argument, victim, ToChar);
         else
-                act(AT_TELL, "You tell $N '$t'", ch, argument, victim,
-                    TO_CHAR);
+                act(AtTell, "You tell $N '$t'", ch, argument, victim,
+                    ToChar);
 
         position = victim->position;
-        victim->position = POS_STANDING;
-        if (!IS_IMMORTAL(victim) && !knows_language(victim, ch->speaking, ch)
-            && (!IS_NPC(ch) || ch->speaking != 0))
+        victim->position = PosStanding;
+        if (!IsImmortal(victim) && !knows_language(victim, ch->speaking, ch)
+            && (!IsNpc(ch) || ch->speaking != 0))
                 sbuf = scramble(argument, ch->speaking);
 
-        if (IS_MXP(victim))
-                act(AT_TELL,
+        if (IsMxp(victim))
+                act(AtTell,
                     MXPTAG("player $g") "$n" MXPTAG("/player")
                     " tells you '$t'", ch, drunk_speech(sbuf, ch), victim,
-                    TO_VICT);
+                    ToVict);
         else
-                act(AT_TELL, "$n tells you '$t'", ch, drunk_speech(sbuf, ch),
-                    victim, TO_VICT);
+                act(AtTell, "$n tells you '$t'", ch, drunk_speech(sbuf, ch),
+                    victim, ToVict);
 
         victim->position = static_cast<sh_int>(position);
         victim->reply = ch;
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 char      buf[MaxInputLength];
 
                 snprintf(buf, MaxInputLength, "%s: %s (tell to) %s.",
-                         IS_NPC(ch) ? ch->short_descr : ch->name,
+                         IsNpc(ch) ? ch->short_descr : ch->name,
                          argument,
-                         IS_NPC(victim) ? victim->short_descr : victim->name);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(victim) ? victim->short_descr : victim->name);
+                append_to_file(LogFile, buf);
         }
         mprog_speech_trigger(argument, ch);
         return;
@@ -1147,45 +1147,45 @@ CMDF do_reply(CharData * ch, char *argument)
         char     *sbuf = argument;
 
 
-        xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        xREMOVE_BIT(ch->deaf, ChannelTells);
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(ch) && IS_SET(ch->act, PLR_SILENCE))
+        if (!IsNpc(ch) && IsSet(ch->act, PlrSilence))
         {
                 send_to_char("Your message didn't get through.\n\r", ch);
                 return;
         }
 
 
-        if (((victim = ch->reply) == NULL) || IS_NPC(victim))
+        if (((victim = ch->reply) == NULL) || IsNpc(victim))
         {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(victim) && (victim->switched)
+        if (!IsNpc(victim) && (victim->switched)
             && can_see(ch, victim) && (get_trust(ch) > LevelAvatar))
         {
                 send_to_char("That player is switched.\n\r", ch);
                 return;
         }
-        else if (!IS_NPC(victim) && (!victim->desc))
+        else if (!IsNpc(victim) && (!victim->desc))
         {
                 send_to_char("That player is link-dead.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(victim) && (IS_SET(victim->act, PLR_AFK)))
+        if (!IsNpc(victim) && (IsSet(victim->act, PlrAfk)))
         {
                 send_to_char("That player is afk.\n\r", ch);
                 return;
         }
 
-        if (IS_SET(victim->pcdata->flags, PCFLAG_WORKING))
+        if (IsSet(victim->pcdata->flags, PcflagWorking))
         {
                 send_to_char
                         ("That person is working right now. Don't bother them.\n\r",
@@ -1194,52 +1194,52 @@ CMDF do_reply(CharData * ch, char *argument)
         }
 
 
-        if (xIS_SET(victim->deaf, CHANNEL_TELLS)
-            && (!IS_IMMORTAL(ch) || (get_trust(ch) < get_trust(victim))))
+        if (xIS_SET(victim->deaf, ChannelTells)
+            && (!IsImmortal(ch) || (get_trust(ch) < get_trust(victim))))
         {
-                act(AT_PLAIN, "$E has $S tells turned off.", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtPlain, "$E has $S tells turned off.", ch, NULL, victim,
+                    ToChar);
                 return;
         }
 
-        if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
-            || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
+        if ((!IsImmortal(ch) && !IsAwake(victim))
+            || (!IsNpc(victim)
+                && xIS_SET(victim->in_room->RoomFlags, RoomSilence)))
         {
-                act(AT_PLAIN, "$E can't hear you.", ch, 0, victim, TO_CHAR);
+                act(AtPlain, "$E can't hear you.", ch, 0, victim, ToChar);
                 return;
         }
 
-        if (!IS_IMMORTAL(victim) && !knows_language(victim, ch->speaking, ch)
-            && (!IS_NPC(ch) || ch->speaking != 0))
+        if (!IsImmortal(victim) && !knows_language(victim, ch->speaking, ch)
+            && (!IsNpc(ch) || ch->speaking != 0))
                 sbuf = scramble(argument, ch->speaking);
 
-        if (IS_MXP(ch))
-                act(AT_TELL,
+        if (IsMxp(ch))
+                act(AtTell,
                     "You tell " MXPTAG("player $G") "$N" MXPTAG("/player")
-                    " '$t'", ch, argument, victim, TO_CHAR);
+                    " '$t'", ch, argument, victim, ToChar);
         else
-                act(AT_TELL, "You tell $N '$t'", ch, argument, victim,
-                    TO_CHAR);
+                act(AtTell, "You tell $N '$t'", ch, argument, victim,
+                    ToChar);
         position = victim->position;
-        victim->position = POS_STANDING;
-        if (IS_MXP(victim))
-                act(AT_TELL,
+        victim->position = PosStanding;
+        if (IsMxp(victim))
+                act(AtTell,
                     MXPTAG("player $g") "$n" MXPTAG("/player")
                     " tells you '$t'", ch, drunk_speech(sbuf, ch), victim,
-                    TO_VICT);
+                    ToVict);
         else
-                act(AT_TELL, "$n tells you '$t'", ch,
-                    drunk_speech(sbuf, ch), victim, TO_VICT);
+                act(AtTell, "$n tells you '$t'", ch,
+                    drunk_speech(sbuf, ch), victim, ToVict);
         victim->position = static_cast<sh_int>(position);
         victim->reply = ch;
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 snprintf(buf, MSL, "%s: %s (reply to) %s.",
-                         IS_NPC(ch) ? ch->short_descr : ch->name,
+                         IsNpc(ch) ? ch->short_descr : ch->name,
                          argument,
-                         IS_NPC(victim) ? victim->short_descr : victim->name);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(victim) ? victim->short_descr : victim->name);
+                append_to_file(LogFile, buf);
         }
 
         return;
@@ -1255,7 +1255,7 @@ CMDF do_otell(CharData * ch, char *argument)
 
         switched_victim = NULL;
 
-        if (xIS_SET(ch->deaf, CHANNEL_TELLS) && !IS_IMMORTAL(ch))
+        if (xIS_SET(ch->deaf, ChannelTells) && !IsImmortal(ch))
         {
                 send_to_char
                         ("You have tells turned off... try chan +tells first",
@@ -1263,14 +1263,14 @@ CMDF do_otell(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(ch) &&
-            (IS_SET(ch->act, PLR_SILENCE) || IS_SET(ch->act, PLR_NO_TELL)))
+        if (!IsNpc(ch) &&
+            (IsSet(ch->act, PlrSilence) || IsSet(ch->act, PlrNoTell)))
         {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
@@ -1284,8 +1284,8 @@ CMDF do_otell(CharData * ch, char *argument)
                 return;
         }
         if ((victim = get_char_world(ch, arg)) == NULL
-            || IS_NPC(victim)
-            || (!NOT_AUTHED(ch) && NOT_AUTHED(victim) && !IS_IMMORTAL(ch)))
+            || IsNpc(victim)
+            || (!NotAuthed(ch) && NotAuthed(victim) && !IsImmortal(ch)))
         {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
@@ -1299,7 +1299,7 @@ CMDF do_otell(CharData * ch, char *argument)
                 return;
         }
 
-        if (NOT_AUTHED(ch) && !NOT_AUTHED(victim) && !IS_IMMORTAL(victim))
+        if (NotAuthed(ch) && !NotAuthed(victim) && !IsImmortal(victim))
         {
                 send_to_char
                         ("They can't hear you because you are not authorized.\n\r",
@@ -1307,32 +1307,32 @@ CMDF do_otell(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_NPC(victim) && (victim->switched)
+        if (!IsNpc(victim) && (victim->switched)
             && (get_trust(ch) > LevelAvatar)
-            && !IS_SET(victim->switched->act, ACT_POLYMORPHED)
-            && !IS_AFFECTED(victim->switched, AFF_POSSESS))
+            && !IsSet(victim->switched->act, ActPolymorphed)
+            && !IsAffected(victim->switched, AffPossess))
         {
                 send_to_char("That player is switched.\n\r", ch);
                 return;
         }
 
-        else if (!IS_NPC(victim) && (victim->switched)
-                 && (IS_SET(victim->switched->act, ACT_POLYMORPHED)
-                     || IS_AFFECTED(victim->switched, AFF_POSSESS)))
+        else if (!IsNpc(victim) && (victim->switched)
+                 && (IsSet(victim->switched->act, ActPolymorphed)
+                     || IsAffected(victim->switched, AffPossess)))
                 switched_victim = victim->switched;
 
-        else if (!IS_NPC(victim) && (!victim->desc))
+        else if (!IsNpc(victim) && (!victim->desc))
         {
                 send_to_char("That player is link-dead.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(victim) && (IS_SET(victim->act, PLR_AFK)))
+        if (!IsNpc(victim) && (IsSet(victim->act, PlrAfk)))
         {
                 send_to_char("That player is afk.\n\r", ch);
                 return;
         }
-        if (IS_SET(victim->pcdata->flags, PCFLAG_WORKING))
+        if (IsSet(victim->pcdata->flags, PcflagWorking))
         {
                 send_to_char
                         ("That person is working right now. Don't bother them.\n\r",
@@ -1340,27 +1340,27 @@ CMDF do_otell(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(victim->deaf, CHANNEL_TELLS)
-            && (!IS_IMMORTAL(ch) || (get_trust(ch) < get_trust(victim))))
+        if (xIS_SET(victim->deaf, ChannelTells)
+            && (!IsImmortal(ch) || (get_trust(ch) < get_trust(victim))))
         {
-                act(AT_PLAIN, "$E has $S tells turned off.", ch, NULL, victim,
-                    TO_CHAR_OOC);
+                act(AtPlain, "$E has $S tells turned off.", ch, NULL, victim,
+                    ToCharOoc);
                 return;
         }
 
-        if (!IS_NPC(victim) && (IS_SET(victim->act, PLR_SILENCE)))
+        if (!IsNpc(victim) && (IsSet(victim->act, PlrSilence)))
         {
                 send_to_char
                         ("That player is silenced.  They will receive your message but can not respond.\n\r",
                          ch);
         }
 
-        if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
-            || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
+        if ((!IsImmortal(ch) && !IsAwake(victim))
+            || (!IsNpc(victim)
+                && xIS_SET(victim->in_room->RoomFlags, RoomSilence)))
         {
-                act(AT_PLAIN, "$E can't hear you.", ch, 0, victim,
-                    TO_CHAR_OOC);
+                act(AtPlain, "$E can't hear you.", ch, 0, victim,
+                    ToCharOoc);
                 return;
         }
 
@@ -1368,9 +1368,9 @@ CMDF do_otell(CharData * ch, char *argument)
             && victim->desc->connected == ConEditing
             && get_trust(ch) < LevelGod)
         {
-                act(AT_PLAIN,
+                act(AtPlain,
                     "$E is currently in a writing buffer.  Please try again in a few minutes.",
-                    ch, 0, victim, TO_CHAR_OOC);
+                    ch, 0, victim, ToCharOoc);
                 return;
         }
 
@@ -1385,31 +1385,31 @@ CMDF do_otell(CharData * ch, char *argument)
                 victim = switched_victim;
 
         position = victim->position;
-        victim->position = POS_STANDING;
-        if (IS_MXP(ch))
-                act(AT_TELL,
+        victim->position = PosStanding;
+        if (IsMxp(ch))
+                act(AtTell,
                     "&zYou Otell " MXPTAG("player $G") "$N" MXPTAG("/player")
-                    " &B'&w$t&B'", ch, argument, victim, TO_CHAR_OOC);
+                    " &B'&w$t&B'", ch, argument, victim, ToCharOoc);
         else
-                act(AT_TELL, "&zYou Otell $N &B'&w$t&B'", ch, argument,
-                    victim, TO_CHAR_OOC);
-        if (IS_MXP(victim))
-                act(AT_TELL,
+                act(AtTell, "&zYou Otell $N &B'&w$t&B'", ch, argument,
+                    victim, ToCharOoc);
+        if (IsMxp(victim))
+                act(AtTell,
                     "&B" MXPTAG("player $g") "$n" MXPTAG("/player")
                     " &zOtells you &B'&w$t&B'", ch, argument, victim,
-                    TO_VICT_OOC);
+                    ToVictOoc);
         else
-                act(AT_TELL, "&B$n &zOtells you &B'&w$t&B'", ch, argument,
-                    victim, TO_VICT_OOC);
+                act(AtTell, "&B$n &zOtells you &B'&w$t&B'", ch, argument,
+                    victim, ToVictOoc);
         victim->position = static_cast<sh_int>(position);
         victim->oreply = ch;
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 snprintf(buf, MaxInputLength, "%s: %s (otell to) %s.",
-                         IS_NPC(ch) ? ch->short_descr : ch->name,
+                         IsNpc(ch) ? ch->short_descr : ch->name,
                          argument,
-                         IS_NPC(victim) ? victim->short_descr : victim->name);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(victim) ? victim->short_descr : victim->name);
+                append_to_file(LogFile, buf);
         }
         return;
 }
@@ -1420,38 +1420,38 @@ CMDF do_oreply(CharData * ch, char *argument)
         CharData *victim;
         int       position;
 
-        xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        xREMOVE_BIT(ch->deaf, ChannelTells);
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(ch) && IS_SET(ch->act, PLR_SILENCE))
+        if (!IsNpc(ch) && IsSet(ch->act, PlrSilence))
         {
                 send_to_char("Your message didn't get through.\n\r", ch);
                 return;
         }
 
-        if (((victim = ch->oreply) == NULL) || IS_NPC(victim))
+        if (((victim = ch->oreply) == NULL) || IsNpc(victim))
         {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
         }
 
-        if (!IS_NPC(victim) && (victim->switched)
+        if (!IsNpc(victim) && (victim->switched)
             && can_see(ch, victim) && (get_trust(ch) > LevelAvatar))
         {
                 send_to_char("That player is switched.\n\r", ch);
                 return;
         }
-        else if (!IS_NPC(victim) && (!victim->desc))
+        else if (!IsNpc(victim) && (!victim->desc))
         {
                 send_to_char("That player is link-dead.\n\r", ch);
                 return;
         }
 
-        if (IS_SET(victim->pcdata->flags, PCFLAG_WORKING))
+        if (IsSet(victim->pcdata->flags, PcflagWorking))
         {
                 send_to_char
                         ("That person is working right now. Don't bother them!\n\r",
@@ -1459,26 +1459,26 @@ CMDF do_oreply(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_NPC(victim) && (IS_SET(victim->act, PLR_AFK)))
+        if (!IsNpc(victim) && (IsSet(victim->act, PlrAfk)))
         {
                 send_to_char("That player is afk.\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(victim->deaf, CHANNEL_TELLS)
-            && (!IS_IMMORTAL(ch) || (get_trust(ch) < get_trust(victim))))
+        if (xIS_SET(victim->deaf, ChannelTells)
+            && (!IsImmortal(ch) || (get_trust(ch) < get_trust(victim))))
         {
-                act(AT_PLAIN, "$E has $S tells turned off.", ch, NULL, victim,
-                    TO_CHAR_OOC);
+                act(AtPlain, "$E has $S tells turned off.", ch, NULL, victim,
+                    ToCharOoc);
                 return;
         }
 
-        if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
-            || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
+        if ((!IsImmortal(ch) && !IsAwake(victim))
+            || (!IsNpc(victim)
+                && xIS_SET(victim->in_room->RoomFlags, RoomSilence)))
         {
-                act(AT_PLAIN, "$E can't hear you.", ch, 0, victim,
-                    TO_CHAR_OOC);
+                act(AtPlain, "$E can't hear you.", ch, 0, victim,
+                    ToCharOoc);
                 return;
         }
 
@@ -1489,31 +1489,31 @@ CMDF do_oreply(CharData * ch, char *argument)
                 return;
         }
         position = victim->position;
-        victim->position = POS_STANDING;
-        if (IS_MXP(ch))
-                act(AT_TELL,
+        victim->position = PosStanding;
+        if (IsMxp(ch))
+                act(AtTell,
                     "&zYou Otell " MXPTAG("player $G") "$N" MXPTAG("/player")
-                    " &B'&w$t&B'", ch, argument, victim, TO_CHAR_OOC);
+                    " &B'&w$t&B'", ch, argument, victim, ToCharOoc);
         else
-                act(AT_TELL, "&zYou Otell $N &B'&w$t&B'", ch, argument,
-                    victim, TO_CHAR_OOC);
-        if (IS_MXP(victim))
-                act(AT_TELL,
+                act(AtTell, "&zYou Otell $N &B'&w$t&B'", ch, argument,
+                    victim, ToCharOoc);
+        if (IsMxp(victim))
+                act(AtTell,
                     "&B" MXPTAG("player $g") "$n" MXPTAG("/player")
                     " &zOtells you &B'&w$t&B'", ch, argument, victim,
-                    TO_VICT_OOC);
+                    ToVictOoc);
         else
-                act(AT_TELL, "&B$n &zOtells you &B'&w$t&B'", ch, argument,
-                    victim, TO_VICT_OOC);
+                act(AtTell, "&B$n &zOtells you &B'&w$t&B'", ch, argument,
+                    victim, ToVictOoc);
         victim->position = static_cast<sh_int>(position);
         victim->oreply = ch;
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 snprintf(buf, MSL, "%s: %s (oreply to) %s.",
-                         IS_NPC(ch) ? ch->short_descr : ch->name,
+                         IsNpc(ch) ? ch->short_descr : ch->name,
                          argument,
-                         IS_NPC(victim) ? victim->short_descr : victim->name);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(victim) ? victim->short_descr : victim->name);
+                append_to_file(LogFile, buf);
         }
 
         return;
@@ -1532,7 +1532,7 @@ CMDF do_emote(CharData* ch, const char* argument)
         int       actflags;
         char     *plast;
 
-        if (!IS_NPC(ch) && IS_SET(ch->act, PLR_NO_EMOTE))
+        if (!IsNpc(ch) && IsSet(ch->act, PlrNoEmote))
         {
                 send_to_char("You can't show your emotions.\n\r", ch);
                 return;
@@ -1545,8 +1545,8 @@ CMDF do_emote(CharData* ch, const char* argument)
         }
 
         actflags = ch->act;
-        if (IS_NPC(ch))
-                REMOVE_BIT(ch->act, ACT_SECRETIVE);
+        if (IsNpc(ch))
+                RemoveBit(ch->act, ActSecretive);
         for (plast = const_cast<char*>(argument); *plast != '\0'; plast++);
 
         mudstrlcpy(buf, argument, MSL);
@@ -1556,19 +1556,19 @@ CMDF do_emote(CharData* ch, const char* argument)
         MOBtrigger = FALSE;
         if (buf[0] == 's' && buf[1] == ' ') 
         {
-                act(AT_SOCIAL, "$n'$T", ch, NULL, buf, TO_ROOM);
-                act(AT_SOCIAL, "$n'$T", ch, NULL, buf, TO_CHAR);
+                act(AtSocial, "$n'$T", ch, NULL, buf, ToRoom);
+                act(AtSocial, "$n'$T", ch, NULL, buf, ToChar);
         }
         else {
-                act(AT_SOCIAL, "$n $T", ch, NULL, buf, TO_ROOM);
-                act(AT_SOCIAL, "$n $T", ch, NULL, buf, TO_CHAR);
+                act(AtSocial, "$n $T", ch, NULL, buf, ToRoom);
+                act(AtSocial, "$n $T", ch, NULL, buf, ToChar);
         }
         ch->act = actflags;
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 snprintf(buf, MSL, "%s %s (emote)",
-                         IS_NPC(ch) ? ch->short_descr : ch->name, argument);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(ch) ? ch->short_descr : ch->name, argument);
+                append_to_file(LogFile, buf);
         }
         return;
 }
@@ -1583,7 +1583,7 @@ CMDF do_emote(CharData* ch, const char* argument)
  */
 CMDF do_bug(CharData* ch, char* argument)
 {
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         if (argument[0] == '\0')
         {
                 send_to_char("\n\rUsage:  'bug <message>'\n\r", ch);
@@ -1596,7 +1596,7 @@ CMDF do_bug(CharData* ch, char* argument)
         if (!str_cmp(argument, "clear now")
             && get_trust(ch) >= LevelAscendant)
         {
-                FILE     *fp = fopen(BUGS_FILE, "w");
+                FILE     *fp = fopen(BugsFile, "w");
 
                 if (fp)
                 {
@@ -1610,7 +1610,7 @@ CMDF do_bug(CharData* ch, char* argument)
                 if (get_trust(ch) >= LevelAscendant)
                 {
                         send_to_char("\n\r VNUM \n\r.......\n\r", ch);
-                        show_file(ch, BUGS_FILE);
+                        show_file(ch, BugsFile);
                 }
                 else
                 {
@@ -1620,7 +1620,7 @@ CMDF do_bug(CharData* ch, char* argument)
         }
         else
         {
-                append_file(ch, BUGS_FILE, smash_color((argument)));
+                append_file(ch, BugsFile, smash_color((argument)));
                 send_to_char("Ok, thanks..\n\r", ch);
         }
         return;
@@ -1628,7 +1628,7 @@ CMDF do_bug(CharData* ch, char* argument)
 
 CMDF do_idea(CharData * ch, char *argument)
 {
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         if (argument[0] == '\0')
         {
                 send_to_char("\n\rUsage:  'idea <message>'\n\r", ch);
@@ -1641,7 +1641,7 @@ CMDF do_idea(CharData * ch, char *argument)
         if (!str_cmp(argument, "clear now")
             && get_trust(ch) >= LevelAscendant)
         {
-                FILE     *fp = fopen(IDEA_FILE, "w");
+                FILE     *fp = fopen(IdeaFile, "w");
 
                 if (fp)
                 {
@@ -1655,7 +1655,7 @@ CMDF do_idea(CharData * ch, char *argument)
                 if (get_trust(ch) >= LevelAscendant)
                 {
                         send_to_char("\n\r VNUM \n\r.......\n\r", ch);
-                        show_file(ch, IDEA_FILE);
+                        show_file(ch, IdeaFile);
                 }
                 else
                 {
@@ -1665,7 +1665,7 @@ CMDF do_idea(CharData * ch, char *argument)
         }
         else
         {
-                append_file(ch, IDEA_FILE, smash_color((argument)));
+                append_file(ch, IdeaFile, smash_color((argument)));
                 send_to_char("Ok, thanks..\n\r", ch);
         }
         return;
@@ -1676,7 +1676,7 @@ CMDF do_idea(CharData * ch, char *argument)
 
 CMDF do_typo(CharData * ch, char *argument)
 {
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         if (argument[0] == '\0')
         {
                 send_to_char
@@ -1690,7 +1690,7 @@ CMDF do_typo(CharData * ch, char *argument)
         }
         if (!str_cmp(argument, "clear now") && get_trust(ch) >= LevelSupreme)
         {
-                FILE     *fp = fopen(TYPO_FILE, "w");
+                FILE     *fp = fopen(TypoFile, "w");
 
                 if (fp)
                 {
@@ -1702,11 +1702,11 @@ CMDF do_typo(CharData * ch, char *argument)
         if (!str_cmp(argument, "list") && get_trust(ch) >= LevelAscendant)
         {
                 send_to_char("VNUM \n\r.......\n\r", ch);
-                show_file(ch, TYPO_FILE);
+                show_file(ch, TypoFile);
         }
         else
         {
-                append_file(ch, TYPO_FILE, smash_color((argument)));
+                append_file(ch, TypoFile, smash_color((argument)));
                 send_to_char("Ok, thanks.\n\r", ch);
         }
         return;
@@ -1715,7 +1715,7 @@ CMDF do_typo(CharData * ch, char *argument)
 CMDF do_qui(CharData * ch, [[maybe_unused]] char *argument)
 {
         argument = NULL;
-        set_char_color(AT_RED, ch);
+        set_char_color(AtRed, ch);
         send_to_char("If you want to QUIT, you have to spell it out.\n\r",
                      ch);
         return;
@@ -1738,25 +1738,25 @@ CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
 
         argument = NULL;
 
-        if (IS_NPC(ch) && IS_SET(ch->act, ACT_POLYMORPHED))
+        if (IsNpc(ch) && IsSet(ch->act, ActPolymorphed))
         {
                 send_to_char("You can't quit while polymorphed.\n\r", ch);
                 return;
         }
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if (ch->position == POS_FIGHTING)
+        if (ch->position == PosFighting)
         {
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 send_to_char("No way! You are fighting.\n\r", ch);
                 return;
         }
 
-        if (ch->position < POS_STUNNED)
+        if (ch->position < PosStunned)
         {
-                set_char_color(AT_BLOOD, ch);
+                set_char_color(AtBlood, ch);
                 send_to_char("You're not DEAD yet.\n\r", ch);
                 return;
         }
@@ -1770,9 +1770,9 @@ CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
                 return;
         }
 
-        if (!IS_IMMORTAL(ch) && ch->in_room
-            && !xIS_SET(ch->in_room->RoomFlags, ROOM_HOTEL)
-            && !NOT_AUTHED(ch))
+        if (!IsImmortal(ch) && ch->in_room
+            && !xIS_SET(ch->in_room->RoomFlags, RoomHotel)
+            && !NotAuthed(ch))
         {
                 send_to_char("You may not quit here.\n\r", ch);
                 send_to_char
@@ -1782,16 +1782,16 @@ CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
                 return;
         }
 
-        set_char_color(AT_WHITE, ch);
+        set_char_color(AtWhite, ch);
         send_to_char
                 ("You close your eyes, and you slowly get tired. Lights change and swirl\n\ras your consiousness floats away.\n\r\n\r",
                  ch);
-        act(AT_SAY,
+        act(AtSay,
             "You feel someone or something calling to you, '$n... come back.\n\rYou're our only hope'",
-            ch, NULL, NULL, TO_CHAR);
-        act(AT_BYE, "$n has left the game.", ch, NULL, NULL, TO_ROOM);
-        set_char_color(AT_GREY, ch);
-        if (!IS_SET(ch->act, PLR_WIZINVIS) && ch->desc)
+            ch, NULL, NULL, ToChar);
+        act(AtBye, "$n has left the game.", ch, NULL, NULL, ToRoom);
+        set_char_color(AtGrey, ch);
+        if (!IsSet(ch->act, PlrWizinvis) && ch->desc)
         {
                 snprintf(buf, MaxInputLength, "%s has left %s", ch->name,
                          sysdata.mud_name);
@@ -1808,7 +1808,7 @@ CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
          * After extract_char the ch is no longer Valid!
          */
 #ifdef ACCOUNT
-        if (!IS_NPC(ch) && ch->pcdata && ch->pcdata->Account)
+        if (!IsNpc(ch) && ch->pcdata && ch->pcdata->Account)
         {
                 free_account(ch->pcdata->Account);
                 ch->pcdata->Account = NULL;
@@ -1817,14 +1817,14 @@ CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
         }
 #endif
         extract_char(ch, TRUE);
-/*    for ( x = 0; x < MAX_WEAR; x++ )
+/*    for ( x = 0; x < MaxWear; x++ )
 	for ( y = 0; y < MaxLayers; y++ )
 	    save_equipment[x][y] = NULL; - WTF */
 
         /*
          * don't show who's logging off to leaving player 
          */
-        log_string_plus(log_buf, LOG_COMM, static_cast<sh_int>(level));
+        log_string_plus(log_buf, LogComm, static_cast<sh_int>(level));
         return;
 }
 
@@ -1841,15 +1841,15 @@ CMDF do_ansi(CharData * ch, char *argument)
         }
         if ((strcmp(arg, "on") == 0) || (strcmp(arg, "ON") == 0))
         {
-                SET_BIT(ch->act, PLR_ANSI);
-                set_char_color(AT_WHITE + AT_BLINK, ch);
+                SetBit(ch->act, PlrAnsi);
+                set_char_color(AtWhite + AtBlink, ch);
                 send_to_char("ANSI ON!!!\n\r", ch);
                 return;
         }
 
         if ((strcmp(arg, "off") == 0) || (strcmp(arg, "OFF") == 0))
         {
-                REMOVE_BIT(ch->act, PLR_ANSI);
+                RemoveBit(ch->act, PlrAnsi);
                 send_to_char("Okay... ANSI support is now off\n\r", ch);
                 return;
         }
@@ -1862,27 +1862,27 @@ CMDF do_save(CharData * ch, const char *argument)
         if (!str_cmp(argument, "-silentsave"))
                 silent = TRUE;
         argument = NULL;
-        if (IS_NPC(ch) && IS_SET(ch->act, ACT_POLYMORPHED))
+        if (IsNpc(ch) && IsSet(ch->act, ActPolymorphed))
         {
                 send_to_char("You can't save while polymorphed.\n\r", ch);
                 return;
         }
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if (!IS_SET(ch->affected_by, ch->race->affected()))
-                SET_BIT(ch->affected_by, ch->race->affected());
+        if (!IsSet(ch->affected_by, ch->race->affected()))
+                SetBit(ch->affected_by, ch->race->affected());
 
-        if (NOT_AUTHED(ch))
+        if (NotAuthed(ch))
         {
                 send_to_char
                         ("You can't save until after you've graduated from the acadamey.\n\r",
                          ch);
                 return;
         }
-        if (IS_IMMORTAL(ch) && ch->pcdata && ch->pcdata->area
-            && IS_SET(ch->pcdata->area->status, AREA_LOADED))
+        if (IsImmortal(ch) && ch->pcdata && ch->pcdata->area
+            && IsSet(ch->pcdata->area->status, AreaLoaded))
                 fold_area(ch->pcdata->area, ch->pcdata->area->filename, FALSE,
                           FALSE);
         save_char_obj(ch);
@@ -1901,18 +1901,18 @@ CMDF do_save(CharData * ch, const char *argument)
 
 void auto_save(CharData * ch)
 {
-        if (IS_NPC(ch) && IS_SET(ch->act, ACT_POLYMORPHED))
+        if (IsNpc(ch) && IsSet(ch->act, ActPolymorphed))
         {
                 return;
         }
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if (!IS_SET(ch->affected_by, ch->race->affected()))
-                SET_BIT(ch->affected_by, ch->race->affected());
+        if (!IsSet(ch->affected_by, ch->race->affected()))
+                SetBit(ch->affected_by, ch->race->affected());
 
-        if (NOT_AUTHED(ch))
+        if (NotAuthed(ch))
         {
                 return;
         }
@@ -1972,10 +1972,10 @@ CMDF do_follow(CharData* ch, char* argument)
                 return;
         }
 
-        if (IS_AFFECTED(ch, AFF_CHARM) && ch->master)
+        if (IsAffected(ch, AffCharm) && ch->master)
         {
-                act(AT_PLAIN, "But you'd rather follow $N!", ch, NULL,
-                    ch->master, TO_CHAR);
+                act(AtPlain, "But you'd rather follow $N!", ch, NULL,
+                    ch->master, ToChar);
                 return;
         }
 
@@ -2019,10 +2019,10 @@ void add_follower(CharData * ch, CharData * master)
         ch->leader = NULL;
 
         if (can_see(master, ch))
-                act(AT_ACTION, "$n now follows you.", ch, NULL, master,
-                    TO_VICT);
+                act(AtAction, "$n now follows you.", ch, NULL, master,
+                    ToVict);
 
-        act(AT_ACTION, "You now follow $N.", ch, NULL, master, TO_CHAR);
+        act(AtAction, "You now follow $N.", ch, NULL, master, ToChar);
 
         return;
 }
@@ -2037,17 +2037,17 @@ void stop_follower(CharData * ch)
                 return;
         }
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
         {
-                REMOVE_BIT(ch->affected_by, AFF_CHARM);
+                RemoveBit(ch->affected_by, AffCharm);
                 affect_strip(ch, gsn_charm_person);
         }
 
         if (can_see(ch->master, ch) && !char_died(ch->master))
-                act(AT_ACTION, "$n stops following you.", ch, NULL,
-                    ch->master, TO_VICT);
-        act(AT_ACTION, "You stop following $N.", ch, NULL, ch->master,
-            TO_CHAR);
+                act(AtAction, "$n stops following you.", ch, NULL,
+                    ch->master, ToVict);
+        act(AtAction, "You stop following $N.", ch, NULL, ch->master,
+            ToChar);
 
         ch->master = NULL;
         ch->leader = NULL;
@@ -2071,7 +2071,7 @@ void die_follower(CharData * ch)
 
         ch->leader = NULL;
 
-        CHECK_LINKS(first_char, last_char, next, prev, CharData);
+        CheckLinks(first_char, last_char, next, prev, CharData);
         for (fch = first_char; fch; fch = fch->next)
         {
                 if (fch->master == ch)
@@ -2109,7 +2109,7 @@ CMDF do_order(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_AFFECTED(ch, AFF_CHARM))
+        if (IsAffected(ch, AffCharm))
         {
                 send_to_char("You feel like taking, not giving, orders.\n\r",
                              ch);
@@ -2136,7 +2136,7 @@ CMDF do_order(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!IS_AFFECTED(victim, AFF_CHARM) || victim->master != ch)
+                if (!IsAffected(victim, AffCharm) || victim->master != ch)
                 {
                         send_to_char("Do it yourself!\n\r", ch);
                         return;
@@ -2148,12 +2148,12 @@ CMDF do_order(CharData * ch, char *argument)
         {
                 och_next = och->next_in_room;
 
-                if (IS_AFFECTED(och, AFF_CHARM)
+                if (IsAffected(och, AffCharm)
                     && och->master == ch && (fAll || och == victim))
                 {
                         found = TRUE;
-                        act(AT_ACTION, "$n orders you to '$t'.", ch, argument,
-                            och, TO_VICT);
+                        act(AtAction, "$n orders you to '$t'.", ch, argument,
+                            och, ToVict);
                         interpret(och, argument);
                 }
         }
@@ -2161,9 +2161,9 @@ CMDF do_order(CharData * ch, char *argument)
         if (found)
         {
                 snprintf(log_buf, MSL, "%s: order %s.", ch->name, argbuf);
-                log_string_plus(log_buf, LOG_NORMAL, ch->top_level);
+                log_string_plus(log_buf, LogNormal, ch->top_level);
                 send_to_char("Ok.\n\r", ch);
-                WAIT_STATE(ch, 12);
+                WaitState(ch, 12);
         }
         else
                 send_to_char("You have no followers here.\n\r", ch);
@@ -2183,7 +2183,7 @@ CMDF do_group(CharData * ch, char *argument)
                 CharData *leader;
 
                 leader = ch->leader ? ch->leader : ch;
-                set_char_color(AT_GREEN, ch);
+                set_char_color(AtGreen, ch);
                 ch_printf(ch, "%s's group:\n\r", PERS(leader, ch));
 
 /* Changed so that no info revealed on possess */
@@ -2191,12 +2191,12 @@ CMDF do_group(CharData * ch, char *argument)
                 {
                         if (is_same_group(gch, ch))
                         {
-                                set_char_color(AT_DGREEN, ch);
-                                if (IS_AFFECTED(gch, AFF_POSSESS))
+                                set_char_color(AtDgreen, ch);
+                                if (IsAffected(gch, AffPossess))
                                         ch_printf(ch,
                                                   "[%2d %s] %-16s %4s/%4s hp %4s/%4s mv %5s xp\n\r",
                                                   gch->top_level,
-                                                  IS_NPC(gch) ? "Mob" : gch->
+                                                  IsNpc(gch) ? "Mob" : gch->
                                                   race->name(),
                                                   capitalize(PERS(gch, ch)),
                                                   "????", "????", "????",
@@ -2206,7 +2206,7 @@ CMDF do_group(CharData * ch, char *argument)
                                         ch_printf(ch,
                                                   "[%2d %s] %-16s %4d/%4d hp %4d/%4d mv\n\r",
                                                   gch->top_level,
-                                                  IS_NPC(gch) ? "Mob" : gch->
+                                                  IsNpc(gch) ? "Mob" : gch->
                                                   race->name(),
                                                   capitalize(PERS(gch, ch)),
                                                   gch->hit, gch->max_hit,
@@ -2261,7 +2261,7 @@ CMDF do_group(CharData * ch, char *argument)
                      rch = rch->next_in_room)
                 {
                         if (ch != rch
-                            && !IS_NPC(rch)
+                            && !IsNpc(rch)
                             && rch->master == ch
                             && !ch->master
                             && !ch->leader && !is_same_group(rch, ch))
@@ -2281,10 +2281,10 @@ CMDF do_group(CharData * ch, char *argument)
                          * FIXME - victim is un-initalized 
                          */
                         /*
-                         * act( AT_ACTION, "$n groups $s followers.", ch, NULL, victim, TO_ROOM ); - Gavin. lets try this 
+                         * act( AtAction, "$n groups $s followers.", ch, NULL, victim, ToRoom ); - Gavin. lets try this 
                          */
-                        act(AT_ACTION, "$n groups $s followers.", ch, NULL,
-                            NULL, TO_ROOM);
+                        act(AtAction, "$n groups $s followers.", ch, NULL,
+                            NULL, ToRoom);
                         send_to_char("You group your followers.\n\r", ch);
                 }
                 return;
@@ -2304,27 +2304,27 @@ CMDF do_group(CharData * ch, char *argument)
 
         if (victim->master != ch && ch != victim)
         {
-                act(AT_PLAIN, "$N isn't following you.", ch, NULL, victim,
-                    TO_CHAR);
+                act(AtPlain, "$N isn't following you.", ch, NULL, victim,
+                    ToChar);
                 return;
         }
 
         if (is_same_group(victim, ch) && ch != victim)
         {
                 victim->leader = NULL;
-                act(AT_ACTION, "$n removes $N from $s group.", ch, NULL,
-                    victim, TO_NOTVICT);
-                act(AT_ACTION, "$n removes you from $s group.", ch, NULL,
-                    victim, TO_VICT);
-                act(AT_ACTION, "You remove $N from your group.", ch, NULL,
-                    victim, TO_CHAR);
+                act(AtAction, "$n removes $N from $s group.", ch, NULL,
+                    victim, ToNotvict);
+                act(AtAction, "$n removes you from $s group.", ch, NULL,
+                    victim, ToVict);
+                act(AtAction, "You remove $N from your group.", ch, NULL,
+                    victim, ToChar);
                 return;
         }
 
         victim->leader = ch;
-        act(AT_ACTION, "$N joins $n's group.", ch, NULL, victim, TO_NOTVICT);
-        act(AT_ACTION, "You join $n's group.", ch, NULL, victim, TO_VICT);
-        act(AT_ACTION, "$N joins your group.", ch, NULL, victim, TO_CHAR);
+        act(AtAction, "$N joins $n's group.", ch, NULL, victim, ToNotvict);
+        act(AtAction, "You join $n's group.", ch, NULL, victim, ToVict);
+        act(AtAction, "$N joins your group.", ch, NULL, victim, ToChar);
         return;
 }
 
@@ -2381,7 +2381,7 @@ CMDF do_split(CharData * ch, const char *argument)
         }
 
 
-        if ((IS_SET(ch->act, PLR_AUTOGOLD)) && (members < 2))
+        if ((IsSet(ch->act, PlrAutogold)) && (members < 2))
                 return;
 
         if (members < 2)
@@ -2402,7 +2402,7 @@ CMDF do_split(CharData * ch, const char *argument)
         ch->gold -= amount;
         ch->gold += share + extra;
 
-        set_char_color(AT_GOLD, ch);
+        set_char_color(AtGold, ch);
         ch_printf(ch,
                   "You split %d credits.  Your share is %d credits.\n\r",
                   amount, share + extra);
@@ -2414,7 +2414,7 @@ CMDF do_split(CharData * ch, const char *argument)
         {
                 if (gch != ch && is_same_group(gch, ch))
                 {
-                        act(AT_GOLD, buf, ch, NULL, gch, TO_VICT);
+                        act(AtGold, buf, ch, NULL, gch, ToVict);
                         gch->gold += share;
                 }
         }
@@ -2436,7 +2436,7 @@ CMDF do_gtell(CharData* ch, char* argument)
                 return;
         }
 
-        if (IS_SET(ch->act, PLR_NO_TELL))
+        if (IsSet(ch->act, PlrNoTell))
         {
                 send_to_char("Your message didn't get through!\n\r", ch);
                 return;
@@ -2450,13 +2450,13 @@ CMDF do_gtell(CharData* ch, char* argument)
         {
                 if (is_same_group(gch, ch))
                 {
-                        set_char_color(AT_GTELL, gch);
+                        set_char_color(AtGtell, gch);
                         /*
                          * Groups unscrambled regardless of clan language.  Other languages
                          * still garble though. -- Altrag 
                          */
                         if (knows_language(gch, ch->speaking, gch)
-                            || (IS_NPC(ch) && !ch->speaking))
+                            || (IsNpc(ch) && !ch->speaking))
                                 ch_printf(gch, "%s tells the group '%s'.\n\r",
                                           ch->name, argument);
                         else
@@ -2501,10 +2501,10 @@ void talk_auction(char *argument)
         for (d = first_descriptor; d; d = d->next)
         {
                 original = d->original ? d->original : d->character;    /* if switched */
-                if (IS_PLAYING(d) && !xIS_SET(original->deaf, CHANNEL_AUCTION)
-                    && !xIS_SET(original->in_room->RoomFlags, ROOM_SILENCE)
-                    && !NOT_AUTHED(original))
-                        act(AT_GOSSIP, buf, original, NULL, NULL, TO_CHAR);
+                if (IsPlaying(d) && !xIS_SET(original->deaf, ChannelAuction)
+                    && !xIS_SET(original->in_room->RoomFlags, RoomSilence)
+                    && !NotAuthed(original))
+                        act(AtGossip, buf, original, NULL, NULL, ToChar);
         }
 }
 
@@ -2516,21 +2516,21 @@ void talk_auction(char *argument)
  * Language support functions. -- Altrag
  * 07/01/96
  */
-bool knows_language(CharData* ch, LANGUAGE_DATA* lang, CharData* cch)
+bool knows_language(CharData* ch, LanguageData* lang, CharData* cch)
 {
         sh_int    sn;
 
-        if (!IS_NPC(ch) && IS_IMMORTAL(ch))
+        if (!IsNpc(ch) && IsImmortal(ch))
         {
                 return TRUE;
         }
 
-        if (IS_IMMORTAL(ch) || IS_IMMORTAL(cch))
+        if (IsImmortal(ch) || IsImmortal(cch))
                 return TRUE;
 
 /* Hack for OLC Languages, Force mobs to understand everything */
 /* Allows certain mobs to speak EVERYTHING, like in the academy for newbies. */
-        if (IS_NPC(ch) || (IS_NPC(cch) && IS_SET(cch->act, ACT_SPEAKSALL)))
+        if (IsNpc(ch) || (IsNpc(cch) && IsSet(cch->act, ActSpeaksall)))
         {
                 return TRUE;
         }
@@ -2539,13 +2539,13 @@ bool knows_language(CharData* ch, LANGUAGE_DATA* lang, CharData* cch)
                 /*
                  * Clan = basic for mobs.. snicker.. -- Altrag 
                  */
-                if (IS_NPC(ch) || IS_NPC(cch))
+                if (IsNpc(ch) || IsNpc(cch))
                         return TRUE;
                 if (ch->pcdata->clan == cch->pcdata->clan &&
                     ch->pcdata->clan != NULL)
                         return TRUE;
         }
-        if (!IS_NPC(ch))
+        if (!IsNpc(ch))
         {
                 /*
                  * Racial languages for PCs 
@@ -2559,17 +2559,17 @@ bool knows_language(CharData* ch, LANGUAGE_DATA* lang, CharData* cch)
                         return TRUE;
 
                 if ((sn = static_cast<sh_int>(skill_lookup(lang->name))) != -1
-                    && ch->pcdata->learned[sn] >= MIN_LANGUAGE_SKILL)
+                    && ch->pcdata->learned[sn] >= MinLanguageSkill)
                         return TRUE;
         }
         return FALSE;
 }
 
-bool can_learn_lang(CharData * ch, LANGUAGE_DATA * lang)
+bool can_learn_lang(CharData * ch, LanguageData * lang)
 {
         if (!str_cmp(lang->name, "clan"))
                 return FALSE;
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return FALSE;
         {
                 int       sn;
@@ -2579,7 +2579,7 @@ bool can_learn_lang(CharData * ch, LANGUAGE_DATA * lang)
                         bug("Can_learn_lang: Valid language without sn: %s",
                             lang->name);
                 }
-                if (ch->pcdata->learned[sn] >= MAX_LANGUAGE_SKILL)
+                if (ch->pcdata->learned[sn] >= MaxLanguageSkill)
                         return FALSE;
         }
 
@@ -2602,21 +2602,21 @@ const char* const lang_names[] =
  */
 CMDF do_speak(CharData* ch, char* argument)
 {
-        LANGUAGE_DATA *language;
+        LanguageData *language;
         char      arg[MaxInputLength];
 
         argument = one_argument(argument, arg);
 
-        if (!str_cmp(arg, "all") && IS_IMMORTAL(ch))
+        if (!str_cmp(arg, "all") && IsImmortal(ch))
         {
-                set_char_color(AT_SAY, ch);
+                set_char_color(AtSay, ch);
                 send_to_char("Now speaking all languages.\n\r", ch);
                 return;
         }
         if (!str_prefix(arg, "basic")
             && !str_cmp(ch->race->name(), "wookiee"))
         {
-                set_char_color(AT_SAY, ch);
+                set_char_color(AtSay, ch);
                 send_to_char
                         ("Wookiees cannot speak basic even though some can understand it.\n\r",
                          ch);
@@ -2625,7 +2625,7 @@ CMDF do_speak(CharData* ch, char* argument)
         if (!str_prefix(arg, "twilek")
             && str_cmp(ch->race->name(), "twi'lek"))
         {
-                set_char_color(AT_SAY, ch);
+                set_char_color(AtSay, ch);
                 send_to_char
                         ("To speak the Twi'lek language requires body parts that you don't have.\n\r",
                          ch);
@@ -2633,7 +2633,7 @@ CMDF do_speak(CharData* ch, char* argument)
         }
         if (!str_prefix(arg, "binary") && str_cmp(ch->race->name(), "droid"))
         {
-                set_char_color(AT_SAY, ch);
+                set_char_color(AtSay, ch);
                 send_to_char
                         ("To speak binary, your brain would have to be a billion times faster.\n\r",
                          ch);
@@ -2646,33 +2646,33 @@ CMDF do_speak(CharData* ch, char* argument)
                         if (knows_language(ch, language, ch))
                         {
                                 if (!str_cmp(language->name, "clan") &&
-                                    (IS_NPC(ch) || !ch->pcdata->clan))
+                                    (IsNpc(ch) || !ch->pcdata->clan))
                                         continue;
                                 ch->speaking = language;
-                                set_char_color(AT_SAY, ch);
+                                set_char_color(AtSay, ch);
                                 ch_printf(ch, "You now speak %s.\n\r",
                                           language->name);
                                 return;
                         }
                 }
         }
-        set_char_color(AT_SAY, ch);
+        set_char_color(AtSay, ch);
         send_to_char("You do not know that language.\n\r", ch);
 }
 
 CMDF do_languages(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
-        LANGUAGE_DATA *language = NULL, *lang2 = NULL;
+        LanguageData *language = NULL, *lang2 = NULL;
         int       sn2, sn;
         int       numlang = 0;
         CharData *victim = NULL;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
         argument = one_argument(argument, arg);
         if (arg[0] != '\0' && !str_prefix(arg, "learn") &&
-            !IS_IMMORTAL(ch) && !IS_NPC(ch))
+            !IsImmortal(ch) && !IsNpc(ch))
         {
                 CharData *sch;
                 char      arg2[MaxInputLength];
@@ -2725,15 +2725,15 @@ CMDF do_languages(CharData * ch, char *argument)
                         return;
                 }
                 if (ch->race->language() == language ||
-                    ch->pcdata->learned[sn] >= MAX_LANGUAGE_SKILL)
+                    ch->pcdata->learned[sn] >= MaxLanguageSkill)
                 {
-                        act(AT_PLAIN, "You are already fluent in $t.", ch,
-                            language->name, NULL, TO_CHAR);
+                        act(AtPlain, "You are already fluent in $t.", ch,
+                            language->name, NULL, ToChar);
                         return;
                 }
                 for (sch = ch->in_room->first_person; sch;
                      sch = sch->next_in_room)
-                        if (IS_NPC(sch) && IS_SET(sch->act, ACT_SCHOLAR))
+                        if (IsNpc(sch) && IsSet(sch->act, ActScholar))
                                 break;
                 if (!sch)
                 {
@@ -2757,29 +2757,29 @@ CMDF do_languages(CharData * ch, char *argument)
                 ch->pcdata->learned[sn] += static_cast<sh_int>(prct);
                 ch->pcdata->learned[sn] = UMIN(ch->pcdata->learned[sn], 99);
                 if (ch->pcdata->learned[sn] == prct)
-                        act(AT_PLAIN, "You begin lessons in $t.", ch,
-                            language->name, NULL, TO_CHAR);
+                        act(AtPlain, "You begin lessons in $t.", ch,
+                            language->name, NULL, ToChar);
                 else if (ch->pcdata->learned[sn] < 60)
-                        act(AT_PLAIN, "You continue lessons in $t.", ch,
-                            language->name, NULL, TO_CHAR);
+                        act(AtPlain, "You continue lessons in $t.", ch,
+                            language->name, NULL, ToChar);
                 else if (ch->pcdata->learned[sn] < 60 + prct)
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "You feel you can start communicating in $t.", ch,
-                            language->name, NULL, TO_CHAR);
+                            language->name, NULL, ToChar);
                 else if (ch->pcdata->learned[sn] < 99)
-                        act(AT_PLAIN, "You become more fluent in $t.", ch,
-                            language->name, NULL, TO_CHAR);
+                        act(AtPlain, "You become more fluent in $t.", ch,
+                            language->name, NULL, ToChar);
                 else
-                        act(AT_PLAIN, "You now speak perfect $t.", ch,
-                            language->name, NULL, TO_CHAR);
+                        act(AtPlain, "You now speak perfect $t.", ch,
+                            language->name, NULL, ToChar);
                 return;
         }
 
         if (arg[0] != '\0')
                 victim = get_char_world(ch, arg);
-        if (!victim || !IS_IMMORTAL(ch))
+        if (!victim || !IsImmortal(ch))
                 victim = ch;
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 return;
 
         for (language = first_language; language; language = language->next)
@@ -2812,12 +2812,12 @@ bool is_ignoring(CharData * ch, CharData * victim)
         else
                 rch = ch->desc->original ? ch->desc->original : ch;
 
-        if (IS_NPC(rch) || IS_NPC(victim))
+        if (IsNpc(rch) || IsNpc(victim))
                 return FALSE;
 
         for (pos = 0; pos < MaxIgnore; pos++)
         {
-                if (!IS_NPC(rch))
+                if (!IsNpc(rch))
                         if (rch->pcdata->ignore[pos] == NULL)
                                 break;
 
@@ -2838,7 +2838,7 @@ CMDF do_ignore(CharData * ch, char *argument)
         else
                 rch = ch->desc->original ? ch->desc->original : ch;
 
-        if (IS_NPC(rch))
+        if (IsNpc(rch))
                 return;
 
         if (argument[0] == '\0')
@@ -2866,7 +2866,7 @@ CMDF do_ignore(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("Ignore a mob?  I don't think so.\n\r", ch);
                 return;
@@ -2914,7 +2914,7 @@ CMDF do_tune(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         int       station;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!has_comlink(ch))
@@ -2940,7 +2940,7 @@ CMDF do_tune(CharData * ch, char *argument)
                 return;
         }
 
-        if (station == 101 && !IS_IMMORTAL(ch))
+        if (station == 101 && !IsImmortal(ch))
         {
                 send_to_char("&RAvailable stations are 0 through 100.\n\r",
                              ch);
@@ -2949,8 +2949,8 @@ CMDF do_tune(CharData * ch, char *argument)
 
         ch_printf(ch, "&BYour comlink clicks as you set it to &W%d&B.\n\r",
                   station);
-        act(AT_SOCIAL, "&B$n fiddles with a comlink for a second.", ch, NULL,
-            NULL, TO_ROOM);
+        act(AtSocial, "&B$n fiddles with a comlink for a second.", ch, NULL,
+            NULL, ToRoom);
 
         ch->pcdata->comchan = station;
         return;
@@ -2963,7 +2963,7 @@ CMDF do_talk(CharData * ch, char *argument)
         int       station;
         char      buf[MaxStringLength];
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         if (!has_comlink(ch))
@@ -2978,13 +2978,13 @@ CMDF do_talk(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IS_NPC(ch) && IS_SET(ch->act, PLR_SILENCE))
+        if (!IsNpc(ch) && IsSet(ch->act, PlrSilence))
         {
                 send_to_char("Your silenced.\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -3013,14 +3013,14 @@ CMDF do_talk(CharData * ch, char *argument)
                 och = d->original ? d->original : d->character;
                 vch = d->character;
 
-                if (IS_PLAYING(d) && vch != ch && !IS_NPC(vch))
+                if (IsPlaying(d) && vch != ch && !IsNpc(vch))
                 {
                         char     *sbuf = argument;
 
                         if (!has_comlink(vch))
                                 continue;
 
-                        if (xIS_SET(vch->in_room->RoomFlags, ROOM_SILENCE))
+                        if (xIS_SET(vch->in_room->RoomFlags, RoomSilence))
                                 continue;
 
                         if (vch->pcdata && vch->pcdata->comchan != station
@@ -3028,11 +3028,11 @@ CMDF do_talk(CharData * ch, char *argument)
                                 continue;
 
                         if (!knows_language(vch, ch->speaking, ch) &&
-                            (!IS_NPC(ch) || ch->speaking != 0))
+                            (!IsNpc(ch) || ch->speaking != 0))
                                 sbuf = scramble(argument, ch->speaking);
 
-                        act(AT_GOSSIP, buf, ch, drunk_speech(sbuf, ch), vch,
-                            TO_VICT);
+                        act(AtGossip, buf, ch, drunk_speech(sbuf, ch), vch,
+                            ToVict);
                 }
         }
 
@@ -3045,7 +3045,7 @@ char     *append_lang(const char *argument, CharData * ch,
         static char buf[MaxInputLength * 2];
 
         buf[0] = '\0';
-        if (!IS_NPC(victim) && !IS_SET(victim->act, PLR_BRIEF)
+        if (!IsNpc(victim) && !IsSet(victim->act, PlrBrief)
             && knows_language(victim, ch->speaking, ch))
         {
                 snprintf(buf, MaxInputLength * 2, "(%s) ", ch->speaking->name);
@@ -3072,14 +3072,14 @@ CMDF do_say_to_char(CharData * ch, char *argument)
                 return;
         }
         if ((victim = get_char_room(ch, arg)) == NULL
-            || (IS_NPC(victim) && victim->in_room != ch->in_room)
-            || (!NOT_AUTHED(ch) && NOT_AUTHED(victim) && !IS_IMMORTAL(ch)))
+            || (IsNpc(victim) && victim->in_room != ch->in_room)
+            || (!NotAuthed(ch) && NotAuthed(victim) && !IsImmortal(ch)))
         {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -3094,37 +3094,37 @@ CMDF do_say_to_char(CharData * ch, char *argument)
         _last_char = argument[arglen];
 
         actflags = ch->act;
-        if (IS_NPC(ch))
-                REMOVE_BIT(ch->act, ACT_SECRETIVE);
+        if (IsNpc(ch))
+                RemoveBit(ch->act, ActSecretive);
         MOBtrigger = FALSE;
         {
                 char     *sbuf = argument;
 
                 if (!knows_language(victim, ch->speaking, ch)
-                    && (!IS_NPC(ch) || ch->speaking != 0))
+                    && (!IsNpc(ch) || ch->speaking != 0))
                         sbuf = scramble(argument, ch->speaking);
 
                 switch (_last_char)
                 {
                 case '?':
-                        act(AT_SAY, "You ask $N, '$t&c'", ch,
-                            drunk_speech(argument, ch), victim, TO_CHAR);
-                        act(AT_SAY, "$n asks you '$t&c'", ch,
-                            drunk_speech(sbuf, ch), victim, TO_VICT);
+                        act(AtSay, "You ask $N, '$t&c'", ch,
+                            drunk_speech(argument, ch), victim, ToChar);
+                        act(AtSay, "$n asks you '$t&c'", ch,
+                            drunk_speech(sbuf, ch), victim, ToVict);
                         break;
 
                 case '!':
-                        act(AT_SAY, "You exclaim at $N, '$t&c'", ch,
-                            drunk_speech(argument, ch), victim, TO_CHAR);
-                        act(AT_SAY, "$n exclaims to you, '$t&c'", ch,
-                            drunk_speech(sbuf, ch), victim, TO_VICT);
+                        act(AtSay, "You exclaim at $N, '$t&c'", ch,
+                            drunk_speech(argument, ch), victim, ToChar);
+                        act(AtSay, "$n exclaims to you, '$t&c'", ch,
+                            drunk_speech(sbuf, ch), victim, ToVict);
                         break;
 
                 default:
-                        act(AT_SAY, "You say to $N '$t&c'", ch,
-                            drunk_speech(argument, ch), victim, TO_CHAR);
-                        act(AT_SAY, "$n says to you '$t&c'", ch,
-                            drunk_speech(sbuf, ch), victim, TO_VICT);
+                        act(AtSay, "You say to $N '$t&c'", ch,
+                            drunk_speech(argument, ch), victim, ToChar);
+                        act(AtSay, "$n says to you '$t&c'", ch,
+                            drunk_speech(sbuf, ch), victim, ToVict);
                         break;
                 }
         }
@@ -3137,7 +3137,7 @@ CMDF do_say_to_char(CharData * ch, char *argument)
                         continue;
 
                 if (!knows_language(vch, ch->speaking, ch)
-                    && (!IS_NPC(ch) || ch->speaking != 0))
+                    && (!IsNpc(ch) || ch->speaking != 0))
                         sbuf = scramble(argument, ch->speaking);
 
                 switch (_last_char)
@@ -3146,38 +3146,38 @@ CMDF do_say_to_char(CharData * ch, char *argument)
                         snprintf(buf, MSL, "$n asks %s, '$t&c'",
                                  can_see(vch,
                                          victim) ? victim->name : "someone");
-                        act(AT_SAY, buf, ch,
+                        act(AtSay, buf, ch,
                             append_lang(drunk_speech(sbuf, ch), ch, vch), vch,
-                            TO_VICT);
+                            ToVict);
                         break;
 
                 case '!':
                         snprintf(buf, MSL, "$n exclaims at %s, '$t&c'",
                                  can_see(vch,
                                          victim) ? victim->name : "someone");
-                        act(AT_SAY, buf, ch,
+                        act(AtSay, buf, ch,
                             append_lang(drunk_speech(sbuf, ch), ch, vch), vch,
-                            TO_VICT);
+                            ToVict);
                         break;
 
                 default:
                         snprintf(buf, MSL, "$n says to %s, '$t&c'",
                                  can_see(vch,
                                          victim) ? victim->name : "someone");
-                        act(AT_SAY, buf, ch,
+                        act(AtSay, buf, ch,
                             append_lang(drunk_speech(sbuf, ch), ch, vch), vch,
-                            TO_VICT);
+                            ToVict);
                         break;
                 }
         }
 
         ch->act = actflags;
         MOBtrigger = TRUE;
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 snprintf(buf, MSL, "%s: %s",
-                         IS_NPC(ch) ? ch->short_descr : ch->name, argument);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(ch) ? ch->short_descr : ch->name, argument);
+                append_to_file(LogFile, buf);
         }
         mprog_speech_trigger(argument, ch);
         if (char_died(ch))
@@ -3209,7 +3209,7 @@ CMDF do_say(CharData* ch, const char* argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -3225,24 +3225,24 @@ CMDF do_say(CharData* ch, const char* argument)
 
         actflags = ch->act;
 
-        if (IS_NPC(ch))
-                REMOVE_BIT(ch->act, ACT_SECRETIVE);
+        if (IsNpc(ch))
+                RemoveBit(ch->act, ActSecretive);
         MOBtrigger = FALSE;
         switch (_last_char)
         {
         case '?':
-                act(AT_SAY, "You ask, '$t&c'", ch, drunk_speech(argument, ch),
-                    ch, TO_CHAR);
+                act(AtSay, "You ask, '$t&c'", ch, drunk_speech(argument, ch),
+                    ch, ToChar);
                 break;
 
         case '!':
-                act(AT_SAY, "You exclaim, '$t&c'", ch,
-                    drunk_speech(argument, ch), ch, TO_CHAR);
+                act(AtSay, "You exclaim, '$t&c'", ch,
+                    drunk_speech(argument, ch), ch, ToChar);
                 break;
 
         default:
-                act(AT_SAY, "You say, '$t&c'", ch, drunk_speech(argument, ch),
-                    ch, TO_CHAR);
+                act(AtSay, "You say, '$t&c'", ch, drunk_speech(argument, ch),
+                    ch, ToChar);
                 break;
         }
         for (vch = ch->in_room->first_person; vch; vch = vch->next_in_room)
@@ -3252,7 +3252,7 @@ CMDF do_say(CharData* ch, const char* argument)
                 if (vch == ch)
                         continue;
                 if (!knows_language(vch, ch->speaking, ch) &&
-                    (!IS_NPC(ch) || ch->speaking != 0))
+                    (!IsNpc(ch) || ch->speaking != 0))
                         sbuf = scramble(argument, ch->speaking);
                 else
                 {
@@ -3262,21 +3262,21 @@ CMDF do_say(CharData* ch, const char* argument)
                 switch (_last_char)
                 {
                 case '?':
-                        act(AT_SAY, "$n asks, '$t&c'", ch,
+                        act(AtSay, "$n asks, '$t&c'", ch,
                             append_lang(drunk_speech(sbuf, ch), ch, vch), vch,
-                            TO_VICT);
+                            ToVict);
                         break;
 
                 case '!':
-                        act(AT_SAY, "$n exclaims, '$t&c'", ch,
+                        act(AtSay, "$n exclaims, '$t&c'", ch,
                             append_lang(drunk_speech(sbuf, ch), ch, vch), vch,
-                            TO_VICT);
+                            ToVict);
                         break;
 
                 default:
-                        act(AT_SAY, "$n says, '$t&c'", ch,
+                        act(AtSay, "$n says, '$t&c'", ch,
                             append_lang(drunk_speech(sbuf, ch), ch, vch), vch,
-                            TO_VICT);
+                            ToVict);
                         break;
                 }
 
@@ -3285,13 +3285,13 @@ CMDF do_say(CharData* ch, const char* argument)
 
         ch->act = actflags;
         MOBtrigger = FALSE;
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 char      buf[MaxStringLength];
 
                 snprintf(buf, MSL, "%s: %s",
-                         IS_NPC(ch) ? ch->short_descr : ch->name, argument);
-                append_to_file(LOG_FILE, buf);
+                         IsNpc(ch) ? ch->short_descr : ch->name, argument);
+                append_to_file(LogFile, buf);
         }
         mprog_speech_trigger(const_cast<char*>(argument), ch);
         if (char_died(ch))

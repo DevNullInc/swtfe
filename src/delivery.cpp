@@ -67,7 +67,7 @@ void fwrite_delivery(CharData * ch, ObjData * obj)
                 return;
         }
 
-        snprintf(strsave, MSL, "%s%s", MAIL_DIR, capitalize(ch->name));
+        snprintf(strsave, MSL, "%s%s", MailDir, capitalize(ch->name));
 
         if ((fp = fopen(strsave, "w")) != NULL)
         {
@@ -93,7 +93,7 @@ void fwrite_delivery(CharData * ch, ObjData * obj)
                 if (obj->wear_flags != obj->pIndexData->wear_flags)
                         fprintf(fp, "WearFlags    %d\n", obj->wear_flags);
                 wear_loc = -1;
-                for (wear = 0; wear < MAX_WEAR; wear++)
+                for (wear = 0; wear < MaxWear; wear++)
                         for (x = 0; x < MaxLayers; x++)
                                 if (obj == save_equipment[wear][x])
                                 {
@@ -122,32 +122,32 @@ void fwrite_delivery(CharData * ch, ObjData * obj)
 
                 switch (obj->item_type)
                 {
-                case ITEM_PILL:    /* was down there with staff and wand, wrongly - Scryn */
-                case ITEM_POTION:
-                case ITEM_SCROLL:
-                        if (IS_VALID_SN(obj->value[1]))
+                case ItemPill:    /* was down there with staff and wand, wrongly - Scryn */
+                case ItemPotion:
+                case ItemScroll:
+                        if (IsValidSn(obj->value[1]))
                                 fprintf(fp, "Spell 1      '%s'\n",
                                         skill_table[obj->value[1]]->name);
 
-                        if (IS_VALID_SN(obj->value[2]))
+                        if (IsValidSn(obj->value[2]))
                                 fprintf(fp, "Spell 2      '%s'\n",
                                         skill_table[obj->value[2]]->name);
 
-                        if (IS_VALID_SN(obj->value[3]))
+                        if (IsValidSn(obj->value[3]))
                                 fprintf(fp, "Spell 3      '%s'\n",
                                         skill_table[obj->value[3]]->name);
 
                         break;
 
-                case ITEM_STAFF:
-                case ITEM_WAND:
-                        if (IS_VALID_SN(obj->value[3]))
+                case ItemStaff:
+                case ItemWand:
+                        if (IsValidSn(obj->value[3]))
                                 fprintf(fp, "Spell 3      '%s'\n",
                                         skill_table[obj->value[3]]->name);
 
                         break;
-                case ITEM_SALVE:
-                        if (IS_VALID_SN(obj->value[4]))
+                case ItemSalve:
+                        if (IsValidSn(obj->value[4]))
                                 fprintf(fp, "Spell 4      '%s'\n",
                                         skill_table[obj->value[4]]->name);
 
@@ -164,12 +164,12 @@ void fwrite_delivery(CharData * ch, ObjData * obj)
                                 fprintf(fp, "Affect       %d %d %d %d %d\n",
                                         paf->type,
                                         paf->duration,
-                                        ((paf->location == APPLY_WEAPONSPELL
-                                          || paf->location == APPLY_WEARSPELL
+                                        ((paf->location == ApplyWeaponspell
+                                          || paf->location == ApplyWearspell
                                           || paf->location ==
-                                          APPLY_REMOVESPELL
-                                          || paf->location == APPLY_STRIPSN)
-                                         && IS_VALID_SN(paf->
+                                          ApplyRemovespell
+                                          || paf->location == ApplyStripsn)
+                                         && IsValidSn(paf->
                                                         modifier)) ?
                                         skill_table[paf->modifier]->
                                         slot : paf->modifier, paf->location,
@@ -179,12 +179,12 @@ void fwrite_delivery(CharData * ch, ObjData * obj)
                                 fprintf(fp, "AffectData   '%s' %d %d %d %d\n",
                                         skill_table[paf->type]->name,
                                         paf->duration,
-                                        ((paf->location == APPLY_WEAPONSPELL
-                                          || paf->location == APPLY_WEARSPELL
+                                        ((paf->location == ApplyWeaponspell
+                                          || paf->location == ApplyWearspell
                                           || paf->location ==
-                                          APPLY_REMOVESPELL
-                                          || paf->location == APPLY_STRIPSN)
-                                         && IS_VALID_SN(paf->
+                                          ApplyRemovespell
+                                          || paf->location == ApplyStripsn)
+                                         && IsValidSn(paf->
                                                         modifier)) ?
                                         skill_table[paf->modifier]->
                                         slot : paf->modifier, paf->location,
@@ -199,7 +199,7 @@ void fwrite_delivery(CharData * ch, ObjData * obj)
                 fprintf(fp, "End\n\n");
 
                 if (obj->first_content)
-                        fwrite_obj(ch, obj->last_content, fp, 0, OS_CARRY,
+                        fwrite_obj(ch, obj->last_content, fp, 0, OsCarry,
                                    FALSE);
 
         }
@@ -227,11 +227,11 @@ CMDF do_deliver(CharData * ch, char *argument)
         argument = one_argument(argument, arg2);
         argument = one_argument(argument, arg3);
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         for (mob = ch->in_room->first_person; mob; mob = mob->next_in_room)
-                if (IS_NPC(mob) && IS_SET(mob->act, ACT_MAIL))
+                if (IsNpc(mob) && IsSet(mob->act, ActMail))
                         break;
 
         if (!mob)
@@ -250,7 +250,7 @@ CMDF do_deliver(CharData * ch, char *argument)
         }
         if (!str_cmp(arg, "pickup"))
         {
-                snprintf(strsave, MSL, "%s%s", MAIL_DIR,
+                snprintf(strsave, MSL, "%s%s", MailDir,
                          capitalize(ch->name));
 
                 if ((fp = fopen(strsave, "r")) != NULL)
@@ -269,7 +269,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                                                 break;
 
                                         if (!strcmp(word, "OBJECT"))
-                                                fread_obj(ch, fp, OS_CARRY);
+                                                fread_obj(ch, fp, OsCarry);
                                 }
                         }
                         FCLOSE(fp);
@@ -277,7 +277,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                         {
                                 send_to_char("You retrive your delivery.\n\r",
                                              ch);
-                                REMOVE_BIT(ch->pcdata->flags, PCFLAG_GOTMAIL);
+                                RemoveBit(ch->pcdata->flags, PcflagGotmail);
                         }
                         else if (errno != ENOENT)
                                 bug("Delivery unable to delete mailbox.\n\r",
@@ -300,7 +300,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                 return;
         }
         separate_obj(obj);
-        if (IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
+        if (IsObjStat(obj, ItemNodrop) || IsObjStat(obj, ItemPrototype))
         {
                 snprintf(mobbuf, MSL,
                          "I'm sorry we dont handle objects of that nature.");
@@ -308,12 +308,12 @@ CMDF do_deliver(CharData * ch, char *argument)
                 return;
         }
 
-        if ((victim = get_char_world(ch, arg2)) == NULL || IS_NPC(victim))
+        if ((victim = get_char_world(ch, arg2)) == NULL || IsNpc(victim))
         {
                 snprintf(mobbuf, MSL, "%s",
                          "They're not here right now... let me check their mailbox.");
                 do_say(mob, mobbuf);
-                snprintf(strsave, MSL, "%s%c/%s", PLAYER_DIR,
+                snprintf(strsave, MSL, "%s%c/%s", PlayerDir,
                          tolower(arg2[0]), capitalize(arg2));
                 if ((fp = fopen(strsave, "r")) != NULL);
                 else
@@ -324,7 +324,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                         do_say(mob, mobbuf);
                         return;
                 }
-                snprintf(strsave, MSL, "%s%s", MAIL_DIR, capitalize(arg2));
+                snprintf(strsave, MSL, "%s%s", MailDir, capitalize(arg2));
                 if ((fp = fopen(strsave, "r")) != NULL)
                 {
                         FCLOSE(fp);
@@ -389,7 +389,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                                         fprintf(fp, "WearFlags    %d\n",
                                                 obj->wear_flags);
                                 wear_loc = -1;
-                                for (wear = 0; wear < MAX_WEAR; wear++)
+                                for (wear = 0; wear < MaxWear; wear++)
                                         for (x = 0; x < MaxLayers; x++)
                                                 if (obj ==
                                                     save_equipment[wear][x])
@@ -430,10 +430,10 @@ CMDF do_deliver(CharData * ch, char *argument)
 
                                 switch (obj->item_type)
                                 {
-                                case ITEM_PILL:    /* was down there with staff and wand, wrongly - Scryn */
-                                case ITEM_POTION:
-                                case ITEM_SCROLL:
-                                        if (IS_VALID_SN(obj->value[1]))
+                                case ItemPill:    /* was down there with staff and wand, wrongly - Scryn */
+                                case ItemPotion:
+                                case ItemScroll:
+                                        if (IsValidSn(obj->value[1]))
                                                 fprintf(fp,
                                                         "Spell 1      '%s'\n",
                                                         skill_table[obj->
@@ -441,7 +441,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                                                                     [1]]->
                                                         name);
 
-                                        if (IS_VALID_SN(obj->value[2]))
+                                        if (IsValidSn(obj->value[2]))
                                                 fprintf(fp,
                                                         "Spell 2      '%s'\n",
                                                         skill_table[obj->
@@ -449,7 +449,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                                                                     [2]]->
                                                         name);
 
-                                        if (IS_VALID_SN(obj->value[3]))
+                                        if (IsValidSn(obj->value[3]))
                                                 fprintf(fp,
                                                         "Spell 3      '%s'\n",
                                                         skill_table[obj->
@@ -459,9 +459,9 @@ CMDF do_deliver(CharData * ch, char *argument)
 
                                         break;
 
-                                case ITEM_STAFF:
-                                case ITEM_WAND:
-                                        if (IS_VALID_SN(obj->value[3]))
+                                case ItemStaff:
+                                case ItemWand:
+                                        if (IsValidSn(obj->value[3]))
                                                 fprintf(fp,
                                                         "Spell 3      '%s'\n",
                                                         skill_table[obj->
@@ -470,8 +470,8 @@ CMDF do_deliver(CharData * ch, char *argument)
                                                         name);
 
                                         break;
-                                case ITEM_SALVE:
-                                        if (IS_VALID_SN(obj->value[4]))
+                                case ItemSalve:
+                                        if (IsValidSn(obj->value[4]))
                                                 fprintf(fp,
                                                         "Spell 4      '%s'\n",
                                                         skill_table[obj->
@@ -496,14 +496,14 @@ CMDF do_deliver(CharData * ch, char *argument)
                                                         paf->type,
                                                         paf->duration,
                                                         ((paf->location ==
-                                                          APPLY_WEAPONSPELL
+                                                          ApplyWeaponspell
                                                           || paf->location ==
-                                                          APPLY_WEARSPELL
+                                                          ApplyWearspell
                                                           || paf->location ==
-                                                          APPLY_REMOVESPELL
+                                                          ApplyRemovespell
                                                           || paf->location ==
-                                                          APPLY_STRIPSN)
-                                                         && IS_VALID_SN(paf->
+                                                          ApplyStripsn)
+                                                         && IsValidSn(paf->
                                                                         modifier))
                                                         ? skill_table[paf->
                                                                       modifier]->
@@ -518,14 +518,14 @@ CMDF do_deliver(CharData * ch, char *argument)
                                                                     type]->
                                                         name, paf->duration,
                                                         ((paf->location ==
-                                                          APPLY_WEAPONSPELL
+                                                          ApplyWeaponspell
                                                           || paf->location ==
-                                                          APPLY_WEARSPELL
+                                                          ApplyWearspell
                                                           || paf->location ==
-                                                          APPLY_REMOVESPELL
+                                                          ApplyRemovespell
                                                           || paf->location ==
-                                                          APPLY_STRIPSN)
-                                                         && IS_VALID_SN(paf->
+                                                          ApplyStripsn)
+                                                         && IsValidSn(paf->
                                                                         modifier))
                                                         ? skill_table[paf->
                                                                       modifier]->
@@ -543,7 +543,7 @@ CMDF do_deliver(CharData * ch, char *argument)
 
                                 if (obj->first_content)
                                         fwrite_obj(ch, obj->last_content, fp,
-                                                   0, OS_CARRY, FALSE);
+                                                   0, OsCarry, FALSE);
 
                         }
                         fprintf(fp, "#END \n\r");
@@ -581,15 +581,15 @@ CMDF do_deliver(CharData * ch, char *argument)
                 separate_obj(obj);
                 obj_from_char(obj);
                 obj_to_char(obj, victim);
-                act(AT_MAGIC,
+                act(AtMagic,
                     "You give the postmaster $p to express deliver to $N", ch,
-                    obj, victim, TO_CHAR);
+                    obj, victim, ToChar);
                 snprintf(mobbuf, MSL, "Thanks %s! It's on its way to %s.",
                          ch->name, victim->name);
                 do_say(mob, mobbuf);
-                act(AT_MAGIC,
+                act(AtMagic,
                     "A courier materliazes and hands you $p from $n.", ch,
-                    obj, victim, TO_VICT);
+                    obj, victim, ToVict);
                 save_char_obj(victim);
                 save_char_obj(ch);
                 return;
@@ -601,7 +601,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                 send_to_char("You cant afford to send that to them.\n\r", ch);
                 return;
         }
-        snprintf(strsave, MSL, "%s%s", MAIL_DIR, capitalize(victim->name));
+        snprintf(strsave, MSL, "%s%s", MailDir, capitalize(victim->name));
         if ((fp = fopen(strsave, "r")) != NULL)
         {
                 send_to_char("Their mailbox is already full.\n\r", ch);
@@ -610,17 +610,17 @@ CMDF do_deliver(CharData * ch, char *argument)
         }
 
         ch->gold -= cost;
-        act(AT_MAGIC, "You give the postmaster $p to deliver to $N", ch, obj,
-            victim, TO_CHAR);
+        act(AtMagic, "You give the postmaster $p to deliver to $N", ch, obj,
+            victim, ToChar);
         fwrite_delivery(victim, obj);
         extract_obj(obj);
         snprintf(mobbuf, MSL,
                  "Thanks %s! I've put your package in %s's box and sent a memo to them to pickup.",
                  ch->name, victim->name);
         do_say(mob, mobbuf);
-        act(AT_MAGIC,
+        act(AtMagic,
             "$n has sent you $p in the mail, and it is awaiting your pickup at the nearest post office.",
-            ch, obj, victim, TO_VICT);
-        SET_BIT(victim->pcdata->flags, PCFLAG_GOTMAIL);
+            ch, obj, victim, ToVict);
+        SetBit(victim->pcdata->flags, PcflagGotmail);
         return;
 }

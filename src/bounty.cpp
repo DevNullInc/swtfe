@@ -91,13 +91,13 @@ namespace BountyUtils {
         return amount;
     }
     
-    std::string get_safe_bounty_target(BOUNTY_DATA* bounty) {
+    std::string get_safe_bounty_target(BountyData* bounty) {
         if (!bounty || !bounty->target) return "<unknown>";
         if (!is_bounty_target_safe(bounty->target)) return "<invalid>";
         return legacy_to_string(bounty->target);
     }
     
-    BOUNTY_DATA* create_secure_bounty(const std::string& target, long amount, 
+    BountyData* create_secure_bounty(const std::string& target, long amount, 
                                      int type, const std::string& source) {
         // Input validation
         if (!is_target_valid(target)) return nullptr;
@@ -105,8 +105,8 @@ namespace BountyUtils {
         if (amount <= 0) return nullptr;
         
         // Create legacy structure using secure methods
-        BOUNTY_DATA* bounty = nullptr;
-        CREATE(bounty, BOUNTY_DATA, 1);
+        BountyData* bounty = nullptr;
+        CREATE(bounty, BountyData, 1);
         if (!bounty) return nullptr;
         
         // Use STRALLOC for memory management (legacy-compatible)
@@ -126,7 +126,7 @@ namespace BountyUtils {
         return bounty;
     }
     
-    void display_bounty_info_secure(CharData* ch, BOUNTY_DATA* bounty) {
+    void display_bounty_info_secure(CharData* ch, BountyData* bounty) {
         if (!ch || !bounty) return;
         
         // Use modern string safety functions
@@ -134,11 +134,11 @@ namespace BountyUtils {
         long safe_amount = sanitize_bounty_amount(bounty->amount);
         
         // Use legacy output functions with modern safety
-        set_char_color(AT_WHITE, ch);
+        set_char_color(AtWhite, ch);
         ch_printf(ch, "Bounty Target: %s\n\r", safe_target.c_str());
         ch_printf(ch, "Amount: %ld credits\n\r", safe_amount);
         ch_printf(ch, "Type: %s\n\r", 
-                 (bounty->type == BOUNTY_POLICE) ? "Police" : "Player");
+                 (bounty->type == BountyPolice) ? "Police" : "Player");
         
         if (bounty->source && strlen(bounty->source) > 0) {
             std::string safe_source = legacy_to_string(bounty->source);
@@ -153,12 +153,12 @@ namespace BountyUtils {
 // ============================================================================
 
 
-BOUNTY_DATA *first_bounty;
-BOUNTY_DATA *last_bounty;
-BOUNTY_DATA *first_disintigration;
-BOUNTY_DATA *last_disintigration;
+BountyData *first_bounty;
+BountyData *last_bounty;
+BountyData *first_disintigration;
+BountyData *last_disintigration;
 
-#define BOUNTY_VERSION 1
+#define BountyVersion 1
 
 void disintigration args((CharData * ch, CharData * victim, long amount));
 void nodisintigration args((CharData * ch, CharData * victim, long amount));
@@ -171,18 +171,18 @@ bool char_exists(char *player)
 
         if (!player)
                 return FALSE;
-        snprintf(fname, MSL, "%s%c/%s", PLAYER_DIR, tolower(player[0]),
+        snprintf(fname, MSL, "%s%c/%s", PlayerDir, tolower(player[0]),
                  capitalize(player));
         return (stat(fname, &fst) != -1);
 }
 
 void save_disintigrations()
 {
-        BOUNTY_DATA *tbounty;
+        BountyData *tbounty;
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, MSL, "%s%s", SYSTEM_DIR, DISINTIGRATION_LIST);
+        snprintf(filename, MSL, "%s%s", SystemDir, DisintigrationList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -191,14 +191,14 @@ void save_disintigrations()
                 return;
         }
 
-        fprintf(fpout, "#VERSION %d\n", BOUNTY_VERSION);
+        fprintf(fpout, "#VERSION %d\n", BountyVersion);
         for (tbounty = first_disintigration; tbounty; tbounty = tbounty->next)
         {
                 fprintf(fpout, "#BOUNTY\n");
                 fprintf(fpout, "Target %s~\n", tbounty->target);
                 fprintf(fpout, "Type %d\n", tbounty->type);
                 fprintf(fpout, "Amount %ld\n", tbounty->amount);
-                if (tbounty->type == BOUNTY_POLICE)
+                if (tbounty->type == BountyPolice)
                         fprintf(fpout, "Source %s~\n", tbounty->source);
                 fprintf(fpout, "End\n\n");
         }
@@ -207,9 +207,9 @@ void save_disintigrations()
 
 }
 
-BOUNTY_DATA *get_disintigration(char *target)
+BountyData *get_disintigration(char *target)
 {
-        BOUNTY_DATA *bounty;
+        BountyData *bounty;
 
         for (bounty = first_disintigration; bounty; bounty = bounty->next)
                 if (!str_cmp(target, bounty->target))
@@ -220,10 +220,10 @@ BOUNTY_DATA *get_disintigration(char *target)
 void fread_bounty(FILE * fp, int version [[maybe_unused]])
 {
         const char *word;
-        BOUNTY_DATA *bounty = NULL;
+        BountyData *bounty = NULL;
         bool fMatch [[maybe_unused]];
 
-        CREATE(bounty, BOUNTY_DATA, 1);
+        CREATE(bounty, BountyData, 1);
 
         for (;;)
         {
@@ -244,7 +244,7 @@ void fread_bounty(FILE * fp, int version [[maybe_unused]])
                         {
                                 if (!bounty->target
                                     || !char_exists(bounty->target)
-                                    || (bounty->type == BOUNTY_POLICE
+                                    || (bounty->type == BountyPolice
                                         && (bounty->source == NULL
                                             || !get_clan(bounty->source))))
                                 {
@@ -286,7 +286,7 @@ void load_bounties()
         FILE     *fpList;
         const char *target;
         char      bountylist[256];
-        BOUNTY_DATA *bounty;
+        BountyData *bounty;
         long int  amount;
         int       version = 0;
         char      letter;
@@ -294,7 +294,7 @@ void load_bounties()
         first_disintigration = NULL;
         last_disintigration = NULL;
 
-        snprintf(bountylist, MSL, "%s%s", SYSTEM_DIR, DISINTIGRATION_LIST);
+        snprintf(bountylist, MSL, "%s%s", SystemDir, DisintigrationList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(bountylist, "r")) == NULL)
         {
@@ -315,7 +315,7 @@ void load_bounties()
                         bounty = get_disintigration(const_cast<char *>(target));
                         if (!bounty)
                         {
-                                CREATE(bounty, BOUNTY_DATA, 1);
+                                CREATE(bounty, BountyData, 1);
                                 LINK(bounty, first_disintigration,
                                      last_disintigration, next, prev);
                                 bounty->target = STRALLOC(const_cast<char *>(target));
@@ -323,7 +323,7 @@ void load_bounties()
                         }
                         amount = fread_number(fpList);
                         bounty->amount += amount;
-                        bounty->type = BOUNTY_PLAYER;
+                        bounty->type = BountyPlayer;
                 }
         }
         else
@@ -351,22 +351,22 @@ void load_bounties()
         FCLOSE(fpList);
         boot_log(" Done bounties ");
 
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
 CMDF do_bounties(CharData * ch, char *argument [[maybe_unused]])
 {
-        BOUNTY_DATA *bounty;
+        BountyData *bounty;
         int       count = 0;
 
         argument = NULL;
 
-        set_char_color(AT_WHITE, ch);
+        set_char_color(AtWhite, ch);
         send_to_char("\n\rBounty                      Amount\n\r", ch);
         if (!first_disintigration && !check_olc_bounties(ch->in_room))
         {
-                set_char_color(AT_GREY, ch);
+                set_char_color(AtGrey, ch);
                 send_to_char("There are no bounties set at this time.\n\r",
                              ch);
                 return;
@@ -376,8 +376,8 @@ CMDF do_bounties(CharData * ch, char *argument [[maybe_unused]])
                 for (bounty = first_disintigration; bounty;
                      bounty = bounty->next)
                 {
-                        set_char_color(AT_RED, ch);
-                        if (bounty->type == BOUNTY_POLICE)
+                        set_char_color(AtRed, ch);
+                        if (bounty->type == BountyPolice)
                                 ch_printf(ch,
                                           "%-26s   %-14ld &B[&RJailing Only&B] &B[&RPolice&B]&w %s&w\n\r",
                                           bounty->target, bounty->amount,
@@ -388,7 +388,7 @@ CMDF do_bounties(CharData * ch, char *argument [[maybe_unused]])
                         count++;
                 }
         count += print_olc_bounties(ch);
-        set_char_color(AT_GREY, ch);
+        set_char_color(AtGrey, ch);
         ch_printf(ch, "&BT&zhere are &W%d&z bounties at this time.\n\r",
                   count);
 
@@ -396,13 +396,13 @@ CMDF do_bounties(CharData * ch, char *argument [[maybe_unused]])
 
 void disintigration(CharData * ch, char *name, long amount)
 {
-        BOUNTY_DATA *bounty;
+        BountyData *bounty;
         bool      found;
         char      buf[MaxStringLength];
 
         found = FALSE;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("You must be authorized to post a bounty.\n\r",
                              ch);
@@ -411,7 +411,7 @@ void disintigration(CharData * ch, char *name, long amount)
 
         for (bounty = first_disintigration; bounty; bounty = bounty->next)
         {
-                if (bounty->type == BOUNTY_PLAYER
+                if (bounty->type == BountyPlayer
                     && !str_cmp(bounty->target, name))
                 {
                         found = TRUE;
@@ -421,7 +421,7 @@ void disintigration(CharData * ch, char *name, long amount)
 
         if (!found)
         {
-                CREATE(bounty, BOUNTY_DATA, 1);
+                CREATE(bounty, BountyData, 1);
                 LINK(bounty, first_disintigration, last_disintigration, next,
                      prev);
 
@@ -429,7 +429,7 @@ void disintigration(CharData * ch, char *name, long amount)
                 bounty->amount = 0;
         }
 
-        bounty->type = BOUNTY_PLAYER;
+        bounty->type = BountyPlayer;
         bounty->amount = bounty->amount + amount;
         save_disintigrations();
 
@@ -439,7 +439,7 @@ void disintigration(CharData * ch, char *name, long amount)
         log_string(buf);
         snprintf(buf, MSL, "%ld credits has been added to the bounty on %s.",
                  amount, name);
-        echo_to_all(AT_RED, buf, 0);
+        echo_to_all(AtRed, buf, 0);
 }
 
 CMDF do_addbounty(CharData * ch, char *argument)
@@ -471,7 +471,7 @@ CMDF do_addbounty(CharData * ch, char *argument)
                 return;
         }*/
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BOUNTY))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBounty))
         {
                 send_to_char
                         ("You will have to go to your local Hunters Guild office to add a new bounty.",
@@ -497,7 +497,7 @@ CMDF do_addbounty(CharData * ch, char *argument)
                 struct stat fst;
 
                 arg[0] = UPPER(arg[0]);
-                sprintf(fname, "%s%c/%s", PLAYER_DIR, tolower(arg[0]),
+                sprintf(fname, "%s%c/%s", PlayerDir, tolower(arg[0]),
                         capitalize(arg));
 
                 if (stat(fname, &fst) != -1)
@@ -514,7 +514,7 @@ CMDF do_addbounty(CharData * ch, char *argument)
         else
         {
                 strcpy(name, victim->name);
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char
                                 ("You can only set bounties on other players .. not mobs!\n\r",
@@ -545,7 +545,7 @@ CMDF do_addbounty(CharData * ch, char *argument)
 
 void remove_bounties(char *target)
 {
-        BOUNTY_DATA *bounty, *bt_next;
+        BountyData *bounty, *bt_next;
 
         for (bounty = first_disintigration; bounty; bounty = bt_next)
         {
@@ -564,7 +564,7 @@ void remove_bounties(char *target)
         save_disintigrations();
 }
 
-void remove_disintigration(BOUNTY_DATA * bounty)
+void remove_disintigration(BountyData * bounty)
 {
         UNLINK(bounty, first_disintigration, last_disintigration, next, prev);
         STRFREE(bounty->target);
@@ -577,14 +577,14 @@ void remove_disintigration(BOUNTY_DATA * bounty)
 
 void claim_disintigration(CharData * ch, CharData * victim)
 {
-        BOUNTY_DATA *bounty;
+        BountyData *bounty;
         long int  experience;
         char      buf[MaxStringLength];
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
                 return;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         bounty = get_disintigration(victim->name);
@@ -594,7 +594,7 @@ void claim_disintigration(CharData * ch, CharData * victim)
                 if (bounty != NULL)
                         remove_bounties(bounty->target);
                 snprintf(buf, MSL, "%s is Dead!", victim->name);
-                echo_to_all(AT_RED, buf, 0);
+                echo_to_all(AtRed, buf, 0);
                 return;
         }
 
@@ -607,37 +607,37 @@ void claim_disintigration(CharData * ch, CharData * victim)
                 bounty = NULL;
         }
 
-        if (bounty == NULL || bounty->type == BOUNTY_POLICE)
+        if (bounty == NULL || bounty->type == BountyPolice)
         {
-                if (IS_SET(victim->act, PLR_KILLER) && !IS_NPC(ch))
+                if (IsSet(victim->act, PlrKiller) && !IsNpc(ch))
                 {
                         experience =
                                 URANGE(1, xp_compute(ch, victim),
                                        (exp_level
-                                        (ch->skill_level[HUNTING_ABILITY] +
+                                        (ch->skill_level[HuntingAbility] +
                                          1) -
                                         exp_level(ch->
                                                   skill_level
-                                                  [HUNTING_ABILITY])));
+                                                  [HuntingAbility])));
 						experience *= 5;
-                        gain_exp(ch, static_cast<int>(experience), HUNTING_ABILITY);
-                        set_char_color(AT_BLOOD, ch);
+                        gain_exp(ch, static_cast<int>(experience), HuntingAbility);
+                        set_char_color(AtBlood, ch);
                         ch_printf(ch,
                                   "You receive %ld hunting experience for executing a wanted killer.\n\r",
                                   experience);
                 }
-                else if (!IS_NPC(ch)
+                else if (!IsNpc(ch)
                          && (!ch->pcdata || !ch->pcdata->clan
                              || str_cmp(ch->pcdata->clan->name,
                                         "the hunters guild")))
                 {
-                        SET_BIT(ch->act, PLR_KILLER);
+                        SetBit(ch->act, PlrKiller);
                         ch_printf(ch,
                                   "You are now wanted for the murder of %s.\n\r",
                                   victim->name);
                 }
                 snprintf(buf, MSL, "%s is Dead!", victim->name);
-                echo_to_all(AT_RED, buf, 0);
+                echo_to_all(AtRed, buf, 0);
                 if (bounty)
                         remove_bounties(bounty->target);
                 return;
@@ -647,38 +647,38 @@ void claim_disintigration(CharData * ch, CharData * victim)
 
         experience =
                 URANGE(1, bounty->amount + xp_compute(ch, victim),
-                       (exp_level(ch->skill_level[HUNTING_ABILITY] + 1) -
-                        exp_level(ch->skill_level[HUNTING_ABILITY])));
-        gain_exp(ch, static_cast<int>(experience), HUNTING_ABILITY);
+                       (exp_level(ch->skill_level[HuntingAbility] + 1) -
+                        exp_level(ch->skill_level[HuntingAbility])));
+        gain_exp(ch, static_cast<int>(experience), HuntingAbility);
 
         experience *= 5;
 
-        set_char_color(AT_BLOOD, ch);
+        set_char_color(AtBlood, ch);
         ch_printf(ch,
                   "You receive %ld bounty experience and %ld credits,\n\r from the bounty on %s\n\r",
                   experience, bounty->amount, bounty->target);
 
         snprintf(buf, MSL, "%s has claimed the disintigration bounty on %s!",
                  ch->name, victim->name);
-        echo_to_all(AT_RED, buf, 0);
+        echo_to_all(AtRed, buf, 0);
         snprintf(buf, MSL, "%s is Dead!", victim->name);
-        echo_to_all(AT_RED, buf, 0);
+        echo_to_all(AtRed, buf, 0);
 
-        if (!IS_SET(victim->act, PLR_KILLER)
+        if (!IsSet(victim->act, PlrKiller)
             && (!ch->pcdata || !ch->pcdata->clan
                 || str_cmp(ch->pcdata->clan->name, "the hunters guild")))
-                SET_BIT(ch->act, PLR_KILLER);
+                SetBit(ch->act, PlrKiller);
         remove_bounties(bounty->target);
 }
 
 void add_wanted(CharData * ch, PlanetData * planet)
 {
-        WANTED_DATA *wanted = NULL;
+        WantedData *wanted = NULL;
 
         if (planet == NULL || planet->governed_by == NULL)
                 return;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         for (wanted = ch->pcdata->first_wanted; wanted; wanted = wanted->next)
@@ -689,7 +689,7 @@ void add_wanted(CharData * ch, PlanetData * planet)
 
         if (!wanted)
         {
-                CREATE(wanted, WANTED_DATA, 1);
+                CREATE(wanted, WantedData, 1);
                 LINK(wanted, ch->pcdata->first_wanted,
                      ch->pcdata->last_wanted, next, prev);
                 /*
@@ -697,7 +697,7 @@ void add_wanted(CharData * ch, PlanetData * planet)
                  */
                 ch_printf(ch, "&YYou are now wanted on %s.&w\n\r",
                           planet->name);
-                wanted->amount = STARTING_WANTED;
+                wanted->amount = StartingWanted;
         }
         else
         {
@@ -714,7 +714,7 @@ void add_wanted(CharData * ch, PlanetData * planet)
 CMDF do_payfee(CharData * ch, char *argument)
 {
         ClanData *clan;
-        BOUNTY_DATA *bounty;
+        BountyData *bounty;
 
         if (argument[0] == '\0')
         {
@@ -722,7 +722,7 @@ CMDF do_payfee(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BOUNTY))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBounty))
         {
                 send_to_char
                         ("You will have to go to your local Hunters Guild office to pay the fee for a bounty.\n\r",
@@ -738,7 +738,7 @@ CMDF do_payfee(CharData * ch, char *argument)
 
         for (bounty = first_disintigration; bounty; bounty = bounty->next)
         {
-                if (bounty->type != BOUNTY_POLICE)
+                if (bounty->type != BountyPolice)
                         continue;
                 if (!str_cmp(ch->name, bounty->target)
                     && !str_cmp(clan->name, bounty->source))
@@ -770,21 +770,21 @@ CMDF do_payfee(CharData * ch, char *argument)
 
 void add_police_bounty(CharData * ch, PlanetData * planet)
 {
-        BOUNTY_DATA *bounty;
+        BountyData *bounty;
 
         if (planet == NULL)
                 return;
         if (planet->governed_by == NULL)
                 return;
         for (bounty = first_disintigration; bounty; bounty = bounty->next)
-                if (bounty->type == BOUNTY_POLICE &&
+                if (bounty->type == BountyPolice &&
                     !str_cmp(ch->name, bounty->target) &&
                     !str_cmp(planet->governed_by->name, bounty->source))
                         break;
 
         if (bounty == NULL)
         {
-                CREATE(bounty, BOUNTY_DATA, 1);
+                CREATE(bounty, BountyData, 1);
                 LINK(bounty, first_disintigration, last_disintigration, next,
                      prev);
 
@@ -796,16 +796,16 @@ void add_police_bounty(CharData * ch, PlanetData * planet)
                 bounty->amount = bounty->amount + 500;
         }
         bounty->source = STRALLOC(planet->governed_by->name);
-        bounty->type = BOUNTY_POLICE;
+        bounty->type = BountyPolice;
         save_disintigrations();
         return;
 }
 
 bool is_wanted(CharData * ch, PlanetData * pl)
 {
-        WANTED_DATA *wanted;
+        WantedData *wanted;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return FALSE;
         if (!ch->pcdata)
                 return FALSE;
@@ -822,7 +822,7 @@ bool is_wanted(CharData * ch, PlanetData * pl)
 
 void fwrite_wanted(CharData * ch, FILE * fp)
 {
-        WANTED_DATA *wanted;
+        WantedData *wanted;
 
         if (!ch->pcdata)
                 return;
@@ -841,10 +841,10 @@ void fwrite_wanted(CharData * ch, FILE * fp)
 void fread_wanted(CharData * ch, FILE * fp)
 {
         const char *word;
-        WANTED_DATA *wanted;
+        WantedData *wanted;
         bool fMatch [[maybe_unused]];
 
-        CREATE(wanted, WANTED_DATA, 1);
+        CREATE(wanted, WantedData, 1);
 
         for (;;)
         {
@@ -892,10 +892,10 @@ void remove_wanted_planet(CharData * ch, PlanetData * planet)
 
 void remove_wanted(CharData * ch, ClanData * clan)
 {
-        WANTED_DATA *wanted;
-        BOUNTY_DATA *bounty;
+        WantedData *wanted;
+        BountyData *bounty;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
         if (!clan)
                 return;
@@ -915,7 +915,7 @@ void remove_wanted(CharData * ch, ClanData * clan)
         }
 
         for (bounty = first_disintigration; bounty; bounty = bounty->next)
-                if (bounty->type == BOUNTY_POLICE &&
+                if (bounty->type == BountyPolice &&
                     !str_cmp(ch->name, bounty->target) &&
                     !str_cmp(clan->name, bounty->source))
                         break;
@@ -935,10 +935,10 @@ CMDF do_imprison(CharData * ch, char *argument)
         CharData *victim = NULL;
         ClanData *clan = NULL;
         RoomIndexData *jail = NULL;
-        BOUNTY_DATA *bounty = NULL;
+        BountyData *bounty = NULL;
         int       chance = 0;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
         if (!ch->in_room || !ch->in_room->area || !ch->in_room->area->planet)
                 return;
@@ -950,13 +950,13 @@ CMDF do_imprison(CharData * ch, char *argument)
                 return;
         }
 
-        if (ch->position == POS_FIGHTING)
+        if (ch->position == PosFighting)
         {
                 send_to_char("Interesting combat technique.\n\r", ch);
                 return;
         }
 
-        if (ch->position <= POS_SLEEPING)
+        if (ch->position <= PosSleeping)
         {
                 send_to_char("In your dreams or what?\n\r", ch);
                 return;
@@ -1005,15 +1005,15 @@ CMDF do_imprison(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("That would be a waste of time.\n\r", ch);
                 return;
         }
 
-        if (victim->position != POS_INCAP &&
-            victim->position != POS_STUNNED &&
-            victim->position != POS_SLEEPING && !victim->held)
+        if (victim->position != PosIncap &&
+            victim->position != PosStunned &&
+            victim->position != PosSleeping && !victim->held)
         {
                 send_to_char("You will have to incapacitate them first.\n\r",
                              ch);
@@ -1021,32 +1021,32 @@ CMDF do_imprison(CharData * ch, char *argument)
         }
 
         chance = static_cast<int>(ch->pcdata->learned[gsn_imprison]);
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE) && chance < 80)
+        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe) && chance < 80)
         {
-                set_char_color(AT_MAGIC, ch);
+                set_char_color(AtMagic, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
                 return;
         }
         if (number_percent() >= chance)
         {
-                act(AT_ACTION,
+                act(AtAction,
                     "Your failed attempt to jail $n has allowed them to recover.",
-                    ch, NULL, victim, TO_CHAR);
-                act(AT_ACTION,
+                    ch, NULL, victim, ToChar);
+                act(AtAction,
                     "$n's failed attempt to jail you has allowed time for you to recover.",
-                    ch, NULL, victim, TO_VICT);
-                act(AT_ACTION,
+                    ch, NULL, victim, ToVict);
+                act(AtAction,
                     "$n's failed attempt to jail $N has allowed time for them to recover.",
-                    ch, NULL, victim, TO_NOTVICT);
-                WAIT_STATE(ch, 10 * PulseViolence);
+                    ch, NULL, victim, ToNotvict);
+                WaitState(ch, 10 * PulseViolence);
                 victim->hit = 75;
-                victim->position = POS_STANDING;
+                victim->position = PosStanding;
                 update_pos(victim);
                 return;
         }
 
         for (bounty = first_disintigration; bounty; bounty = bounty->next)
-                if (bounty->type == BOUNTY_POLICE &&
+                if (bounty->type == BountyPolice &&
                     !str_cmp(victim->name, bounty->target) &&
                     !str_cmp(clan->name, bounty->source))
                         break;
@@ -1061,7 +1061,7 @@ CMDF do_imprison(CharData * ch, char *argument)
 
         if (victim->hit < 0)
                 victim->hit = 100;
-        victim->position = POS_STANDING;
+        victim->position = PosStanding;
         update_pos(victim);
 
         ch_printf(ch,
@@ -1069,21 +1069,21 @@ CMDF do_imprison(CharData * ch, char *argument)
                   bounty->amount);
         ch->gold += bounty->amount;
 
-        act(AT_ACTION,
+        act(AtAction,
             "You have a strange feeling that you've been moved.\n\r", ch,
-            NULL, victim, TO_VICT);
-        act(AT_ACTION, "$n has $N escorted away.\n\r", ch, NULL, victim,
-            TO_NOTVICT);
+            NULL, victim, ToVict);
+        act(AtAction, "$n has $N escorted away.\n\r", ch, NULL, victim,
+            ToNotvict);
 
         char_from_room(victim);
         char_to_room(victim, jail);
         do_look(victim, "");
-        act(AT_ACTION,
+        act(AtAction,
             "The door opens briefly as $n is shoved into the room.\n\r",
-            victim, NULL, NULL, TO_ROOM);
+            victim, NULL, NULL, ToRoom);
 
         learn_from_success(ch, gsn_imprison);
-        gain_exp(ch, static_cast<int>(bounty->amount * 3), HUNTING_ABILITY);
+        gain_exp(ch, static_cast<int>(bounty->amount * 3), HuntingAbility);
         remove_wanted_planet(victim, ch->in_room->area->planet);
 
         return;
@@ -1091,7 +1091,7 @@ CMDF do_imprison(CharData * ch, char *argument)
 
 CMDF do_rembounty(CharData * ch, char *argument)
 {
-        BOUNTY_DATA *bounty;
+        BountyData *bounty;
 
         if (!argument || argument[0] == '\0')
         {
@@ -1119,7 +1119,7 @@ CMDF do_rembounty(CharData * ch, char *argument)
         }
 }
 
-void free_bounty(BOUNTY_DATA * bounty)
+void free_bounty(BountyData * bounty)
 {
         if (bounty->target)
                 STRFREE(bounty->target);
@@ -1173,7 +1173,7 @@ CMDF do_sharpen(CharData * ch, char *argument)
                 return;
         }
 
-        if (obj->item_type != ITEM_WEAPON)
+        if (obj->item_type != ItemWeapon)
         {
                 send_to_char
                         ("You can't sharpen something that's not a weapon.\n\r",
@@ -1187,7 +1187,7 @@ CMDF do_sharpen(CharData * ch, char *argument)
         /*
          * small mods to make it more generic.. --Cronel 
          */
-        if (obj->value[3] != WEAPON_KNIFE)
+        if (obj->value[3] != WeaponKnife)
         {
                 send_to_char("You can't sharpen that type of weapon!\n\r",
                              ch);
@@ -1204,7 +1204,7 @@ CMDF do_sharpen(CharData * ch, char *argument)
 
         for (pobj = ch->first_carrying; pobj; pobj = pobj->next_content)
         {
-                if (pobj->pIndexData->vnum == OBJ_VNUM_SHARPEN)
+                if (pobj->pIndexData->vnum == ObjVnumSharpen)
                         break;
         }
 
@@ -1214,19 +1214,19 @@ CMDF do_sharpen(CharData * ch, char *argument)
                 return;
         }
 
-        WAIT_STATE(ch, skill_table[gsn_sharpen]->beats);
+        WaitState(ch, skill_table[gsn_sharpen]->beats);
         /*
          * Character must have the Dexterity to sharpen the weapon nicely, 
          * * if not, damage weapon 
          */
-        if (!IS_NPC(ch) && get_curr_dex(ch) < 17)
+        if (!IsNpc(ch) && get_curr_dex(ch) < 17)
         {
                 separate_obj(obj);
                 if (obj->value[0] <= 1)
                 {
-                        act(AT_OBJECT,
+                        act(AtObject,
                             "$p breaks apart and falls to the ground in pieces!.",
-                            ch, obj, NULL, TO_CHAR);
+                            ch, obj, NULL, ToChar);
                         extract_obj(obj);
                         learn_from_failure(ch, gsn_sharpen);
                         return;
@@ -1234,8 +1234,8 @@ CMDF do_sharpen(CharData * ch, char *argument)
                 else
                 {
                         obj->value[0]--;
-                        act(AT_GREEN, "You clumsily slip and damage $p!", ch,
-                            obj, NULL, TO_CHAR);
+                        act(AtGreen, "You clumsily slip and damage $p!", ch,
+                            obj, NULL, ToChar);
                         return;
                 }
         }
@@ -1243,16 +1243,16 @@ CMDF do_sharpen(CharData * ch, char *argument)
         percent = (number_percent() - get_curr_lck(ch) - 15);   /* too low a chance to damage? */
 
         separate_obj(pobj);
-        if (!IS_NPC(ch) && percent > ch->pcdata->learned[gsn_sharpen])
+        if (!IsNpc(ch) && percent > ch->pcdata->learned[gsn_sharpen])
         {
-                act(AT_OBJECT,
+                act(AtObject,
                     "You fail to sharpen $p correctly, damaging the stone.",
-                    ch, obj, NULL, TO_CHAR);
+                    ch, obj, NULL, ToChar);
                 if (pobj->value[0] <= 1)
                 {
-                        act(AT_OBJECT,
+                        act(AtObject,
                             "The sharpening stone crumbles apart from misuse.",
-                            ch, pobj, NULL, TO_CHAR);
+                            ch, pobj, NULL, ToChar);
                         extract_obj(pobj);
                         learn_from_failure(ch, gsn_sharpen);
                         return;
@@ -1264,15 +1264,15 @@ CMDF do_sharpen(CharData * ch, char *argument)
 
         level = ch->top_level;
         separate_obj(obj);
-        act(AT_SKILL,
+        act(AtSkill,
             "With skill and precision, you sharpen $p to a fine edge.", ch,
-            obj, NULL, TO_CHAR);
-        act(AT_SKILL, "With skill and precision, $n sharpens $p.", ch, obj,
-            NULL, TO_ROOM);
+            obj, NULL, ToChar);
+        act(AtSkill, "With skill and precision, $n sharpens $p.", ch, obj,
+            NULL, ToRoom);
         CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
-        paf->location = APPLY_DAMROLL;
+        paf->location = ApplyDamroll;
         paf->modifier = level / 10;
         paf->bitvector = 0;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);

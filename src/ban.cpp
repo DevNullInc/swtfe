@@ -60,7 +60,7 @@
 // ============================================================================
 namespace {
     // Error messages
-    const char* const SYNTAX_BAN = 
+    const char* const SyntaxBan = 
         "Syntax: ban race  <race>    <type> <duration>\n\r"
         "Syntax: ban class <class>   <type> <duration>\n\r"
         "Syntax: ban site  <site>    <type> <duration>\n\r"
@@ -69,12 +69,12 @@ namespace {
         "Type can be: newbie, mortal, all, warn or level.\n\r"
         "In ban show, the <field> is site, race or class.\n\r";
         
-    const char* const SYNTAX_ALLOW = 
+    const char* const SyntaxAllow = 
         "Syntax: allow race  <race>\n\r"
         "Syntax: allow class <class>\n\r"
         "Syntax: allow site  <site>\n\r";
         
-    const char* const SYNTAX_WARN = 
+    const char* const SyntaxWarn = 
         "Syntax: warn race  <field>\n\r"
         "Syntax: warn site  <field>\n\r"
         "Syntax: warn class <field>\n\r"
@@ -82,35 +82,35 @@ namespace {
         "Example: warn class #1\n\r";
         
     // Status messages
-    const char* const MSG_MONSTER_CANT_BAN = "Monsters are too dumb to do that!\n\r";
-    const char* const MSG_NO_DESCRIPTOR = "No descriptor available.\n\r";
-    const char* const MSG_INVALID_TIME = "Time value is -1 (forever) or from 1 to 1000.\n\r";
-    const char* const MSG_RESTRICTED_SUBSTATE = "You cannot use this command from within another command.\n\r";
+    const char* const MsgMonsterCantBan = "Monsters are too dumb to do that!\n\r";
+    const char* const MsgNoDescriptor = "No descriptor available.\n\r";
+    const char* const MsgInvalidTime = "Time value is -1 (forever) or from 1 to 1000.\n\r";
+    const char* const MsgRestrictedSubstate = "You cannot use this command from within another command.\n\r";
     
     // Time formatting
-    const char* const TIME_FORMAT_DISPLAY = "%Y-%m-%d %H:%M:%S";
-    const char* const TIME_FORMAT_FILE = "%24.24s";
+    const char* const TimeFormatDisplay = "%Y-%m-%d %H:%M:%S";
+    const char* const TimeFormatFile = "%24.24s";
 }
 
 // ============================================================================
 // Global Variables
 // ============================================================================
-BAN_DATA* first_ban = nullptr;
-BAN_DATA* last_ban = nullptr;
-BAN_DATA* first_ban_class = nullptr;
-BAN_DATA* last_ban_class = nullptr;
-BAN_DATA* first_ban_race = nullptr;
-BAN_DATA* last_ban_race = nullptr;
+BanData* first_ban = nullptr;
+BanData* last_ban = nullptr;
+BanData* first_ban_class = nullptr;
+BanData* last_ban_class = nullptr;
+BanData* first_ban_race = nullptr;
+BanData* last_ban_race = nullptr;
 
-RESERVE_DATA* first_reserved = nullptr;
-RESERVE_DATA* last_reserved = nullptr;
+ReserveData* first_reserved = nullptr;
+ReserveData* last_reserved = nullptr;
 
 // ============================================================================
 // Forward Declarations
 // ============================================================================
 void fread_ban(FILE* fp, int type);
-void dispose_ban(BAN_DATA* ban, int type);
-void free_ban(BAN_DATA* pban);
+void dispose_ban(BanData* ban, int type);
+void free_ban(BanData* pban);
 
 // ============================================================================
 // Section: Time Management Utilities
@@ -122,25 +122,25 @@ void free_ban(BAN_DATA* pban);
  */
 time_t calculate_unban_time(int duration_days)
 {
-    if (duration_days == PERMANENT_BAN)
-        return PERMANENT_BAN;  // Permanent ban
+    if (duration_days == PermanentBan)
+        return PermanentBan;  // Permanent ban
         
-    if (duration_days < MIN_BAN_DURATION || duration_days > MAX_BAN_DURATION)
-        return PERMANENT_BAN;  // Invalid duration defaults to permanent
+    if (duration_days < MinBanDuration || duration_days > MaxBanDuration)
+        return PermanentBan;  // Invalid duration defaults to permanent
         
-    return current_time + (duration_days * SECONDS_PER_DAY);
+    return current_time + (duration_days * SecondsPerDay);
 }
 
 /*
  * Check if a ban has expired
  * Handles both permanent bans and timed bans properly
  */
-bool is_ban_expired(const BAN_DATA* ban)
+bool is_ban_expired(const BanData* ban)
 {
     if (!ban)
         return true;  // Invalid ban is considered expired
         
-    if (ban->unban_date == PERMANENT_BAN)
+    if (ban->unban_date == PermanentBan)
         return false;  // Permanent bans never expire
         
     return (ban->unban_date <= current_time);
@@ -150,22 +150,22 @@ bool is_ban_expired(const BAN_DATA* ban)
  * Format the time remaining on a ban for display
  * Returns a formatted string showing days/hours remaining
  */
-char* format_ban_time_remaining(const BAN_DATA* ban)
+char* format_ban_time_remaining(const BanData* ban)
 {
     static char buf[256];
     
     if (!ban)
         return const_cast<char*>("Invalid");
         
-    if (ban->unban_date == PERMANENT_BAN)
+    if (ban->unban_date == PermanentBan)
         return const_cast<char*>("Permanent");
         
     if (is_ban_expired(ban))
         return const_cast<char*>("Expired");
         
     time_t remaining = ban->unban_date - current_time;
-    int days = static_cast<int>(remaining / SECONDS_PER_DAY);
-    int hours = static_cast<int>((remaining % SECONDS_PER_DAY) / SECONDS_PER_HOUR);
+    int days = static_cast<int>(remaining / SecondsPerDay);
+    int hours = static_cast<int>((remaining % SecondsPerDay) / SecondsPerHour);
     
     if (days > 0)
         snprintf(buf, sizeof(buf), "%d days, %d hours", days, hours);
@@ -181,7 +181,7 @@ char* format_ban_time_remaining(const BAN_DATA* ban)
  * Format the ban creation time for display
  * Returns a human-readable timestamp
  */
-char* format_ban_creation_time(const BAN_DATA* ban)
+char* format_ban_creation_time(const BanData* ban)
 {
     static char buf[64];
     
@@ -189,7 +189,7 @@ char* format_ban_creation_time(const BAN_DATA* ban)
         return const_cast<char*>("Unknown");
         
     struct tm* tm_info = localtime(&ban->ban_time);
-    strftime(buf, sizeof(buf), TIME_FORMAT_DISPLAY, tm_info);
+    strftime(buf, sizeof(buf), TimeFormatDisplay, tm_info);
     
     return buf;
 }
@@ -212,10 +212,10 @@ void load_banlist(void)
         first_ban = NULL;
         last_ban = NULL;
 
-        if (!(fp = fopen(SYSTEM_DIR BAN_LIST, "r")))
+        if (!(fp = fopen(SystemDir BanList, "r")))
         {
-                bug("Save_banlist: Cannot open " BAN_LIST, 0);
-                perror(BAN_LIST);
+                bug("Save_banlist: Cannot open " BanList, 0);
+                perror(BanList);
                 return;
         }
         for (;;)
@@ -227,7 +227,7 @@ void load_banlist(void)
                 case 'C':
                         if (!str_cmp(word, "CLASS"))
                         {
-                                fread_ban(fp, BAN_CLASS);
+                                fread_ban(fp, BanClass);
                                 fMatch = TRUE;
                         }
                         break;
@@ -242,14 +242,14 @@ void load_banlist(void)
                 case 'R':
                         if (!str_cmp(word, "RACE"))
                         {
-                                fread_ban(fp, BAN_RACE);
+                                fread_ban(fp, BanRace);
                                 fMatch = TRUE;
                         }
                         break;
                 case 'S':
                         if (!str_cmp(word, "SITE"))
                         {
-                                fread_ban(fp, BAN_SITE);
+                                fread_ban(fp, BanSite);
                                 fMatch = TRUE;
                         }
                         break;
@@ -269,18 +269,18 @@ void load_banlist(void)
 
 void fread_ban(FILE * fp, int type)
 {
-        BAN_DATA *pban;
+        BanData *pban;
         unsigned int i = 0;
         bool      fMatch = FALSE;
 
-        CREATE(pban, BAN_DATA, 1);
+        CREATE(pban, BanData, 1);
 
         pban->name = fread_string_nohash(fp);
         pban->user = NULL;
         pban->level = fread_number(fp);
         pban->duration_days = fread_number(fp);
         pban->unban_date = fread_number(fp);
-        if (type == BAN_SITE)
+        if (type == BanSite)
         {   /* Sites have 2 extra numbers written out */
                 pban->prefix = fread_number(fp);
                 pban->suffix = fread_number(fp);
@@ -294,7 +294,7 @@ void fread_ban(FILE * fp, int type)
          * Need to lookup the class or race number if it is of that type 
          */
 
-        if (type == BAN_CLASS)
+        if (type == BanClass)
         {
                 for (i = 0; i < MaxAbility; i++)
                 {
@@ -305,11 +305,11 @@ void fread_ban(FILE * fp, int type)
                         }
                 }
         }
-        else if (type == BAN_RACE)
+        else if (type == BanRace)
         {
                 RaceData *race = NULL;
 
-                FOR_EACH_LIST(RACE_LIST, races, race)
+                ForEachList(RaceList, races, race)
                 {
                         if (!str_cmp(race->name(), pban->name))
                         {
@@ -318,7 +318,7 @@ void fread_ban(FILE * fp, int type)
                         }
                 }
         }
-        else if (type == BAN_SITE)
+        else if (type == BanSite)
         {
                 for (i = 0; i < strlen(pban->name); i++)
                 {
@@ -339,7 +339,7 @@ void fread_ban(FILE * fp, int type)
                 }
         }
 
-        if (type == BAN_RACE || type == BAN_CLASS)
+        if (type == BanRace || type == BanClass)
         {
                 if (fMatch)
                         pban->flag = static_cast<int>(i);
@@ -350,11 +350,11 @@ void fread_ban(FILE * fp, int type)
                         return;
                 }
         }
-        if (type == BAN_CLASS)
+        if (type == BanClass)
                 LINK(pban, first_ban_class, last_ban_class, next, prev);
-        else if (type == BAN_RACE)
+        else if (type == BanRace)
                 LINK(pban, first_ban_race, last_ban_race, next, prev);
-        else if (type == BAN_SITE)
+        else if (type == BanSite)
                 LINK(pban, first_ban, last_ban, next, prev);
         else    /* Bad type throw out the ban structure */
         {
@@ -371,15 +371,15 @@ void fread_ban(FILE * fp, int type)
 
 void save_banlist(void)
 {
-        BAN_DATA *pban;
+        BanData *pban;
         FILE     *fp;
 
         FCLOSE(fpReserve);
-        if (!(fp = fopen(SYSTEM_DIR BAN_LIST, "w")))
+        if (!(fp = fopen(SystemDir BanList, "w")))
         {
-                bug("Save_banlist: Cannot open " BAN_LIST, 0);
-                perror(BAN_LIST);
-                fpReserve = fopen(NULL_FILE, "r");
+                bug("Save_banlist: Cannot open " BanList, 0);
+                perror(BanList);
+                fpReserve = fopen(NullFile, "r");
                 return;
         }
 
@@ -430,7 +430,7 @@ void save_banlist(void)
         }
         fprintf(fp, "END\n");   /* File must have an END even if empty */
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -446,10 +446,10 @@ CMDF do_ban(CharData * ch, char *argument)
         char      arg3[MaxInputLength];
         char      arg4[MaxInputLength];
         char     *temp;
-        BAN_DATA *pban;
+        BanData *pban;
         int       value = 0, time;
 
-        if (IS_NPC(ch)) /* Don't want mobs banning sites ;) */
+        if (IsNpc(ch)) /* Don't want mobs banning sites ;) */
         {
                 send_to_char("Monsters are too dumb to do that!\n\r", ch);
                 return;
@@ -461,7 +461,7 @@ CMDF do_ban(CharData * ch, char *argument)
                 return;
         }
 
-        set_char_color(AT_IMMORT, ch);
+        set_char_color(AtImmort, ch);
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
         argument = one_argument(argument, arg3);
@@ -527,7 +527,7 @@ CMDF do_ban(CharData * ch, char *argument)
         {
                 if (arg2[0] == '\0')
                 {
-                        show_bans(ch, BAN_SITE);
+                        show_bans(ch, BanSite);
                         return;
                 }
 
@@ -543,14 +543,14 @@ CMDF do_ban(CharData * ch, char *argument)
                 }
                 if (arg3[0] == '\0')
                         goto syntax_message;
-                if (!add_ban(ch, arg2, arg3, time, BAN_SITE))
+                if (!add_ban(ch, arg2, arg3, time, BanSite))
                         return;
         }
         else if (!str_cmp(arg1, "race"))
         {
                 if (arg2[0] == '\0')
                 {
-                        show_bans(ch, BAN_RACE);
+                        show_bans(ch, BanRace);
                         return;
                 }
 
@@ -566,14 +566,14 @@ CMDF do_ban(CharData * ch, char *argument)
                 }
                 if (arg3[0] == '\0')
                         goto syntax_message;
-                if (!add_ban(ch, arg2, arg3, time, BAN_RACE))
+                if (!add_ban(ch, arg2, arg3, time, BanRace))
                         return;
         }
         else if (!str_cmp(arg1, "class"))
         {
                 if (arg2[0] == '\0')
                 {
-                        show_bans(ch, BAN_CLASS);
+                        show_bans(ch, BanClass);
                         return;
                 }
 
@@ -589,7 +589,7 @@ CMDF do_ban(CharData * ch, char *argument)
                 }
                 if (arg3[0] == '\0')
                         goto syntax_message;
-                if (!add_ban(ch, arg2, arg3, time, BAN_CLASS))
+                if (!add_ban(ch, arg2, arg3, time, BanClass))
                         return;
         }
         else if (!str_cmp(arg1, "show"))
@@ -679,14 +679,14 @@ CMDF do_ban(CharData * ch, char *argument)
 
 CMDF do_allow(CharData * ch, char *argument)
 {
-        BAN_DATA *pban;
+        BanData *pban;
         char      arg1[MaxInputLength];
         char      arg2[MaxInputLength];
         char     *temp = NULL;
         bool      fMatch = FALSE;
         int       value = 0;
 
-        if (IS_NPC(ch)) /* No mobs allowing sites */
+        if (IsNpc(ch)) /* No mobs allowing sites */
         {
                 send_to_char("Monsters are too dumb to do that!\n\r", ch);
                 return;
@@ -701,7 +701,7 @@ CMDF do_allow(CharData * ch, char *argument)
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
 
-        set_char_color(AT_IMMORT, ch);
+        set_char_color(AtImmort, ch);
 
         if (arg1[0] == '\0' || arg2[0] == '\0')
                 goto syntax_message;
@@ -749,7 +749,7 @@ CMDF do_allow(CharData * ch, char *argument)
                         if (value == 1 || !str_cmp(pban->name, temp))
                         {
                                 fMatch = TRUE;
-                                dispose_ban(pban, BAN_SITE);
+                                dispose_ban(pban, BanSite);
                                 break;
                         }
                         if (value > 1)
@@ -771,7 +771,7 @@ CMDF do_allow(CharData * ch, char *argument)
                         if (value == 1 || !str_cmp(pban->name, arg2))
                         {
                                 fMatch = TRUE;
-                                dispose_ban(pban, BAN_RACE);
+                                dispose_ban(pban, BanRace);
                                 break;
                         }
                         if (value > 1)
@@ -793,7 +793,7 @@ CMDF do_allow(CharData * ch, char *argument)
                         if (value == 1 || !str_cmp(pban->name, arg2))
                         {
                                 fMatch = TRUE;
-                                dispose_ban(pban, BAN_CLASS);
+                                dispose_ban(pban, BanClass);
                                 break;
                         }
                         if (value > 1)
@@ -832,13 +832,13 @@ CMDF do_warn(CharData * ch, char *argument)
         char      arg2[MaxStringLength];
         char     *name;
         int       count = -1, type;
-        BAN_DATA *pban;
+        BanData *pban;
 
         /*
          * Don't want mobs or link-deads doing this.
          */
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Monsters are too dumb to do that!\n\r", ch);
                 return;
@@ -874,25 +874,25 @@ CMDF do_warn(CharData * ch, char *argument)
          * We simply set up which ban list we will be looking at here.
          */
         if (!str_cmp(arg1, "class"))
-                type = BAN_CLASS;
+                type = BanClass;
         else if (!str_cmp(arg1, "race"))
-                type = BAN_RACE;
+                type = BanRace;
         else if (!str_cmp(arg1, "site"))
-                type = BAN_SITE;
+                type = BanSite;
         else
                 type = -1;
 
-        if (type == BAN_CLASS)
+        if (type == BanClass)
         {
                 pban = first_ban_class;
                 arg2[0] = static_cast<char>(toupper(static_cast<unsigned char>(arg2[0])));
         }
-        else if (type == BAN_RACE)
+        else if (type == BanRace)
         {
                 pban = first_ban_race;
                 arg2[0] = static_cast<char>(toupper(static_cast<unsigned char>(arg2[0])));
         }
-        else if (type == BAN_SITE)
+        else if (type == BanSite)
         {
                 pban = first_ban;
         }
@@ -910,7 +910,7 @@ CMDF do_warn(CharData * ch, char *argument)
 
                 if (pban->warn)
                 {
-                        if (pban->level == BAN_WARN)
+                        if (pban->level == BanWarn)
                         {
                                 dispose_ban(pban, type);
                                 send_to_char("Warn has been deleted.\n\r",
@@ -958,7 +958,7 @@ CMDF do_warn(CharData * ch, char *argument)
 int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
 {
         char      arg[MaxStringLength];
-        BAN_DATA *pban, *temp;
+        BanData *pban, *temp;
         struct tm *tms;
         char     *name;
         int       level, i, value;
@@ -1005,7 +1005,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                         else if (!str_cmp(arg2, "mortal"))
                                 level = LevelAvatar;
                         else if (!str_cmp(arg2, "warn"))
-                                level = BAN_WARN;
+                                level = BanWarn;
                         else
                         {
                                 bug("Bad string for flag in add_ban.", 0);
@@ -1014,7 +1014,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
 
                         switch (type)
                         {
-                        case BAN_CLASS:
+                        case BanClass:
                                 {
                                         if (arg[0] == '\0')
                                                 return 0;
@@ -1058,7 +1058,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                                                         level;
                                                                 if (temp->
                                                                     level ==
-                                                                    BAN_WARN)
+                                                                    BanWarn)
                                                                         temp->warn = TRUE;
                                                                 temp->ban_time = current_time;
                                                                 if (temp->
@@ -1075,7 +1075,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                                         }
                                                 }
                                         }
-                                        CREATE(pban, BAN_DATA, 1);
+                                        CREATE(pban, BanData, 1);
                                         pban->name =
                                                 str_dup(ability_name[value]);
                                         pban->flag = value;
@@ -1085,11 +1085,11 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                              last_ban_class, next, prev);
                                         break;
                                 }
-                        case BAN_RACE:
+                        case BanRace:
                                 {
                                         RaceData *race = NULL;
 
-                                        FOR_EACH_LIST(RACE_LIST, races, race)
+                                        ForEachList(RaceList, races, race)
                                                 if (!str_cmp
                                                     (race->name(), arg))
                                                 break;
@@ -1121,7 +1121,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                                                         level;
                                                                 if (temp->
                                                                     level ==
-                                                                    BAN_WARN)
+                                                                    BanWarn)
                                                                         temp->warn = TRUE;
                                                                 temp->ban_time = current_time;
                                                                 if (temp->
@@ -1138,7 +1138,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                                         }
                                                 }
                                         }
-                                        CREATE(pban, BAN_DATA, 1);
+                                        CREATE(pban, BanData, 1);
                                         pban->name = str_dup(race->name());
                                         pban->flag = 0;
                                         pban->level = level;
@@ -1147,7 +1147,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                              last_ban_race, next, prev);
                                         break;
                                 }
-                        case BAN_SITE:
+                        case BanSite:
                                 {
                                         bool      prefix = FALSE, suffix =
                                                 FALSE, user_name = FALSE;
@@ -1220,7 +1220,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                                                         prefix;
                                                                 if (temp->
                                                                     level ==
-                                                                    BAN_WARN)
+                                                                    BanWarn)
                                                                         temp->warn = TRUE;
                                                                 temp->level =
                                                                         level;
@@ -1244,7 +1244,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                                         }
                                                 }
                                         }
-                                        CREATE(pban, BAN_DATA, 1);
+                                        CREATE(pban, BanData, 1);
                                         pban->ban_by = str_dup(ch->name);
                                         pban->suffix = suffix;
                                         pban->prefix = prefix;
@@ -1280,7 +1280,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                                 pban->duration_days = -1;
                                 pban->unban_date = -1;
                         }
-                        if (pban->level == BAN_WARN)
+                        if (pban->level == BanWarn)
                                 pban->warn = TRUE;
                         ch->substate = SubBanDesc;
                         ch->dest_buf = pban;
@@ -1291,7 +1291,7 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                 }
         case SubBanDesc:
                 {
-                        pban = static_cast<BAN_DATA *>(ch->dest_buf);
+                        pban = static_cast<BanData *>(ch->dest_buf);
                         if (!pban)
                         {
                                 bug("do_ban: sub_ban_desc: NULL ch->dest_buf",
@@ -1340,14 +1340,14 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
 
 void show_bans(CharData * ch, int type)
 {
-        BAN_DATA *pban;
+        BanData *pban;
         int       bnum;
 
-        set_pager_color(AT_IMMORT, ch);
+        set_pager_color(AtImmort, ch);
 
         switch (type)
         {
-        case BAN_SITE:
+        case BanSite:
                 send_to_pager("Banned sites:\n\r", ch);
                 send_to_pager
                         ("[ #] Warn (Lv) Time                     By              For   Site\n\r",
@@ -1356,7 +1356,7 @@ void show_bans(CharData * ch, int type)
                         ("---- ---- ---- ------------------------ --------------- ----  ---------------\n\r",
                          ch);
                 pban = first_ban;
-                set_pager_color(AT_PLAIN, ch);
+                set_pager_color(AtPlain, ch);
                 for (bnum = 1; pban; pban = pban->next, bnum++)
                 {
                         if (!pban->user)
@@ -1382,14 +1382,14 @@ void show_bans(CharData * ch, int type)
                                              (pban->suffix) ? '*' : ' ');
                 }
                 return;
-        case BAN_RACE:
+        case BanRace:
                 send_to_pager("Banned races:\n\r", ch);
                 send_to_pager
                         ("[ #] Warn (Lv) Time                     By              For   Race\n\r",
                          ch);
                 pban = first_ban_race;
                 break;
-        case BAN_CLASS:
+        case BanClass:
                 send_to_pager("Banned classes:\n\r", ch);
                 send_to_pager
                         ("[ #] Warn (Lv) Time                     By              For   Class\n\r",
@@ -1403,7 +1403,7 @@ void show_bans(CharData * ch, int type)
         send_to_pager
                 ("---- ---- ---- ------------------------ --------------- ----  ---------------\n\r",
                  ch);
-        set_pager_color(AT_PLAIN, ch);
+        set_pager_color(AtPlain, ch);
         for (bnum = 1; pban; pban = pban->next, bnum++)
                 pager_printf(ch, "[%2d] %-4s (%2d) %-24s %-15s %4d  %s\n\r",
                              bnum, (pban->warn) ? "YES" : "no", pban->level,
@@ -1419,7 +1419,7 @@ void show_bans(CharData * ch, int type)
 
 bool check_total_bans(DescriptorData * d)
 {
-        BAN_DATA *pban;
+        BanData *pban;
         char      new_host[MaxStringLength];
         int       i;
 
@@ -1436,7 +1436,7 @@ bool check_total_bans(DescriptorData * d)
                 {
                         if (check_expire(pban))
                         {
-                                dispose_ban(pban, BAN_SITE);
+                                dispose_ban(pban, BanSite);
                                 save_banlist();
                                 return FALSE;
                         }
@@ -1450,7 +1450,7 @@ bool check_total_bans(DescriptorData * d)
                 {
                         if (check_expire(pban))
                         {
-                                dispose_ban(pban, BAN_SITE);
+                                dispose_ban(pban, BanSite);
                                 save_banlist();
                                 return FALSE;
                         }
@@ -1461,7 +1461,7 @@ bool check_total_bans(DescriptorData * d)
                 {
                         if (check_expire(pban))
                         {
-                                dispose_ban(pban, BAN_SITE);
+                                dispose_ban(pban, BanSite);
                                 save_banlist();
                                 return FALSE;
                         }
@@ -1472,7 +1472,7 @@ bool check_total_bans(DescriptorData * d)
                 {
                         if (check_expire(pban))
                         {
-                                dispose_ban(pban, BAN_SITE);
+                                dispose_ban(pban, BanSite);
                                 save_banlist();
                                 return FALSE;
                         }
@@ -1490,20 +1490,20 @@ bool check_total_bans(DescriptorData * d)
 bool check_bans(CharData * ch, int type)
 {
         char      buf[MaxStringLength];
-        BAN_DATA *pban;
+        BanData *pban;
         char      new_host[MaxStringLength];
         int       i;
         bool      fMatch = FALSE;
 
         switch (type)
         {
-        case BAN_RACE:
+        case BanRace:
                 pban = first_ban_race;
                 break;
-        case BAN_CLASS:
+        case BanClass:
                 pban = first_ban_class;
                 break;
-        case BAN_SITE:
+        case BanSite:
                 pban = first_ban;
                 for (i = 0; i < static_cast<int>(strlen(ch->desc->host)); i++)
                         new_host[i] = LOWER(ch->desc->host[i]);
@@ -1515,11 +1515,11 @@ bool check_bans(CharData * ch, int type)
         }
         for (; pban; pban = pban->next)
         {
-                if (type == BAN_CLASS && pban->flag == ch->main_ability)
+                if (type == BanClass && pban->flag == ch->main_ability)
                 {
                         if (check_expire(pban))
                         {
-                                dispose_ban(pban, BAN_CLASS);
+                                dispose_ban(pban, BanClass);
                                 save_banlist();
                                 return FALSE;
                         }
@@ -1530,7 +1530,7 @@ bool check_bans(CharData * ch, int type)
                                         snprintf(buf, MSL,
                                                  "%s class logging in from %s.",
                                                  pban->name, ch->desc->host);
-                                        log_string_plus(buf, LOG_HIGH,
+                                        log_string_plus(buf, LogHigh,
                                                         sysdata.log_level);
                                 }
                                 return FALSE;
@@ -1538,12 +1538,12 @@ bool check_bans(CharData * ch, int type)
                         else
                                 return TRUE;
                 }
-                if (type == BAN_RACE && ch->race
+                if (type == BanRace && ch->race
                     && !str_cmp(pban->name, ch->race->name()))
                 {
                         if (check_expire(pban))
                         {
-                                dispose_ban(pban, BAN_RACE);
+                                dispose_ban(pban, BanRace);
                                 save_banlist();
                                 return FALSE;
                         }
@@ -1554,7 +1554,7 @@ bool check_bans(CharData * ch, int type)
                                         snprintf(buf, MSL,
                                                  "%s race logging in from %s.",
                                                  pban->name, ch->desc->host);
-                                        log_string_plus(buf, LOG_HIGH,
+                                        log_string_plus(buf, LogHigh,
                                                         sysdata.log_level);
                                 }
                                 return FALSE;
@@ -1562,7 +1562,7 @@ bool check_bans(CharData * ch, int type)
                         else
                                 return TRUE;
                 }
-                if (type == BAN_SITE)
+                if (type == BanSite)
                 {
                         if (pban->prefix && pban->suffix &&
                             strstr(pban->name, new_host))
@@ -1579,7 +1579,7 @@ bool check_bans(CharData * ch, int type)
                         {
                                 if (check_expire(pban))
                                 {
-                                        dispose_ban(pban, BAN_SITE);
+                                        dispose_ban(pban, BanSite);
                                         save_banlist();
                                         return FALSE;
                                 }
@@ -1591,7 +1591,7 @@ bool check_bans(CharData * ch, int type)
                                                          "%s logging in from site %s.",
                                                          ch->name,
                                                          ch->desc->host);
-                                                log_string_plus(buf, LOG_HIGH,
+                                                log_string_plus(buf, LogHigh,
                                                                 sysdata.
                                                                 log_level);
                                         }
@@ -1609,7 +1609,7 @@ bool check_bans(CharData * ch, int type)
  * Enhanced ban expiration check with proper time handling
  * Replaces the old check_expire function with better logic and modern C++
  */
-bool check_expire(BAN_DATA* pban)
+bool check_expire(BanData* pban)
 {
     if (!pban)
         return true;
@@ -1621,19 +1621,19 @@ bool check_expire(BAN_DATA* pban)
         snprintf(buf, MSL, "%s ban has expired (%s).", 
                 pban->name ? pban->name : "unknown",
                 format_ban_creation_time(pban));
-        log_string_plus(buf, LOG_HIGH, sysdata.log_level);
+        log_string_plus(buf, LogHigh, sysdata.log_level);
         return true;
     }
     
     return false;
 }
 
-void dispose_ban(BAN_DATA * pban, int type)
+void dispose_ban(BanData * pban, int type)
 {
         if (!pban)
                 return;
 
-        if (type != BAN_SITE && type != BAN_CLASS && type != BAN_RACE)
+        if (type != BanSite && type != BanClass && type != BanRace)
         {
                 bug("Dispose_ban: Unknown Ban Type %d.", type);
                 return;
@@ -1641,13 +1641,13 @@ void dispose_ban(BAN_DATA * pban, int type)
 
         switch (type)
         {
-        case BAN_SITE:
+        case BanSite:
                 UNLINK(pban, first_ban, last_ban, next, prev);
                 break;
-        case BAN_CLASS:
+        case BanClass:
                 UNLINK(pban, first_ban_class, last_ban_class, next, prev);
                 break;
-        case BAN_RACE:
+        case BanRace:
                 UNLINK(pban, first_ban_race, last_ban_race, next, prev);
                 break;
         }
@@ -1655,7 +1655,7 @@ void dispose_ban(BAN_DATA * pban, int type)
         return;
 }
 
-void free_ban(BAN_DATA * pban)
+void free_ban(BanData * pban)
 {
         if (pban->name)
                 DISPOSE(pban->name);
@@ -1672,31 +1672,31 @@ void free_ban(BAN_DATA * pban)
 
 void save_reserved(void)
 {
-        RESERVE_DATA *res;
+        ReserveData *res;
         FILE     *fp;
 
         FCLOSE(fpReserve);
-        if (!(fp = fopen(SYSTEM_DIR RESERVED_LIST, "w")))
+        if (!(fp = fopen(SystemDir ReservedList, "w")))
         {
-                bug("Save_reserved: cannot open " RESERVED_LIST, 0);
-                perror(RESERVED_LIST);
-                fpReserve = fopen(NULL_FILE, "r");
+                bug("Save_reserved: cannot open " ReservedList, 0);
+                perror(ReservedList);
+                fpReserve = fopen(NullFile, "r");
                 return;
         }
         for (res = first_reserved; res; res = res->next)
                 fprintf(fp, "%s~\n", res->name);
         fprintf(fp, "$~\n");
         FCLOSE(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
 CMDF do_reserve(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
-        RESERVE_DATA *res;
+        ReserveData *res;
 
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
 
         argument = one_argument(argument, arg);
         if (!*arg)
@@ -1728,7 +1728,7 @@ CMDF do_reserve(CharData * ch, char *argument)
                         send_to_char("Name no longer reserved.\n\r", ch);
                         return;
                 }
-        CREATE(res, RESERVE_DATA, 1);
+        CREATE(res, ReserveData, 1);
         res->name = str_dup(arg);
         sort_reserved(res);
         save_reserved();
@@ -1738,7 +1738,7 @@ CMDF do_reserve(CharData * ch, char *argument)
 
 bool is_reserved_name(char *name)
 {
-        RESERVE_DATA *res;
+        ReserveData *res;
 
         for (res = first_reserved; res; res = res->next)
                 if ((*res->name == '*' && !str_infix(res->name + 1, name)) ||
@@ -1749,10 +1749,10 @@ bool is_reserved_name(char *name)
 
 void load_reserved(void)
 {
-        RESERVE_DATA *res;
+        ReserveData *res;
         FILE     *fp;
 
-        if (!(fp = fopen(SYSTEM_DIR RESERVED_LIST, "r")))
+        if (!(fp = fopen(SystemDir ReservedList, "r")))
                 return;
 
         for (;;)
@@ -1763,7 +1763,7 @@ void load_reserved(void)
                         FCLOSE(fp);
                         return;
                 }
-                CREATE(res, RESERVE_DATA, 1);
+                CREATE(res, ReserveData, 1);
                 res->name = fread_string_nohash(fp);
                 if (*res->name == '$')
                         break;
@@ -1776,9 +1776,9 @@ void load_reserved(void)
 }
 
 /* Rebuilt from broken copy, but bugged - commented out for now - Blod */
-void sort_reserved(RESERVE_DATA * pRes)
+void sort_reserved(ReserveData * pRes)
 {
-        RESERVE_DATA *res = NULL;
+        ReserveData *res = NULL;
 
         if (!pRes)
         {

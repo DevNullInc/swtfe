@@ -67,46 +67,46 @@ for, pot, ummm... first_challenger_better, first_challenged_better? */
 // ============================================================================
 namespace {
     // Arena timing constants
-    constexpr int ARENA_TIMEOUT = 10;           // Time before challenge expires
-    constexpr int ARENA_BETTING_ROUND = 25;     // Time for betting when accepted
+    constexpr int ArenaTimeout = 10;           // Time before challenge expires
+    constexpr int ArenaBettingRound = 25;     // Time for betting when accepted
     
     // Arena room locations (hardcoded vnums)
-    constexpr int ANNOUNCER_ROOM = 1;           // Room for announcer spawn
-    constexpr int CHALLENGER_ARENA_ROOM = 29;   // Challenger's arena position
-    constexpr int CHALLENGED_ARENA_ROOM = 40;   // Challenged's arena position
-    constexpr int ARENA_MIN_VNUM = 29;          // Arena area minimum vnum
-    constexpr int ARENA_MAX_VNUM = 43;          // Arena area maximum vnum
+    constexpr int AnnouncerRoom = 1;           // Room for announcer spawn
+    constexpr int ChallengerArenaRoom = 29;   // Challenger's arena position
+    constexpr int ChallengedArenaRoom = 40;   // Challenged's arena position
+    constexpr int ArenaMinVnum = 29;          // Arena area minimum vnum
+    constexpr int ArenaMaxVnum = 43;          // Arena area maximum vnum
     
     // Betting types
-    constexpr int BET_CHALLENGER = 0;           // Betting on challenger
-    constexpr int BET_CHALLENGED = 1;           // Betting on challenged
+    constexpr int BetChallenger = 0;           // Betting on challenger
+    constexpr int BetChallenged = 1;           // Betting on challenged
     
     // String constants
-    constexpr const char* ARENA_FILENAME = "arena.are";
-    constexpr const char* BASIC_LANGUAGE = "basic";
-    constexpr const char* ANNOUNCER_NAME = "Arena Announcer";
+    constexpr const char* ArenaFilename = "arena.are";
+    constexpr const char* BasicLanguage = "basic";
+    constexpr const char* AnnouncerName = "Arena Announcer";
     
     // Messages
-    constexpr const char* NO_CHALLENGE_MSG = "No challenge going on right now for you to bet on.";
-    constexpr const char* CANT_BET_PARTICIPANT = "You are not allowed to bet.";
-    constexpr const char* BET_SYNTAX = "&RSyntax: &Gbet &C<&cwinner&C> &C<&camt&C>&w\n\r";
-    constexpr const char* CHALLENGE_SYNTAX = "&RSyntax: &Gchallenge &C<&cvictim&C>&w\n\r        &Gchallenge &C<&caccept/decline&C>&w\n\r";
-    constexpr const char* FIGHT_IN_PROGRESS = "Fight already in progress.";
-    constexpr const char* NOT_CHALLENGED = "You havn't been challenged.";
-    constexpr const char* ALREADY_CHALLENGED = "A challenge has already been made. Wait for it to be accepted or canceled";
+    constexpr const char* NoChallengeMsg = "No challenge going on right now for you to bet on.";
+    constexpr const char* CantBetParticipant = "You are not allowed to bet.";
+    constexpr const char* BetSyntax = "&RSyntax: &Gbet &C<&cwinner&C> &C<&camt&C>&w\n\r";
+    constexpr const char* ChallengeSyntax = "&RSyntax: &Gchallenge &C<&cvictim&C>&w\n\r        &Gchallenge &C<&caccept/decline&C>&w\n\r";
+    constexpr const char* FightInProgress = "Fight already in progress.";
+    constexpr const char* NotChallenged = "You havn't been challenged.";
+    constexpr const char* AlreadyChallenged = "A challenge has already been made. Wait for it to be accepted or canceled";
 }
 
 // ============================================================================
 // Data Structures
 // ============================================================================
 
-typedef struct arena_data ARENA_DATA;
-typedef struct bet_data BET_DATA;
+typedef struct arena_data ArenaData;
+typedef struct bet_data BetData;
 
 struct bet_data
 {
-        BET_DATA *next;
-        BET_DATA *prev;
+        BetData *next;
+        BetData *prev;
         CharData *better;          // Who placed the bet
         CharData *bet_on;          // Who they bet on (challenger or challenged)
         int amount;                 // Amount of credits bet
@@ -130,14 +130,14 @@ struct arena_data
         int bet_challenger;         // Total amount bet on challenger fighter
         
         // NEW: Betting tracking lists (implementing greven145's original suggestion)
-        BET_DATA *first_challenger_better;  // First bet on challenger (NEWLY IMPLEMENTED)
-        BET_DATA *last_challenger_better;   // Last bet on challenger (NEWLY IMPLEMENTED)
-        BET_DATA *first_challenged_better;  // First bet on challenged (NEWLY IMPLEMENTED)
-        BET_DATA *last_challenged_better;   // Last bet on challenged (NEWLY IMPLEMENTED)
+        BetData *first_challenger_better;  // First bet on challenger (NEWLY IMPLEMENTED)
+        BetData *last_challenger_better;   // Last bet on challenger (NEWLY IMPLEMENTED)
+        BetData *first_challenged_better;  // First bet on challenged (NEWLY IMPLEMENTED)
+        BetData *last_challenged_better;   // Last bet on challenged (NEWLY IMPLEMENTED)
         
         // Legacy unified bet list (keeping for compatibility)
-        BET_DATA *first_better;     // All bets (unified list)
-        BET_DATA *last_better;      // All bets (unified list)
+        BetData *first_better;     // All bets (unified list)
+        BetData *last_better;      // All bets (unified list)
         
         CharData *announcer;       // Arena announcer NPC
 };
@@ -145,7 +145,7 @@ struct arena_data
 // ============================================================================
 // Global Variables
 // ============================================================================
-ARENA_DATA *arena = nullptr;
+ArenaData *arena = nullptr;
 
 // ============================================================================
 // Forward Declarations  
@@ -172,7 +172,7 @@ void create_arena(void)
 {
         MobIndexData *pMobIndex;
 
-        CREATE(arena, ARENA_DATA, 1);
+        CREATE(arena, ArenaData, 1);
 
         if ((pMobIndex = get_mob_index(1)) == NULL)
         {
@@ -182,13 +182,13 @@ void create_arena(void)
         }
 
         arena->announcer = create_mobile(pMobIndex);
-        REMOVE_BIT(arena->announcer->act, ACT_PROTOTYPE);
-        SET_BIT(arena->announcer->act, ACT_SPEAKSALL);
+        RemoveBit(arena->announcer->act, ActPrototype);
+        SetBit(arena->announcer->act, ActSpeaksall);
         arena->announcer->speaking = get_language(const_cast<char*>("basic"));
         STRFREE(arena->announcer->short_descr);
         char_to_room(arena->announcer, get_room_index(1));
         arena->announcer->short_descr = STRALLOC(const_cast<char*>("Arena Announcer"));
-        REMOVE_BIT(arena->announcer->act, ACT_SECRETIVE);
+        RemoveBit(arena->announcer->act, ActSecretive);
         arena->ooc = FALSE;
         arena->pot = 0;
         arena->time_to_battle = -1;
@@ -210,7 +210,7 @@ void create_arena(void)
 bool arena_can_fight(CharData * ch, CharData * victim)
 {
         (void)victim;  // Silence unused parameter warning
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_ARENA))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomArena))
         {
                 if (arena && arena->fighting)
                         return TRUE;
@@ -225,9 +225,9 @@ bool arena_can_fight(CharData * ch, CharData * victim)
 
 void add_bet(CharData * better, int amount, CharData * who)
 {
-        BET_DATA *bet;
+        BetData *bet;
 
-        if (IS_NPC(better))
+        if (IsNpc(better))
                 return;
         if (!arena)
                 return;
@@ -240,7 +240,7 @@ void add_bet(CharData * better, int amount, CharData * who)
 
         if (!bet)
         {
-                CREATE(bet, BET_DATA, 1);
+                CREATE(bet, BetData, 1);
                 // Add to unified list (legacy compatibility)
                 LINK(bet, arena->first_better, arena->last_better, next, prev);
                 bet->amount = 0;
@@ -258,7 +258,7 @@ void add_bet(CharData * better, int amount, CharData * who)
                 arena->bet_challenger += amount;
                 
                 // Add bet to challenger-specific list if not already there
-                BET_DATA *challenger_bet = nullptr;
+                BetData *challenger_bet = nullptr;
                 for (challenger_bet = arena->first_challenger_better; challenger_bet; challenger_bet = challenger_bet->next)
                 {
                         if (challenger_bet->better == better)
@@ -267,7 +267,7 @@ void add_bet(CharData * better, int amount, CharData * who)
                 
                 if (!challenger_bet)
                 {
-                        CREATE(challenger_bet, BET_DATA, 1);
+                        CREATE(challenger_bet, BetData, 1);
                         LINK(challenger_bet, arena->first_challenger_better, arena->last_challenger_better, next, prev);
                         challenger_bet->better = better;
                         challenger_bet->bet_on = who;
@@ -280,7 +280,7 @@ void add_bet(CharData * better, int amount, CharData * who)
                 arena->bet_challenged += amount;
                 
                 // Add bet to challenged-specific list if not already there
-                BET_DATA *challenged_bet = nullptr;
+                BetData *challenged_bet = nullptr;
                 for (challenged_bet = arena->first_challenged_better; challenged_bet; challenged_bet = challenged_bet->next)
                 {
                         if (challenged_bet->better == better)
@@ -289,7 +289,7 @@ void add_bet(CharData * better, int amount, CharData * who)
                 
                 if (!challenged_bet)
                 {
-                        CREATE(challenged_bet, BET_DATA, 1);
+                        CREATE(challenged_bet, BetData, 1);
                         LINK(challenged_bet, arena->first_challenged_better, arena->last_challenged_better, next, prev);
                         challenged_bet->better = better;
                         challenged_bet->bet_on = who;
@@ -302,7 +302,7 @@ void add_bet(CharData * better, int amount, CharData * who)
 /* for do quit */
 void remove_better(CharData * better)
 {
-        BET_DATA *bet, *bet_next;
+        BetData *bet, *bet_next;
 
         if (!arena)
                 return;
@@ -345,7 +345,7 @@ void remove_better(CharData * better)
 
 void win_fight(CharData * winner, CharData * looser)
 {
-        BET_DATA *bet, *next_bet = NULL;
+        BetData *bet, *next_bet = NULL;
         char      buf[MIL];
         int       bettercount = 0;
 
@@ -372,9 +372,9 @@ void win_fight(CharData * winner, CharData * looser)
         do_look(arena->challenger, "");
         update_pos(arena->challenged);
         update_pos(arena->challenger);
-        act(AT_PLAIN, "You have been defeated in combat by $N", looser, NULL,
-            winner, TO_CHAR);
-        act(AT_PLAIN, "You have defeated $n", looser, NULL, winner, TO_VICT);
+        act(AtPlain, "You have been defeated in combat by $N", looser, NULL,
+            winner, ToChar);
+        act(AtPlain, "You have defeated $n", looser, NULL, winner, ToVict);
 
         snprintf(buf, MIL, "%s has defeated %s in combat",
                  winner->pcdata->full_name, looser->pcdata->full_name);
@@ -457,7 +457,7 @@ void win_fight(CharData * winner, CharData * looser)
 
 void free_arena(void)
 {
-        BET_DATA *bet, *bet_next;
+        BetData *bet, *bet_next;
 
         // Clean up unified bet list (legacy)
         for (bet = arena->first_better; bet; bet = bet_next)
@@ -497,10 +497,10 @@ CMDF do_bet(CharData * ch, char *argument)
         int       amount;
         CharData *victim = NULL;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         if (arena == NULL || arena->accepted == FALSE)
         {
                 send_to_char
@@ -571,18 +571,18 @@ CMDF do_bet(CharData * ch, char *argument)
 
 CMDF do_bets(CharData * ch, char *argument)
 {
-        BET_DATA *bet;
+        BetData *bet;
 
         (void)argument;  // Silence unused parameter warning
 
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
         if (arena == nullptr || arena->accepted == FALSE || !arena->first_better)
         {
                 send_to_char("No bets on right now.", ch);
                 return;
         }
 
-        set_pager_color(AT_PLAIN, ch);
+        set_pager_color(AtPlain, ch);
         pager_printf(ch, "&Y== Arena Betting Status ==&w\n\r");
         
         // Show fighters and their total backing
@@ -618,7 +618,7 @@ CMDF do_challenge(CharData * ch, char *argument)
 
         argument = one_argument(argument, arg);
 
-        set_char_color(AT_PLAIN, ch);
+        set_char_color(AtPlain, ch);
 
         if (arena && arena->accepted)
         {
@@ -642,16 +642,16 @@ CMDF do_challenge(CharData * ch, char *argument)
                         return;
                 }
                 arena->accepted = TRUE;
-                if (IS_IMMORTAL(arena->challenger)
-                    || IS_IMMORTAL(arena->challenged))
+                if (IsImmortal(arena->challenger)
+                    || IsImmortal(arena->challenged))
                         arena->ooc = TRUE;
                 /*
                  * If its an ooc battle, no reason to wait that long for bets, but should let people prepare 
                  */
                 if (arena->ooc == TRUE)
-                        arena->time_to_battle = ARENA_TIMEOUT;
+                        arena->time_to_battle = ArenaTimeout;
                 else
-                        arena->time_to_battle = ARENA_BETTING_ROUND;
+                        arena->time_to_battle = ArenaBettingRound;
                 command_printf(ch, const_cast<char*>("achat %s"), "I accept");
 
                 /*
@@ -660,14 +660,14 @@ CMDF do_challenge(CharData * ch, char *argument)
 
                 arena->challenger->retran = arena->challenger->in_room->vnum;
                 arena->challenger->regoto = arena->challenger->in_room->vnum;
-                act(AT_PLAIN, "$n is shipped off to the arena.",
-                    arena->challenger, NULL, NULL, TO_ROOM);
+                act(AtPlain, "$n is shipped off to the arena.",
+                    arena->challenger, NULL, NULL, ToRoom);
                 char_from_room(arena->challenger);
                 char_to_room(arena->challenger, get_room_index(29));
                 do_look(arena->challenger, "");
 
-                act(AT_PLAIN, "$n is shipped off to the arena.",
-                    arena->challenged, NULL, NULL, TO_ROOM);
+                act(AtPlain, "$n is shipped off to the arena.",
+                    arena->challenged, NULL, NULL, ToRoom);
                 arena->challenged->regoto = arena->challenged->in_room->vnum;
                 arena->challenged->retran = arena->challenged->in_room->vnum;
                 char_from_room(arena->challenged);
@@ -714,12 +714,12 @@ CMDF do_challenge(CharData * ch, char *argument)
         {
                 char      buf[150];
 
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("Not on NPCs.\n\r", ch);
                         return;
                 }
-                if (IS_SET(victim->act, PLR_AFK))
+                if (IsSet(victim->act, PlrAfk))
                 {
                         send_to_char("Not on afk players.\n\r", ch);
                         return;
@@ -738,7 +738,7 @@ CMDF do_challenge(CharData * ch, char *argument)
                          arena->ooc ? " FOR AN OOC BATTLE" : "");
                 arena->challenger = ch;
                 arena->challenged = victim;
-                arena->time_to_battle = ARENA_TIMEOUT;
+                arena->time_to_battle = ArenaTimeout;
                 command_printf(ch, const_cast<char*>("achat %s"), buf);
                 return;
         }
@@ -833,7 +833,7 @@ CMDF do_arena(CharData * ch, char *argument)
 
         if (!str_cmp(argument, "stop"))
         {
-                BET_DATA *bet, *bet_next;
+                BetData *bet, *bet_next;
                 char      buf[MSL];
 
                 if (!arena)
@@ -895,7 +895,7 @@ bool in_arena(CharData * ch)
 {
 
         if (!str_cmp(ch->in_room->area->filename, "arena.are")
-            || xIS_SET(ch->in_room->RoomFlags, ROOM_ARENA))
+            || xIS_SET(ch->in_room->RoomFlags, RoomArena))
                 return TRUE;
 
         if (ch->in_room->vnum < 29 || ch->in_room->vnum > 43)

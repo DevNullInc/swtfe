@@ -55,12 +55,12 @@ extern "C" {
 #endif
 
 // Exported command functions for dynamic lookup
-DECLARE_DO_FUN(do_say);
-DECLARE_DO_FUN(do_emote);
-DECLARE_DO_FUN(do_gtell);
-DECLARE_DO_FUN(do_accelerate);
-DECLARE_DO_FUN(do_addpilot);
-DECLARE_DO_FUN(do_auction);
+DeclareDoFun(do_say);
+DeclareDoFun(do_emote);
+DeclareDoFun(do_gtell);
+DeclareDoFun(do_accelerate);
+DeclareDoFun(do_addpilot);
+DeclareDoFun(do_auction);
 
 #ifdef __cplusplus
 }

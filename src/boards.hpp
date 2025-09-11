@@ -48,31 +48,31 @@
 #include <memory>
 
 struct note_data;
-using NOTE_DATA = note_data;
+using NoteData = note_data;
 struct BoardData;
-using BOARD_DATA = BoardData;
+using BoardData = BoardData;
 
-#define VNUM_IDEA_BOARD 10123
-#define VNUM_MAIL_BOARD 38
-#define OBJ_VNUM_NOTE		     36
+#define VnumIdeaBoard 10123
+#define VnumMailBoard 38
+#define ObjVnumNote		     36
 
 /* Board Types */
 typedef enum
-{ BOARD_NOTE, BOARD_MAIL, BOARD_IDEA, BOARD_GLOBAL, BOARD_MAX } e_board_types;
+{ BoardNote, BoardMail, BoardIdea, BoardGlobal, BoardMax } e_board_types;
 typedef enum
-{ VOTE_NONE, VOTE_OPEN, VOTE_CLOSED, VOTE_MAX } e_vote_types;
-extern char *const board_types[BOARD_MAX];
-extern char *const vote_types[VOTE_MAX];
-extern BOARD_DATA *first_board;
-extern BOARD_DATA *last_board;
+{ VoteNone, VoteOpen, VoteClosed, VoteMax } e_vote_types;
+extern char *const board_types[BoardMax];
+extern char *const vote_types[VoteMax];
+extern BoardData *first_board;
+extern BoardData *last_board;
 
 /*
  * Data structure for notes.
  */
 struct note_data
 {
-        NOTE_DATA *next;
-        NOTE_DATA *prev;
+        NoteData *next;
+        NoteData *prev;
         char     *sender;
         char     *date;
         char     *to_list;
@@ -86,10 +86,10 @@ struct note_data
 
 struct BoardData
 {
-        BOARD_DATA *next;   /* Next board in list          */
-        BOARD_DATA *prev;   /* Previous board in list      */
-        NOTE_DATA *first_note;  /* First note on board         */
-        NOTE_DATA *last_note;   /* Last note on board          */
+        BoardData *next;   /* Next board in list          */
+        BoardData *prev;   /* Previous board in list      */
+        NoteData *first_note;  /* First note on board         */
+        NoteData *last_note;   /* Last note on board          */
         char     *note_file;    /* Filename to save notes to       */
         char     *BoardName;   /* Name of the board.              */
         char     *read_group;   /* Can restrict a board to a       */
@@ -105,23 +105,23 @@ struct BoardData
         int       type; /* Normal board or mail board? */
 };
 
-bool is_note_to(CharData *ch, NOTE_DATA *pnote);
-bool is_note_to(std::shared_ptr<CharData> ch, std::shared_ptr<NOTE_DATA> pnote);
-bool is_note_to_def(CharData *ch, NOTE_DATA *pnote);
-bool is_note_to_def(std::shared_ptr<CharData> ch, std::shared_ptr<NOTE_DATA> pnote);
+bool is_note_to(CharData *ch, NoteData *pnote);
+bool is_note_to(std::shared_ptr<CharData> ch, std::shared_ptr<NoteData> pnote);
+bool is_note_to_def(CharData *ch, NoteData *pnote);
+bool is_note_to_def(std::shared_ptr<CharData> ch, std::shared_ptr<NoteData> pnote);
 void note_attach(CharData *ch);
 void note_attach(std::shared_ptr<CharData> ch);
-void note_remove(CharData *ch, BOARD_DATA *board, NOTE_DATA *pnote);
-void note_remove(std::shared_ptr<CharData> ch, std::shared_ptr<BOARD_DATA> board, std::shared_ptr<NOTE_DATA> pnote);
-void note(CharData *ch, const char *arg_passed, BOARD_DATA *board);
-void note(CharData *ch, std::string_view arg_passed, BOARD_DATA *board);
-void note(std::shared_ptr<CharData> ch, std::string_view arg_passed, std::shared_ptr<BOARD_DATA> board);
-void write_board(BOARD_DATA *board);
-void write_board(std::shared_ptr<BOARD_DATA> board);
+void note_remove(CharData *ch, BoardData *board, NoteData *pnote);
+void note_remove(std::shared_ptr<CharData> ch, std::shared_ptr<BoardData> board, std::shared_ptr<NoteData> pnote);
+void note(CharData *ch, const char *arg_passed, BoardData *board);
+void note(CharData *ch, std::string_view arg_passed, BoardData *board);
+void note(std::shared_ptr<CharData> ch, std::string_view arg_passed, std::shared_ptr<BoardData> board);
+void write_board(BoardData *board);
+void write_board(std::shared_ptr<BoardData> board);
 
 // boards.c
 void load_boards();
-BOARD_DATA *get_board(ObjData *obj);
-BOARD_DATA *get_board(std::shared_ptr<ObjData> obj);
-void free_note(NOTE_DATA *pnote);
-void free_note(std::shared_ptr<NOTE_DATA> pnote);
+BoardData *get_board(ObjData *obj);
+BoardData *get_board(std::shared_ptr<ObjData> obj);
+void free_note(NoteData *pnote);
+void free_note(std::shared_ptr<NoteData> pnote);

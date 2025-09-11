@@ -80,22 +80,22 @@ void free_object args((ObjData * obj));
 void free_clan args((ClanData * clan));
 void free_planet args((PlanetData * planet));
 void free_ship args((ShipData * ship));
-void free_protoship args((PROTOSHIP_DATA * ship));
+void free_protoship args((ProtoshipData * ship));
 void free_system args((SpaceData * system));
 void free_skill args((SkillType * skill));
-void free_home args((HOME_DATA * home));
-void free_dns args((DNS_DATA * cache));
-void free_board args((BOARD_DATA * board));
-void free_ban args((BAN_DATA * ban));
-void free_shuttle args((SHUTTLE_DATA * shuttle));
-void free_illness args((ILLNESS_DATA * illness));
-void free_channel args((CHANNEL_DATA * channel));
-void free_restore args((RESTORE_DATA * restore));
+void free_home args((HomeData * home));
+void free_dns args((DnsData * cache));
+void free_board args((BoardData * board));
+void free_ban args((BanData * ban));
+void free_shuttle args((ShuttleData * shuttle));
+void free_illness args((IllnessData * illness));
+void free_channel args((ChannelData * channel));
+void free_restore args((RestoreData * restore));
 void free_changes args((void));
-void free_bounty args((BOUNTY_DATA * bounty));
+void free_bounty args((BountyData * bounty));
 void free_baccount(BankAccount * Account);
 
-extern RACE_LIST races;
+extern RaceList races;
 extern BodyList bodies;
 
 void free_helps(void)
@@ -198,7 +198,7 @@ void free_planets(void)
 void free_ships(void)
 {
         ShipData *ship, *next_ship;
-        PROTOSHIP_DATA *protoship, *next_protoship;
+        ProtoshipData *protoship, *next_protoship;
 
         for (ship = first_ship; ship; ship = next_ship)
         {
@@ -329,7 +329,7 @@ void free_leftovers(void)
 
 void free_dnses(void)
 {
-        DNS_DATA *dns, *dns_next;
+        DnsData *dns, *dns_next;
 
         for (dns = first_cache; dns; dns = dns_next)
         {
@@ -357,7 +357,7 @@ void free_socials(void)
 
 void free_boards(void)
 {
-        BOARD_DATA *board, *next_board;
+        BoardData *board, *next_board;
 
         for (board = first_board; board; board = next_board)
         {
@@ -384,7 +384,7 @@ void free_races(void)
 
 void free_languages(void)
 {
-        LANGUAGE_DATA *language, *next_language;
+        LanguageData *language, *next_language;
 
         for (language = first_language; language; language = next_language)
         {
@@ -398,7 +398,7 @@ void free_languages(void)
 
 void free_bounties(void)
 {
-        BOUNTY_DATA *bounty, *next_bounty;
+        BountyData *bounty, *next_bounty;
 
         for (bounty = first_disintigration; bounty; bounty = next_bounty)
         {
@@ -410,8 +410,8 @@ void free_bounties(void)
 
 void free_bans(void)
 {
-        RESERVE_DATA *reserve, *next_reserve;
-        BAN_DATA *ban, *next_ban;
+        ReserveData *reserve, *next_reserve;
+        BanData *ban, *next_ban;
 
         for (reserve = first_reserved; reserve; reserve = next_reserve)
         {
@@ -445,7 +445,7 @@ void free_bans(void)
 /* free_changes() */
 void free_installations(void)
 {
-        INSTALLATION_DATA *install, *next_install;
+        InstallationData *install, *next_install;
 
         for (install = first_installation; install; install = next_install)
         {
@@ -475,7 +475,7 @@ void free_bodies(void)
 
 void free_docks(void)
 {
-        DOCK_DATA *dock, *next_dock;
+        DockData *dock, *next_dock;
 
         for (dock = first_dock; dock; dock = next_dock)
         {
@@ -489,7 +489,7 @@ void free_docks(void)
 
 void free_shuttles(void)
 {
-        SHUTTLE_DATA *shuttle, *next_shuttle;
+        ShuttleData *shuttle, *next_shuttle;
 
         for (shuttle = first_shuttle; shuttle; shuttle = next_shuttle)
         {
@@ -501,7 +501,7 @@ void free_shuttles(void)
 
 void free_illnesses(void)
 {
-        ILLNESS_DATA *illness, *next_illness;
+        IllnessData *illness, *next_illness;
 
         for (illness = first_illness; illness; illness = next_illness)
         {
@@ -513,7 +513,7 @@ void free_illnesses(void)
 
 void free_channels(void)
 {
-        CHANNEL_DATA *channel, *next_channel;
+        ChannelData *channel, *next_channel;
 
         for (channel = first_channel; channel; channel = next_channel)
         {
@@ -524,7 +524,7 @@ void free_channels(void)
 
 void free_homes(void)
 {
-        HOME_DATA *home, *next_home;
+        HomeData *home, *next_home;
 
         for (home = first_home; home; home = next_home)
         {
@@ -535,7 +535,7 @@ void free_homes(void)
 
 void free_restores(void)
 {
-        RESTORE_DATA *restore, *next_restore;
+        RestoreData *restore, *next_restore;
 
         for (restore = first_restore; restore; restore = next_restore)
         {

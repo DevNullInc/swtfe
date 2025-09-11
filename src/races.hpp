@@ -49,8 +49,8 @@
 #include <string_view>
 #include <array>
 
-constexpr std::string_view FILE_RACE_LIST = "race.lst";
-constexpr std::string_view RACES_DIR = "../races/";
+constexpr std::string_view FileRaceList = "race.lst";
+constexpr std::string_view RacesDir = "../races/";
 
 enum class RaceAttr : int {
         Strength,
@@ -68,7 +68,7 @@ enum class RaceAttr : int {
 class RaceData {
 private:
         ExtBV body_parts_;
-        std::shared_ptr<LANGUAGE_DATA> language_;
+        std::shared_ptr<LanguageData> language_;
         int affected_{0};
         int con_plus_{0};
         int cha_plus_{0};
@@ -96,8 +96,8 @@ public:
         RaceData() = default;
         ~RaceData() = default;
 
-        std::shared_ptr<LANGUAGE_DATA> language() const { return language_; }
-        void set_language(std::shared_ptr<LANGUAGE_DATA> p) { language_ = std::move(p); }
+        std::shared_ptr<LanguageData> language() const { return language_; }
+        void set_language(std::shared_ptr<LanguageData> p) { language_ = std::move(p); }
 
         ExtBV& body_parts() { return body_parts_; }
         void set_body_parts(int bit, bool set);
@@ -152,7 +152,7 @@ public:
         static void load_races();
 };
 
-using RACE_LIST = std::vector<std::shared_ptr<RaceData>>;
-extern RACE_LIST races;
+using RaceList = std::vector<std::shared_ptr<RaceData>>;
+extern RaceList races;
 
 

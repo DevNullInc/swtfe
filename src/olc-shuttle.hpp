@@ -48,8 +48,8 @@
 #include <string>
 #include <string_view>
 
-constexpr std::string_view SHUTTLE_DIR = "../shuttle/";
-constexpr std::string_view SHUTTLE_LIST = "shuttle.lst";
+constexpr std::string_view ShuttleDir = "../shuttle/";
+constexpr std::string_view ShuttleList = "shuttle.lst";
 
 class StopData {
 public:

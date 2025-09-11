@@ -10,7 +10,7 @@
 #endif
 
 #ifndef CREATE
-#define CREATE_FREE
+#define CreateFree
 #define CREATE(result, type, number)					\
 do											\
 {											\
@@ -24,7 +24,7 @@ do											\
 #endif
 
 #ifndef DISPOSE
-#define DISPOSE_FREE
+#define DisposeFree
 #define DISPOSE(point)                         \
 do                                             \
 {                                              \
@@ -38,12 +38,12 @@ do                                             \
 
 
 /**
- * Creates a new GRID_DATA of length, width and height 
+ * Creates a new GridData of length, width and height 
  */
-GRID_DATA * grid_create(int base, int cols, int rows, int height)
+GridData * grid_create(int base, int cols, int rows, int height)
 {
-	GRID_DATA * grid;
-	CREATE(grid, GRID_DATA, 1);
+	GridData * grid;
+	CREATE(grid, GridData, 1);
 	grid->base = base;
 	grid->height = height-base;
 	if (grid->height < 0) {
@@ -64,13 +64,13 @@ GRID_DATA * grid_create(int base, int cols, int rows, int height)
 	return grid;
 }
 
-void grid_destroy(GRID_DATA * grid)
+void grid_destroy(GridData * grid)
 {
 	DISPOSE(grid->data);
 	DISPOSE(grid);
 }
 
-int grid_pos(GRID_DATA * grid, int col, int row, int height)
+int grid_pos(GridData * grid, int col, int row, int height)
 {
 	return col+(row*grid->width)+(height*(grid->width*grid->length));
 }
@@ -78,14 +78,14 @@ int grid_pos(GRID_DATA * grid, int col, int row, int height)
 /**
  * Updates the coords based on the base value
  */
-void grid_update_coords(GRID_DATA * grid, int * col, int * row, int * height)
+void grid_update_coords(GridData * grid, int * col, int * row, int * height)
 {
 	*col -= grid->base;
 	*row -= grid->base;
 	*height -= grid->base;
 }
 
-bool grid____valid_coors(GRID_DATA * grid, int col, int row, int height)
+bool grid____valid_coors(GridData * grid, int col, int row, int height)
 {
 	/* Make sure this includes the upper limit */
 	if (col < 0 || col >= grid->width) return FALSE;
@@ -98,7 +98,7 @@ bool grid____valid_coors(GRID_DATA * grid, int col, int row, int height)
 /**
  * True if its Valid coords, false if not
  */
-bool grid_valid_coors(GRID_DATA * grid, int col, int row, int height)
+bool grid_valid_coors(GridData * grid, int col, int row, int height)
 {
 	grid_update_coords(grid,&col,&row,&height);
     return grid____valid_coors(grid, col, row, height);
@@ -107,7 +107,7 @@ bool grid_valid_coors(GRID_DATA * grid, int col, int row, int height)
 /**
  * Set the data at pos x,y,z
  */
-void   grid_set_pos (GRID_DATA * grid, int col, int row, int height, void*item)
+void   grid_set_pos (GridData * grid, int col, int row, int height, void*item)
 {
 	grid_update_coords(grid,&col,&row,&height);
 	if (!grid____valid_coors(grid, col, row, height)) {
@@ -122,7 +122,7 @@ void   grid_set_pos (GRID_DATA * grid, int col, int row, int height, void*item)
 /**
  * Get the data at pos x,y,z
  */
-void * grid_get_pos (GRID_DATA * grid, int col, int row, int height)
+void * grid_get_pos (GridData * grid, int col, int row, int height)
 {
 	void * ret;
 	grid_update_coords(grid,&col,&row,&height);
@@ -140,7 +140,7 @@ void * grid_get_pos (GRID_DATA * grid, int col, int row, int height)
  * Find object in the grid, return the position in raw format
  * call grid_translate to get x,y,z pos
  */
-int    grid_find (GRID_DATA * grid, void * obj, int * col, int * row, int * height)
+int    grid_find (GridData * grid, void * obj, int * col, int * row, int * height)
 {
 	int a,b,c;
 	for ( a = 0; a < grid->height; a++) {
@@ -163,7 +163,7 @@ int    grid_find (GRID_DATA * grid, void * obj, int * col, int * row, int * heig
 /**
  * Translate grid position to coordinates
  */
-void   grid_translate (GRID_DATA * grid, int origpos, int * cols, int * rows, int * height)
+void   grid_translate (GridData * grid, int origpos, int * cols, int * rows, int * height)
 {
 	*height = 0;
 	*cols = 0;
@@ -180,9 +180,9 @@ void   grid_translate (GRID_DATA * grid, int origpos, int * cols, int * rows, in
 	/* This should be right */
 }
 
-#ifdef DISPOSE_FREE
+#ifdef DisposeFree
 #undef DISPOSE
 #endif
-#ifdef CREATE_FREE
+#ifdef CreateFree
 #undef CREATE
 #endif

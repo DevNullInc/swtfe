@@ -44,7 +44,7 @@
 #include <sys/types.h>
 #include "mud.hpp"
 
-#define STR_HASH_SIZE	1024
+#define StrHashSize	1024
 
 struct hashstr_data
 {
@@ -53,7 +53,7 @@ struct hashstr_data
         unsigned short int length;  /* length of string */
 };
 
-struct hashstr_data *string_hash[STR_HASH_SIZE];
+struct hashstr_data *string_hash[StrHashSize];
 
 /*
  * Check hash table for existing occurance of string.
@@ -68,7 +68,7 @@ char     *str_alloc(const char *str)
 
         len = strlen(str);
         psize = sizeof(struct hashstr_data);
-        hash = len % STR_HASH_SIZE;
+        hash = len % StrHashSize;
         for (ptr = string_hash[hash]; ptr; ptr = ptr->next)
                 if (len == ptr->length && !strcmp(str, (char *) ptr + psize))
                 {
@@ -123,7 +123,7 @@ int str_free(char *str)
         struct hashstr_data *ptr, *ptr2, *ptr2_next;
 
         len = strlen(str);
-        hash = len % STR_HASH_SIZE;
+        hash = len % StrHashSize;
         ptr = (struct hashstr_data *) (str - sizeof(struct hashstr_data));
         if (ptr->links == 65535)    /* permanent */
                 return ptr->links;
@@ -176,7 +176,7 @@ void hash_dump(int hash)
         char     *str;
         int       c, psize;
 
-        if (hash > STR_HASH_SIZE || hash < 0)
+        if (hash > StrHashSize || hash < 0)
         {
                 fprintf(stderr, "hash_dump: invalid hash size\n\r");
                 return;
@@ -201,7 +201,7 @@ char     *check_hash(char *str)
         buf[0] = '\0';
         len = strlen(str);
         psize = sizeof(struct hashstr_data);
-        hash = len % STR_HASH_SIZE;
+        hash = len % StrHashSize;
         for (fnd = NULL, ptr = string_hash[hash], c = 0; ptr;
              ptr = ptr->next, c++)
                 if (len == ptr->length && !strcmp(str, (char *) ptr + psize))
@@ -225,7 +225,7 @@ char     *hash_stats(void)
         int       x, c, total, totlinks, unique, bytesused, wouldhave, hilink;
 
         totlinks = unique = total = bytesused = wouldhave = hilink = 0;
-        for (x = 0; x < STR_HASH_SIZE; x++)
+        for (x = 0; x < StrHashSize; x++)
         {
                 for (c = 0, ptr = string_hash[x]; ptr; ptr = ptr->next, c++)
                 {
@@ -257,7 +257,7 @@ void show_high_hash(int top)
         char     *str;
 
         psize = sizeof(struct hashstr_data);
-        for (x = 0; x < STR_HASH_SIZE; x++)
+        for (x = 0; x < StrHashSize; x++)
                 for (ptr = string_hash[x]; ptr; ptr = ptr->next)
                         if (ptr->links >= top)
                         {
@@ -275,7 +275,7 @@ int allocated_strings(void)
         int       x, c, total, totlinks, unique, bytesused, wouldhave, hilink;
 
         totlinks = unique = total = bytesused = wouldhave = hilink = 0;
-        for (x = 0; x < STR_HASH_SIZE; x++)
+        for (x = 0; x < StrHashSize; x++)
         {
                 for (c = 0, ptr = string_hash[x]; ptr; ptr = ptr->next, c++)
                 {
@@ -299,7 +299,7 @@ int in_hash_table(char *str)
 
         len = strlen(str);
         psize = sizeof(struct hashstr_data);
-        hash = len % STR_HASH_SIZE;
+        hash = len % StrHashSize;
         for (ptr = string_hash[hash]; ptr; ptr = ptr->next)
                 if (len == ptr->length && str == ((char *) ptr + psize))
                         return 1;

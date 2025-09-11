@@ -65,7 +65,7 @@
 #include "mud.hpp"
 #include "space2.hpp"
 #include "installations.hpp"
-#ifdef OLC_HOMES
+#ifdef OlcHomes
 #include "homes.hpp"
 #endif
 
@@ -74,7 +74,7 @@
 void write_ship_list();
 void fleet_make(CharData* ch, const std::string& argument);
 void smush_tilde(std::string& str);
-std::shared_ptr<INSTALLATION_DATA> installation_from_room(int vnum);
+std::shared_ptr<InstallationData> installation_from_room(int vnum);
 
 int reserve_rooms_ship(int firstroom, int numrooms)
 {
@@ -82,7 +82,7 @@ int reserve_rooms_ship(int firstroom, int numrooms)
         RoomIndexData* room = nullptr;
         int i = 0;
         for (tarea = first_area; tarea; tarea = tarea->next)
-                if (std::string_view(PSHIP_AREA) == std::string_view(tarea->filename))
+                if (std::string_view(PshipArea) == std::string_view(tarea->filename))
                         break;
         for (i = firstroom; i < firstroom + numrooms; i++) {
                 room = make_room(i, tarea);
@@ -90,7 +90,7 @@ int reserve_rooms_ship(int firstroom, int numrooms)
                         bug("reserve_rooms: make_room failed");
                         return -1;
                 }
-                xSET_BIT(room->RoomFlags, ROOM_SPACECRAFT);
+                xSET_BIT(room->RoomFlags, RoomSpacecraft);
         }
         fold_area(tarea, tarea->filename, true, false);
         return i;
@@ -140,7 +140,7 @@ void transship(ShipData* ship, int destination)
                 return;
         int origShipyard = ship->shipyard;
         ship->shipyard = destination;
-        ship->shipstate = SHIP_DOCKED;
+        ship->shipstate = ShipDocked;
         extract_ship(ship);
         ship_to_room(ship, ship->shipyard);
         ship->location = ship->shipyard;
@@ -210,7 +210,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                  * and comment the second one out to use the shipyard flag instead
                  */
 
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomImport))
                 {
                         send_to_char
                                 ("You can't build that here!! Try a spaceport\r\n",
@@ -220,29 +220,29 @@ CMDF do_designship(CharData* ch, const std::string& argument)
 
 /* uncomment these lines if swfote 
                 if (numrooms > 100)
-                   ship_class = SHIP_DESTROYER;
+                   ship_class = ShipDestroyer;
                 else if(numrooms > 75)
-                   ship_class = SHIP_DREADNAUGHT;
+                   ship_class = ShipDreadnaught;
                 else if(numrooms > 50)
-                   ship_class = SHIP_CRUISER;
+                   ship_class = ShipCruiser;
                 else if(numrooms > 25)
-                   ship_class = SHIP_CORVETTE;
+                   ship_class = ShipCorvette;
                 else if(numrooms > 15)
-                   ship_class = SHIP_FRIGATE;
+                   ship_class = ShipFrigate;
                 else if(numrooms > 5)
-                   ship_class = SHIP_FREIGHTER;
+                   ship_class = ShipFreighter;
                 else if (numrooms > 1) 
-                   ship_class = SHIP_SHUTTLE;
+                   ship_class = ShipShuttle;
                 else 
-                   ship_class = SHIP_FIGHTER; */
+                   ship_class = ShipFighter; */
 
 /* comment these for swfote */
                 if (numrooms > 25)
-                        ship_class = CAPITAL_SHIP;
+                        ship_class = CapitalShip;
                 else if (numrooms > 5)
-                        ship_class = MIDSIZE_SHIP;
+                        ship_class = MidsizeShip;
                 else
-                        ship_class = FIGHTER_SHIP;
+                        ship_class = FighterShip;
 
                 /*
                  * these values come from  cargo v2 
@@ -250,11 +250,11 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 durasteel = ship_class * 150 + 100;
                 transparisteel = ship_class * 20 + 10;
 
-                if (xIS_SET(ch->in_room->RoomFlags, ROOM_INSTALLATION))
+                if (xIS_SET(ch->in_room->RoomFlags, RoomInstallation))
                 {
-                        INSTALLATION_DATA *installation = installation_from_room(ch->in_room->vnum).get();
+                        InstallationData *installation = installation_from_room(ch->in_room->vnum).get();
                         if (installation
-                            && installation->type == SHIPYARD_INSTALLATION)
+                            && installation->type == ShipyardInstallation)
                                 planet = installation->planet;
                 }
                 else
@@ -271,7 +271,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 /*
                  * make sure the planet has the resources to build the ship 
                  */
-                if (planet->resource[CARGO_DURASTEEL] < durasteel)
+                if (planet->resource[CargoDurasteel] < durasteel)
                 {
                         send_to_char
                                 ("&RYou'll Have to wait till they either import or produce more durasteel&C&w\r\n",
@@ -279,7 +279,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                         return;
                 }
 
-                if (planet->resource[CARGO_TRANSPARISTEEL] < transparisteel)
+                if (planet->resource[CargoTransparisteel] < transparisteel)
                 {
                         send_to_char
                                 ("&RYou'll Have to wait till they either import or produce more transparisteel&C&w\r\n",
@@ -287,19 +287,19 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                         return;
                 }
                 cost = 10;
-                if (planet->cargoimport[CARGO_TRANSPARISTEEL] > 0)
-                        cost += planet->cargoimport[CARGO_TRANSPARISTEEL] +
-                                planet->cargoimport[CARGO_TRANSPARISTEEL] / 2;
-                else if (planet->cargoexport[CARGO_TRANSPARISTEEL] > 0)
-                        cost += planet->cargoexport[CARGO_TRANSPARISTEEL];
+                if (planet->cargoimport[CargoTransparisteel] > 0)
+                        cost += planet->cargoimport[CargoTransparisteel] +
+                                planet->cargoimport[CargoTransparisteel] / 2;
+                else if (planet->cargoexport[CargoTransparisteel] > 0)
+                        cost += planet->cargoexport[CargoTransparisteel];
                 else
                         cost += 10;
 
-                if (planet->cargoimport[CARGO_DURASTEEL] > 0)
-                        cost += planet->cargoimport[CARGO_DURASTEEL] +
-                                planet->cargoimport[CARGO_DURASTEEL] / 2;
-                else if (planet->cargoexport[CARGO_DURASTEEL] > 0)
-                        cost += planet->cargoexport[CARGO_DURASTEEL];
+                if (planet->cargoimport[CargoDurasteel] > 0)
+                        cost += planet->cargoimport[CargoDurasteel] +
+                                planet->cargoimport[CargoDurasteel] / 2;
+                else if (planet->cargoexport[CargoDurasteel] > 0)
+                        cost += planet->cargoexport[CargoDurasteel];
                 else
                         cost += 10;
 
@@ -316,11 +316,11 @@ CMDF do_designship(CharData* ch, const std::string& argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_CIRCUIT)
+                        if (obj->item_type == ItemCircuit)
                                 checkcir = TRUE;
-                        if (obj->item_type == ITEM_SUPERCONDUCTOR)
+                        if (obj->item_type == ItemSuperconductor)
                                 checksuper = TRUE;
                 }
 
@@ -346,17 +346,17 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                         return;
                 }
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_shipdesign]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou begin the LONG Process of building a ship.\n\r",
                                  ch);
-                                                act(AT_PLAIN,
+                                                act(AtPlain,
                                                         "$n takes $s tools and starts constructing a ship.\r\n",
-                                                        ch, NULL, argument.c_str(), TO_ROOM);
-                                                add_timer(ch, TIMER_DO_FUN, 35, do_designship, 1);
+                                                        ch, NULL, argument.c_str(), ToRoom);
+                                                add_timer(ch, TimerDoFun, 35, do_designship, 1);
                                                 ch->dest_buf = str_dup(arg1.c_str());
                                                 ch->dest_buf_2 = str_dup(arg2.c_str());
                                                 return;
@@ -396,11 +396,11 @@ CMDF do_designship(CharData* ch, const std::string& argument)
         numrooms = atoi(arg1);
 
         if (numrooms > 25)
-                ship_class = CAPITAL_SHIP;
+                ship_class = CapitalShip;
         else if (numrooms > 5)
-                ship_class = MIDSIZE_SHIP;
+                ship_class = MidsizeShip;
         else
-                ship_class = FIGHTER_SHIP;
+                ship_class = FighterShip;
 
         /*
          * these values come from  cargo v2 
@@ -416,20 +416,20 @@ CMDF do_designship(CharData* ch, const std::string& argument)
         }
 
         cost = 10;
-        if (planet->cargoimport[CARGO_TRANSPARISTEEL] > 0)
-                cost += planet->cargoimport[CARGO_TRANSPARISTEEL] +
-                        planet->cargoimport[CARGO_TRANSPARISTEEL] / 2;
-        else if (planet->cargoexport[CARGO_TRANSPARISTEEL] > 0)
-                cost += planet->cargoexport[CARGO_TRANSPARISTEEL];
+        if (planet->cargoimport[CargoTransparisteel] > 0)
+                cost += planet->cargoimport[CargoTransparisteel] +
+                        planet->cargoimport[CargoTransparisteel] / 2;
+        else if (planet->cargoexport[CargoTransparisteel] > 0)
+                cost += planet->cargoexport[CargoTransparisteel];
         else
                 cost += 10;
 
 
-        if (planet->cargoimport[CARGO_DURASTEEL] > 0)
-                cost += planet->cargoimport[CARGO_DURASTEEL] +
-                        planet->cargoimport[CARGO_DURASTEEL] / 2;
-        else if (planet->cargoexport[CARGO_DURASTEEL] > 0)
-                cost += planet->cargoexport[CARGO_DURASTEEL];
+        if (planet->cargoimport[CargoDurasteel] > 0)
+                cost += planet->cargoimport[CargoDurasteel] +
+                        planet->cargoimport[CargoDurasteel] / 2;
+        else if (planet->cargoexport[CargoDurasteel] > 0)
+                cost += planet->cargoexport[CargoDurasteel];
         else
                 cost += 10;
 
@@ -444,8 +444,8 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 return;
         }
         ch->gold -= cost;
-        planet->resource[CARGO_TRANSPARISTEEL] -= transparisteel;
-        planet->resource[CARGO_DURASTEEL] -= durasteel;
+        planet->resource[CargoTransparisteel] -= transparisteel;
+        planet->resource[CargoDurasteel] -= durasteel;
 
         checktool = FALSE;
         checkdura = FALSE;
@@ -454,21 +454,21 @@ CMDF do_designship(CharData* ch, const std::string& argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_DURASTEEL && checkdura == FALSE)
+                if (obj->item_type == ItemDurasteel && checkdura == FALSE)
                 {
                         checkdura = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                 }
-                if (obj->item_type == ITEM_CIRCUIT && checkcir == FALSE)
+                if (obj->item_type == ItemCircuit && checkcir == FALSE)
                 {
                         checkcir = TRUE;
                         separate_obj(obj);
                         obj_from_char(obj);
                 }
-                if (obj->item_type == ITEM_SUPERCONDUCTOR
+                if (obj->item_type == ItemSuperconductor
                     && checksuper == FALSE)
                 {
                         checksuper = TRUE;
@@ -480,7 +480,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
 
 /* ok so far so good...everything is cool...try to build the ship */
 
-        vnum = find_pvnum_block(numrooms, PSHIP_AREA);
+        vnum = find_pvnum_block(numrooms, PshipArea);
         if (vnum < 0)
         {
                 bug("player ship area out of vnums", 0);
@@ -505,7 +505,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
         ship->copilot = STRALLOC("");
         ship->pilot = STRALLOC("");
         ship->home = STRALLOC("");
-        ship->type = PLAYER_SHIP;
+        ship->type = PlayerShip;
         ship->prototype = get_protoship("generic");
 
 /* you may want to adjust these to balance ships with your imm built ones 
@@ -537,19 +537,19 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 ch->pcdata->learned[gsn_shipdesign] * (get_curr_int(ch) / 5) * (ship_class + 1 );
         ship->sensor =
                 ch->pcdata->learned[gsn_shipdesign] * (get_curr_int(ch) / 5) * (ship_class + 1 );
-        if (ship_class == FIGHTER_SHIP)
+        if (ship_class == FighterShip)
                 ship->maxcargo = ch->pcdata->learned[gsn_shipdesign] / 10;
         else
                 ship->maxcargo =
                         ch->pcdata->learned[gsn_shipdesign] * (ship_class +
                                                                (get_curr_int
                                                                 (ch) / 5));
-        if (ship_class == FIGHTER_SHIP)
+        if (ship_class == FighterShip)
                 ship->maxbattalions = 0;
-        else if (ship_class == MIDSIZE_SHIP)
+        else if (ship_class == MidsizeShip)
                 ship->maxbattalions =
                         ch->pcdata->learned[gsn_shipdesign] / 10;
-        else if (ship_class == CAPITAL_SHIP)
+        else if (ship_class == CapitalShip)
                 ship->maxbattalions = ch->pcdata->learned[gsn_shipdesign];
 
         ship->hull = ship->maxhull;
@@ -575,7 +575,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 ship->coseat = vnum;
         }
 
-        gain_exp(ch, 10000, ENGINEERING_ABILITY);
+        gain_exp(ch, 10000, EngineeringAbility);
 
 /* I added this fee to balance the cost of building ships with that of selling them so as to 
    keep engis from making too much money too fast from just building and selling ships
@@ -586,8 +586,8 @@ CMDF do_designship(CharData* ch, const std::string& argument)
         ch_printf(ch, "&WYou gain 10000 engineering experience.\r\n");
         learn_from_success(ch, gsn_shipdesign);
         transship(ship, ch->in_room->vnum);
-                        act(AT_PLAIN, "$n finishes building new ship, and climbs inside.", ch,
-                                NULL, argument.c_str(), TO_ROOM);
+                        act(AtPlain, "$n finishes building new ship, and climbs inside.", ch,
+                                NULL, argument.c_str(), ToRoom);
         room = get_room_index(vnum);
         if (!room)
         {
@@ -617,10 +617,10 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
         ExitData* pexit = nullptr;
 
 
-		if (IS_NPC(ch)) 
+		if (IsNpc(ch)) 
 			return;
 
-#ifdef OLC_HOMES
+#ifdef OlcHomes
 		if (ch->in_room && ch->in_room->home) {
 			ch->in_room->home->add_room(ch, argument);
 			return;
@@ -728,7 +728,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
 
         if (!str_cmp(arg2, "cockpit"))
         {
-                if (ship->ship_class > MIDSIZE_SHIP)
+                if (ship->ship_class > MidsizeShip)
                 {
                         send_to_char
                                 ("Ships of this size don't have cockpits\r\n",
@@ -836,7 +836,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
         }
         if (!str_cmp(arg2, "turret"))
         {
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         send_to_char
                                 ("starfighters are too small to have turrets\r\n",
@@ -874,7 +874,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
         }
         if (!str_cmp(arg2, "hanger"))
         {
-                if (ship->ship_class < MIDSIZE_SHIP)
+                if (ship->ship_class < MidsizeShip)
                 {
                         send_to_char("Starfighters don't have hangers!!\r\n",
                                      ch);
@@ -912,15 +912,15 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 }
                 ch->gold -= 10000;
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_FACTORY);
-                xSET_BIT(room->RoomFlags, ROOM_REFINERY);
+                xSET_BIT(room->RoomFlags, RoomFactory);
+                xSET_BIT(room->RoomFlags, RoomRefinery);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("A Workshop");
         }
         if (!str_cmp(arg2, "bacta"))
         {
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         send_to_char
                                 ("starfighters are too small to have turrets\r\n",
@@ -937,7 +937,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 }
                 ch->gold -= 25000;
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_BACTA);
+                xSET_BIT(room->RoomFlags, RoomBacta);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("Bacta Tank");
@@ -954,8 +954,8 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 100000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_SILENCE);
-                xSET_BIT(room->RoomFlags, ROOM_SAFE);
+                xSET_BIT(room->RoomFlags, RoomSilence);
+                xSET_BIT(room->RoomFlags, RoomSafe);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("A Quiet Meditation Chamber");
@@ -972,7 +972,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_HOTEL);
+                xSET_BIT(room->RoomFlags, RoomHotel);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("The Passenger's Lounge");
@@ -989,8 +989,8 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 10000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
-                xSET_BIT(room->RoomFlags, ROOM_HOTEL);
+                xSET_BIT(room->RoomFlags, RoomEmptyHome);
+                xSET_BIT(room->RoomFlags, RoomHotel);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("An Empty Apartment");
@@ -1084,9 +1084,9 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
         int tmplvl = 0;
         std::string arg1;
         std::string buf;
-        INSTALLATION_DATA* installation = nullptr;
+        InstallationData* installation = nullptr;
 
-#ifdef OLC_HOMES
+#ifdef OlcHomes
 		if (ch->in_room && ch->in_room->home) {
 			ch->in_room->home->decorate_room(ch, argument);
 			return;
@@ -1107,7 +1107,7 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
 
                 ship = ship_from_room(room->vnum);
                 installation = installation_from_room(room->vnum);
-                if (!ship && !installation && !IS_IMMORTAL(ch))
+                if (!ship && !installation && !IsImmortal(ch))
                 {
                         send_to_char
                                 ("&RYou can currently only do this on ships an in installations.\r\n&C&w",
@@ -1124,7 +1124,7 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
                                 return;
                         }
                 if (ship && !installation)
-                        if (ship->type != PLAYER_SHIP)
+                        if (ship->type != PlayerShip)
                         {
                                 send_to_char
                                         ("Currently you can only decorate custom ships...\r\n",
@@ -1135,7 +1135,7 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
                                 return;
                         }
                 if (!ship && installation)
-                        if (IS_NPC(ch) || !ch->pcdata || !ch->pcdata->clan
+                        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
                             || ch->pcdata->clan != installation->clan)
                         {
                                 send_to_char
@@ -1256,7 +1256,7 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
                         return;
                 }
         if (ship && !installation)
-                if (ship->type != PLAYER_SHIP)
+                if (ship->type != PlayerShip)
                 {
                         send_to_char
                                 ("Currently you can only decorate custom ships...\r\n",
@@ -1267,7 +1267,7 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
                         return;
                 }
         if (!ship && installation)
-                if (IS_NPC(ch) || !ch->pcdata || !ch->pcdata->clan
+                if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
                     || ch->pcdata->clan != installation->clan)
                 {
                         send_to_char
@@ -1330,18 +1330,18 @@ CMDF do_recycle(CharData* ch, const std::string& argument)
         ship = ship_in_room(ch->in_room, argument.c_str());
         if (!ship)
         {
-                act(AT_PLAIN, "I see no $T here.", ch, NULL, argument,
-                    TO_CHAR);
+                act(AtPlain, "I see no $T here.", ch, NULL, argument,
+                    ToChar);
                 return;
         }
 
-        if (str_cmp(ship->owner, ch->name) && !IS_IMMORTAL(ch))
+        if (str_cmp(ship->owner, ch->name) && !IsImmortal(ch))
         {
                 send_to_char("&RThat isn't your ship!", ch);
                 return;
         }
 
-        if (ship->type != PLAYER_SHIP)
+        if (ship->type != PlayerShip)
         {
                 send_to_char("You can only recycle custom built ships\r\n",
                              ch);
@@ -1358,11 +1358,11 @@ CMDF do_recycle(CharData* ch, const std::string& argument)
                 ("\r\nSeveral heavy droids chop up and carry off your ship.\r\n",
                  ch);
 
-        act(AT_PLAIN,
+        act(AtPlain,
             "$n walks over to a terminal and makes a credit transaction.", ch,
-            NULL, argument, TO_ROOM);
-        act(AT_PLAIN, "Several heavy droids chop up and carry off a ship.",
-            ch, NULL, argument, TO_ROOM);
+            NULL, argument, ToRoom);
+        act(AtPlain, "Several heavy droids chop up and carry off a ship.",
+            ch, NULL, argument, ToRoom);
         transship(ship, 45);
         really_destroy_ship(ship);
 }
@@ -1448,7 +1448,7 @@ void fleet_make(CharData* ch, const std::string& argument)
                  * and comment the second one out to use the shipyard flag instead
                  */
 
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomImport))
                 {
                         send_to_char
                                 ("You can't do that here!! Try a spaceport\r\n",
@@ -1457,11 +1457,11 @@ void fleet_make(CharData* ch, const std::string& argument)
                 }
 
                 if (!str_cmp(arg1, "cap"))
-                        ship_class = CAPITAL_SHIP;
+                        ship_class = CapitalShip;
                 else if (!str_cmp(arg1, "mid"))
-                        ship_class = MIDSIZE_SHIP;
+                        ship_class = MidsizeShip;
                 else if (!str_cmp(arg1, "fighter"))
-                        ship_class = FIGHTER_SHIP;
+                        ship_class = FighterShip;
                 else
                 {
                         send_to_char("&GThats not a ship type.\n\r", ch);
@@ -1469,12 +1469,12 @@ void fleet_make(CharData* ch, const std::string& argument)
                 }
                 durasteel = ship_class * 15 + 10;
                 transparisteel = ship_class * 2 + 1;
-                if (xIS_SET(ch->in_room->RoomFlags, ROOM_INSTALLATION))
+                if (xIS_SET(ch->in_room->RoomFlags, RoomInstallation))
                 {
-                        INSTALLATION_DATA *installation =
+                        InstallationData *installation =
                                 installation_from_room(ch->in_room->vnum);
                         if (installation
-                            && installation->type == SHIPYARD_INSTALLATION)
+                            && installation->type == ShipyardInstallation)
                                 planet = installation->planet;
                 }
                 else
@@ -1498,7 +1498,7 @@ void fleet_make(CharData* ch, const std::string& argument)
                 /*
                  * make sure the planet has the resources to build the ship 
                  */
-                if (planet->resource[CARGO_DURASTEEL] < durasteel)
+                if (planet->resource[CargoDurasteel] < durasteel)
                 {
                         send_to_char
                                 ("&RYou'll Have to wait till they either import or produce more durasteel&C&w\r\n",
@@ -1506,7 +1506,7 @@ void fleet_make(CharData* ch, const std::string& argument)
                         return;
                 }
 
-                if (planet->resource[CARGO_TRANSPARISTEEL] < transparisteel)
+                if (planet->resource[CargoTransparisteel] < transparisteel)
                 {
                         send_to_char
                                 ("&RYou'll Have to wait till they either import or produce more transparisteel&C&w\r\n",
@@ -1514,19 +1514,19 @@ void fleet_make(CharData* ch, const std::string& argument)
                         return;
                 }
                 cost = 10;
-                if (planet->cargoimport[CARGO_TRANSPARISTEEL] > 0)
-                        cost += planet->cargoimport[CARGO_TRANSPARISTEEL] +
-                                planet->cargoimport[CARGO_TRANSPARISTEEL] / 2;
-                else if (planet->cargoexport[CARGO_TRANSPARISTEEL] > 0)
-                        cost += planet->cargoexport[CARGO_TRANSPARISTEEL];
+                if (planet->cargoimport[CargoTransparisteel] > 0)
+                        cost += planet->cargoimport[CargoTransparisteel] +
+                                planet->cargoimport[CargoTransparisteel] / 2;
+                else if (planet->cargoexport[CargoTransparisteel] > 0)
+                        cost += planet->cargoexport[CargoTransparisteel];
                 else
                         cost += 10;
 
-                if (planet->cargoimport[CARGO_DURASTEEL] > 0)
-                        cost += planet->cargoimport[CARGO_DURASTEEL] +
-                                planet->cargoimport[CARGO_DURASTEEL] / 2;
-                else if (planet->cargoexport[CARGO_DURASTEEL] > 0)
-                        cost += planet->cargoexport[CARGO_DURASTEEL];
+                if (planet->cargoimport[CargoDurasteel] > 0)
+                        cost += planet->cargoimport[CargoDurasteel] +
+                                planet->cargoimport[CargoDurasteel] / 2;
+                else if (planet->cargoexport[CargoDurasteel] > 0)
+                        cost += planet->cargoexport[CargoDurasteel];
                 else
                         cost += 10;
 
@@ -1541,12 +1541,12 @@ void fleet_make(CharData* ch, const std::string& argument)
 
 
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_fleet_command1]);
                 if (number_percent() < percentage)
                 {
                         send_to_char("&GYou begin to launch a ship.\n\r", ch);
-                        add_timer(ch, TIMER_DO_FUN, 45, fleet_make, 1);
+                        add_timer(ch, TimerDoFun, 45, fleet_make, 1);
                         ch->dest_buf = str_dup(arg1);
                         ch->dest_buf_2 = str_dup(arg2);
                         return;
@@ -1591,11 +1591,11 @@ void fleet_make(CharData* ch, const std::string& argument)
          */
 
         if (!str_cmp(arg1, "cap"))
-                ship_class = CAPITAL_SHIP;
+                ship_class = CapitalShip;
         else if (!str_cmp(arg1, "mid"))
-                ship_class = MIDSIZE_SHIP;
+                ship_class = MidsizeShip;
         else
-                ship_class = FIGHTER_SHIP;
+                ship_class = FighterShip;
 
         transparisteel = ship_class * 5 + 1;
         durasteel = ship_class * 10 + 10;
@@ -1626,20 +1626,20 @@ void fleet_make(CharData* ch, const std::string& argument)
         }
 
         cost = 10;
-        if (planet->cargoimport[CARGO_TRANSPARISTEEL] > 0)
-                cost += planet->cargoimport[CARGO_TRANSPARISTEEL] +
-                        planet->cargoimport[CARGO_TRANSPARISTEEL] / 2;
-        else if (planet->cargoexport[CARGO_TRANSPARISTEEL] > 0)
-                cost += planet->cargoexport[CARGO_TRANSPARISTEEL];
+        if (planet->cargoimport[CargoTransparisteel] > 0)
+                cost += planet->cargoimport[CargoTransparisteel] +
+                        planet->cargoimport[CargoTransparisteel] / 2;
+        else if (planet->cargoexport[CargoTransparisteel] > 0)
+                cost += planet->cargoexport[CargoTransparisteel];
         else
                 cost += 10;
 
 
-        if (planet->cargoimport[CARGO_DURASTEEL] > 0)
-                cost += planet->cargoimport[CARGO_DURASTEEL] +
-                        planet->cargoimport[CARGO_DURASTEEL] / 2;
-        else if (planet->cargoexport[CARGO_DURASTEEL] > 0)
-                cost += planet->cargoexport[CARGO_DURASTEEL];
+        if (planet->cargoimport[CargoDurasteel] > 0)
+                cost += planet->cargoimport[CargoDurasteel] +
+                        planet->cargoimport[CargoDurasteel] / 2;
+        else if (planet->cargoexport[CargoDurasteel] > 0)
+                cost += planet->cargoexport[CargoDurasteel];
         else
                 cost += 10;
 
@@ -1652,8 +1652,8 @@ void fleet_make(CharData* ch, const std::string& argument)
                 return;
         }
         clan->funds -= cost;
-        planet->resource[CARGO_TRANSPARISTEEL] -= transparisteel;
-        planet->resource[CARGO_DURASTEEL] -= durasteel;
+        planet->resource[CargoTransparisteel] -= transparisteel;
+        planet->resource[CargoDurasteel] -= durasteel;
 
         filename = std::format("{}.mship", arg2);
 
@@ -1666,7 +1666,7 @@ void fleet_make(CharData* ch, const std::string& argument)
         ship->copilot = STRALLOC("");
         ship->pilot = STRALLOC("");
         ship->home = STRALLOC("");
-        ship->type = CLAN_MOB_SHIP;
+        ship->type = ClanMobShip;
         ship->selfdestruct = STRALLOC("Installed");
         ship->selfdpass = number_range(10001, 99999);
 
@@ -1725,13 +1725,13 @@ void fleet_make(CharData* ch, const std::string& argument)
         send_to_char
                 ("You complete your work constructing part of your fleet\n\r",
                  ch);
-        gain_exp(ch, 100000, PILOTING_ABILITY);
+        gain_exp(ch, 100000, PilotingAbility);
         ship_to_starsystem(ship, starsystem_from_name(ship->home));
         ch_printf(ch, "&WYou gain 100000 engineering experience.\r\n");
         learn_from_success(ch, gsn_fleet_command1);
 
-        act(AT_PLAIN, "$n finishes launching the new ship.", ch,
-            NULL, NULL, TO_ROOM);
+        act(AtPlain, "$n finishes launching the new ship.", ch,
+            NULL, NULL, ToRoom);
         save_ship(ship);
         write_ship_list();
 }
@@ -1793,7 +1793,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 }
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
                 }
 
@@ -1806,7 +1806,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 }
 
                 percentage =
-                        IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                             learned
                                                             [gsn_modifyship]);
 
@@ -1816,10 +1816,10 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         send_to_char
                                 ("&GYou begin to tinker with the ship.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s tools and starts to work on a ship.\r\n",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 35, do_modifyship, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 35, do_modifyship, 1);
                         ch->dest_buf = str_dup(arg);
                         ch->dest_buf_2 = str_dup(arg1);
                         ch->dest_buf_3 = str_dup(arg2);
@@ -1869,12 +1869,12 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
         }
 
         percentage =
-                IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_modifyship]);
 
         if (number_percent() > percentage * 2 || (!checktool))
@@ -1900,7 +1900,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "Speed"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -1910,7 +1910,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -1920,7 +1920,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -1931,7 +1931,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->realspeed >= 255)
                         {
@@ -1941,7 +1941,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->realspeed >= 200)
                         {
@@ -1951,7 +1951,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->realspeed >= 100)
                         {
@@ -2048,21 +2048,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->realspeed += 25;
                 send_to_char("Ships Speed increased by 25.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -2075,7 +2075,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "cargo"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -2085,7 +2085,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -2095,7 +2095,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -2106,7 +2106,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxcargo >= 10)
                         {
@@ -2116,7 +2116,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->maxcargo >= 800)
                         {
@@ -2126,7 +2126,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->maxcargo >= 5000)
                         {
@@ -2223,21 +2223,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->maxcargo += 50;
                 send_to_char("Ships cargo space increased by 50.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -2251,7 +2251,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "battalions"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -2261,7 +2261,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -2271,7 +2271,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -2282,7 +2282,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxbattalions >= 0)
                         {
@@ -2292,7 +2292,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->maxbattalions >= 10)
                         {
@@ -2302,7 +2302,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->maxbattalions >= 100)
                         {
@@ -2398,21 +2398,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->maxbattalions += 1;
                 send_to_char("Ships battalion holds increased by 1.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -2428,7 +2428,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "manuever"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -2438,7 +2438,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -2448,7 +2448,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -2459,7 +2459,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->manuever >= 255)
                         {
@@ -2469,7 +2469,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->manuever >= 200)
                         {
@@ -2479,7 +2479,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->manuever >= 100)
                         {
@@ -2576,21 +2576,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 ship->manuever += 25;
                 send_to_char("Ships manueverability increased by 25.\r\n",
                              ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -2603,7 +2603,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "hyperspeed"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -2613,7 +2613,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -2623,7 +2623,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -2634,7 +2634,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->hyperspeed >= 255)
                         {
@@ -2644,7 +2644,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->realspeed >= 200)
                         {
@@ -2654,7 +2654,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->realspeed >= 100)
                         {
@@ -2750,21 +2750,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->hyperspeed += 25;
                 send_to_char("Ships hyperspeed increased by 25.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -2777,7 +2777,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "lasers"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -2787,7 +2787,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -2797,7 +2797,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -2808,7 +2808,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->lasers >= 6)
                         {
@@ -2818,7 +2818,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->lasers >= 15)
                         {
@@ -2828,7 +2828,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->lasers >= 30)
                         {
@@ -2959,21 +2959,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->lasers += 1;
                 send_to_char("Ships lasers increased by 1.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -2986,7 +2986,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "ions"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -2996,7 +2996,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -3006,7 +3006,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -3017,7 +3017,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->ions >= 6)
                         {
@@ -3027,7 +3027,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->ions >= 15)
                         {
@@ -3037,7 +3037,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->ions >= 30)
                         {
@@ -3169,21 +3169,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->ions += 1;
                 send_to_char("Ships ion cannons increased by 1.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -3197,7 +3197,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "missiles"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -3207,7 +3207,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -3217,7 +3217,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -3228,7 +3228,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxmissiles >= 10)
                         {
@@ -3238,7 +3238,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->maxmissiles >= 30)
                         {
@@ -3248,7 +3248,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->maxmissiles >= 90)
                         {
@@ -3380,21 +3380,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->maxmissiles += 6;
                 send_to_char("Ships missiles increased by 6.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -3407,7 +3407,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "torpedos"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -3417,7 +3417,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -3427,7 +3427,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -3438,7 +3438,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxtorpedos >= 5)
                         {
@@ -3448,7 +3448,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->maxtorpedos >= 15)
                         {
@@ -3458,7 +3458,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->maxtorpedos >= 45)
                         {
@@ -3590,21 +3590,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->maxtorpedos += 4;
                 send_to_char("Ships torpedos increased by 4.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -3617,7 +3617,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "rockets"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -3627,7 +3627,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -3637,7 +3637,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -3648,7 +3648,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxrockets >= 2)
                         {
@@ -3658,7 +3658,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->rockets >= 6)
                         {
@@ -3668,7 +3668,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->rockets >= 18)
                         {
@@ -3800,21 +3800,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->maxrockets += 2;
                 send_to_char("Ships rockets increased by 2.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -3827,7 +3827,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "chaff"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -3837,7 +3837,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -3847,7 +3847,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -3858,7 +3858,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxchaff >= 5)
                         {
@@ -3868,7 +3868,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->maxchaff >= 20)
                         {
@@ -3878,7 +3878,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->lasers >= 50)
                         {
@@ -4012,21 +4012,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->maxchaff += 1;
                 send_to_char("Ships chaff increased by 1.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -4039,7 +4039,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "tractor"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -4049,7 +4049,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -4059,7 +4059,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -4070,14 +4070,14 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         send_to_char
                                 ("Fighter ships cannot use tractor beams.\r\n",
                                  ch);
                         return;
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->tractorbeam >= 1)
                         {
@@ -4087,7 +4087,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->tractorbeam >= 5)
                         {
@@ -4219,21 +4219,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->tractorbeam += 1;
                 send_to_char("Ships tractpr beams increased by 1.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -4247,7 +4247,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "hull"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -4257,7 +4257,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -4267,7 +4267,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -4278,7 +4278,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxhull >= 1000)
                         {
@@ -4288,7 +4288,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->maxhull >= 3000)
                         {
@@ -4298,7 +4298,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->maxhull >= 10000)
                         {
@@ -4356,21 +4356,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->maxhull += 100;
                 send_to_char("Ships hull armour increased by 100.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -4383,7 +4383,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "shields"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -4393,7 +4393,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -4403,7 +4403,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -4414,7 +4414,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxshield >= 300)
                         {
@@ -4424,7 +4424,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->maxshield >= 900)
                         {
@@ -4434,7 +4434,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->maxshield >= 3000)
                         {
@@ -4492,21 +4492,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 ship->maxshield += 10;
                 send_to_char("Ships shield generators increased by 10.\r\n",
                              ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -4520,7 +4520,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "energy"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 10000)
                         {
@@ -4530,7 +4530,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 50000)
                         {
@@ -4540,7 +4540,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -4551,7 +4551,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->maxenergy >= 5000)
                         {
@@ -4561,7 +4561,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->maxenergy >= 15000)
                         {
@@ -4571,7 +4571,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->maxenergy >= 36000)
                         {
@@ -4628,21 +4628,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->maxenergy += 100;
                 send_to_char("Ships fuel cells increased by 100.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 10000;
                         send_to_char
                                 ("You spend 10000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 20000;
                         send_to_char
                                 ("You spend 20000 credits on this upgrade.\r\n",
                                  ch);
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 30000;
                         send_to_char
@@ -4655,7 +4655,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "stealth"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -4665,7 +4665,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 500000)
                         {
@@ -4675,7 +4675,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 1000000)
                         {
@@ -4686,7 +4686,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->stealth >= 1)
                         {
@@ -4696,7 +4696,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->stealth >= 1)
                         {
@@ -4706,7 +4706,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->stealth >= 1 && str_cmp(arg2, "remove"))
                         {
@@ -4903,15 +4903,15 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->stealth += 1;
                 send_to_char("Stealth drive installed.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 100000;
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 500000;
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 1000000;
                 }
@@ -4921,7 +4921,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "cloak"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -4931,7 +4931,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 500000)
                         {
@@ -4941,7 +4941,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 1000000)
                         {
@@ -4952,7 +4952,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ship->cloak >= 1)
                         {
@@ -4962,7 +4962,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ship->cloak >= 1)
                         {
@@ -4972,7 +4972,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->cloak >= 1 && str_cmp(arg2, "remove"))
                         {
@@ -5169,15 +5169,15 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->cloak += 1;
                 send_to_char("Cloaking device installed.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 100000;
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 500000;
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 1000000;
                 }
@@ -5187,7 +5187,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         if (!str_cmp(arg1, "interdictor"))
         {
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         if (ch->gold < 100000)
                         {
@@ -5197,7 +5197,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         if (ch->gold < 500000)
                         {
@@ -5207,7 +5207,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 return;
                         }
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ch->gold < 1000000)
                         {
@@ -5218,21 +5218,21 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         send_to_char
                                 ("Starfighters cannot house gravity cones.\r\n",
                                  ch);
                         return;
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         send_to_char
                                 ("Midships cannot house gravity cones.\r\n",
                                  ch);
                         return;
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         if (ship->interdictor >= 1 && str_cmp(arg2, "remove"))
                         {
@@ -5427,15 +5427,15 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 ship->interdictor += 1;
                 send_to_char("Gravity cone installed.\r\n", ch);
-                if (ship->ship_class == FIGHTER_SHIP)
+                if (ship->ship_class == FighterShip)
                 {
                         ch->gold -= 100000;
                 }
-                if (ship->ship_class == MIDSIZE_SHIP)
+                if (ship->ship_class == MidsizeShip)
                 {
                         ch->gold -= 500000;
                 }
-                if (ship->ship_class == CAPITAL_SHIP)
+                if (ship->ship_class == CapitalShip)
                 {
                         ch->gold -= 1000000;
                 }
@@ -5508,9 +5508,9 @@ CMDF do_modifyexit(CharData * ch, char *argument)
                 }
 
                 if (!str_cmp(arg2, "door"))
-                        type = EX_ISDOOR;
+                        type = ExIsdoor;
                 else if (!str_cmp(arg2, "hidden"))
-                        type = EX_HIDDEN;
+                        type = ExHidden;
                 else
                 {
                         send_to_char
@@ -5529,9 +5529,9 @@ CMDF do_modifyexit(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_DURASTEEL)
+                        if (obj->item_type == ItemDurasteel)
                                 checkdura = TRUE;
                 }
 
@@ -5552,17 +5552,17 @@ CMDF do_modifyexit(CharData * ch, char *argument)
                 }
 
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_modifyexit]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou take your equipment and begin to modify your exit.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s tools and begins to work on something.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 25, do_modifyexit, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 25, do_modifyexit, 1);
                         ch->dest_buf = str_dup(arg);
                         ch->dest_buf_2 = str_dup(arg2);
                         return;
@@ -5595,17 +5595,17 @@ CMDF do_modifyexit(CharData * ch, char *argument)
 
         ch->substate = SubNone;
         if (!str_cmp(arg2, "door"))
-                type = EX_ISDOOR;
+                type = ExIsdoor;
         else if (!str_cmp(arg2, "hidden"))
-                type = EX_HIDDEN;
+                type = ExHidden;
         checktool = FALSE;
         checkdura = FALSE;
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_DURASTEEL && checkdura == FALSE)
+                if (obj->item_type == ItemDurasteel && checkdura == FALSE)
                 {
                         checkdura = TRUE;
                         separate_obj(obj);
@@ -5614,7 +5614,7 @@ CMDF do_modifyexit(CharData * ch, char *argument)
                 }
         }
 
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_modifyexit]);
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura))
         {
@@ -5661,17 +5661,17 @@ CMDF do_modifyexit(CharData * ch, char *argument)
         send_to_char
                 ("&GYou finish your work and examine the modifications you've performed.&w\n\r",
                  ch);
-        act(AT_PLAIN, "$n finishes their work.", ch, NULL, argument, TO_ROOM);
+        act(AtPlain, "$n finishes their work.", ch, NULL, argument, ToRoom);
 
         {
                 long      xpgain;
 
                 xpgain = UMIN(20000,
                               (exp_level
-                               (ch->skill_level[ENGINEERING_ABILITY] + 1) -
+                               (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
-                                         skill_level[ENGINEERING_ABILITY])));
-                gain_exp(ch, xpgain, ENGINEERING_ABILITY);
+                                         skill_level[EngineeringAbility])));
+                gain_exp(ch, xpgain, EngineeringAbility);
                 ch_printf(ch, "You gain %d engineering experience.", xpgain);
         }
 
@@ -5747,19 +5747,19 @@ bool dismantle_values(ShipData * ship, PlanetData * planet,int * durasteel, int 
          * This stuff needs to be tweaked for balancing, i  really don't understand the system though. - Gavin 
          */
         *cost = 10;
-        if (planet->cargoexport[CARGO_TRANSPARISTEEL] > 0)
-                *cost += planet->cargoexport[CARGO_TRANSPARISTEEL] +
-                        planet->cargoexport[CARGO_TRANSPARISTEEL] / 2;
-        else if (planet->cargoimport[CARGO_TRANSPARISTEEL] > 0)
-                *cost += planet->cargoimport[CARGO_TRANSPARISTEEL];
+        if (planet->cargoexport[CargoTransparisteel] > 0)
+                *cost += planet->cargoexport[CargoTransparisteel] +
+                        planet->cargoexport[CargoTransparisteel] / 2;
+        else if (planet->cargoimport[CargoTransparisteel] > 0)
+                *cost += planet->cargoimport[CargoTransparisteel];
         else
                 *cost += 10;
 
-        if (planet->cargoexport[CARGO_DURASTEEL] > 0)
-                *cost += planet->cargoexport[CARGO_DURASTEEL] +
-                        planet->cargoexport[CARGO_DURASTEEL] / 2;
-        else if (planet->cargoimport[CARGO_DURASTEEL] > 0)
-                *cost += planet->cargoimport[CARGO_DURASTEEL];
+        if (planet->cargoexport[CargoDurasteel] > 0)
+                *cost += planet->cargoexport[CargoDurasteel] +
+                        planet->cargoexport[CargoDurasteel] / 2;
+        else if (planet->cargoimport[CargoDurasteel] > 0)
+                *cost += planet->cargoimport[CargoDurasteel];
         else
                 *cost += 10;
 
@@ -5783,12 +5783,12 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
         ShipData *ship = NULL;
         PlanetData *planet;
 
-        if (xIS_SET(ch->in_room->RoomFlags, ROOM_INSTALLATION))
+        if (xIS_SET(ch->in_room->RoomFlags, RoomInstallation))
         {
-                INSTALLATION_DATA *installation =
+                InstallationData *installation =
                         installation_from_room(ch->in_room->vnum);
                 if (installation
-                    && installation->type == SHIPYARD_INSTALLATION)
+                    && installation->type == ShipyardInstallation)
                         planet = installation->planet;
         }
         else
@@ -5805,7 +5805,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT))
+        if (!xIS_SET(ch->in_room->RoomFlags, RoomImport))
         {
                 send_to_char
                         ("You can't build that here!! Try a spaceport\r\n",
@@ -5854,7 +5854,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                         for (obj = ch->last_carrying; obj;
                              obj = obj->prev_content)
                         {
-                                if (obj->item_type == ITEM_TOOLKIT)
+                                if (obj->item_type == ItemToolkit)
                                         checktool = TRUE;
                         }
 
@@ -5866,7 +5866,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                                 return;
                         }
                         percentage =
-                                IS_NPC(ch) ? ch->top_level : (int) (ch->
+                                IsNpc(ch) ? ch->top_level : (int) (ch->
                                                                     pcdata->
                                                                     learned
                                                                     [gsn_dismantle_ship]);
@@ -5875,10 +5875,10 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                                 send_to_char
                                         ("&GYou begin the LONG Process of dismantling a ship.\n\r",
                                          ch);
-                                act(AT_PLAIN,
+                                act(AtPlain,
                                     "$n takes $s tools and starts dismantling a ship.\r\n",
-                                    ch, NULL, argument, TO_ROOM);
-                                add_timer(ch, TIMER_DO_FUN, 35,
+                                    ch, NULL, argument, ToRoom);
+                                add_timer(ch, TimerDoFun, 35,
                                           do_dismantle_ship, 1);
                                 ch->dest_buf = ship;
                                 return;
@@ -5965,8 +5965,8 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
 		/* Remove costs + fees and add stuff back to the planet */
 		ch->gold -= cost;
 		ch->gold -= fee;
-		planet->resource[CARGO_TRANSPARISTEEL] += transparisteel;
-		planet->resource[CARGO_DURASTEEL] += durasteel;
+		planet->resource[CargoTransparisteel] += transparisteel;
+		planet->resource[CargoDurasteel] += durasteel;
 
 
         /*
@@ -5979,10 +5979,10 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
         ch_printf(ch,
                   "It costs you %d credits for materials, tools, and labour.\r\n",
                   fee);
-        gain_exp(ch, 10000, ENGINEERING_ABILITY);
+        gain_exp(ch, 10000, EngineeringAbility);
         ch_printf(ch, "&WYou gain 10000 engineering experience.\r\n");
         learn_from_success(ch, gsn_dismantle_ship);
-        act(AT_PLAIN, "$n finishes dismantling the ship..", ch, NULL,
-            argument, TO_ROOM);
+        act(AtPlain, "$n finishes dismantling the ship..", ch, NULL,
+            argument, ToRoom);
         return;
 }

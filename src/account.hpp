@@ -52,19 +52,19 @@
 // Account System Constants
 // =============================================================================
 
-constexpr const char* ACCOUNT_DIR = "../Account/";
+constexpr const char* AccountDir = "../Account/";
 
 // Note: These will be defined after including mud.hpp where BV00/BV01 are defined
-#define ACCOUNT_SOUND ACCOUNT_MSP
-#define ACCOUNT_MSP   BV00
-#define ACCOUNT_MXP   BV01
+#define AccountSound AccountMsp
+#define AccountMsp   BV00
+#define AccountMxp   BV01
 
 // =============================================================================
 // Forward Declarations
 // =============================================================================
 
 struct AccountData;
-using ACCOUNT_DATA = AccountData;
+using AccountData = AccountData;
 struct CharData;
 using CharData = CharData;
 struct DescriptorData;
@@ -74,8 +74,8 @@ using DescriptorData = DescriptorData;
 // Global Variables
 // =============================================================================
 
-extern ACCOUNT_DATA *first_account;
-extern ACCOUNT_DATA *last_account;
+extern AccountData *first_account;
+extern AccountData *last_account;
 
 // =============================================================================
 // Account Data Structure
@@ -83,8 +83,8 @@ extern ACCOUNT_DATA *last_account;
 
 struct AccountData
 {
-        ACCOUNT_DATA *prev{nullptr};
-        ACCOUNT_DATA *next{nullptr};
+        AccountData *prev{nullptr};
+        AccountData *next{nullptr};
         struct alias_data *first_alias{nullptr};
         struct alias_data *last_alias{nullptr};
         char     *name{nullptr};
@@ -103,15 +103,15 @@ struct AccountData
 // Function Prototypes (C++23 modernized)
 // =============================================================================
 
-[[nodiscard]] ACCOUNT_DATA *load_account(const char *name);
-[[nodiscard]] ACCOUNT_DATA *load_account(std::string_view name);
-[[nodiscard]] ACCOUNT_DATA *create_account() noexcept;
-void save_account(ACCOUNT_DATA *Account);
-[[nodiscard]] bool add_to_account(ACCOUNT_DATA *Account, CharData *ch);
-[[nodiscard]] bool add_to_account(std::shared_ptr<ACCOUNT_DATA> Account, std::shared_ptr<CharData> ch);
-[[nodiscard]] bool del_from_account(ACCOUNT_DATA *Account, CharData *ch);
-[[nodiscard]] bool del_from_account(std::shared_ptr<ACCOUNT_DATA> Account, std::shared_ptr<CharData> ch);
+[[nodiscard]] AccountData *load_account(const char *name);
+[[nodiscard]] AccountData *load_account(std::string_view name);
+[[nodiscard]] AccountData *create_account() noexcept;
+void save_account(AccountData *Account);
+[[nodiscard]] bool add_to_account(AccountData *Account, CharData *ch);
+[[nodiscard]] bool add_to_account(std::shared_ptr<AccountData> Account, std::shared_ptr<CharData> ch);
+[[nodiscard]] bool del_from_account(AccountData *Account, CharData *ch);
+[[nodiscard]] bool del_from_account(std::shared_ptr<AccountData> Account, std::shared_ptr<CharData> ch);
 void show_account_characters(DescriptorData *d);
 void show_account_characters(std::shared_ptr<DescriptorData> d);
-void free_account(ACCOUNT_DATA *Account);
-void fread_account(ACCOUNT_DATA *Account, FILE *fp);
+void free_account(AccountData *Account);
+void fread_account(AccountData *Account, FILE *fp);

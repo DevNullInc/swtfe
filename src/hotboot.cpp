@@ -71,9 +71,9 @@
 
 // Constants
 #define MaxNest          100
-#define FILENAME_SIZE     256
-#define DIRNAME_SIZE      100
-#define BUFFER_SIZE       100
+#define FilenameSize     256
+#define DirnameSize      100
+#define BufferSize       100
 
 // Global variables
 static ObjData *rgObjNest[MaxNest];
@@ -81,11 +81,11 @@ static ObjData *rgObjNest[MaxNest];
 // External references
 extern int port;    /* Port number to be used       */
 extern int control, control2, conclient, conjava;
-extern RoomIndexData *room_index_hash[MAX_KEY_HASH];
+extern RoomIndexData *room_index_hash[MaxKeyHash];
 
 // Function prototypes
 bool flush_buffer args((DescriptorData * d, bool fPrompt));
-void save_sysdata args((SYSTEM_DATA sys));
+void save_sysdata args((SystemData sys));
 void hotboot(bool debug, bool save);
 bool is_area_inprogress args((void));
 void init_descriptor args((DescriptorData * dnew, int desc));
@@ -104,7 +104,7 @@ bool write_to_descriptor_old(int desc, char *txt, int length);
  */
 void write_ship(FILE * fp, ShipData * ship)
 {
-#ifndef HOTBOOT_SHIPS
+#ifndef HotbootShips
         return;
 #endif
         if (!fp)
@@ -115,9 +115,9 @@ void write_ship(FILE * fp, ShipData * ship)
         /*
          * How about only ones that landed 
          */
-        if (ship->shipstate == SHIP_DOCKED)
+        if (ship->shipstate == ShipDocked)
                 return;
-        if (ship->ship_class > SHIP_PLATFORM)
+        if (ship->ship_class > ShipPlatform)
                 return;
 
         fprintf(fp, "%s", "#SHIP\n");
@@ -168,7 +168,7 @@ void write_ship(FILE * fp, ShipData * ship)
                 fprintf(fp, "LandDest %s~\n", ship->dest);
         }
 
-        if (ship->shipstate == SHIP_HYPERSPACE)
+        if (ship->shipstate == ShipHyperspace)
         {
                 fprintf(fp, "Hyperdistance %d\n", ship->hyperdistance);
                 fprintf(fp, "Currjump %s~\n", ship->currjump->name);
@@ -192,10 +192,10 @@ void load_oochistory(void)
 {
         FILE     *fp;
         int       i, ccount = 0, x;
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
 
 
-        if (!(fp = fopen(OOCHISTORY_FILE, "r")))
+        if (!(fp = fopen(OochistoryFile, "r")))
         {
                 bug("Could not open OOChistory File for reading.", 0);
                 return;
@@ -205,7 +205,7 @@ void load_oochistory(void)
         {
                 channel = get_channel(fread_string_noalloc(fp));
                 channel->logpos = fread_number(fp);
-                CREATE(channel->log, LOG_DATA, sysdata.channellog);
+                CREATE(channel->log, LogData, sysdata.channellog);
 
                 for (i = 0; i < channel->logpos + 1; i++)
                 {
@@ -218,7 +218,7 @@ void load_oochistory(void)
                 continue;
         }
         FCLOSE(fp);
-        unlink(OOCHISTORY_FILE);
+        unlink(OochistoryFile);
         return;
 }
 
@@ -226,11 +226,11 @@ void save_oochistory(void)
 {
         FILE     *fp;
         int       i, ccount = 0;
-        CHANNEL_DATA *channel;
+        ChannelData *channel;
 
-        if (!(fp = fopen(OOCHISTORY_FILE, "w")))
+        if (!(fp = fopen(OochistoryFile, "w")))
         {
-                perror(OOCHISTORY_FILE);
+                perror(OochistoryFile);
                 return;
         }
 
@@ -270,7 +270,7 @@ ShipData *load_ship(FILE * fp)
         const char *word;
         bool      fMatch;
 
-#ifndef HOTBOOT_SHIPS
+#ifndef HotbootShips
         return NULL;
 #endif
         word = feof(fp) ? "EndShip" : fread_word(fp);
@@ -335,7 +335,7 @@ ShipData *load_ship(FILE * fp)
                          * if ( !str_cmp( word, "#TORPEDO" ) )
                          * {
                          * mob->tempnum = -9999; 
-                         * fread_obj( mob, fp, OS_CARRY );
+                         * fread_obj( mob, fp, OsCarry );
                          * }
                          */
                 case 'A':
@@ -469,7 +469,7 @@ void save_mobile(FILE * fp, CharData * mob)
         AffectData *paf;
         SkillType *skill = NULL;
 
-        if (!IS_NPC(mob) || !fp)
+        if (!IsNpc(mob) || !fp)
                 return;
         fprintf(fp, "%s", "#MOBILE\n");
         fprintf(fp, "Vnum	%d\n", mob->pIndexData->vnum);
@@ -477,7 +477,7 @@ void save_mobile(FILE * fp, CharData * mob)
         fprintf(fp, "Gold	%ld\n", mob->gold);
         if (mob->in_room)
         {
-                if (IS_SET(mob->act, ACT_SENTINEL))
+                if (IsSet(mob->act, ActSentinel))
                 {
                         /*
                          * Sentinel mobs get stamped with a "home room" when they are created
@@ -491,7 +491,7 @@ void save_mobile(FILE * fp, CharData * mob)
                         fprintf(fp, "Room	%d\n", mob->in_room->vnum);
         }
         else
-                fprintf(fp, "Room	%d\n", ROOM_VNUM_LIMBO);
+                fprintf(fp, "Room	%d\n", RoomVnumLimbo);
 #ifdef OVERLANDCODE
         fprintf(fp, "Coordinates  %d %d %d\n", mob->x, mob->y, mob->map);
 #endif
@@ -522,7 +522,7 @@ void save_mobile(FILE * fp, CharData * mob)
                     && (skill = get_skilltype(paf->type)) == NULL)
                         continue;
 
-                if (paf->type >= 0 && paf->type < TYPE_PERSONAL)
+                if (paf->type >= 0 && paf->type < TypePersonal)
                         fprintf(fp, "AffectData   '%s' %3d %3d %3d %d\n",
                                 skill->name, paf->duration, paf->modifier,
                                 paf->location, paf->bitvector);
@@ -535,7 +535,7 @@ void save_mobile(FILE * fp, CharData * mob)
         de_equip_char(mob);
 
         if (mob->first_carrying)
-                fwrite_obj(mob, mob->last_carrying, fp, 0, OS_CARRY, TRUE);
+                fwrite_obj(mob, mob->last_carrying, fp, 0, OsCarry, TRUE);
 
         re_equip_char(mob);
 
@@ -554,7 +554,7 @@ void save_world(CharData * ch)
         FILE     *objfp;
         int       mobfile = 0;
         int       shipfile = 0;
-        char      filename[FILENAME_SIZE];
+        char      filename[FilenameSize];
         CharData *rch;
         RoomIndexData *pRoomIndex;
         int       iHash;
@@ -562,7 +562,7 @@ void save_world(CharData * ch)
         ch = NULL;
         log_string("Preserving world state....");
 
-        snprintf(filename, FILENAME_SIZE, "%s%s", SYSTEM_DIR, MOB_FILE);
+        snprintf(filename, FilenameSize, "%s%s", SystemDir, MobFile);
         if ((mobfp = fopen(filename, "w")) == NULL)
         {
                 bug("%s", "save_world: fopen mob file");
@@ -571,7 +571,7 @@ void save_world(CharData * ch)
         else
                 mobfile++;
 
-        snprintf(filename, FILENAME_SIZE, "%s%s", SYSTEM_DIR, SHIP_FILE);
+        snprintf(filename, FilenameSize, "%s%s", SystemDir, ShipFile);
         if ((shipfp = fopen(filename, "w")) == NULL)
         {
                 bug("%s", "save_world: fopen ship file");
@@ -580,7 +580,7 @@ void save_world(CharData * ch)
         else
                 shipfile++;
 
-        for (iHash = 0; iHash < MAX_KEY_HASH; iHash++)
+        for (iHash = 0; iHash < MaxKeyHash; iHash++)
         {
                 for (pRoomIndex = room_index_hash[iHash]; pRoomIndex;
                      pRoomIndex = pRoomIndex->next)
@@ -588,14 +588,14 @@ void save_world(CharData * ch)
                         if (pRoomIndex)
                         {
                                 if (!pRoomIndex->first_content  /* Skip room if nothing in it */
-#ifdef OLC_HOMES
+#ifdef OlcHomes
                                     || pRoomIndex->home
 #endif
-                                    || xIS_SET(pRoomIndex->RoomFlags, ROOM_CLANSTOREROOM)  /* These rooms save on their own */
-                                    || xIS_SET(pRoomIndex->RoomFlags, ROOM_PLR_HOME))
+                                    || xIS_SET(pRoomIndex->RoomFlags, RoomClanstoreroom)  /* These rooms save on their own */
+                                    || xIS_SET(pRoomIndex->RoomFlags, RoomPlrHome))
                                         continue;
 
-                                snprintf(filename, FILENAME_SIZE, "%s%d", HOTBOOT_DIR,
+                                snprintf(filename, FilenameSize, "%s%d", HotbootDir,
                                          pRoomIndex->vnum);
                                 if ((objfp = fopen(filename, "w")) == NULL)
                                 {
@@ -605,7 +605,7 @@ void save_world(CharData * ch)
                                         continue;
                                 }
                                 fwrite_obj(NULL, pRoomIndex->last_content,
-                                           objfp, 0, OS_CARRY, TRUE);
+                                           objfp, 0, OsCarry, TRUE);
                                 fprintf(objfp, "%s", "#END\n");
                                 FCLOSE(objfp);
                         }
@@ -616,9 +616,9 @@ void save_world(CharData * ch)
         {
                 for (rch = first_char; rch; rch = rch->next)
                 {
-                        if (!IS_NPC(rch) || rch == supermob
-                            || IS_SET(rch->act, ACT_PROTOTYPE)
-                            || IS_SET(rch->act, ACT_PET)
+                        if (!IsNpc(rch) || rch == supermob
+                            || IsSet(rch->act, ActPrototype)
+                            || IsSet(rch->act, ActPet)
                             || rch->owner != NULL)
                                 continue;
                         else
@@ -633,7 +633,7 @@ void save_world(CharData * ch)
          * * Problem would be to make sure they are uniquely identified, so you don't set 2 ships that are set exactly the same way here.
          * * If its in space. Store the system its in, and its coords.. Current energy too?
          */
-#ifdef HOTBOOT_SHIPS
+#ifdef HotbootShips
         if (shipfile)
         {
                 ShipData *ship = NULL;
@@ -724,7 +724,7 @@ CharData *load_mobile(FILE * fp)
                         if (!str_cmp(word, "#OBJECT"))
                         {
                                 mob->tempnum = -9999;   /* Hackish, yes. Works though doesn't it? */
-                                fread_obj(mob, fp, OS_CARRY);
+                                fread_obj(mob, fp, OsCarry);
                         }
                 case 'A':
                         if (!str_cmp(word, "Affect")
@@ -752,10 +752,10 @@ CharData *load_mobile(FILE * fp)
                                 paf->duration = fread_number(fp);
                                 paf->modifier = fread_number(fp);
                                 paf->location = fread_number(fp);
-                                if (paf->location == APPLY_WEAPONSPELL
-                                    || paf->location == APPLY_WEARSPELL
-                                    || paf->location == APPLY_REMOVESPELL
-                                    || paf->location == APPLY_STRIPSN)
+                                if (paf->location == ApplyWeaponspell
+                                    || paf->location == ApplyWearspell
+                                    || paf->location == ApplyRemovespell
+                                    || paf->location == ApplyStripsn)
                                         paf->modifier =
                                                 slot_lookup(paf->modifier);
                                 paf->bitvector = fread_number(fp);
@@ -787,12 +787,12 @@ CharData *load_mobile(FILE * fp)
                         if (!str_cmp(word, "EndMobile"))
                         {
                                 if (inroom == 0)
-                                        inroom = ROOM_VNUM_LIMBO;
+                                        inroom = RoomVnumLimbo;
                                 pRoomIndex = get_room_index(inroom);
                                 if (!pRoomIndex)
                                         pRoomIndex =
                                                 get_room_index
-                                                (ROOM_VNUM_LIMBO);
+                                                (RoomVnumLimbo);
                                 char_to_room(mob, pRoomIndex);
                                 mob->tempnum = -9998;   /* Yet another hackish fix! */
                                 return mob;
@@ -856,11 +856,11 @@ void read_obj_file(char *dirname, char *filename)
 {
         RoomIndexData *room;
         FILE     *fp;
-        char      fname[FILENAME_SIZE];
+        char      fname[FilenameSize];
         int       vnum;
 
         vnum = atoi(filename);
-        snprintf(fname, FILENAME_SIZE, "%s%s", dirname, filename);
+        snprintf(fname, FilenameSize, "%s%s", dirname, filename);
         if ((room = get_room_index(vnum)) == NULL)
         {
                 bug("read_obj_file: ARGH! Missing room index for %d!", vnum);
@@ -900,7 +900,7 @@ void read_obj_file(char *dirname, char *filename)
 
                         word = fread_word(fp);
                         if (!str_cmp(word, "OBJECT"))   /* Objects  */
-                                fread_obj(supermob, fp, OS_CARRY);
+                                fread_obj(supermob, fp, OsCarry);
                         else if (!str_cmp(word, "END")) /* Done     */
                                 break;
                         else
@@ -915,9 +915,9 @@ void read_obj_file(char *dirname, char *filename)
                 {
                         tobj_next = tobj->next_content;
 #ifdef OVERLANDCODE
-                        if (IS_OBJ_STAT(tobj, ITEM_ONMAP))
+                        if (IsObjStat(tobj, ItemOnmap))
                         {
-                                SET_ACT_FLAG(supermob, ACT_ONMAP);
+                                SetActFlag(supermob, ActOnmap);
                                 supermob->map = tobj->map;
                                 supermob->x = tobj->x;
                                 supermob->y = tobj->y;
@@ -928,7 +928,7 @@ void read_obj_file(char *dirname, char *filename)
                         obj_to_room(tobj, room);
 #else
                         obj_to_room(tobj, room, supermob);
-                        REMOVE_ACT_FLAG(supermob, ACT_ONMAP);
+                        RemoveActFlag(supermob, ActOnmap);
                         supermob->map = -1;
                         supermob->x = -1;
                         supermob->y = -1;
@@ -946,10 +946,10 @@ void load_obj_files(void)
 {
         DIR      *dp;
         struct dirent *dentry;
-        char      directory_name[DIRNAME_SIZE];
+        char      directory_name[DirnameSize];
 
         boot_log("World state: loading objs");
-        snprintf(directory_name, DIRNAME_SIZE, "%s", HOTBOOT_DIR);
+        snprintf(directory_name, DirnameSize, "%s", HotbootDir);
         dp = opendir(directory_name);
         dentry = readdir(dp);
         while (dentry)
@@ -974,8 +974,8 @@ void load_world(CharData * ch)
 {
         FILE     *mobfp;
         FILE     *shipfp;
-        char      file1[FILENAME_SIZE];
-        char      file2[FILENAME_SIZE];
+        char      file1[FilenameSize];
+        char      file2[FilenameSize];
         char     *word;
         int       done = 0;
         bool      mobfile = FALSE;
@@ -983,7 +983,7 @@ void load_world(CharData * ch)
 
         ch = NULL;
 
-        snprintf(file1, FILENAME_SIZE, "%s%s", SYSTEM_DIR, MOB_FILE);
+        snprintf(file1, FilenameSize, "%s%s", SystemDir, MobFile);
         if ((mobfp = fopen(file1, "r")) == NULL)
         {
                 bug("%s", "load_world: fopen mob file");
@@ -992,7 +992,7 @@ void load_world(CharData * ch)
         else
                 mobfile = TRUE;
 
-        snprintf(file2, FILENAME_SIZE, "%s%s", SYSTEM_DIR, SHIP_FILE);
+        snprintf(file2, FilenameSize, "%s%s", SystemDir, ShipFile);
         if ((shipfp = fopen(file2, "r")) == NULL)
         {
                 bug("%s", "load_world: fopen ship file");
@@ -1022,7 +1022,7 @@ void load_world(CharData * ch)
 
         load_obj_files();
 
-#ifdef HOTBOOT_SHIPS
+#ifdef HotbootShips
         if (shipfile)
         {
                 done = 0;
@@ -1071,7 +1071,7 @@ CMDF do_hotboot(CharData * ch, char *argument)
 
         if (compilelock)
         {
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 send_to_char
                         ("Sorry, the mud cannot be shutdown during a compiler operation.\n\rPlease wait for the compiler to finish.\n\r",
                          ch);
@@ -1099,7 +1099,7 @@ CMDF do_hotboot(CharData * ch, char *argument)
         {
                 if ((d->connected == ConPlaying
                      || d->connected == ConEditing)
-                    && (victim = d->character) != NULL && !IS_NPC(victim)
+                    && (victim = d->character) != NULL && !IsNpc(victim)
                     && victim->in_room && victim->fighting
                     && victim->top_level >= 1
                     && victim->top_level <= MaxLevel)
@@ -1125,7 +1125,7 @@ CMDF do_hotboot(CharData * ch, char *argument)
                         found = TRUE;
                         break;
                 }
-                if (d->character && NOT_AUTHED(d->character))
+                if (d->character && NotAuthed(d->character))
                 {
                         found = TRUE;
                         break;
@@ -1145,14 +1145,14 @@ CMDF do_hotboot(CharData * ch, char *argument)
 
         if (!str_cmp(argument, "warn"))
         {
-                echo_to_all(AT_WHITE, "Hotboot Warning, commencing soon.",
+                echo_to_all(AtWhite, "Hotboot Warning, commencing soon.",
                             EchoTarAll);
                 return;
         }
 
         if (!str_cmp(argument, "poscrash"))
         {
-                echo_to_all(AT_WHITE,
+                echo_to_all(AtWhite,
                             "Possible Crash. Please prepare accordingly.",
                             EchoTarAll);
                 return;
@@ -1169,7 +1169,7 @@ CMDF do_hotboot(CharData * ch, char *argument)
 void crash_hotboot(void)
 {
 
-        echo_to_all(AT_RED,
+        echo_to_all(AtRed,
                     "\n\rReality swirls and changes around you, and things are not quite as they were...\n\r",
                     0);
         snprintf(log_buf, MSL, "%s", "Hotboot initiated by crash.");
@@ -1181,21 +1181,21 @@ void hotboot(bool debug, bool save)
 {
         FILE     *fp;
         DescriptorData *d, *de_next;
-        char      buf[BUFFER_SIZE], buf2[BUFFER_SIZE], buf3[BUFFER_SIZE];
+        char      buf[BufferSize], buf2[BufferSize], buf3[BufferSize];
         AreaData *tarea;
         ShipData *ship;
         PlanetData *planet;
         Timer    *timer, *timer_next;
 
-#ifdef OLC_SHUTTLE
-        SHUTTLE_DATA *tshuttle;
+#ifdef OlcShuttle
+        ShuttleData *tshuttle;
 #endif
-        fp = fopen(HOTBOOT_FILE, "w");
+        fp = fopen(HotbootFile, "w");
 
         if (!fp)
         {
                 bug("Could not write to hotboot file: %s. Hotboot aborted.",
-                    HOTBOOT_FILE);
+                    HotbootFile);
                 perror("do_hotboot:fopen");
                 return;
         }
@@ -1217,17 +1217,17 @@ void hotboot(bool debug, bool save)
                 for (tarea = first_area; tarea; tarea = tarea->next)
                         fold_area(tarea, tarea->filename, FALSE, FALSE);
                 for (tarea = first_bsort; tarea; tarea = tarea->next_sort)
-                        if (IS_SET(tarea->status, AREA_LOADED))
+                        if (IsSet(tarea->status, AreaLoaded))
                                 fold_area(tarea, tarea->filename, FALSE,
                                           TRUE);
-#ifdef OLC_SHUTTLE
+#ifdef OlcShuttle
                 for (tshuttle = first_shuttle; tshuttle;
                      tshuttle = tshuttle->next)
                         save_shuttle(tshuttle);
 #endif
-#ifdef OLC_HOMES
+#ifdef OlcHomes
                 {
-                        HOME_DATA *home = NULL;
+                        HomeData *home = NULL;
 
                         for (home = first_home; home; home = home->next)
                                home->save(); 
@@ -1243,7 +1243,7 @@ void hotboot(bool debug, bool save)
                 save_world(NULL);
         }
 
-        CHECK_LINKS(first_descriptor, last_descriptor, next, prev,
+        CheckLinks(first_descriptor, last_descriptor, next, prev,
                     DescriptorData);
         /*
          * Write out all the pulses and times and such. To make sure the copyover is seamless
@@ -1284,14 +1284,14 @@ void hotboot(bool debug, bool save)
                 else
                 {
 
-                        if (IS_IMMORTAL(och) && save)
+                        if (IsImmortal(och) && save)
                                 do_savearea(och, "");
 
                         for (timer = och->first_timer; timer;
                              timer = timer_next)
                         {
                                 timer_next = timer->next;
-                                if (timer->type == TIMER_DO_FUN)
+                                if (timer->type == TimerDoFun)
                                 {
                                         int       tempsub;
 
@@ -1362,22 +1362,22 @@ void hotboot(bool debug, bool save)
 #ifdef IMC
         imc_hotboot();
 #endif
-        snprintf(buf, BUFFER_SIZE, "%d", port);
-        snprintf(buf2, BUFFER_SIZE, "%d", control);
+        snprintf(buf, BufferSize, "%d", port);
+        snprintf(buf2, BufferSize, "%d", control);
 #ifdef IMC
         if (this_imcmud)
-                snprintf(buf3, BUFFER_SIZE, "%d", this_imcmud->desc);
+                snprintf(buf3, BufferSize, "%d", this_imcmud->desc);
         else
-                strncpy(buf3, "-1", BUFFER_SIZE);
+                strncpy(buf3, "-1", BufferSize);
 #else
-        strncpy(buf3, "-1", BUFFER_SIZE);
+        strncpy(buf3, "-1", BufferSize);
 #endif
 
         /*
          * Uncomment this bfd_close line if you've installed the dlsym snippet, you'll need it. 
          */
         dlclose(sysdata.dlHandle);
-        execl(EXE_FILE, "swr", buf, "hotboot", buf2, buf3, (char *) NULL);
+        execl(ExeFile, "swr", buf, "hotboot", buf2, buf3, (char *) NULL);
 
         /*
          * Failed - sucessful exec will not return 
@@ -1391,14 +1391,14 @@ void hotboot(bool debug, bool save)
          * Since I'm a neophyte type guy, I'll assume this is a good idea and cut and past from main()  
          */
 
-        if ((fpReserve = fopen(NULL_FILE, "r")) == NULL)
+        if ((fpReserve = fopen(NullFile, "r")) == NULL)
         {
-                perror(NULL_FILE);
+                perror(NullFile);
                 exit(1);
         }
-        if ((fpLOG = fopen(NULL_FILE, "r")) == NULL)
+        if ((fpLOG = fopen(NullFile, "r")) == NULL)
         {
-                perror(NULL_FILE);
+                perror(NullFile);
                 exit(1);
         }
         bug("%s", "Hotboot execution failed!!");
@@ -1423,7 +1423,7 @@ void hotboot_recover()
 
         log_string("Hotboot recovery initiated");
 
-        fp = fopen(HOTBOOT_FILE, "r");
+        fp = fopen(HotbootFile, "r");
 
         if (!fp)    /* there are some descriptors open which will hang forever then ? */
         {
@@ -1432,7 +1432,7 @@ void hotboot_recover()
                 exit(1);
         }
 
-        unlink(HOTBOOT_FILE);   /* In case something crashes - doesn't prevent reading */
+        unlink(HotbootFile);   /* In case something crashes - doesn't prevent reading */
         fscanf(fp, "%d %d %d %d %d %d %d %d\n",
                &sysdata.pulse_area, &sysdata.pulse_taxes,
                &sysdata.pulse_mobile, &sysdata.pulse_space,
@@ -1510,7 +1510,7 @@ void hotboot_recover()
                          */
                         if (!d->character->in_room)
                                 d->character->in_room =
-                                        get_room_index(ROOM_VNUM_TEMPLE);
+                                        get_room_index(RoomVnumTemple);
 
                         /*
                          * Insert in the char_list 

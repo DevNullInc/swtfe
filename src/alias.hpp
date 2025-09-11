@@ -43,19 +43,19 @@
  *         Command alias system header for player shortcuts and custom commands.         *
  *****************************************************************************************/
 
-#ifndef ALIAS_H
-#define ALIAS_H
+#ifndef AliasH
+#define AliasH
 
 // ============================================================================
 // Data Structures
 // ============================================================================
 
-typedef struct alias_data ALIAS_DATA;
+typedef struct alias_data AliasData;
 
 struct alias_data
 {
-        ALIAS_DATA *next;
-        ALIAS_DATA *prev;
+        AliasData *next;
+        AliasData *prev;
         char *name;        // The alias name/command
         char *cmd;         // The command sequence to execute
 };
@@ -67,13 +67,13 @@ struct alias_data
 // Alias lookup and management
 
 // Modern C++23 prototypes and overloads
-ALIAS_DATA *get_alias(CharData *ch, const char *argument);
-ALIAS_DATA *get_alias(CharData *ch, std::string_view argument);
-ALIAS_DATA *get_alias(std::shared_ptr<CharData> ch, std::string_view argument);
-void free_alias(ACCOUNT_DATA *acct, ALIAS_DATA *alias);
-void free_alias(std::shared_ptr<ACCOUNT_DATA> acct, std::shared_ptr<ALIAS_DATA> alias);
-void free_aliases(ACCOUNT_DATA *acct);
-void free_aliases(std::shared_ptr<ACCOUNT_DATA> acct);
+AliasData *get_alias(CharData *ch, const char *argument);
+AliasData *get_alias(CharData *ch, std::string_view argument);
+AliasData *get_alias(std::shared_ptr<CharData> ch, std::string_view argument);
+void free_alias(AccountData *acct, AliasData *alias);
+void free_alias(std::shared_ptr<AccountData> acct, std::shared_ptr<AliasData> alias);
+void free_aliases(AccountData *acct);
+void free_aliases(std::shared_ptr<AccountData> acct);
 
 // Alias execution and processing
 bool check_alias(CharData *ch, const char *command, const char *argument);
@@ -83,7 +83,7 @@ bool check_aliases(DescriptorData *d);
 bool check_aliases(std::shared_ptr<DescriptorData> d);
 
 // File I/O operations
-void fread_alias(ACCOUNT_DATA *acct, FILE *fp);
-void fread_alias(std::shared_ptr<ACCOUNT_DATA> acct, FILE *fp);
-void fwrite_alias(ACCOUNT_DATA *acct, FILE *fp);
-void fwrite_alias(std::shared_ptr<ACCOUNT_DATA> acct, FILE *fp);
+void fread_alias(AccountData *acct, FILE *fp);
+void fread_alias(std::shared_ptr<AccountData> acct, FILE *fp);
+void fwrite_alias(AccountData *acct, FILE *fp);
+void fwrite_alias(std::shared_ptr<AccountData> acct, FILE *fp);

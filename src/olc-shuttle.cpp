@@ -45,14 +45,14 @@
 #include "mxp.hpp"
 #include "olc-shuttle.hpp"
 
-SHUTTLE_DATA *first_shuttle = NULL;
-SHUTTLE_DATA *last_shuttle = NULL;
+ShuttleData *first_shuttle = NULL;
+ShuttleData *last_shuttle = NULL;
 
-STOP_DATA *create_stop(void)
+StopData *create_stop(void)
 {
-        STOP_DATA *stop = NULL;
+        StopData *stop = NULL;
 
-        CREATE(stop, STOP_DATA, 1);
+        CREATE(stop, StopData, 1);
         stop->next = NULL;
         stop->prev = NULL;
         stop->stop_name = NULL;
@@ -60,11 +60,11 @@ STOP_DATA *create_stop(void)
         return stop;
 }
 
-SHUTTLE_DATA *create_shuttle(void)
+ShuttleData *create_shuttle(void)
 {
-        SHUTTLE_DATA *shuttle = NULL;
+        ShuttleData *shuttle = NULL;
 
-        CREATE(shuttle, SHUTTLE_DATA, 1);
+        CREATE(shuttle, ShuttleData, 1);
         shuttle->name = NULL;
         shuttle->filename = NULL;
         shuttle->next_in_room = NULL;
@@ -72,12 +72,12 @@ SHUTTLE_DATA *create_shuttle(void)
         shuttle->in_room = NULL;
         shuttle->current = NULL;
         shuttle->current_number = -1;
-        shuttle->state = SHUTTLE_STATE_LANDED;
+        shuttle->state = ShuttleStateLanded;
         shuttle->first_stop = shuttle->last_stop = NULL;
-        shuttle->type = SHUTTLE_TURBOCAR;
+        shuttle->type = ShuttleTurbocar;
         shuttle->delay = shuttle->current_delay = 2;
         shuttle->start_room = shuttle->end_room = shuttle->entrance =
-                ROOM_VNUM_LIMBO;
+                RoomVnumLimbo;
         /*
          * Not used right now anyways 
          */
@@ -87,9 +87,9 @@ SHUTTLE_DATA *create_shuttle(void)
         return shuttle;
 }
 
-SHUTTLE_DATA *make_shuttle(char *filename, char *name)
+ShuttleData *make_shuttle(char *filename, char *name)
 {
-        SHUTTLE_DATA *shuttle = create_shuttle();
+        ShuttleData *shuttle = create_shuttle();
 
         shuttle->name = STRALLOC(name);
         shuttle->filename = str_dup(filename);
@@ -113,41 +113,41 @@ SHUTTLE_DATA *make_shuttle(char *filename, char *name)
 
 CMDF do_showshuttle(CharData * ch, char *argument)
 {
-        STOP_DATA *stop = NULL;
+        StopData *stop = NULL;
         int       count = 0;
-        SHUTTLE_DATA *shuttle = get_shuttle(argument);
+        ShuttleData *shuttle = get_shuttle(argument);
 
         if (!shuttle)
         {
                 if (first_shuttle == NULL)
                 {
-                        set_char_color(AT_RED, ch);
+                        set_char_color(AtRed, ch);
                         send_to_char
                                 ("There are no shuttles currently formed.\n\r",
                                  ch);
                         return;
                 }
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 send_to_char("No such shuttle.\n\rValid shuttles:\n\r", ch);
-                set_char_color(AT_SHUTTLE, ch);
+                set_char_color(AtShuttle, ch);
                 for (shuttle = first_shuttle; shuttle;
                      shuttle = shuttle->next)
                         ch_printf(ch, "Shuttle Name: %s - %s\n\r",
                                   shuttle->name,
                                   shuttle->type ==
-                                  SHUTTLE_TURBOCAR ? "Turbocar" : shuttle->
+                                  ShuttleTurbocar ? "Turbocar" : shuttle->
                                   type ==
-                                  SHUTTLE_SPACE ? "Space" : shuttle->type ==
-                                  SHUTTLE_HYPERSPACE ? "Hyperspace" :
+                                  ShuttleSpace ? "Space" : shuttle->type ==
+                                  ShuttleHyperspace ? "Hyperspace" :
                                   "Other");
                 return;
         }
-        set_char_color(AT_YELLOW, ch);
+        set_char_color(AtYellow, ch);
         ch_printf(ch, "Shuttle Name: %s - %s\n\r", shuttle->name,
-                  shuttle->type == SHUTTLE_TURBOCAR ? "Turbocar" :
-                  shuttle->type == SHUTTLE_SPACE ? "Space" :
+                  shuttle->type == ShuttleTurbocar ? "Turbocar" :
+                  shuttle->type == ShuttleSpace ? "Space" :
                   shuttle->type ==
-                  SHUTTLE_HYPERSPACE ? "Hyperspace" : "Other");
+                  ShuttleHyperspace ? "Hyperspace" : "Other");
         ch_printf(ch, "Filename: %s\t\tDelay: %d\n\r", shuttle->filename,
                   shuttle->delay);
 
@@ -167,7 +167,7 @@ CMDF do_showshuttle(CharData * ch, char *argument)
 
 CMDF do_makeshuttle(CharData * ch, char *argument)
 {
-        SHUTTLE_DATA *shuttle;
+        ShuttleData *shuttle;
         char      arg[MaxInputLength];
 
         argument = one_argument(argument, arg);
@@ -188,12 +188,12 @@ CMDF do_makeshuttle(CharData * ch, char *argument)
 
 CMDF do_setshuttle(CharData * ch, char *argument)
 {
-        SHUTTLE_DATA *shuttle;
+        ShuttleData *shuttle;
         char      arg1[MIL];
         char      arg2[MIL];
         int       value;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -219,18 +219,18 @@ CMDF do_setshuttle(CharData * ch, char *argument)
         shuttle = get_shuttle(arg1);
         if (!shuttle)
         {
-                set_char_color(AT_RED, ch);
+                set_char_color(AtRed, ch);
                 send_to_char("No such shuttle.\n\rValid shuttles:\n\r", ch);
-                set_char_color(AT_YELLOW, ch);
+                set_char_color(AtYellow, ch);
                 for (shuttle = first_shuttle; shuttle;
                      shuttle = shuttle->next)
                         ch_printf(ch, "Shuttle Name: %s - %s\n\r",
                                   shuttle->name,
                                   shuttle->type ==
-                                  SHUTTLE_TURBOCAR ? "Turbocar" : shuttle->
+                                  ShuttleTurbocar ? "Turbocar" : shuttle->
                                   type ==
-                                  SHUTTLE_SPACE ? "Space" : shuttle->type ==
-                                  SHUTTLE_HYPERSPACE ? "Hyperspace" :
+                                  ShuttleSpace ? "Space" : shuttle->type ==
+                                  ShuttleHyperspace ? "Hyperspace" :
                                   "Other");
                 return;
         }
@@ -286,7 +286,7 @@ CMDF do_setshuttle(CharData * ch, char *argument)
                 {
                         char      filename[MSL];
 
-                        snprintf(filename, MSL, "%s/%s", SHUTTLE_DIR,
+                        snprintf(filename, MSL, "%s/%s", ShuttleDir,
                                  shuttle->filename);
                         unlink(filename);
                         DISPOSE(shuttle->filename);
@@ -297,11 +297,11 @@ CMDF do_setshuttle(CharData * ch, char *argument)
         else if (!str_cmp(arg2, "type"))
         {
                 if (!str_cmp(argument, "turbocar"))
-                        shuttle->type = SHUTTLE_TURBOCAR;
+                        shuttle->type = ShuttleTurbocar;
                 else if (!str_cmp(argument, "space"))
-                        shuttle->type = SHUTTLE_SPACE;
+                        shuttle->type = ShuttleSpace;
                 else if (!str_cmp(argument, "hyperspace"))
-                        shuttle->type = SHUTTLE_HYPERSPACE;
+                        shuttle->type = ShuttleHyperspace;
                 else
                 {
                         send_to_char
@@ -318,7 +318,7 @@ CMDF do_setshuttle(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "stop"))
         {
-                STOP_DATA *stop = NULL;
+                StopData *stop = NULL;
 
                 argument = one_argument(argument, arg1);
                 if (arg1[0] == '\0')
@@ -409,9 +409,9 @@ CMDF do_setshuttle(CharData * ch, char *argument)
         return;
 }
 
-SHUTTLE_DATA *get_shuttle(char *name)
+ShuttleData *get_shuttle(char *name)
 {
-        SHUTTLE_DATA *shuttle;
+        ShuttleData *shuttle;
 
         for (shuttle = first_shuttle; shuttle; shuttle = shuttle->next)
                 if (!str_cmp(name, shuttle->name))
@@ -426,11 +426,11 @@ SHUTTLE_DATA *get_shuttle(char *name)
 
 void write_shuttle_list()
 {
-        SHUTTLE_DATA *shuttle;
+        ShuttleData *shuttle;
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, 256, "%s%s", SHUTTLE_DIR, SHUTTLE_LIST);
+        snprintf(filename, 256, "%s%s", ShuttleDir, ShuttleList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -444,11 +444,11 @@ void write_shuttle_list()
         FCLOSE(fpout);
 }
 
-bool save_shuttle(SHUTTLE_DATA * shuttle)
+bool save_shuttle(ShuttleData * shuttle)
 {
         FILE     *fp;
         char      filename[256];
-        STOP_DATA *stop;
+        StopData *stop;
 
         if (!shuttle)
         {
@@ -462,7 +462,7 @@ bool save_shuttle(SHUTTLE_DATA * shuttle)
                 return FALSE;
         }
 
-        snprintf(filename, 256, "%s%s", SHUTTLE_DIR, shuttle->filename);
+        snprintf(filename, 256, "%s%s", ShuttleDir, shuttle->filename);
 
         /*
          * FCLOSE( fpReserve ); 
@@ -514,7 +514,7 @@ bool save_shuttle(SHUTTLE_DATA * shuttle)
         FCLOSE(fp);
 
         /*
-         * fpReserve = fopen( NULL_FILE, "r" ); 
+         * fpReserve = fopen( NullFile, "r" ); 
          */
         return TRUE;
 }
@@ -522,7 +522,7 @@ bool save_shuttle(SHUTTLE_DATA * shuttle)
 void update_shuttle()
 {
         char      buf[MSL];
-        SHUTTLE_DATA *shuttle = NULL;
+        ShuttleData *shuttle = NULL;
 
         for (shuttle = first_shuttle; shuttle; shuttle = shuttle->next)
         {
@@ -551,7 +551,7 @@ void update_shuttle()
                         /*
                          * Probably some intermediate Stages in the middle ? 
                          */
-                        if (shuttle->state == SHUTTLE_STATE_TAKINGOFF)
+                        if (shuttle->state == ShuttleStateTakingoff)
                         {
                                 /*
                                  * Move to next spot 
@@ -588,12 +588,12 @@ void update_shuttle()
                                 {
                                         RoomIndexData *iRoom =
                                                 get_room_index(room);
-                                        echo_to_room(AT_CYAN, iRoom, buf);
-                                        if (shuttle->type != SHUTTLE_TURBOCAR)
+                                        echo_to_room(AtCyan, iRoom, buf);
+                                        if (shuttle->type != ShuttleTurbocar)
                                         {
-                                                echo_to_room(AT_YELLOW, iRoom,
+                                                echo_to_room(AtYellow, iRoom,
                                                              "The hatch slides shut.");
-                                                echo_to_room(AT_YELLOW, iRoom,
+                                                echo_to_room(AtYellow, iRoom,
                                                              "The ship begins to launch.");
                                         }
                                 }
@@ -601,7 +601,7 @@ void update_shuttle()
                                 /*
                                  * FIXME - Sound to room 
                                  */
-                                if (shuttle->type != SHUTTLE_TURBOCAR)
+                                if (shuttle->type != ShuttleTurbocar)
                                         snprintf(buf, MSL,
                                                  "The hatch on %s closes and it begins to launch..",
                                                  shuttle->name);
@@ -609,44 +609,44 @@ void update_shuttle()
                                         snprintf(buf, MSL,
                                                  "%s speeds out of the station.",
                                                  shuttle->name);
-                                echo_to_room(AT_YELLOW, shuttle->in_room,
+                                echo_to_room(AtYellow, shuttle->in_room,
                                              buf);
 
                                 extract_shuttle(shuttle);
 
-                                if (shuttle->type == SHUTTLE_TURBOCAR
-                                    || shuttle->type == SHUTTLE_SPACE)
+                                if (shuttle->type == ShuttleTurbocar
+                                    || shuttle->type == ShuttleSpace)
                                         shuttle->state =
-                                                SHUTTLE_STATE_LANDING;
-                                else if (shuttle->type == SHUTTLE_HYPERSPACE)
+                                                ShuttleStateLanding;
+                                else if (shuttle->type == ShuttleHyperspace)
                                         shuttle->state =
-                                                SHUTTLE_STATE_HYPERSPACE_LAUNCH;
+                                                ShuttleStateHyperspaceLaunch;
                                 else
                                         bug("Shuttle '%s' is an unknown type",
                                             shuttle->name);
                         }
                         else if (shuttle->state ==
-                                 SHUTTLE_STATE_HYPERSPACE_LAUNCH)
+                                 ShuttleStateHyperspaceLaunch)
                         {
                                 for (room = shuttle->start_room;
                                      room <= shuttle->end_room; ++room)
-                                        echo_to_room(AT_YELLOW,
+                                        echo_to_room(AtYellow,
                                                      get_room_index(room),
                                                      "The ship lurches slightly as it makes the jump to lightspeed.");
-                                shuttle->state = SHUTTLE_STATE_HYPERSPACE_END;
+                                shuttle->state = ShuttleStateHyperspaceEnd;
                                 shuttle->current_delay *= 2;
                         }
                         else if (shuttle->state ==
-                                 SHUTTLE_STATE_HYPERSPACE_END)
+                                 ShuttleStateHyperspaceEnd)
                         {
                                 for (room = shuttle->start_room;
                                      room <= shuttle->end_room; ++room)
-                                        echo_to_room(AT_YELLOW,
+                                        echo_to_room(AtYellow,
                                                      get_room_index(room),
                                                      "The ship lurches slightly as it comes out of hyperspace.");
-                                shuttle->state = SHUTTLE_STATE_LANDING;
+                                shuttle->state = ShuttleStateLanding;
                         }
-                        else if (shuttle->state == SHUTTLE_STATE_LANDING)
+                        else if (shuttle->state == ShuttleStateLanding)
                         {
                                 /*
                                  * An electronic voice says, 'Welcome to Adari'
@@ -665,7 +665,7 @@ void update_shuttle()
                                          "It continues, 'Please exit through the %s. Enjoy your stay.'",
                                          shuttle->current->stop_name,
                                          shuttle->type ==
-                                         SHUTTLE_TURBOCAR ? "doors" :
+                                         ShuttleTurbocar ? "doors" :
                                          "main ramp");
 
                                 insert_shuttle(shuttle,
@@ -677,17 +677,17 @@ void update_shuttle()
                                 {
                                         RoomIndexData *iRoom =
                                                 get_room_index(room);
-                                        echo_to_room(AT_CYAN, iRoom, buf);
-                                        if (shuttle->type != SHUTTLE_TURBOCAR)
+                                        echo_to_room(AtCyan, iRoom, buf);
+                                        if (shuttle->type != ShuttleTurbocar)
                                         {
-                                                echo_to_room(AT_YELLOW, iRoom,
+                                                echo_to_room(AtYellow, iRoom,
                                                              "You feel a slight thud as the ship sets down on the ground.");
-                                                echo_to_room(AT_YELLOW, iRoom,
+                                                echo_to_room(AtYellow, iRoom,
                                                              "The hatch opens.");
                                         }
                                 }
 
-                                if (shuttle->type != SHUTTLE_TURBOCAR)
+                                if (shuttle->type != ShuttleTurbocar)
                                         snprintf(buf, MSL,
                                                  "%s lands on the platform.",
                                                  shuttle->name);
@@ -695,28 +695,28 @@ void update_shuttle()
                                         snprintf(buf, MSL,
                                                  "%s arrives at the station.",
                                                  shuttle->name);
-                                echo_to_room(AT_YELLOW, shuttle->in_room,
+                                echo_to_room(AtYellow, shuttle->in_room,
                                              buf);
-                                if (shuttle->type != SHUTTLE_TURBOCAR)
+                                if (shuttle->type != ShuttleTurbocar)
                                 {
                                         snprintf(buf, MSL,
                                                  "The hatch on %s opens.",
                                                  shuttle->name);
-                                        echo_to_room(AT_YELLOW,
+                                        echo_to_room(AtYellow,
                                                      shuttle->in_room, buf);
                                         /*
                                          * FIXME - Sound to room 
                                          */
                                 }
 
-                                shuttle->state = SHUTTLE_STATE_LANDED;
+                                shuttle->state = ShuttleStateLanded;
                         }
-                        else if (shuttle->state == SHUTTLE_STATE_LANDED)
+                        else if (shuttle->state == ShuttleStateLanded)
                         {
                                 /*
                                  * Just for a delay between stops ? 
                                  */
-                                shuttle->state = SHUTTLE_STATE_TAKINGOFF;
+                                shuttle->state = ShuttleStateTakingoff;
                         }
                         else
                         {
@@ -729,15 +729,15 @@ void update_shuttle()
         return;
 }
 
-void show_shuttles_to_char(CharData * ch, SHUTTLE_DATA * shuttle)
+void show_shuttles_to_char(CharData * ch, ShuttleData * shuttle)
 {
         while (shuttle)
         {
-                set_char_color(AT_SHUTTLE, ch);
-                if (IS_MXP(ch))
+                set_char_color(AtShuttle, ch);
+                if (IsMxp(ch))
                         ch_printf(ch, MXPTAG("shuttle '%s'"), shuttle->name);
                 ch_printf(ch, "%-35s", shuttle->name);
-                if (IS_MXP(ch))
+                if (IsMxp(ch))
                         send_to_char(MXPTAG("/ship"), ch);
                 /*
                  * eww code dupliction 
@@ -745,11 +745,11 @@ void show_shuttles_to_char(CharData * ch, SHUTTLE_DATA * shuttle)
                 if (shuttle->next_in_room)
                 {
                         shuttle = shuttle->next_in_room;
-                        if (IS_MXP(ch))
+                        if (IsMxp(ch))
                                 ch_printf(ch, MXPTAG("shuttle '%s'"),
                                           shuttle->name);
                         ch_printf(ch, "%-35s", shuttle->name);
-                        if (IS_MXP(ch))
+                        if (IsMxp(ch))
                                 send_to_char(MXPTAG("/shuttle"), ch);
                 }
                 shuttle = shuttle->next_in_room;
@@ -759,7 +759,7 @@ void show_shuttles_to_char(CharData * ch, SHUTTLE_DATA * shuttle)
         return;
 }
 
-bool extract_shuttle(SHUTTLE_DATA * shuttle)
+bool extract_shuttle(ShuttleData * shuttle)
 {
         RoomIndexData *room;
 
@@ -772,7 +772,7 @@ bool extract_shuttle(SHUTTLE_DATA * shuttle)
         return TRUE;
 }
 
-bool insert_shuttle(SHUTTLE_DATA * shuttle, RoomIndexData * room)
+bool insert_shuttle(ShuttleData * shuttle, RoomIndexData * room)
 {
         if (shuttle == NULL)
         {
@@ -811,7 +811,7 @@ void load_shuttles()
         first_shuttle = NULL;
         last_shuttle = NULL;
 
-        snprintf(shuttlelist, 256, "%s%s", SHUTTLE_DIR, SHUTTLE_LIST);
+        snprintf(shuttlelist, 256, "%s%s", ShuttleDir, ShuttleList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(shuttlelist, "r")) == NULL)
         {
@@ -831,7 +831,7 @@ void load_shuttles()
         }
         FCLOSE(fpList);
         boot_log("Done shuttles");
-        fpReserve = fopen(NULL_FILE, "r");
+        fpReserve = fopen(NullFile, "r");
         return;
 }
 
@@ -842,14 +842,14 @@ void load_shuttles()
 bool load_shuttle_file(char *shuttlefile)
 {
         char      filename[256];
-        SHUTTLE_DATA *shuttle;
+        ShuttleData *shuttle;
         FILE     *fp;
         bool      found;
 
         shuttle = create_shuttle();
 
         found = FALSE;
-        snprintf(filename, 256, "%s%s", SHUTTLE_DIR, shuttlefile);
+        snprintf(filename, 256, "%s%s", ShuttleDir, shuttlefile);
 
         if ((fp = fopen(filename, "r")) != NULL)
         {
@@ -884,7 +884,7 @@ bool load_shuttle_file(char *shuttlefile)
                         }
                         else if (!str_cmp(word, "STOP"))
                         {
-                                STOP_DATA *stop = create_stop();
+                                StopData *stop = create_stop();
 
                                 fread_stop(stop, fp);
                                 LINK(stop, shuttle->first_stop,
@@ -914,7 +914,7 @@ bool load_shuttle_file(char *shuttlefile)
                 if (shuttle->current_number != -1)
                 {
                         int       count = 0;
-                        STOP_DATA *stop = NULL;
+                        StopData *stop = NULL;
 
                         for (stop = shuttle->first_stop; stop;
                              stop = stop->next)
@@ -937,7 +937,7 @@ bool load_shuttle_file(char *shuttlefile)
         return found;
 }
 
-void fread_shuttle(SHUTTLE_DATA * shuttle, FILE * fp)
+void fread_shuttle(ShuttleData * shuttle, FILE * fp)
 {
         const char *word;
         bool      fMatch;
@@ -1010,7 +1010,7 @@ void fread_shuttle(SHUTTLE_DATA * shuttle, FILE * fp)
 
                 case 'T':
                         KEY("Type", shuttle->type,
-                            (SHUTTLE_CLASS) fread_number(fp));
+                            (ShuttleClass) fread_number(fp));
                         KEY("Takeoff", shuttle->takeoff_desc,
                             fread_string_nohash(fp));
                         break;
@@ -1023,7 +1023,7 @@ void fread_shuttle(SHUTTLE_DATA * shuttle, FILE * fp)
         }
 }
 
-void fread_stop(STOP_DATA * stop, FILE * fp)
+void fread_stop(StopData * stop, FILE * fp)
 {
         const char *word;
         bool      fMatch;
@@ -1065,16 +1065,16 @@ void fread_stop(STOP_DATA * stop, FILE * fp)
         }
 }
 
-void destroy_shuttle(SHUTTLE_DATA * shuttle)
+void destroy_shuttle(ShuttleData * shuttle)
 {
-        STOP_DATA *stop, *stop_next;
+        StopData *stop, *stop_next;
 
         UNLINK(shuttle, first_shuttle, last_shuttle, next, prev);
         if (shuttle->filename)
         {
                 char      buf[MSL];
 
-                snprintf(buf, MSL, "%s/%s", SHUTTLE_DIR, shuttle->filename);
+                snprintf(buf, MSL, "%s/%s", ShuttleDir, shuttle->filename);
                 unlink(buf);
                 DISPOSE(shuttle->filename);
         }
@@ -1104,9 +1104,9 @@ void destroy_shuttle(SHUTTLE_DATA * shuttle)
         return;
 }
 
-void free_shuttle(SHUTTLE_DATA * shuttle)
+void free_shuttle(ShuttleData * shuttle)
 {
-        STOP_DATA *stop, *stop_next;
+        StopData *stop, *stop_next;
 
         UNLINK(shuttle, first_shuttle, last_shuttle, next, prev);
         if (shuttle->filename)
@@ -1134,9 +1134,9 @@ void free_shuttle(SHUTTLE_DATA * shuttle)
         return;
 }
 
-SHUTTLE_DATA *shuttle_in_room(RoomIndexData * room, char *name)
+ShuttleData *shuttle_in_room(RoomIndexData * room, char *name)
 {
-        SHUTTLE_DATA *shuttle;
+        ShuttleData *shuttle;
 
         if (!room)
                 return NULL;
@@ -1154,9 +1154,9 @@ SHUTTLE_DATA *shuttle_in_room(RoomIndexData * room, char *name)
         return NULL;
 }
 
-SHUTTLE_DATA *shuttle_from_entrance(int vnum)
+ShuttleData *shuttle_from_entrance(int vnum)
 {
-        SHUTTLE_DATA *shuttle;
+        ShuttleData *shuttle;
 
         for (shuttle = first_shuttle; shuttle; shuttle = shuttle->next)
                 if (vnum == shuttle->entrance)

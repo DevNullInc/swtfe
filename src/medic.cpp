@@ -52,7 +52,7 @@ CMDF do_autopsy(CharData * ch, char *argument)
 
         mudstrlcpy(arg, argument, MSL);
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         switch (ch->substate)
@@ -65,13 +65,13 @@ CMDF do_autopsy(CharData * ch, char *argument)
                 }
                 obj = get_obj_here(ch, arg);
                 if (!obj
-                    || (obj->item_type != ITEM_CORPSE_NPC
-                        && obj->item_type != ITEM_CORPSE_PC))
+                    || (obj->item_type != ItemCorpseNpc
+                        && obj->item_type != ItemCorpsePc))
                 {
                         send_to_char("This only works on corpses!\n\r", ch);
                         return;
                 }
-                chance = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                              learned
                                                              [gsn_autopsy]);
 
@@ -80,9 +80,9 @@ CMDF do_autopsy(CharData * ch, char *argument)
                         send_to_char
                                 ("&GYou begin the long Process doing an autopsy on the corpse.\n\r",
                                  ch);
-                        act(AT_PLAIN, "$n begins to work the corpse.", ch,
-                            NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 10, do_autopsy, 1);
+                        act(AtPlain, "$n begins to work the corpse.", ch,
+                            NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 10, do_autopsy, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -110,16 +110,16 @@ CMDF do_autopsy(CharData * ch, char *argument)
 
         obj = get_obj_here(ch, arg);
         if (!obj
-            || (obj->item_type != ITEM_CORPSE_NPC
-                && obj->item_type != ITEM_CORPSE_PC))
+            || (obj->item_type != ItemCorpseNpc
+                && obj->item_type != ItemCorpsePc))
         {
                 send_to_char("This only works on corpses!\n\r", ch);
                 return;
         }
-        chance = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                      learned[gsn_autopsy]);
-        act(AT_IMMORT, "$n has finished $s work on the corpse.", ch, NULL,
-            NULL, TO_ROOM);
+        act(AtImmort, "$n has finished $s work on the corpse.", ch, NULL,
+            NULL, ToRoom);
 		if (obj->armed_by && obj->armed_by[0] != '\0')
 			strcpy(armed_by, obj->armed_by);
 		else
@@ -167,9 +167,9 @@ CMDF do_autopsy(CharData * ch, char *argument)
                 long      xpgain;
 
                 xpgain = UMIN(15000,
-                              (exp_level(ch->skill_level[MEDIC_ABILITY] + 1) -
-                               exp_level(ch->skill_level[MEDIC_ABILITY])));
-                gain_exp(ch, xpgain, MEDIC_ABILITY);
+                              (exp_level(ch->skill_level[MedicAbility] + 1) -
+                               exp_level(ch->skill_level[MedicAbility])));
+                gain_exp(ch, xpgain, MedicAbility);
                 ch_printf(ch, "You gain %d medical experience.", xpgain);
         }
         learn_from_success(ch, gsn_autopsy);
@@ -184,7 +184,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
         ObjData *obj;
         CharData *victim;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         mudstrlcpy(arg, argument, MIL);
@@ -208,7 +208,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         send_to_char("That's not a player!\n\r", ch);
                         return;
@@ -217,7 +217,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
 
                 checkmedpac = FALSE;
 
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomSafe))
                 {
                         send_to_char
                                 ("&RYou need to be somewhere that you don't have to worry about danger.\n\r",
@@ -226,7 +226,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
                 }
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
-                        if (obj->item_type == ITEM_MEDPAC)
+                        if (obj->item_type == ItemMedpac)
                                 checkmedpac = TRUE;
 
                 if (!checkmedpac)
@@ -237,17 +237,17 @@ CMDF do_diagnose(CharData * ch, char *argument)
                 }
 
 
-                percentage = IS_NPC(ch) ? ch->top_level
+                percentage = IsNpc(ch) ? ch->top_level
                         : (int) (ch->pcdata->learned[gsn_diagnose]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
                                 ("&GYou grab your medpac and try to diagnose your subject.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s medpac and begins to examine $s subject.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 15, do_diagnose, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 15, do_diagnose, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -278,7 +278,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
         checkmedpac = FALSE;
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_MEDPAC && checkmedpac == FALSE)
+                if (obj->item_type == ItemMedpac && checkmedpac == FALSE)
                 {
                         checkmedpac = TRUE;
                         separate_obj(obj);
@@ -298,13 +298,13 @@ CMDF do_diagnose(CharData * ch, char *argument)
                 return;
         }
 
-        if (IS_NPC(victim))
+        if (IsNpc(victim))
         {
                 send_to_char("That's not a player!\n\r", ch);
                 return;
         }
 
-        percentage = IS_NPC(ch) ? ch->top_level
+        percentage = IsNpc(ch) ? ch->top_level
                 : (int) (ch->pcdata->learned[gsn_diagnose]);
         if (number_percent() > percentage * 2 || (!checkmedpac))
         {
@@ -323,8 +323,8 @@ CMDF do_diagnose(CharData * ch, char *argument)
         send_to_char
                 ("&GYou finish your diagnosis and look over your results.&w\n\r",
                  ch);
-        act(AT_PLAIN, "$n finishes the diagnosis and looks over the results.",
-            ch, NULL, argument, TO_ROOM);
+        act(AtPlain, "$n finishes the diagnosis and looks over the results.",
+            ch, NULL, argument, ToRoom);
 
         /*
          * We already check to see if its an NPC above. - Gavin
@@ -349,22 +349,22 @@ CMDF do_diagnose(CharData * ch, char *argument)
                   capitalize(illness_list[victim->pcdata->illness]));
         ch_printf(ch, "&b[&B|&cStrength&C:&z %d of a maximum %d\n\r",
                   get_curr_str(victim),
-                  (victim->race->attr_modifier(ATTR_STRENGTH) + 20));
+                  (victim->race->attr_modifier(AttrStrength) + 20));
         ch_printf(ch, "&b[&B|&cIntelligence&C:&z %d of a maximum %d\n\r",
                   get_curr_int(victim),
-                  (victim->race->attr_modifier(ATTR_INTELLIGENCE) + 20));
+                  (victim->race->attr_modifier(AttrIntelligence) + 20));
         ch_printf(ch, "&b[&B|&cWisdom&C:&z %d of a maximum %d\n\r",
                   get_curr_wis(victim),
-                  (victim->race->attr_modifier(ATTR_WISDOM) + 20));
+                  (victim->race->attr_modifier(AttrWisdom) + 20));
         ch_printf(ch, "&b[&B|&cConstitution&C:&z %d of a maximum %d\n\r",
                   get_curr_con(victim),
-                  (victim->race->attr_modifier(ATTR_CONSTITUTION) + 20));
+                  (victim->race->attr_modifier(AttrConstitution) + 20));
         ch_printf(ch, "&b[&B|&cCharisma&C:&z %d of a maximum %d\n\r",
                   get_curr_cha(victim),
-                  (victim->race->attr_modifier(ATTR_CHARISMA) + 20));
+                  (victim->race->attr_modifier(AttrCharisma) + 20));
         ch_printf(ch, "&b[&B|&cDexterity&C:&z %d of a maximum %d\n\r",
                   get_curr_dex(victim),
-                  (victim->race->attr_modifier(ATTR_DEXTERITY) + 20));
+                  (victim->race->attr_modifier(AttrDexterity) + 20));
         ch_printf(ch, "&b[&B|&cBones Broken&C:&z %-60s\n\r",
                   flag_string(victim->bodyparts, body_parts));
         send_to_char
@@ -375,9 +375,9 @@ CMDF do_diagnose(CharData * ch, char *argument)
                 long      xpgain;
 
                 xpgain = UMIN(victim->top_level * 100,
-                              (exp_level(ch->skill_level[MEDIC_ABILITY] + 1) -
-                               exp_level(ch->skill_level[MEDIC_ABILITY])));
-                gain_exp(ch, xpgain, MEDIC_ABILITY);
+                              (exp_level(ch->skill_level[MedicAbility] + 1) -
+                               exp_level(ch->skill_level[MedicAbility])));
+                gain_exp(ch, xpgain, MedicAbility);
                 ch_printf(ch, "You gain %d medic experience.", xpgain);
         }
 
@@ -392,7 +392,7 @@ CMDF do_splint(CharData * ch, char *argument)
         int       value, chance;
         CharData *victim;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
         argument = one_argument(argument, arg);
@@ -411,7 +411,7 @@ CMDF do_splint(CharData * ch, char *argument)
                         send_to_char("They are not here.\n\r", ch);
                         return;
                 }
-                if (IS_NPC(victim))
+                if (IsNpc(victim))
                 {
                         ch_printf(ch, "UHHH RIIIIGHT!\n\r");
                         return;
@@ -429,22 +429,22 @@ CMDF do_splint(CharData * ch, char *argument)
                         ch_printf(ch, "Splint who's what?!?\n\r");
                         return;
                 }
-                chance = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                              learned
                                                              [gsn_splint]);
                 if (number_percent() < chance)
                 {
-                        act(AT_ACTION,
+                        act(AtAction,
                             "You take out some plaster and gauss from your bag and begin to assemble a cast on $N's $t.",
-                            ch, argument, victim, TO_CHAR);
-                        act(AT_ACTION,
+                            ch, argument, victim, ToChar);
+                        act(AtAction,
                             "$n takes out some plaster and gauss from $s's bag and begins to assemble a cast on your $t.",
-                            ch, argument, victim, TO_VICT);
-                        act(AT_ACTION,
+                            ch, argument, victim, ToVict);
+                        act(AtAction,
                             "$n takes out some plaster and gauss from $s's bag and begins to assemble a cast on $N's $t.",
-                            ch, argument, victim, TO_NOTVICT);
-                        WAIT_STATE(victim, 10 * PulseViolence);
-                        add_timer(ch, TIMER_DO_FUN, 10, do_splint, 1);
+                            ch, argument, victim, ToNotvict);
+                        WaitState(victim, 10 * PulseViolence);
+                        add_timer(ch, TimerDoFun, 10, do_splint, 1);
                         ch->dest_buf = str_dup(arg);
                         ch->dest_buf_2 = str_dup(argument);
                         return;
@@ -483,15 +483,15 @@ CMDF do_splint(CharData * ch, char *argument)
                 send_to_char("How do you expect to splint yourself?\n\r", ch);
                 return;
         }
-        chance = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                      learned[gsn_splint]);
 
         if (number_percent() > chance * 2)
         {
-                act(AT_ACTION, "You fumble and mess up.", ch, NULL, NULL,
-                    TO_CHAR);
-                act(AT_ACTION, "$n fumbles and creats a big mess.", ch, NULL,
-                    NULL, TO_ROOM);
+                act(AtAction, "You fumble and mess up.", ch, NULL, NULL,
+                    ToChar);
+                act(AtAction, "$n fumbles and creats a big mess.", ch, NULL,
+                    NULL, ToRoom);
                 learn_from_failure(ch, gsn_splint);
                 return;
         }
@@ -502,7 +502,7 @@ CMDF do_splint(CharData * ch, char *argument)
                 ch_printf(ch, "Unknown Body part: %s\n\r", arg3);
                 return;
         }
-        else if (!IS_SET(victim->bodyparts, 1 << value))
+        else if (!IsSet(victim->bodyparts, 1 << value))
         {
                 send_to_char
                         ("Now why would you want to splint that? Its not even broken.\n\r",
@@ -511,16 +511,16 @@ CMDF do_splint(CharData * ch, char *argument)
         }
         else
         {
-                act(AT_ACTION,
+                act(AtAction,
                     "You finish and create a splended cast on $N's $t.", ch,
-                    arg3, victim, TO_CHAR);
-                act(AT_ACTION,
+                    arg3, victim, ToChar);
+                act(AtAction,
                     "$n finishes and create a splended cast on your $t.", ch,
-                    arg3, victim, TO_VICT);
-                act(AT_ACTION,
+                    arg3, victim, ToVict);
+                act(AtAction,
                     "$n finishes and create a splended cast on  $N's $t.", ch,
-                    arg3, victim, TO_NOTVICT);
-                REMOVE_BIT(victim->bodyparts, 1 << value);
+                    arg3, victim, ToNotvict);
+                RemoveBit(victim->bodyparts, 1 << value);
         }
         learn_from_success(ch, gsn_splint);
 }
@@ -531,17 +531,17 @@ CMDF do_first_aid(CharData * ch, char *argument)
         CharData *victim;
         int       heal;
 
-        if (IS_NPC(ch))
+        if (IsNpc(ch))
                 return;
 
-        if (ch->position == POS_FIGHTING)
+        if (ch->position == PosFighting)
         {
                 send_to_char("You can't do that while fighting!\n\r", ch);
                 return;
         }
 
-        medpac = get_eq_char(ch, WEAR_HOLD);
-        if (!medpac || medpac->item_type != ITEM_MEDPAC)
+        medpac = get_eq_char(ch, WearHold);
+        if (!medpac || medpac->item_type != ItemMedpac)
         {
                 send_to_char("You need to be holding a medpac.\n\r", ch);
                 return;
@@ -576,17 +576,17 @@ CMDF do_first_aid(CharData * ch, char *argument)
         if (victim == ch)
         {
                 send_to_char("You tend to your wounds.\n\r", ch);
-                act(AT_ACTION, "$n uses $t to help heal $s wounds.", ch,
-                    medpac->short_descr, victim, TO_ROOM);
+                act(AtAction, "$n uses $t to help heal $s wounds.", ch,
+                    medpac->short_descr, victim, ToRoom);
         }
         else
         {
-                act(AT_ACTION, "You tend to $N's wounds.", ch, NULL, victim,
-                    TO_CHAR);
-                act(AT_ACTION, "$n uses $t to help heal $N's wounds.", ch,
-                    medpac->short_descr, victim, TO_NOTVICT);
-                act(AT_ACTION, "$n uses $t to help heal your wounds.", ch,
-                    medpac->short_descr, victim, TO_VICT);
+                act(AtAction, "You tend to $N's wounds.", ch, NULL, victim,
+                    ToChar);
+                act(AtAction, "$n uses $t to help heal $N's wounds.", ch,
+                    medpac->short_descr, victim, ToNotvict);
+                act(AtAction, "$n uses $t to help heal your wounds.", ch,
+                    medpac->short_descr, victim, ToVict);
         }
 
         --medpac->value[0];
@@ -596,9 +596,9 @@ CMDF do_first_aid(CharData * ch, char *argument)
                 separate_obj(medpac);
                 obj_from_char(medpac);
                 extract_obj(medpac);
-                act(AT_ACTION,
+                act(AtAction,
                     "While healing $N's wounds, you use up $t and discard it.",
-                    ch, medpac->short_descr, victim, TO_CHAR);
+                    ch, medpac->short_descr, victim, ToChar);
         }
 
         victim->hit += URANGE(0, heal, victim->max_hit - victim->hit);
@@ -631,7 +631,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                 checkdrink = FALSE;
                 checkchem = FALSE;
 
-                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, RoomFactory))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -641,12 +641,12 @@ CMDF do_makemedkit(CharData * ch, char *argument)
 
                 for (obj = ch->last_carrying; obj; obj = obj->prev_content)
                 {
-                        if (obj->item_type == ITEM_TOOLKIT)
+                        if (obj->item_type == ItemToolkit)
                                 checktool = TRUE;
-                        if (obj->item_type == ITEM_DRINK_CON
+                        if (obj->item_type == ItemDrinkCon
                             && obj->value[1] == 0)
                                 checkdrink = TRUE;
-                        if (obj->item_type == ITEM_CHEMICAL)
+                        if (obj->item_type == ItemChemical)
                                 checkchem = TRUE;
                 }
 
@@ -674,7 +674,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                         return;
                 }
 
-                chance = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+                chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                              learned
                                                              [gsn_makemedkit]);
                 if (number_percent() < chance)
@@ -682,10 +682,10 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                         send_to_char
                                 ("&GYou begin the long Process of making a medkit.\n\r",
                                  ch);
-                        act(AT_PLAIN,
+                        act(AtPlain,
                             "$n takes $s tools and a drink container and begins to work on something.",
-                            ch, NULL, argument, TO_ROOM);
-                        add_timer(ch, TIMER_DO_FUN, 25, do_makemedkit, 1);
+                            ch, NULL, argument, ToRoom);
+                        add_timer(ch, TimerDoFun, 25, do_makemedkit, 1);
                         ch->dest_buf = str_dup(arg);
                         return;
                 }
@@ -709,9 +709,9 @@ CMDF do_makemedkit(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makemedkit]);
-        vnum = OBJ_VNUM_MEDKIT;
+        vnum = ObjVnumMedkit;
 
         if ((pObjIndex = get_obj_index(vnum)) == NULL)
         {
@@ -727,9 +727,9 @@ CMDF do_makemedkit(CharData * ch, char *argument)
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {
-                if (obj->item_type == ITEM_TOOLKIT)
+                if (obj->item_type == ItemToolkit)
                         checktool = TRUE;
-                if (obj->item_type == ITEM_DRINK_CON && checkdrink == FALSE
+                if (obj->item_type == ItemDrinkCon && checkdrink == FALSE
                     && obj->value[1] == 0)
                 {
                         checkdrink = TRUE;
@@ -737,7 +737,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                         obj_from_char(obj);
                         extract_obj(obj);
                 }
-                if (obj->item_type == ITEM_CHEMICAL)
+                if (obj->item_type == ItemChemical)
                 {
                         Strength = URANGE(10, obj->value[0], level * 5);
                         weight = obj->weight;
@@ -748,7 +748,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                 }
         }
 
-        chance = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                      learned[gsn_makemedkit]);
 
         if (number_percent() > chance * 2 || (!checktool) || (!checkdrink)
@@ -763,10 +763,10 @@ CMDF do_makemedkit(CharData * ch, char *argument)
 
         obj = create_object(pObjIndex, level);
 
-        obj->item_type = ITEM_MEDPAC;
+        obj->item_type = ItemMedpac;
         obj->wear_flags = 0;
-        SET_BIT(obj->wear_flags, ITEM_HOLD);
-        SET_BIT(obj->wear_flags, ITEM_TAKE);
+        SetBit(obj->wear_flags, ItemHold);
+        SetBit(obj->wear_flags, ItemTake);
         obj->level = level;
         obj->weight = weight;
         STRFREE(obj->name);
@@ -782,25 +782,25 @@ CMDF do_makemedkit(CharData * ch, char *argument)
         obj->value[0] = Strength / 2;
         obj->value[1] = Strength;
         obj->cost = obj->value[1] * 5;
-        if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
-                REMOVE_BIT(obj->extra_flags, ITEM_PROTOTYPE);
+        if (IsObjStat(obj, ItemPrototype))
+                RemoveBit(obj->extra_flags, ItemPrototype);
 
         obj = obj_to_char(obj, ch);
 
         send_to_char
                 ("&GYou finish your work and hold up your superb new med kit.&w\n\r",
                  ch);
-        act(AT_PLAIN,
+        act(AtPlain,
             "$g finishes making $s brand new medkit and holds it up for everyone to see.",
-            ch, NULL, argument, TO_ROOM);
+            ch, NULL, argument, ToRoom);
 
         {
                 long      xpgain;
 
                 xpgain = UMIN(obj->cost * 50,
-                              (exp_level(ch->skill_level[MEDIC_ABILITY] + 1) -
-                               exp_level(ch->skill_level[MEDIC_ABILITY])));
-                gain_exp(ch, xpgain, MEDIC_ABILITY);
+                              (exp_level(ch->skill_level[MedicAbility] + 1) -
+                               exp_level(ch->skill_level[MedicAbility])));
+                gain_exp(ch, xpgain, MedicAbility);
                 ch_printf(ch, "You gain %d medical experience.", xpgain);
         }
         learn_from_success(ch, gsn_makemedkit);
