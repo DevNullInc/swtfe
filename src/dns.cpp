@@ -257,16 +257,16 @@ void save_dns(void)
 /*
  * Almost the same as read_from_buffer...
  */
-bool read_from_dns(int fd, char *buffer)
+bool read_from_dns(int Fd, char *buffer)
 {
-        static char inbuf[MaxStringLength * 2];
+        static char InBuf[MaxStringLength * 2];
         int       iStart, i, j, k;
 
         /*
          * Check for overflow. 
          */
-        iStart = strlen(inbuf);
-        if (iStart >= (int) sizeof(inbuf) - 10)
+        iStart = strlen(InBuf);
+        if (iStart >= (int) sizeof(InBuf) - 10)
         {
                 bug("DNS input overflow!!!", 0);
                 return FALSE;
@@ -279,12 +279,12 @@ bool read_from_dns(int fd, char *buffer)
         {
                 int       nRead;
 
-                nRead = read(fd, inbuf + iStart, sizeof(inbuf) - 10 - iStart);
+                nRead = read(Fd, InBuf + iStart, sizeof(InBuf) - 10 - iStart);
                 if (nRead > 0)
                 {
                         iStart += nRead;
-                        if (inbuf[iStart - 2] == '\n'
-                            || inbuf[iStart - 2] == '\r')
+                        if (InBuf[iStart - 2] == '\n'
+                            || InBuf[iStart - 2] == '\r')
                                 break;
                 }
                 else if (nRead == 0)
@@ -300,26 +300,26 @@ bool read_from_dns(int fd, char *buffer)
                 }
         }
 
-        inbuf[iStart] = '\0';
+        InBuf[iStart] = '\0';
 
         /*
          * Look for at least one new line.
          */
-        for (i = 0; inbuf[i] != '\n' && inbuf[i] != '\r'; i++)
+        for (i = 0; InBuf[i] != '\n' && InBuf[i] != '\r'; i++)
         {
-                if (inbuf[i] == '\0')
+                if (InBuf[i] == '\0')
                         return FALSE;
         }
 
         /*
          * Canonical input processing.
          */
-        for (i = 0, k = 0; inbuf[i] != '\n' && inbuf[i] != '\r'; i++)
+        for (i = 0, k = 0; InBuf[i] != '\n' && InBuf[i] != '\r'; i++)
         {
-                if (inbuf[i] == '\b' && k > 0)
+                if (InBuf[i] == '\b' && k > 0)
                         --k;
-                else if (isascii(inbuf[i]) && isprint(inbuf[i]))
-                        buffer[k++] = inbuf[i];
+                else if (isascii(InBuf[i]) && isprint(InBuf[i]))
+                        buffer[k++] = InBuf[i];
         }
 
         /*
@@ -332,9 +332,9 @@ bool read_from_dns(int fd, char *buffer)
         /*
          * Shift the input buffer.
          */
-        while (inbuf[i] == '\n' || inbuf[i] == '\r')
+        while (InBuf[i] == '\n' || InBuf[i] == '\r')
                 i++;
-        for (j = 0; (inbuf[j] = inbuf[i + j]) != '\0'; j++)
+        for (j = 0; (InBuf[j] = InBuf[i + j]) != '\0'; j++)
                 ;
 
         return TRUE;
@@ -351,7 +351,7 @@ void process_dns(DescriptorData * d)
 
         address[0] = '\0';
 
-        if (!read_from_dns(d->ifd, address) || address[0] == '\0')
+        if (!read_from_dns(d->IFd, address) || address[0] == '\0')
                 return;
 
         if (address[0] != '\0')
@@ -362,12 +362,12 @@ void process_dns(DescriptorData * d)
         }
 
         /*
-         * close descriptor and kill dns process 
+         * close descriptor and kill dns Process 
          */
-        if (d->ifd != -1)
+        if (d->IFd != -1)
         {
-                close(d->ifd);
-                d->ifd = -1;
+                close(d->IFd);
+                d->IFd = -1;
         }
 
         /*
@@ -378,10 +378,10 @@ void process_dns(DescriptorData * d)
          * necessary, because otherwise the child processes become zombie
          * and keep lingering around... The waitpid( ) removes them.
          */
-        if (d->ipid != -1)
+        if (d->IPid != -1)
         {
-                waitpid(d->ipid, &status, 0);
-                d->ipid = -1;
+                waitpid(d->IPid, &status, 0);
+                d->IPid = -1;
         }
         return;
 }
@@ -410,22 +410,22 @@ void resolve_dns(DescriptorData * d, long ip)
         if ((pid = fork()) > 0)
         {
                 /*
-                 * parent process 
+                 * parent Process 
                  */
-                d->ifd = fds[0];
-                d->ipid = pid;
+                d->IFd = fds[0];
+                d->IPid = pid;
                 close(fds[1]);
         }
         else if (pid == 0)
         {
                 /*
-                 * child process 
+                 * child Process 
                  */
                 char      str_ip[64];
                 int       i;
 
-                d->ifd = fds[0];
-                d->ipid = pid;
+                d->IFd = fds[0];
+                d->IPid = pid;
 
                 for (i = 2; i < 255; ++i)
                         close(i);
@@ -436,8 +436,8 @@ void resolve_dns(DescriptorData * d, long ip)
                  * Still here --> hmm. An error. 
                  */
                 bug("resolve_dns: Exec failed; Closing child.", 0);
-                d->ifd = -1;
-                d->ipid = -1;
+                d->IFd = -1;
+                d->IPid = -1;
                 exit(0);
         }
         else

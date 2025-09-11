@@ -148,7 +148,7 @@ CMDF do_renumber(CharData * ch, char *argument)
         if (!is_number(arg1))
         {
                 ch_printf(ch,
-                          "Sorry, '%s' is not a valid vnum base number!\n\r",
+                          "Sorry, '%s' is not a Valid vnum base number!\n\r",
                           arg1);
                 return;
         }

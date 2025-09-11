@@ -62,7 +62,7 @@ void grid_destroy(std::shared_ptr<GRID_DATA> grid);
 void grid_update_coords(std::shared_ptr<GRID_DATA> grid, int* col, int* row, int* height);
 
 
-// True if its valid coords, false if not
+// True if its Valid coords, false if not
 bool grid_valid_coors(std::shared_ptr<GRID_DATA> grid, int col, int row, int height);
 
 

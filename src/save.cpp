@@ -53,7 +53,7 @@
 #endif
 #include "mud.hpp"
 #include "bounty.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "channels.hpp"
 #include "races.hpp"
 #include "space2.hpp"
@@ -90,7 +90,7 @@ void fwrite_char args((CharData * ch, FILE * fp));
 void      fread_char
 args((CharData * ch, FILE * fp, bool preload, bool copyover));
 void write_corpses args((CharData * ch, char *name));
-void      fread_comment(ACCOUNT_DATA * account, FILE * fp);
+void      fread_comment(ACCOUNT_DATA * Account, FILE * fp);
 
 void save_home(CharData * ch)
 {
@@ -283,8 +283,8 @@ void save_char_obj(CharData * ch)
                 return;
 
 #ifdef ACCOUNT
-        if (ch->pcdata && ch->pcdata->account)
-                save_account(ch->pcdata->account);
+        if (ch->pcdata && ch->pcdata->Account)
+                save_account(ch->pcdata->Account);
 #endif
 
         saving_char = ch;
@@ -423,7 +423,7 @@ void save_clone(CharData * ch)
         else
         {
                 fwrite_char(ch, fp);
-//                if (ch->pcdata->account->comments)   /* comments */
+//                if (ch->pcdata->Account->comments)   /* comments */
                 //                       fwrite_comments(ch, fp);    /* comments */
                 fprintf(fp, "#END\n");
                 FCLOSE(fp);
@@ -454,9 +454,9 @@ void fwrite_char(CharData * ch, FILE * fp)
         fprintf(fp, "Version      %d\n", SAVEVERSION);
         fprintf(fp, "Name         %s~\n", ch->name);
 #ifdef ACCOUNT
-        if (ch->pcdata && ch->pcdata->account && ch->pcdata->account->name)
+        if (ch->pcdata && ch->pcdata->Account && ch->pcdata->Account->name)
                 fprintf(fp, "Account         %s~\n",
-                        ch->pcdata->account->name);
+                        ch->pcdata->Account->name);
 #endif
         if (ch->short_descr && ch->short_descr[0] != '\0')
                 fprintf(fp, "ShortDescr   %s~\n", ch->short_descr);
@@ -507,7 +507,7 @@ void fwrite_char(CharData * ch, FILE * fp)
         fprintf(fp, "Force        %d %d 0 0\n", ch->perm_frc, ch->mod_frc);
         fprintf(fp, "Gold         %ld\n", ch->gold);
         fprintf(fp, "Bank         %ld\n", ch->pcdata->bank);
-        fprintf(fp, "Speed        %d\n", ch->speed);
+        fprintf(fp, "Speed        %d\n", ch->Speed);
 
         {
                 int       ability;
@@ -1131,9 +1131,9 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                                 fread_obj(ch, fp, OS_CARRY);
                         else if (!str_cmp(word, "COMMENT"))
                         {
-                                ACCOUNT_DATA *account = ch->pcdata->account;
+                                ACCOUNT_DATA *Account = ch->pcdata->Account;
 
-                                fread_comment(account, fp); /* Comments */
+                                fread_comment(Account, fp); /* Comments */
                         }
                         else if (!str_cmp(word, "GREET"))  /* Greet */
                         {
@@ -1291,15 +1291,15 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         {
                                 char     *name = fread_string_nohash(fp);
 
-                                if (ch->desc && ch->desc->account)
-                                        ch->pcdata->account =
-                                                ch->desc->account;
+                                if (ch->desc && ch->desc->Account)
+                                        ch->pcdata->Account =
+                                                ch->desc->Account;
                                 else
                                 {
-                                        ACCOUNT_DATA *account =
+                                        ACCOUNT_DATA *Account =
                                                 load_account(name);
-                                        if (account)
-                                                ch->pcdata->account = account;
+                                        if (Account)
+                                                ch->pcdata->Account = Account;
                                         else
                                                 bug("Account %s not found.",
                                                     name);
@@ -1829,9 +1829,9 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
 #ifndef ACCOUNT
                                 ch->pcdata->rp = fread_number(fp);
 #else
-                                if (ch->pcdata->account)
+                                if (ch->pcdata->Account)
                                 {
-                                        ch->pcdata->account->rppoints +=
+                                        ch->pcdata->Account->rppoints +=
                                                 fread_number(fp);
                                         ch->pcdata->rp = 0; /* Should this still even be here? - Gavin */
                                 }
@@ -1903,13 +1903,13 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
 
                         if (!strcmp(word, "Speed"))
                         {
-                                sh_int    speed;
+                                sh_int    Speed;
 
                                 fMatch = TRUE;
-                                speed = fread_number(fp);
+                                Speed = fread_number(fp);
                                 if (ch->desc)
-                                        ch->desc->speed = speed;
-                                ch->speed = speed;
+                                        ch->desc->Speed = Speed;
+                                ch->Speed = Speed;
                                 break;
                         }
 
@@ -2078,16 +2078,16 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                         }
                                 }
 #ifdef ACCOUNT
-                                if (ch->pcdata->account)
+                                if (ch->pcdata->Account)
                                 {
-                                        ch->pcdata->account->
+                                        ch->pcdata->Account->
                                                 rppoints +=
                                                 ch->pcdata->rp;
                                         ch->pcdata->rp = 0; /* Should this still even be here? - Gavin */
                                 }
-                                else if (ch->desc->account)
+                                else if (ch->desc->Account)
                                 {
-                                        ch->desc->account->rppoints +=
+                                        ch->desc->Account->rppoints +=
                                                 ch->pcdata->rp;
                                         ch->pcdata->rp = 0; /* Should this still even be here? - Gavin */
                                 }

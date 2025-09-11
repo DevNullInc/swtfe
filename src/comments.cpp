@@ -47,7 +47,7 @@
 #include "mud.hpp"
 #include "editor.hpp"
 #include "boards.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 
 void      note_attach(CharData * ch);
 
@@ -55,12 +55,12 @@ void comment_remove(CharData * ch, CharData * victim, NOTE_DATA * pnote)
 {
         // Suppress unused parameter warning
         (void)ch;
-        if (!victim->pcdata || !victim->pcdata->account)
+        if (!victim->pcdata || !victim->pcdata->Account)
         {
-                bug("comment remove: null account", 0);
+                bug("comment remove: null Account", 0);
                 return;
         }
-        if (!victim->pcdata->account->comments)
+        if (!victim->pcdata->Account->comments)
         {
                 bug("comment remove: null board", 0);
                 return;
@@ -76,7 +76,7 @@ void comment_remove(CharData * ch, CharData * victim, NOTE_DATA * pnote)
          * Remove comment from linked list.
          */
         if (!pnote->prev)
-                victim->pcdata->account->comments = pnote->next;
+                victim->pcdata->Account->comments = pnote->next;
         else
                 pnote->prev->next = pnote->next;
 
@@ -193,7 +193,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!victim->pcdata->account->comments)
+                if (!victim->pcdata->Account->comments)
                 {
                         send_to_char("There are no relevant comments.\n\r",
                                      ch);
@@ -201,7 +201,7 @@ CMDF do_comment(CharData * ch, char *argument)
                 }
 
                 vnum = 0;
-                for (pnote = victim->pcdata->account->comments; pnote;
+                for (pnote = victim->pcdata->Account->comments; pnote;
                      pnote = pnote->next)
                 {
                         vnum++;
@@ -244,7 +244,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!victim->pcdata->account->comments)
+                if (!victim->pcdata->Account->comments)
                 {
                         send_to_char("There are no relevant comments.\n\r",
                                      ch);
@@ -270,7 +270,7 @@ CMDF do_comment(CharData * ch, char *argument)
                 }
 
                 vnum = 0;
-                for (pnote = victim->pcdata->account->comments; pnote;
+                for (pnote = victim->pcdata->Account->comments; pnote;
                      pnote = pnote->next)
                 {
                         vnum++;
@@ -402,11 +402,11 @@ CMDF do_comment(CharData * ch, char *argument)
                 /*
                  * LIFO to make life easier 
                  */
-                pnote->next = victim->pcdata->account->comments;
-                if (victim->pcdata->account->comments)
-                        victim->pcdata->account->comments->prev = pnote;
+                pnote->next = victim->pcdata->Account->comments;
+                if (victim->pcdata->Account->comments)
+                        victim->pcdata->Account->comments->prev = pnote;
                 pnote->prev = NULL;
-                victim->pcdata->account->comments = pnote;
+                victim->pcdata->Account->comments = pnote;
 
                 save_char_obj(victim);
 
@@ -468,7 +468,7 @@ CMDF do_comment(CharData * ch, char *argument)
 
                 anum = atoi(argument);
                 vnum = 0;
-                for (pnote = victim->pcdata->account->comments; pnote;
+                for (pnote = victim->pcdata->Account->comments; pnote;
                      pnote = pnote->next)
                 {
                         vnum++;
@@ -494,14 +494,14 @@ CMDF do_comment(CharData * ch, char *argument)
 }
 
 
-void fwrite_comments(ACCOUNT_DATA * account, FILE * fp)
+void fwrite_comments(ACCOUNT_DATA * Account, FILE * fp)
 {
         NOTE_DATA *pnote;
 
-        if (!account->comments)
+        if (!Account->comments)
                 return;
 
-        for (pnote = account->comments; pnote; pnote = pnote->next)
+        for (pnote = Account->comments; pnote; pnote = pnote->next)
         {
                 fprintf(fp, "#COMMENT\n");
                 fprintf(fp, "sender	%s~\n", pnote->sender);
@@ -513,7 +513,7 @@ void fwrite_comments(ACCOUNT_DATA * account, FILE * fp)
         return;
 }
 
-void fread_comment(ACCOUNT_DATA * account, FILE * fp)
+void fread_comment(ACCOUNT_DATA * Account, FILE * fp)
 {
         NOTE_DATA *pnote;
 
@@ -555,9 +555,9 @@ void fread_comment(ACCOUNT_DATA * account, FILE * fp)
                         break;
                 pnote->text = fread_string(fp);
 
-                pnote->next = account->comments;
+                pnote->next = Account->comments;
                 pnote->prev = NULL;
-                account->comments = pnote;
+                Account->comments = pnote;
                 return;
         }
 
@@ -602,7 +602,7 @@ There are no relevent comments.
 */
 
 
-void comment_add_comment(CharData * from, ACCOUNT_DATA * account, char * subject, char * text)
+void comment_add_comment(CharData * from, ACCOUNT_DATA * Account, char * subject, char * text)
 {
 	NOTE_DATA * pnote;
 	char     *strtime;
@@ -615,11 +615,11 @@ void comment_add_comment(CharData * from, ACCOUNT_DATA * account, char * subject
 	strtime = ctime(&current_time);
 	strtime[strlen(strtime) - 1] = '\0';
 	pnote->date = STRALLOC(strtime);
-	pnote->next = account->comments;
-	if (account->comments)
-		account->comments->prev = pnote;
+	pnote->next = Account->comments;
+	if (Account->comments)
+		Account->comments->prev = pnote;
 	pnote->prev = NULL;
-	account->comments = pnote;
-	save_account(account);
+	Account->comments = pnote;
+	save_account(Account);
 	return;
 }

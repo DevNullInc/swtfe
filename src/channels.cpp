@@ -741,7 +741,7 @@ CMDF do_showchannels(CharData * ch, char *argument)
             || (channel = get_channel(argument)) == NULL)
         {
                 send_to_char
-                        ("That is not a valid channel. Choose one of the following:\n\r",
+                        ("That is not a Valid channel. Choose one of the following:\n\r",
                          ch);
                 for (channel = first_channel; channel;
                      channel = channel->next)
@@ -940,7 +940,7 @@ CMDF do_setchannel(CharData * ch, char *argument)
 
         else
         {
-                send_to_char("That is not a valid argument. Options are:\n\r",
+                send_to_char("That is not a Valid argument. Options are:\n\r",
                              ch);
                 send_to_char
                         ("\tname, socialmessage,emotemessage, actmessage, logtype, type, range, color, level, history, cost, enable\n\r",
@@ -1305,7 +1305,7 @@ CMDF do_history(CharData * ch, const char *argument)
 
         if ((channel = get_channel(argument)) == NULL)
         {
-                send_to_char("That is not a valid channel", ch);
+                send_to_char("That is not a Valid channel", ch);
                 return;
         }
 

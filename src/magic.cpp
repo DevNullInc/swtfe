@@ -3234,7 +3234,7 @@ SPELLF spell_sleep(int sn, int level, CharData * ch, void *vo)
         affect_join(victim, &af);
 
         /*
-         * Added by Narn at the request of Dominus. 
+         * Added by Narn at the Request of Dominus. 
          */
         if (!IS_NPC(victim))
         {

@@ -190,7 +190,7 @@ const char *const ability_name[MaxAbility] = {
 /*
  * Attribute bonus tables.
  */
-const struct str_app_type str_app[41] = {
+const struct StrAppType str_app[41] = {
         {-5, -4, 0, 0}, /* 0  */
         {-5, -4, 3, 1}, /* 1  */
         {-3, -2, 3, 2},
@@ -236,7 +236,7 @@ const struct str_app_type str_app[41] = {
 
 
 
-const struct int_app_type int_app[41] = {
+const struct IntAppType int_app[41] = {
         {3},    /*  0 */
         {5},    /*  1 */
         {7},

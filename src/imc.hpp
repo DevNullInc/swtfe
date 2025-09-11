@@ -293,12 +293,12 @@ struct imc_siteinfo
         /*
          * Conection parameters - These don't save in the config file 
          */
-        char      inbuf[IMC_BUFF_SIZE]; /* input buffer */
-        char      incomm[IMC_BUFF_SIZE];
-        char     *outbuf;   /* output buffer */
+        char      InBuf[IMC_BUFF_SIZE]; /* input buffer */
+        char      InComm[IMC_BUFF_SIZE];
+        char     *OutBuf;   /* output buffer */
         char     *versionid;    /* Transient version id for the imclist */
-        unsigned long outsize;
-        int       outtop;
+        unsigned long OutSize;
+        int       OutTop;
         int       desc; /* descriptor */
         unsigned short state;   /* connection state */
 };

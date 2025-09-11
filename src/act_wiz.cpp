@@ -65,7 +65,7 @@
 #include "changes.hpp"
 #include "boards.hpp"
 #include "bounty.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "channels.hpp"
 #include "astral.hpp"
 #include "cpp_compat.hpp"
@@ -602,7 +602,7 @@ CMDF do_authorize(CharData * ch, char *argument)
         if (arg2[0] == '\0' || !str_cmp(arg2, "accept")
             || !str_cmp(arg2, "yes"))
         {
-                victim->pcdata->auth_state = AUTH_STATE_ACCEPTED;
+                victim->pcdata->AuthState = AUTH_STATE_ACCEPTED;
                 REMOVE_BIT(victim->pcdata->flags, PCFLAG_UNAUTHED);
                 if (victim->pcdata->authed_by)
                         STRFREE(victim->pcdata->authed_by);
@@ -643,7 +643,7 @@ CMDF do_authorize(CharData * ch, char *argument)
                           victim->name);
                 ch_printf(ch, "You requested %s change names.\n\r",
                           victim->name);
-                victim->pcdata->auth_state = AUTH_STATE_DENIED;
+                victim->pcdata->AuthState = AUTH_STATE_DENIED;
                 return;
         }
 
@@ -1391,7 +1391,7 @@ CMDF do_transfer(CharData * ch, char *argument)
                         if (IS_PLAYING(d)
                             && d->character != ch
                             && d->character->in_room
-                            && d->newstate != 2 && can_see(ch, d->character))
+                            && d->NewState != 2 && can_see(ch, d->character))
                         {
                                 char      buf[MaxStringLength];
 
@@ -4882,8 +4882,8 @@ CMDF do_loadup(CharData * ch, char *argument)
                 d->next = NULL;
                 d->prev = NULL;
                 d->connected = ConGetName;
-                d->outsize = 2000;
-                CREATE(d->outbuf, char, d->outsize);
+                d->OutSize = 2000;
+                CREATE(d->OutBuf, char, d->OutSize);
 
                 load_char_obj(d, name, FALSE, FALSE);
                 add_char(d->character);
@@ -4902,7 +4902,7 @@ CMDF do_loadup(CharData * ch, char *argument)
                 d->character->desc = NULL;
                 d->character->retran = old_room_vnum;
                 d->character = NULL;
-                DISPOSE(d->outbuf);
+                DISPOSE(d->OutBuf);
                 DISPOSE(d);
                 ch_printf(ch, "Player %s loaded from room %d.\n\r",
                           capitalize(name), old_room_vnum);
@@ -5794,7 +5794,7 @@ CMDF do_destroy(CharData * ch, char *argument)
         snprintf(buf2, MSL, "%s%c/%s", BACKUP_DIR, tolower(arg[0]), name);
 
         /*
-         * This check makes sure the name is valid and that the file is there, else there
+         * This check makes sure the name is Valid and that the file is there, else there
          * is no need to go on. -Orion
          */
         if (lstat(buf, &fst) == -1)
@@ -5961,7 +5961,7 @@ const char *name_expand(CharData * ch)
         CharData *rch;
         char      name[MaxInputLength];   /*  HOPEFULLY no mob has a name longer than THAT */
 
-        static char outbuf[MaxInputLength];
+        static char OutBuf[MaxInputLength];
 
         if (!IS_NPC(ch))
                 return ch->name;
@@ -5970,8 +5970,8 @@ const char *name_expand(CharData * ch)
 
         if (!name[0])   /* weird mob .. no keywords */
         {
-                mudstrlcpy(outbuf, "", MIL);    /* Do not return NULL, just an empty buffer */
-                return outbuf;
+                mudstrlcpy(OutBuf, "", MIL);    /* Do not return NULL, just an empty buffer */
+                return OutBuf;
         }
 
         /*
@@ -5983,8 +5983,8 @@ const char *name_expand(CharData * ch)
                         count++;
 
 
-        snprintf(outbuf, MSL, "%d.%s", count, name);
-        return outbuf;
+        snprintf(OutBuf, MSL, "%d.%s", count, name);
+        return OutBuf;
 }
 
 
@@ -7858,17 +7858,17 @@ CMDF do_reward(CharData * ch, char *argument)
                 return;
         }
 
-        /*if (victim->pcdata->account == ch->pcdata->account)
+        /*if (victim->pcdata->Account == ch->pcdata->Account)
         {
                 send_to_char("You cannot reward yourself!\n\r", ch);
                 return;
         }
 	*/
 #ifdef ACCOUNT
-        if (victim->pcdata->account)
+        if (victim->pcdata->Account)
         {
-                victim->pcdata->account->rppoints += increase;
-                victim->pcdata->account->rpcurrent += increase;
+                victim->pcdata->Account->rppoints += increase;
+                victim->pcdata->Account->rpcurrent += increase;
         }
         else
 #endif
@@ -7880,8 +7880,8 @@ CMDF do_reward(CharData * ch, char *argument)
                          victim);
         snprintf(buf, MSL,"[AUTO COMMENT] I gave %s a reward of %d points\n\r",victim->name, increase);
 #ifdef ACCOUNT
-		comment_add_comment(ch,victim->pcdata->account, const_cast<char*>("Been rewarded for role-playing"), buf);
-        save_account(victim->pcdata->account);
+		comment_add_comment(ch,victim->pcdata->Account, const_cast<char*>("Been rewarded for role-playing"), buf);
+        save_account(victim->pcdata->Account);
 #endif
         send_to_char("Done.\n\r", ch);
 
@@ -7909,10 +7909,10 @@ CMDF do_punish(CharData * ch, char *argument)
 #ifndef ACCOUNT
         victim->pcdata->rp--;
 #else
-        if (victim->pcdata->account)
+        if (victim->pcdata->Account)
         {
-                victim->pcdata->account->rppoints--;
-                victim->pcdata->account->rpcurrent--;
+                victim->pcdata->Account->rppoints--;
+                victim->pcdata->Account->rpcurrent--;
         }
         else
                 victim->pcdata->rp--;
@@ -7921,7 +7921,7 @@ CMDF do_punish(CharData * ch, char *argument)
                 ("You've been punished by the gods for your poor role-playing skill!\n\r",
                  victim);
 #ifdef ACCOUNT
-        save_account(victim->pcdata->account);
+        save_account(victim->pcdata->Account);
 #endif
         send_to_char("Done.\n\r", ch);
 }
@@ -8497,13 +8497,13 @@ CMDF do_pcrename(CharData * ch, char *argument)
         }
 
 #ifdef ACCOUNT
-        if (victim->pcdata->account)
+        if (victim->pcdata->Account)
         {
-                if (!del_from_account(victim->pcdata->account, victim))
+                if (!del_from_account(victim->pcdata->Account, victim))
                 {
-                        bug("Failed to remove character from account during rename", 0);
+                        bug("Failed to remove character from Account during rename", 0);
                 }
-                save_account(victim->pcdata->account);
+                save_account(victim->pcdata->Account);
         }
 #endif
 
@@ -8519,13 +8519,13 @@ CMDF do_pcrename(CharData * ch, char *argument)
         save_finger(victim);
         save_home(victim);
 #ifdef ACCOUNT
-        if (victim->pcdata->account)
+        if (victim->pcdata->Account)
         {
-                if (!add_to_account(victim->pcdata->account, victim))
+                if (!add_to_account(victim->pcdata->Account, victim))
                 {
-                        bug("Failed to add character to account during rename", 0);
+                        bug("Failed to add character to Account during rename", 0);
                 }
-                save_account(victim->pcdata->account);
+                save_account(victim->pcdata->Account);
         }
 #endif
         /*
@@ -9074,7 +9074,7 @@ CMDF do_watch(CharData * ch, char *argument)
                          "   watch size              show the size of my watch file\n\r"
                          "   watch player joe        add a new player watch\n\r"
 #ifdef ACCOUNT
-                         "   watch account joe       add a new account watch\n\r"
+                         "   watch Account joe       add a new Account watch\n\r"
 #endif
                          "   watch site 2.3.123      add a new site watch\n\r"
                          "   watch command make      add a new command watch\n\r"
@@ -9113,7 +9113,7 @@ CMDF do_watch(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                send_to_pager("You have no valid watch file to clear.\n\r",
+                send_to_pager("You have no Valid watch file to clear.\n\r",
                               ch);
                 return;
         }
@@ -9233,7 +9233,7 @@ CMDF do_watch(CharData * ch, char *argument)
                                         }
                                         else
                                         {
-                                                bug("Invalid watch type, not player, account, nor site", 0);
+                                                bug("Invalid watch type, not player, Account, nor site", 0);
                                                 continue;
                                         }
                                         pager_printf(ch,
@@ -9282,7 +9282,7 @@ CMDF do_watch(CharData * ch, char *argument)
                                         }
                                         else
                                         {
-                                                bug("Invalid watch type, not player, account, nor site", 0);
+                                                bug("Invalid watch type, not player, Account, nor site", 0);
                                                 continue;
                                         }
                                         pager_printf(ch,
@@ -9402,7 +9402,7 @@ CMDF do_watch(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg, "account") && *arg2)
+        if (!str_cmp(arg, "Account") && *arg2)
         {
                 WatchData *pinsert;
                 CharData *vic;
@@ -9415,7 +9415,7 @@ CMDF do_watch(CharData * ch, char *argument)
                                     && !str_cmp(arg2, pw->player_account))
                                 {
                                         send_to_pager
-                                                ("You are already watching that account.\n\r",
+                                                ("You are already watching that Account.\n\r",
                                                  ch);
                                         return;
                                 }
@@ -9441,10 +9441,10 @@ CMDF do_watch(CharData * ch, char *argument)
                                 continue;
                         if (!vic->pcdata)
                                 continue;
-                        if (!vic->pcdata->account)
+                        if (!vic->pcdata->Account)
                                 continue;
                         if (!str_cmp
-                            (vic->pcdata->account->name,
+                            (vic->pcdata->Account->name,
                              pinsert->player_account))
                                 SET_BIT(vic->pcdata->flags, PCFLAG_WATCH);
                 }
@@ -9458,14 +9458,14 @@ CMDF do_watch(CharData * ch, char *argument)
                                                prev);
                                         save_watchlist();
                                         send_to_pager
-                                                ("Ok. That account will be watched.\n\r",
+                                                ("Ok. That Account will be watched.\n\r",
                                                  ch);
                                         return;
                                 }
 
                 LINK(pinsert, first_watch, last_watch, next, prev); /* link new watch */
                 save_watchlist();
-                send_to_pager("Ok. That account will be watched.\n\r", ch);
+                send_to_pager("Ok. That Account will be watched.\n\r", ch);
                 return;
         }
 
@@ -9809,8 +9809,8 @@ CMDF do_qpreward(CharData * ch, char *argument)
 
         send_to_char("You've been rewarded by the gods for your role-playing skill!\n\r", victim);
         snprintf(buf, MSL,"[AUTO COMMENT] I gave %s a reward of %d quest points\n\r",victim->name, increase);
-		comment_add_comment(ch,victim->pcdata->account, const_cast<char*>("Been rewarded"), buf);
-        save_account(victim->pcdata->account);
+		comment_add_comment(ch,victim->pcdata->Account, const_cast<char*>("Been rewarded"), buf);
+        save_account(victim->pcdata->Account);
         send_to_char("Done.\n\r", ch);
 
 }

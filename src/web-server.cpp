@@ -116,7 +116,7 @@ void      web_header(WebDescriptor * wdesc, char *title);
 void      web_footer(WebDescriptor * wdesc);
 
 /* FUNCTION DEFS */
-int       send_buf(int fd, char *buf, bool filter);
+int       send_buf(int Fd, char *buf, bool filter);
 void      handle_web_request(WebDescriptor * wdesc);
 void      handle_web_who_request(WebDescriptor * wdesc);
 void      handle_web_wwwwho_request(WebDescriptor * wdesc);
@@ -480,9 +480,9 @@ void handle_web(void)
          */
         for (current = first_webdesc; current; current = current->next)
         {
-                FD_SET(current->fd, &readfds);
-                if (max_fd < current->fd)
-                        max_fd = current->fd;
+                FD_SET(current->Fd, &readfds);
+                if (max_fd < current->Fd)
+                        max_fd = current->Fd;
         }
 
         /*
@@ -504,13 +504,13 @@ void handle_web(void)
                  * of code .. no. --GW 
                  */
                 CREATE(current, WebDescriptor, 1);
-                current->sin_size = sizeof(struct sockaddr_in);
-                current->request[0] = '\0';
-                temp = current->sin_size;
+                current->SinSize = sizeof(struct sockaddr_in);
+                current->Request[0] = '\0';
+                temp = current->SinSize;
 
-                if ((current->fd =
+                if ((current->Fd =
                      accept(sockfd,
-                            (struct sockaddr *) &(current->their_addr),
+                            (struct sockaddr *) &(current->TheirAddr),
                             &temp)) == -1)
                 {
                         perror("web-accept");
@@ -535,13 +535,13 @@ void handle_web(void)
          */
         for (current = first_webdesc; current; current = current->next)
         {
-                if (FD_ISSET(current->fd, &readfds))    /* We Got Data! */
+                if (FD_ISSET(current->Fd, &readfds))    /* We Got Data! */
                 {
                         char buf[1024];
                         int numbytes;
 
                         if ((numbytes =
-                             read(current->fd, buf, sizeof(buf))) == -1)
+                             read(current->Fd, buf, sizeof(buf))) == -1)
                         {
                                 perror("web-read");
                                 exit(1);
@@ -549,7 +549,7 @@ void handle_web(void)
 
                         buf[numbytes] = '\0';
 
-                        strcat(current->request, buf);
+                        strcat(current->Request, buf);
                 }
         }   /* DONE WITH DATA IN */
 
@@ -563,17 +563,17 @@ void handle_web(void)
         {
                 next = current->next;
 
-                if (strstr(current->request, "HTTP/1.") /* 1.x request (vernum on FIRST LINE) */
-                    && strstr(current->request, ENDREQUEST))
+                if (strstr(current->Request, "HTTP/1.") /* 1.x Request (vernum on FIRST LINE) */
+                    && strstr(current->Request, ENDREQUEST))
                         handle_web_request(current);
-                else if (!strstr(current->request, "HTTP/1.") && strchr(current->request, '\n'))    /* HTTP/0.9 (no ver number) */
+                else if (!strstr(current->Request, "HTTP/1.") && strchr(current->Request, '\n'))    /* HTTP/0.9 (no ver number) */
                         handle_web_request(current);
                 else
                 {
-                        continue;   /* Don't have full request yet! */
+                        continue;   /* Don't have full Request yet! */
                 }
 
-                close(current->fd);
+                close(current->Fd);
                 /*
                  * Again, no function needed! 
                  * also moved this up to here, were done with it, so
@@ -591,161 +591,161 @@ void handle_web(void)
 
 /* Generic Utility Function */
 
-int send_buf(int fd, char *buf, int filter)
+int send_buf(int Fd, char *buf, int filter)
 {
         char string[MSL * 10];
 
         if (filter == 1)
         {
-                send(fd, "<CODE>", 6, 0);
+                send(Fd, "<CODE>", 6, 0);
                 buf = smash_color(buf);
                 buf = text2html(buf);
-                send(fd, "</CODE>", 7, 0);
+                send(Fd, "</CODE>", 7, 0);
         }
         if (filter == 2)
         {
                 web_colourconv(string, buf);
-                return send(fd, string, strlen(string), 0);
+                return send(Fd, string, strlen(string), 0);
         }
-        return send(fd, buf, strlen(buf), 0);
+        return send(Fd, buf, strlen(buf), 0);
 }
 
 void handle_web_request(WebDescriptor * wdesc)
 {
         /*
-         * process request 
+         * Process Request 
          */
         /*
          * are we using HTTP/1.x? If so, write out header stuff.. 
          */
-        if (!strstr(wdesc->request, "GET"))
+        if (!strstr(wdesc->Request, "GET"))
         {
-                send_buf(wdesc->fd, "HTTP/1.0 501 Not Implemented", FALSE);
+                send_buf(wdesc->Fd, "HTTP/1.0 501 Not Implemented", FALSE);
                 return;
         }
-        else if (strstr(wdesc->request, "HTTP/1."))
+        else if (strstr(wdesc->Request, "HTTP/1."))
         {
-                send_buf(wdesc->fd, "HTTP/1.0 200 OK\n", FALSE);
-                send_buf(wdesc->fd, "Content-type: text/html\n\n", FALSE);
+                send_buf(wdesc->Fd, "HTTP/1.0 200 OK\n", FALSE);
+                send_buf(wdesc->Fd, "Content-type: text/html\n\n", FALSE);
         }
 
         /*
-         * Handle the actual request 
+         * Handle the actual Request 
          */
-        if (strstr(wdesc->request, "/wholist"))
+        if (strstr(wdesc->Request, "/wholist"))
         {
 //                log_string("Web Hit: WHOLIST");
                 handle_web_who_request(wdesc);
                 return;
         }
 
-        else if (strstr(wdesc->request, "/wizlist"))
+        else if (strstr(wdesc->Request, "/wizlist"))
         {
 //                log_string("Web Hit: WIZ-LIST");
                 handle_web_wizlist_request(wdesc);
                 return;
         }
-        else if (strstr(wdesc->request, "/help.htm "))
+        else if (strstr(wdesc->Request, "/help.htm "))
         {
 //                log_string("Web Hit: HELP-LIST");
                 handle_web_help_request(wdesc, -1, 100);
                 return;
         }
-        else if (strstr(wdesc->request, "/skill.htm "))
+        else if (strstr(wdesc->Request, "/skill.htm "))
         {
 //                log_string("Web Hit: SKILL-LIST");
                 handle_web_skill_request(wdesc);
                 return;
         }
-        else if (strstr(wdesc->request, "/clans.htm "))
+        else if (strstr(wdesc->Request, "/clans.htm "))
         {
 //                log_string("Web Hit: CLAN-LIST");
                 handle_web_clan_request(wdesc);
                 return;
         }
-        else if (strstr(wdesc->request, "/printooc.htm "))
+        else if (strstr(wdesc->Request, "/printooc.htm "))
         {
 //                log_string("Web Hit: CLAN-LIST");
                 print_ooc_history(wdesc);
                 return;
         }
-        else if (strstr(wdesc->request, "/planets.htm "))
+        else if (strstr(wdesc->Request, "/planets.htm "))
         {
 //                log_string("Web Hit: PLANET-LIST");
                 handle_web_planet_request(wdesc);
                 return;
         }
-        else if (strstr(wdesc->request, "/races.htm "))
+        else if (strstr(wdesc->Request, "/races.htm "))
         {
 //                log_string("Web Hit: RACES-LIST");
                 handle_web_race_request(wdesc);
                 return;
         }
-        else if (strstr(wdesc->request, "/test/"))
+        else if (strstr(wdesc->Request, "/test/"))
         {
                 strip_web_content(wdesc);
                 handle_web_message_request(wdesc);
                 return;
         }
 
-        else if (strstr(wdesc->request, "/edithelp/edithelp.htm"))
+        else if (strstr(wdesc->Request, "/edithelp/edithelp.htm"))
         {
                 handle_edithelp_message_request(wdesc);
                 return;
         }
 
-        else if (strstr(wdesc->request, "/help/"))
+        else if (strstr(wdesc->Request, "/help/"))
         {
                 if (check_help_net(wdesc, -1, 100))
                         return;
 
-                send_buf(wdesc->fd,
+                send_buf(wdesc->Fd,
                          "Dark Warriors Web help: INVALID HELP FILE", FALSE);
                 return;
         }
-        else if (strstr(wdesc->request, "/clan/"))
+        else if (strstr(wdesc->Request, "/clan/"))
         {
                 if (check_clan_net(wdesc))
                         return;
 
-                send_buf(wdesc->fd,
+                send_buf(wdesc->Fd,
                          "Dark Warriors Web clan listing: INVALID CLAN FILE",
                          FALSE);
                 return;
         }
-        else if (strstr(wdesc->request, "/planet/"))
+        else if (strstr(wdesc->Request, "/planet/"))
         {
                 if (check_planet_net(wdesc))
                         return;
 
-                send_buf(wdesc->fd,
+                send_buf(wdesc->Fd,
                          "Dark Warriors Web planet listing: INVALID PLANET FILE",
                          FALSE);
                 return;
         }
-        else if (strstr(wdesc->request, "/races/"))
+        else if (strstr(wdesc->Request, "/races/"))
         {
                 if (check_race_net(wdesc))
                         return;
 
-                send_buf(wdesc->fd,
+                send_buf(wdesc->Fd,
                          "Dark Warriors Web race listing: INVALID RACE FILE",
                          FALSE);
                 return;
         }
-/*      else if ( strstr(wdesc->request, "/~immhelp/" ) )
+/*      else if ( strstr(wdesc->Request, "/~immhelp/" ) )
         {
                 if ( check_help_net(wdesc, -2, 200) )
                 return;
 
-                send_buf(wdesc->fd, "Dark Warriors Web help: ILLEGAL ACCESS ATTEMPT", FALSE);
+                send_buf(wdesc->Fd, "Dark Warriors Web help: ILLEGAL ACCESS ATTEMPT", FALSE);
                 return;
         }*/
         else
         {
 //                log_string("Web Hit: INVALID URL");
                 handle_web_empty_request(wdesc);
-/*                send_buf(wdesc->fd,
+/*                send_buf(wdesc->Fd,
                          "Sorry, the webserver 1.0 only supports /wholist and /wizlist",
                          FALSE);*/
                 return;
@@ -765,7 +765,7 @@ void shutdown_web(void)
         for (current = first_webdesc; current; current = next)
         {
                 next = current->next;
-                close(current->fd);
+                close(current->Fd);
                 /*
                  * Again, no function needed! --GW 
                  */
@@ -783,13 +783,13 @@ void shutdown_web(void)
 void handle_web_empty_request(WebDescriptor * wdesc)
 {
         web_header(wdesc, "Index");
-        send_buf(wdesc->fd, "<a href='/wholist'>Who list</a><br>", FALSE);
-        send_buf(wdesc->fd, "<a href='/wizlist'>Wiz list</a><br>", FALSE);
-        send_buf(wdesc->fd, "<a href='/help.htm'>Help</a><br>", FALSE);
-        send_buf(wdesc->fd, "<a href='/skill.htm'>Skill</a><br>", FALSE);
-        send_buf(wdesc->fd, "<a href='/clans.htm'>Clans</a><br>", FALSE);
-        send_buf(wdesc->fd, "<a href='/planets.htm'>Planets</a><br>", FALSE);
-        send_buf(wdesc->fd, "<a href='/races.htm'>Races</a><br>", FALSE);
+        send_buf(wdesc->Fd, "<a href='/wholist'>Who list</a><br>", FALSE);
+        send_buf(wdesc->Fd, "<a href='/wizlist'>Wiz list</a><br>", FALSE);
+        send_buf(wdesc->Fd, "<a href='/help.htm'>Help</a><br>", FALSE);
+        send_buf(wdesc->Fd, "<a href='/skill.htm'>Skill</a><br>", FALSE);
+        send_buf(wdesc->Fd, "<a href='/clans.htm'>Clans</a><br>", FALSE);
+        send_buf(wdesc->Fd, "<a href='/planets.htm'>Planets</a><br>", FALSE);
+        send_buf(wdesc->Fd, "<a href='/races.htm'>Races</a><br>", FALSE);
         web_footer(wdesc);
         return;
 }
@@ -838,8 +838,8 @@ void handle_web_who_request(WebDescriptor * wdesc)
                                 buf[32000] = '\0';
                         }
                         num = 0;
-                        send_buf(wdesc->fd, buf, FALSE);
-//    send_buf(wdesc->fd,"<BR>",FALSE);
+                        send_buf(wdesc->Fd, buf, FALSE);
+//    send_buf(wdesc->Fd,"<BR>",FALSE);
                 }
                 FCLOSE(fp);
         }
@@ -866,7 +866,7 @@ void handle_web_wizlist_request(WebDescriptor * wdesc)
         snprintf(buf, MSL * 2, "%swizlist.html", HTML_MUDINFO_WRITE_DIR);
         if ((fp = fopen(buf, "r")) != NULL)
         {
-                send_buf(wdesc->fd, "<CENTER>", FALSE);
+                send_buf(wdesc->Fd, "<CENTER>", FALSE);
                 while (!feof(fp))
                 {
                         while ((buf[num] = fgetc(fp)) != EOF
@@ -888,9 +888,9 @@ void handle_web_wizlist_request(WebDescriptor * wdesc)
                                 buf[32000] = '\0';
                         }
                         num = 0;
-                        send_buf(wdesc->fd, buf, FALSE);
+                        send_buf(wdesc->Fd, buf, FALSE);
                 }
-                send_buf(wdesc->fd, "</CENTER>", FALSE);
+                send_buf(wdesc->Fd, "</CENTER>", FALSE);
                 FCLOSE(fp);
         }
         return;
@@ -1006,57 +1006,57 @@ bool check_help_net(WebDescriptor * wdesc, int hmin, int hmax)
                         snprintf(buf2, MSL * 2, "/help/%s.htm ", strlower(buf3));
                 }
 
-                if (strstr(wdesc->request, buf)
-                    || strstr(wdesc->request, buf2))
+                if (strstr(wdesc->Request, buf)
+                    || strstr(wdesc->Request, buf2))
                 {
                         /*
                          * handle_web_help(wdesc); 
                          */
-                        send_buf(wdesc->fd, "<html>\n", FALSE);
-                        send_buf(wdesc->fd, "<head>\n", FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd, "<html>\n", FALSE);
+                        send_buf(wdesc->Fd, "<head>\n", FALSE);
+                        send_buf(wdesc->Fd,
                                  "<title>Dark Warriors - Help Listing</title>\n",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "<style> pre { display: inline; }  a:link { background-color: inherit; ",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "text-decoration: none; color: inherit; }\n\r",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "a:visited { background-color: inherit; text-decoration: none; color: inherit; }",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "\n\ra:hover { background-color: inherit; text-decoration: none; ",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "color: inherit; }\n\ra:active { background-color: inherit; text-decoration: none; ",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "color: inherit; }</style></head>\n", FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                                  FALSE);
-                        send_buf(wdesc->fd, "<FONT FACE=" "courier" ">\n",
+                        send_buf(wdesc->Fd, "<FONT FACE=" "courier" ">\n",
                                  FALSE);
                         if (help->level >= 100)
-                                send_buf(wdesc->fd,
+                                send_buf(wdesc->Fd,
                                          "Dark Warriors Immortal-Only Web help: ",
                                          FALSE);
                         if (help->level < 100)
-                                send_buf(wdesc->fd,
+                                send_buf(wdesc->Fd,
                                          "Dark Warriors Web help: ", FALSE);
-                        send_buf(wdesc->fd, help->keyword, FALSE);
-                        send_buf(wdesc->fd, "<br><br>\n", FALSE);
+                        send_buf(wdesc->Fd, help->keyword, FALSE);
+                        send_buf(wdesc->Fd, "<br><br>\n", FALSE);
                         if (help->text[0] == '.')
                                 web_colourconv(color, help->text + 1);
                         else
                                 web_colourconv(color, help->text);
-                        send_buf(wdesc->fd, conv_tag(color), FALSE);
-                        send_buf(wdesc->fd, "<br><br>\n", FALSE);
-                        send_buf(wdesc->fd, "Last edited by ", FALSE);
-                        send_buf(wdesc->fd, help->author, FALSE);
-                        send_buf(wdesc->fd, "<br><br>\n", FALSE);
+                        send_buf(wdesc->Fd, conv_tag(color), FALSE);
+                        send_buf(wdesc->Fd, "<br><br>\n", FALSE);
+                        send_buf(wdesc->Fd, "Last edited by ", FALSE);
+                        send_buf(wdesc->Fd, help->author, FALSE);
+                        send_buf(wdesc->Fd, "<br><br>\n", FALSE);
                         if (hmax > 100)
                         {
                                 snprintf(buf2, MSL * 2, "/~delete_help/%s.htm ",
@@ -1068,59 +1068,59 @@ bool check_help_net(WebDescriptor * wdesc, int hmin, int hmax)
                                     strncpy(buf, tmp, MSL-1);
                                     buf[MSL-1] = '\0'; /* Ensure null termination */
                                 }
-                                send_buf(wdesc->fd, buf, FALSE);
+                                send_buf(wdesc->Fd, buf, FALSE);
                         }
-                        send_buf(wdesc->fd, "</font>\n", FALSE);
-                        send_buf(wdesc->fd, "</body>\n", FALSE);
+                        send_buf(wdesc->Fd, "</font>\n", FALSE);
+                        send_buf(wdesc->Fd, "</body>\n", FALSE);
                         return TRUE;
                 }
-                else if (strstr(wdesc->request, buf4)
-                         || strstr(wdesc->request, buf5))
+                else if (strstr(wdesc->Request, buf4)
+                         || strstr(wdesc->Request, buf5))
                 {
                         /*
                          * handle_web_help(wdesc); 
                          */
-                        send_buf(wdesc->fd, "<html>\n", FALSE);
-                        send_buf(wdesc->fd, "<head>\n", FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd, "<html>\n", FALSE);
+                        send_buf(wdesc->Fd, "<head>\n", FALSE);
+                        send_buf(wdesc->Fd,
                                  "<title>Dark Warriors - Help Listing</title>\n",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "<style> pre { display: inline; }  a:link { background-color: inherit; ",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "text-decoration: none; color: inherit; }\n\r",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "a:visited { background-color: inherit; text-decoration: none; color: inherit; }",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "\n\ra:hover { background-color: inherit; text-decoration: none; ",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "color: inherit; }\n\ra:active { background-color: inherit; text-decoration: none; ",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "color: inherit; }</style></head>\n", FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                                  FALSE);
-                        send_buf(wdesc->fd, "<FONT FACE=" "courier" ">\n",
+                        send_buf(wdesc->Fd, "<FONT FACE=" "courier" ">\n",
                                  FALSE);
                         if (help->level >= 100)
-                                send_buf(wdesc->fd,
+                                send_buf(wdesc->Fd,
                                          "Dark Warriors Immortal-Only Web help: ",
                                          FALSE);
                         if (help->level < 100)
-                                send_buf(wdesc->fd,
+                                send_buf(wdesc->Fd,
                                          "Dark Warriors Web help: ", FALSE);
-                        send_buf(wdesc->fd, help->keyword, FALSE);
-                        send_buf(wdesc->fd, "<br><br>\n", FALSE);
+                        send_buf(wdesc->Fd, help->keyword, FALSE);
+                        send_buf(wdesc->Fd, "<br><br>\n", FALSE);
                         web_colourconv(color,
                                        "&RHelpfile has been successfully deleted.");
-                        send_buf(wdesc->fd, conv_tag(color), FALSE);
-                        send_buf(wdesc->fd, "</font>\n", FALSE);
-                        send_buf(wdesc->fd, "</body>\n", FALSE);
+                        send_buf(wdesc->Fd, conv_tag(color), FALSE);
+                        send_buf(wdesc->Fd, "</font>\n", FALSE);
+                        send_buf(wdesc->Fd, "</body>\n", FALSE);
                         UNLINK(help, first_help, last_help, next, prev);
                         delete_help(help);
                         return TRUE;
@@ -1144,33 +1144,33 @@ void handle_web_help_request(WebDescriptor * wdesc, int hmin, int hmax)
         char tmp = ' ', chk = ' ';
         int cnt = 0, inqt = 0, first = 0;
 
-        send_buf(wdesc->fd, "<html>\n", FALSE);
-        send_buf(wdesc->fd, "<head>\n", FALSE);
-        send_buf(wdesc->fd, "<title>Dark Warriors - Help Listing</title>\n",
+        send_buf(wdesc->Fd, "<html>\n", FALSE);
+        send_buf(wdesc->Fd, "<head>\n", FALSE);
+        send_buf(wdesc->Fd, "<title>Dark Warriors - Help Listing</title>\n",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<style> pre { display: inline; }  a:link { background-color: inherit; ",
                  FALSE);
-        send_buf(wdesc->fd, "text-decoration: none; color: inherit; }\n\r",
+        send_buf(wdesc->Fd, "text-decoration: none; color: inherit; }\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "a:visited { background-color: inherit; text-decoration: none; color: inherit; }",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "\n\ra:hover { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "color: inherit; }\n\ra:active { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd, "color: inherit; }</style></head>\n", FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "color: inherit; }</style></head>\n", FALSE);
+        send_buf(wdesc->Fd,
                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<h1><center>Summary of Dark Warrior Help Topics</center></h1>\n",
                  FALSE);
-        send_buf(wdesc->fd, "<b><font size=" "2" ">\n", FALSE);
-        send_buf(wdesc->fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
+        send_buf(wdesc->Fd, "<b><font size=" "2" ">\n", FALSE);
+        send_buf(wdesc->Fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 
         for (help = first_help; help; help = help->next)
         {
@@ -1192,7 +1192,7 @@ void handle_web_help_request(WebDescriptor * wdesc, int hmin, int hmax)
                 else
                 {
                         if (inqt == 1)
-                                send_buf(wdesc->fd,
+                                send_buf(wdesc->Fd,
                                          "<br><hr color=" "#FFFFFF" "><br>\n",
                                          FALSE);
                         inqt = 0;
@@ -1204,7 +1204,7 @@ void handle_web_help_request(WebDescriptor * wdesc, int hmin, int hmax)
                         if (first == 0)
                                 first = 1;
                         else
-                                send_buf(wdesc->fd, "</table>", FALSE);
+                                send_buf(wdesc->Fd, "</table>", FALSE);
                         if (inqt == 1)
                                 snprintf(buf, MSL * 2,
                                         "<br></font><font size=" "4"
@@ -1215,20 +1215,20 @@ void handle_web_help_request(WebDescriptor * wdesc, int hmin, int hmax)
                                         "<br></font><font size=" "4"
                                         ">%c</font><font size=" "2" "><br>\n",
                                         tmp);
-                        send_buf(wdesc->fd, buf, FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd, buf, FALSE);
+                        send_buf(wdesc->Fd,
                                  "<table cellpadding=0 cellspacing=0 border = 1  width=500>",
                                  FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "<tr><th width=\"315\">Name</th><th width=\"185\">Date laste modified</th></tr>",
                                  FALSE);
-                        send_buf(wdesc->fd, "</table>", FALSE);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd, "</table>", FALSE);
+                        send_buf(wdesc->Fd,
                                  "<table cellpadding=0 cellspacing=0 width=500>",
                                  FALSE);
                 }
 
-                send_buf(wdesc->fd, "<tr><td width=\"315\">", FALSE);
+                send_buf(wdesc->Fd, "<tr><td width=\"315\">", FALSE);
                 if (help->level >= 100)
                 {
                         snprintf(buf2, MSL * 2, "/~immhelp/%s.htm ",
@@ -1269,39 +1269,39 @@ void handle_web_help_request(WebDescriptor * wdesc, int hmin, int hmax)
                         }
                 }
 
-                send_buf(wdesc->fd, buf, FALSE);
-                send_buf(wdesc->fd, "</td><td width=\"185\"><center>", FALSE);
-                send_buf(wdesc->fd, help->date, FALSE);
-                send_buf(wdesc->fd, "</center></td></tr>", FALSE);
+                send_buf(wdesc->Fd, buf, FALSE);
+                send_buf(wdesc->Fd, "</td><td width=\"185\"><center>", FALSE);
+                send_buf(wdesc->Fd, help->date, FALSE);
+                send_buf(wdesc->Fd, "</center></td></tr>", FALSE);
                 cnt++;
         }
 
-        send_buf(wdesc->fd, "<br><br><hr color=" "#FFFFFF" "><br>\n", FALSE);
+        send_buf(wdesc->Fd, "<br><br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 
-        send_buf(wdesc->fd, "<center><font face=" "Times New Roman" ">\n",
+        send_buf(wdesc->Fd, "<center><font face=" "Times New Roman" ">\n",
                  FALSE);
         if (cnt > 0)
         {
                 if (hmax >= 100)
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "Links marked with a '*' means they are over level 100.<br>\n",
                                  FALSE);
                 snprintf(buf, MSL * 2,
                         "-There are [ %d ] help files currently on Dark Warriors-<br>\n",
                         cnt);
-                send_buf(wdesc->fd, buf, FALSE);
+                send_buf(wdesc->Fd, buf, FALSE);
         }
         else
-                send_buf(wdesc->fd,
+                send_buf(wdesc->Fd,
                          "-There are no help files on Dark Warriors right now-<br>\n",
                          FALSE);
 
         snprintf(buf, MSL * 2, "<br>This file last updated at %s Eastern Time.\n",
                 ((char *) ctime(&current_time)));
-        send_buf(wdesc->fd, buf, FALSE);
-        send_buf(wdesc->fd, "</center></font>\n", FALSE);
-        send_buf(wdesc->fd, "</body>\n", FALSE);
-        send_buf(wdesc->fd, "</html>\n", FALSE);
+        send_buf(wdesc->Fd, buf, FALSE);
+        send_buf(wdesc->Fd, "</center></font>\n", FALSE);
+        send_buf(wdesc->Fd, "</body>\n", FALSE);
+        send_buf(wdesc->Fd, "</html>\n", FALSE);
         return;
 }
 
@@ -1314,38 +1314,38 @@ void handle_web_skill_request(WebDescriptor * wdesc)
         int ability;
         int sn, i, col = 0;
 
-        send_buf(wdesc->fd, "<html>\n", FALSE);
-        send_buf(wdesc->fd, "<head>\n", FALSE);
-        send_buf(wdesc->fd, "<title>Dark Warriors - Skills Listing</title>\n",
+        send_buf(wdesc->Fd, "<html>\n", FALSE);
+        send_buf(wdesc->Fd, "<head>\n", FALSE);
+        send_buf(wdesc->Fd, "<title>Dark Warriors - Skills Listing</title>\n",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<style> pre { display: inline; }  a:link { background-color: inherit; ",
                  FALSE);
-        send_buf(wdesc->fd, "text-decoration: none; color: inherit; }\n\r",
+        send_buf(wdesc->Fd, "text-decoration: none; color: inherit; }\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "a:visited { background-color: inherit; text-decoration: none; color: inherit; }",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "\n\ra:hover { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "color: inherit; }\n\ra:active { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd, "color: inherit; }</style></head>\n", FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "color: inherit; }</style></head>\n", FALSE);
+        send_buf(wdesc->Fd,
                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<h1><center>Summary of Dark Warrior Skill Table</center></h1>\n",
                  FALSE);
-        send_buf(wdesc->fd, "<b><font size=" "2" ">\n", FALSE);
-        send_buf(wdesc->fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
+        send_buf(wdesc->Fd, "<b><font size=" "2" ">\n", FALSE);
+        send_buf(wdesc->Fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 
-        send_buf(wdesc->fd, "&BS&zPELL &w& &BS&zKILL &BL&zIST\n\r", 2);
-        send_buf(wdesc->fd, "<br>", 2);
-        send_buf(wdesc->fd, "------------------\n\r", 2);
-        send_buf(wdesc->fd, "<br><pre>", 2);
+        send_buf(wdesc->Fd, "&BS&zPELL &w& &BS&zKILL &BL&zIST\n\r", 2);
+        send_buf(wdesc->Fd, "<br>", 2);
+        send_buf(wdesc->Fd, "------------------\n\r", 2);
+        send_buf(wdesc->Fd, "<br><pre>", 2);
 
         for (ability = -1; ability < MaxAbility; ability++)
         {
@@ -1359,7 +1359,7 @@ void handle_web_skill_request(WebDescriptor * wdesc)
                         snprintf(buf, MSL * 2, "%s",
                                  "\n\r&B[&zGeneral Skills&B]\n\r");
 
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
 
                 for (i = 0; i <= 150; i++)
                 {
@@ -1407,7 +1407,7 @@ void handle_web_skill_request(WebDescriptor * wdesc)
                                                                   name) ? "H"
                                                                  : " ");
                                                         strcat(buf, buf2);
-                                                        send_buf(wdesc->fd,
+                                                        send_buf(wdesc->Fd,
                                                                  buf, 2);
                                                 }
                                                 else
@@ -1434,7 +1434,7 @@ void handle_web_skill_request(WebDescriptor * wdesc)
                                                                   name) ? "H"
                                                                  : " ");
                                                         strcat(buf, buf2);
-                                                        send_buf(wdesc->fd,
+                                                        send_buf(wdesc->Fd,
                                                                  buf, 2);
                                                 }
                                         }
@@ -1454,7 +1454,7 @@ void handle_web_skill_request(WebDescriptor * wdesc)
                                                                  : " ",
                                                                  skill_table
                                                                  [sn]->name);
-                                                        send_buf(wdesc->fd,
+                                                        send_buf(wdesc->Fd,
                                                                  buf, 2);
                                                 }
                                                 else
@@ -1469,13 +1469,13 @@ void handle_web_skill_request(WebDescriptor * wdesc)
                                                                  : " ",
                                                                  skill_table
                                                                  [sn]->name);
-                                                        send_buf(wdesc->fd,
+                                                        send_buf(wdesc->Fd,
                                                                  buf, 2);
                                                 }
                                         }
                                         if (++col == 3)
                                         {
-                                                send_buf(wdesc->fd, "<br>",
+                                                send_buf(wdesc->Fd, "<br>",
                                                          2);
                                                 col = 0;
                                         }
@@ -1484,9 +1484,9 @@ void handle_web_skill_request(WebDescriptor * wdesc)
                         }
                 }
         }
-        send_buf(wdesc->fd, "<br><br>", 2);
-        send_buf(wdesc->fd, "</pre></body>\n", FALSE);
-        send_buf(wdesc->fd, "</html>\n", FALSE);
+        send_buf(wdesc->Fd, "<br><br>", 2);
+        send_buf(wdesc->Fd, "</pre></body>\n", FALSE);
+        send_buf(wdesc->Fd, "</html>\n", FALSE);
         return;
 }
 
@@ -1497,36 +1497,36 @@ void handle_web_clan_request(WebDescriptor * wdesc)
         int count;
 
 
-        send_buf(wdesc->fd, "<html>\n", FALSE);
-        send_buf(wdesc->fd, "<head>\n", FALSE);
-        send_buf(wdesc->fd, "<title>Dark Warriors - Clan Listing</title>\n",
+        send_buf(wdesc->Fd, "<html>\n", FALSE);
+        send_buf(wdesc->Fd, "<head>\n", FALSE);
+        send_buf(wdesc->Fd, "<title>Dark Warriors - Clan Listing</title>\n",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<style> pre { display: inline; }  a:link { background-color: inherit; ",
                  FALSE);
-        send_buf(wdesc->fd, "text-decoration: none; color: inherit; }\n\r",
+        send_buf(wdesc->Fd, "text-decoration: none; color: inherit; }\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "a:visited { background-color: inherit; text-decoration: none; color: inherit; }",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "\n\ra:hover { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "color: inherit; }\n\ra:active { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd, "color: inherit; }</style></head>\n", FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "color: inherit; }</style></head>\n", FALSE);
+        send_buf(wdesc->Fd,
                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<h1><center>Summary of Dark Warrior Clan Listing</center></h1>\n",
                  FALSE);
-        send_buf(wdesc->fd, "<b><font size=" "2" ">\n", FALSE);
-        send_buf(wdesc->fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
+        send_buf(wdesc->Fd, "<b><font size=" "2" ">\n", FALSE);
+        send_buf(wdesc->Fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 
-        send_buf(wdesc->fd, "<br><pre>", 2);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "<br><pre>", 2);
+        send_buf(wdesc->Fd,
                  "&B-----------------------------------------------------------------------------\n",
                  2);
 
@@ -1536,66 +1536,66 @@ void handle_web_clan_request(WebDescriptor * wdesc)
                         continue;
 
 
-                send_buf(wdesc->fd, "&BO&zrganization: &W", 2);
+                send_buf(wdesc->Fd, "&BO&zrganization: &W", 2);
                 snprintf(buf, MSL * 2, "<a href=/clan/%s.htm>",
                         convert_sp(strlower(clan->name)));
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
                 snprintf(buf, MSL * 2, "%-37.37s", clan->name);
-                send_buf(wdesc->fd, buf, 2);
-                send_buf(wdesc->fd, "</a> ", 2);
+                send_buf(wdesc->Fd, buf, 2);
+                send_buf(wdesc->Fd, "</a> ", 2);
                 snprintf(buf, MSL * 2, "&BT&zype&B: &W%s", clan_type(clan));
-                send_buf(wdesc->fd, buf, 2);
-                send_buf(wdesc->fd, "<br>", 0);
+                send_buf(wdesc->Fd, buf, 2);
+                send_buf(wdesc->Fd, "<br>", 0);
                 snprintf(buf, MSL * 2, "  &BE&znlisting?&B: &W%-3s&B         ",
                          clan->enliston == 1 ? "Yes" : clan->enliston ==
                          0 ? "No" : "Unknown");
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
                 snprintf(buf, MSL * 2,
                          "  &BM&zembers&B: &W%-4d&B           &BM&zin. &BA&zlign&B: &W%-5d&B",
                          clan->members, clan->alignment);
-                send_buf(wdesc->fd, buf, 2);
-                send_buf(wdesc->fd, "<br>", 0);
+                send_buf(wdesc->Fd, buf, 2);
+                send_buf(wdesc->Fd, "<br>", 0);
                 if (clan->first_subclan)
                 {
                         ClanData *subclan;
 
                         snprintf(buf, MSL * 2, "  &BS&zub clans&B:");
-                        send_buf(wdesc->fd, buf, 2);
-                        send_buf(wdesc->fd, "<br>", 0);
+                        send_buf(wdesc->Fd, buf, 2);
+                        send_buf(wdesc->Fd, "<br>", 0);
 
                         for (subclan = clan->first_subclan; subclan;
                              subclan = subclan->next_subclan)
                         {
-                                send_buf(wdesc->fd,
+                                send_buf(wdesc->Fd,
                                          "    &BO&zrganization: &W", 2);
                                 snprintf(buf, MSL * 2, "<a href=/clan/%s.htm>",
                                         convert_sp(strlower(subclan->name)));
-                                send_buf(wdesc->fd, buf, 2);
+                                send_buf(wdesc->Fd, buf, 2);
                                 snprintf(buf, MSL * 2, "%-33.33s", subclan->name);
-                                send_buf(wdesc->fd, buf, 2);
-                                send_buf(wdesc->fd, "</a> ", 2);
+                                send_buf(wdesc->Fd, buf, 2);
+                                send_buf(wdesc->Fd, "</a> ", 2);
                                 snprintf(buf, MSL * 2, "&BM&zembers&B:&W %d",
                                          subclan->members);
-                                send_buf(wdesc->fd, buf, 2);
-                                send_buf(wdesc->fd, "<br>", 0);
+                                send_buf(wdesc->Fd, buf, 2);
+                                send_buf(wdesc->Fd, "<br>", 0);
                                 count++;
                         }
                 }
 
                 if (clan->next)
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "                     &R-------------------------------                         \n",
                                  2);
                 count++;
         }
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "&B-----------------------------------------------------------------------------",
                  2);
-        send_buf(wdesc->fd, "<br><br>", 2);
-        send_buf(wdesc->fd, "&YClick clan name&z for more information.\n\r",
+        send_buf(wdesc->Fd, "<br><br>", 2);
+        send_buf(wdesc->Fd, "&YClick clan name&z for more information.\n\r",
                  2);
-        send_buf(wdesc->fd, "</pre></body>\n", FALSE);
-        send_buf(wdesc->fd, "</html>\n", FALSE);
+        send_buf(wdesc->Fd, "</pre></body>\n", FALSE);
+        send_buf(wdesc->Fd, "</html>\n", FALSE);
         return;
 }
 
@@ -1606,23 +1606,23 @@ void handle_web_race_request(WebDescriptor * wdesc)
         char buf[MaxStringLength];
 
         web_header(wdesc, "Race Listing");
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "&B-----------------------------------------------------------------------------\n<br>",
                  2);
         FOR_EACH_LIST(RACE_LIST, races, race)
         {
-                send_buf(wdesc->fd, "&BN&zame: &W", 2);
+                send_buf(wdesc->Fd, "&BN&zame: &W", 2);
                 snprintf(buf, MSL * 2, "<a href=/races/%s.htm>",
                         convert_sp(strlower(race->name())));
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
                 snprintf(buf, MSL * 2, "%-37.37s", race->name());
-                send_buf(wdesc->fd, buf, 2);
-                send_buf(wdesc->fd, "</a>", 2);
+                send_buf(wdesc->Fd, buf, 2);
+                send_buf(wdesc->Fd, "</a>", 2);
                 snprintf(buf, MSL * 2, "&BR&zpp needed&B: &W%d\n<br>",
                          race->rpneeded());
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
         }
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "&B-----------------------------------------------------------------------------<br>",
                  2);
         web_footer(wdesc);
@@ -1651,73 +1651,73 @@ bool check_race_net(WebDescriptor * wdesc)
                 one_argument(race->name(), buf4);
                 snprintf(buf2, MSL * 2, "/races/%s.htm ", strlower(buf4));
 
-                if (strstr(wdesc->request, buf3)
-                    || strstr(wdesc->request, buf2))
+                if (strstr(wdesc->Request, buf3)
+                    || strstr(wdesc->Request, buf2))
                 {
                         if ((help = get_web_help(race->name())) != NULL)
                         {
                                 snprintf(buf, MSL * 2,
                                          "&BR&zace name:          &W");
-                                send_buf(wdesc->fd, buf, 2);
+                                send_buf(wdesc->Fd, buf, 2);
                                 snprintf(buf3, MSL, "<a href=/help/%s.htm>",
                                         convert_sp(strlower(help->keyword)));
                                 snprintf(buf, MSL * 2, "%s%s</a>\n<br>", buf3,
                                          race->name());
-                                send_buf(wdesc->fd, buf, 2);
+                                send_buf(wdesc->Fd, buf, 2);
                         }
                         else
                         {
                                 snprintf(buf, MSL * 2,
                                          "&BR&zace name:          &W%s\n<br>",
                                          race->name());
-                                send_buf(wdesc->fd, buf, 2);
+                                send_buf(wdesc->Fd, buf, 2);
                         }
                         snprintf(buf, MSL * 2,
                                  "&BL&zanguage spoken:    &W%s\n<br>",
                                  capitalize(race->language()->name));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2, "&BR&zacial statistics<br>\n");
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BS&ztrength:           &W%+d<br>\n",
                                  race->attr_modifier(ATTR_STRENGTH));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BW&zisdom:             &W%+d<br>\n",
                                  race->attr_modifier(ATTR_WISDOM));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BI&zntelligence:       &W%+d<br>\n",
                                  race->attr_modifier(ATTR_INTELLIGENCE));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BD&zexterity:          &W%+d<br>\n",
                                  race->attr_modifier(ATTR_WISDOM));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BC&zonstitution:       &W%+d<br>\n",
                                  race->attr_modifier(ATTR_CONSTITUTION));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BC&zharisma:           &W%+d<br>\n",
                                  race->attr_modifier(ATTR_CHARISMA));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BF&zorce:              &W%+d<br>\n",
                                  race->attr_modifier(ATTR_FORCE));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BL&zuck:               &W%+d<br>\n",
                                  race->attr_modifier(ATTR_LUCK));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BH&zit point modifier: &W%+d<br>\n",
                                  race->hit());
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BE&zndurance modifier: &W%+d<br>\n",
                                  race->endurance());
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         if (race->home() != 0
                             && (room = get_room_index(race->home())) != NULL
                             && room->area && room->area->planet
@@ -1726,35 +1726,35 @@ bool check_race_net(WebDescriptor * wdesc)
                                 snprintf(buf, MSL * 2,
                                          "    &BH&zome planet:        &W%s<br>\n",
                                          room->area->planet->name);
-                                send_buf(wdesc->fd, buf, 2);
+                                send_buf(wdesc->Fd, buf, 2);
                         }
                         snprintf(buf, MSL * 2,
                                  "    &BD&zeath age:          &W%+d<br>\n",
                                  race->death_age());
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BS&ztart age:          &W%+d<br>\n",
                                  race->start_age());
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BR&zPP needed:         &W%+d<br>\n",
                                  race->rpneeded());
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BB&zonus languages:    &W%+d<br>\n",
                                  race->lang_bonus());
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "    &BR&zacial affects:     &W%s<br>\n",
                                  affect_bit_name(race->affected()));
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         if (race->class_restriction())
                         {
                                 int iClass = 0;
 
                                 snprintf(buf, MSL * 2,
                                          "&BR&zestricted classes\n<br>");
-                                send_buf(wdesc->fd, buf, 2);
+                                send_buf(wdesc->Fd, buf, 2);
                                 for (iClass = 0; iClass < MaxAbility;
                                      iClass++)
                                 {
@@ -1766,14 +1766,14 @@ bool check_race_net(WebDescriptor * wdesc)
                                                          "    &w%-10s\n<br>",
                                                          ability_name
                                                          [iClass]);
-                                                send_buf(wdesc->fd, buf, 2);
+                                                send_buf(wdesc->Fd, buf, 2);
                                         }
                                 }
 
                         }
 
                         snprintf(buf, MSL * 2, "&BC&zlass modifiers\n<br>");
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
 
                         for (iclass = 0; iclass < MaxAbility; iclass++)
                         {
@@ -1782,16 +1782,16 @@ bool check_race_net(WebDescriptor * wdesc)
                                          toupper(ability_name[iclass][0]),
                                          ability_name[iclass] + 1,
                                          race->class_modifier(iclass));
-                                send_buf(wdesc->fd, buf, 2);
+                                send_buf(wdesc->Fd, buf, 2);
                         }
 
                         snprintf(buf, MSL * 2, "&BB&zody parts\n<br>");
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
 
                         if (xIS_EMPTY(race->body_parts()))
                         {
                                 snprintf(buf, MSL * 2, "    &BN&zone<br>\n");
-                                send_buf(wdesc->fd, buf, 2);
+                                send_buf(wdesc->Fd, buf, 2);
                         }
                         else
                         {
@@ -1806,7 +1806,7 @@ bool check_race_net(WebDescriptor * wdesc)
                                         snprintf(buf, MSL * 2,
                                                  "    &B%c&z%s<br>\n",
                                                  toupper(buf2[0]), buf2 + 1);
-                                        send_buf(wdesc->fd, buf, 2);
+                                        send_buf(wdesc->Fd, buf, 2);
                                         argument =
                                                 one_argument(argument, buf2);
                                 }
@@ -1829,7 +1829,7 @@ bool check_clan_net(WebDescriptor * wdesc)
 
 
         web_header(wdesc, "Clan Listing");
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "&B-----------------------------------------------------------------------------\n",
                  2);
 
@@ -1841,28 +1841,28 @@ bool check_clan_net(WebDescriptor * wdesc)
                 one_argument(clan->name, buf4);
                 snprintf(buf2, MSL * 2, "/clan/%s.htm ", strlower(buf4));
 
-                if (strstr(wdesc->request, buf3)
-                    || strstr(wdesc->request, buf2))
+                if (strstr(wdesc->Request, buf3)
+                    || strstr(wdesc->Request, buf2))
                 {
                         snprintf(buf, MSL * 2, "&BO&zrganization: &W%s\n",
                                  clan->name);
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2, "  &BM&zotto: &W%s\n",
                                  clan->motto);
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2, "  &BD&zescription: &W%s\n",
                                  clan->description);
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2, "  &BE&znlisting?: &W%-3s&B\n",
                                  clan->enliston ==
                                  1 ? "Yes" : clan->enliston ==
                                  0 ? "No" : "Unknown");
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "  &BM&zembers: &W%-4d&B\n  &BM&zin. &BA&zlign: &W%-5d\n",
                                  clan->members, clan->alignment);
-                        send_buf(wdesc->fd, buf, 2);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd, buf, 2);
+                        send_buf(wdesc->Fd,
                                  "&B-----------------------------------------------------------------------------\n",
                                  2);
                         return TRUE;
@@ -1878,91 +1878,91 @@ void handle_web_planet_request(WebDescriptor * wdesc)
         char buf[MaxStringLength];
 
 
-        send_buf(wdesc->fd, "<html>\n", FALSE);
-        send_buf(wdesc->fd, "<head>\n", FALSE);
-        send_buf(wdesc->fd, "<title>Dark Warriors - Planet Listing</title>\n",
+        send_buf(wdesc->Fd, "<html>\n", FALSE);
+        send_buf(wdesc->Fd, "<head>\n", FALSE);
+        send_buf(wdesc->Fd, "<title>Dark Warriors - Planet Listing</title>\n",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<style> pre { display: inline; }  a:link { background-color: inherit; ",
                  FALSE);
-        send_buf(wdesc->fd, "text-decoration: none; color: inherit; }\n\r",
+        send_buf(wdesc->Fd, "text-decoration: none; color: inherit; }\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "a:visited { background-color: inherit; text-decoration: none; color: inherit; }",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "\n\ra:hover { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "color: inherit; }\n\ra:active { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd, "color: inherit; }</style></head>\n", FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "color: inherit; }</style></head>\n", FALSE);
+        send_buf(wdesc->Fd,
                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<h1><center>Summary of Dark Warrior Planet Listing</center></h1>\n",
                  FALSE);
-        send_buf(wdesc->fd, "<b><font size=" "2" ">\n", FALSE);
-        send_buf(wdesc->fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
+        send_buf(wdesc->Fd, "<b><font size=" "2" ">\n", FALSE);
+        send_buf(wdesc->Fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 
-        send_buf(wdesc->fd, "<br><pre>", 2);
+        send_buf(wdesc->Fd, "<br><pre>", 2);
         if (!first_planet)
         {
-                send_buf(wdesc->fd,
+                send_buf(wdesc->Fd,
                          "&WThere are no planets currently formed.\n", 2);
                 return;
         }
 
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "&B-----------------------------------------------------------------------------\n",
                  2);
 
         if (!first_planet)
         {
-                send_buf(wdesc->fd,
+                send_buf(wdesc->Fd,
                          "&WThere are no planets currently formed.\n", 2);
-                send_buf(wdesc->fd, "</pre></body>\n", FALSE);
-                send_buf(wdesc->fd, "</html>\n", FALSE);
+                send_buf(wdesc->Fd, "</pre></body>\n", FALSE);
+                send_buf(wdesc->Fd, "</html>\n", FALSE);
                 return;
         }
 
         for (planet = first_planet; planet; planet = planet->next)
         {
-                send_buf(wdesc->fd, "&BP&zlanet: &w", 2);
+                send_buf(wdesc->Fd, "&BP&zlanet: &w", 2);
                 snprintf(buf, MSL * 2, "<a href=/planet/%s.htm>",
                         convert_sp(strlower(planet->name)));
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
                 snprintf(buf, MSL * 2, "%-15.15s        ", planet->name);
-                send_buf(wdesc->fd, buf, 2);
-                send_buf(wdesc->fd, "</a> ", 2);
+                send_buf(wdesc->Fd, buf, 2);
+                send_buf(wdesc->Fd, "</a> ", 2);
                 snprintf(buf, MSL * 2, "&BG&zoverned &BB&zy: &w%s %s\n",
                          planet->governed_by ? planet->governed_by->name : "",
                          IS_SET(planet->flags,
                                 PLANET_NOCAPTURE) ? "&B(&zpermanent&B)" : "");
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
                 snprintf(buf, MSL * 2, "&BV&zalue: &w%-10ld&z/&w%-10ld   ",
                          get_taxes(planet), planet->base_value);
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
                 snprintf(buf, MSL * 2,
                          "&BP&zopulation: &w%-5d    &BP&zop &BS&zupport: &w%.1d\n",
                          planet->population, planet->pop_support);
-                send_buf(wdesc->fd, buf, 2);
+                send_buf(wdesc->Fd, buf, 2);
                 if (planet->next)
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "                     &R-------------------------------                         \n",
                                  2);
                 else
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd,
                                  "&B-----------------------------------------------------------------------------\n",
                                  2);
         }
 
-        send_buf(wdesc->fd, "<br><br>", 2);
-        send_buf(wdesc->fd, "&YClick planet name&z for more information.\n\r",
+        send_buf(wdesc->Fd, "<br><br>", 2);
+        send_buf(wdesc->Fd, "&YClick planet name&z for more information.\n\r",
                  2);
-        send_buf(wdesc->fd, "</pre></body>\n", FALSE);
-        send_buf(wdesc->fd, "</html>\n", FALSE);
+        send_buf(wdesc->Fd, "</pre></body>\n", FALSE);
+        send_buf(wdesc->Fd, "</html>\n", FALSE);
         return;
 }
 
@@ -1987,32 +1987,32 @@ void handle_edithelp_message_request(WebDescriptor * wdesc)
 
         if (!(help = get_web_help(file)))
         {
-                send_buf(wdesc->fd,
+                send_buf(wdesc->Fd,
                          "Sorry, we can't find that help file!\n\r", 2);
-                send_buf(wdesc->fd, file, 2);
+                send_buf(wdesc->Fd, file, 2);
                 web_footer(wdesc);
                 return;
         }
 
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<form method=\"POST\" action=\"parsehelp.php\">\n", 2);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<table>\n<tr>\n<td>Keyword</td>\n<td><input type=\"text\" name=\"keyword\" value=\"",
                  2);
-        send_buf(wdesc->fd, help->keyword, 2);
-        send_buf(wdesc->fd, "\" /></td>\n</tr>\n", 2);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, help->keyword, 2);
+        send_buf(wdesc->Fd, "\" /></td>\n</tr>\n", 2);
+        send_buf(wdesc->Fd,
                  "<tr>\n<td>Level</td>\n<td><input type=\"text\" name=\"level\" value=\"",
                  2);
         snprintf(buf, MSL * 2, "%d", help->level);
-        send_buf(wdesc->fd, buf, 2);
-        send_buf(wdesc->fd, "\" /></td>\n</tr>", 2);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, buf, 2);
+        send_buf(wdesc->Fd, "\" /></td>\n</tr>", 2);
+        send_buf(wdesc->Fd,
                  "<tr>\n<td>Text</td\n><td><textarea cols=\"90\" rows=\"10\" name=\"level\">",
                  2);
-        send_buf(wdesc->fd, help->text, 0);
-        send_buf(wdesc->fd, "</textarea></td\n></tr>\n", 2);
-        send_buf(wdesc->fd, "</table\n></form\n>", 2);
+        send_buf(wdesc->Fd, help->text, 0);
+        send_buf(wdesc->Fd, "</textarea></td\n></tr>\n", 2);
+        send_buf(wdesc->Fd, "</table\n></form\n>", 2);
         web_footer(wdesc);
         return;
 }
@@ -2026,7 +2026,7 @@ void handle_web_message_request(WebDescriptor * wdesc)
         bool incommand = FALSE;
 
         mudstrlcpy(command, "", MSL);
-        mudstrlcpy(argument, convert_sp_reverse(wdesc->request), MSL);
+        mudstrlcpy(argument, convert_sp_reverse(wdesc->Request), MSL);
 
         argument = one_argument(argument, buf);
 
@@ -2068,36 +2068,36 @@ bool check_planet_net(WebDescriptor * wdesc)
         char buf4[MaxStringLength];
 
 
-        send_buf(wdesc->fd, "<html>\n", FALSE);
-        send_buf(wdesc->fd, "<head>\n", FALSE);
-        send_buf(wdesc->fd, "<title>Dark Warriors - Planet Listing</title>\n",
+        send_buf(wdesc->Fd, "<html>\n", FALSE);
+        send_buf(wdesc->Fd, "<head>\n", FALSE);
+        send_buf(wdesc->Fd, "<title>Dark Warriors - Planet Listing</title>\n",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<style> pre { display: inline; }  a:link { background-color: inherit; ",
                  FALSE);
-        send_buf(wdesc->fd, "text-decoration: none; color: inherit; }\n\r",
+        send_buf(wdesc->Fd, "text-decoration: none; color: inherit; }\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "a:visited { background-color: inherit; text-decoration: none; color: inherit; }",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "\n\ra:hover { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "color: inherit; }\n\ra:active { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd, "color: inherit; }</style></head>\n", FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "color: inherit; }</style></head>\n", FALSE);
+        send_buf(wdesc->Fd,
                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "<h1><center>Summary of Dark Warrior Planet Listing</center></h1>\n",
                  FALSE);
-        send_buf(wdesc->fd, "<b><font size=" "2" ">\n", FALSE);
-        send_buf(wdesc->fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
+        send_buf(wdesc->Fd, "<b><font size=" "2" ">\n", FALSE);
+        send_buf(wdesc->Fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 
-        send_buf(wdesc->fd, "<br><pre>", 2);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "<br><pre>", 2);
+        send_buf(wdesc->Fd,
                  "&B-----------------------------------------------------------------------------\n",
                  2);
 
@@ -2109,8 +2109,8 @@ bool check_planet_net(WebDescriptor * wdesc)
                 one_argument(planet->name, buf4);
                 snprintf(buf2, MSL * 2, "/planet/%s.htm ", strlower(buf4));
 
-                if (strstr(wdesc->request, buf3)
-                    || strstr(wdesc->request, buf2))
+                if (strstr(wdesc->Request, buf3)
+                    || strstr(wdesc->Request, buf2))
                 {
                         snprintf(buf, MSL * 2,
                                  "&BP&zlanet: &w%-15s        &BG&zoverned &BB&zy: &w%s %s\n",
@@ -2119,20 +2119,20 @@ bool check_planet_net(WebDescriptor * wdesc)
                                  name : "", IS_SET(planet->flags,
                                                    PLANET_NOCAPTURE) ?
                                  "&B(&zpermanent&B)" : "");
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "&BV&zalue: &w%-10ld&z/&w%-10ld   ",
                                  get_taxes(planet), planet->base_value);
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "&BP&zopulation: &w%-5d    &BP&zop &BS&zupport: &w%.1d\n",
                                  planet->population, planet->pop_support);
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "&BA&zttacking &BB&zatallions: &w%-5d    &BD&zefending &BB&zatallions: &w%.1d\n",
                                  planet->attbattalions,
                                  planet->defbattalions);
-                        send_buf(wdesc->fd, buf, 2);
+                        send_buf(wdesc->Fd, buf, 2);
                         snprintf(buf, MSL * 2,
                                  "&BP&zlanetary &BS&zhields: &w%-8d    &BT&zurbolasers: &w%.1d &BI&zon &BC&zannons: &w%.1d\n",
                                  planetary_installations(planet,
@@ -2141,8 +2141,8 @@ bool check_planet_net(WebDescriptor * wdesc)
                                                          TURBOLASER_INSTALLATION),
                                  planetary_installations(planet,
                                                          ION_INSTALLATION));
-                        send_buf(wdesc->fd, buf, 2);
-                        send_buf(wdesc->fd,
+                        send_buf(wdesc->Fd, buf, 2);
+                        send_buf(wdesc->Fd,
                                  "&B-----------------------------------------------------------------------------\n",
                                  2);
                         return TRUE;
@@ -2219,8 +2219,8 @@ CMDF do_webserver(CharData * ch, char *argument)
                         count++;
                         ch_printf(ch,
                                   "Web descriptor: %d, Originating IP: %s\n\r",
-                                  current->fd,
-                                  inet_ntoa(current->their_addr.sin_addr));
+                                  current->Fd,
+                                  inet_ntoa(current->TheirAddr.sin_addr));
                 }
 
                 ch_printf(ch, "Total Web descriptors: %d\n\r", count);
@@ -2235,38 +2235,38 @@ void web_header(WebDescriptor * wdesc, char *title)
         char buf[MaxStringLength];
 
         snprintf(buf, MSL * 2, "<title>Dark Warriors - %s</title>\n", title);
-        send_buf(wdesc->fd, "<html>\n", FALSE);
-        send_buf(wdesc->fd, "<head>\n", FALSE);
-        send_buf(wdesc->fd, buf, FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "<html>\n", FALSE);
+        send_buf(wdesc->Fd, "<head>\n", FALSE);
+        send_buf(wdesc->Fd, buf, FALSE);
+        send_buf(wdesc->Fd,
                  "<style> pre { display: inline; }  a:link { background-color: inherit; ",
                  FALSE);
-        send_buf(wdesc->fd, "text-decoration: none; color: inherit; }\n\r",
+        send_buf(wdesc->Fd, "text-decoration: none; color: inherit; }\n\r",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "a:visited { background-color: inherit; text-decoration: none; color: inherit; }",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "\n\ra:hover { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd,
                  "color: inherit; }\n\ra:active { background-color: inherit; text-decoration: none; ",
                  FALSE);
-        send_buf(wdesc->fd, "color: inherit; }</style></head>\n", FALSE);
-        send_buf(wdesc->fd,
+        send_buf(wdesc->Fd, "color: inherit; }</style></head>\n", FALSE);
+        send_buf(wdesc->Fd,
                  "<body bgcolor=black text=white topmargin=0 rightmargin=0 bottommargin=0 leftmargin=0>\n\r",
                  FALSE);
         snprintf(buf, MSL * 2, "<h1><center>Dark Warrior %s</center></h1>\n", title);
-        send_buf(wdesc->fd, buf, FALSE);
-        send_buf(wdesc->fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
+        send_buf(wdesc->Fd, buf, FALSE);
+        send_buf(wdesc->Fd, "<br><hr color=" "#FFFFFF" "><br>\n", FALSE);
 }
 
 
 void web_footer(WebDescriptor * wdesc)
 {
-        send_buf(wdesc->fd, "<br><br>", 2);
-        send_buf(wdesc->fd, "</body>\n", FALSE);
-        send_buf(wdesc->fd, "</html>\n", FALSE);
+        send_buf(wdesc->Fd, "<br><br>", 2);
+        send_buf(wdesc->Fd, "</body>\n", FALSE);
+        send_buf(wdesc->Fd, "</html>\n", FALSE);
 }
 
 
@@ -2283,13 +2283,13 @@ void print_ooc_history(WebDescriptor * wdesc)
         channel = get_channel("ooc");
         if (channel == NULL)
         {
-                send_buf(wdesc->fd, "No such channel", 2);
+                send_buf(wdesc->Fd, "No such channel", 2);
                 return;
         }
 
         snprintf(buf, MSL * 2, "&B%c&z%s History\n\rB-----------\n\r", channel->name[0],
                 channel->name + 1);
-        send_buf(wdesc->fd, buf, 2);
+        send_buf(wdesc->Fd, buf, 2);
         while (1)
         {
                 if (count++ >= sysdata.channellog)
@@ -2304,8 +2304,8 @@ void print_ooc_history(WebDescriptor * wdesc)
                          count,
                          ctime(&channel->log[pos].time),
                          channel->name, channel->log[pos].name, buf1);
-                send_buf(wdesc->fd, buf, 2);
-                send_buf(wdesc->fd, "<br>", 2);
+                send_buf(wdesc->Fd, buf, 2);
+                send_buf(wdesc->Fd, "<br>", 2);
                 pos++;
         }
 
@@ -2321,7 +2321,7 @@ char     *strip_web_content(WebDescriptor * wdesc)
         char     *bufptr;
 
         strcpy(buf, "");
-        if ((getptr = strstr(wdesc->request, "GET")) == NULL)
+        if ((getptr = strstr(wdesc->Request, "GET")) == NULL)
         {
                 log_string("No get!");
         }
@@ -2329,7 +2329,7 @@ char     *strip_web_content(WebDescriptor * wdesc)
         {
                 getptr += 4;
         }
-        if ((httpptr = strstr(wdesc->request, "HTTP")) == NULL)
+        if ((httpptr = strstr(wdesc->Request, "HTTP")) == NULL)
         {
                 log_string("No HTTP!");
         }
@@ -2385,12 +2385,12 @@ void handle_web_changes_request(WebDescriptor * wdesc)
 
 
         web_header(wdesc, "Clan Listing");
-        send_buf(wdesc->fd, "<b><font size='2'>\n", FALSE);
-        send_buf(wdesc->fd, "<br><hr color='#FFFFFF'><br>\n", FALSE);
-        send_buf(wdesc->fd, "<br><pre>", 2);
-        send_buf(wdesc->fd,"&B-----------------------------------------------------------------------------\n",2);
+        send_buf(wdesc->Fd, "<b><font size='2'>\n", FALSE);
+        send_buf(wdesc->Fd, "<br><hr color='#FFFFFF'><br>\n", FALSE);
+        send_buf(wdesc->Fd, "<br><pre>", 2);
+        send_buf(wdesc->Fd,"&B-----------------------------------------------------------------------------\n",2);
 
-        send_buf(wdesc->fd, "</html>\n", FALSE);
+        send_buf(wdesc->Fd, "</html>\n", FALSE);
         web_footer(wdesc);
         return;
 }

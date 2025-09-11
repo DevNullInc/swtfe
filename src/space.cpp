@@ -184,32 +184,32 @@ void move_ships()
                 {
                         if (missile->mx < target->vx)
                                 missile->mx +=
-                                        UMIN(missile->speed / 5,
+                                        UMIN(missile->Speed / 5,
                                              (int) (target->vx -
                                                     missile->mx));
                         else if (missile->mx > target->vx)
                                 missile->mx -=
-                                        UMIN(missile->speed / 5,
+                                        UMIN(missile->Speed / 5,
                                              (int) (missile->mx -
                                                     target->vx));
                         if (missile->my < target->vy)
                                 missile->my +=
-                                        UMIN(missile->speed / 5,
+                                        UMIN(missile->Speed / 5,
                                              (int) (target->vy -
                                                     missile->my));
                         else if (missile->my > target->vy)
                                 missile->my -=
-                                        UMIN(missile->speed / 5,
+                                        UMIN(missile->Speed / 5,
                                              (int) (missile->my -
                                                     target->vy));
                         if (missile->mz < target->vz)
                                 missile->mz +=
-                                        UMIN(missile->speed / 5,
+                                        UMIN(missile->Speed / 5,
                                              (int) (target->vz -
                                                     missile->mz));
                         else if (missile->mz > target->vz)
                                 missile->mz -=
-                                        UMIN(missile->speed / 5,
+                                        UMIN(missile->Speed / 5,
                                              (int) (missile->mz -
                                                     target->vz));
 
@@ -2691,7 +2691,7 @@ CMDF do_setship(CharData * ch, char *argument)
                          ch);
                 send_to_char("engineroom firstroom lastroom shipyard\n\r",
                              ch);
-                send_to_char("manuever speed hyperspeed tractorbeam\n\r", ch);
+                send_to_char("manuever Speed hyperspeed tractorbeam\n\r", ch);
                 send_to_char("lasers missiles shield hull energy chaff\n\r",
                              ch);
                 send_to_char("comm sensor astroarray class torpedos\n\r", ch);
@@ -3314,7 +3314,7 @@ CMDF do_setship(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg2, "speed"))
+        if (!str_cmp(arg2, "Speed"))
         {
                 ship->realspeed = URANGE(0, atoi(argument), 150);
                 send_to_char("Done.\n\r", ch);
@@ -4104,13 +4104,13 @@ void new_missile(ShipData * ship, ShipData * target, CharData * ch,
         missile->missiletype = missiletype;
         missile->age = 0;
         if (missile->missiletype == HEAVY_BOMB)
-                missile->speed = 20;
+                missile->Speed = 20;
         else if (missile->missiletype == PROTON_TORPEDO)
-                missile->speed = 200;
+                missile->Speed = 200;
         else if (missile->missiletype == CONCUSSION_MISSILE)
-                missile->speed = 300;
+                missile->Speed = 300;
         else
-                missile->speed = 50;
+                missile->Speed = 50;
 
         missile->mx = (int) ship->vx;
         missile->my = (int) ship->vy;
@@ -5921,7 +5921,7 @@ CMDF do_accelerate(CharData * ch, char *argument)
                                 "The ship begins to accelerate.");
                 if (!IS_SET(ship->flags, SHIP_CLOAK))
                 {
-                        snprintf(buf, MSL, "%s begins to speed up.",
+                        snprintf(buf, MSL, "%s begins to Speed up.",
                                  ship->name);
                         echo_to_system(AT_ORANGE, ship, buf, NULL);
                 }
@@ -7515,7 +7515,7 @@ CMDF do_hyperspace(CharData * ch, char *argument)
 
         if (ship->currspeed <= 0)
         {
-                send_to_char("&RYou need to speed up a little first!\n\r",
+                send_to_char("&RYou need to Speed up a little first!\n\r",
                              ch);
                 return;
         }

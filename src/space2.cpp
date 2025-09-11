@@ -1003,7 +1003,7 @@ void update_orbit(void)
                         continue;
 
                 /*
-                 * Check to see if orbitcount is valid, reset if the orbit is done its rotation. 
+                 * Check to see if orbitcount is Valid, reset if the orbit is done its rotation. 
                  */
                 if (body->orbitcount() < 0)
                         body->orbitcount(0);
@@ -2535,7 +2535,7 @@ void do_imageship(CharData * ch, char *argument)
         }
 
         /*
-         * This bit is part of the filing process for ship images.
+         * This bit is part of the filing Process for ship images.
          *
          * Might add a check for bestowment to avoid the warning, but shouldn't need it. - Orion
          */

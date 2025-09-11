@@ -90,7 +90,7 @@ int       imcconnect_attempts;  /* How many times have we tried to reconnect? */
 unsigned long imc_sequencenumber;   /* sequence# for outgoing packets */
 bool      imcpacketdebug = FALSE;
 time_t    imcucache_clock;  /* prune ucache stuff regularly */
-time_t    imc_time; /* Current clock time for the client */
+time_t    imc_time; /* Current clock time for the Client */
 
 void      imclog(const char *format, ...)
         __attribute__ ((format(printf, 1, 2)));
@@ -842,7 +842,7 @@ void imc_delete_info(void)
         IMCSTRFREE(this_imcmud->network);
         IMCSTRFREE(this_imcmud->clientpw);
         IMCSTRFREE(this_imcmud->serverpw);
-        IMCDISPOSE(this_imcmud->outbuf);
+        IMCDISPOSE(this_imcmud->OutBuf);
         IMCSTRFREE(this_imcmud->localname);
         IMCSTRFREE(this_imcmud->fullname);
         IMCSTRFREE(this_imcmud->ihost);
@@ -929,7 +929,7 @@ bool check_mud(CharData * ch, char *mud)
 
         if (!r)
         {
-                imc_printf(ch, "~W%s ~cis not a valid mud name.\n\r", mud);
+                imc_printf(ch, "~W%s ~cis not a Valid mud name.\n\r", mud);
                 return FALSE;
         }
 
@@ -1573,7 +1573,7 @@ void imc_write_buffer(const char *txt)
         /*
          * This should never happen either 
          */
-        if (!this_imcmud->outbuf)
+        if (!this_imcmud->OutBuf)
         {
                 imcbug("%s: Output buffer has not been allocated!",
                        __FUNCTION__);
@@ -1586,28 +1586,28 @@ void imc_write_buffer(const char *txt)
         /*
          * Expand the buffer as needed.
          */
-        while (this_imcmud->outtop + length >= this_imcmud->outsize)
+        while (this_imcmud->OutTop + length >= this_imcmud->OutSize)
         {
-                if (this_imcmud->outsize > 64000)
+                if (this_imcmud->OutSize > 64000)
                 {
                         /*
                          * empty buffer 
                          */
-                        this_imcmud->outtop = 0;
+                        this_imcmud->OutTop = 0;
                         imcbug("Buffer overflow: %ld. Purging.",
-                               this_imcmud->outsize);
+                               this_imcmud->OutSize);
                         return;
                 }
-                this_imcmud->outsize *= 2;
-                IMCRECREATE(this_imcmud->outbuf, char, this_imcmud->outsize);
+                this_imcmud->OutSize *= 2;
+                IMCRECREATE(this_imcmud->OutBuf, char, this_imcmud->OutSize);
         }
 
         /*
          * Copy.
          */
-        strncpy(this_imcmud->outbuf + this_imcmud->outtop, output, length); /* Leave this one alone! BAD THINGS(TM) will happen if you don't! */
-        this_imcmud->outtop += length;
-        this_imcmud->outbuf[this_imcmud->outtop] = '\0';
+        strncpy(this_imcmud->OutBuf + this_imcmud->OutTop, output, length); /* Leave this one alone! BAD THINGS(TM) will happen if you don't! */
+        this_imcmud->OutTop += length;
+        this_imcmud->OutBuf[this_imcmud->OutTop] = '\0';
         return;
 }
 
@@ -2209,7 +2209,7 @@ PFUN(imc_recv_chanwho)
                         snprintf(buf + strlen(buf),
                                  IMC_BUFF_SIZE - strlen(buf), "%s", "\n\r");
                 /*
-                 * Send no response to a broadcast request if nobody is listening. 
+                 * Send no response to a broadcast Request if nobody is listening. 
                  */
                 if (count == 0 && !strcasecmp(q->to, "*"))
                         return;
@@ -2298,7 +2298,7 @@ PFUN(imc_recv_channelnotify)
 char     *imccenterline(const char *string, int length)
 {
         char      stripped[300];
-        static char outbuf[400];
+        static char OutBuf[400];
         int       amount;
 
         imcstrlcpy(stripped, imc_strip_colors(string), 300);
@@ -2310,11 +2310,11 @@ char     *imccenterline(const char *string, int length)
         /*
          * Justice, you are the String God! 
          */
-        snprintf(outbuf, 400, "%*s%s%*s", (amount / 2), "", string,
+        snprintf(OutBuf, 400, "%*s%s%*s", (amount / 2), "", string,
                  ((amount / 2) * 2) ==
                  amount ? (amount / 2) : ((amount / 2) + 1), "");
 
-        return outbuf;
+        return OutBuf;
 }
 
 char     *imcrankbuffer(CharData * ch)
@@ -2605,7 +2605,7 @@ PFUN(imc_recv_who)
         }
         else
                 snprintf(buf, IMC_BUFF_SIZE,
-                         "%s is not a valid option. Options are: who, finger, or info.\n\r",
+                         "%s is not a Valid option. Options are: who, finger, or info.\n\r",
                          type);
 
         imc_send_whoreply(q->from, buf);
@@ -2813,7 +2813,7 @@ void imc_request_keepalive(void)
 {
         IMC_PACKET *p;
 
-        p = imc_newpacket("*", "keepalive-request", "*@*");
+        p = imc_newpacket("*", "keepalive-Request", "*@*");
         imc_write_packet(p);
 
         imc_send_keepalive(NULL, "*@*");
@@ -3061,7 +3061,7 @@ void imc_send_ucache_request(char *targetuser)
         char      to[SMST];
 
         snprintf(to, SMST, "*@%s", imc_mudof(targetuser));
-        p = imc_newpacket("*", "user-cache-request", to);
+        p = imc_newpacket("*", "user-cache-Request", to);
         imc_addtopacket(p, "user=%s", targetuser);
         imc_write_packet(p);
 
@@ -3136,13 +3136,13 @@ void imc_register_default_packets(void)
         if (first_phandler)
                 return;
 
-        imc_register_packet_handler("keepalive-request", imc_send_keepalive);
+        imc_register_packet_handler("keepalive-Request", imc_send_keepalive);
         imc_register_packet_handler("is-alive", imc_recv_isalive);
         imc_register_packet_handler("ice-update", imc_recv_iceupdate);
         imc_register_packet_handler("ice-msg-r", imc_recv_pbroadcast);
         imc_register_packet_handler("ice-msg-b", imc_recv_broadcast);
         imc_register_packet_handler("user-cache", imc_recv_ucache);
-        imc_register_packet_handler("user-cache-request",
+        imc_register_packet_handler("user-cache-Request",
                                     imc_recv_ucache_request);
         imc_register_packet_handler("user-cache-reply",
                                     imc_recv_ucache_reply);
@@ -3296,8 +3296,8 @@ void imc_handle_autosetup(char *source, char *routername, char *cmd,
 
 bool imc_write_socket(void)
 {
-        const char *ptr = this_imcmud->outbuf;
-        int       nleft = this_imcmud->outtop, nwritten = 0;
+        const char *ptr = this_imcmud->OutBuf;
+        int       nleft = this_imcmud->OutTop, nwritten = 0;
 
         if (nleft <= 0)
                 return 1;
@@ -3308,7 +3308,7 @@ bool imc_write_socket(void)
                 {
                         if (nwritten == -1 && errno == EAGAIN)
                         {
-                                char     *p2 = this_imcmud->outbuf;
+                                char     *p2 = this_imcmud->OutBuf;
 
                                 ptr += nwritten;
 
@@ -3317,8 +3317,8 @@ bool imc_write_socket(void)
 
                                 *p2 = '\0';
 
-                                this_imcmud->outtop =
-                                        strlen(this_imcmud->outbuf);
+                                this_imcmud->OutTop =
+                                        strlen(this_imcmud->OutBuf);
                                 return TRUE;
                         }
 
@@ -3338,11 +3338,11 @@ bool imc_write_socket(void)
 
         if (imcpacketdebug)
         {
-                imclog("Packet Sent: %s", this_imcmud->outbuf);
-                imclog("Bytes sent: %d", this_imcmud->outtop);
+                imclog("Packet Sent: %s", this_imcmud->OutBuf);
+                imclog("Bytes sent: %d", this_imcmud->OutTop);
         }
-        this_imcmud->outbuf[0] = '\0';
-        this_imcmud->outtop = 0;
+        this_imcmud->OutBuf[0] = '\0';
+        this_imcmud->OutTop = 0;
         return 1;
 }
 
@@ -3454,33 +3454,33 @@ bool imc_read_buffer(void)
         unsigned char ended = 0;
         int       k = 0;
 
-        if (this_imcmud->inbuf[0] == '\0')
+        if (this_imcmud->InBuf[0] == '\0')
                 return 0;
 
-        k = strlen(this_imcmud->incomm);
+        k = strlen(this_imcmud->InComm);
 
         if (k < 0)
                 k = 0;
 
-        for (i = 0; this_imcmud->inbuf[i] != '\0'
-             && this_imcmud->inbuf[i] != '\n' && this_imcmud->inbuf[i] != '\r'
+        for (i = 0; this_imcmud->InBuf[i] != '\0'
+             && this_imcmud->InBuf[i] != '\n' && this_imcmud->InBuf[i] != '\r'
              && i < IMC_BUFF_SIZE; i++)
         {
-                this_imcmud->incomm[k++] = this_imcmud->inbuf[i];
+                this_imcmud->InComm[k++] = this_imcmud->InBuf[i];
         }
 
-        while (this_imcmud->inbuf[i] == '\n' || this_imcmud->inbuf[i] == '\r')
+        while (this_imcmud->InBuf[i] == '\n' || this_imcmud->InBuf[i] == '\r')
         {
                 ended = 1;
                 i++;
         }
 
-        this_imcmud->incomm[k] = '\0';
+        this_imcmud->InComm[k] = '\0';
 
-        while ((this_imcmud->inbuf[j] = this_imcmud->inbuf[i + j]) != '\0')
+        while ((this_imcmud->InBuf[j] = this_imcmud->InBuf[i + j]) != '\0')
                 j++;
 
-        this_imcmud->inbuf[j] = '\0';
+        this_imcmud->InBuf[j] = '\0';
         return ended;
 }
 
@@ -3489,20 +3489,20 @@ bool imc_read_socket(void)
         unsigned int iStart, iErr;
         bool      begin = 1;
 
-        iStart = strlen(this_imcmud->inbuf);
+        iStart = strlen(this_imcmud->InBuf);
 
         for (;;)
         {
                 int       nRead;
 
-                nRead = recv(this_imcmud->desc, this_imcmud->inbuf + iStart,
-                             sizeof(this_imcmud->inbuf) - 10 - iStart, 0);
+                nRead = recv(this_imcmud->desc, this_imcmud->InBuf + iStart,
+                             sizeof(this_imcmud->InBuf) - 10 - iStart, 0);
                 iErr = errno;
                 if (nRead > 0)
                 {
                         iStart += nRead;
 
-                        if (iStart >= sizeof(this_imcmud->inbuf) - 10)
+                        if (iStart >= sizeof(this_imcmud->InBuf) - 10)
                                 break;
 
                         begin = 0;
@@ -3526,7 +3526,7 @@ bool imc_read_socket(void)
                         return FALSE;
                 }
         }
-        this_imcmud->inbuf[iStart] = '\0';
+        this_imcmud->InBuf[iStart] = '\0';
         return TRUE;
 }
 
@@ -3597,7 +3597,7 @@ void imc_loop(void)
                 {
                         if (imcpacketdebug)
                                 imclog("Packet received: %s",
-                                       this_imcmud->incomm);
+                                       this_imcmud->InComm);
 
                         switch (this_imcmud->state)
                         {
@@ -3606,24 +3606,24 @@ void imc_loop(void)
                         case IMC_AUTH1:    /* Auth1 can only be set when still trying to contact the server */
                                 break;
 
-                        case IMC_AUTH2:    /* Now you've contacted the server and need to process the authentication response */
+                        case IMC_AUTH2:    /* Now you've contacted the server and need to Process the authentication response */
                                 imc_process_authentication(this_imcmud->
-                                                           incomm);
-                                this_imcmud->incomm[0] = '\0';
+                                                           InComm);
+                                this_imcmud->InComm[0] = '\0';
                                 break;
 
                         case IMC_ONLINE:   /* You're up, pass the bastard off to the packet parser */
-                                imc_parse_packet(this_imcmud->incomm);
-                                this_imcmud->incomm[0] = '\0';
+                                imc_parse_packet(this_imcmud->InComm);
+                                this_imcmud->InComm[0] = '\0';
                                 break;
                         }
                 }
         }
 
-        if (this_imcmud->desc > 0 && this_imcmud->outtop > 0
+        if (this_imcmud->desc > 0 && this_imcmud->OutTop > 0
             && FD_ISSET(this_imcmud->desc, &out_set) && !imc_write_socket())
         {
-                this_imcmud->outtop = 0;
+                this_imcmud->OutTop = 0;
                 imc_shutdown(TRUE);
         }
         return;
@@ -5139,9 +5139,9 @@ int cygwin_connect(void)
 
         /*
          * warning: this blocks. It would be better to farm the query out to
-         * * another process, but that is difficult to do without lots of changes
+         * * another Process, but that is difficult to do without lots of changes
          * * to the core mud code. You may want to change this code if you have an
-         * * existing resolver process running.
+         * * existing resolver Process running.
          */
         if (!inet_aton(this_imcmud->rhost, &sa.sin_addr))
         {
@@ -5265,9 +5265,9 @@ bool imc_router_connect(void)
 
         this_imcmud->state = IMC_AUTH2;
         this_imcmud->desc = desc;
-        this_imcmud->inbuf[0] = '\0';
-        this_imcmud->outsize = 1000;
-        IMCCREATE(this_imcmud->outbuf, char, this_imcmud->outsize);
+        this_imcmud->InBuf[0] = '\0';
+        this_imcmud->OutSize = 1000;
+        IMCCREATE(this_imcmud->OutBuf, char, this_imcmud->OutSize);
 
         /*
          * The MUD is electing to enable MD5 - this is the default setting 
@@ -5489,9 +5489,9 @@ bool imc_startup_network(bool connected)
                         IMCFCLOSE(fp);
                 }
                 this_imcmud->state = IMC_ONLINE;
-                this_imcmud->inbuf[0] = '\0';
-                this_imcmud->outsize = IMC_BUFF_SIZE;
-                IMCCREATE(this_imcmud->outbuf, char, this_imcmud->outsize);
+                this_imcmud->InBuf[0] = '\0';
+                this_imcmud->OutSize = IMC_BUFF_SIZE;
+                IMCCREATE(this_imcmud->OutBuf, char, this_imcmud->OutSize);
 
                 imc_request_keepalive();
                 imc_firstrefresh();
@@ -7501,7 +7501,7 @@ IMC_CMD(imcremoteadmin)
 
         if (!(r = imc_find_reminfo(router)))
         {
-                imc_printf(ch, "~W%s ~cis not a valid mud name.\n\r", router);
+                imc_printf(ch, "~W%s ~cis not a Valid mud name.\n\r", router);
                 return;
         }
 

@@ -60,7 +60,7 @@
 #include <signal.h>
 #include <stdarg.h>
 #include "mud.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 
 /* Globals */
 time_t    pfile_time;
@@ -234,7 +234,7 @@ sh_int    days = 0;
 
 /****
  *
- * FIXME -- Should use account->email instead of each char thing
+ * FIXME -- Should use Account->email instead of each char thing
  * thata way we only need to set an email once.
  *
  * Should load up the pfile properly
@@ -243,7 +243,7 @@ sh_int    days = 0;
  */
 void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
 {
-        ACCOUNT_DATA *account = NULL;
+        ACCOUNT_DATA *Account = NULL;
         char     *word;
         char     *name = NULL;
         char     *clan = NULL;
@@ -275,7 +275,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
                 case 'A':
                         KEY("Act", pact, fread_number(fp));
 #ifdef ACCOUNT
-                        KEY("Account", account,
+                        KEY("Account", Account,
                             load_account(fread_string_noalloc(fp)));
 #endif
                         break;
@@ -381,36 +381,36 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
                                 /*
                                  * SUCH A HACK 
                                  */
-                                if (account)
+                                if (Account)
                                 {
                                         CharData *ch;
 
                                         CREATE(ch, CharData, 1);
                                         ch->name = name;
-                                        if (!del_from_account(account, ch))
+                                        if (!del_from_account(Account, ch))
                                         {
-                                                bug("Failed to remove character from account during pfile cleanup", 0);
+                                                bug("Failed to remove character from Account during pfile cleanup", 0);
                                         }
                                         DISPOSE(ch);
                                         /*
                                          * To remove empty accounts, check the very first slot
                                          */
-                                        if (account->character[0] == NULL)
+                                        if (Account->character[0] == NULL)
                                         {
                                                 snprintf(accountfile, 255,
-                                                         "%s%c/%s.account",
+                                                         "%s%c/%s.Account",
                                                          ACCOUNT_DIR,
-                                                         tolower(account->
+                                                         tolower(Account->
                                                                  name[0]),
-                                                         capitalize(account->
+                                                         capitalize(Account->
                                                                     name));
                                                 if (access(accountfile, F_OK)
                                                     == 0)
                                                         unlink(accountfile);
                                         }
                                         /*
-                                         * free_account(account);
-                                         * account = NULL; 
+                                         * free_account(Account);
+                                         * Account = NULL; 
                                          */
                                 }
 #endif
@@ -463,16 +463,16 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
                                 if (email)
                                         STRFREE(email);
 #if ACCOUNT
-                                if (account)
-                                        free_account(account);
+                                if (Account)
+                                        free_account(Account);
 #endif
                                 return;
                         }
                 }
         }
 #if ACCOUNT
-        if (account)
-                free_account(account);
+        if (Account)
+                free_account(Account);
 #endif
         if (clan != NULL)
         {
@@ -695,7 +695,7 @@ CMDF do_pfiles(CharData * ch, char *argument)
                          PLAYER_DIR);
 
                 /*
-                 * GAH, the shell pipe won't process the command that gets pieced
+                 * GAH, the shell pipe won't Process the command that gets pieced
                  * together in the preceeding lines! God only knows why. - Samson 
                  */
                 system(buf);

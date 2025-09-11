@@ -55,7 +55,7 @@
 #include "mud.hpp"
 #include "mxp.hpp"
 #include "msp.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "races.hpp"
 
 // =============================================================================
@@ -1805,15 +1805,15 @@ CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
 
         level = get_trust(ch);
         /*
-         * After extract_char the ch is no longer valid!
+         * After extract_char the ch is no longer Valid!
          */
 #ifdef ACCOUNT
-        if (!IS_NPC(ch) && ch->pcdata && ch->pcdata->account)
+        if (!IS_NPC(ch) && ch->pcdata && ch->pcdata->Account)
         {
-                free_account(ch->pcdata->account);
-                ch->pcdata->account = NULL;
-                if (ch->desc && ch->desc->account)
-                        ch->desc->account = NULL;
+                free_account(ch->pcdata->Account);
+                ch->pcdata->Account = NULL;
+                if (ch->desc && ch->desc->Account)
+                        ch->desc->Account = NULL;
         }
 #endif
         extract_char(ch, TRUE);
@@ -1888,8 +1888,8 @@ CMDF do_save(CharData * ch, const char *argument)
         save_char_obj(ch);
         save_home(ch);
 #ifdef ACCOUNT
-        if (ch->pcdata && ch->pcdata->account)
-                save_account(ch->pcdata->account);
+        if (ch->pcdata && ch->pcdata->Account)
+                save_account(ch->pcdata->Account);
 #endif
         saving_char = NULL;
         save_finger(ch);
@@ -1918,8 +1918,8 @@ void auto_save(CharData * ch)
         }
         save_char_obj(ch);
 #ifdef ACCOUNT
-        if (ch->pcdata && ch->pcdata->account)
-                save_account(ch->pcdata->account);
+        if (ch->pcdata && ch->pcdata->Account)
+                save_account(ch->pcdata->Account);
 #endif
         save_home(ch);
         saving_char = NULL;
@@ -2576,7 +2576,7 @@ bool can_learn_lang(CharData * ch, LANGUAGE_DATA * lang)
 
                 if ((sn = skill_lookup(lang->name)) < 0)
                 {
-                        bug("Can_learn_lang: valid language without sn: %s",
+                        bug("Can_learn_lang: Valid language without sn: %s",
                             lang->name);
                 }
                 if (ch->pcdata->learned[sn] >= MAX_LANGUAGE_SKILL)

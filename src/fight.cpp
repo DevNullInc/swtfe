@@ -55,7 +55,7 @@
 
 #include "mud.hpp"
 #ifdef ACCOUNT
-#include "account.hpp"
+#include "Account.hpp"
 #endif
 #include "msp.hpp"
 #include "bounty.hpp"
@@ -329,7 +329,7 @@ void violence_update(void)
                                         break;
 
                         /*
-                         * There's a bug here, about sn not being valid, but i can't think of how its explitable 
+                         * There's a bug here, about sn not being Valid, but i can't think of how its explitable 
                          */
                         if (--timer->count <= 0
                             || (!IS_NPC(ch) &&
@@ -2631,11 +2631,11 @@ void raw_kill(CharData * ch, CharData * victim)
 #ifdef ACCOUNT
         if (rename(buf, buf2) != 0)
         {
-                if (victim && victim->pcdata && victim->pcdata->account)
+                if (victim && victim->pcdata && victim->pcdata->Account)
                 {
-                        if (!del_from_account(victim->pcdata->account, victim))
+                        if (!del_from_account(victim->pcdata->Account, victim))
                         {
-                                bug("Failed to remove character from account on death", 0);
+                                bug("Failed to remove character from Account on death", 0);
                         }
                 }
         }

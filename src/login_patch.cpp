@@ -1,12 +1,12 @@
 /*
  * Login Process Streamlining Patch
  * 
- * This patch modifies the login process to streamline account creation and character linking.
+ * This patch modifies the login Process to streamline Account creation and character linking.
  * 
- * Instead of requiring users to enter both account and character credentials separately,
+ * Instead of requiring users to enter both Account and character credentials separately,
  * this patch will:
- * 1. Allow character creation to automatically use the account password
- * 2. Auto-link newly created characters to their account
+ * 1. Allow character creation to automatically use the Account password
+ * 2. Auto-link newly created characters to their Account
  * 3. Simplify the overall login flow
  * 
  * To apply this patch:
@@ -15,50 +15,50 @@
  */
 
 #include "mud.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 
 #ifndef CON_GET_CHAR_SELECTION
 #define CON_GET_CHAR_SELECTION  76765  // Use an unused integer value appropriate for your codebase
 #endif
 
-// Forward declaration for get_account if not included in account.h
+// Forward declaration for get_account if not included in Account.h
 ACCOUNT_DATA *get_account(const char *name);
 
-// Store account password temporarily for auto-linking
+// Store Account password temporarily for auto-linking
 char account_password[MaxStringLength];
 
 /*
- * Function to auto-link character to account
+ * Function to auto-link character to Account
  * Call this after character creation instead of asking for a second password
  */
-void auto_link_character(DescriptorData *d, CharData *ch, ACCOUNT_DATA *account)
+void auto_link_character(DescriptorData *d, CharData *ch, ACCOUNT_DATA *Account)
 {
-    if (!d || !ch || !account)
+    if (!d || !ch || !Account)
         return;
     
-    // Link character to account
-    ch->pcdata->account = account;
+    // Link character to Account
+    ch->pcdata->Account = Account;
     
     // Skip password prompt for character
     d->connected = ConGetNewSex; // Move directly to gender selection
     
     // Inform the player
-    write_to_buffer(d, "Your character has been automatically linked to your account.\r\n", 0);
+    write_to_buffer(d, "Your character has been automatically linked to your Account.\r\n", 0);
 }
 
 /*
- * Replace the account login process with this streamlined version
- * This simplifies the initial account selection/creation
+ * Replace the Account login Process with this streamlined version
+ * This simplifies the initial Account selection/creation
  */
 void streamlined_account_login(DescriptorData *d, char *argument)
 {
-    ACCOUNT_DATA *account;
+    ACCOUNT_DATA *Account;
     char buf[MaxStringLength];
     
-    // Check if account exists
-    account = get_account(argument);
+    // Check if Account exists
+    Account = get_account(argument);
     
-    if (account) {
+    if (Account) {
         // Account exists
         write_to_buffer(d, "Password: ", 0);
         // Disable echo for password input (implementation may vary)
@@ -69,7 +69,7 @@ void streamlined_account_login(DescriptorData *d, char *argument)
         return;
     }
     
-    // New account
+    // New Account
     snprintf(buf, MaxStringLength, "Account '%s' doesn't exist. Create it? (Y/N) ", argument);
     write_to_buffer(d, buf, 0);
     d->connected = ConConfirmNewName;
@@ -79,18 +79,18 @@ void streamlined_account_login(DescriptorData *d, char *argument)
  * Handle existing character selection - streamlined version
  * This lets the user select a character or create a new one
  */
-void streamlined_character_selection(DescriptorData *d, ACCOUNT_DATA *account)
+void streamlined_character_selection(DescriptorData *d, ACCOUNT_DATA *Account)
 {
     int count = 0;
     char buf[MaxStringLength];
     
-    write_to_buffer(d, "Characters linked to this account:\r\n", 0);
+    write_to_buffer(d, "Characters linked to this Account:\r\n", 0);
     
-    // List characters linked to this account
-    // Implementation depends on how characters are stored in account
+    // List characters linked to this Account
+    // Implementation depends on how characters are stored in Account
     
     // For illustration:
-    // for (each character linked to account) {
+    // for (each character linked to Account) {
     //     count++;
     //     snprintf(buf, MaxStringLength, "%d. %s\r\n", count, character_name);
     //     write_to_buffer(d, buf, 0);

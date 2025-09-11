@@ -190,7 +190,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                 if (!checkchem)
                 {
                         send_to_char
-                                ("&RYou need some chemicals to aid in the biological process.\n\r",
+                                ("&RYou need some chemicals to aid in the biological Process.\n\r",
                                  ch);
                         return;
                 }

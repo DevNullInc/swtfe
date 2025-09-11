@@ -96,7 +96,7 @@ bool grid____valid_coors(GRID_DATA * grid, int col, int row, int height)
 
 
 /**
- * True if its valid coords, false if not
+ * True if its Valid coords, false if not
  */
 bool grid_valid_coors(GRID_DATA * grid, int col, int row, int height)
 {
@@ -111,7 +111,7 @@ void   grid_set_pos (GRID_DATA * grid, int col, int row, int height, void*item)
 {
 	grid_update_coords(grid,&col,&row,&height);
 	if (!grid____valid_coors(grid, col, row, height)) {
-		bug("Non valid coord passed in");
+		bug("Non Valid coord passed in");
 		return;
 	}
     int pos = grid_pos(grid, col, row, height);
@@ -127,7 +127,7 @@ void * grid_get_pos (GRID_DATA * grid, int col, int row, int height)
 	void * ret;
 	grid_update_coords(grid,&col,&row,&height);
 	if (!grid____valid_coors(grid, col, row, height)) {
-		bug("Non valid coord passed in");
+		bug("Non Valid coord passed in");
 		return NULL;
 	}
     int pos = grid_pos(grid, col, row, height);

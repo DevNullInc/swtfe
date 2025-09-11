@@ -101,10 +101,10 @@ bool process_compressed(DescriptorData * d)
 {
         int       iStart = 0, nBlock, nWrite, len;
 
-        if (!d->out_compress)
+        if (!d->OutCompress)
                 return TRUE;
 
-        len = d->out_compress->next_out - d->out_compress_buf;
+        len = d->OutCompress->next_out - d->OutCompressBuf;
 
         if (len > 0)
         {
@@ -113,7 +113,7 @@ bool process_compressed(DescriptorData * d)
                         nBlock = UMIN(len - iStart, 4096);
                         if ((nWrite =
                              write(d->descriptor,
-                                   d->out_compress_buf + iStart, nBlock)) < 0)
+                                   d->OutCompressBuf + iStart, nBlock)) < 0)
                         {
                                 if (errno == EAGAIN || errno == ENOSR)
                                         break;
@@ -128,12 +128,12 @@ bool process_compressed(DescriptorData * d)
                 if (iStart)
                 {
                         if (iStart < len)
-                                memmove(d->out_compress_buf,
-                                        d->out_compress_buf + iStart,
+                                memmove(d->OutCompressBuf,
+                                        d->OutCompressBuf + iStart,
                                         len - iStart);
 
-                        d->out_compress->next_out =
-                                d->out_compress_buf + len - iStart;
+                        d->OutCompress->next_out =
+                                d->OutCompressBuf + len - iStart;
                 }
         }
 
@@ -150,18 +150,18 @@ bool compressStart(DescriptorData * d, unsigned char telopt)
 {
         z_stream *s;
 
-        if (d->out_compress)
+        if (d->OutCompress)
                 return TRUE;
 
 /*    bug("Starting compression for descriptor %d", d->descriptor); */
 
         CREATE(s, z_stream, 1);
-        CREATE(d->out_compress_buf, unsigned char, CompressBufSize);
+        CREATE(d->OutCompressBuf, unsigned char, CompressBufSize);
 
         s->next_in = NULL;
         s->avail_in = 0;
 
-        s->next_out = d->out_compress_buf;
+        s->next_out = d->OutCompressBuf;
         s->avail_out = CompressBufSize;
 
         s->zalloc = Z_NULL;
@@ -170,7 +170,7 @@ bool compressStart(DescriptorData * d, unsigned char telopt)
 
         if (deflateInit(s, 9) != Z_OK)
         {
-                DISPOSE(d->out_compress_buf);
+                DISPOSE(d->OutCompressBuf);
                 DISPOSE(s);
                 return FALSE;
         }
@@ -184,9 +184,9 @@ bool compressStart(DescriptorData * d, unsigned char telopt)
         else
                 bug("compressStart: bad TELOPT passed");
 
-        d->compressing = telopt;
-        d->out_compress = s;
-        d->shellcompressing = 0;
+        d->Compressing = telopt;
+        d->OutCompress = s;
+        d->ShellCompressing = 0;
 
         return TRUE;
 }
@@ -195,25 +195,25 @@ bool compressEnd(DescriptorData * d)
 {
         unsigned char dummy[1];
 
-        if (!d->out_compress)
+        if (!d->OutCompress)
                 return TRUE;
 
 /*    bug("Stopping compression for descriptor %d", d->descriptor); */
 
-        d->out_compress->avail_in = 0;
-        d->out_compress->next_in = dummy;
+        d->OutCompress->avail_in = 0;
+        d->OutCompress->next_in = dummy;
 
-        if (deflate(d->out_compress, Z_FINISH) != Z_STREAM_END)
+        if (deflate(d->OutCompress, Z_FINISH) != Z_STREAM_END)
                 return FALSE;
 
         if (!process_compressed(d))
                 return FALSE;
 
-        deflateEnd(d->out_compress);
-        DISPOSE(d->out_compress_buf);
-        DISPOSE(d->out_compress);
-        d->shellcompressing = d->compressing;
-        d->compressing = 0;
+        deflateEnd(d->OutCompress);
+        DISPOSE(d->OutCompressBuf);
+        DISPOSE(d->OutCompress);
+        d->ShellCompressing = d->Compressing;
+        d->Compressing = 0;
 
         return TRUE;
 }
@@ -237,14 +237,14 @@ CMDF do_compress(CharData * ch, char *argument)
                         if (vch->desc == NULL || !IS_PLAYING(vch->desc))
                                 continue;
                         snprintf(buf, MSL, "%s: &B[&w%s&B]&w\n", vch->name,
-                                 vch->desc->compressing ? "ON " : "OFF");
+                                 vch->desc->Compressing ? "ON " : "OFF");
                         send_to_pager(buf, ch);
                 }
                 return;
         }
         else if (!str_cmp(argument, "toggle"))
         {
-                if (!ch->desc->out_compress)
+                if (!ch->desc->OutCompress)
                 {
                         do_compress(ch, "on");
                         return;
@@ -279,7 +279,7 @@ CMDF do_compress(CharData * ch, char *argument)
                 send_to_char("Compression: &B[&w", ch);
                 if (IS_MXP(ch))
                         send_to_char(MXPTAG("mxptoggle compress"), ch);
-                if (ch->desc->compressing)
+                if (ch->desc->Compressing)
                         send_to_char("ON ", ch);
                 else
                 {
@@ -288,24 +288,24 @@ CMDF do_compress(CharData * ch, char *argument)
                 if (IS_MXP(ch))
                         send_to_char(MXPTAG("/mxptoggle"), ch);
                 send_to_char("&B]&D\n\r", ch);
-                if (ch->desc->out_compress
-                    && ch->desc->out_compress->total_in)
+                if (ch->desc->OutCompress
+                    && ch->desc->OutCompress->total_in)
                         ch_printf(ch,
                                   "Total size of input compressed:  &B[&w%d&B]&D\n\r",
-                                  ch->desc->out_compress->total_in);
-                if (ch->desc->out_compress
-                    && ch->desc->out_compress->total_out)
+                                  ch->desc->OutCompress->total_in);
+                if (ch->desc->OutCompress
+                    && ch->desc->OutCompress->total_out)
                         ch_printf(ch,
                                   "Total size of output compressed: &B[&w%d&B]&D\n\r",
-                                  ch->desc->out_compress->total_out);
-                if (ch->desc->out_compress && ch->desc->out_compress->total_in
-                    && ch->desc->out_compress->total_out)
+                                  ch->desc->OutCompress->total_out);
+                if (ch->desc->OutCompress && ch->desc->OutCompress->total_in
+                    && ch->desc->OutCompress->total_out)
                         ch_printf(ch,
                                   "Current compression ratio:       &B[&w%.2f%&B]&D&D\n\r",
                                   100.0 -
-                                  (float) ((float) ch->desc->out_compress->
+                                  (float) ((float) ch->desc->OutCompress->
                                            total_out /
-                                           (float) ch->desc->out_compress->
+                                           (float) ch->desc->OutCompress->
                                            total_in * 100));
                 return;
         }
@@ -324,13 +324,13 @@ CMDF do_mccpstats(CharData * ch, char *argument)
         for (d = first_descriptor; d; d = d->next)
         {
                 total++;
-                if (d->compressing && d->out_compress
-                    && d->out_compress->total_in
-                    && d->out_compress->total_out)
+                if (d->Compressing && d->OutCompress
+                    && d->OutCompress->total_in
+                    && d->OutCompress->total_out)
                 {
                         count++;
-                        in += d->out_compress->total_in;
-                        out += d->out_compress->total_out;
+                        in += d->OutCompress->total_in;
+                        out += d->OutCompress->total_out;
                 }
         }
 

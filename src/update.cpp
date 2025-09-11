@@ -49,7 +49,7 @@
 #include "mud.hpp"
 #include "homes.hpp"
 #include "olc-shuttle.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "races.hpp"
 #include "space2.hpp"
 #include "installations.hpp"
@@ -2357,11 +2357,11 @@ void char_update(void)
                                         RoomIndexData *room = ch->in_room;
 
                                         if (NOT_AUTHED(ch)
-                                            && ch->pcdata->account)
+                                            && ch->pcdata->Account)
                                         {
-                                                if (!del_from_account(ch->pcdata->account, ch))
+                                                if (!del_from_account(ch->pcdata->Account, ch))
                                                 {
-                                                        bug("Failed to remove unauthed character from account", 0);
+                                                        bug("Failed to remove unauthed character from Account", 0);
                                                 }
                                         }
                                         if (room)

@@ -975,7 +975,7 @@ CMDF do_sset(CharData * ch, char *argument)
                         int       x = get_starget(argument);
 
                         if (x == -1)
-                                send_to_char("Not a valid target type.\n\r",
+                                send_to_char("Not a Valid target type.\n\r",
                                              ch);
                         else
                         {
@@ -1594,7 +1594,7 @@ CMDF do_gouge(CharData * ch, char *argument)
                         WAIT_STATE(ch, PulseViolence);
                         WAIT_STATE(victim, PulseViolence);
                         /*
-                         * Taken out by request - put back in by Thoric
+                         * Taken out by Request - put back in by Thoric
                          * * This is how it was designed.  You'd be a tad stunned
                          * * if someone gouged you in the eye.
                          */
@@ -3862,7 +3862,7 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
                 return;
         }
         /*
-         * Now we have a valid weapon...check to see if we have the powder. 
+         * Now we have a Valid weapon...check to see if we have the powder. 
          */
         for (pobj = ch->first_carrying; pobj; pobj = pobj->next_content)
         {

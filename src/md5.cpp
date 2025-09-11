@@ -163,7 +163,7 @@ static void md5_process(md5_state_t * pms, const md5_byte_t * data /*[64] */ )
 #if BYTE_ORDER <= 0 /* little-endian */
                 {
                         /*
-                         * On little-endian machines, we can process properly aligned
+                         * On little-endian machines, we can Process properly aligned
                          * data without copying it.
                          */
                         if (!((data - (const md5_byte_t *) 0) & 3))

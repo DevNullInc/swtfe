@@ -79,10 +79,10 @@ namespace {
      * @return true on success, false on failure
      */
     bool generate_secure_random(uint8_t* buffer, size_t length) {
-        int fd = ::open("/dev/urandom", O_RDONLY);
-        if (fd >= 0) {
-            ssize_t bytes_read = ::read(fd, buffer, length);
-            ::close(fd);
+        int Fd = ::open("/dev/urandom", O_RDONLY);
+        if (Fd >= 0) {
+            ssize_t bytes_read = ::read(Fd, buffer, length);
+            ::close(Fd);
             if (bytes_read == static_cast<ssize_t>(length)) {
                 return true;
             }

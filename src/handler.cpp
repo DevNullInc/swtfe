@@ -46,7 +46,7 @@
 #include <time.h>
 #include "mud.hpp"
 #include "homes.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "astral.hpp"
 #include "races.hpp"
 #include "space2.hpp"
@@ -2026,12 +2026,12 @@ void extract_char(CharData * ch, bool fPull)
         }
 
 #ifdef ACCOUNT
-        if (!IS_NPC(ch) && ch->pcdata && ch->pcdata->account)
+        if (!IS_NPC(ch) && ch->pcdata && ch->pcdata->Account)
         {
-                free_account(ch->pcdata->account);
-                ch->pcdata->account = NULL;
-                if (ch->desc && ch->desc->account)
-                        ch->desc->account = NULL;
+                free_account(ch->pcdata->Account);
+                ch->pcdata->Account = NULL;
+                if (ch->desc && ch->desc->Account)
+                        ch->desc->Account = NULL;
         }
 #endif
 

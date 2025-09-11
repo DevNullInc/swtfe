@@ -47,7 +47,7 @@
 #include <crypt.h>
 #include "mud.hpp"
 #include "editor.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "races.hpp"
 #include "password.hpp"
 
@@ -3227,8 +3227,8 @@ CMDF do_train(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        ch->pcdata->account->rpcurrent -= 3;
-        save_account(ch->pcdata->account);
+        ch->pcdata->Account->rpcurrent -= 3;
+        save_account(ch->pcdata->Account);
 
         if (!str_cmp(arg, "str") || !str_cmp(arg, "strength"))
         {
@@ -3393,7 +3393,7 @@ CMDF do_bank(CharData * ch, char *argument)
                 ch->pcdata->bank += amount;
 
                 ch_printf(ch,
-                          "You deposit %ld credits into your account.\n\r",
+                          "You deposit %ld credits into your Account.\n\r",
                           amount);
                 return;
         }
@@ -3411,7 +3411,7 @@ CMDF do_bank(CharData * ch, char *argument)
                 if (ch->pcdata->bank < amount)
                 {
                         send_to_char
-                                ("You don't have that many credits in your account.\n\r",
+                                ("You don't have that many credits in your Account.\n\r",
                                  ch);
                         return;
                 }
@@ -3420,14 +3420,14 @@ CMDF do_bank(CharData * ch, char *argument)
                 ch->pcdata->bank -= amount;
 
                 ch_printf(ch,
-                          "You withdraw %ld credits from your account.\n\r",
+                          "You withdraw %ld credits from your Account.\n\r",
                           amount);
                 return;
 
         }
         else if (!str_prefix(arg1, "balance"))
         {
-                ch_printf(ch, "You have %ld credits in your account.\n\r",
+                ch_printf(ch, "You have %ld credits in your Account.\n\r",
                           ch->pcdata->bank);
                 return;
         }

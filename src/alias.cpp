@@ -54,7 +54,7 @@
 // ============================================================================
 #include "mud.hpp"
 #include "editor.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "alias.hpp"
 
 // ============================================================================
@@ -137,14 +137,14 @@ ALIAS_DATA *get_alias(CharData *ch, char *argument)
                 return nullptr;
 
         // First try exact match
-        for (ali = ch->pcdata->account->first_alias; ali; ali = ali->next)
+        for (ali = ch->pcdata->Account->first_alias; ali; ali = ali->next)
         {
                 if (!str_cmp(argument, ali->name))
                         return ali;
         }
 
         // Then try prefix match
-        for (ali = ch->pcdata->account->first_alias; ali; ali = ali->next)
+        for (ali = ch->pcdata->Account->first_alias; ali; ali = ali->next)
         {
                 if (!str_prefix(argument, ali->name))
                         return ali;
@@ -153,25 +153,25 @@ ALIAS_DATA *get_alias(CharData *ch, char *argument)
         return nullptr;
 }
 
-void free_alias(ACCOUNT_DATA *account, ALIAS_DATA *alias)
+void free_alias(ACCOUNT_DATA *Account, ALIAS_DATA *alias)
 {
         STRFREE(alias->name);
         STRFREE(alias->cmd);
-        UNLINK(alias, account->first_alias, account->last_alias, next, prev);
+        UNLINK(alias, Account->first_alias, Account->last_alias, next, prev);
         DISPOSE(alias);
 }
 
-void free_aliases(ACCOUNT_DATA *account)
+void free_aliases(ACCOUNT_DATA *Account)
 {
         ALIAS_DATA *alias, *al_next;
 
-        if (!account)
+        if (!Account)
                 return;
 
-        for (alias = account->first_alias; alias; alias = al_next)
+        for (alias = Account->first_alias; alias; alias = al_next)
         {
                 al_next = alias->next;
-                free_alias(account, alias);
+                free_alias(Account, alias);
         }
 }
 
@@ -221,13 +221,13 @@ CMDF do_alias(CharData *ch, char *argument)
                 int count = 0;
 
                 send_to_char(ALIAS_LIST_HEADER, ch);
-                if (!ch->pcdata->account->first_alias)
+                if (!ch->pcdata->Account->first_alias)
                 {
                         send_to_char(NO_ALIASES_MSG, ch);
                         return;
                 }
 
-                for (alias = ch->pcdata->account->first_alias; alias; alias = alias->next)
+                for (alias = ch->pcdata->Account->first_alias; alias; alias = alias->next)
                 {
                         count++;
                         ch_printf(ch, "\t&G%s\n\r", alias->name);
@@ -248,7 +248,7 @@ CMDF do_alias(CharData *ch, char *argument)
 
         if (!str_cmp(arg, "create"))
         {
-                for (alias = ch->pcdata->account->first_alias; alias; alias = alias->next)
+                for (alias = ch->pcdata->Account->first_alias; alias; alias = alias->next)
                 {
                         if (!str_cmp(argument, alias->name))
                                 break;
@@ -261,8 +261,8 @@ CMDF do_alias(CharData *ch, char *argument)
                 CREATE(alias, ALIAS_DATA, 1);
                 alias->name = STRALLOC(cmd);
                 alias->cmd = STRALLOC(const_cast<char*>(""));
-                LINK(alias, ch->pcdata->account->first_alias,
-                     ch->pcdata->account->last_alias, next, prev);
+                LINK(alias, ch->pcdata->Account->first_alias,
+                     ch->pcdata->Account->last_alias, next, prev);
                 send_to_char(ALIAS_CREATED_MSG, ch);
 
                 // Now move to editing
@@ -295,7 +295,7 @@ CMDF do_alias(CharData *ch, char *argument)
         }
         else if (!str_cmp(arg, "delete"))
         {
-                free_alias(ch->pcdata->account, alias);
+                free_alias(ch->pcdata->Account, alias);
                 send_to_char(ALIAS_DELETED_MSG, ch);
                 return;
         }
@@ -325,7 +325,7 @@ bool check_alias(CharData *ch, char *command, char *argument)
                 return FALSE;
         if (!IS_PLAYING(ch->desc))
                 return FALSE;
-        if (!ch->pcdata->account->first_alias)
+        if (!ch->pcdata->Account->first_alias)
                 return FALSE;
 
         if ((alias = get_alias(ch, command)) == nullptr)
@@ -341,9 +341,9 @@ bool check_alias(CharData *ch, char *command, char *argument)
                 return TRUE;
         }
         
-        mudstrlcpy(ch->desc->incomm, alias->cmd, MIL);
+        mudstrlcpy(ch->desc->InComm, alias->cmd, MIL);
         
-        if (strchr(ch->desc->incomm, '$'))
+        if (strchr(ch->desc->InComm, '$'))
         {
                 char arg[MIL];
                 char temp[MIL];
@@ -354,7 +354,7 @@ bool check_alias(CharData *ch, char *command, char *argument)
                 argument = one_argument(argument, arg);
                 while (arg[0] != '\0' && ++count < MAX_ALIAS_ARGS)
                 {
-                        src = ch->desc->incomm;
+                        src = ch->desc->InComm;
                         while (*src && *src != '\0')
                         {
                                 if (*src == '$' && *(src + 1) == count + '0')
@@ -393,26 +393,26 @@ bool check_aliases(DescriptorData *d)
         ch = d->original ? d->original : d->character;
         if (IS_NPC(ch))
                 return FALSE;
-        if (!ch->pcdata->account->first_alias)
+        if (!ch->pcdata->Account->first_alias)
                 return FALSE;
         if (d->character->substate != SubAlias)
                 return FALSE;
 
         // Split on new line (memcopy it back)
-        rem = one_line(d->incomm, arg);
+        rem = one_line(d->InComm, arg);
         interpret(d->character, arg);
         
         // Check substate
         stop_idling(d->character);
         if (rem[0] == '\0')
         {
-                d->incomm[0] = '\0';
+                d->InComm[0] = '\0';
                 d->character->substate = SubNone;
                 return TRUE;
         }
         
         len = strlen(rem);
-        memcpy(d->incomm, rem, (len + 1) * sizeof(char));
+        memcpy(d->InComm, rem, (len + 1) * sizeof(char));
         return TRUE;
 }
 
@@ -420,14 +420,14 @@ bool check_aliases(DescriptorData *d)
 // Section: File I/O Operations
 // ============================================================================
 
-void fwrite_alias(ACCOUNT_DATA *account, FILE *fp)
+void fwrite_alias(ACCOUNT_DATA *Account, FILE *fp)
 {
         ALIAS_DATA *alias;
 
-        if (!account)
+        if (!Account)
                 return;
 
-        for (alias = account->first_alias; alias; alias = alias->next)
+        for (alias = Account->first_alias; alias; alias = alias->next)
         {
                 fprintf(fp, "#ALIAS\n");
                 fprintf(fp, "Name %s~\n", alias->name);
@@ -436,13 +436,13 @@ void fwrite_alias(ACCOUNT_DATA *account, FILE *fp)
         }
 }
 
-void fread_alias(ACCOUNT_DATA *account, FILE *fp)
+void fread_alias(ACCOUNT_DATA *Account, FILE *fp)
 {
         const char *word;
         bool fMatch;
         ALIAS_DATA *alias;
 
-        if (!account)
+        if (!Account)
                 return;
 
         CREATE(alias, ALIAS_DATA, 1);
@@ -473,8 +473,8 @@ void fread_alias(ACCOUNT_DATA *account, FILE *fp)
                                 {
                                         if (!alias->cmd)
                                                 alias->cmd = STRALLOC(const_cast<char*>(""));
-                                        LINK(alias, account->first_alias,
-                                             account->last_alias, next, prev);
+                                        LINK(alias, Account->first_alias,
+                                             Account->last_alias, next, prev);
                                 }
                                 return;
                         }

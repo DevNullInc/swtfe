@@ -263,7 +263,7 @@ CMDF do_setshuttle(CharData * ch, char *argument)
         {
                 if (value > shuttle->end_room || value < shuttle->start_room)
                 {
-                        send_to_char("Not within valid range.\n\r", ch);
+                        send_to_char("Not within Valid range.\n\r", ch);
                         return;
                 }
                 shuttle->entrance = value;

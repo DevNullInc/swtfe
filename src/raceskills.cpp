@@ -133,7 +133,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of crafting a pike.\n\r",
+                                ("&GYou begin the long Process of crafting a pike.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a small oven and begins to work on something.",
@@ -381,7 +381,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of crafting a knife.\n\r",
+                                ("&GYou begin the long Process of crafting a knife.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a small oven and begins to work on something.",

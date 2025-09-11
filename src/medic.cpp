@@ -78,7 +78,7 @@ CMDF do_autopsy(CharData * ch, char *argument)
                 if (number_percent() < chance)
                 {
                         send_to_char
-                                ("&GYou begin the long process doing an autopsy on the corpse.\n\r",
+                                ("&GYou begin the long Process doing an autopsy on the corpse.\n\r",
                                  ch);
                         act(AT_PLAIN, "$n begins to work the corpse.", ch,
                             NULL, argument, TO_ROOM);
@@ -680,7 +680,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                 if (number_percent() < chance)
                 {
                         send_to_char
-                                ("&GYou begin the long process of making a medkit.\n\r",
+                                ("&GYou begin the long Process of making a medkit.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a drink container and begins to work on something.",

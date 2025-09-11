@@ -655,7 +655,7 @@ CMDF do_ban(CharData * ch, char *argument)
         /*
          * Catch all syntax message, make sure that return stays above this or you
          * * will get the syntax message everytime you issue the command even if it
-         * * is a valid one.  Shaddai
+         * * is a Valid one.  Shaddai
          */
 
       syntax_message:

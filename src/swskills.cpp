@@ -150,7 +150,7 @@ CMDF do_makeblade(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of crafting a vibroblade.\n\r",
+                                ("&GYou begin the long Process of crafting a vibroblade.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a small oven and begins to work on something.",
@@ -384,7 +384,7 @@ CMDF do_makefurniture(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of creating a piece of furniture.\n\r",
+                                ("&GYou begin the long Process of creating a piece of furniture.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s sewing kit and some material and begins to work.",
@@ -662,7 +662,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of making a bowcaster.\n\r",
+                                ("&GYou begin the long Process of making a bowcaster.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a small oven and begins to work on something.",
@@ -946,7 +946,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of making a blaster.\n\r",
+                                ("&GYou begin the long Process of making a blaster.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a small oven and begins to work on something.",
@@ -1297,7 +1297,7 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of crafting a lightsaber.\n\r",
+                                ("&GYou begin the long Process of crafting a lightsaber.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a small oven and begins to work on something.",
@@ -1569,7 +1569,7 @@ CMDF do_makespice(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of refining spice into a drug.\n\r",
+                                ("&GYou begin the long Process of refining spice into a drug.\n\r",
                                  ch);
                         act(AT_PLAIN, "$n begins working on something.", ch,
                             NULL, argument, TO_ROOM);
@@ -1748,7 +1748,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of making a grenade.\n\r",
+                                ("&GYou begin the long Process of making a grenade.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a drink container and begins to work on something.",
@@ -1988,7 +1988,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of making a landmine.\n\r",
+                                ("&GYou begin the long Process of making a landmine.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a drink container and begins to work on something.",
@@ -2224,7 +2224,7 @@ CMDF do_makelight(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of making a light.\n\r",
+                                ("&GYou begin the long Process of making a light.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and begins to work on something.",
@@ -2494,7 +2494,7 @@ CMDF do_makejewelry(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of creating some jewelry.\n\r",
+                                ("&GYou begin the long Process of creating some jewelry.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s toolkit and some metal and begins to work.",
@@ -2722,7 +2722,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of creating some armor.\n\r",
+                                ("&GYou begin the long Process of creating some armor.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s sewing kit and some material and begins to work.",
@@ -2939,7 +2939,7 @@ CMDF do_makecomlink(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of making a comlink.\n\r",
+                                ("&GYou begin the long Process of making a comlink.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and begins to work on something.",
@@ -3172,7 +3172,7 @@ CMDF do_makeshield(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of crafting an energy shield.\n\r",
+                                ("&GYou begin the long Process of crafting an energy shield.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and begins to work on something.",
@@ -3436,7 +3436,7 @@ CMDF do_makecontainer(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of creating a bag.\n\r",
+                                ("&GYou begin the long Process of creating a bag.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s sewing kit and some material and begins to work.",
@@ -3644,7 +3644,7 @@ CMDF do_gemcutting(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of cutting a gem.\n\r",
+                                ("&GYou begin the long Process of cutting a gem.\n\r",
                                  ch);
                         act(AT_PLAIN, "$n takes $s tools and starts working.",
                             ch, NULL, argument, TO_ROOM);
@@ -6892,7 +6892,7 @@ CMDF do_makeknife(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of crafting a knife.\n\r",
+                                ("&GYou begin the long Process of crafting a knife.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a small oven and begins to work on something.",
@@ -7133,7 +7133,7 @@ CMDF do_makepike(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of crafting a pike.\n\r",
+                                ("&GYou begin the long Process of crafting a pike.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and a small oven and begins to work on something.",
@@ -8213,7 +8213,7 @@ CMDF do_makebinding(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of creating a binding.\n\r",
+                                ("&GYou begin the long Process of creating a binding.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s construction material and begins to work.",

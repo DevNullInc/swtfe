@@ -334,7 +334,7 @@ CMDF do_setlanguage(CharData * ch, char *argument)
         if ((language = get_language(arg1)) == NULL)
         {
                 send_to_char
-                        ("&RThat is not a valid language, choose one of the following:\n\r",
+                        ("&RThat is not a Valid language, choose one of the following:\n\r",
                          ch);
                 for (language = first_language; language;
                      language = language->next)
@@ -1810,7 +1810,7 @@ CMDF do_setillness(CharData * ch, char *argument)
         {
                 if (find_social(argument) == NULL)
                 {
-                        send_to_char("That is not a valid social.", ch);
+                        send_to_char("That is not a Valid social.", ch);
                         return;
                 }
                 stralloc_printf(&illness->social1, "%s", argument);
@@ -1819,7 +1819,7 @@ CMDF do_setillness(CharData * ch, char *argument)
         {
                 if (find_social(argument) == NULL)
                 {
-                        send_to_char("That is not a valid social.", ch);
+                        send_to_char("That is not a Valid social.", ch);
                         return;
                 }
                 stralloc_printf(&illness->social2, "%s", argument);
@@ -1828,7 +1828,7 @@ CMDF do_setillness(CharData * ch, char *argument)
         {
                 if (find_social(argument) == NULL)
                 {
-                        send_to_char("That is not a valid social.", ch);
+                        send_to_char("That is not a Valid social.", ch);
                         return;
                 }
                 stralloc_printf(&illness->social3, "%s", argument);

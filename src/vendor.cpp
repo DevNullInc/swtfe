@@ -148,7 +148,7 @@ CMDF do_placevendor(CharData * ch, char *argument)
 
 
 /* better way to do this? what if they have another object called deed?*/
-/* added this to account for another with deed in name*/
+/* added this to Account for another with deed in name*/
 
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
         {

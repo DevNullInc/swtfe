@@ -48,7 +48,7 @@
 #include <time.h>
 #include "mud.hpp"
 #include <stdlib.h>
-#include "account.hpp"
+#include "Account.hpp"
 #include "alias.hpp"
 #include "channels.hpp"
 
@@ -979,10 +979,10 @@ void write_watch_files(CharData * ch, CMDType * cmd, char *logline)
                                      || (pw->player_site
                                          && !str_prefix(pw->player_site,
                                                         ch->desc->host))
-                                     || (ch->pcdata && ch->pcdata->account
+                                     || (ch->pcdata && ch->pcdata->Account
                                          && pw->player_account
                                          && !str_cmp(pw->player_account,
-                                                     ch->pcdata->account->
+                                                     ch->pcdata->Account->
                                                      name))))
                                 {
                                         sprintf(fname, "%s%s", WATCH_DIR,
@@ -1016,10 +1016,10 @@ void write_watch_files(CharData * ch, CMDType * cmd, char *logline)
                              || (pw->player_site
                                  && !str_prefix(pw->player_site,
                                                 ch->desc->host))
-                             || (ch->pcdata && ch->pcdata->account
+                             || (ch->pcdata && ch->pcdata->Account
                                  && pw->player_account
                                  && !str_cmp(pw->player_account,
-                                             ch->pcdata->account->name)))
+                                             ch->pcdata->Account->name)))
                             && get_trust(ch) < pw->imm_level && ch->desc)
                         {
                                 sprintf(fname, "%s%s", WATCH_DIR,

@@ -644,7 +644,7 @@ CMDF do_color(CharData * ch, char *argument)
                 count = -1;
 
                 /*
-                 * search for a valid color setting
+                 * search for a Valid color setting
                  */
                 for (y = 0; y < 16; y++)
                 {
@@ -694,7 +694,7 @@ CMDF do_color(CharData * ch, char *argument)
                 }
 
                 /*
-                 * search for a valid color setting
+                 * search for a Valid color setting
                  */
                 for (y = 0; y < 16; y++)
                 {
@@ -973,13 +973,13 @@ int colorcode(const char *col, char *code, CharData * ch)
                         case 'S':
                                 mudstrlcpy(code, ANSI_STRIKEOUT, 20);
                                 break;
-                        case 'd':  /* Player's client default color */
+                        case 'd':  /* Player's Client default color */
                                 mudstrlcpy(code, ANSI_RESET, 20);
                                 break;
                         case 'D':  /* Reset to custom color for whatever is being displayed */
                                 mudstrlcpy(code, ANSI_RESET, 20);   /* Yes, this reset here is quite necessary to cancel out other things */
                                 mudstrlcat(code,
-                                           color_str(ch->desc->pagecolor, ch),
+                                           color_str(ch->desc->PageColor, ch),
                                            20);
                                 break;
                         case 'x':  /* Black */
@@ -1150,7 +1150,7 @@ void set_char_color(int AType, CharData * ch)
                 return;
 
         write_to_buffer(ch->desc, color_str(static_cast<sh_int>(AType), ch), 0);
-        ch->desc->pagecolor = static_cast<char>(ch->colors[AType]);
+        ch->desc->PageColor = static_cast<char>(ch->colors[AType]);
 }
 
 void set_pager_color(sh_int AType, CharData * ch)
@@ -1159,7 +1159,7 @@ void set_pager_color(sh_int AType, CharData * ch)
                 return;
 
         write_to_pager(ch->desc, color_str(AType, ch), 0);
-        ch->desc->pagecolor = static_cast<char>(ch->colors[AType]);
+        ch->desc->PageColor = static_cast<char>(ch->colors[AType]);
 }
 
 void write_to_pager(DescriptorData * d, const char *txt, int length)
@@ -1182,46 +1182,46 @@ void write_to_pager(DescriptorData * d, const char *txt, int length)
          */
         length += count_mxp_tags(d, txt, length);
 
-        if (!d->pagebuf)
+        if (!d->PageBuf)
         {
-                d->pagesize = MaxStringLength;
-                CREATE(d->pagebuf, char, static_cast<size_t>(d->pagesize));
+                d->PageSize = MaxStringLength;
+                CREATE(d->PageBuf, char, static_cast<size_t>(d->PageSize));
         }
-        if (!d->pagepoint)
+        if (!d->PagePoint)
         {
-                d->pagepoint = d->pagebuf;
-                d->pagetop = 0;
-                d->pagecmd = '\0';
+                d->PagePoint = d->PageBuf;
+                d->PageTop = 0;
+                d->PageCmd = '\0';
         }
-        if (d->pagetop == 0 && !d->fcommand)
+        if (d->PageTop == 0 && !d->fcommand)
         {
-                d->pagebuf[0] = '\n';
-                d->pagebuf[1] = '\r';
-                d->pagetop = 2;
+                d->PageBuf[0] = '\n';
+                d->PageBuf[1] = '\r';
+                d->PageTop = 2;
         }
-        pageroffset = static_cast<int>(d->pagepoint - d->pagebuf);    /* pager fix (goofup fixed 08/21/97) */
-        while (d->pagetop + length >= d->pagesize)
+        pageroffset = static_cast<int>(d->PagePoint - d->PageBuf);    /* pager fix (goofup fixed 08/21/97) */
+        while (d->PageTop + length >= d->PageSize)
         {
-                if (d->pagesize > MSL * 16)
+                if (d->PageSize > MSL * 16)
                 {
                         bug("%s", "Pager overflow.  Ignoring.\n\r");
-                        d->pagetop = 0;
-                        d->pagepoint = NULL;
-                        DISPOSE(d->pagebuf);
-                        d->pagesize = MSL;
+                        d->PageTop = 0;
+                        d->PagePoint = NULL;
+                        DISPOSE(d->PageBuf);
+                        d->PageSize = MSL;
                         return;
                 }
-                d->pagesize *= 2;
+                d->PageSize *= 2;
                 _Pragma("GCC diagnostic push")
                 _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")
-                RECREATE(d->pagebuf, char, static_cast<size_t>(d->pagesize));
+                RECREATE(d->PageBuf, char, static_cast<size_t>(d->PageSize));
                 _Pragma("GCC diagnostic pop")
         }
-        d->pagepoint = d->pagebuf + pageroffset;    /* pager fix (goofup fixed 08/21/97) */
-/*   mudstrlcpy( d->pagebuf + d->pagetop, txt, length ); */
-        convert_mxp_tags(d, d->pagebuf + d->pagetop, txt, origlength);
-        d->pagetop += length;
-        d->pagebuf[d->pagetop] = '\0';
+        d->PagePoint = d->PageBuf + pageroffset;    /* pager fix (goofup fixed 08/21/97) */
+/*   mudstrlcpy( d->PageBuf + d->PageTop, txt, length ); */
+        convert_mxp_tags(d, d->PageBuf + d->PageTop, txt, origlength);
+        d->PageTop += length;
+        d->PageBuf[d->PageTop] = '\0';
         return;
 }
 

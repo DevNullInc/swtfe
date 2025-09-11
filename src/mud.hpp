@@ -475,7 +475,7 @@ struct WatchData
         char     *target_name;  /* player or command being watched   */
         char     *player_site;  /* site being watched     */
 #ifdef ACCOUNT
-        char     *player_account;   /* account being watched */
+        char     *player_account;   /* Account being watched */
 #endif
 };
 
@@ -600,56 +600,56 @@ struct DescriptorData
         sh_int lines;
         sh_int scrlen;
         bool fcommand;
-        char inbuf[MaxInbufSize];
-        char incomm[MaxInputLength];
-        char inlast[MaxInputLength];
+        char InBuf[MaxInbufSize];
+        char InComm[MaxInputLength];
+        char InLast[MaxInputLength];
         int repeat;
-        char     *outbuf;
-        unsigned long outsize;
-        int outtop;
-        char     *pagebuf;
-        long pagesize;
-        int pagetop;
-        char     *pagepoint;
-        char pagecmd;
-        char pagecolor;
-        int auth_state;
-        int atimes;
-        int newstate;
-        unsigned char prevcolor;
-        pid_t process;  /* Samson 4-16-98 - For new command shell code */
-        sh_int speed;   /* descriptor speed settings */
-        char     *client;
+        char     *OutBuf;
+        unsigned long OutSize;
+        int OutTop;
+        char     *PageBuf;
+        long PageSize;
+        int PageTop;
+        char     *PagePoint;
+        char PageCmd;
+        char PageColor;
+        int AuthState;
+        int ATimes;
+        int NewState;
+        unsigned char PrevColor;
+        pid_t Process;  /* Samson 4-16-98 - For new command shell code */
+        sh_int Speed;   /* descriptor Speed settings */
+        char     *Client;
 #ifdef MCCP
-        unsigned char compressing;
-        z_stream *out_compress;
-        unsigned char *out_compress_buf;
-        unsigned char shellcompressing;
+        unsigned char Compressing;
+        z_stream *OutCompress;
+        unsigned char *OutCompressBuf;
+        unsigned char ShellCompressing;
 #endif
-        bool mxp_detected;  /* player using MXP flag */
-        bool msp_detected;  /* player using MSP flag */
+        bool MxpDetected;  /* player using MXP flag */
+        bool MspDetected;  /* player using MSP flag */
 #ifdef ACCOUNT
-        struct account_data *account;
+        struct account_data *Account;
 #endif
-        int ifd;
-        pid_t ipid;
+        int IFd;
+        pid_t IPid;
 };
 
-struct web_descriptor
+struct WebDescriptor
 {
-        int fd;
-        char request[2048];
-        struct sockaddr_in *their_addr;
-        int sin_size;
+        int Fd;
+        char Request[2048];
+        struct sockaddr_in *TheirAddr;
+        int SinSize;
         WebDescriptor *next;
         WebDescriptor *prev;
-        bool valid;
+        bool Valid;
 };
 
 /*
  * Attribute bonus structures.
  */
-struct str_app_type
+struct StrAppType
 {
         sh_int tohit;
         sh_int todam;
@@ -657,7 +657,7 @@ struct str_app_type
         sh_int wield;
 };
 
-struct int_app_type
+struct IntAppType
 {
         sh_int learn;
 };
@@ -1252,7 +1252,7 @@ struct missile_data
         char     *fired_by;
         sh_int missiletype;
         sh_int age;
-        int speed;
+        int Speed;
         int mx, my, mz;
 };
 
@@ -2507,7 +2507,7 @@ struct chardata
         int home_vnum;  /* hotboot tracker */
         char     *following;
         char     *groupleader;
-        sh_int speed;
+        sh_int Speed;
 };
 
 struct specfun_list
@@ -2565,7 +2565,7 @@ struct pc_data
         sh_int quest_number;    /* current *QUEST BEING DONE* DON'T REMOVE! */
         sh_int quest_curr;  /* current number of quest points */
         int quest_accum;    /* quest points accumulated in players life */
-        int auth_state;
+        int AuthState;
         time_t release_date;    /* Auto-helling.. Altrag */
         char     *helled_by;
         char     *bio;  /* Personal Bio */
@@ -2597,7 +2597,7 @@ struct pc_data
         sh_int statpoints;
         sh_int statedit;
 #ifdef ACCOUNT
-        struct account_data *account;
+        struct account_data *Account;
 #endif
         TimeInfoData birthday;
         sh_int age;
@@ -3490,11 +3490,11 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 				SPELL_DAMAGE(skill_table[(dt)]) == SD_POISON )
 
 
-#define NOT_AUTHED(ch)		(!IS_NPC(ch) && ch->pcdata->auth_state <= 3  \
+#define NOT_AUTHED(ch)		(!IS_NPC(ch) && ch->pcdata->AuthState <= 3  \
 			      && IS_SET(ch->pcdata->flags, PCFLAG_UNAUTHED) )
 
 #define IS_WAITING_FOR_AUTH(ch) (!IS_NPC(ch) && ch->desc		     \
-			      && ch->pcdata->auth_state == 1		     \
+			      && ch->pcdata->AuthState == 1		     \
 			      && IS_SET(ch->pcdata->flags, PCFLAG_UNAUTHED) )
 
 #define KEY( literal, field, value )					\
@@ -3591,8 +3591,8 @@ extern HourMinSec *set_boot_time;
 extern struct tm *new_boot_time;
 extern time_t new_boot_time_t;
 
-extern const struct str_app_type str_app[41];
-extern const struct int_app_type int_app[41];
+extern const struct StrAppType str_app[41];
+extern const struct IntAppType int_app[41];
 extern const struct wis_app_type wis_app[41];
 extern const struct dex_app_type dex_app[41];
 extern const struct con_app_type con_app[41];

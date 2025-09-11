@@ -199,24 +199,24 @@ const char *const spice_table[] = { // must remain 10 entries (used dynamically)
 // Build a space-separated list of table entries. wordwrap requires mutable char*.
 static char *build_joined_table(size_t count, const char *const *table)
 {
-        static char outbuf[MaxStringLength];
-        outbuf[0] = '\0';
+        static char OutBuf[MaxStringLength];
+        OutBuf[0] = '\0';
         int len = 0;
         for (size_t i = 0; i < count; ++i)
         {
                 if (i)
                 {
-                        int added = snprintf(outbuf + len, MSL - static_cast<size_t>(len), " ");
+                        int added = snprintf(OutBuf + len, MSL - static_cast<size_t>(len), " ");
                         if (added <= 0) break;
                         len += added;
                         if (static_cast<size_t>(len) >= MSL) break;
                 }
-                int added = snprintf(outbuf + len, MSL - static_cast<size_t>(len), "%s", table[i]);
+                int added = snprintf(OutBuf + len, MSL - static_cast<size_t>(len), "%s", table[i]);
                 if (added <= 0) break;
                 len += added;
                 if (static_cast<size_t>(len) >= MSL) break;
         }
-        return outbuf;
+        return OutBuf;
 }
 
 // Overloads to accept int directions without triggering -Wconversion
@@ -870,7 +870,7 @@ CMDF do_goto(CharData * ch, const char *argument)
         {
                 if (!BuildUtils::safe_atoi(arg, vnum) || !BuildUtils::is_valid_vnum(vnum))
                 {
-                        send_to_char("Invalid room number. Please enter a valid VNUM (1-200000).\n\r", ch);
+                        send_to_char("Invalid room number. Please enter a Valid VNUM (1-200000).\n\r", ch);
                         return;
                 }
                 if (get_room_index(vnum))
@@ -930,7 +930,7 @@ CMDF do_goto(CharData * ch, const char *argument)
         {
                 if (!BuildUtils::safe_atoi(arg, vnum) || !BuildUtils::is_valid_vnum(vnum))
                 {
-                        send_to_char("Invalid room number. Please enter a valid VNUM (1-200000).\n\r", ch);
+                        send_to_char("Invalid room number. Please enter a Valid VNUM (1-200000).\n\r", ch);
                         return;
                 }
 
@@ -1021,7 +1021,7 @@ CMDF do_mset(CharData * ch, char *argument)
         char      arg2[MaxInputLength];
         char      arg3[MaxInputLength];
         char      buf[MaxStringLength];
-        char      outbuf[MaxStringLength];
+        char      OutBuf[MaxStringLength];
         int       num, size, plus;
         char      char1, char2;
         CharData *victim;
@@ -1547,7 +1547,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 {
                         static char human_race[] = "human"; // mutable to silence write-strings
                         victim->race = get_race(human_race);
-                        send_to_char("That is not a valid race.", ch);
+                        send_to_char("That is not a Valid race.", ch);
                         return;
                 }
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
@@ -1603,18 +1603,18 @@ CMDF do_mset(CharData * ch, char *argument)
                         victim->pIndexData->hitroll = victim->hitroll;
                         victim->pIndexData->damroll = victim->damroll;
                 }
-                snprintf(outbuf, MSL, "%s damnumdie %d", arg1, value / 10);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s damsizedie %d", arg1, 4);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s damplus %d", arg1, 2);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s hitnumdie %d", arg1, value / 5);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s hitsizedie %d", arg1, 10);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s hitplus %d", arg1, value * 10);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s damnumdie %d", arg1, value / 10);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s damsizedie %d", arg1, 4);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s damplus %d", arg1, 2);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s hitnumdie %d", arg1, value / 5);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s hitsizedie %d", arg1, 10);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s hitplus %d", arg1, value * 10);
+                do_mset(ch, OutBuf);
 
                 return;
         }
@@ -2203,7 +2203,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!validate_spec_fun(arg3))
                 {
                         ch_printf(ch,
-                                  "%s is not a valid spec_fun for mobiles.\n\r",
+                                  "%s is not a Valid spec_fun for mobiles.\n\r",
                                   arg3);
                         return;
                 }
@@ -2281,7 +2281,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!validate_spec_fun(arg3))
                 {
                         ch_printf(ch,
-                                  "%s is not a valid spec_fun for mobiles.\n\r",
+                                  "%s is not a Valid spec_fun for mobiles.\n\r",
                                   arg3);
                         return;
                 }
@@ -2518,8 +2518,8 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                snprintf(outbuf, MSL, "%s resistant %s", arg1, arg3);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s resistant %s", arg1, arg3);
+                do_mset(ch, OutBuf);
                 return;
         }
         if (!str_cmp(arg2, "i"))
@@ -2535,8 +2535,8 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
 
 
-                snprintf(outbuf, MSL, "%s immune %s", arg1, arg3);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s immune %s", arg1, arg3);
+                do_mset(ch, OutBuf);
                 return;
         }
         if (!str_cmp(arg2, "s"))
@@ -2551,8 +2551,8 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                snprintf(outbuf, MSL, "%s susceptible %s", arg1, arg3);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s susceptible %s", arg1, arg3);
+                do_mset(ch, OutBuf);
                 return;
         }
         if (!str_cmp(arg2, "ri"))
@@ -2567,10 +2567,10 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                snprintf(outbuf, MSL, "%s resistant %s", arg1, arg3);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s immune %s", arg1, arg3);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s resistant %s", arg1, arg3);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s immune %s", arg1, arg3);
+                do_mset(ch, OutBuf);
                 return;
         }
 
@@ -2586,10 +2586,10 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                snprintf(outbuf, MSL, "%s resistant %s", arg1, arg3);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s susceptible %s", arg1, arg3);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s resistant %s", arg1, arg3);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s susceptible %s", arg1, arg3);
+                do_mset(ch, OutBuf);
                 return;
         }
         if (!str_cmp(arg2, "is"))
@@ -2604,10 +2604,10 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                snprintf(outbuf, MSL, "%s immune %s", arg1, arg3);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s susceptible %s", arg1, arg3);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s immune %s", arg1, arg3);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s susceptible %s", arg1, arg3);
+                do_mset(ch, OutBuf);
                 return;
         }
         if (!str_cmp(arg2, "ris"))
@@ -2622,12 +2622,12 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                snprintf(outbuf, MSL, "%s resistant %s", arg1, arg3);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s immune %s", arg1, arg3);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s susceptible %s", arg1, arg3);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s resistant %s", arg1, arg3);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s immune %s", arg1, arg3);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s susceptible %s", arg1, arg3);
+                do_mset(ch, OutBuf);
                 return;
         }
 
@@ -2900,14 +2900,14 @@ CMDF do_mset(CharData * ch, char *argument)
 
                 sscanf(arg3, "%d %c %d %c %d", &num, &char1, &size, &char2,
                        &plus);
-                snprintf(outbuf, MSL, "%s hitnumdie %d", arg1, num);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s hitnumdie %d", arg1, num);
+                do_mset(ch, OutBuf);
 
-                snprintf(outbuf, MSL, "%s hitsizedie %d", arg1, size);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s hitsizedie %d", arg1, size);
+                do_mset(ch, OutBuf);
 
-                snprintf(outbuf, MSL, "%s hitplus %d", arg1, plus);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s hitplus %d", arg1, plus);
+                do_mset(ch, OutBuf);
                 return;
         }
         /*
@@ -2925,12 +2925,12 @@ CMDF do_mset(CharData * ch, char *argument)
 
                 sscanf(arg3, "%d %c %d %c %d", &num, &char1, &size, &char2,
                        &plus);
-                snprintf(outbuf, MSL, "%s damnumdie %d", arg1, num);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s damsizedie %d", arg1, size);
-                do_mset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s damplus %d", arg1, plus);
-                do_mset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s damnumdie %d", arg1, num);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s damsizedie %d", arg1, size);
+                do_mset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s damplus %d", arg1, plus);
+                do_mset(ch, OutBuf);
                 return;
         }
 
@@ -3210,7 +3210,7 @@ CMDF do_oset(CharData * ch, char *argument)
         char      arg2[MaxInputLength];
         char      arg3[MaxInputLength];
         char      buf[MaxStringLength];
-        char      outbuf[MaxStringLength];
+        char      OutBuf[MaxStringLength];
         ObjData *obj, *tmpobj;
         ExtraDescrData *ed;
         bool      lockobj;
@@ -3377,7 +3377,7 @@ CMDF do_oset(CharData * ch, char *argument)
         separate_obj(obj);
         if (!BuildUtils::safe_atoi(arg3, value))
         {
-                send_to_char("Invalid numeric value. Please enter a valid number.\n\r", ch);
+                send_to_char("Invalid numeric value. Please enter a Valid number.\n\r", ch);
                 return;
         }
 
@@ -3925,59 +3925,59 @@ CMDF do_oset(CharData * ch, char *argument)
          */
         if (!str_cmp(arg2, "ris"))
         {
-                snprintf(outbuf, MSL, "%s affect resistant %s", arg1, arg3);
-                do_oset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s affect immune %s", arg1, arg3);
-                do_oset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s affect susceptible %s", arg1, arg3);
-                do_oset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s affect resistant %s", arg1, arg3);
+                do_oset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s affect immune %s", arg1, arg3);
+                do_oset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s affect susceptible %s", arg1, arg3);
+                do_oset(ch, OutBuf);
                 return;
         }
 
         if (!str_cmp(arg2, "r"))
         {
-                snprintf(outbuf, MSL, "%s affect resistant %s", arg1, arg3);
-                do_oset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s affect resistant %s", arg1, arg3);
+                do_oset(ch, OutBuf);
                 return;
         }
 
         if (!str_cmp(arg2, "i"))
         {
-                snprintf(outbuf, MSL, "%s affect immune %s", arg1, arg3);
-                do_oset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s affect immune %s", arg1, arg3);
+                do_oset(ch, OutBuf);
                 return;
         }
         if (!str_cmp(arg2, "s"))
         {
-                snprintf(outbuf, MSL, "%s affect susceptible %s", arg1, arg3);
-                do_oset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s affect susceptible %s", arg1, arg3);
+                do_oset(ch, OutBuf);
                 return;
         }
 
         if (!str_cmp(arg2, "ri"))
         {
-                snprintf(outbuf, MSL, "%s affect resistant %s", arg1, arg3);
-                do_oset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s affect immune %s", arg1, arg3);
-                do_oset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s affect resistant %s", arg1, arg3);
+                do_oset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s affect immune %s", arg1, arg3);
+                do_oset(ch, OutBuf);
                 return;
         }
 
         if (!str_cmp(arg2, "rs"))
         {
-                snprintf(outbuf, MSL, "%s affect resistant %s", arg1, arg3);
-                do_oset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s affect susceptible %s", arg1, arg3);
-                do_oset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s affect resistant %s", arg1, arg3);
+                do_oset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s affect susceptible %s", arg1, arg3);
+                do_oset(ch, OutBuf);
                 return;
         }
 
         if (!str_cmp(arg2, "is"))
         {
-                snprintf(outbuf, MSL, "%s affect immune %s", arg1, arg3);
-                do_oset(ch, outbuf);
-                snprintf(outbuf, MSL, "%s affect susceptible %s", arg1, arg3);
-                do_oset(ch, outbuf);
+                snprintf(OutBuf, MSL, "%s affect immune %s", arg1, arg3);
+                do_oset(ch, OutBuf);
+                snprintf(OutBuf, MSL, "%s affect susceptible %s", arg1, arg3);
+                do_oset(ch, OutBuf);
                 return;
         }
 
@@ -4635,7 +4635,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                 if (!BuildUtils::safe_atoi(work, sector_value) || 
                     sector_value < 0 || sector_value >= SECT_MAX)
                 {
-                        send_to_char("Invalid sector type. Please enter a valid sector number (0-14).\n\r", ch);
+                        send_to_char("Invalid sector type. Please enter a Valid sector number (0-14).\n\r", ch);
                         return;
                 }
                 location->sector_type = to_shint(sector_value);
@@ -4675,7 +4675,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                 }
                 if (!BuildUtils::safe_atoi(arg3, value) || !BuildUtils::is_valid_vnum(value))
                 {
-                        send_to_char("Invalid key VNUM. Please enter a valid VNUM (1-200000).\n\r", ch);
+                        send_to_char("Invalid key VNUM. Please enter a Valid VNUM (1-200000).\n\r", ch);
                         return;
                 }
                 if (!xit)
@@ -5213,7 +5213,7 @@ CMDF do_ocreate(CharData * ch, char *argument)
                 return;
         }
 
-        // Peek at potential copy vnum without advancing unless it's valid
+        // Peek at potential copy vnum without advancing unless it's Valid
         char *after_cvnum = one_argument(work, arg2);
         cvnum = atoi(arg2);
         if (cvnum > 0)

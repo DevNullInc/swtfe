@@ -93,7 +93,7 @@ void free_channel args((CHANNEL_DATA * channel));
 void free_restore args((RESTORE_DATA * restore));
 void free_changes args((void));
 void free_bounty args((BOUNTY_DATA * bounty));
-void free_baccount(BankAccount * account);
+void free_baccount(BankAccount * Account);
 
 extern RACE_LIST races;
 extern BodyList bodies;

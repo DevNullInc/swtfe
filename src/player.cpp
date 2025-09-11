@@ -53,7 +53,7 @@
 #include "mud.hpp"
 #include "editor.hpp"
 #include "bounty.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "races.hpp"
 /* Telnet protocol constants for GMCP */
 #ifndef IAC
@@ -177,12 +177,12 @@ CMDF do_score(CharData * ch, char *argument)
         pager_printf(ch,
                      "&B|| Q&zuest &BP&zoints:  &w%-5d             &BR&zole &BP&zlaying &BP&zoints:&w  %-5d        &B||\n\r",
                      ch->pcdata->quest_curr,
-                     ch->pcdata->account ? ch->pcdata->account->
+                     ch->pcdata->Account ? ch->pcdata->Account->
                      rppoints : ch->pcdata->rp);
         pager_printf(ch,
                      "&B|| W&zimpy:  &w%-5d                    &BC&zurrent &BR&zPP:&w          %-5d        &B||\n\r",
                      ch->wimpy,
-                     ch->pcdata->account ? ch->pcdata->account->
+                     ch->pcdata->Account ? ch->pcdata->Account->
                      rpcurrent : ch->pcdata->rp);
 #endif
         if (ch->top_level >= 10)
@@ -526,12 +526,12 @@ CMDF do_immscore(CharData * ch, char *argument)
         pager_printf(ch,
                      "&B|| Q&zuest &BP&zoints:  &w%-5d             &BR&zole &BP&zlaying &BP&zoints:&w  %-5d        &B||\n\r",
                      victim->pcdata->quest_curr,
-                     victim->pcdata->account ? victim->pcdata->account->
+                     victim->pcdata->Account ? victim->pcdata->Account->
                      rppoints : victim->pcdata->rp);
         pager_printf(ch,
                      "&B|| W&zimpy:  &w%-5d                    &BC&zurrent &BR&zPP:&w          %-5d        &B||\n\r",
                      victim->wimpy,
-                     victim->pcdata->account ? victim->pcdata->account->
+                     victim->pcdata->Account ? victim->pcdata->Account->
                      rpcurrent : victim->pcdata->rp);
 #endif
         ch_printf(ch,
@@ -2186,7 +2186,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
 
         if (!str_cmp(arg, "fastengineer"))
         {
-                if (ch->pcdata->account->rpcurrent < 8)
+                if (ch->pcdata->Account->rpcurrent < 8)
                 {
                         send_to_char
                                 ("&RYou need 8 RPP to buy this reward.&D\n\r",
@@ -2205,14 +2205,14 @@ CMDF do_rpreward(CharData * ch, char *argument)
                 send_to_char
                         ("&GYou have been rewarded for your RP with the Fast Engineering ability.\n\r&D",
                          ch);
-                ch->pcdata->account->rpcurrent -= 8;
-                save_account(ch->pcdata->account);
+                ch->pcdata->Account->rpcurrent -= 8;
+                save_account(ch->pcdata->Account);
                 return;
         }
 
         if (!str_cmp(arg, "train"))
         {
-                if (ch->pcdata->account->rpcurrent < 3)
+                if (ch->pcdata->Account->rpcurrent < 3)
                 {
                         send_to_char
                                 ("&RYou need 3 RPP to buy this reward.&D\n\r",
@@ -2229,7 +2229,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
                 ClanData *clan;
                 char      filename[256];
 
-                if (ch->pcdata->account->rpcurrent < 10)
+                if (ch->pcdata->Account->rpcurrent < 10)
                 {
                         send_to_char
                                 ("&RYou need 10 RPP to buy this reward.\n\r&D",
@@ -2286,8 +2286,8 @@ CMDF do_rpreward(CharData * ch, char *argument)
                         ("&GYour new clan has been created. Use clanstat and clanset to modify.&D\n\r",
                          ch);
                 ch->pcdata->clan = clan;
-                ch->pcdata->account->rpcurrent -= 10;
-                save_account(ch->pcdata->account);
+                ch->pcdata->Account->rpcurrent -= 10;
+                save_account(ch->pcdata->Account);
                 return;
         }
 
@@ -2295,7 +2295,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
         {
                 RaceData *race;
 
-                if (ch->pcdata->account->rpcurrent < 5)
+                if (ch->pcdata->Account->rpcurrent < 5)
                 {
                         send_to_char
                                 ("&RYou need 5 RPP to buy this reward.\n\r&D",
@@ -2305,7 +2305,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
 
                 if (!(race = get_race(argument)))
                 {
-                        send_to_char("&RThat is not a valid race!\n\r&D", ch);
+                        send_to_char("&RThat is not a Valid race!\n\r&D", ch);
                         return;
                 }
 
@@ -2406,8 +2406,8 @@ CMDF do_rpreward(CharData * ch, char *argument)
                 send_to_char
                         ("&GYour race has been changed. Enjoy your new RP possibilities!&D\n\r",
                          ch);
-                ch->pcdata->account->rpcurrent -= 5;
-                save_account(ch->pcdata->account);
+                ch->pcdata->Account->rpcurrent -= 5;
+                save_account(ch->pcdata->Account);
                 return;
         }
 

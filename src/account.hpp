@@ -52,7 +52,7 @@
 // Account System Constants
 // =============================================================================
 
-constexpr const char* ACCOUNT_DIR = "../account/";
+constexpr const char* ACCOUNT_DIR = "../Account/";
 
 // Note: These will be defined after including mud.hpp where BV00/BV01 are defined
 #define ACCOUNT_SOUND ACCOUNT_MSP
@@ -106,12 +106,12 @@ struct account_data
 [[nodiscard]] ACCOUNT_DATA *load_account(const char *name);
 [[nodiscard]] ACCOUNT_DATA *load_account(std::string_view name);
 [[nodiscard]] ACCOUNT_DATA *create_account() noexcept;
-void save_account(ACCOUNT_DATA *account);
-[[nodiscard]] bool add_to_account(ACCOUNT_DATA *account, CharData *ch);
-[[nodiscard]] bool add_to_account(std::shared_ptr<ACCOUNT_DATA> account, std::shared_ptr<CharData> ch);
-[[nodiscard]] bool del_from_account(ACCOUNT_DATA *account, CharData *ch);
-[[nodiscard]] bool del_from_account(std::shared_ptr<ACCOUNT_DATA> account, std::shared_ptr<CharData> ch);
+void save_account(ACCOUNT_DATA *Account);
+[[nodiscard]] bool add_to_account(ACCOUNT_DATA *Account, CharData *ch);
+[[nodiscard]] bool add_to_account(std::shared_ptr<ACCOUNT_DATA> Account, std::shared_ptr<CharData> ch);
+[[nodiscard]] bool del_from_account(ACCOUNT_DATA *Account, CharData *ch);
+[[nodiscard]] bool del_from_account(std::shared_ptr<ACCOUNT_DATA> Account, std::shared_ptr<CharData> ch);
 void show_account_characters(DescriptorData *d);
 void show_account_characters(std::shared_ptr<DescriptorData> d);
-void free_account(ACCOUNT_DATA *account);
-void fread_account(ACCOUNT_DATA *account, FILE *fp);
+void free_account(ACCOUNT_DATA *Account);
+void fread_account(ACCOUNT_DATA *Account, FILE *fp);

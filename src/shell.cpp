@@ -108,7 +108,7 @@ CMDF do_mudexec(CharData* ch, const char* argument)
         bool iafork = false;
 
 #ifdef MCCP
-        int compressing = 0;
+        int Compressing = 0;
 #endif
 
         if (!ch->desc)
@@ -127,7 +127,7 @@ CMDF do_mudexec(CharData* ch, const char* argument)
         set_char_color(AT_PLAIN, ch);
 
 #ifdef MCCP
-        compressing = ch->desc->compressing;
+        Compressing = ch->desc->Compressing;
         compressEnd(ch->desc);
 #endif
 
@@ -176,22 +176,22 @@ CMDF do_mudexec(CharData* ch, const char* argument)
                 execvp(argv[0], argv);
 
 #ifdef MCCP
-                if (compressing)
-                        compressStart(ch->desc, compressing);
+                if (Compressing)
+                        compressStart(ch->desc, Compressing);
 #endif
-                fprintf(stderr, "Shell process: %s failed!\n", argument);
+                fprintf(stderr, "Shell Process: %s failed!\n", argument);
                 perror("mudexec");
                 exit(0);
         }
         else if (pid < 2)
         {
                 send_to_char("Process fork failed.\n\r", ch);
-                fprintf(stderr, "%s", "Shell process: fork failed!\n");
+                fprintf(stderr, "%s", "Shell Process: fork failed!\n");
                 return;
         }
         else
         {
-                ch->desc->process = pid;
+                ch->desc->Process = pid;
                 ch->desc->connected = iafork ? ConIaForked : ConForked;
         }
 }
@@ -270,7 +270,7 @@ CMDF do_compile(CharData* ch, std::string_view argument) {
 GREP In-Game command	-Nopey
 ====================
 */
-/* Modified by Samson to be a bit less restrictive. So one can grep anywhere the account will allow. */
+/* Modified by Samson to be a bit less restrictive. So one can grep anywhere the Account will allow. */
 // Modernize: Use std::string_view, validate arguments for security
 CMDF do_grep(CharData* ch, std::string_view argument) {
         std::ostringstream oss;

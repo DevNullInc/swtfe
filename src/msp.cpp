@@ -37,13 +37,13 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- * Mud Sound Protocol implementation for audio effects in the game client.              *
+ * Mud Sound Protocol implementation for audio effects in the game Client.              *
  ****************************************************************************************/
 #include <string.h>
 #include <arpa/telnet.h>
 #include "mud.hpp"
 #include "msp.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 
 /* Good Example:
  * do_beep
@@ -74,8 +74,8 @@ CMDF do_testsound(CharData * ch, char *argument)
 void reset_sound(CharData * ch)
 {
 #ifdef ACCOUNT
-        if (ch->pcdata->account
-            && !IS_SET(ch->pcdata->account->flags, ACCOUNT_SOUND))
+        if (ch->pcdata->Account
+            && !IS_SET(ch->pcdata->Account->flags, ACCOUNT_SOUND))
                 return;
 #endif
         if (!IS_SET(ch->act, PLR_SOUND))
@@ -86,8 +86,8 @@ void reset_sound(CharData * ch)
 void reset_music(CharData * ch)
 {
 #ifdef ACCOUNT
-        if (ch->pcdata->account
-            && !IS_SET(ch->pcdata->account->flags, ACCOUNT_SOUND))
+        if (ch->pcdata->Account
+            && !IS_SET(ch->pcdata->Account->flags, ACCOUNT_SOUND))
                 return;
 #endif
         if (!IS_SET(ch->act, PLR_SOUND))
@@ -132,8 +132,8 @@ void sound_to_char(CharData * ch, char *sound)
         if (IS_NPC(ch))
                 return;
 #ifdef ACCOUNT
-        if (ch->pcdata->account
-            && !IS_SET(ch->pcdata->account->flags, ACCOUNT_SOUND))
+        if (ch->pcdata->Account
+            && !IS_SET(ch->pcdata->Account->flags, ACCOUNT_SOUND))
                 return;
 #endif
         if (!IS_SET(ch->act, PLR_SOUND))
@@ -154,9 +154,9 @@ CMDF do_sound(CharData * ch, char *argument)
                 bool      sound = FALSE;
 
 #ifdef ACCOUNT
-                if (ch->pcdata->account)
+                if (ch->pcdata->Account)
                 {
-                        if (IS_SET(ch->pcdata->account->flags, ACCOUNT_SOUND))
+                        if (IS_SET(ch->pcdata->Account->flags, ACCOUNT_SOUND))
                                 sound = TRUE;
                 }
                 else
@@ -171,8 +171,8 @@ CMDF do_sound(CharData * ch, char *argument)
         if (!str_cmp(argument, "on"))
         {
 #ifdef ACCOUNT
-                if (ch->pcdata->account)
-                        SET_BIT(ch->pcdata->account->flags, ACCOUNT_SOUND);
+                if (ch->pcdata->Account)
+                        SET_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
                 else
 #endif
                         SET_BIT(ch->act, PLR_SOUND);
@@ -184,8 +184,8 @@ CMDF do_sound(CharData * ch, char *argument)
         else if (!str_cmp(argument, "off"))
         {
 #ifdef ACCOUNT
-                if (ch->pcdata->account)
-                        REMOVE_BIT(ch->pcdata->account->flags, ACCOUNT_SOUND);
+                if (ch->pcdata->Account)
+                        REMOVE_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
 #endif
                 REMOVE_BIT(ch->act, PLR_SOUND);
                 send_to_char("Okay... SOUND support is now off\n\r", ch);
@@ -195,7 +195,7 @@ CMDF do_sound(CharData * ch, char *argument)
         {
                 if (!ch->desc)
                         return;
-                if (ch->desc->msp_detected)
+                if (ch->desc->MspDetected)
                         do_sound(ch, "on");
                 else
                         do_sound(ch, "off");
@@ -204,8 +204,8 @@ CMDF do_sound(CharData * ch, char *argument)
         else if (!str_cmp(argument, "toggle"))
         {
 #ifdef ACCOUNT
-                if (ch->pcdata->account)
-                        TOGGLE_BIT(ch->pcdata->account->flags, ACCOUNT_SOUND);
+                if (ch->pcdata->Account)
+                        TOGGLE_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
                 else
 #endif
                         TOGGLE_BIT(ch->act, PLR_SOUND);

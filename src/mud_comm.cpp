@@ -1568,7 +1568,7 @@ CMDF do_mpsector(CharData * ch, char *argument)
         if (wroom->sector_type < 0 || wroom->sector_type >= SECT_MAX)
         {
                 wroom->sector_type = 1;
-                progbug("Mpsector - Not a valid sector", ch);
+                progbug("Mpsector - Not a Valid sector", ch);
                 return;
         }
         fold_area(wroom->area, wroom->area->filename, FALSE, TRUE);
@@ -1644,13 +1644,13 @@ CMDF do_mpapply(CharData * ch, char *argument)
         if (!NOT_AUTHED(victim))
                 return;
 
-        if (victim->pcdata->auth_state >= 1)
+        if (victim->pcdata->AuthState >= 1)
                 return;
 
         snprintf(log_buf, MSL, "%s@%s new %s applying for authorization...",
                  victim->name, victim->desc->host, victim->race->name());
         log_string(log_buf);
-        victim->pcdata->auth_state = 1;
+        victim->pcdata->AuthState = 1;
         return;
 }
 
@@ -1691,7 +1691,7 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
         if (get_timer(victim, TIMER_APPLIED) >= 1)
                 return;
 
-        switch (victim->pcdata->auth_state)
+        switch (victim->pcdata->AuthState)
         {
         case 0:
         case 1:
@@ -1704,7 +1704,7 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
                          victim->race->name());
                 log_string(log_buf);
                 add_timer(victim, TIMER_APPLIED, 10, NULL, 0);
-                victim->pcdata->auth_state = 1;
+                victim->pcdata->AuthState = 1;
                 break;
 
         case 2:

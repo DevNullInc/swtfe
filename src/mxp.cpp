@@ -80,7 +80,7 @@ CMDF do_mxp(CharData * ch, char *argument)
         }
         else if (!str_cmp(argument, "toggle"))
         {
-                if (!ch->desc->out_compress)
+                if (!ch->desc->OutCompress)
                 {
                         do_mxp(ch, "on");
                         return;
@@ -139,7 +139,7 @@ int count_mxp_tags(DescriptorData * d, const char *txt, int length)
         int       count;
         int       bInTag = FALSE;
         int       bInEntity = FALSE;
-        bool      bMXP = d->mxp_detected;
+        bool      bMXP = d->MxpDetected;
 
 /*	if (d->character)
 		bMXP = IS_SET(d->character->act, PLR_MXP); */
@@ -217,7 +217,7 @@ void convert_mxp_tags(DescriptorData * d, char *dest, const char *src,
         char     *pd;
         int       bInTag = FALSE;
         int       bInEntity = FALSE;
-        bool      bMXP = d->mxp_detected;
+        bool      bMXP = d->MxpDetected;
 
 /*	if (d->character)
 		bMXP = IS_SET(d->character->act, PLR_MXP);*/

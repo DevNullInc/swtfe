@@ -65,7 +65,7 @@
 #include "changes.hpp"
 #include "homes.hpp"
 #include "olc-shuttle.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "channels.hpp"
 #include "space2.hpp"
 
@@ -1308,19 +1308,19 @@ void hotboot(bool debug, bool save)
                         fprintf(fp, "%d %d %d %d %d %s %s %s\n",
                                 d->descriptor, och->in_room->vnum,
 #ifdef MCCP
-                                d->compressing, /* Do we want MCCP compression? */
+                                d->Compressing, /* Do we want MCCP compression? */
 #else
                                 0,
 #endif
-                                (int) d->msp_detected,
-                                (int) d->mxp_detected,
-                                och->name, d->host, d->client);
+                                (int) d->MspDetected,
+                                (int) d->MxpDetected,
+                                och->name, d->host, d->Client);
                         /*
                          * One of two places this gets changed 
                          */
                         och->pcdata->hotboot = TRUE;
                         save_char_obj(och);
-                        save_account(och->pcdata->account);
+                        save_account(och->pcdata->Account);
                         save_home(och);
 #ifdef MCCP
                         compressEnd(d);
@@ -1414,7 +1414,7 @@ void hotboot_recover()
         DescriptorData *d;
         FILE     *fp;
         char      name[100];
-        char      client[100];
+        char      Client[100];
         char      host[MaxStringLength];
         int       desc, room;
         bool      fOld;
@@ -1441,7 +1441,7 @@ void hotboot_recover()
         for (;;)
         {
                 fscanf(fp, "%d %d %d %d %d %s %s %s \n", &desc, &room,
-                       &bCompress, &msp, &mxp, name, host, client);
+                       &bCompress, &msp, &mxp, name, host, Client);
                 if (desc == -1)
                         break;
 
@@ -1468,20 +1468,20 @@ void hotboot_recover()
                 if (d->host)
                         STRFREE(d->host);
                 d->host = STRALLOC(host);
-                if (d->client)
-                        STRFREE(d->client);
-                d->client = STRALLOC(client);
-                d->mxp_detected = (bool) mxp;
-                d->msp_detected = (bool) msp;
+                if (d->Client)
+                        STRFREE(d->Client);
+                d->Client = STRALLOC(Client);
+                d->MxpDetected = (bool) mxp;
+                d->MspDetected = (bool) msp;
                 d->host = STRALLOC(host);
-                d->ifd = -1;
-                d->ipid = -1;
+                d->IFd = -1;
+                d->IPid = -1;
 
                 LINK(d, first_descriptor, last_descriptor, next, prev);
                 d->connected = ConCopyoverRecover;    /* negative so close_socket
                                                          * will cut them off */
                 /*
-                 * telet negotiation asking what thier client is 
+                 * telet negotiation asking what thier Client is 
                  */
                 write_to_buffer(d, (const char *) do_termtype_str, 0);
 #ifdef MCCP
@@ -1521,7 +1521,7 @@ void hotboot_recover()
                         load_home(d->character);
                         d->connected = ConPlaying;
 #ifdef ACCOUNT
-                        d->account = d->character->pcdata->account;
+                        d->Account = d->character->pcdata->Account;
 #endif
 
                         if (d->character->pcdata->area)

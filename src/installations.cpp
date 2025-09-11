@@ -629,7 +629,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         if (!planet)
         {
                 send_to_char
-                        ("&RYou are not in a valid place to build that. Try a large planet.&C&w",
+                        ("&RYou are not in a Valid place to build that. Try a large planet.&C&w",
                          ch);
                 return;
         }
@@ -748,7 +748,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 }
                 else
                 {
-                        send_to_char("Not a valid direction\r\n", ch);
+                        send_to_char("Not a Valid direction\r\n", ch);
                         return;
                 }
 
@@ -848,7 +848,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of starting an installation.\n\r",
+                                ("&GYou begin the long Process of starting an installation.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and starts the production of an installation.\r\n",
@@ -1114,7 +1114,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
 
         else
         {
-                send_to_char("Not a valid direction\r\n", ch);
+                send_to_char("Not a Valid direction\r\n", ch);
                 return;
         }
 
@@ -1443,7 +1443,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
                 else
                 {
-                        send_to_char("Not a valid direction\r\n", ch);
+                        send_to_char("Not a Valid direction\r\n", ch);
                         return;
                 }
 
@@ -1493,7 +1493,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of creating a locked door.\n\r",
+                                ("&GYou begin the long Process of creating a locked door.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and begins to work on something.",
@@ -1617,7 +1617,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
         else
         {
                 send_to_char
-                        ("Not a valid direction, but this should not have happened. Talk to Greven.\r\n",
+                        ("Not a Valid direction, but this should not have happened. Talk to Greven.\r\n",
                          ch);
                 return;
         }
@@ -1769,7 +1769,7 @@ CMDF do_makekey(CharData * ch, char *argument)
 
                         else
                         {
-                                send_to_char("Not a valid direction\r\n", ch);
+                                send_to_char("Not a Valid direction\r\n", ch);
                                 return;
                         }
                 }
@@ -1800,7 +1800,7 @@ CMDF do_makekey(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long process of creating a key.\n\r",
+                                ("&GYou begin the long Process of creating a key.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s tools and begins to work on something.",
@@ -1965,7 +1965,7 @@ CMDF do_makekey(CharData * ch, char *argument)
                 else
                 {
                         send_to_char
-                                ("Not a valid direction, but this should not have happened. Talk to Greven.\r\n",
+                                ("Not a Valid direction, but this should not have happened. Talk to Greven.\r\n",
                                  ch);
                         return;
                 }
@@ -2453,7 +2453,7 @@ void addroominstallation(CharData * ch, char *argument)
         }
         else
         {
-                send_to_char("Not a valid direction\r\n", ch);
+                send_to_char("Not a Valid direction\r\n", ch);
                 return;
         }
 
@@ -2837,7 +2837,7 @@ void addroominstallation(CharData * ch, char *argument)
         }
         else
         {
-                send_to_char("Not a valid direction\r\n", ch);
+                send_to_char("Not a Valid direction\r\n", ch);
                 return;
         }
         installation->last_built = room->vnum;

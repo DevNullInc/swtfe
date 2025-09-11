@@ -89,7 +89,7 @@ CMDF do_remember(CharData * ch, char * argument)
 /*
  * This is how you get players in the room too
  *
- * so take into account remembered info
+ * so take into Account remembered info
  *
  * then to a str_prefix or nifty is name or something on get_char_here
  * */

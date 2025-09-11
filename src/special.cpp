@@ -1707,7 +1707,7 @@ SPECF spec_auth(CharData * ch)
                 /*
                  * Prevent people who need name changes from being authed 
                  */
-                if (victim->pcdata->auth_state == 2)
+                if (victim->pcdata->AuthState == 2)
                         continue;
                 if (!IS_NPC(victim)
                     && (pObjIndex =
@@ -1735,7 +1735,7 @@ SPECF spec_auth(CharData * ch)
                     || !IS_SET(victim->pcdata->flags, PCFLAG_UNAUTHED))
                         continue;
 
-                victim->pcdata->auth_state = 3;
+                victim->pcdata->AuthState = 3;
                 REMOVE_BIT(victim->pcdata->flags, PCFLAG_UNAUTHED);
                 if (victim->pcdata->authed_by)
                         STRFREE(victim->pcdata->authed_by);

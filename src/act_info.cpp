@@ -66,7 +66,7 @@
 #endif
 #include "editor.hpp"
 #include "boards.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "astral.hpp"
 #include "races.hpp"
 #include "greet.hpp"
@@ -4622,7 +4622,7 @@ CMDF do_config(CharData * ch, char *argument)
                              "[-ansi     ] You don't receive receive ANSI colors.\n\r",
                              ch);
 #ifdef ACCOUNT
-                if (ch->pcdata->account)
+                if (ch->pcdata->Account)
                         send_to_char(IS_SET(ch->pcdata->flags, ACCOUNT_SOUND)
                                      ?
                                      "[+SOUND    ] You have MSP support.\n\r"
@@ -5111,10 +5111,10 @@ CMDF do_whois(CharData * ch, char *argument)
                                  victim->name, victim->desc->host);
                         mudstrlcat(buf, "\n\r", MSL);
                         send_to_char(buf, ch);
-                        if (victim->desc && victim->desc->client[0] != '\0')
+                        if (victim->desc && victim->desc->Client[0] != '\0')
                         {
-                                ch_printf(ch, "&z%s's client is &w%s\n\r",
-                                          victim->name, victim->desc->client);
+                                ch_printf(ch, "&z%s's Client is &w%s\n\r",
+                                          victim->name, victim->desc->Client);
                         }
                 }
                 if (get_trust(ch) >= LevelGod
@@ -5130,10 +5130,10 @@ CMDF do_whois(CharData * ch, char *argument)
                                   "  &zMCCP:   &w%s"
 #endif
                                   "\n\r",
-                                  victim->desc->msp_detected ? "On " : "Off",
-                                  victim->desc->mxp_detected ? "On " : "Off"
+                                  victim->desc->MspDetected ? "On " : "Off",
+                                  victim->desc->MxpDetected ? "On " : "Off"
 #ifdef MCCP
-                                  , victim->desc->compressing ? "On " : "Off"
+                                  , victim->desc->Compressing ? "On " : "Off"
 #endif
                                 );
                 }

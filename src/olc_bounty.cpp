@@ -472,7 +472,7 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
         if (number != count)
         {
                 send_to_char
-                        ("Please select a valid number for the bounty you want.\n\r",
+                        ("Please select a Valid number for the bounty you want.\n\r",
                          ch);
                 mset_bounty(ch, mob, "");
                 return;

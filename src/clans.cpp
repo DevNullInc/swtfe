@@ -66,7 +66,7 @@
 #include <time.h>
 #include <memory.h>
 #include "mud.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "astral.hpp"
 #include "bounty.hpp"
 #include "space2.hpp"
@@ -1132,7 +1132,7 @@ CMDF do_induct(CharData * ch, char *argument)
 #ifndef ACCOUNT
         if (victim->pcdata->rp < 2)
 #else
-        if (victim->pcdata->account && victim->pcdata->account->rppoints < 2)
+        if (victim->pcdata->Account && victim->pcdata->Account->rppoints < 2)
 #endif
         {
                 ch_printf(ch,
@@ -2646,7 +2646,7 @@ CMDF do_enlist(CharData * ch, char *argument)
 #ifndef ACCOUNT
         if (ch->pcdata->rp < 2)
 #else
-        if (ch->pcdata->account && ch->pcdata->account->rppoints < 2)
+        if (ch->pcdata->Account && ch->pcdata->Account->rppoints < 2)
 #endif
         {
                 ch_printf(ch,

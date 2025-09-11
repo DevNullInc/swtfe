@@ -95,7 +95,7 @@
 #include "hotboot.hpp"
 #include "ban.hpp"
 #include "editor.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "alias.hpp"
 #include "channels.hpp"
 #include "races.hpp"
@@ -263,7 +263,7 @@ void show_stat_options args((DescriptorData * d, CharData * ch));
 
 // Utility functions
 char *current_date args((void));
-sh_int client_speed args((sh_int speed));
+sh_int client_speed args((sh_int Speed));
 
 // Signal handlers
 static void SigTerm(int signum);
@@ -500,7 +500,7 @@ int init_socket(int init_port)
         struct hostent *hp;
         struct servent *sp;
         int       x = 1;
-        int       fd;
+        int       Fd;
 
         gethostname(hostname, sizeof(hostname));
 
@@ -510,17 +510,17 @@ int init_socket(int init_port)
         (void)sp;    /* Currently unused */
 
 
-        if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        if ((Fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         {
                 perror("Init_socket: socket");
                 exit(1);
         }
 
-        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+        if (setsockopt(Fd, SOL_SOCKET, SO_REUSEADDR,
                        static_cast<void *>(&x), sizeof(x)) < 0)
         {
                 perror("Init_socket: SO_REUSEADDR");
-                close(fd);
+                close(Fd);
                 exit(1);
         }
 
@@ -531,11 +531,11 @@ int init_socket(int init_port)
                 ld.l_onoff = 1;
                 ld.l_linger = SOCKET_LINGER_TIME;
 
-                if (setsockopt(fd, SOL_SOCKET, SO_DONTLINGER,
+                if (setsockopt(Fd, SOL_SOCKET, SO_DONTLINGER,
                                static_cast<void *>()&ld, sizeof(ld)) < 0)
                 {
                         perror("Init_socket: SO_DONTLINGER");
-                        close(fd);
+                        close(Fd);
                         exit(1);
                 }
         }
@@ -545,21 +545,21 @@ int init_socket(int init_port)
         sa.sin_family = AF_INET;    /* hp->h_addrtype; */
         sa.sin_port = htons(static_cast<uint16_t>(init_port));
 
-        if (bind(fd, reinterpret_cast<struct sockaddr *>(&sa), sizeof(sa)) == -1)
+        if (bind(Fd, reinterpret_cast<struct sockaddr *>(&sa), sizeof(sa)) == -1)
         {
                 perror("Init_socket: bind");
-                close(fd);
+                close(Fd);
                 exit(1);
         }
 
-        if (listen(fd, 50) < 0)
+        if (listen(Fd, 50) < 0)
         {
                 perror("Init_socket: listen");
-                close(fd);
+                close(Fd);
                 exit(1);
         }
 
-        return fd;
+        return Fd;
 }
 
 static void SegVio(int signum)
@@ -818,10 +818,10 @@ void accept_new(int ctrl)
                 FD_SET(d->descriptor, &in_set);
                 FD_SET(d->descriptor, &out_set);
                 FD_SET(d->descriptor, &exc_set);
-                if (d->ifd != -1 && d->ipid != -1)
+                if (d->IFd != -1 && d->IPid != -1)
                 {
-                        maxdesc = UMAX(maxdesc, d->ifd);
-                        FD_SET(d->ifd, &in_set);
+                        maxdesc = UMAX(maxdesc, d->IFd);
+                        FD_SET(d->IFd, &in_set);
                 }
                 if (d == last_descriptor)
                         break;
@@ -904,7 +904,7 @@ void game_loop()
                                     && (d->connected == ConPlaying
                                         || d->connected == ConEditing))
                                         save_char_obj(d->character);
-                                d->outtop = 0;
+                                d->OutTop = 0;
                                 close_socket(d, TRUE);
                                 continue;
                         }
@@ -915,7 +915,7 @@ void game_loop()
                                 write_to_descriptor(d->descriptor,
                                                     const_cast<char *>(const_cast<char *>("Idle timeout... disconnecting.\n\r")),
                                                     0);
-                                d->outtop = 0;
+                                d->OutTop = 0;
                                 close_socket(d, TRUE);
                                 continue;
                         }
@@ -939,15 +939,15 @@ void game_loop()
                                                         ConEditing))
                                                         save_char_obj(d->
                                                                       character);
-                                                d->outtop = 0;
+                                                d->OutTop = 0;
                                                 close_socket(d, FALSE);
                                                 continue;
                                         }
                                 }
 
                                 if ((d->connected == ConPlaying
-                                     || d->character != NULL) && d->ifd != -1
-                                    && FD_ISSET(d->ifd, &in_set))
+                                     || d->character != NULL) && d->IFd != -1
+                                    && FD_ISSET(d->IFd, &in_set))
                                         process_dns(d);
 
                                 if (d->character && d->character->wait > 0)
@@ -957,15 +957,15 @@ void game_loop()
                                 }
 
                                 read_from_buffer(d);
-                                if (d->incomm[0] != '\0')
+                                if (d->InComm[0] != '\0')
                                 {
                                         d->fcommand = TRUE;
                                         stop_idling(d->character);
 
-                                        mudstrlcpy(cmdline, d->incomm, MIL);
-                                        d->incomm[0] = '\0';
+                                        mudstrlcpy(cmdline, d->InComm, MIL);
+                                        d->InComm[0] = '\0';
 
-                                        if (d->pagepoint)
+                                        if (d->PagePoint)
                                                 set_pager_input(d, cmdline);
                                         else
                                                 switch (d->connected)
@@ -1004,10 +1004,10 @@ void game_loop()
                 {
                         d_next = d->next;
 
-                        if ((d->fcommand || d->outtop > 0)
+                        if ((d->fcommand || d->OutTop > 0)
                             && FD_ISSET(d->descriptor, &out_set))
                         {
-                                if (d->pagepoint)
+                                if (d->PagePoint)
                                 {
                                         if (!pager_output(d))
                                         {
@@ -1018,7 +1018,7 @@ void game_loop()
                                                         ConEditing))
                                                         save_char_obj(d->
                                                                       character);
-                                                d->outtop = 0;
+                                                d->OutTop = 0;
                                                 close_socket(d, FALSE);
                                         }
                                 }
@@ -1029,7 +1029,7 @@ void game_loop()
                                                 || d->connected ==
                                                 ConEditing))
                                                 save_char_obj(d->character);
-                                        d->outtop = 0;
+                                        d->OutTop = 0;
                                         close_socket(d, FALSE);
                                 }
                         }
@@ -1101,27 +1101,27 @@ void game_loop()
 void init_descriptor(DescriptorData * dnew, int desc)
 {
         dnew->next = NULL;
-        dnew->process = 0;  /* Samson 4-16-98 - For new command shell */
+        dnew->Process = 0;  /* Samson 4-16-98 - For new command shell */
         dnew->descriptor = desc;
 #ifndef ACCOUNT
         dnew->connected = ConGetName;
 #else
         dnew->connected = ConGetAccount;
 #endif
-        dnew->outsize = 2000;
+        dnew->OutSize = 2000;
         dnew->idle = 0;
         dnew->lines = 0;
         dnew->scrlen = 24;
-        dnew->auth_state = 0;
-        dnew->newstate = 0;
-        dnew->prevcolor = 0x07;
-        dnew->speed = 3;
+        dnew->AuthState = 0;
+        dnew->NewState = 0;
+        dnew->PrevColor = 0x07;
+        dnew->Speed = 3;
         /*
-         * What client is the user using? 
+         * What Client is the user using? 
          */
-        dnew->client = STRALLOC(const_cast<char *>("(unknown)"));
-        dnew->mxp_detected = FALSE; /* turn off MXP initaly */
-        dnew->msp_detected = FALSE; /* turn off MSP initaly */
+        dnew->Client = STRALLOC(const_cast<char *>("(unknown)"));
+        dnew->MxpDetected = FALSE; /* turn off MXP initaly */
+        dnew->MspDetected = FALSE; /* turn off MSP initaly */
         /*
          * force ansi - Dude, as samson said, it is the 2003s - Gavin
          */
@@ -1129,12 +1129,12 @@ void init_descriptor(DescriptorData * dnew, int desc)
          * FIXME dnew->ansi     = TRUE; 
          */
 #ifdef ACCOUNT
-        dnew->account = NULL;
+        dnew->Account = NULL;
 #endif
-        dnew->ifd = -1; /* Descriptor pipes, used for DNS resolution and such */
-        dnew->ipid = -1;
+        dnew->IFd = -1; /* Descriptor pipes, used for DNS resolution and such */
+        dnew->IPid = -1;
 
-        CREATE(dnew->outbuf, char, dnew->outsize);
+        CREATE(dnew->OutBuf, char, dnew->OutSize);
 }
 
 
@@ -1313,11 +1313,11 @@ void free_desc(DescriptorData * d)
 {
         close(d->descriptor);
         STRFREE(d->host);
-        DISPOSE(d->outbuf);
-        if (d->pagebuf)
-                DISPOSE(d->pagebuf);
-        if (d->client)
-                STRFREE(d->client);
+        DISPOSE(d->OutBuf);
+        if (d->PageBuf)
+                DISPOSE(d->PageBuf);
+        if (d->Client)
+                STRFREE(d->Client);
 #ifdef MCCP
         compressEnd(d);
 #endif
@@ -1332,20 +1332,20 @@ void close_socket(DescriptorData * dclose, bool force)
         DescriptorData *d;
         bool      DoNotUnlink = FALSE;
 
-        if (dclose->ipid != -1)
+        if (dclose->IPid != -1)
         {
                 int       status;
 
-                kill(dclose->ipid, SIGKILL);
-                waitpid(dclose->ipid, &status, 0);
+                kill(dclose->IPid, SIGKILL);
+                waitpid(dclose->IPid, &status, 0);
         }
-        if (dclose->ifd != -1)
-                close(dclose->ifd);
+        if (dclose->IFd != -1)
+                close(dclose->IFd);
 
         /*
-         * flush outbuf 
+         * flush OutBuf 
          */
-        if (!force && dclose->outtop > 0)
+        if (!force && dclose->OutTop > 0)
                 flush_buffer(dclose, FALSE);
 
         /*
@@ -1453,10 +1453,10 @@ void close_socket(DescriptorData * dclose, bool force)
                 }
         }
 #ifdef ACCOUNT
-        else if (dclose->account != NULL)
+        else if (dclose->Account != NULL)
         {
-                free_account(dclose->account);
-                dclose->account = NULL;
+                free_account(dclose->Account);
+                dclose->Account = NULL;
         }
 #endif
 
@@ -1490,14 +1490,14 @@ bool read_from_descriptor(DescriptorData * d)
         /*
          * Hold horses if pending command already. 
          */
-        if (d->incomm[0] != '\0')
+        if (d->InComm[0] != '\0')
                 return TRUE;
 
         /*
          * Check for overflow. 
          */
-        iStart = static_cast<int>(strlen(d->inbuf));
-        size_t bufferSize = sizeof(d->inbuf);
+        iStart = static_cast<int>(strlen(d->InBuf));
+        size_t bufferSize = sizeof(d->InBuf);
         if (iStart >= static_cast<int>(bufferSize - 10))
         {
                 snprintf(log_buf, MSL, "%s input overflow!", d->host);
@@ -1511,13 +1511,13 @@ bool read_from_descriptor(DescriptorData * d)
         {
                 ssize_t   nRead;
 
-                nRead = read(d->descriptor, d->inbuf + iStart,
+                nRead = read(d->descriptor, d->InBuf + iStart,
                              bufferSize - 10 - static_cast<size_t>(iStart));
                 if (nRead > 0)
                 {
                         iStart += static_cast<int>(nRead);
-                        if (d->inbuf[iStart - 1] == '\n'
-                            || d->inbuf[iStart - 1] == '\r')
+                        if (d->InBuf[iStart - 1] == '\n'
+                            || d->InBuf[iStart - 1] == '\r')
                                 break;
                 }
                 else if (nRead == 0)
@@ -1535,7 +1535,7 @@ bool read_from_descriptor(DescriptorData * d)
                 }
         }
 
-        d->inbuf[iStart] = '\0';
+        d->InBuf[iStart] = '\0';
         return TRUE;
 }
 
@@ -1552,13 +1552,13 @@ void read_from_buffer(DescriptorData * d)
         /*
          * Hold horses if pending command already.
          */
-        if (d->incomm[0] != '\0')
+        if (d->InComm[0] != '\0')
                 return;
 
         /*
          * Thanks Nick! 
          */
-        p = reinterpret_cast<unsigned char *>(d->inbuf);
+        p = reinterpret_cast<unsigned char *>(d->InBuf);
         for (; *p; p++)
         {
                 if (*p == IAC)
@@ -1568,9 +1568,9 @@ void read_from_buffer(DescriptorData * d)
                              sizeof(term_call_back_str)) == 0)
                         {
                                 // Calculate position using ptrdiff_t to handle pointer differences properly
-                                ptrdiff_t pos_diff = p - reinterpret_cast<unsigned char*>(d->inbuf);  /* where we are in buffer */
+                                ptrdiff_t pos_diff = p - reinterpret_cast<unsigned char*>(d->InBuf);  /* where we are in buffer */
                                 int       pos = static_cast<int>(pos_diff);  /* where we are in buffer */
-                                int       len = static_cast<int>(sizeof(d->inbuf)) - pos - static_cast<int>(sizeof(term_call_back_str));    /* how much to go */
+                                int       len = static_cast<int>(sizeof(d->InBuf)) - pos - static_cast<int>(sizeof(term_call_back_str));    /* how much to go */
                                 char      tmp[100];
                                 unsigned int x = 0;
                                 unsigned char *oldp = p;
@@ -1582,8 +1582,8 @@ void read_from_buffer(DescriptorData * d)
                                      x++, p++)
                                         tmp[x] = static_cast<char>(*p);
                                 tmp[x] = '\0';
-                                STRFREE(d->client);
-                                d->client = STRALLOC(tmp);
+                                STRFREE(d->Client);
+                                d->Client = STRALLOC(tmp);
                                 p += 2; /* skip IAC and SE */
                                 size_t tmp_len = strlen(tmp);
                                 len -= static_cast<int>(tmp_len) + 2;
@@ -1602,7 +1602,7 @@ void read_from_buffer(DescriptorData * d)
          * Look for at least one new line.
          */
         for (i = 0;
-             d->inbuf[i] != '\n' && d->inbuf[i] != '\r' && i < MaxInbufSize;
+             d->InBuf[i] != '\n' && d->InBuf[i] != '\r' && i < MaxInbufSize;
              i++)
         {
 #ifdef DEBUG
@@ -1612,26 +1612,26 @@ void read_from_buffer(DescriptorData * d)
                 mudstrlcpy(buf, "IAC ", 255);
                 for (temp = 1; temp < 5; temp++)
                 {
-                        if (d->inbuf[i + temp] == IAC)
+                        if (d->InBuf[i + temp] == IAC)
                                 break;
 
-                        if (d->inbuf[i + temp] == '\0')
+                        if (d->InBuf[i + temp] == '\0')
                                 mudstrlcat(buf, " NULL", 255);
-                        else if (TELOPT_OK(d->inbuf[i + temp]))
+                        else if (TELOPT_OK(d->InBuf[i + temp]))
                                 mudstrlcat(buf,
                                            telopts[(unsigned int) d->
-                                                   inbuf[i + temp]], 255);
-                        else if (TELCMD_OK(d->inbuf[i + temp]))
+                                                   InBuf[i + temp]], 255);
+                        else if (TELCMD_OK(d->InBuf[i + temp]))
                                 mudstrlcat(buf,
                                            telcmds[((unsigned int) d->
-                                                    inbuf[i + temp]) - 236],
+                                                    InBuf[i + temp]) - 236],
                                            255);
                         else
                         {
                                 char      tempbuf[15];
 
                                 snprintf(tempbuf, MSL, "%d",
-                                         (unsigned int) d->inbuf[i + temp]);
+                                         (unsigned int) d->InBuf[i + temp]);
                                 mudstrlcat(buf, tempbuf, 255);
                         }
 
@@ -1639,104 +1639,104 @@ void read_from_buffer(DescriptorData * d)
                 }
                 bug("TELOPT: %s", buf);
 #endif
-                if (d->inbuf[i] == '\0')
+                if (d->InBuf[i] == '\0')
                         return;
         }
 
         /*
          * Canonical input processing.
          */
-        for (i = 0, k = 0; d->inbuf[i] != '\n' && d->inbuf[i] != '\r'; i++)
+        for (i = 0, k = 0; d->InBuf[i] != '\n' && d->InBuf[i] != '\r'; i++)
         {
                 if (k >= (MaxInbufSize-20))
                 {
                         write_to_descriptor(d->descriptor,
                                             const_cast<char*>("Line too long.\n\r"), 0);
-                        d->inbuf[i] = '\n';
-                        d->inbuf[i + 1] = '\0';
+                        d->InBuf[i] = '\n';
+                        d->InBuf[i + 1] = '\0';
                         break;
                 }
-                if (d->inbuf[i] == static_cast<signed char>(IAC))
+                if (d->InBuf[i] == static_cast<signed char>(IAC))
                         iac = 1;
                 else if (iac == 1
-                         && (d->inbuf[i] == static_cast<signed char>(DO)
-                             || d->inbuf[i] == static_cast<signed char>(DONT)
-                             || d->inbuf[i] == static_cast<signed char>(WILL)))
+                         && (d->InBuf[i] == static_cast<signed char>(DO)
+                             || d->InBuf[i] == static_cast<signed char>(DONT)
+                             || d->InBuf[i] == static_cast<signed char>(WILL)))
                         iac = 2;
                 else if (iac == 2)
                 {
                         iac = 0;
-                        if (d->inbuf[i] == static_cast<signed char>(TERMINAL_TYPE))
+                        if (d->InBuf[i] == static_cast<signed char>(TERMINAL_TYPE))
                         {
-                                if (d->inbuf[i - 1] == static_cast<signed char>(WILL))
+                                if (d->InBuf[i - 1] == static_cast<signed char>(WILL))
                                         write_to_buffer(d,
                                                         reinterpret_cast<const char *>
                                                         (req_termtype_str), 0);
                         }
 #ifdef MCCP
-                        else if (d->inbuf[i] ==
+                        else if (d->InBuf[i] ==
                                  static_cast<signed char>(TeloptCompress2))
                         {
-                                if (d->inbuf[i - 1] == static_cast<signed char>(DO)
-                                    && !d->compressing)
+                                if (d->InBuf[i - 1] == static_cast<signed char>(DO)
+                                    && !d->Compressing)
                                         compressStart(d, TeloptCompress2);
-                                else if (d->compressing == TeloptCompress2
-                                         && d->inbuf[i - 1] ==
+                                else if (d->Compressing == TeloptCompress2
+                                         && d->InBuf[i - 1] ==
                                          static_cast<signed char>(DONT))
                                         compressEnd(d);
                         }
-                        else if (d->inbuf[i] ==
+                        else if (d->InBuf[i] ==
                                  static_cast<signed char>(TeloptCompress2))
                         {
-                                if (d->inbuf[i - 1] == static_cast<signed char>(DO)
-                                    && !d->compressing)
+                                if (d->InBuf[i - 1] == static_cast<signed char>(DO)
+                                    && !d->Compressing)
                                         compressStart(d, TeloptCompress);
-                                else if (d->compressing == TeloptCompress
-                                         && d->inbuf[i - 1] ==
+                                else if (d->Compressing == TeloptCompress
+                                         && d->InBuf[i - 1] ==
                                          static_cast<signed char>(DONT))
                                         compressEnd(d);
                         }
 #endif
-                        else if (d->inbuf[i] == static_cast<signed char>(TELOPT_MXP))
+                        else if (d->InBuf[i] == static_cast<signed char>(TELOPT_MXP))
                         {
-                                if (d->inbuf[i - 1] == static_cast<signed char>(DO))
+                                if (d->InBuf[i - 1] == static_cast<signed char>(DO))
                                 {
-                                        d->mxp_detected = TRUE; /* turn it on now */
+                                        d->MxpDetected = TRUE; /* turn it on now */
                                         send_mxp_stylesheet(d);
 /*					if (d->connected == ConGetAccount)
 						send_to_desc_color( MXPTAG("user"), d);*/
                                 }
-                                else if (d->inbuf[i - 1] ==
+                                else if (d->InBuf[i - 1] ==
                                          static_cast<signed char>(DONT))
-                                        d->mxp_detected = FALSE;
+                                        d->MxpDetected = FALSE;
                         }
-                        else if (d->inbuf[i] == static_cast<signed char>(TELOPT_MSP))
+                        else if (d->InBuf[i] == static_cast<signed char>(TELOPT_MSP))
                         {
-                                if (d->inbuf[i - 1] == static_cast<signed char>(DO))
-                                        d->msp_detected = TRUE;
-                                else if (d->inbuf[i - 1] ==
+                                if (d->InBuf[i - 1] == static_cast<signed char>(DO))
+                                        d->MspDetected = TRUE;
+                                else if (d->InBuf[i - 1] ==
                                          static_cast<signed char>(DONT))
-                                        d->msp_detected = FALSE;
+                                        d->MspDetected = FALSE;
                         }
                 }
-                else if (d->inbuf[i] == '\b' && k > 0)
+                else if (d->InBuf[i] == '\b' && k > 0)
                         --k;
-                else if (isascii(d->inbuf[i]) && isprint(d->inbuf[i]))
-                        d->incomm[k++] = d->inbuf[i];
+                else if (isascii(d->InBuf[i]) && isprint(d->InBuf[i]))
+                        d->InComm[k++] = d->InBuf[i];
         }
         /*
          * Finish off the line.
          */
         if (k == 0)
-                d->incomm[k++] = ' ';
-        d->incomm[k] = '\0';
+                d->InComm[k++] = ' ';
+        d->InComm[k] = '\0';
 
         /*
          * Deal with bozos with #repeat 1000 ...
          */
-        if (k > 1 || d->incomm[0] == '!')
+        if (k > 1 || d->InComm[0] == '!')
         {
-                if (d->incomm[0] != '!' && strcmp(d->incomm, d->inlast))
+                if (d->InComm[0] != '!' && strcmp(d->InComm, d->InLast))
                 {
                         d->repeat = 0;
                 }
@@ -1778,17 +1778,17 @@ void read_from_buffer(DescriptorData * d)
         /*
          * Do '!' substitution.
          */
-        if (d->incomm[0] == '!')
-                mudstrlcpy(d->incomm, d->inlast, MIL);
+        if (d->InComm[0] == '!')
+                mudstrlcpy(d->InComm, d->InLast, MIL);
         else
-                mudstrlcpy(d->inlast, d->incomm, MIL);
+                mudstrlcpy(d->InLast, d->InComm, MIL);
 
         /*
          * Shift the input buffer.
          */
-        while (d->inbuf[i] == '\n' || d->inbuf[i] == '\r')
+        while (d->InBuf[i] == '\n' || d->InBuf[i] == '\r')
                 i++;
-        for (j = 0; (d->inbuf[j] = d->inbuf[i + j]) != '\0'; j++)
+        for (j = 0; (d->InBuf[j] = d->InBuf[i + j]) != '\0'; j++)
         {
         }
         return;
@@ -1808,23 +1808,23 @@ bool flush_buffer(DescriptorData * d, bool fPrompt)
         if (ch && ch->fighting && ch->fighting->who)
                 show_condition(ch, ch->fighting->who);
 
-        if (!d->speed || d->speed < 1 || d->speed > 5)
-                d->speed = 2;
+        if (!d->Speed || d->Speed < 1 || d->Speed > 5)
+                d->Speed = 2;
         /*
          * If buffer has more than their max, send max every second.
          */
-        if (!mud_down && d->outtop > client_speed(d->speed))
+        if (!mud_down && d->OutTop > client_speed(d->Speed))
         {
-                size_t speed_bytes = static_cast<size_t>(client_speed(d->speed));
-                memcpy(buf, d->outbuf, speed_bytes);
-                memmove(d->outbuf, d->outbuf + client_speed(d->speed),
-                        static_cast<size_t>(d->outtop - client_speed(d->speed)));
-                d->outtop -= client_speed(d->speed);
+                size_t speed_bytes = static_cast<size_t>(client_speed(d->Speed));
+                memcpy(buf, d->OutBuf, speed_bytes);
+                memmove(d->OutBuf, d->OutBuf + client_speed(d->Speed),
+                        static_cast<size_t>(d->OutTop - client_speed(d->Speed)));
+                d->OutTop -= client_speed(d->Speed);
                 if (d->snoop_by)
                 {
                         char      snoopbuf[MIL * 5];
 
-                        buf[client_speed(d->speed)] = '\0';
+                        buf[client_speed(d->Speed)] = '\0';
                         if (d->character && d->character->name)
                         {
                                 if (d->original && d->original->name)
@@ -1840,9 +1840,9 @@ bool flush_buffer(DescriptorData * d, bool fPrompt)
                         write_to_buffer(d->snoop_by, buf, 0);
                 }
                 if (!write_to_descriptor
-                    (d->descriptor, buf, client_speed(d->speed)))
+                    (d->descriptor, buf, client_speed(d->Speed)))
                 {
-                        d->outtop = 0;
+                        d->OutTop = 0;
                         return FALSE;
                 }
                 return TRUE;
@@ -1867,7 +1867,7 @@ bool flush_buffer(DescriptorData * d, bool fPrompt)
         /*
          * Short-circuit if nothing to write.
          */
-        if (d->outtop == 0)
+        if (d->OutTop == 0)
                 return TRUE;
 
         /*
@@ -1893,20 +1893,20 @@ bool flush_buffer(DescriptorData * d, bool fPrompt)
                         write_to_buffer(d->snoop_by, buf, 0);
                 }
                 write_to_buffer(d->snoop_by, "% ", 2);
-                write_to_buffer(d->snoop_by, d->outbuf, d->outtop);
+                write_to_buffer(d->snoop_by, d->OutBuf, d->OutTop);
         }
 
         /*
          * OS-dependent output.
          */
-        if (!write_to_descriptor(d->descriptor, d->outbuf, d->outtop))
+        if (!write_to_descriptor(d->descriptor, d->OutBuf, d->OutTop))
         {
-                d->outtop = 0;
+                d->OutTop = 0;
                 return FALSE;
         }
         else
         {
-                d->outtop = 0;
+                d->OutTop = 0;
                 return TRUE;
         }
 }
@@ -1929,7 +1929,7 @@ bool write_to_buffer(DescriptorData * d, const char *txt, int length)
         /*
          * Normally a bug... but can happen if loadup is used. 
          */
-        if (!d->outbuf)
+        if (!d->OutBuf)
                 return FALSE;
         /*
          * Find length in case caller didn't. 
@@ -1954,42 +1954,42 @@ bool write_to_buffer(DescriptorData * d, const char *txt, int length)
         /*
          * Initial \n\r if needed. 
          */
-        if (d->outtop == 0 && !d->fcommand)
+        if (d->OutTop == 0 && !d->fcommand)
         {
-                d->outbuf[0] = '\n';
-                d->outbuf[1] = '\r';
-                d->outtop = 2;
+                d->OutBuf[0] = '\n';
+                d->OutBuf[1] = '\r';
+                d->OutTop = 2;
         }
 
         /*
          * Expand the buffer as needed.
          */
-        while (d->outtop + length >= static_cast<int>(d->outsize))
+        while (d->OutTop + length >= static_cast<int>(d->OutSize))
         {
-                if (d->outsize > 64000)
+                if (d->OutSize > 64000)
                 {
                         /*
                          * empty buffer 
                          */
-                        d->outtop = 0;
+                        d->OutTop = 0;
                         bug("Buffer overflow. Closing (%s).",
                             d->character ? d->character->name : "???");
                         close_socket(d, TRUE);
                         return FALSE;
                 }
-                d->outsize *= 2;
+                d->OutSize *= 2;
                 #pragma GCC diagnostic push
                 #pragma GCC diagnostic ignored "-Wold-style-cast"
-                RECREATE(d->outbuf, char, d->outsize);
+                RECREATE(d->OutBuf, char, d->OutSize);
                 #pragma GCC diagnostic pop
         }
 
         /*
          * Copy.
          */
-        convert_mxp_tags(d, d->outbuf + d->outtop, txt, origlength);
-        d->outtop += length;
-        d->outbuf[d->outtop] = '\0';
+        convert_mxp_tags(d, d->OutBuf + d->OutTop, txt, origlength);
+        d->OutTop += length;
+        d->OutBuf[d->OutTop] = '\0';
         return TRUE;
 }
 
@@ -2030,28 +2030,28 @@ bool write_to_descriptor(int desc, char *txt, int length)
 				return FALSE;
 		}
 
-        if (d && d->out_compress)
+        if (d && d->OutCompress)
         {
-                d->out_compress->next_in = reinterpret_cast<unsigned char *>(txt);
-                d->out_compress->avail_in = static_cast<uInt>(length);
+                d->OutCompress->next_in = reinterpret_cast<unsigned char *>(txt);
+                d->OutCompress->avail_in = static_cast<uInt>(length);
 
-                while (d->out_compress->avail_in)
+                while (d->OutCompress->avail_in)
                 {
-                        d->out_compress->avail_out = static_cast<uInt>(
+                        d->OutCompress->avail_out = static_cast<uInt>(
                                 CompressBufSize -
-                                static_cast<int>(d->out_compress->next_out -
-                                 d->out_compress_buf));
+                                static_cast<int>(d->OutCompress->next_out -
+                                 d->OutCompressBuf));
 
-                        if (d->out_compress->avail_out)
+                        if (d->OutCompress->avail_out)
                         {
-                                int       status = deflate(d->out_compress,
+                                int       status = deflate(d->OutCompress,
                                                            Z_SYNC_FLUSH);
 
                                 if (status != Z_OK)
                                         return FALSE;
                         }
 
-                        len = static_cast<int>(d->out_compress->next_out - d->out_compress_buf);
+                        len = static_cast<int>(d->OutCompress->next_out - d->OutCompressBuf);
                         if (len > 0)
                         {
                                 for (iStart = 0; iStart < len;
@@ -2060,12 +2060,12 @@ bool write_to_descriptor(int desc, char *txt, int length)
                                         nBlock = UMIN(len - iStart, 4096);
                                         ssize_t write_result = 
                                              write(d->descriptor,
-                                                   d->out_compress_buf +
+                                                   d->OutCompressBuf +
                                                    static_cast<size_t>(iStart), static_cast<size_t>(nBlock));
                                         if ((nWrite = static_cast<int>(write_result)) < 0)
                                         {
                                                 perror("Write_to_descriptor: compressed");
-												d->outtop = 0;
+												d->OutTop = 0;
 												close_socket(d, TRUE);
                                                 return FALSE;
                                         }
@@ -2078,12 +2078,12 @@ bool write_to_descriptor(int desc, char *txt, int length)
                                         break;
 
                                 if (iStart < len)
-                                        memmove(d->out_compress_buf,
-                                                d->out_compress_buf + static_cast<size_t>(iStart),
+                                        memmove(d->OutCompressBuf,
+                                                d->OutCompressBuf + static_cast<size_t>(iStart),
                                                 static_cast<size_t>(len - iStart));
 
-                                d->out_compress->next_out =
-                                        d->out_compress_buf + len - iStart;
+                                d->OutCompress->next_out =
+                                        d->OutCompressBuf + len - iStart;
                         }
                 }
                 return TRUE;
@@ -2096,7 +2096,7 @@ bool write_to_descriptor(int desc, char *txt, int length)
                 if ((nWrite = static_cast<int>(write_result)) < 0)
                 {
                         perror("Write_to_descriptor");
-						d->outtop = 0;
+						d->OutTop = 0;
 						close_socket(d, TRUE);
                         return FALSE;
                 }
@@ -2196,7 +2196,7 @@ void nanny(DescriptorData * d, char *argument)
         
 
         case ConGetAccount:
-                d->account = NULL;
+                d->Account = NULL;
                 // If no input yet, show GCMP LOGIN event and Username prompt for Mudlet compatibility
                 if (argument[0] == '\0')
                 {
@@ -2209,7 +2209,7 @@ void nanny(DescriptorData * d, char *argument)
 
                 if (!str_cmp(argument, "New"))
                 {
-                        if (d->newstate == 0)
+                        if (d->NewState == 0)
                         {
                                 /*
                                  * New player 
@@ -2233,13 +2233,13 @@ void nanny(DescriptorData * d, char *argument)
                                 }
                         }
                         send_to_desc_color
-                                ("\n\r&BA&zn account allows you to manage and link your various characters.\n\r"
-                                 "After creating your new account, you will be prompted to create your\n\r"
-                                 "characters, or if you have existing characters but no account, you\n\r"
-                                 "will be able to link them to your account then.\n\r"
-                                 "\n\r&BP&zlease choose a login for your account: ",
+                                ("\n\r&BA&zn Account allows you to manage and link your various characters.\n\r"
+                                 "After creating your new Account, you will be prompted to create your\n\r"
+                                 "characters, or if you have existing characters but no Account, you\n\r"
+                                 "will be able to link them to your Account then.\n\r"
+                                 "\n\r&BP&zlease choose a login for your Account: ",
                                  d);
-/*				d->newstate++;
+/*				d->NewState++;
 				d->connected = static_cast<sh_int>(ConConfirmNewAccountName); */
                         send_to_desc_color
                                 ("\n\rNote: this doesn't actually work atm. FIXME PLS. For now just type in an invalid name",
@@ -2260,9 +2260,9 @@ void nanny(DescriptorData * d, char *argument)
                         return;
                 }
 
-                d->account = load_account(argument);
+                d->Account = load_account(argument);
 #if 0
-                if (!d->account)
+                if (!d->Account)
                 {
                         mudstrlcpy(argument, "new", MIL);
                         /*
@@ -2273,12 +2273,12 @@ void nanny(DescriptorData * d, char *argument)
                 }
 
 #endif
-                if (d->account)
+                if (d->Account)
                 {
-                        if (d->newstate != 0)
+                        if (d->NewState != 0)
                         {
                                 send_to_desc_color
-                                        ("That account name is already taken.  Please choose another: ",
+                                        ("That Account name is already taken.  Please choose another: ",
                                          d);
                                 d->connected = static_cast<sh_int>(ConGetAccount);
                                 return;
@@ -2289,7 +2289,7 @@ void nanny(DescriptorData * d, char *argument)
                         send_gmcp_event(d, "Core.Character.Password", NULL);
                         send_to_desc_color("&BA&zccount &BP&zassword: ", d);
                         send_to_desc_color(echo_off_str, d);
-                        if (d->mxp_detected)
+                        if (d->MxpDetected)
                                 send_to_desc_color(MXPTAG("password"), d);
                         d->connected = static_cast<sh_int>(ConGetOldAccountPassword);
                         return;
@@ -2297,17 +2297,17 @@ void nanny(DescriptorData * d, char *argument)
                 else
                 {
                         send_to_desc_color
-                                ("\n\r&BT&zhat account does not appear in our database. Are you new?\n\r\n\r",
+                                ("\n\r&BT&zhat Account does not appear in our database. Are you new?\n\r\n\r",
                                  d);
                         snprintf(buf, MSL,
                                  "&BI&zs this correct, %s &B(&wY&z/&wN&B)&z? ",
                                  argument);
                         send_to_desc_color(buf, d);
                         d->connected = static_cast<sh_int>(ConConfirmNewAccountName);
-                        d->account = create_account();
-                        d->account->rpcurrent = 0;
-                        d->account->name = STRALLOC(argument);
-                        LINK(d->account, first_account, last_account, next,
+                        d->Account = create_account();
+                        d->Account->rpcurrent = 0;
+                        d->Account->name = STRALLOC(argument);
+                        LINK(d->Account, first_account, last_account, next,
                              prev);
                         return;
                 }
@@ -2316,7 +2316,7 @@ void nanny(DescriptorData * d, char *argument)
         case ConGetOldAccountPassword:
                 write_to_buffer(d, "\n\r", 2);
 
-                if (!verify_password(argument, d->account->password))
+                if (!verify_password(argument, d->Account->password))
                 {
                         send_to_desc_color("&BW&zrong password.\n\r", d);
                         /*
@@ -2327,13 +2327,13 @@ void nanny(DescriptorData * d, char *argument)
                 }
                 
                 // Check if password needs upgrading to Argon2
-                if (should_upgrade_hash(d->account->password)) {
+                if (should_upgrade_hash(d->Account->password)) {
                     // Upgrade the hash to Argon2
-                    if (d->account->password)
-                        STRFREE(d->account->password);
+                    if (d->Account->password)
+                        STRFREE(d->Account->password);
                     std::string hashed = hash_password(argument);
-                    d->account->password = STRALLOC(const_cast<char*>(hashed.c_str()));
-                    save_account(d->account);
+                    d->Account->password = STRALLOC(const_cast<char*>(hashed.c_str()));
+                    save_account(d->Account);
                 }
                 send_to_desc_color
                         ("\n\r&BP&zlease choose one of the following\n\r", d);
@@ -2349,7 +2349,7 @@ void nanny(DescriptorData * d, char *argument)
                 case 'Y':
                         send_gmcp_event(d, "Core.Character.NewPassword", NULL);
                         snprintf(buf, MSL,
-                                 "\n\r&BM&zake sure to use a password that won't be easily guessed by someone else.\n\r&BP&zick a good password for the account: %s",
+                                 "\n\r&BM&zake sure to use a password that won't be easily guessed by someone else.\n\r&BP&zick a good password for the Account: %s",
                                  echo_off_str);
                         send_to_desc_color(buf, d);
                         d->connected = static_cast<sh_int>(ConGetNewAccountPassword);
@@ -2358,8 +2358,8 @@ void nanny(DescriptorData * d, char *argument)
                 case 'n':
                 case 'N':
                         send_to_desc_color("&BO&zk, what IS it, then? ", d);
-                        free_account(d->account);
-                        d->account = NULL;
+                        free_account(d->Account);
+                        d->Account = NULL;
                         d->character = NULL;
                         d->connected = static_cast<sh_int>(ConGetAccount);
                         break;
@@ -2397,9 +2397,9 @@ void nanny(DescriptorData * d, char *argument)
                 // Generate a strong Argon2 hash
                 std::string new_hash = hash_password(argument);
                 
-                if (d->account->password)
-                        STRFREE(d->account->password);
-                d->account->password = STRALLOC(const_cast<char *>(new_hash.c_str()));
+                if (d->Account->password)
+                        STRFREE(d->Account->password);
+                d->Account->password = STRALLOC(const_cast<char *>(new_hash.c_str()));
                 send_to_desc_color
                         ("\n\r&BP&zlease retype the password to confirm: ",
                          d);
@@ -2410,7 +2410,7 @@ void nanny(DescriptorData * d, char *argument)
         case ConConfirmNewAccountPassword:
                 write_to_buffer(d, "\n\r", 2);
 
-                if (!verify_password(argument, d->account->password))
+                if (!verify_password(argument, d->Account->password))
                 {
                         send_to_desc_color
                                 ("&BP&zasswords don't match.\n\rRetype password: ",
@@ -2432,14 +2432,14 @@ void nanny(DescriptorData * d, char *argument)
 					break;
 				}
 
-                send_to_desc_color("\n\r&BW&zelcome to your account!\n\r", d);
+                send_to_desc_color("\n\r&BW&zelcome to your Account!\n\r", d);
                 send_to_desc_color("\n\r&BSelect a character to play, choose '&wNew&B' to create a new character,\n\r", d);
-                send_to_desc_color("&Bor select '&wLink&B' to add an existing character to your account.\n\r", d);
-                send_to_desc_color("&BYou can also type '&wPassword&B' to change your account password.\n\r\n\r", d);
+                send_to_desc_color("&Bor select '&wLink&B' to add an existing character to your Account.\n\r", d);
+                send_to_desc_color("&BYou can also type '&wPassword&B' to change your Account password.\n\r\n\r", d);
                 show_account_characters(d);
                 send_to_desc_color("\n\r&BY&zour selection: ", d);
                 d->connected = static_cast<sh_int>(ConGetAlt);
-                save_account(d->account);
+                save_account(d->Account);
                 break;
 /* a1 */
         case ConGetAccOldPass:
@@ -2451,7 +2451,7 @@ void nanny(DescriptorData * d, char *argument)
                         d->connected = static_cast<sh_int>(ConGetAlt);
                         return;
                 }
-                if (verify_password(argument, d->account->password))
+                if (verify_password(argument, d->Account->password))
                 {
                         send_gmcp_event(d, "Core.Character.ChangePassword", NULL);
                         send_to_desc_color
@@ -2512,7 +2512,7 @@ void nanny(DescriptorData * d, char *argument)
                         // Generate a strong Argon2 hash
                         std::string new_hash = hash_password(argument);
                         
-                        d->account->password = STRALLOC(const_cast<char *>(new_hash.c_str()));
+                        d->Account->password = STRALLOC(const_cast<char *>(new_hash.c_str()));
                         d->connected = static_cast<sh_int>(ConGetAccConfirmPass);
                         send_to_desc_color
                                 ("\n\r&BP&zlease confirm password (or press enter to abort):&w ",
@@ -2531,7 +2531,7 @@ void nanny(DescriptorData * d, char *argument)
                         d->connected = static_cast<sh_int>(ConGetAccNewPass);
                         return;
                 }
-                if (!verify_password(argument, d->account->password))
+                if (!verify_password(argument, d->Account->password))
                 {
                         send_to_desc_color("\n\r&BP&zasswords don't match.",
                                            d);
@@ -2545,7 +2545,7 @@ void nanny(DescriptorData * d, char *argument)
                 {
                         send_to_desc_color("\n\r&BP&zassword changed.\n\r",
                                            d);
-                        save_account(d->account);
+                        save_account(d->Account);
                         send_to_desc_color
                                 ("\n\r&BP&zlease choose one of the following\n\r",
                                  d);
@@ -2578,7 +2578,7 @@ void nanny(DescriptorData * d, char *argument)
                 {
                         count = atoi(argument);
                         if (count < 0 || count >= MaxCharacters
-                            || d->account->character[count] == NULL)
+                            || d->Account->character[count] == NULL)
                         {
                                 send_to_desc_color
                                         ("\n\r&BI&znvalid Choice&W:&z ", d);
@@ -2593,7 +2593,7 @@ void nanny(DescriptorData * d, char *argument)
                 }
                 else if (!str_cmp(argument, "New"))
                 {
-                        if (d->newstate == 0)
+                        if (d->NewState == 0)
                         {
                                 /*
                                  * New player 
@@ -2620,11 +2620,11 @@ void nanny(DescriptorData * d, char *argument)
                                          "to role play, and be sure that it suits our theme.\n\r"
                                          "If the name you select is not acceptable, you will be asked to choose\n\r"
                                          "another one.\n\r"
-                                         "Your new character will automatically use your account password and\n\r"
-                                         "be linked to your account.\n\r"
+                                         "Your new character will automatically use your Account password and\n\r"
+                                         "be linked to your Account.\n\r"
                                          "\n\rPlease choose a name for your character: ",
                                          d);
-                                d->newstate++;
+                                d->NewState++;
                                 d->connected = static_cast<sh_int>(ConGetName);
                                 return;
                         }
@@ -2639,7 +2639,7 @@ void nanny(DescriptorData * d, char *argument)
                 else if (!str_cmp(argument, "link"))
                 {
                         /*
-                         * Streamlined character linking process
+                         * Streamlined character linking Process
                          */
                         send_to_desc_color
                                 ("\n\r&BN&zame of character to link (or hit enter to abort):&w ",
@@ -2657,13 +2657,13 @@ void nanny(DescriptorData * d, char *argument)
                                 /*
                                  * or a functionc all - gavin 
                                  */
-                                if (d->account->character[count] == NULL)
+                                if (d->Account->character[count] == NULL)
                                         continue;
                                 if (!str_cmp
-                                    (argument, d->account->character[count]))
+                                    (argument, d->Account->character[count]))
                                         break;
                         }
-                        if (d->account->character[count] == NULL
+                        if (d->Account->character[count] == NULL
                             || count == MaxCharacters)
                         {
                                 send_to_desc_color("\n\rInvalid Choice: ", d);
@@ -2671,7 +2671,7 @@ void nanny(DescriptorData * d, char *argument)
                         }
                 }
 
-                if (d->account->character[count] == NULL)
+                if (d->Account->character[count] == NULL)
                 {
                         send_to_desc_color
                                 ("\n\r&BT&zhat is an invalid option, your options are:\n\r",
@@ -2683,7 +2683,7 @@ void nanny(DescriptorData * d, char *argument)
                 }
                 else
                 {
-                        name = d->account->character[count];
+                        name = d->Account->character[count];
                 }
 
                 name[0] = UPPER(name[0]);
@@ -2722,7 +2722,7 @@ void nanny(DescriptorData * d, char *argument)
                         snprintf(log_buf, MSL, "Denying access to %s@%s.",
                                  argument, d->host);
                         log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
-                        if (d->newstate != 0)
+                        if (d->NewState != 0)
                         {
                                 send_to_desc_color
                                         ("&BT&zhat name is already taken.  Please choose another: ",
@@ -2760,7 +2760,7 @@ void nanny(DescriptorData * d, char *argument)
 
                 if (fOld)
                 {
-                        if (d->newstate != 0)
+                        if (d->NewState != 0)
                         {
                                 send_to_desc_color
                                         ("That name is already taken.  Please choose another: ",
@@ -2847,7 +2847,7 @@ void nanny(DescriptorData * d, char *argument)
                 if (!str_cmp(argument, "new"))
                 {
                         d->connected = static_cast<sh_int>(ConGetName);
-                        d->newstate++;
+                        d->NewState++;
                         send_to_desc_color
                                 ("&BW&zhat name would you like?:\n\r", d);
                         return;
@@ -2855,12 +2855,12 @@ void nanny(DescriptorData * d, char *argument)
 
                 for (count = 0; count < MaxCharacters; count++)
                 {
-                        if (d->account->character[count] == NULL)
+                        if (d->Account->character[count] == NULL)
                                 continue;
-                        if (!str_cmp(d->account->character[count], argument))
+                        if (!str_cmp(d->Account->character[count], argument))
                         {
                                 send_to_desc_color
-                                        ("&BT&zhat character is already part of that account, choose another:\n\r",
+                                        ("&BT&zhat character is already part of that Account, choose another:\n\r",
                                          d);
                                 d->connected = static_cast<sh_int>(ConLinkAlt);
                                 return;
@@ -2887,7 +2887,7 @@ void nanny(DescriptorData * d, char *argument)
                                 ("&BP&zassword (or hit enter to abort):&w ",
                                  d);
                         send_to_desc_color(echo_off_str, d);
-                        if (d->mxp_detected)
+                        if (d->MxpDetected)
                                 send_to_desc_color(MXPTAG("password"), d);
                         d->connected = static_cast<sh_int>(ConGetLinkPassword);
                         return;
@@ -2904,7 +2904,7 @@ void nanny(DescriptorData * d, char *argument)
                                 ("\n\r&BT&zhat name isn't familiar. If you want to start a new 		character, type new.\n\r\n\r",
                                  d);
                         send_to_desc_color
-                                ("\n\r&BW&zhat is your characters name to link to this account?\n\r&BT&zype 	&w\"&Bn&zew&w\" for a new character\n\r",
+                                ("\n\r&BW&zhat is your characters name to link to this Account?\n\r&BT&zype 	&w\"&Bn&zew&w\" for a new character\n\r",
                                  d);
                         d->connected = static_cast<sh_int>(ConLinkAlt);
                         return;
@@ -2936,7 +2936,7 @@ void nanny(DescriptorData * d, char *argument)
                         return;
                 }
 
-                if (!add_to_account(d->account, ch))
+                if (!add_to_account(d->Account, ch))
                 {
                         send_to_desc_color
                                 ("&BT&zhere was an error linking your character. Notify greven at 		darkwarsmud@hotmail.com.\n\r",
@@ -2952,7 +2952,7 @@ void nanny(DescriptorData * d, char *argument)
                 {
                         send_to_desc_color("&BC&zharacter linked.\n\r", d);
                         send_to_desc_color
-                                ("&BW&zhich of your alts would you like to play?\n\r&BY&zou may specify their name, or choose &w\"&BL&zink&z\" to link a another character to your account:\n\r",
+                                ("&BW&zhich of your alts would you like to play?\n\r&BY&zou may specify their name, or choose &w\"&BL&zink&z\" to link a another character to your Account:\n\r",
                                  d);
                         if (d->character)
                         {
@@ -2961,7 +2961,7 @@ void nanny(DescriptorData * d, char *argument)
                         }
                         show_account_characters(d);
                         d->connected = static_cast<sh_int>(ConGetAlt);
-                        save_account(d->account);
+                        save_account(d->Account);
                         return;
                 }
                 break;
@@ -2984,7 +2984,7 @@ case ConGetName:
 
                 if (!str_cmp(argument, "New"))
                 {
-                        if (d->newstate == 0)
+                        if (d->NewState == 0)
                         {
                                 /*
                                  * New player 
@@ -3009,7 +3009,7 @@ case ConGetName:
                                                 "If the name you select is not acceptable, you will be asked to choose\n\r"
                                                 "another one.\n\r\n\rPlease choose a name for your character: ",
                                                 0);
-                                d->newstate++;
+                                d->NewState++;
                                 d->connected = static_cast<sh_int>(ConGetName);
                                 return;
                         }
@@ -3047,7 +3047,7 @@ case ConGetName:
                         snprintf(log_buf, MSL, "Denying access to %s@%s.",
                                  argument, d->host);
                         log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
-                        if (d->newstate != 0)
+                        if (d->NewState != 0)
                         {
                                 send_to_desc_color
                                         ("That name is already taken.  Please choose another: ",
@@ -3101,7 +3101,7 @@ case ConGetName:
                                 return;
                         }
 
-                        if (d->newstate != 0)
+                        if (d->NewState != 0)
                         {
                                 send_to_desc_color
                                         ("That name is already taken.  Please choose another: ",
@@ -3121,7 +3121,7 @@ case ConGetName:
                         send_to_desc_color("&BP&zassword: ", d);
                         write_to_buffer(d, echo_off_str, 0);
                         d->connected = static_cast<sh_int>(ConGetOldPassword);
-                        if (d->mxp_detected)
+                        if (d->MxpDetected)
                                 send_to_desc_color(MXPTAG("password"), d);
                         return;
                 }
@@ -3201,16 +3201,16 @@ case ConGetName:
                 case 'y':
                 case 'Y':
 #ifdef ACCOUNT
-                        /* If we have an account, auto-use the account's password */
-                        if (d->account && d->account->password) {
-                            /* Use the account's password for the character */
+                        /* If we have an Account, auto-use the Account's password */
+                        if (d->Account && d->Account->password) {
+                            /* Use the Account's password for the character */
                             DISPOSE(ch->pcdata->pwd);
-                            ch->pcdata->pwd = str_dup(d->account->password);
+                            ch->pcdata->pwd = str_dup(d->Account->password);
                             
-                            /* Link character to account automatically */
-                            if (!add_to_account(d->account, ch)) {
+                            /* Link character to Account automatically */
+                            if (!add_to_account(d->Account, ch)) {
                                 send_to_desc_color(
-                                    "&BThere was an error linking your character to your account.\n\r", d);
+                                    "&BThere was an error linking your character to your Account.\n\r", d);
                                 d->character->desc = NULL;
                                 free_char(d->character);
                                 d->character = NULL;
@@ -3221,12 +3221,12 @@ case ConGetName:
                             /* Skip directly to sex selection */
                             write_to_buffer(d, echo_on_str, 0);
                             send_to_desc_color(
-                                "\n\r&BYour character has been automatically linked to your account.\n\r", d);
+                                "\n\r&BYour character has been automatically linked to your Account.\n\r", d);
                             send_to_desc_color(
                                 "&BWhat is your sex &B(&wM&z/&wF&z/&wN&B)&z? ", d);
                             d->connected = static_cast<sh_int>(ConGetNewSex);
                         } else {
-                            /* Regular password prompt for non-account creation */
+                            /* Regular password prompt for non-Account creation */
                             snprintf(buf, MSL,
                                      "\n\r&BM&zake sure to use a password that won't be easily guessed by someone else."
                                      "\n\r&BP&zick a good password for %s: %s",
@@ -3235,7 +3235,7 @@ case ConGetName:
                             d->connected = static_cast<sh_int>(ConGetNewPassword);
                         }
 #else
-                        /* Regular password prompt when account system is disabled */
+                        /* Regular password prompt when Account system is disabled */
                         snprintf(buf, MSL,
                                  "\n\r&BM&zake sure to use a password that won't be easily guessed by someone else."
                                  "\n\r&BP&zick a good password for %s: %s",
@@ -3350,7 +3350,7 @@ case ConGetName:
                 col = 0;
                 FOR_EACH_LIST(RACE_LIST, races, race)
                 {
-                        if (d->account->rppoints < race->rpneeded())
+                        if (d->Account->rppoints < race->rpneeded())
                                 continue;
                         ++col;
                         col %= 4;
@@ -3393,7 +3393,7 @@ case ConGetName:
                 }
 
                 if ((race = get_race(argument)) == NULL
-                    || (d->account->rppoints < race->rpneeded()))
+                    || (d->Account->rppoints < race->rpneeded()))
                 {
                         send_to_desc_color
                                 ("&BT&zhat's not a race.\n\r&BW&zhat &wIS &zyour race? ",
@@ -3425,7 +3425,7 @@ case ConGetName:
                             && IS_SET(ch->race->class_restriction(),
                                       1 << iClass))
                                 continue;
-                        if ((iClass == 7 && d->account->rppoints < 20)
+                        if ((iClass == 7 && d->Account->rppoints < 20)
                             || iClass == 8)
                                 continue;
                         if (!ability_name[iClass]
@@ -3486,7 +3486,7 @@ case ConGetName:
                 }
                 if (iClass == MaxAbility || !ability_name[iClass]
                     || ability_name[iClass][0] == '\0' || (iClass == 7
-                                                           && d->account->
+                                                           && d->Account->
                                                            rppoints < 20)
                     || iClass == 8)
                 {
@@ -3526,7 +3526,7 @@ case ConGetName:
                 if (!argument || argument[0] == '\0')
                 {
                         send_to_desc_color
-                                ("&BT&zhat is not a valid option, please enter which stat you'd like to edit:",
+                                ("&BT&zhat is not a Valid option, please enter which stat you'd like to edit:",
                                  d);
                         d->connected = static_cast<sh_int>(ConEditStats);
                         return;
@@ -3585,7 +3585,7 @@ case ConGetName:
                 else
                 {
                         send_to_desc_color
-                                ("&BT&zhat is not a valid option, please enter which stat you'd like to edit:",
+                                ("&BT&zhat is not a Valid option, please enter which stat you'd like to edit:",
                                  d);
                         d->connected = static_cast<sh_int>(ConEditStats);
                         return;
@@ -3666,7 +3666,7 @@ case ConGetName:
                     && !is_number(argument))
                 {
                         send_to_desc_color
-                                ("&BT&zhat is not a valid option, please enter a number:",
+                                ("&BT&zhat is not a Valid option, please enter a number:",
                                  d);
                         d->connected = static_cast<sh_int>(ConEditStatNum);
                         return;
@@ -3687,7 +3687,7 @@ case ConGetName:
                                 ch->race->attr_modifier(ATTR_STRENGTH)) < 3)
                         {
                                 snprintf(buf, MSL,
-                                         "&BT&zhat is not a valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
+                                         "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_str),
                                               (3 - ch->perm_str -
                                                ch->race->
@@ -3707,7 +3707,7 @@ case ConGetName:
                                 ch->race->attr_modifier(ATTR_WISDOM)) < 3)
                         {
                                 snprintf(buf, MSL,
-                                         "&BT&zhat is not a valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
+                                         "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_wis),
                                               (3 - ch->perm_wis -
                                                ch->race->
@@ -3728,7 +3728,7 @@ case ConGetName:
                             3)
                         {
                                 snprintf(buf, MSL,
-                                         "&BT&zhat is not a valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
+                                         "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_int),
                                               (3 - ch->perm_int -
                                                ch->race->
@@ -3749,7 +3749,7 @@ case ConGetName:
                                 ch->race->attr_modifier(ATTR_DEXTERITY)) < 3)
                         {
                                 snprintf(buf, MSL,
-                                         "&BT&zhat is not a valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
+                                         "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_dex),
                                               (3 - ch->perm_dex -
                                                ch->race->
@@ -3770,7 +3770,7 @@ case ConGetName:
                             || (i + ch->perm_con + ch->race->attr_modifier(ATTR_CONSTITUTION)) < 3)
                         {
                                 snprintf(buf, MSL,
-                                         "&BT&zhat is not a valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
+                                         "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_con),
                                               (3 - ch->perm_con -
                                                ch->race->
@@ -3791,7 +3791,7 @@ case ConGetName:
                                 ch->race->attr_modifier(ATTR_CHARISMA)) < 3)
                         {
                                 snprintf(buf, MSL,
-                                         "&BT&zhat is not a valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
+                                         "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
                                          UMAX((1 - ch->perm_cha),
                                               (3 - ch->perm_cha -
                                                ch->race->
@@ -3876,7 +3876,7 @@ case ConGetName:
                         return;
                 }
                 send_to_desc_color
-                        ("&BD&zoes your mud client have the Mud Sound Protocol?  &B(&wY&z/&wN&B)&z?",
+                        ("&BD&zoes your mud Client have the Mud Sound Protocol?  &B(&wY&z/&wN&B)&z?",
                          d);
                 d->connected = static_cast<sh_int>(ConGetMsp);
                 break;
@@ -3921,7 +3921,7 @@ case ConGetName:
 
         case ConPressEnter:
 #ifdef ACCOUNT
-                if (chk_watch(get_trust(ch), ch->name, d->host, d->account->name))  /*  --Gorog */
+                if (chk_watch(get_trust(ch), ch->name, d->host, d->Account->name))  /*  --Gorog */
 #else
                 if (chk_watch(get_trust(ch), ch->name, d->host))    /*  --Gorog */
 #endif
@@ -3933,9 +3933,9 @@ case ConGetName:
                 else
                         send_to_pager("\014", ch);
 #ifdef ACCOUNT
-                if (IS_SET(ch->act, PLR_SOUND) && ch->pcdata->account)
+                if (IS_SET(ch->act, PLR_SOUND) && ch->pcdata->Account)
                 {
-                        SET_BIT(ch->pcdata->account->flags, ACCOUNT_SOUND);
+                        SET_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
                         REMOVE_BIT(ch->act, PLR_SOUND);
                 }
 #endif
@@ -4061,7 +4061,7 @@ case ConGetName:
                 add_char(ch);
                 d->connected = static_cast<sh_int>(ConPlaying);
 #ifdef ACCOUNT
-                ch->pcdata->account = d->account;
+                ch->pcdata->Account = d->Account;
 #endif
 
                 if (!xIS_EMPTY(ch->race->body_parts())
@@ -4095,7 +4095,7 @@ case ConGetName:
                         int       iLang;
                         int       chance = number_percent();
 
-                        if (ch->desc->mxp_detected)
+                        if (ch->desc->MxpDetected)
                                 SET_BIT(ch->act, PLR_MXP);
                         ch->pcdata->clan = NULL;
                         ch->pcdata->full_name = QUICKLINK(ch->name);
@@ -4249,19 +4249,19 @@ case ConGetName:
                                 char_to_room(ch,
                                              get_room_index
                                              (ROOM_VNUM_SCHOOL));
-                                ch->pcdata->auth_state = 3;
+                                ch->pcdata->AuthState = 3;
                         }
                         else
                         {
                                 char_to_room(ch,
                                              get_room_index
                                              (ROOM_VNUM_SCHOOL));
-                                ch->pcdata->auth_state = 1;
+                                ch->pcdata->AuthState = 1;
                                 SET_BIT(ch->pcdata->flags, PCFLAG_UNAUTHED);
                         }
-                        if (!add_to_account(d->account, ch))
+                        if (!add_to_account(d->Account, ch))
                         {
-                                bug("Failed to add new character to account", 0);
+                                bug("Failed to add new character to Account", 0);
                         }
                         if (!ch->pcdata->birthday.hour)
                                 ch->pcdata->birthday.hour = time_info.hour;
@@ -4271,7 +4271,7 @@ case ConGetName:
                                 ch->pcdata->birthday.month = time_info.month;
                         if (!ch->pcdata->birthday.year)
                                 ch->pcdata->birthday.year = time_info.year;
-                        if (ch->desc->msp_detected)
+                        if (ch->desc->MspDetected)
                         {
                                 SET_BIT(ch->act, PLR_SOUND);
                         }
@@ -4399,9 +4399,9 @@ case ConGetName:
                         }
                 }
 #ifdef ACCOUNT
-                if (IS_SET(ch->act, PLR_SOUND) && ch->pcdata->account)
+                if (IS_SET(ch->act, PLR_SOUND) && ch->pcdata->Account)
                 {
-                        SET_BIT(ch->pcdata->account->flags, ACCOUNT_SOUND);
+                        SET_BIT(ch->pcdata->Account->flags, ACCOUNT_SOUND);
                         REMOVE_BIT(ch->act, PLR_SOUND);
                 }
 #endif
@@ -4531,8 +4531,8 @@ bool check_reconnect(DescriptorData * d, char *name, bool fConn)
                                                 UMAX(sysdata.log_level,
                                                      ch->top_level));
 #ifdef ACCOUNT
-                                ch->pcdata->account = d->account;
-                                ch->pcdata->account->inuse--;
+                                ch->pcdata->Account = d->Account;
+                                ch->pcdata->Account->inuse--;
 #endif
                                 d->connected = static_cast<sh_int>(ConPlaying);
                         }
@@ -4654,7 +4654,7 @@ sh_int check_playing(DescriptorData * d, char *name, bool kick)
                         if (ch->switched)
                                 do_return(ch->switched, "");
                         ch->switched = static_cast<sh_int>(NULL);
-                        ch->pcdata->account->inuse--;
+                        ch->pcdata->Account->inuse--;
                         send_to_char("Reconnecting.\n\r", ch);
                         act(AT_ACTION,
                             "$n has reconnected, kicking off old link.", ch,
@@ -5083,7 +5083,7 @@ CMDF do_name(CharData * ch, char *argument)
         struct stat fst;
         CharData *tmp;
 
-        if (!NOT_AUTHED(ch) || ch->pcdata->auth_state != 2)
+        if (!NOT_AUTHED(ch) || ch->pcdata->AuthState != 2)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -5133,7 +5133,7 @@ CMDF do_name(CharData * ch, char *argument)
         ch->pcdata->full_name = STRALLOC(argument);
         send_to_char("Your name has been changed.  Please apply again.\n\r",
                      ch);
-        ch->pcdata->auth_state = 1;
+        ch->pcdata->AuthState = 1;
         SET_BIT(ch->pcdata->flags, PCFLAG_UNAUTHED);
         return;
 }
@@ -5210,7 +5210,7 @@ void display_prompt(DescriptorData * d)
                 prompt = ch->pcdata->subprompt;
         else if (IS_NPC(ch))
                 prompt = gav_prompt(ch);
-		else if (ch->pcdata->account && (!ch->pcdata->account->email || ch->pcdata->account->email[0] == '\0'))
+		else if (ch->pcdata->Account && (!ch->pcdata->Account->email || ch->pcdata->Account->email[0] == '\0'))
 				prompt = no_email_prompt;
         else if (ch->fighting && ch->pcdata->fprompt
                  && ch->pcdata->fprompt[0] != '\0')
@@ -5225,7 +5225,7 @@ void display_prompt(DescriptorData * d)
         if (ansi)
         {
                 mudstrlcpy(pbuf, ANSI_RESET, MSL);
-                d->prevcolor = 0x08;
+                d->PrevColor = 0x08;
                 pbuf += 4;
         }
         /*
@@ -5552,7 +5552,7 @@ void set_pager_input(DescriptorData * d, char *argument)
 {
         while (isspace(*argument))
                 argument++;
-        d->pagecmd = *argument;
+        d->PageCmd = *argument;
         return;
 }
 
@@ -5564,11 +5564,11 @@ bool pager_output(DescriptorData * d)
         int lines;
         bool      ret;
 
-        if (!d || !d->pagepoint || d->pagecmd == -1)
+        if (!d || !d->PagePoint || d->PageCmd == -1)
                 return TRUE;
         ch = d->original ? d->original : d->character;
         pclines = UMAX(ch->pcdata->pagerlen, 5) - 1;
-        switch (LOWER(d->pagecmd))
+        switch (LOWER(d->PageCmd))
         {
         default:
                 lines = 0;
@@ -5580,46 +5580,46 @@ bool pager_output(DescriptorData * d)
                 lines = -1 - pclines;
                 break;
         case 'q':
-                d->pagetop = 0;
-                d->pagepoint = NULL;
+                d->PageTop = 0;
+                d->PagePoint = NULL;
                 flush_buffer(d, TRUE);
-                DISPOSE(d->pagebuf);
-                d->pagesize = MaxStringLength;
+                DISPOSE(d->PageBuf);
+                d->PageSize = MaxStringLength;
                 return TRUE;
         }
-        while (lines < 0 && d->pagepoint >= d->pagebuf)
-                if (*(--d->pagepoint) == '\n')
+        while (lines < 0 && d->PagePoint >= d->PageBuf)
+                if (*(--d->PagePoint) == '\n')
                         ++lines;
-        if (*d->pagepoint == '\n' && *(++d->pagepoint) == '\r')
-                ++d->pagepoint;
-        if (d->pagepoint < d->pagebuf)
-                d->pagepoint = d->pagebuf;
-        for (lines = 0, last = d->pagepoint; lines < pclines; ++last)
+        if (*d->PagePoint == '\n' && *(++d->PagePoint) == '\r')
+                ++d->PagePoint;
+        if (d->PagePoint < d->PageBuf)
+                d->PagePoint = d->PageBuf;
+        for (lines = 0, last = d->PagePoint; lines < pclines; ++last)
                 if (!*last)
                         break;
                 else if (*last == '\n')
                         ++lines;
         if (*last == '\r')
                 ++last;
-        if (last != d->pagepoint)
+        if (last != d->PagePoint)
         {
                 if (!write_to_descriptor
-                    (d->descriptor, d->pagepoint, (static_cast<int>(last - d->pagepoint))))
+                    (d->descriptor, d->PagePoint, (static_cast<int>(last - d->PagePoint))))
                         return FALSE;
-                d->pagepoint = last;
+                d->PagePoint = last;
         }
         while (isspace(*last))
                 ++last;
         if (!*last)
         {
-                d->pagetop = 0;
-                d->pagepoint = NULL;
+                d->PageTop = 0;
+                d->PagePoint = NULL;
                 flush_buffer(d, TRUE);
-                DISPOSE(d->pagebuf);
-                d->pagesize = MaxStringLength;
+                DISPOSE(d->PageBuf);
+                d->PageSize = MaxStringLength;
                 return TRUE;
         }
-        d->pagecmd = -1;
+        d->PageCmd = -1;
         if (IS_SET(ch->act, PLR_ANSI))
                 if (write_to_descriptor(d->descriptor, const_cast<char*>(ANSI_LBLUE), 0) ==
                     FALSE)
@@ -5633,7 +5633,7 @@ bool pager_output(DescriptorData * d)
         {
                 char      buf[32];
 
-                snprintf(buf, MSL, "%s", color_str(d->pagecolor, ch));
+                snprintf(buf, MSL, "%s", color_str(d->PageColor, ch));
                 ret = write_to_descriptor(d->descriptor, buf, 0);
         }
         return ret;
@@ -5642,7 +5642,7 @@ bool pager_output(DescriptorData * d)
 
 CMDF do_speed(CharData * ch, char *argument)
 {
-        sh_int    speed = static_cast<sh_int>(atoi(argument));
+        sh_int    Speed = static_cast<sh_int>(atoi(argument));
 
         if (!ch->desc)
                 return;
@@ -5650,31 +5650,31 @@ CMDF do_speed(CharData * ch, char *argument)
         if (argument[0] == '\0')
         {
                 ch_printf(ch,
-                          "Your present speed is a %d, which equates to %d bytes per second.\n\r",
-                          ch->desc->speed, client_speed(ch->desc->speed));
+                          "Your present Speed is a %d, which equates to %d bytes per second.\n\r",
+                          ch->desc->Speed, client_speed(ch->desc->Speed));
                 return;
         }
 
-        if (speed > 5 || speed < 0)
+        if (Speed > 5 || Speed < 0)
         {
                 send_to_char("Speed is between 0 and 5.\n\r", ch);
                 return;
         }
-        ch->desc->speed = speed;
-        ch->speed = static_cast<sh_int>(speed);
+        ch->desc->Speed = Speed;
+        ch->Speed = static_cast<sh_int>(Speed);
         ch_printf(ch,
                   "The MUD will now send output to you at %d bytes per second.\n\r",
-                  client_speed(speed));
-        if (client_speed(speed) > 2048)
+                  client_speed(Speed));
+        if (client_speed(Speed) > 2048)
                 ch_printf(ch,
                           "You should be aware %d is fast enough to lag you if you have a slow connection.\n\r",
-                          client_speed(speed));
+                          client_speed(Speed));
         return;
 }
 
-sh_int client_speed(sh_int speed)
+sh_int client_speed(sh_int Speed)
 {
-        switch (speed)
+        switch (Speed)
         {
 
         case 1:

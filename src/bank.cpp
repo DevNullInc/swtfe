@@ -64,15 +64,15 @@ namespace BankSecurity {
 // Forward Declarations  
 // ============================================================================
 ObjData *get_comlink args((CharData * ch));
-CMDF save_baccount args((BankAccount * account));
+CMDF save_baccount args((BankAccount * Account));
 CMDF load_baccount args((char *filename));
 BankAccount *create_baccount args((CharData * ch));
-CMDF delete_baccount args((BankAccount * account));
+CMDF delete_baccount args((BankAccount * Account));
 char     *generate_code args(());
-char     *account_sum args((BankAccount * account));
-bool     account_add args((BankAccount * account, long amount));
-bool     account_sub args((BankAccount * account, long amount));
-bool     account_has_funds args((BankAccount * account, long amount));
+char     *account_sum args((BankAccount * Account));
+bool     account_add args((BankAccount * Account, long amount));
+bool     account_sub args((BankAccount * Account, long amount));
+bool     account_has_funds args((BankAccount * Account, long amount));
 int      baccounts args((CharData * ch));
 
 // ============================================================================
@@ -85,14 +85,14 @@ BankAccount *last_baccount = nullptr;
 // Account Management Functions
 // ============================================================================
 
-void save_baccount(BankAccount * account)
+void save_baccount(BankAccount * Account)
 {
         // ============================================================================
         // ACCOUNT PERSISTENCE - Enhanced with error checking and validation
         // ============================================================================
         
-        if (!account || !account->code) {
-                bug("save_baccount: Invalid account or missing code", 0);
+        if (!Account || !Account->code) {
+                bug("save_baccount: Invalid Account or missing code", 0);
                 return;
         }
         
@@ -100,24 +100,24 @@ void save_baccount(BankAccount * account)
         char      filename[256];
 
         // Use secure path construction
-        snprintf(filename, sizeof(filename), "%s%s.acct", BAccountDir, account->code);
+        snprintf(filename, sizeof(filename), "%s%s.acct", BAccountDir, Account->code);
         
         if ((fp = fopen(filename, "w")) == nullptr) {
-                bug("save_baccount: unable to open %s.acct for writing!", account->code);
+                bug("save_baccount: unable to open %s.acct for writing!", Account->code);
                 perror(filename);
                 return;
         }
 
-        // Write account data with proper null checks
+        // Write Account data with proper null checks
         fprintf(fp, "#ACCOUNT\n");
-        fprintf(fp, "Code        %s~\n", account->code ? account->code : "");
-        fprintf(fp, "Creator     %s~\n", account->creator ? account->creator : "");
-        fprintf(fp, "Owner       %s~\n", account->owner ? account->owner : "");
-        fprintf(fp, "Trustees    %s~\n", account->trustees ? account->trustees : "");
-        fprintf(fp, "Flags       %ld\n", account->flags);
-        fprintf(fp, "Interest    %f\n", account->interest);
-        fprintf(fp, "Amounthi    %ld\n", account->amounthi);
-        fprintf(fp, "Amountlo    %ld\n", account->amountlo);
+        fprintf(fp, "Code        %s~\n", Account->code ? Account->code : "");
+        fprintf(fp, "Creator     %s~\n", Account->creator ? Account->creator : "");
+        fprintf(fp, "Owner       %s~\n", Account->owner ? Account->owner : "");
+        fprintf(fp, "Trustees    %s~\n", Account->trustees ? Account->trustees : "");
+        fprintf(fp, "Flags       %ld\n", Account->flags);
+        fprintf(fp, "Interest    %f\n", Account->interest);
+        fprintf(fp, "Amounthi    %ld\n", Account->amounthi);
+        fprintf(fp, "Amountlo    %ld\n", Account->amountlo);
         fprintf(fp, "End\n");
         
         if (fclose(fp) != 0) {
@@ -130,7 +130,7 @@ void save_baccount(BankAccount * account)
 
 void write_baccount_list()
 {
-        BankAccount *account;
+        BankAccount *Account;
         FILE     *fp;
         char      filename[256];
 
@@ -143,8 +143,8 @@ void write_baccount_list()
                 return;
         }
 
-        for (account = first_baccount; account; account = account->next)
-                fprintf(fp, "%s.acct\n", account->code);
+        for (Account = first_baccount; Account; Account = Account->next)
+                fprintf(fp, "%s.acct\n", Account->code);
         fprintf(fp, "$\n");
 
         FCLOSE(fp);
@@ -155,7 +155,7 @@ void load_baccount_list()
 {
         FILE     *fpList;
         char      filename[256];
-        char     *account;
+        char     *Account;
 
         sprintf(filename, "%s%s", BAccountDir, BAccountList);
 
@@ -164,18 +164,18 @@ void load_baccount_list()
         {
                 fpReserve = fopen(NULL_FILE, "r");
                 perror(filename);
-                bug("load_baccount: couldn't open account list", 0);
+                bug("load_baccount: couldn't open Account list", 0);
                 return;
         }
 
         for (;;)
         {
-                account = feof(fpList) ? const_cast<char*>("$") : fread_word(fpList);
+                Account = feof(fpList) ? const_cast<char*>("$") : fread_word(fpList);
 
-                if (account[0] == '$')
+                if (Account[0] == '$')
                         break;
 
-                load_baccount(account);
+                load_baccount(Account);
         }
         FCLOSE(fpList);
         log_string("Done loading accounts");
@@ -188,7 +188,7 @@ void load_baccount(char *name)
         char      filename[256];
         char      letter, *word;
         FILE     *fp;
-        BankAccount *account;
+        BankAccount *Account;
         bool      fMatch;
 
         sprintf(filename, "%s%s", BAccountDir, name);
@@ -200,8 +200,8 @@ void load_baccount(char *name)
                 return;
         }
 
-        CREATE(account, BankAccount, 1);
-        LINK(account, first_baccount, last_baccount, next, prev);
+        CREATE(Account, BankAccount, 1);
+        LINK(Account, first_baccount, last_baccount, next, prev);
 
         letter = fread_letter(fp);
         if (letter != '#')
@@ -225,41 +225,41 @@ void load_baccount(char *name)
                 switch (UPPER(word[0]))
                 {
                 case 'A':
-                        KEY("Amounthi", account->amounthi, fread_number(fp));
-                        KEY("Amountlo", account->amountlo, fread_number(fp));
+                        KEY("Amounthi", Account->amounthi, fread_number(fp));
+                        KEY("Amountlo", Account->amountlo, fread_number(fp));
                         break;
                 case 'C':
-                        KEY("Code", account->code, fread_string(fp));
-                        KEY("Creator", account->creator, fread_string(fp));
+                        KEY("Code", Account->code, fread_string(fp));
+                        KEY("Creator", Account->creator, fread_string(fp));
                         break;
                 case 'E':
                         if (!strcmp(word, "End"))
                         {
-                                if (account->code == NULL)
-                                        account->code =
+                                if (Account->code == NULL)
+                                        Account->code =
                                                 STRALLOC(generate_code());
-                                if (account->creator == NULL)
-                                        account->creator =
+                                if (Account->creator == NULL)
+                                        Account->creator =
                                                 STRALLOC(const_cast<char*>("NOCREATOR"));
-                                if (account->owner == NULL)
-                                        account->owner = STRALLOC(const_cast<char*>("NOOWNER"));
-                                if (account->trustees == NULL)
-                                        account->trustees = STRALLOC(const_cast<char*>(""));
+                                if (Account->owner == NULL)
+                                        Account->owner = STRALLOC(const_cast<char*>("NOOWNER"));
+                                if (Account->trustees == NULL)
+                                        Account->trustees = STRALLOC(const_cast<char*>(""));
                                 FCLOSE(fp);
                                 return;
                         }
                         break;
                 case 'F':
-                        KEY("Flags", account->flags, fread_number(fp));
+                        KEY("Flags", Account->flags, fread_number(fp));
                         break;
                 case 'I':
-                        KEY("Interest", account->interest, fread_float(fp));
+                        KEY("Interest", Account->interest, fread_float(fp));
                         break;
                 case 'O':
-                        KEY("Owner", account->owner, fread_string(fp));
+                        KEY("Owner", Account->owner, fread_string(fp));
                         break;
                 case 'T':
-                        KEY("Trustees", account->trustees, fread_string(fp));
+                        KEY("Trustees", Account->trustees, fread_string(fp));
                         break;
                 }
 
@@ -290,41 +290,41 @@ BankAccount *create_baccount(CharData * ch)
         }
         
         if (player_account_count >= BankSecurity::MAX_ACCOUNTS_PER_PLAYER) {
-                bug("create_baccount: Player %s attempting to exceed account limit", ch->name);
+                bug("create_baccount: Player %s attempting to exceed Account limit", ch->name);
                 return nullptr;
         }
         
-        BankAccount *account;
-        CREATE(account, BankAccount, 1);
-        LINK(account, first_baccount, last_baccount, next, prev);
+        BankAccount *Account;
+        CREATE(Account, BankAccount, 1);
+        LINK(Account, first_baccount, last_baccount, next, prev);
         
         // Initialize with security-validated values
-        account->code = STRALLOC(generate_code());
-        account->creator = STRALLOC(ch->name);
-        account->owner = STRALLOC(ch->name);
-        account->trustees = STRALLOC(const_cast<char*>(""));
-        account->flags = 0;
-        account->interest = static_cast<float>(BankSecurity::DEFAULT_INTEREST_RATE);
-        account->amounthi = 0;
-        account->amountlo = 0;
+        Account->code = STRALLOC(generate_code());
+        Account->creator = STRALLOC(ch->name);
+        Account->owner = STRALLOC(ch->name);
+        Account->trustees = STRALLOC(const_cast<char*>(""));
+        Account->flags = 0;
+        Account->interest = static_cast<float>(BankSecurity::DEFAULT_INTEREST_RATE);
+        Account->amounthi = 0;
+        Account->amountlo = 0;
 
-        save_baccount(account);
+        save_baccount(Account);
         write_baccount_list();
-        return account;
+        return Account;
 }
 
-void delete_account(BankAccount * account)
+void delete_account(BankAccount * Account)
 {
         // ============================================================================
         // ACCOUNT DELETION - Enhanced with security validation and cleanup
         // ============================================================================
         
-        if (!account) {
-                bug("delete_account: Null account pointer", 0);
+        if (!Account) {
+                bug("delete_account: Null Account pointer", 0);
                 return;
         }
         
-        if (!account->code) {
+        if (!Account->code) {
                 bug("delete_account: Account missing code", 0);
                 return;
         }
@@ -332,17 +332,17 @@ void delete_account(BankAccount * account)
         char filename[256];
         
         // Remove from linked list first
-        UNLINK(account, first_baccount, last_baccount, next, prev);
+        UNLINK(Account, first_baccount, last_baccount, next, prev);
         
         // Construct filename for deletion
-        snprintf(filename, sizeof(filename), "%s%s.acct", BAccountDir, account->code);
+        snprintf(filename, sizeof(filename), "%s%s.acct", BAccountDir, Account->code);
         
         // Free all allocated strings safely
-        STRFREE(account->code);
-        STRFREE(account->creator);
-        STRFREE(account->owner);
-        STRFREE(account->trustees);
-        DISPOSE(account);
+        STRFREE(Account->code);
+        STRFREE(Account->creator);
+        STRFREE(Account->owner);
+        STRFREE(Account->trustees);
+        DISPOSE(Account);
 
         // Remove the file and check for errors
         if (remove(filename) != 0) {
@@ -354,21 +354,21 @@ void delete_account(BankAccount * account)
         return;
 }
 
-void free_baccount(BankAccount * account)
+void free_baccount(BankAccount * Account)
 {
-        if (!account || account == NULL)
+        if (!Account || Account == NULL)
                 return;
-        UNLINK(account, first_baccount, last_baccount, next, prev);
-        STRFREE(account->code);
-        STRFREE(account->creator);
-        STRFREE(account->owner);
-        STRFREE(account->trustees);
-        DISPOSE(account);
+        UNLINK(Account, first_baccount, last_baccount, next, prev);
+        STRFREE(Account->code);
+        STRFREE(Account->creator);
+        STRFREE(Account->owner);
+        STRFREE(Account->trustees);
+        DISPOSE(Account);
 }
 
 char     *generate_code()
 {
-        BankAccount *account;
+        BankAccount *Account;
         static char buf1[MaxStringLength];
         int       count = 0;
         bool      match;
@@ -386,10 +386,10 @@ char     *generate_code()
 
                 buf1[20] = '\0';
 
-                for (account = first_baccount; account;
-                     account = account->next)
+                for (Account = first_baccount; Account;
+                     Account = Account->next)
                 {
-                        if (account->code && !strcmp(account->code, buf1))
+                        if (Account->code && !strcmp(Account->code, buf1))
                                 match = TRUE;
                         break;
                 }
@@ -407,10 +407,10 @@ char     *generate_code()
  * Enhanced account_add with overflow protection and validation
  * SECURITY: Prevents integer overflow exploits and validates all operations
  */
-bool account_add(BankAccount* account, long amount)
+bool account_add(BankAccount* Account, long amount)
 {
-    if (!account || amount < 0) {
-        bug("account_add: Invalid parameters - account=%p, amount=%ld", account, amount);
+    if (!Account || amount < 0) {
+        bug("account_add: Invalid parameters - Account=%p, amount=%ld", Account, amount);
         return false;
     }
 
@@ -422,7 +422,7 @@ bool account_add(BankAccount* account, long amount)
     }
 
     // Check for potential overflow in amountlo
-    if (account->amountlo > BankSecurity::SAFE_ADDITION_LIMIT) {
+    if (Account->amountlo > BankSecurity::SAFE_ADDITION_LIMIT) {
         bug("account_add: Account balance too high for safe addition");
         return false;
     }
@@ -430,27 +430,27 @@ bool account_add(BankAccount* account, long amount)
     // Process large amounts safely by moving to amounthi first
     while (amount > BankSecurity::BALANCE_THRESHOLD) {
         amount -= (BankSecurity::BALANCE_THRESHOLD + 1);
-        if (account->amounthi >= LONG_MAX) {
+        if (Account->amounthi >= LONG_MAX) {
             bug("account_add: Account amounthi overflow detected");
             return false;
         }
-        account->amounthi += 1;
+        Account->amounthi += 1;
     }
 
     // Safe addition with overflow check
-    unsigned long temp = static_cast<unsigned long>(account->amountlo) + static_cast<unsigned long>(amount);
+    unsigned long temp = static_cast<unsigned long>(Account->amountlo) + static_cast<unsigned long>(amount);
     
     // Handle overflow to amounthi
     while (temp > BankSecurity::BALANCE_THRESHOLD) {
         temp -= (BankSecurity::BALANCE_THRESHOLD + 1);
-        if (account->amounthi >= LONG_MAX) {
+        if (Account->amounthi >= LONG_MAX) {
             bug("account_add: Account amounthi overflow during carry");
             return false;
         }
-        account->amounthi += 1;
+        Account->amounthi += 1;
     }
     
-    account->amountlo = static_cast<long>(temp);
+    Account->amountlo = static_cast<long>(temp);
     return true;
 }
 
@@ -458,10 +458,10 @@ bool account_add(BankAccount* account, long amount)
  * Enhanced account_sub with underflow protection and proper validation
  * SECURITY: Fixes the catastrophic underflow bug that created infinite money
  */
-bool account_sub(BankAccount* account, long amount)
+bool account_sub(BankAccount* Account, long amount)
 {
-    if (!account || amount < 0) {
-        bug("account_sub: Invalid parameters - account=%p, amount=%ld", account, amount);
+    if (!Account || amount < 0) {
+        bug("account_sub: Invalid parameters - Account=%p, amount=%ld", Account, amount);
         return false;
     }
 
@@ -472,25 +472,25 @@ bool account_sub(BankAccount* account, long amount)
         return false;
     }
 
-    // Check if account has sufficient funds - CRITICAL SECURITY CHECK
-    if (!account_has_funds(account, amount)) {
+    // Check if Account has sufficient funds - CRITICAL SECURITY CHECK
+    if (!account_has_funds(Account, amount)) {
         return false; // Insufficient funds
     }
 
     // Process withdrawal from high-order amount first
-    while (amount > BankSecurity::BALANCE_THRESHOLD && account->amounthi > 0) {
+    while (amount > BankSecurity::BALANCE_THRESHOLD && Account->amounthi > 0) {
         amount -= (BankSecurity::BALANCE_THRESHOLD + 1);
-        account->amounthi -= 1;
-        account->amountlo += BankSecurity::BALANCE_THRESHOLD + 1;
+        Account->amounthi -= 1;
+        Account->amountlo += BankSecurity::BALANCE_THRESHOLD + 1;
     }
 
     // Handle remaining amount from low-order balance
-    if (amount <= account->amountlo) {
-        account->amountlo -= amount;
-    } else if (account->amounthi > 0) {
+    if (amount <= Account->amountlo) {
+        Account->amountlo -= amount;
+    } else if (Account->amounthi > 0) {
         // Need to borrow from amounthi
-        account->amounthi -= 1;
-        account->amountlo = (BankSecurity::BALANCE_THRESHOLD + 1) + account->amountlo - amount;
+        Account->amounthi -= 1;
+        Account->amountlo = (BankSecurity::BALANCE_THRESHOLD + 1) + Account->amountlo - amount;
     } else {
         // This should never happen due to our funds check above
         bug("account_sub: Insufficient funds error - this should not occur");
@@ -501,43 +501,43 @@ bool account_sub(BankAccount* account, long amount)
 }
 
 /*
- * Helper function to safely check if account has sufficient funds
+ * Helper function to safely check if Account has sufficient funds
  * SECURITY: Prevents underflow by validating before operations
  */
-bool account_has_funds(BankAccount* account, long amount)
+bool account_has_funds(BankAccount* Account, long amount)
 {
-    if (!account || amount < 0) {
+    if (!Account || amount < 0) {
         return false;
     }
 
     // Calculate total available funds safely
-    if (account->amounthi > 0) {
+    if (Account->amounthi > 0) {
         // Account has high-order funds, definitely sufficient for normal transactions
         return true;
     }
 
     // Only low-order funds, direct comparison
-    return (account->amountlo >= amount);
+    return (Account->amountlo >= amount);
 }
 
 /*
- * Get total account balance as a string (safe for display)
+ * Get total Account balance as a string (safe for display)
  * SECURITY: Prevents overflow in string formatting
  */
-char* account_sum(BankAccount* account)
+char* account_sum(BankAccount* Account)
 {
     static char buf[MaxStringLength];
 
-    if (!account) {
+    if (!Account) {
         return nullptr;
     }
 
-    if (account->amounthi == 0 && account->amountlo == 0) {
+    if (Account->amounthi == 0 && Account->amountlo == 0) {
         snprintf(buf, sizeof(buf), "0");
-    } else if (account->amounthi > 0) {
-        snprintf(buf, sizeof(buf), "%ld%09ld", account->amounthi, account->amountlo);
+    } else if (Account->amounthi > 0) {
+        snprintf(buf, sizeof(buf), "%ld%09ld", Account->amounthi, Account->amountlo);
     } else {
-        snprintf(buf, sizeof(buf), "%ld", account->amountlo);
+        snprintf(buf, sizeof(buf), "%ld", Account->amountlo);
     }
 
     return buf;
@@ -545,21 +545,21 @@ char* account_sum(BankAccount* account)
 
 int baccounts(CharData * ch)
 {
-        BankAccount *account;
+        BankAccount *Account;
         int       count = 0;
 
         if (!ch || ch == NULL)
         {
-                for (account = first_baccount; account;
-                     account = account->next)
+                for (Account = first_baccount; Account;
+                     Account = Account->next)
                         count++;
                 return count;
         }
         else
         {
-                for (account = first_baccount; account;
-                     account = account->next)
-                        if (!strcmp(account->owner, ch->name))
+                for (Account = first_baccount; Account;
+                     Account = Account->next)
+                        if (!strcmp(Account->owner, ch->name))
                                 count++;
                 return count;
         }
@@ -568,46 +568,46 @@ int baccounts(CharData * ch)
 
 BankAccount *account_by_code(char *code)
 {
-        BankAccount *account;
+        BankAccount *Account;
 
         if (!code || code == NULL || code[0] == '\0')
                 return NULL;
 
-        for (account = first_baccount; account; account = account->next)
-                if (!strcmp(account->code, code))
-                        return account;
+        for (Account = first_baccount; Account; Account = Account->next)
+                if (!strcmp(Account->code, code))
+                        return Account;
         return NULL;
 }
 
-void notify_trustees_dep(BankAccount * account, char *name, long amount,
+void notify_trustees_dep(BankAccount * Account, char *name, long amount,
                          bool anon)
 {
         CharData *trustee;
 
         for (trustee = first_char; trustee; trustee = trustee->next)
-                if ((!strcmp(trustee->name, account->owner) ||
-                     nifty_is_name(trustee->name, account->trustees)) &&
+                if ((!strcmp(trustee->name, Account->owner) ||
+                     nifty_is_name(trustee->name, Account->trustees)) &&
                     strcmp(trustee->name, name))
                         ch_printf(trustee,
-                                  "%s has deposited %ld credits in account %s.\n\r",
+                                  "%s has deposited %ld credits in Account %s.\n\r",
                                   anon ? "Someone" : name, amount,
-                                  account->code);
+                                  Account->code);
         return;
 }
 
-void notify_trustees_wit(BankAccount * account, char *name, long amount,
+void notify_trustees_wit(BankAccount * Account, char *name, long amount,
                          bool anon)
 {
         CharData *trustee;
 
         for (trustee = first_char; trustee; trustee = trustee->next)
-                if ((!strcmp(trustee->name, account->owner) ||
-                     nifty_is_name(trustee->name, account->trustees)) &&
+                if ((!strcmp(trustee->name, Account->owner) ||
+                     nifty_is_name(trustee->name, Account->trustees)) &&
                     strcmp(trustee->name, name))
                         ch_printf(trustee,
-                                  "%s has withdrawn %ld credits from account %s.\n\r",
+                                  "%s has withdrawn %ld credits from Account %s.\n\r",
                                   anon ? "Someone" : name, amount,
-                                  account->code);
+                                  Account->code);
         return;
 }
 
@@ -615,25 +615,25 @@ void notify_trustees_wit(BankAccount * account, char *name, long amount,
  * Enhanced interest application with secure mathematical operations
  * SECURITY: Prevents floating-point precision exploits and overflow attacks
  */
-void apply_interest(BankAccount* account)
+void apply_interest(BankAccount* Account)
 {
-    if (!account) {
-        bug("apply_interest: null account pointer");
+    if (!Account) {
+        bug("apply_interest: null Account pointer");
         return;
     }
 
     // Validate interest rate to prevent exploits
-    if (account->interest < BankSecurity::MIN_INTEREST_RATE || 
-        account->interest > BankSecurity::MAX_INTEREST_RATE) {
-        bug("apply_interest: Invalid interest rate %f for account %s", 
-            account->interest, account->code ? account->code : "UNKNOWN");
-        account->interest = static_cast<float>(BankInterest); // Reset to default safe value
+    if (Account->interest < BankSecurity::MIN_INTEREST_RATE || 
+        Account->interest > BankSecurity::MAX_INTEREST_RATE) {
+        bug("apply_interest: Invalid interest rate %f for Account %s", 
+            Account->interest, Account->code ? Account->code : "UNKNOWN");
+        Account->interest = static_cast<float>(BankInterest); // Reset to default safe value
         return;
     }
 
     // Calculate interest safely using integer arithmetic to avoid precision issues
-    long original_lo = account->amountlo;
-    long original_hi = account->amounthi;
+    long original_lo = Account->amountlo;
+    long original_hi = Account->amounthi;
     
     // Skip interest on empty accounts
     if (original_hi == 0 && original_lo == 0) {
@@ -641,19 +641,19 @@ void apply_interest(BankAccount* account)
     }
 
     // Calculate interest on low amount using safe integer operations
-    long interest_lo = static_cast<long>(static_cast<double>(original_lo) * (account->interest - 1.0));
+    long interest_lo = static_cast<long>(static_cast<double>(original_lo) * (Account->interest - 1.0));
     
     // Calculate interest on high amount (convert to credits first)
     long interest_hi = 0;
     if (original_hi > 0) {
         // Safe calculation: multiply by (interest - 1) and convert back
         double hi_credits = static_cast<double>(original_hi) * (BankSecurity::BALANCE_THRESHOLD + 1);
-        double hi_interest = hi_credits * (account->interest - 1.0);
+        double hi_interest = hi_credits * (Account->interest - 1.0);
         
         // Validate result is within safe bounds
         if (hi_interest > static_cast<double>(BankSecurity::SAFE_ADDITION_LIMIT)) {
-            bug("apply_interest: Interest calculation overflow for account %s", 
-                account->code ? account->code : "UNKNOWN");
+            bug("apply_interest: Interest calculation overflow for Account %s", 
+                Account->code ? Account->code : "UNKNOWN");
             return;
         }
         
@@ -665,24 +665,24 @@ void apply_interest(BankAccount* account)
     
     // Validate total interest is reasonable
     if (total_interest < 0 || total_interest > BankSecurity::MAX_TRANSACTION_AMOUNT) {
-        bug("apply_interest: Calculated interest %ld is out of bounds for account %s", 
-            total_interest, account->code ? account->code : "UNKNOWN");
+        bug("apply_interest: Calculated interest %ld is out of bounds for Account %s", 
+            total_interest, Account->code ? Account->code : "UNKNOWN");
         return;
     }
 
     // Apply interest using our secure addition function
     if (total_interest > 0) {
-        if (!account_add(account, total_interest)) {
-            bug("apply_interest: Failed to add interest %ld to account %s", 
-                total_interest, account->code ? account->code : "UNKNOWN");
+        if (!account_add(Account, total_interest)) {
+            bug("apply_interest: Failed to add interest %ld to Account %s", 
+                total_interest, Account->code ? Account->code : "UNKNOWN");
             return;
         }
 
         // Notify owner of interest gained
         for (CharData* owner = first_char; owner; owner = owner->next) {
-            if (!strcmp(owner->name, account->owner) && total_interest > 0) {
+            if (!strcmp(owner->name, Account->owner) && total_interest > 0) {
                 ch_printf(owner, "&R[&BInterest&R] &wAccount %s has gained %ld credits.\n\r",
-                         account->code, total_interest);
+                         Account->code, total_interest);
             }
         }
     }
@@ -690,12 +690,12 @@ void apply_interest(BankAccount* account)
 
 void update_baccounts()
 {
-        BankAccount *account;
+        BankAccount *Account;
 
-        for (account = first_baccount; account; account = account->next)
+        for (Account = first_baccount; Account; Account = Account->next)
         {
-                apply_interest(account);
-                save_baccount(account);
+                apply_interest(Account);
+                save_baccount(Account);
         }
         return;
 }
@@ -711,14 +711,14 @@ void notify_trustees_tra(BankAccount * source, BankAccount * destin,
                      nifty_is_name(trustee->name, source->trustees)) &&
                     strcmp(trustee->name, name))
                         ch_printf(trustee,
-                                  "%s has transfered %ld credits from account %s to account %s.\n\r",
+                                  "%s has transfered %ld credits from Account %s to Account %s.\n\r",
                                   anon ? "Someone" : name, amount,
                                   source->code, destin->code);
                 if ((!strcmp(trustee->name, destin->owner)
                      || nifty_is_name(trustee->name, destin->trustees))
                     && strcmp(trustee->name, name))
                         ch_printf(trustee,
-                                  "%s has transfered %ld credits from account %s to account %s.\n\r",
+                                  "%s has transfered %ld credits from Account %s to Account %s.\n\r",
                                   anon ? "Someone" : name, amount,
                                   source->code, destin->code);
         }
@@ -768,17 +768,17 @@ CMDF do_bank_new(CharData * ch, char *argument)
         if (arg1[0] == '\0')
         {
                 send_to_char
-                        ("Syntax: BANK <open|close|list|status|transfer|deposit|withdraw> [account] [amount] [account|arguments]\n\r",
+                        ("Syntax: BANK <open|close|list|status|transfer|deposit|withdraw> [Account] [amount] [Account|arguments]\n\r",
                          ch);
 /*	if (IS_IMMORTAL(ch)) {
-	    send_to_char("(IMM)   BANK <block|freeze|empty|hotwire> <account>\n\r", ch);
+	    send_to_char("(IMM)   BANK <block|freeze|empty|hotwire> <Account>\n\r", ch);
 	    send_to_char("(IMM)   BANK <showall|closeall|taxall|tripinterest> [argument]\n\r", ch); } */
                 return;
         }
 
         if (!strcmp(arg1, "open"))
         {
-                BankAccount *account;
+                BankAccount *Account;
 
                 if (baccounts(ch) >= 10)
                 {
@@ -788,41 +788,41 @@ CMDF do_bank_new(CharData * ch, char *argument)
                         return;
                 }
 
-                if ((account = create_baccount(ch)) == NULL)
+                if ((Account = create_baccount(ch)) == NULL)
                 {
-                        bug("do_bank: create account returned NULL", 0);
+                        bug("do_bank: create Account returned NULL", 0);
                         return;
                 }
 
                 ch_printf(ch,
-                          "You open a new bank account.\n\rAccount number: %s\n\r",
-                          account->code);
+                          "You open a new bank Account.\n\rAccount number: %s\n\r",
+                          Account->code);
                 return;
         }
         else if (!strcmp(arg1, "close"))
         {
-                BankAccount *account;
+                BankAccount *Account;
 
                 if (arg2[0] == '\0')
                 {
-                        send_to_char("Close what account?\n\r", ch);
+                        send_to_char("Close what Account?\n\r", ch);
                         return;
                 }
 
-                account = account_by_code(arg2);
+                Account = account_by_code(arg2);
 
-                if (account == NULL)
+                if (Account == NULL)
                 {   // Lets keep players from finding other people's accounts.
                         send_to_char
-                                ("Only the owner of that account can close it.\n\r",
+                                ("Only the owner of that Account can close it.\n\r",
                                  ch);
                         return;
                 }
 
-                if (strcmp(account->owner, ch->name))
+                if (strcmp(Account->owner, ch->name))
                 {
                         send_to_char
-                                ("Only the owner of that account can close it.\n\r",
+                                ("Only the owner of that Account can close it.\n\r",
                                  ch);
                         return;
                 }
@@ -830,55 +830,55 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 if (strcmp(arg3, "now"))
                 {
                         send_to_char
-                                ("If you are sure you want to do this, type: bank close <account> NOW\n\r",
+                                ("If you are sure you want to do this, type: bank close <Account> NOW\n\r",
                                  ch);
                         return;
                 }
 
-                if (account->amounthi > 0 || account->amountlo > 0)
+                if (Account->amounthi > 0 || Account->amountlo > 0)
                 {
                         send_to_char
-                                ("Please empty the bank account before closing it.\n\r",
+                                ("Please empty the bank Account before closing it.\n\r",
                                  ch);
                         return;
                 }
 
-                delete_account(account);
-                send_to_char("You close the bank account.\n\r", ch);
+                delete_account(Account);
+                send_to_char("You close the bank Account.\n\r", ch);
                 return;
         }
         else if (!strcmp(arg1, "list"))
         {
-                BankAccount *account;
+                BankAccount *Account;
                 int       count = 0;
                 // char      buf[MaxStringLength]; // Unused variable removed
 
                 ch_printf(ch,
                           "&wAccount Number            Your Status           Balance\n\r");
-                for (account = first_baccount; account;
-                     account = account->next)
+                for (Account = first_baccount; Account;
+                     Account = Account->next)
                 {
                         // What a bitch it is to get these aligned the way I want them.
-                        if (!strcmp(account->owner, ch->name))
+                        if (!strcmp(Account->owner, ch->name))
                         {
                                 count++;
                                 ch_printf(ch, "&B%-25s %-21s %s\n\r",
-                                          account->code, "Owner",
-                                          account_sum(account));
+                                          Account->code, "Owner",
+                                          account_sum(Account));
                         }
-                        else if (nifty_is_name(account->trustees, ch->name))
+                        else if (nifty_is_name(Account->trustees, ch->name))
                         {
                                 count++;
                                 ch_printf(ch, "&C%-25s %-21s %s\n\r",
-                                          account->code, "Trustee",
-                                          account_sum(account));
+                                          Account->code, "Trustee",
+                                          account_sum(Account));
                         }
 /*						else if (IS_IMMORTAL(ch))
                         {
                                 count++;
                                 ch_printf(ch, "&C%-25s %-21s %s\n\r",
-                                          account->code, "Trustee",
-                                          account_sum(account));
+                                          Account->code, "Trustee",
+                                          account_sum(Account));
                         } - To Spammy for now */
                 }
                 if (count == 0)
@@ -892,19 +892,19 @@ CMDF do_bank_new(CharData * ch, char *argument)
         else if (!strcmp(arg1, "deposit"))
         {
                 int       num = atoi(arg3);
-                BankAccount *account = account_by_code(arg2);
+                BankAccount *Account = account_by_code(arg2);
                 bool      anon = FALSE;
 
                 if (arg2[0] == '\0')
                 {
-                        send_to_char("Specify an account.\n\r", ch);
+                        send_to_char("Specify an Account.\n\r", ch);
                         return;
                 }
 
-                if (account == NULL)
+                if (Account == NULL)
                 {   // Again, confuse the mortal.
                         send_to_char
-                                ("That account is either frozen or blocked.\n\r",
+                                ("That Account is either frozen or blocked.\n\r",
                                  ch);
                         return;
                 }
@@ -934,45 +934,45 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 if (!strcmp(arg4, "anonymous"))
                         anon = TRUE;
 
-                // Use secure account addition
-                if (!account_add(account, num)) {
-                        send_to_char("The bank's systems are unable to process this deposit right now.\n\r", ch);
-                        bug("Bank deposit failed for account %s, amount %ld", account->code, num);
+                // Use secure Account addition
+                if (!account_add(Account, num)) {
+                        send_to_char("The bank's systems are unable to Process this deposit right now.\n\r", ch);
+                        bug("Bank deposit failed for Account %s, amount %ld", Account->code, num);
                         return;
                 }
 
                 ch->gold -= num;
                 do_save(ch, "-silentsave");
-                save_baccount(account);
-                ch_printf(ch, "You deposit %ld credits in account %s.\n\r",
-                          num, account->code);
-                notify_trustees_dep(account, ch->name, num, anon);
+                save_baccount(Account);
+                ch_printf(ch, "You deposit %ld credits in Account %s.\n\r",
+                          num, Account->code);
+                notify_trustees_dep(Account, ch->name, num, anon);
                 return;
         }
         else if (!strcmp(arg1, "withdraw"))
         {
                 int       num = atoi(arg3);
-                BankAccount *account = account_by_code(arg2);
+                BankAccount *Account = account_by_code(arg2);
 
                 if (arg2[0] == '\0')
                 {
-                        send_to_char("Specify an account.\n\r", ch);
+                        send_to_char("Specify an Account.\n\r", ch);
                         return;
                 }
 
-                if (account == NULL)
+                if (Account == NULL)
                 {
                         send_to_char
-                                ("You don't have access to that account.\n\r",
+                                ("You don't have access to that Account.\n\r",
                                  ch);
                         return;
                 }
 
-                if (strcmp(ch->name, account->owner)
-                    && !nifty_is_name(ch->name, account->trustees))
+                if (strcmp(ch->name, Account->owner)
+                    && !nifty_is_name(ch->name, Account->trustees))
                 {
                         send_to_char
-                                ("You don't have access to that account.\n\r",
+                                ("You don't have access to that Account.\n\r",
                                  ch);
                         return;
                 }
@@ -999,26 +999,26 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 }
 
                 // Use secure funds checking
-                if (!account_has_funds(account, num))
+                if (!account_has_funds(Account, num))
                 {
-                        send_to_char("That account doesn't have that many credits.\n\r", ch);
+                        send_to_char("That Account doesn't have that many credits.\n\r", ch);
                         return;
                 }
 
-                // Use secure account subtraction
-                if (!account_sub(account, num)) {
-                        send_to_char("The bank's systems are unable to process this withdrawal right now.\n\r", ch);
-                        bug("Bank withdrawal failed for account %s, amount %ld", account->code, num);
+                // Use secure Account subtraction
+                if (!account_sub(Account, num)) {
+                        send_to_char("The bank's systems are unable to Process this withdrawal right now.\n\r", ch);
+                        bug("Bank withdrawal failed for Account %s, amount %ld", Account->code, num);
                         return;
                 }
 
                 ch->gold += num;
                 do_save(ch, "-silentsave");
-                save_baccount(account);
-                ch_printf(ch, "You withdraw %ld credits from account %s.\n\r",
-                          num, account->code);
+                save_baccount(Account);
+                ch_printf(ch, "You withdraw %ld credits from Account %s.\n\r",
+                          num, Account->code);
                 // No anonymity on withdrawls.
-                notify_trustees_wit(account, ch->name, num, FALSE);
+                notify_trustees_wit(Account, ch->name, num, FALSE);
                 return;
         }
         else if (!strcmp(arg1, "transfer"))
@@ -1029,7 +1029,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
 
                 if (arg2[0] == '\0')
                 {
-                        send_to_char("Transfer from what account?\n\r", ch);
+                        send_to_char("Transfer from what Account?\n\r", ch);
                         return;
                 }
 
@@ -1042,26 +1042,26 @@ CMDF do_bank_new(CharData * ch, char *argument)
 
                 if (arg4[0] == '\0')
                 {
-                        send_to_char("Specify a destination account.\n\r", ch);
+                        send_to_char("Specify a destination Account.\n\r", ch);
                         return;
                 }
 
                 if (source == NULL)
                 {
-                        send_to_char("You don't have access to that account.\n\r", ch);
+                        send_to_char("You don't have access to that Account.\n\r", ch);
                         return;
                 }
 
                 if (strcmp(ch->name, source->owner)
                     && !nifty_is_name(ch->name, source->trustees))
                 {
-                        send_to_char("You don't have access to that account.\n\r", ch);
+                        send_to_char("You don't have access to that Account.\n\r", ch);
                         return;
                 }
 
                 if (destin == NULL)
                 {
-                        send_to_char("The destination account is either frozen or blocked.\n\r", ch);
+                        send_to_char("The destination Account is either frozen or blocked.\n\r", ch);
                         return;
                 }
 
@@ -1082,58 +1082,58 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 // Use secure funds checking
                 if (!account_has_funds(source, num))
                 {
-                        send_to_char("The source account doesn't have that many credits in it.\n\r", ch);
+                        send_to_char("The source Account doesn't have that many credits in it.\n\r", ch);
                         return;
                 }
 
                 // Perform atomic transfer using secure operations
                 if (!account_sub(source, num)) {
-                        send_to_char("The bank's systems are unable to process this transfer right now.\n\r", ch);
-                        bug("Bank transfer (subtract) failed for source account %s, amount %ld", source->code, num);
+                        send_to_char("The bank's systems are unable to Process this transfer right now.\n\r", ch);
+                        bug("Bank transfer (subtract) failed for source Account %s, amount %ld", source->code, num);
                         return;
                 }
 
                 if (!account_add(destin, num)) {
                         // Critical: Rollback the subtraction since addition failed
                         if (!account_add(source, num)) {
-                                bug("CRITICAL: Failed to rollback transfer for source account %s, amount %ld", source->code, num);
+                                bug("CRITICAL: Failed to rollback transfer for source Account %s, amount %ld", source->code, num);
                         }
-                        send_to_char("The bank's systems are unable to process this transfer right now.\n\r", ch);
-                        bug("Bank transfer (add) failed for destination account %s, amount %ld", destin->code, num);
+                        send_to_char("The bank's systems are unable to Process this transfer right now.\n\r", ch);
+                        bug("Bank transfer (add) failed for destination Account %s, amount %ld", destin->code, num);
                         return;
                 }
 
                 save_baccount(source);
                 save_baccount(destin);
-                ch_printf(ch, "You transfer %ld credits from account %s to account %s.\n\r",
+                ch_printf(ch, "You transfer %ld credits from Account %s to Account %s.\n\r",
                           num, source->code, destin->code);
                 notify_trustees_tra(source, destin, ch->name, num, FALSE);
                 return;
         }
         else if (!strcmp(arg1, "status"))
         {
-                BankAccount *account = account_by_code(arg2);
+                BankAccount *Account = account_by_code(arg2);
 
                 if (arg2[0] == '\0')
                 {
-                        send_to_char("Specify an account.\n\r", ch);
+                        send_to_char("Specify an Account.\n\r", ch);
                         return;
                 }
 
-                if (account == NULL)
+                if (Account == NULL)
                 {
                         send_to_char
-                                ("You don't have access to that account.\n\r",
+                                ("You don't have access to that Account.\n\r",
                                  ch);
                         return;
                 }
 
-                if (strcmp(ch->name, account->owner)
-                    && !nifty_is_name(ch->name, account->trustees) &&
+                if (strcmp(ch->name, Account->owner)
+                    && !nifty_is_name(ch->name, Account->trustees) &&
                     !IS_IMMORTAL(ch))
                 {
                         send_to_char
-                                ("You don't have access to that account.\n\r",
+                                ("You don't have access to that Account.\n\r",
                                  ch);
                         return;
                 }
@@ -1142,13 +1142,13 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 ch_printf(ch,
                           "&z|&x^g                                    &z^x|\n\r");
                 ch_printf(ch, "&z|&w^x Acct. #: %-20s      &z|\n\r",
-                          account->code);
+                          Account->code);
                 ch_printf(ch, "&z|&w^x Creator: %-12s              &z|\n\r",
-                          account->creator);
+                          Account->creator);
                 ch_printf(ch, "&z|&w^x Owner  : %-12s              &z|\n\r",
-                          account->owner);
+                          Account->owner);
                 ch_printf(ch, "&z|&w^x Balance: %-019s       &z|\n\r",
-                          account_sum(account));
+                          account_sum(Account));
                 ch_printf(ch, "&z|+----------------------------------+|\n\r");
                 return;
         }
@@ -1160,13 +1160,13 @@ CMDF do_bank_new(CharData * ch, char *argument)
 
 CMDF do_entrust(CharData * ch, char *argument)
 {
-        BankAccount *account;
+        BankAccount *Account;
         CharData *vict;
         char      arg1[MaxInputLength];
         char      buf[MaxStringLength];
 
         argument = one_argument(argument, arg1);
-        account = account_by_code(argument);
+        Account = account_by_code(argument);
 
         if (arg1[0] == '\0')
         {
@@ -1179,13 +1179,13 @@ CMDF do_entrust(CharData * ch, char *argument)
                 int       count = 0;
 
                 ch_printf(ch, "Account Number            Trustees\n\r");
-                for (account = first_baccount; account;
-                     account = account->next)
-                        if (!strcmp(ch->name, account->owner))
+                for (Account = first_baccount; Account;
+                     Account = Account->next)
+                        if (!strcmp(ch->name, Account->owner))
                         {
                                 count++;
-                                ch_printf(ch, "&B%-24s %s\n\r", account->code,
-                                          account->trustees);
+                                ch_printf(ch, "&B%-24s %s\n\r", Account->code,
+                                          Account->trustees);
                         }
                 if (count == 0)
                         ch_printf(ch, "&RYou don't own any accounts.&w\n\r");
@@ -1198,29 +1198,29 @@ CMDF do_entrust(CharData * ch, char *argument)
         {
                 if (argument[0] == '\0')
                 {
-                        send_to_char("Clear which account?\n\r", ch);
+                        send_to_char("Clear which Account?\n\r", ch);
                         return;
                 }
 
-                if (account == NULL || strcmp(ch->name, account->owner))
+                if (Account == NULL || strcmp(ch->name, Account->owner))
                 {
-                        send_to_char("You don't own that account.\n\r", ch);
+                        send_to_char("You don't own that Account.\n\r", ch);
                         return;
                 }
 
-                if (account->trustees != NULL)
-                        STRFREE(account->trustees);
-                account->trustees = STRALLOC(const_cast<char*>(""));
-                save_baccount(account);
+                if (Account->trustees != NULL)
+                        STRFREE(Account->trustees);
+                Account->trustees = STRALLOC(const_cast<char*>(""));
+                save_baccount(Account);
                 ch_printf(ch,
-                          "Okay, account %s no longer has any trustees.\n\r",
-                          account->code);
+                          "Okay, Account %s no longer has any trustees.\n\r",
+                          Account->code);
                 return;
         }
 
         if (argument[0] == '\0')
         {
-                send_to_char("To what account?\n\r", ch);
+                send_to_char("To what Account?\n\r", ch);
                 return;
         }
 
@@ -1248,7 +1248,7 @@ CMDF do_entrust(CharData * ch, char *argument)
                 return;
         }
 
-        if (account == NULL)
+        if (Account == NULL)
         {
                 send_to_char
                         ("You can only entrust people with accounts you own.\n\r",
@@ -1256,7 +1256,7 @@ CMDF do_entrust(CharData * ch, char *argument)
                 return;
         }
 
-        if (strcmp(ch->name, account->owner))
+        if (strcmp(ch->name, Account->owner))
         {
                 send_to_char
                         ("You can only entrust people with accounts you own.\n\r",
@@ -1264,13 +1264,13 @@ CMDF do_entrust(CharData * ch, char *argument)
                 return;
         }
 
-        sprintf(buf, "%s %s", account->trustees, vict->name);
-        if (account->trustees != NULL)
-                STRFREE(account->trustees);
-        account->trustees = STRALLOC(buf);
-        save_baccount(account);
-        ch_printf(ch, "Okay, %s has been entrusted with account %s.\n\r",
-                  vict->name, account->code);
+        sprintf(buf, "%s %s", Account->trustees, vict->name);
+        if (Account->trustees != NULL)
+                STRFREE(Account->trustees);
+        Account->trustees = STRALLOC(buf);
+        save_baccount(Account);
+        ch_printf(ch, "Okay, %s has been entrusted with Account %s.\n\r",
+                  vict->name, Account->code);
 
         return;
 }

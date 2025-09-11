@@ -64,7 +64,7 @@
 #include "olc-shuttle.hpp"
 #include "channels.hpp"
 #include "astral.hpp"
-#include "account.hpp"
+#include "Account.hpp"
 #include "races.hpp"
 #include "olc_bounty.hpp"
 #include "web-server.hpp"
@@ -3161,10 +3161,10 @@ void free_char(CharData * ch)
                 DISPOSE(mpact->buf);
                 DISPOSE(mpact);
         }
-        if (ch->pcdata && ch->pcdata->account
-            && ch->pcdata->account->comments)
+        if (ch->pcdata && ch->pcdata->Account
+            && ch->pcdata->Account->comments)
         {
-                for (comments = ch->pcdata->account->comments; comments;
+                for (comments = ch->pcdata->Account->comments; comments;
                      comments = comments_next)
                 {
                         comments_next = comments->next;

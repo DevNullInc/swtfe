@@ -442,7 +442,7 @@ CMDF do_setrace(CharData * ch, char *argument)
         if ((race = get_race(arg1)) == NULL)
         {
                 send_to_char
-                        ("&RThat is not a valid race, choose one of the following:\n\r",
+                        ("&RThat is not a Valid race, choose one of the following:\n\r",
                          ch);
                 FOR_EACH_LIST(RACE_LIST, races, race)
                         ch_printf(ch, "&W\t%s\n\r", race->name());
@@ -556,7 +556,7 @@ CMDF do_setrace(CharData * ch, char *argument)
                 if (race->language() == NULL)
                 {
                         send_to_char
-                                ("Not a valid language, defaulting to basic",
+                                ("Not a Valid language, defaulting to basic",
                                  ch);
                         race->language(get_language("basic"));
                         return;
@@ -605,7 +605,7 @@ CMDF do_setrace(CharData * ch, char *argument)
                                 break;
                 if (iclass == MaxAbility)
                 {
-                        send_to_char("That is not a valid class.", ch);
+                        send_to_char("That is not a Valid class.", ch);
                         return;
                 }
                 race->class_modifier(iclass, atoi(argument));
@@ -627,7 +627,7 @@ CMDF do_setrace(CharData * ch, char *argument)
         }
         else
         {
-                send_to_char("Huh? Pick a valid one.", ch);
+                send_to_char("Huh? Pick a Valid one.", ch);
                 return;
         }
 
@@ -653,7 +653,7 @@ CMDF do_showrace(CharData * ch, char *argument)
         if ((race = get_race(arg1)) == NULL)
         {
                 send_to_char
-                        ("&RThat is not a valid race, choose one of the following:\n\r",
+                        ("&RThat is not a Valid race, choose one of the following:\n\r",
                          ch);
                 FOR_EACH_LIST(RACE_LIST, races, race)
                         ch_printf(ch, "&W\t%s\n\r", race->name());

@@ -427,7 +427,7 @@ CMDF do_autodescription(CharData * ch, [[maybe_unused]] const char *argument)
                 room = ch->in_room;
         else if ((room = get_room_index(atoi(arg))) == NULL)
         {
-                send_to_char("That is not a valid room", ch);
+                send_to_char("That is not a Valid room", ch);
                 return;
         }
 

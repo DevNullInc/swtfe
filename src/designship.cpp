@@ -351,7 +351,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the LONG process of building a ship.\n\r",
+                                ("&GYou begin the LONG Process of building a ship.\n\r",
                                  ch);
                                                 act(AT_PLAIN,
                                                         "$n takes $s tools and starts constructing a ship.\r\n",
@@ -722,7 +722,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
         }
         else
         {
-                send_to_char("Not a valid direction\r\n", ch);
+                send_to_char("Not a Valid direction\r\n", ch);
                 return;
         }
 
@@ -1068,7 +1068,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
 
         else
         {
-                send_to_char("Not a valid direction\r\n", ch);
+                send_to_char("Not a Valid direction\r\n", ch);
                 return;
         }
         ship->lastbuilt = room->vnum;
@@ -1309,7 +1309,7 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
         return;
 }
 
-/* this was added by request from the implementor of the mud i player tested it on
+/* this was added by Request from the implementor of the mud i player tested it on
    gives engis an alternative to selling the ships to keep the vnums free and to 
    make some of the expense of building it back. 
    Note - You may also want to adjust do_sellship to severely cut the price on 
@@ -1755,7 +1755,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 if (arg.empty() || arg1.empty() || arg2.empty())
                 {
                         send_to_char("Usage: modifyship <ship> <add> <remove>\r\n", ch);
-                        send_to_char("Options: speed manuever hyperspeed cargo battalions\r\n", ch);
+                        send_to_char("Options: Speed manuever hyperspeed cargo battalions\r\n", ch);
                         send_to_char("Options: lasers ions missiles rockets torpedos\r\n", ch);
                         send_to_char("Options: tractors chaff shields hull energy\r\n", ch);
                         send_to_char("Options: stealth cloak interdictor\r\n", ch);
@@ -1774,7 +1774,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                  ch);
                         return;
                 }
-                if (str_cmp(arg1, "speed") && str_cmp(arg1, "cargo")
+                if (str_cmp(arg1, "Speed") && str_cmp(arg1, "cargo")
                     && str_cmp(arg1, "battalions") && str_cmp(arg1, "lasers")
                     && str_cmp(arg1, "ions") && str_cmp(arg1, "missiles")
                     && str_cmp(arg1, "torpedos")
@@ -1787,7 +1787,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                     && str_cmp(arg1, "interdictor"))
                 {
                         send_to_char
-                                ("That is not a valid ship field to modify. Try help modifyship\r\n",
+                                ("That is not a Valid ship field to modify. Try help modifyship\r\n",
                                  ch);
                         return;
                 }
@@ -1897,7 +1897,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 return;
         }
 
-        if (!str_cmp(arg1, "speed"))
+        if (!str_cmp(arg1, "Speed"))
         {
 
                 if (ship->ship_class == FIGHTER_SHIP)
@@ -1905,7 +1905,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ch->gold < 10000)
                         {
                                 send_to_char
-                                        ("You need 10000 credits to modify this ships speed\r\n",
+                                        ("You need 10000 credits to modify this ships Speed\r\n",
                                          ch);
                                 return;
                         }
@@ -1915,7 +1915,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ch->gold < 50000)
                         {
                                 send_to_char
-                                        ("You need 50000 credits to modify this ships speed\r\n",
+                                        ("You need 50000 credits to modify this ships Speed\r\n",
                                          ch);
                                 return;
                         }
@@ -1925,7 +1925,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ch->gold < 100000)
                         {
                                 send_to_char
-                                        ("You need 100000 credits to modify this ships speed\r\n",
+                                        ("You need 100000 credits to modify this ships Speed\r\n",
                                          ch);
                                 return;
                         }
@@ -1936,7 +1936,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed >= 255)
                         {
                                 send_to_char
-                                        ("This ship has reached its maximum capacity for speed enhancements\r\n",
+                                        ("This ship has reached its maximum capacity for Speed enhancements\r\n",
                                          ch);
                                 return;
                         }
@@ -1946,7 +1946,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed >= 200)
                         {
                                 send_to_char
-                                        ("This ship has reached its maximum capacity for speed enhancements\r\n",
+                                        ("This ship has reached its maximum capacity for Speed enhancements\r\n",
                                          ch);
                                 return;
                         }
@@ -1956,7 +1956,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed >= 100)
                         {
                                 send_to_char
-                                        ("This ship has reached its maximum capacity for speed enhancements\r\n",
+                                        ("This ship has reached its maximum capacity for Speed enhancements\r\n",
                                          ch);
                                 return;
                         }
@@ -1967,7 +1967,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                     && (str_cmp(arg2, "hyperspeed")))
                 {
                         send_to_char
-                                ("You may not substitute that for speed\r\n",
+                                ("You may not substitute that for Speed\r\n",
                                  ch);
                         send_to_char
                                 ("Options are: cargo, battalions, manuever, hyperspeed\r\n",
@@ -2047,7 +2047,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 }
 
                 ship->realspeed += 25;
-                send_to_char("Ships speed increased by 25.\r\n", ch);
+                send_to_char("Ships Speed increased by 25.\r\n", ch);
                 if (ship->ship_class == FIGHTER_SHIP)
                 {
                         ch->gold -= 10000;
@@ -2137,7 +2137,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if ((str_cmp(arg2, "speed")) && (str_cmp(arg2, "battalions"))
+                if ((str_cmp(arg2, "Speed")) && (str_cmp(arg2, "battalions"))
                     && (str_cmp(arg2, "manuever"))
                     && (str_cmp(arg2, "hyperspeed")))
                 {
@@ -2145,12 +2145,12 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 ("You may not substitute that for cargo\r\n",
                                  ch);
                         send_to_char
-                                ("Options are: speed, battalions, manuever, hyperspeed\r\n",
+                                ("Options are: Speed, battalions, manuever, hyperspeed\r\n",
                                  ch);
                         return;
                 }
 
-                if (!str_cmp(arg2, "speed"))
+                if (!str_cmp(arg2, "Speed"))
                 {
                         if (ship->realspeed < 25)
                         {
@@ -2162,7 +2162,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed > 25)
                         {
                                 ship->realspeed -= 25;
-                                send_to_char("Ships speed reduced by 25\r\n",
+                                send_to_char("Ships Speed reduced by 25\r\n",
                                              ch);
                         }
                 }
@@ -2313,7 +2313,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if ((str_cmp(arg2, "cargo")) && (str_cmp(arg2, "speed"))
+                if ((str_cmp(arg2, "cargo")) && (str_cmp(arg2, "Speed"))
                     && (str_cmp(arg2, "manuever"))
                     && (str_cmp(arg2, "hyperspeed")))
                 {
@@ -2321,7 +2321,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 ("You may not substitute that for battalion holds\r\n",
                                  ch);
                         send_to_char
-                                ("Options are: cargo, speed, manuever, hyperspeed\r\n",
+                                ("Options are: cargo, Speed, manuever, hyperspeed\r\n",
                                  ch);
                         return;
                 }
@@ -2343,7 +2343,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (!str_cmp(arg2, "speed"))
+                if (!str_cmp(arg2, "Speed"))
                 {
                         if (ship->realspeed < 25)
                         {
@@ -2355,7 +2355,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed > 25)
                         {
                                 ship->realspeed -= 25;
-                                send_to_char("Ships speed reduced by 25\r\n",
+                                send_to_char("Ships Speed reduced by 25\r\n",
                                              ch);
                         }
                 }
@@ -2491,14 +2491,14 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 }
 
                 if ((str_cmp(arg2, "cargo")) && (str_cmp(arg2, "battalions"))
-                    && (str_cmp(arg2, "speed"))
+                    && (str_cmp(arg2, "Speed"))
                     && (str_cmp(arg2, "hyperspeed")))
                 {
                         send_to_char
                                 ("You may not substitute that for manueverability\r\n",
                                  ch);
                         send_to_char
-                                ("Options are: cargo, battalions, speed, hyperspeed\r\n",
+                                ("Options are: cargo, battalions, Speed, hyperspeed\r\n",
                                  ch);
                         return;
                 }
@@ -2538,7 +2538,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (!str_cmp(arg2, "speed"))
+                if (!str_cmp(arg2, "Speed"))
                 {
                         if (ship->realspeed < 25)
                         {
@@ -2550,7 +2550,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed > 25)
                         {
                                 ship->realspeed -= 25;
-                                send_to_char("Ships speed reduced by 25\r\n",
+                                send_to_char("Ships Speed reduced by 25\r\n",
                                              ch);
                         }
                 }
@@ -2667,13 +2667,13 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
 
                 if ((str_cmp(arg2, "cargo")) && (str_cmp(arg2, "battalions"))
                     && (str_cmp(arg2, "manuever"))
-                    && (str_cmp(arg2, "speed")))
+                    && (str_cmp(arg2, "Speed")))
                 {
                         send_to_char
                                 ("You may not substitute that for hyperspeed\r\n",
                                  ch);
                         send_to_char
-                                ("Options are: cargo, battalions, manuever, speed\r\n",
+                                ("Options are: cargo, battalions, manuever, Speed\r\n",
                                  ch);
                         return;
                 }
@@ -2731,7 +2731,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (!str_cmp(arg2, "speed"))
+                if (!str_cmp(arg2, "Speed"))
                 {
                         if (ship->realspeed < 26)
                         {
@@ -2743,7 +2743,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed > 26)
                         {
                                 ship->realspeed -= 25;
-                                send_to_char("Ships speed reduced by 25\r\n",
+                                send_to_char("Ships Speed reduced by 25\r\n",
                                              ch);
                         }
                 }
@@ -4720,7 +4720,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 if ((str_cmp(arg2, "hull")) && (str_cmp(arg2, "shields"))
                     && (str_cmp(arg2, "energy")) && (str_cmp(arg2, "cargo"))
                     && (str_cmp(arg2, "battalions"))
-                    && (str_cmp(arg2, "speed")) && (str_cmp(arg2, "manuever"))
+                    && (str_cmp(arg2, "Speed")) && (str_cmp(arg2, "manuever"))
                     && (str_cmp(arg2, "hyperspeed"))
                     && (str_cmp(arg2, "remove")))
 
@@ -4732,7 +4732,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 ("Options are: hull, shields, energy, cargo,\r\n",
                                  ch);
                         send_to_char
-                                ("             battalions, speed, manuever, hyperspeed.\r\n",
+                                ("             battalions, Speed, manuever, hyperspeed.\r\n",
                                  ch);
                         send_to_char
                                 ("             &Rremove&w will remove stealth from the ship.\r\n",
@@ -4848,7 +4848,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (!str_cmp(arg2, "speed"))
+                if (!str_cmp(arg2, "Speed"))
                 {
                         if (ship->realspeed < 26)
                         {
@@ -4860,7 +4860,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed > 25)
                         {
                                 ship->realspeed -= 25;
-                                send_to_char("Ships speed reduced by 25\r\n",
+                                send_to_char("Ships Speed reduced by 25\r\n",
                                              ch);
                         }
                 }
@@ -4986,7 +4986,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 if ((str_cmp(arg2, "hull")) && (str_cmp(arg2, "shields"))
                     && (str_cmp(arg2, "energy")) && (str_cmp(arg2, "cargo"))
                     && (str_cmp(arg2, "battalions"))
-                    && (str_cmp(arg2, "speed")) && (str_cmp(arg2, "manuever"))
+                    && (str_cmp(arg2, "Speed")) && (str_cmp(arg2, "manuever"))
                     && (str_cmp(arg2, "hyperspeed"))
                     && (str_cmp(arg2, "remove")))
 
@@ -4998,7 +4998,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 ("Options are: hull, shields, energy, cargo,\r\n",
                                  ch);
                         send_to_char
-                                ("             battalions, speed, manuever, hyperspeed.\r\n",
+                                ("             battalions, Speed, manuever, hyperspeed.\r\n",
                                  ch);
                         send_to_char
                                 ("             &Rremove&w will remove cloak from the ship.\r\n",
@@ -5114,7 +5114,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (!str_cmp(arg2, "speed"))
+                if (!str_cmp(arg2, "Speed"))
                 {
                         if (ship->realspeed < 26)
                         {
@@ -5126,7 +5126,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed > 25)
                         {
                                 ship->realspeed -= 25;
-                                send_to_char("Ships speed reduced by 25\r\n",
+                                send_to_char("Ships Speed reduced by 25\r\n",
                                              ch);
                         }
                 }
@@ -5246,7 +5246,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 if ((str_cmp(arg2, "hull")) && (str_cmp(arg2, "shields"))
                     && (str_cmp(arg2, "energy")) && (str_cmp(arg2, "cargo"))
                     && (str_cmp(arg2, "battalions"))
-                    && (str_cmp(arg2, "speed")) && (str_cmp(arg2, "manuever"))
+                    && (str_cmp(arg2, "Speed")) && (str_cmp(arg2, "manuever"))
                     && (str_cmp(arg2, "hyperspeed"))
                     && (str_cmp(arg2, "remove")))
                 {
@@ -5257,7 +5257,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                                 ("Options are: hull, shields, energy, cargo,\r\n",
                                  ch);
                         send_to_char
-                                ("             battalions, speed, manuever, hyperspeed.\r\n",
+                                ("             battalions, Speed, manuever, hyperspeed.\r\n",
                                  ch);
                         send_to_char
                                 ("             &Rremove&w will remove the gravity cone from the ship.\r\n",
@@ -5372,7 +5372,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         }
                 }
 
-                if (!str_cmp(arg2, "speed"))
+                if (!str_cmp(arg2, "Speed"))
                 {
                         if (ship->realspeed < 56)
                         {
@@ -5384,7 +5384,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->realspeed > 55)
                         {
                                 ship->realspeed -= 55;
-                                send_to_char("Ships speed reduced by 55\r\n",
+                                send_to_char("Ships Speed reduced by 55\r\n",
                                              ch);
                         }
                 }
@@ -5503,7 +5503,7 @@ CMDF do_modifyexit(CharData * ch, char *argument)
 
                 else
                 {
-                        send_to_char("Not a valid direction\r\n", ch);
+                        send_to_char("Not a Valid direction\r\n", ch);
                         return;
                 }
 
@@ -5653,7 +5653,7 @@ CMDF do_modifyexit(CharData * ch, char *argument)
         else
         {
                 send_to_char
-                        ("Not a valid direction, but this should not have happened. Talk to Greven.\r\n",
+                        ("Not a Valid direction, but this should not have happened. Talk to Greven.\r\n",
                          ch);
                 return;
         }
@@ -5873,7 +5873,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                         if (number_percent() < percentage)
                         {
                                 send_to_char
-                                        ("&GYou begin the LONG process of dismantling a ship.\n\r",
+                                        ("&GYou begin the LONG Process of dismantling a ship.\n\r",
                                          ch);
                                 act(AT_PLAIN,
                                     "$n takes $s tools and starts dismantling a ship.\r\n",

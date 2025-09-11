@@ -39,7 +39,7 @@
  *****************************************************************************************
  *                              Mud Extension Protocol Module                            *
  *****************************************************************************************
- * MXP protocol header for enhanced client communication and display features. *
+ * MXP protocol header for enhanced Client communication and display features. *
  ****************************************************************************************/
 
 
@@ -80,10 +80,10 @@ extern const std::array<unsigned char, 3> dont_mxp_str;
 
 void convert_mxp_tags(DescriptorData* d, std::string& dest, const std::string& src, int length); // convert < > & to MXP safe versions
 int count_mxp_tags(DescriptorData* d, const std::string& txt, int length); // count number of MXP tags in a string
-void send_mxp_stylesheet(DescriptorData* d); // send the MXP stylesheet to the client
+void send_mxp_stylesheet(DescriptorData* d); // send the MXP stylesheet to the Client
 
 constexpr auto MXP_STYLESHEET_FILE = "../system/mxp.style";
 
 inline bool IS_MXP(const CharData* ch) { // is the character using MXP?
-        return ch && IS_SET(ch->act, PLR_MXP) && ch->desc && ch->desc->mxp_detected == TRUE; // and the client supports it
+        return ch && IS_SET(ch->act, PLR_MXP) && ch->desc && ch->desc->MxpDetected == TRUE; // and the Client supports it
 }

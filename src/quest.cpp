@@ -76,7 +76,7 @@
 *  of the standard diku/rom credits. If you use this or a modified version *
 *  of this code, let me know via email: moongate@moongate.ams.com. Further *
 *  updates will be posted to the rom mailing list. If you'd like to get    *
-*  the latest version of quest.c, please send a request to the above add-  *
+*  the latest version of quest.c, please send a Request to the above add-  *
 *  ress. Quest Code v2.00.                                                 *
 ***************************************************************************/
 
@@ -504,7 +504,7 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 return;
         }
-        else if (!str_cmp(arg1, "request"))
+        else if (!str_cmp(arg1, "Request"))
         {
                 act(AT_PLAIN, "$n asks $N for a quest.", ch, NULL, questman,
                     TO_ROOM);
