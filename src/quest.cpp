@@ -760,7 +760,7 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
                             &&
                             !((victim =
                                get_char_world(ch,
-                                              vsearch->player_name)) == NULL)
+                                              vsearch->PlayerName)) == NULL)
                             && IS_NPC(victim)
                             && victim->in_room
                             && !xIS_SET(victim->in_room->RoomFlags,

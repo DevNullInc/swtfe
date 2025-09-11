@@ -495,7 +495,7 @@ void save_mobile(FILE * fp, CharData * mob)
 #ifdef OVERLANDCODE
         fprintf(fp, "Coordinates  %d %d %d\n", mob->x, mob->y, mob->map);
 #endif
-        if (QUICKMATCH(mob->name, mob->pIndexData->player_name) == 0)
+        if (QUICKMATCH(mob->name, mob->pIndexData->PlayerName) == 0)
                 fprintf(fp, "Name     %s~\n", mob->name);
         if (QUICKMATCH(mob->short_descr, mob->pIndexData->short_descr) == 0)
                 fprintf(fp, "Short	%s~\n", mob->short_descr);

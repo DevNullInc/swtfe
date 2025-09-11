@@ -2309,7 +2309,7 @@ CMDF do_mfind(CharData * ch, char *argument)
     {
 	if ( ( pMobIndex = get_mob_index( vnum ) ) != NULL )
 	{
-	    if ( fAll || is_name( arg, pMobIndex->player_name ) )
+	    if ( fAll || is_name( arg, pMobIndex->PlayerName ) )
 	    {
 		nMatch++;
 		snprintf( buf, MSL, "[%5d] %s\n\r",
@@ -2335,7 +2335,7 @@ CMDF do_mfind(CharData * ch, char *argument)
                 for (pMobIndex = mob_index_hash[hash];
                      pMobIndex; pMobIndex = pMobIndex->next)
                         if (fAll
-                            || nifty_is_name(arg, pMobIndex->player_name))
+                            || nifty_is_name(arg, pMobIndex->PlayerName))
                         {
                                 nMatch++;
                                 pager_printf(ch, "[%5d] %s\n\r",
@@ -2930,7 +2930,7 @@ CMDF do_minvoke(CharData * ch, char *argument)
                         for (pMobIndex = mob_index_hash[hash];
                              pMobIndex; pMobIndex = pMobIndex->next)
                                 if (nifty_is_name
-                                    (arg2, pMobIndex->player_name)
+                                    (arg2, pMobIndex->PlayerName)
                                     && ++cnt == count)
                                 {
                                         vnum = pMobIndex->vnum;
@@ -5657,7 +5657,7 @@ void close_area(AreaData * pArea)
                             || mid->vnum > pArea->hi_m_vnum)
                                 continue;
 
-                        STRFREE(mid->player_name);
+                        STRFREE(mid->PlayerName);
                         STRFREE(mid->short_descr);
                         STRFREE(mid->long_descr);
                         STRFREE(mid->description);

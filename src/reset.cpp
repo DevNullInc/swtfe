@@ -387,7 +387,7 @@ ResetData *find_mreset(CharData * ch, AreaData * pArea,
                                 break;
                         }
                         if ((pMob = get_mob_index(reset->arg1)) &&
-                            is_name(arg, pMob->player_name) && ++cnt == num)
+                            is_name(arg, pMob->PlayerName) && ++cnt == num)
                                 break;
                 }
                 if (!pMob || !reset)
@@ -1857,7 +1857,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                         if (!(mob = get_mob_index(pReset->arg1)))
                                 mname = "Mobile: *BAD VNUM*";
                         else
-                                mname = mob->player_name;
+                                mname = mob->PlayerName;
                         if (!(room = get_room_index(pReset->arg3)))
                                 rname = "Room: *BAD VNUM*";
                         else
@@ -2086,7 +2086,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                                         rname = "Mobile: *BAD VNUM*";
                                                 else
                                                         rname = mob2->
-                                                                player_name;
+                                                                PlayerName;
                                         }
                                         else if (!mob)
                                                 rname = "Mobile: *NULL mob*";

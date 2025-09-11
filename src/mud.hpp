@@ -2239,7 +2239,7 @@ struct mob_index_data
         MProgData *mudprogs;
         RaceData *race;
         int progtypes;
-        char     *player_name;
+        char     *PlayerName;
         char     *short_descr;
         char     *long_descr;
         char     *description;

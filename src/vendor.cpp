@@ -199,7 +199,7 @@ around in hell do we?*/
 
 
         char_to_room(create_mobile(temp), ch->in_room);
-        vendor = get_char_room(ch, temp->player_name);
+        vendor = get_char_room(ch, temp->PlayerName);
 
 
         snprintf(buf, MSL, vendor->long_descr, ch->name);

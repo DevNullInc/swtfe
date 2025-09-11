@@ -3698,7 +3698,7 @@ void clean_mob(MobIndexData * mob)
 {
         MProgData *mprog, *mprog_next;
 
-        STRFREE(mob->player_name);
+        STRFREE(mob->PlayerName);
         STRFREE(mob->short_descr);
         STRFREE(mob->long_descr);
         STRFREE(mob->description);

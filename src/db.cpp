@@ -1393,7 +1393,7 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                                 tarea->hi_m_vnum = vnum;
                 }
 
-                pMobIndex->player_name = fread_string(fp);
+                pMobIndex->PlayerName = fread_string(fp);
                 pMobIndex->short_descr = fread_string(fp);
                 pMobIndex->long_descr = fread_string(fp);
                 pMobIndex->description = fread_string(fp);
@@ -2642,7 +2642,7 @@ CharData *create_mobile(MobIndexData * pMobIndex)
         mob->pIndexData = pMobIndex;
 
         mob->editor = NULL;
-        mob->name = QUICKLINK(pMobIndex->player_name);
+        mob->name = QUICKLINK(pMobIndex->PlayerName);
         mob->short_descr = QUICKLINK(pMobIndex->short_descr);
         mob->long_descr = QUICKLINK(pMobIndex->long_descr);
         mob->description = QUICKLINK(pMobIndex->description);
@@ -5983,7 +5983,7 @@ bool delete_mob(MobIndexData * mob)
                 --top_repair;
         }
 
-        STRFREE(mob->player_name);
+        STRFREE(mob->PlayerName);
         STRFREE(mob->short_descr);
         STRFREE(mob->long_descr);
         STRFREE(mob->description);
@@ -6162,7 +6162,7 @@ MobIndexData *make_mobile(int vnum, int cvnum, char *name)
         pMobIndex->vnum = vnum;
         pMobIndex->count = 0;
         pMobIndex->killed = 0;
-        pMobIndex->player_name = STRALLOC(name);
+        pMobIndex->PlayerName = STRALLOC(name);
         if (!cMobIndex)
         {
                 snprintf(buf, MSL, "A newly created %s", name);

@@ -742,10 +742,10 @@ bool check_bad_desc(int desc)
  * Determine whether this player is to be watched  --Gorog
  */
 #ifdef ACCOUNT
-bool chk_watch(sh_int player_level, char *player_name, char *player_site,
+bool chk_watch(sh_int PlayerLevel, char *PlayerName, char *player_site,
                char *player_account)
 #else
-bool chk_watch(sh_int player_level, char *player_name, char *player_site)
+bool chk_watch(sh_int PlayerLevel, char *PlayerName, char *player_site)
 #endif
 {
         WatchData *pw;
@@ -753,7 +753,7 @@ bool chk_watch(sh_int player_level, char *player_name, char *player_site)
 /*
     char buf[MaxInputLength];
     snprintf( buf, MSL, "che_watch entry: plev=%d pname=%s psite=%s",
-                  player_level, player_name, player_site);
+                  PlayerLevel, PlayerName, player_site);
     log_string(buf);
 */
         if (!first_watch)
@@ -763,21 +763,21 @@ bool chk_watch(sh_int player_level, char *player_name, char *player_site)
         {
                 if (pw->target_name)
                 {
-                        if (!str_cmp(pw->target_name, player_name)
-                            && player_level < pw->imm_level)
+                        if (!str_cmp(pw->target_name, PlayerName)
+                            && PlayerLevel < pw->imm_level)
                                 return TRUE;
                 }
                 else if (pw->player_site)
                 {
                         if (!str_prefix(pw->player_site, player_site)
-                            && player_level < pw->imm_level)
+                            && PlayerLevel < pw->imm_level)
                                 return TRUE;
                 }
 #ifdef ACCOUNT
                 else if (pw->player_account)
                 {
                         if (!str_cmp(pw->player_account, player_account)
-                            && player_level < pw->imm_level)
+                            && PlayerLevel < pw->imm_level)
                                 return TRUE;
                 }
 #endif

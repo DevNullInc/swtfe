@@ -544,7 +544,7 @@ void pfile_scan(bool count)
         struct dirent *dentry;
         ClanData *clan;
         char      directory_name[100];
-        char      player_name[MIL];
+        char      PlayerName[MIL];
         char      buf[MSL];
         char      file_name[MIL];
 
@@ -605,17 +605,17 @@ void pfile_scan(bool count)
                                                          "%s/%s",
                                                          directory_name,
                                                          dentry->d_name);
-                                                snprintf(player_name, MSL,
+                                                snprintf(PlayerName, MSL,
                                                          "%s/%s",
                                                          directory_name,
                                                          smash_extension
                                                          (dentry->d_name));
-                                                if (access(player_name, F_OK)
+                                                if (access(PlayerName, F_OK)
                                                     != 0)
                                                 {
                                                         snprintf(buf, MSL,
                                                                  "Pfile \"%s\" does not exist for corresponding \"%s\", unlinking.",
-                                                                 player_name,
+                                                                 PlayerName,
                                                                  file_name);
                                                         unlink(file_name);
                                                         log_string(buf);

@@ -1937,8 +1937,8 @@ CMDF do_mset(CharData * ch, char *argument)
                 victim->name = STRALLOC(arg3);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
                 {
-                        STRFREE(victim->pIndexData->player_name);
-                        victim->pIndexData->player_name =
+                        STRFREE(victim->pIndexData->PlayerName);
+                        victim->pIndexData->PlayerName =
                                 QUICKLINK(victim->name);
                 }
                 return;
@@ -4350,7 +4350,7 @@ char *sprint_reset(CharData *ch, ResetData *pReset, sh_int num, bool rlist)
         case 'M': {
                 mob = get_mob_index(pReset->arg1); 
                 room = get_room_index(pReset->arg3);
-                const char *mobsrc = mob ? mob->player_name : "Mobile: *BAD VNUM*";
+                const char *mobsrc = mob ? mob->PlayerName : "Mobile: *BAD VNUM*";
                 const char *roomsr = room ? room->name : "Room: *BAD VNUM*";
                 mudstrlcpy(mobname, mobsrc, MSL);
                 mudstrlcpy(roomname, roomsr, MSL);
@@ -5756,7 +5756,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                 else
                         complexmob = FALSE;
                 fprintf(fpout, "#%d\n", vnum); // vnum
-                fprintf(fpout, "%s~\n", pMobIndex->player_name); // player name
+                fprintf(fpout, "%s~\n", pMobIndex->PlayerName); // player name
                 fprintf(fpout, "%s~\n", pMobIndex->short_descr); // short description
                 fprintf(fpout, "%s~\n", strip_cr(pMobIndex->long_descr)); // long description
                 fprintf(fpout, "%s~\n", strip_cr(pMobIndex->description));
@@ -7275,11 +7275,11 @@ CMDF do_mlist(CharData * ch, char *argument)
 
                 if (IS_SET(mob->act, ACT_PROTOTYPE))
                         ch_printf(ch, "%5d) %-20s '%s &R(Proto)&R&W'\n\r",
-                                  vnum, mob->player_name, mob->short_descr);
+                                  vnum, mob->PlayerName, mob->short_descr);
 
                 else
                         ch_printf(ch, "%5d) %-20s '%s'\n\r", vnum,
-                                  mob->player_name, mob->short_descr);
+                                  mob->PlayerName, mob->short_descr);
         }
 }
 
