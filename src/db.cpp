@@ -1495,7 +1495,7 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                                 pMobIndex->Damroll = IntToShint(x2);
                                 for (i = 0; i < 32; i++)
                                         if (IsSet(x1, 1 << i))
-                                                xSET_BIT(pMobIndex->xflags,
+                                                SetBit(pMobIndex->xflags,
                                                          i);
                                 pMobIndex->resistant = x4;
                                 pMobIndex->immune = x5;
@@ -1525,7 +1525,7 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                         pMobIndex->perm_con = 10;
                         pMobIndex->perm_lck = 10;
                         pMobIndex->race = 0;
-                        xCLEAR_BITS(pMobIndex->xflags);
+                        ClearBits(pMobIndex->xflags);
                         pMobIndex->resistant = 0;
                         pMobIndex->immune = 0;
                         pMobIndex->susceptible = 0;
@@ -2047,7 +2047,7 @@ void load_rooms(AreaData * tarea, FILE * fp)
 
                         for (i = 0; i < 32; i++)
                                 if (IsSet(x3, 1 << i))
-                                        xSET_BIT(pRoomIndex->RoomFlags,
+                                        SetBit(pRoomIndex->RoomFlags,
                                                  i + 32);
                 }
                 if (pRoomIndex->sector_type < 0
@@ -2418,7 +2418,7 @@ void fix_exits(void)
                                         fexit = TRUE;
                         }
                         if (!fexit)
-                                xSET_BIT(pRoomIndex->RoomFlags, RoomNoMob);
+                                SetBit(pRoomIndex->RoomFlags, RoomNoMob);
                 }
         }
 
@@ -2983,7 +2983,7 @@ void clear_char(CharData * ch)
         ch->endurance = 1000;
         ch->height = 72;
         ch->weight = 180;
-        xCLEAR_BITS(ch->xflags);
+        ClearBits(ch->xflags);
         ch->race = 0;
         ch->speaking = NULL;
         ch->barenumdie = 1;
@@ -3080,21 +3080,21 @@ void free_char(CharData * ch)
                 free_note(ch->pnote);
 
 
-        if (ch->pcdata)
+        if (ch->PCData)
         {
                 for (pos = 0;
-                     (pos < MaxIgnore && ch->pcdata->ignore[pos] != NULL);
+                     (pos < MaxIgnore && ch->PCData->ignore[pos] != NULL);
                      pos++)
                 {
-                        STRFREE(ch->pcdata->ignore[pos]);
+                        STRFREE(ch->PCData->ignore[pos]);
                 }
-                if (!(ch->pcdata->birthday.year > -1)
-                    || !(ch->pcdata->birthday.day > -1)
-                    || !(ch->pcdata->birthday.month > -1)
-                    || !(ch->pcdata->birthday.hour > -1))
-                        ch->pcdata->birthday = time_info;   /* Added for player birthdays - Gavin 2004-01-06 */
+                if (!(ch->PCData->birthday.year > -1)
+                    || !(ch->PCData->birthday.day > -1)
+                    || !(ch->PCData->birthday.month > -1)
+                    || !(ch->PCData->birthday.hour > -1))
+                        ch->PCData->birthday = time_info;   /* Added for player birthdays - Gavin 2004-01-06 */
 
-                for (wanted = ch->pcdata->first_wanted; wanted;
+                for (wanted = ch->PCData->first_wanted; wanted;
                      wanted = wanted_next)
                 {
                         wanted_next = wanted->next;
@@ -3105,54 +3105,54 @@ void free_char(CharData * ch)
                  * All of these have been changed to STRALLOC/fread_string except for pwd
                  * because we can keep track through memory hash, and its a good idea anyways - Greven 
                  */
-                if (ch->pcdata->pwd)
-                        DISPOSE(ch->pcdata->pwd);   /* no hash */
-                if (ch->pcdata->spouse)
-                        STRFREE(ch->pcdata->spouse);
-                if (ch->pcdata->bamfin)
-                        STRFREE(ch->pcdata->bamfin);
-                if (ch->pcdata->bamfout)
-                        STRFREE(ch->pcdata->bamfout);
-                if (ch->pcdata->rank)
-                        STRFREE(ch->pcdata->rank);
-                if (ch->pcdata->email)
-                        STRFREE(ch->pcdata->email);
-                if (ch->pcdata->realname)
-                        STRFREE(ch->pcdata->realname);
-                if (ch->pcdata->icq)
-                        STRFREE(ch->pcdata->icq);
-                if (ch->pcdata->msn)
-                        STRFREE(ch->pcdata->msn);
-                if (ch->pcdata->aolim)
-                        STRFREE(ch->pcdata->aolim);
-                if (ch->pcdata->yahoo)
-                        STRFREE(ch->pcdata->yahoo);
-                if (ch->pcdata->title)
-                        STRFREE(ch->pcdata->title);
-                if (ch->pcdata->bio)
-                        STRFREE(ch->pcdata->bio);
-                if (ch->pcdata->bestowments)
-                        STRFREE(ch->pcdata->bestowments);
-                if (ch->pcdata->homepage)
-                        STRFREE(ch->pcdata->homepage);
-                if (ch->pcdata->authed_by)
-                        STRFREE(ch->pcdata->authed_by);
-                if (ch->pcdata->prompt)
-                        STRFREE(ch->pcdata->prompt);
-                if (ch->pcdata->fprompt)
-                        STRFREE(ch->pcdata->fprompt);
-                if (ch->pcdata->subprompt)
-                        STRFREE(ch->pcdata->subprompt);
-                if (ch->pcdata->helled_by)
-                        STRFREE(ch->pcdata->helled_by);
-                if (ch->pcdata->full_name)
-                        STRFREE(ch->pcdata->full_name);
-                if (ch->pcdata->listening)
-                        STRFREE(ch->pcdata->listening);
+                if (ch->PCData->pwd)
+                        DISPOSE(ch->PCData->pwd);   /* no hash */
+                if (ch->PCData->spouse)
+                        STRFREE(ch->PCData->spouse);
+                if (ch->PCData->bamfin)
+                        STRFREE(ch->PCData->bamfin);
+                if (ch->PCData->bamfout)
+                        STRFREE(ch->PCData->bamfout);
+                if (ch->PCData->rank)
+                        STRFREE(ch->PCData->rank);
+                if (ch->PCData->email)
+                        STRFREE(ch->PCData->email);
+                if (ch->PCData->realname)
+                        STRFREE(ch->PCData->realname);
+                if (ch->PCData->icq)
+                        STRFREE(ch->PCData->icq);
+                if (ch->PCData->msn)
+                        STRFREE(ch->PCData->msn);
+                if (ch->PCData->aolim)
+                        STRFREE(ch->PCData->aolim);
+                if (ch->PCData->yahoo)
+                        STRFREE(ch->PCData->yahoo);
+                if (ch->PCData->title)
+                        STRFREE(ch->PCData->title);
+                if (ch->PCData->bio)
+                        STRFREE(ch->PCData->bio);
+                if (ch->PCData->bestowments)
+                        STRFREE(ch->PCData->bestowments);
+                if (ch->PCData->homepage)
+                        STRFREE(ch->PCData->homepage);
+                if (ch->PCData->authed_by)
+                        STRFREE(ch->PCData->authed_by);
+                if (ch->PCData->prompt)
+                        STRFREE(ch->PCData->prompt);
+                if (ch->PCData->fprompt)
+                        STRFREE(ch->PCData->fprompt);
+                if (ch->PCData->subprompt)
+                        STRFREE(ch->PCData->subprompt);
+                if (ch->PCData->helled_by)
+                        STRFREE(ch->PCData->helled_by);
+                if (ch->PCData->full_name)
+                        STRFREE(ch->PCData->full_name);
+                if (ch->PCData->listening)
+                        STRFREE(ch->PCData->listening);
 #ifdef IMC
                 imc_freechardata(ch);
 #endif
-                DISPOSE(ch->pcdata);
+                DISPOSE(ch->PCData);
         }
 
         for (mpact = ch->mpact; mpact; mpact = mpact_next)
@@ -3161,10 +3161,10 @@ void free_char(CharData * ch)
                 DISPOSE(mpact->buf);
                 DISPOSE(mpact);
         }
-        if (ch->pcdata && ch->pcdata->Account
-            && ch->pcdata->Account->comments)
+        if (ch->PCData && ch->PCData->Account
+            && ch->PCData->Account->comments)
         {
-                for (comments = ch->pcdata->Account->comments; comments;
+                for (comments = ch->PCData->Account->comments; comments;
                      comments = comments_next)
                 {
                         comments_next = comments->next;
@@ -6208,7 +6208,7 @@ MobIndexData *make_mobile(int vnum, int cvnum, char *name)
                 pMobIndex->perm_con = 10;
                 pMobIndex->perm_lck = 10;
                 pMobIndex->race = 0;
-                xCLEAR_BITS(pMobIndex->xflags);
+                ClearBits(pMobIndex->xflags);
                 pMobIndex->resistant = 0;
                 pMobIndex->immune = 0;
                 pMobIndex->susceptible = 0;
@@ -6353,7 +6353,7 @@ void fix_area_exits(AreaData * tarea)
                                 pexit->to_room = get_room_index(pexit->vnum);
                 }
                 if (!fexit)
-                        xSET_BIT(pRoomIndex->RoomFlags, RoomNoMob);
+                        SetBit(pRoomIndex->RoomFlags, RoomNoMob);
         }
 
 

@@ -503,7 +503,7 @@ bool can_rmodify(CharData * ch, RoomIndexData * room)
                 return FALSE;
         if (get_trust(ch) >= sysdata.level_modify_proto)
                 return TRUE;
-        if (!ch->pcdata || !(pArea = ch->pcdata->area))
+        if (!ch->PCData || !(pArea = ch->PCData->area))
         {
                 send_to_char
                         ("You must have an assigned area to modify this room.\n\r",
@@ -526,7 +526,7 @@ bool can_omodify(CharData * ch, ObjData * obj)
                 return FALSE;
         if (get_trust(ch) >= sysdata.level_modify_proto)
                 return TRUE;
-        if (!ch->pcdata || !(pArea = ch->pcdata->area))
+        if (!ch->PCData || !(pArea = ch->PCData->area))
         {
                 send_to_char
                         ("You must have an assigned area to modify this object.\n\r",
@@ -549,7 +549,7 @@ bool can_oedit(CharData * ch, ObjIndexData * obj)
                 return FALSE;
         if (get_trust(ch) >= LevelGod)
                 return TRUE;
-        if (!ch->pcdata || !(pArea = ch->pcdata->area))
+        if (!ch->PCData || !(pArea = ch->PCData->area))
         {
                 send_to_char
                         ("You must have an assigned area to modify this object.\n\r",
@@ -588,7 +588,7 @@ bool can_mmodify(CharData * ch, CharData * mob)
                 return FALSE;
         if (get_trust(ch) >= sysdata.level_modify_proto)
                 return TRUE;
-        if (!ch->pcdata || !(pArea = ch->pcdata->area))
+        if (!ch->PCData || !(pArea = ch->PCData->area))
         {
                 send_to_char
                         ("You must have an assigned area to modify this mobile.\n\r",
@@ -611,7 +611,7 @@ bool can_medit(CharData * ch, MobIndexData * mob)
                 return FALSE;
         if (get_trust(ch) >= LevelGod)
                 return TRUE;
-        if (!ch->pcdata || !(pArea = ch->pcdata->area))
+        if (!ch->PCData || !(pArea = ch->PCData->area))
         {
                 send_to_char
                         ("You must have an assigned area to modify this mobile.\n\r",
@@ -879,14 +879,14 @@ CMDF do_goto(CharData * ch, const char *argument)
                         return;
                 }
 
-                if (vnum < 1 || IsNpc(ch) || !ch->pcdata->area)
+                if (vnum < 1 || IsNpc(ch) || !ch->PCData->area)
                 {
                         send_to_char("No such location.\n\r", ch);
                         return;
                 }
                 if (get_trust(ch) < sysdata.level_modify_proto)
                 {
-                        if (!ch->pcdata || !(pArea = ch->pcdata->area))
+                        if (!ch->PCData || !(pArea = ch->PCData->area))
                         {
                                 send_to_char
                                         ("You must have an assigned area to create rooms.\n\r",
@@ -902,7 +902,7 @@ CMDF do_goto(CharData * ch, const char *argument)
                                 return;
                         }
                 }
-                location = make_room(vnum, ch->pcdata->area);
+                location = make_room(vnum, ch->PCData->area);
                 if (!location)
                 {
                         bug("Goto: make_room failed", 0);
@@ -934,7 +934,7 @@ CMDF do_goto(CharData * ch, const char *argument)
                         return;
                 }
 
-                if (!ch->pcdata || !(pArea = ch->pcdata->area))
+                if (!ch->PCData || !(pArea = ch->PCData->area))
                 {
                         send_to_char
                                 ("You must have an assigned area to goto.\n\r",
@@ -952,7 +952,7 @@ CMDF do_goto(CharData * ch, const char *argument)
 
                 if ((ch->in_room->vnum < pArea->low_r_vnum
                      || ch->in_room->vnum > pArea->hi_r_vnum)
-                    && !xIS_SET(ch->in_room->RoomFlags, RoomHotel))
+                    && !IsSet(ch->in_room->RoomFlags, RoomHotel))
                 {
                         send_to_char
                                 ("Builders can only use goto from a hotel or in their zone.\n\r",
@@ -968,8 +968,8 @@ CMDF do_goto(CharData * ch, const char *argument)
 
         if (!IsSet(ch->act, PlrWizinvis))
         {
-                if (ch->pcdata && ch->pcdata->bamfout[0] != '\0')
-                        act(AtImmort, "$T", ch, NULL, ch->pcdata->bamfout,
+                if (ch->PCData && ch->PCData->bamfout[0] != '\0')
+                        act(AtImmort, "$T", ch, NULL, ch->PCData->bamfout,
                             ToRoom);
                 else {
                         static const char bamfout_msg[] = "leaves in a swirl of the Force.";
@@ -988,8 +988,8 @@ CMDF do_goto(CharData * ch, const char *argument)
 
         if (!IsSet(ch->act, PlrWizinvis))
         {
-                if (ch->pcdata && ch->pcdata->bamfin[0] != '\0')
-                        act(AtImmort, "$T", ch, NULL, ch->pcdata->bamfin,
+                if (ch->PCData && ch->PCData->bamfin[0] != '\0')
+                        act(AtImmort, "$T", ch, NULL, ch->PCData->bamfin,
                             ToRoom);
                 else {
                         static const char bamfin_msg[] = "enters in a swirl of the Force.";
@@ -1472,7 +1472,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("Value range between 0 and 3\n\r", ch);
                         return;
                 }
-                victim->pcdata->implants[value] = number;
+                victim->PCData->implants[value] = number;
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -1654,12 +1654,12 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                if (IsNpc(victim) || !victim->pcdata)
+                if (IsNpc(victim) || !victim->PCData)
                 {
                         send_to_char("Not on NPCs.\n\r", ch);
                         return;
                 }
-                victim->pcdata->bank = value;
+                victim->PCData->bank = value;
                 return;
         }
 
@@ -1771,8 +1771,8 @@ CMDF do_mset(CharData * ch, char *argument)
                 // Generate a strong Argon2 hash
                 std::string new_hash = hash_password(arg3);
 
-                DISPOSE(victim->pcdata->pwd);
-                victim->pcdata->pwd = str_dup(new_hash.c_str());
+                DISPOSE(victim->PCData->pwd);
+                victim->PCData->pwd = str_dup(new_hash.c_str());
                 if (IsSet(sysdata.save_flags, SvPasschg))
                         save_char_obj(victim);
                 send_to_char("Ok.\n\r", ch);
@@ -1797,7 +1797,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->quest_number = to_shint(value);
+                victim->PCData->quest_number = to_shint(value);
                 return;
         }
 
@@ -1809,7 +1809,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->quest_accum = value;
+                victim->PCData->quest_accum = value;
                 return;
         }
 
@@ -1829,7 +1829,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->quest_curr = to_shint(value);
+                victim->PCData->quest_curr = to_shint(value);
                 return;
         }
 
@@ -1873,7 +1873,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[CondThirst] = to_shint(value);
+                victim->PCData->condition[CondThirst] = to_shint(value);
                 return;
         }
 
@@ -1891,7 +1891,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[CondDrunk] = to_shint(value);
+                victim->PCData->condition[CondDrunk] = to_shint(value);
                 return;
         }
 
@@ -1909,7 +1909,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                victim->pcdata->condition[CondFull] = to_shint(value);
+                victim->PCData->condition[CondFull] = to_shint(value);
                 return;
         }
 
@@ -1956,9 +1956,9 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
                 }
-                if (victim->pcdata)
+                if (victim->PCData)
                 {
-                        victim->pcdata->min_snoop = to_shint(value);
+                        victim->PCData->min_snoop = to_shint(value);
                         return;
                 }
         }
@@ -2003,14 +2003,14 @@ CMDF do_mset(CharData * ch, char *argument)
 
                 if (arg3[0] == '\0')
                 {
-                        if (victim->pcdata->clan->roster)
+                        if (victim->PCData->clan->roster)
                                 if (hasname
-                                    (victim->pcdata->clan->roster,
+                                    (victim->PCData->clan->roster,
                                      victim->name))
-                                        removename(&victim->pcdata->clan->
+                                        removename(&victim->PCData->clan->
                                                    roster, victim->name);
 
-                        victim->pcdata->clan = NULL;
+                        victim->PCData->clan = NULL;
                         send_to_char
                                 ("Removed from clan.\n\rPlease make sure you adjust that clan's members accordingly.\n\rAlso be sure to remove any bestowments they have been given.\n\r",
                                  ch);
@@ -2022,7 +2022,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("No such clan.\n\r", ch);
                         return;
                 }
-                victim->pcdata->clan = clan;
+                victim->PCData->clan = clan;
                 if (clan->roster)
                 {
                         if (!hasname(clan->roster, victim->name))
@@ -2106,12 +2106,12 @@ CMDF do_mset(CharData * ch, char *argument)
                 }
 
                 smash_tilde(arg3);
-                if (victim->pcdata->rank)
-                        STRFREE(victim->pcdata->rank);
+                if (victim->PCData->rank)
+                        STRFREE(victim->PCData->rank);
                 if (!str_cmp(arg3, "none"))
-                        victim->pcdata->rank = STRALLOC(empty_string);
+                        victim->PCData->rank = STRALLOC(empty_string);
                 else
-                        victim->pcdata->rank = STRALLOC(arg3);
+                        victim->PCData->rank = STRALLOC(arg3);
                 return;
         }
         if (!str_cmp(arg2, "spouse"))
@@ -2123,12 +2123,12 @@ CMDF do_mset(CharData * ch, char *argument)
                 }
 
                 smash_tilde(arg3);
-                if (victim->pcdata->spouse)
-                        STRFREE(victim->pcdata->spouse);
+                if (victim->PCData->spouse)
+                        STRFREE(victim->PCData->spouse);
                 if (!str_cmp(arg3, "none") || arg3[0] == '\0')
-                        ch->pcdata->spouse = STRALLOC(empty_string);
+                        ch->PCData->spouse = STRALLOC(empty_string);
                 else
-                        ch->pcdata->spouse = STRALLOC(arg3);
+                        ch->PCData->spouse = STRALLOC(arg3);
                 return;
         }
 
@@ -2139,7 +2139,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("Not on NPC's.\n\r", ch);
                         return;
                 }
-                ch->pcdata->age = to_shint(value);
+                ch->PCData->age = to_shint(value);
                 return;
         }
 
@@ -2304,7 +2304,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 bool      pcflag;
 
                 if (!IsNpc(victim)
-                    && (!IsSet(ch->pcdata->flags, ImmAdmin)
+                    && (!IsSet(ch->PCData->flags, ImmAdmin)
                         && ch->top_level != MaxLevel))
                 {
                         send_to_char
@@ -2370,7 +2370,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 else
                                 {
                                         if (pcflag)
-                                                ToggleBit(victim->pcdata->
+                                                ToggleBit(victim->PCData->
                                                            flags, 1 << value);
                                         else
                                         {
@@ -2412,7 +2412,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IsNpc(ch) || !ch->pcdata)
+                if (IsNpc(ch) || !ch->PCData)
                 {
                         send_to_char("Not on NPC's\n\r", ch);
                         return;
@@ -2427,7 +2427,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ch_printf(ch, "Unknown flag: %s\n\r", godflags_arg);
                                 return;
                         }
-                        ToggleBit(victim->pcdata->godflags, 1 << to_shint(tempnum));
+                        ToggleBit(victim->PCData->godflags, 1 << to_shint(tempnum));
                 }
                 send_to_char("Done.\n\r", ch);
                 return;
@@ -2764,7 +2764,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         if (value < 0 || value > MaxBits)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                xTOGGLE_BIT(victim->xflags, value);
+                                ToggleBit(victim->xflags, value);
                 }
                 if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->xflags = victim->xflags;
@@ -3075,7 +3075,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("Player Characters only.\n\r", ch);
                         return;
                 }
-                if (!victim->pcdata->area)
+                if (!victim->PCData->area)
                 {
                         send_to_char
                                 ("Player does not have an area assigned to them.\n\r",
@@ -3087,9 +3087,9 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (!can_mmodify(ch, victim))
                         return;
 
-                if (!IsSet(victim->pcdata->area->status, AreaLoaded))
+                if (!IsSet(victim->PCData->area->status, AreaLoaded))
                 {
-                        SetBit(victim->pcdata->area->status, AreaLoaded);
+                        SetBit(victim->PCData->area->status, AreaLoaded);
                         send_to_char("Your area set to LOADED!\n\r", victim);
                         if (ch != victim)
                                 send_to_char("Area set to LOADED!\n\r", ch);
@@ -3097,7 +3097,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 }
                 else
                 {
-                        RemoveBit(victim->pcdata->area->status, AreaLoaded);
+                        RemoveBit(victim->PCData->area->status, AreaLoaded);
                         send_to_char("Your area set to NOT-LOADED!\n\r",
                                      victim);
                         if (ch != victim)
@@ -3126,7 +3126,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                          ch);
                                 return;
                         }
-                        victim->pcdata->illness = illness_value;
+                        victim->PCData->illness = illness_value;
                         send_to_char("Illness Set.\n\r", ch);
                         return;
                 }
@@ -4212,13 +4212,13 @@ CMDF do_rset(CharData * ch, char *argument)
                 /*
                  * Protect from messing up prototype flag
                  */
-                if (xIS_SET(location->RoomFlags, RoomPrototype))
+                if (IsSet(location->RoomFlags, RoomPrototype))
                         proto = TRUE;
                 else
                         proto = FALSE;
                 location->RoomFlags = meb(value);
                 if (proto)
-                        xSET_BIT(location->RoomFlags, RoomPrototype);
+                        SetBit(location->RoomFlags, RoomPrototype);
                 return;
         }
 
@@ -4608,7 +4608,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                                          ch);
                         else
                         {
-                                xTOGGLE_BIT(location->RoomFlags, value);
+                                ToggleBit(location->RoomFlags, value);
                         }
                 }
                 return;
@@ -5238,7 +5238,7 @@ CMDF do_ocreate(CharData * ch, char *argument)
         {
                 AreaData *pArea;
 
-                if (!ch->pcdata || !(pArea = ch->pcdata->area))
+                if (!ch->PCData || !(pArea = ch->PCData->area))
                 {
                         send_to_char
                                 ("You must have an assigned area to create objects.\n\r",
@@ -5330,7 +5330,7 @@ CMDF do_mcreate(CharData * ch, char *argument)
         {
                 AreaData *pArea;
 
-                if (!ch->pcdata || !(pArea = ch->pcdata->area))
+                if (!ch->PCData || !(pArea = ch->PCData->area))
                 {
                         send_to_char
                                 ("You must have an assigned area to create mobiles.\n\r",
@@ -5431,9 +5431,9 @@ void assign_area(CharData * ch)
         if (IsNpc(ch))
                 return;
         if (get_trust(ch) >= LevelAvatar
-            && ch->pcdata->r_range_lo && ch->pcdata->r_range_hi)
+            && ch->PCData->r_range_lo && ch->PCData->r_range_hi)
         {
-                tarea = ch->pcdata->area;
+                tarea = ch->PCData->area;
                 snprintf(taf, sizeof(taf), "%s.are", capitalize(ch->name));
                 if (!tarea)
                 {
@@ -5470,13 +5470,13 @@ void assign_area(CharData * ch)
                                  ch->name);
                         log_string_plus(buf, LogNormal, ch->top_level);
                 }
-                tarea->low_r_vnum = ch->pcdata->r_range_lo;
-                tarea->low_o_vnum = ch->pcdata->o_range_lo;
-                tarea->low_m_vnum = ch->pcdata->m_range_lo;
-                tarea->hi_r_vnum = ch->pcdata->r_range_hi;
-                tarea->hi_o_vnum = ch->pcdata->o_range_hi;
-                tarea->hi_m_vnum = ch->pcdata->m_range_hi;
-                ch->pcdata->area = tarea;
+                tarea->low_r_vnum = ch->PCData->r_range_lo;
+                tarea->low_o_vnum = ch->PCData->o_range_lo;
+                tarea->low_m_vnum = ch->PCData->m_range_lo;
+                tarea->hi_r_vnum = ch->PCData->r_range_hi;
+                tarea->hi_o_vnum = ch->PCData->o_range_hi;
+                tarea->hi_m_vnum = ch->PCData->m_range_hi;
+                ch->PCData->area = tarea;
                 if (created)
                         sort_area(tarea, TRUE);
         }
@@ -5493,9 +5493,9 @@ CMDF do_aassign(CharData * ch, char *argument)
         if (!str_cmp("none", argument)
             || !str_cmp("null", argument) || !str_cmp("clear", argument))
         {
-                ch->pcdata->area = NULL;
+                ch->PCData->area = NULL;
                 assign_area(ch);
-                if (!ch->pcdata->area)
+                if (!ch->PCData->area)
                         send_to_char("Area pointer cleared.\n\r", ch);
                 else
                         send_to_char("Originally assigned area restored.\n\r",
@@ -5512,7 +5512,7 @@ CMDF do_aassign(CharData * ch, char *argument)
         tarea = NULL;
 
         if (get_trust(ch) >= LevelGreater
-            || (is_name(buf, ch->pcdata->bestowments)
+            || (is_name(buf, ch->PCData->bestowments)
                 && get_trust(ch) >= sysdata.level_modify_proto))
                 for (tmp = first_area; tmp; tmp = tmp->next)
                         if (!str_cmp(buf, tmp->filename))
@@ -5527,7 +5527,7 @@ CMDF do_aassign(CharData * ch, char *argument)
                         {
                                 if (get_trust(ch) >= LevelGreater
                                     || is_name(tmp->filename,
-                                               ch->pcdata->bestowments))
+                                               ch->PCData->bestowments))
                                 {
                                         tarea = tmp;
                                         break;
@@ -5550,7 +5550,7 @@ CMDF do_aassign(CharData * ch, char *argument)
                                      ch);
                 return;
         }
-        ch->pcdata->area = tarea;
+        ch->PCData->area = tarea;
         ch_printf(ch, "Assigning you: %s\n\r", tarea->name);
         return;
 }
@@ -5750,7 +5750,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                     || pMobIndex->attacks != 0 || pMobIndex->defenses != 0
                     || pMobIndex->height != 0 || pMobIndex->weight != 0
                     || pMobIndex->speaking != NULL
-                    || !xIS_EMPTY(pMobIndex->xflags)
+                    || !IsEmpty(pMobIndex->xflags)
                     || pMobIndex->numattacks != 0)
                         complexmob = TRUE;
                 else
@@ -5950,7 +5950,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                         /*
                          * remove prototype flag from room 
                          */
-                        xREMOVE_BIT(room->RoomFlags, RoomPrototype);
+                        RemoveBit(room->RoomFlags, RoomPrototype);
                         /*
                          * purge room of (prototyped) mobiles 
                          */
@@ -6139,8 +6139,8 @@ CMDF do_savearea(CharData * ch, const char *argument)
         AreaData *tarea;
         char      filename[256];
 
-        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
-            || (argument[0] == '\0' && !ch->pcdata->area))
+        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->PCData
+            || (argument[0] == '\0' && !ch->PCData->area))
         {
                 send_to_char("You don't have an assigned area to save.\n\r",
                              ch);
@@ -6148,7 +6148,7 @@ CMDF do_savearea(CharData * ch, const char *argument)
         }
 
         if (argument[0] == '\0')
-                tarea = ch->pcdata->area;
+                tarea = ch->PCData->area;
         else
         {
                 bool      found;
@@ -6197,8 +6197,8 @@ CMDF do_loadarea(CharData * ch, const char *argument)
         char      filename[256];
         int       tmp;
 
-        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
-            || (argument[0] == '\0' && !ch->pcdata->area))
+        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->PCData
+            || (argument[0] == '\0' && !ch->PCData->area))
         {
                 send_to_char("You don't have an assigned area to load.\n\r",
                              ch);
@@ -6206,7 +6206,7 @@ CMDF do_loadarea(CharData * ch, const char *argument)
         }
 
         if (argument[0] == '\0')
-                tarea = ch->pcdata->area;
+                tarea = ch->PCData->area;
         else
         {
                 bool      found;
@@ -6387,22 +6387,22 @@ CMDF do_installarea(CharData * ch, char *argument)
                          */
                         for (d = first_descriptor; d; d = d->next)
                                 if (d->character
-                                    && d->character->pcdata
-                                    && d->character->pcdata->area == tarea)
+                                    && d->character->PCData
+                                    && d->character->PCData->area == tarea)
                                 {
                                         /*
                                          * remove area from author 
                                          */
-                                        d->character->pcdata->area = NULL;
+                                        d->character->PCData->area = NULL;
                                         /*
                                          * clear out author vnums  
                                          */
-                                        d->character->pcdata->r_range_lo = 0;
-                                        d->character->pcdata->r_range_hi = 0;
-                                        d->character->pcdata->o_range_lo = 0;
-                                        d->character->pcdata->o_range_hi = 0;
-                                        d->character->pcdata->m_range_lo = 0;
-                                        d->character->pcdata->m_range_hi = 0;
+                                        d->character->PCData->r_range_lo = 0;
+                                        d->character->PCData->r_range_hi = 0;
+                                        d->character->PCData->o_range_lo = 0;
+                                        d->character->PCData->o_range_hi = 0;
+                                        d->character->PCData->m_range_lo = 0;
+                                        d->character->PCData->m_range_hi = 0;
                                 }
 
                         top_area++;
@@ -7105,14 +7105,14 @@ CMDF do_rlist(CharData * ch, char *argument)
         char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
-        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
-            || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
+        if (IsNpc(ch) || get_trust(ch) < LevelAvatar || !ch->PCData
+            || (!ch->PCData->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
                 return;
         }
 
-        tarea = ch->pcdata->area;
+        tarea = ch->PCData->area;
         if (!tarea)
                 tarea = ch->in_room->area;
         work = one_argument(work, arg1);
@@ -7147,7 +7147,7 @@ CMDF do_rlist(CharData * ch, char *argument)
         {
                 if ((room = get_room_index(vnum)) == NULL)
                         continue;
-                if (xIS_SET(room->RoomFlags, RoomPrototype))
+                if (IsSet(room->RoomFlags, RoomPrototype))
                         pager_printf(ch, "%5d) %s   &R(Proto)&R&W\n\r", vnum,
                                      room->name);
                 else
@@ -7169,13 +7169,13 @@ CMDF do_olist(CharData * ch, char *argument)
         /*
          * Greater+ can list out of assigned range - Tri (mlist/rlist as well)
          */
-        if (IsNpc(ch) || get_trust(ch) < LevelCreator || !ch->pcdata
-            || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
+        if (IsNpc(ch) || get_trust(ch) < LevelCreator || !ch->PCData
+            || (!ch->PCData->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
                 return;
         }
-        tarea = ch->pcdata->area;
+        tarea = ch->PCData->area;
         if (!tarea)
                 tarea = ch->in_room->area;
         argument = one_argument(argument, arg1);
@@ -7230,14 +7230,14 @@ CMDF do_mlist(CharData * ch, char *argument)
         int       lrange;
         int       trange;
 
-        if (IsNpc(ch) || get_trust(ch) < LevelCreator || !ch->pcdata
-            || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
+        if (IsNpc(ch) || get_trust(ch) < LevelCreator || !ch->PCData
+            || (!ch->PCData->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
                 return;
         }
 
-        tarea = ch->pcdata->area;
+        tarea = ch->PCData->area;
         if (!tarea)
                 tarea = ch->in_room->area;
         argument = one_argument(argument, arg1);
@@ -8216,8 +8216,8 @@ CMDF do_rdelete(CharData * ch, char *argument)
         }
 
         if (get_trust(ch) < sysdata.level_modify_proto
-            && (roomnum->vnum < ch->pcdata->r_range_lo ||
-                roomnum->vnum > ch->pcdata->r_range_hi))
+            && (roomnum->vnum < ch->PCData->r_range_lo ||
+                roomnum->vnum > ch->PCData->r_range_hi))
         {
                 send_to_char("That room is not in your assigned range.\n\r",
                              ch);
@@ -8292,8 +8292,8 @@ CMDF do_odelete(CharData * ch, char *argument)
          * Does the player have the right to delete this room? 
          */
         if (get_trust(ch) < sysdata.level_modify_proto
-            && (obj->vnum < ch->pcdata->o_range_lo ||
-                obj->vnum > ch->pcdata->o_range_hi))
+            && (obj->vnum < ch->PCData->o_range_lo ||
+                obj->vnum > ch->PCData->o_range_hi))
         {
                 send_to_char("That object is not in your assigned range.\n\r",
                              ch);
@@ -8344,8 +8344,8 @@ CMDF do_mdelete(CharData * ch, char *argument)
          * Does the player have the right to delete this room? 
          */
         if (get_trust(ch) < sysdata.level_modify_proto
-            && (mob->vnum < ch->pcdata->m_range_lo ||
-                mob->vnum > ch->pcdata->m_range_hi))
+            && (mob->vnum < ch->PCData->m_range_lo ||
+                mob->vnum > ch->PCData->m_range_hi))
         {
                 send_to_char("That mob is not in your assigned range.\n\r",
                              ch);
@@ -8396,7 +8396,7 @@ CMDF do_ropen(CharData * ch, char *argument)
 
         for (vnum = Start; vnum <= End; vnum++)
         {
-                if (!ch->pcdata || !(pArea = ch->pcdata->area))
+                if (!ch->PCData || !(pArea = ch->PCData->area))
                 {
                         send_to_char
                                 ("You must have an assigned area to create rooms.\n\r",
@@ -8410,7 +8410,7 @@ CMDF do_ropen(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                location = make_room(vnum, ch->pcdata->area);
+                location = make_room(vnum, ch->PCData->area);
                 if (!location)
 
                 {

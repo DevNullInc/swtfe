@@ -105,7 +105,7 @@ char * get_char_desc(CharData * ch, CharData * looker)
         // DISABLE IT
         if (!sysdata.GREET || IsImmortal(looker) || IsNpc(ch))
         {
-                strcpy(desc, IsNpc(ch) ? ch->name : ch->pcdata->full_name);
+                strcpy(desc, IsNpc(ch) ? ch->name : ch->PCData->full_name);
                 return desc;
         }
         /* Hash name + Hash toplayer of clothing (ordering?) 
@@ -178,11 +178,11 @@ char * get_char_desc(CharData * ch, CharData * looker)
 
 GreetInfo * get_greet(CharData * ch, CharData * victim)
 {
-        if (!ch->pcdata->greet_info)
-                ch->pcdata->greet_info = new temp_greet_ptr;
+        if (!ch->PCData->greet_info)
+                ch->PCData->greet_info = new temp_greet_ptr;
         else {
-                GreetMap::iterator i = ch->pcdata->greet_info->greet_info.find(victim->name);
-                if ( i != ch->pcdata->greet_info->greet_info.end())
+                GreetMap::iterator i = ch->PCData->greet_info->greet_info.find(victim->name);
+                if ( i != ch->PCData->greet_info->greet_info.end())
                         return (i->second);
         }
 
@@ -199,8 +199,8 @@ bool has_greet(CharData * ch, CharData * victim)
 void add_greet_to_char(CharData * ch, CharData * victim, char * name) 
 {
         GreetInfo * greetinfo;
-        if (!ch->pcdata->greet_info)
-                ch->pcdata->greet_info = new temp_greet_ptr;
+        if (!ch->PCData->greet_info)
+                ch->PCData->greet_info = new temp_greet_ptr;
 
         if (!name || name[0] == '\0') 
                 return;
@@ -209,7 +209,7 @@ void add_greet_to_char(CharData * ch, CharData * victim, char * name)
         // key is char->name or new identity
         if (has_greet(ch, victim))
         {
-                GreetMap::iterator i = ch->pcdata->greet_info->greet_info.find(victim->name);
+                GreetMap::iterator i = ch->PCData->greet_info->greet_info.find(victim->name);
 
                 return;
         }
@@ -217,19 +217,19 @@ void add_greet_to_char(CharData * ch, CharData * victim, char * name)
         greetinfo->remembered_name = STRALLOC(name);
         greetinfo->key = STRALLOC(victim->name);
         greetinfo->CharName = STRALLOC(victim->name);
-        ch->pcdata->greet_info->greet_info.insert(std::make_pair(victim->name, greetinfo));
+        ch->PCData->greet_info->greet_info.insert(std::make_pair(victim->name, greetinfo));
         return;
 }
 
 void fwrite_greet(CharData * ch, FILE * fp) 
 {
-        if (!ch->pcdata->greet_info)
+        if (!ch->PCData->greet_info)
                 return;
 
         GreetMap::iterator i;
         GreetInfo * info;
 
-        for( i = ch->pcdata->greet_info->greet_info.begin(); i != ch->pcdata->greet_info->greet_info.end(); ++i)
+        for( i = ch->PCData->greet_info->greet_info.begin(); i != ch->PCData->greet_info->greet_info.end(); ++i)
         {
                 fprintf(fp, "#GREET\n");
                 char * key = i->first;
@@ -253,8 +253,8 @@ void fread_greet(CharData * ch, FILE * fp)
         const char *word;
         bool      fMatch;
 
-        if (!ch->pcdata->greet_info)
-                ch->pcdata->greet_info = new temp_greet_ptr;
+        if (!ch->PCData->greet_info)
+                ch->PCData->greet_info = new temp_greet_ptr;
 
         for (;;)
         {
@@ -290,7 +290,7 @@ void fread_greet(CharData * ch, FILE * fp)
                                 greetinfo->remembered_name = rememberedname;
                                 greetinfo->key = key;
                                 greetinfo->CharName = charname;
-                                ch->pcdata->greet_info->greet_info.insert(std::make_pair(key, greetinfo));
+                                ch->PCData->greet_info->greet_info.insert(std::make_pair(key, greetinfo));
                                 return;
                                 // Free if not used
                         }

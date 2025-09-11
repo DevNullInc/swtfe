@@ -965,7 +965,7 @@ CMDF do_sellhome2(CharData * ch, char *argument)
         HomeData *home;
         RoomIndexData *room;
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("&ROnly players can do that!\n\r", ch);
                 return;
@@ -1008,7 +1008,7 @@ CMDF do_buyhome2(CharData * ch, char *argument)
         AreaData *pArea;
 
         argument[0] = '\0';
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("&ROnly players can do that!\n\r", ch);
                 return;
@@ -1321,7 +1321,7 @@ CMDF do_rap(CharData * ch, char *argument)
                 char     *keyword;
 
                 if ((to_room = pexit->to_room) != NULL
-                    && xIS_SET(to_room->RoomFlags, RoomEmptyHome))
+                    && IsSet(to_room->RoomFlags, RoomEmptyHome))
                 {
                         send_to_char
                                 ("No Need to use the intercom, nobody lives there!\n\r",
@@ -1329,8 +1329,8 @@ CMDF do_rap(CharData * ch, char *argument)
                         return;
                 }
                 else if ((to_room = pexit->to_room) != NULL
-                         && !xIS_SET(to_room->RoomFlags, RoomPlrHome)
-                         && !xIS_SET(to_room->RoomFlags, RoomHouse))
+                         && !IsSet(to_room->RoomFlags, RoomPlrHome)
+                         && !IsSet(to_room->RoomFlags, RoomHouse))
                 {
                         send_to_char("Nobody Owns That Home!\n\r", ch);
                         return;
@@ -1566,7 +1566,7 @@ CMDF do_realitor(CharData * ch, char * argument)
 		return;
 	}
 
-	if (!xIS_SET(ch->in_room->RoomFlags,RoomEmptyplot) || ch->in_room->home) {
+	if (!IsSet(ch->in_room->RoomFlags,RoomEmptyplot) || ch->in_room->home) {
 		send_to_char("This isn't an empty land plot.\n\r",ch);
 		return;
 	}
@@ -1614,7 +1614,7 @@ CMDF do_realitor(CharData * ch, char * argument)
 				return;
 			}
 
-			percentage = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->learned[gsn_realitor]);
+			percentage = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->learned[gsn_realitor]);
 			if (number_percent() < percentage)
 			{
 				send_to_char
@@ -1683,7 +1683,7 @@ CMDF do_realitor(CharData * ch, char * argument)
 
 	percent = number_percent() - ch->skill_level[OccupationAbility];
 
-	if (percent > ch->pcdata->learned[gsn_realitor])
+	if (percent > ch->PCData->learned[gsn_realitor])
 	{
 		send_to_char("You try to buy the land and rezone, but instead, you end up putting the money into a governmental pension plan!\n\r",ch);
 		act(AtAction,"There is a beep on the computer as $n trys to make transactions, but makes a mistake!\n\r",ch, NULL, ch, ToRoom);
@@ -1725,9 +1725,9 @@ CMDF do_realitor(CharData * ch, char * argument)
 	home->save();
 	write_home_list();
 
-	xREMOVE_BIT(ch->in_room->RoomFlags, RoomEmptyplot);
+	RemoveBit(ch->in_room->RoomFlags, RoomEmptyplot);
 	ch->in_room->sector_type = SectInside;
-	xSET_BIT(ch->in_room->RoomFlags, RoomIndoors);
+	SetBit(ch->in_room->RoomFlags, RoomIndoors);
 	if (!ch->in_room->name)
 		STRFREE(ch->in_room->name);
 	ch->in_room->name = STRALLOC("Entrance Way");
@@ -1960,7 +1960,7 @@ void HomeData::add_room(CharData * ch, char * argument)
 				send_to_char("You haven't got the money for a that!\r\n",ch);
 				return;
 			}
-			percentage = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->learned[gsn_roomconstruction]);
+			percentage = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->learned[gsn_roomconstruction]);
 			if (number_percent() < percentage)
 			{
 				send_to_char("&GYou start the construction of a new room.\n\r",ch);
@@ -2062,7 +2062,7 @@ void HomeData::add_room(CharData * ch, char * argument)
 	percent = number_percent() - ch->skill_level[EngineeringAbility];
 
 	if (!newroom) {
-		if (percent > ch->pcdata->learned[gsn_roomconstruction])
+		if (percent > ch->PCData->learned[gsn_roomconstruction])
 		{
 			send_to_char("The walls come crumbling down as you make a drastic mistake. You luckly make an escape from that room.!\n\r",ch);
 			act(AtAction,"$n comes running back from the new room just before it collapses!\n\r",ch, NULL, ch, ToRoom);
@@ -2073,8 +2073,8 @@ void HomeData::add_room(CharData * ch, char * argument)
 		newroom = make_room(vnum, ch->in_room->area);
 		newroom->area = ch->in_room->area;
 		newroom->sector_type = SectInside;
-		xSET_BIT(newroom->RoomFlags, RoomIndoors);
-		xSET_BITS(newroom->RoomFlags, home_types[RoomType].flags);
+		SetBit(newroom->RoomFlags, RoomIndoors);
+		SetBits(newroom->RoomFlags, home_types[RoomType].flags);
 		grid_set(home->grid, col, row, height, newroom);
 		home->add(newroom);
 
@@ -2085,7 +2085,7 @@ void HomeData::add_room(CharData * ch, char * argument)
 
 	}
 	else {
-		if (percent > ch->pcdata->learned[gsn_roomconstruction])
+		if (percent > ch->PCData->learned[gsn_roomconstruction])
 		{
 			send_to_char("You are luckly you didn't damage the other room with your mistake..!\n\r",ch);
 			act(AtAction,"$n makes a mistake the the new doorway is damaged.!\n\r",ch, NULL, ch, ToRoom);

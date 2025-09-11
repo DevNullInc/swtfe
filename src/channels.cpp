@@ -125,9 +125,9 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
 
 bool player_is_listening(CharData * ch, ChannelData * channel)
 {
-	if (IsNpc(ch) || !ch->pcdata || !channel)
+	if (IsNpc(ch) || !ch->PCData || !channel)
 		return FALSE;
-	if (!hasname(ch->pcdata->listening, channel->name)) 
+	if (!hasname(ch->PCData->listening, channel->name)) 
 		return FALSE;
         if (ch->top_level < channel->level)
                 return FALSE;
@@ -184,7 +184,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 return TRUE;
 
         if (ch->in_room && IcChannel(channel)
-            && xIS_SET(ch->in_room->RoomFlags, RoomSilence))
+            && IsSet(ch->in_room->RoomFlags, RoomSilence))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return TRUE;
@@ -206,16 +206,16 @@ bool check_channel(CharData * ch, char *command, char *argument)
 
         if (channel->range == ChannelClan)
         {
-                if (!ch->pcdata->clan)
+                if (!ch->PCData->clan)
                 {
                         send_to_char("You are not in a clan!\n\r", ch);
                         return TRUE;
                 }
 
-                if (ch->pcdata->clan->mainclan)
-                        clan = ch->pcdata->clan->mainclan;
+                if (ch->PCData->clan->mainclan)
+                        clan = ch->PCData->clan->mainclan;
                 else
-                        clan = ch->pcdata->clan;
+                        clan = ch->PCData->clan;
         }
 
         if (channel->range == ChannelSystem)
@@ -321,7 +321,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
         }
 
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
+        if (IsSet(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 snprintf(buf2, MSL, "%s: %s (%s)",
                          IsNpc(ch) ? ch->short_descr : ch->name, argument,
@@ -393,7 +393,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 vch = d->character;
 
                 if (IsPlaying(d) && vch != ch
-                    && hasname(och->pcdata->listening, channel->name))
+                    && hasname(och->PCData->listening, channel->name))
                 {
                         /*
                          * Ignoring Publicly 
@@ -406,7 +406,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                         if (channel->level > ch->top_level)
                                 continue;
                         if (channel->type != ChannelOoc
-                            && xIS_SET(vch->in_room->RoomFlags,
+                            && IsSet(vch->in_room->RoomFlags,
                                        RoomSilence))
                                 continue;
                         if (channel->range == ChannelPlanet)
@@ -414,7 +414,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                                 if (!vch->in_room || !vch->in_room->area
                                     || !vch->in_room->area->planet
                                     || (vch->in_room->area->planet != planet)
-                                    || xIS_SET(vch->in_room->RoomFlags,
+                                    || IsSet(vch->in_room->RoomFlags,
                                                RoomIndoors))
                                         continue;
                         }
@@ -425,10 +425,10 @@ bool check_channel(CharData * ch, char *command, char *argument)
                         }
                         if (channel->range == ChannelClan)
                         {
-                                if (!vch->pcdata->clan)
+                                if (!vch->PCData->clan)
                                         continue;
-                                if (vch->pcdata->clan != clan
-                                    && vch->pcdata->clan->mainclan != clan)
+                                if (vch->PCData->clan != clan
+                                    && vch->PCData->clan->mainclan != clan)
                                         continue;
                         }
                         if (channel->range == ChannelSystem)
@@ -1064,7 +1064,7 @@ CMDF do_listen(CharData * ch, char *argument)
                 send_to_char
                         ("You are listening to the following local mud channels:\n\r\n\r",
                          ch);
-                ch_printf(ch, "%s\n\r", ch->pcdata->listening);
+                ch_printf(ch, "%s\n\r", ch->PCData->listening);
                 return;
         }
 
@@ -1074,8 +1074,8 @@ CMDF do_listen(CharData * ch, char *argument)
                      channel = channel->next)
                 {
                         if (ch->top_level >= channel->level
-                            && !hasname(ch->pcdata->listening, channel->name))
-                                addname(&ch->pcdata->listening,
+                            && !hasname(ch->PCData->listening, channel->name))
+                                addname(&ch->PCData->listening,
                                         channel->name);
                 }
                 send_to_char
@@ -1089,8 +1089,8 @@ CMDF do_listen(CharData * ch, char *argument)
                 for (channel = first_channel; channel;
                      channel = channel->next)
                 {
-                        if (hasname(ch->pcdata->listening, channel->name))
-                                removename(&ch->pcdata->listening,
+                        if (hasname(ch->PCData->listening, channel->name))
+                                removename(&ch->PCData->listening,
                                            channel->name);
                 }
                 send_to_char
@@ -1099,9 +1099,9 @@ CMDF do_listen(CharData * ch, char *argument)
                 return;
         }
 
-        if (hasname(ch->pcdata->listening, argument))
+        if (hasname(ch->PCData->listening, argument))
         {
-                removename(&ch->pcdata->listening, argument);
+                removename(&ch->PCData->listening, argument);
                 ch_printf(ch, "You no longer listen to %s\n\r", argument);
         }
         else
@@ -1110,7 +1110,7 @@ CMDF do_listen(CharData * ch, char *argument)
                 {
                         if (!str_cmp(argument, "build"))
                         {
-                                xTOGGLE_BIT(ch->deaf, ChannelBuild);
+                                ToggleBit(ch->deaf, ChannelBuild);
                                 send_to_char
                                         ("The build channel has been toggled",
                                          ch);
@@ -1118,7 +1118,7 @@ CMDF do_listen(CharData * ch, char *argument)
                         }
                         if (!str_cmp(argument, "log"))
                         {
-                                xTOGGLE_BIT(ch->deaf, ChannelLog);
+                                ToggleBit(ch->deaf, ChannelLog);
                                 send_to_char
                                         ("The log channel has been toggled",
                                          ch);
@@ -1126,7 +1126,7 @@ CMDF do_listen(CharData * ch, char *argument)
                         }
                         if (!str_cmp(argument, "comm"))
                         {
-                                xTOGGLE_BIT(ch->deaf, ChannelComm);
+                                ToggleBit(ch->deaf, ChannelComm);
                                 send_to_char
                                         ("The comm channel has been toggled",
                                          ch);
@@ -1135,14 +1135,14 @@ CMDF do_listen(CharData * ch, char *argument)
                 }
                 if (!str_cmp(argument, "tells"))
                 {
-                        xTOGGLE_BIT(ch->deaf, ChannelTells);
+                        ToggleBit(ch->deaf, ChannelTells);
                         send_to_char("The tell channels has been toggled",
                                      ch);
                         return;
                 }
                 if (!str_cmp(argument, "auction"))
                 {
-                        xTOGGLE_BIT(ch->deaf, ChannelAuction);
+                        ToggleBit(ch->deaf, ChannelAuction);
                         send_to_char("The auction channel has been toggled",
                                      ch);
                         return;
@@ -1159,7 +1159,7 @@ CMDF do_listen(CharData * ch, char *argument)
                                      ch);
                         return;
                 }
-                addname(&ch->pcdata->listening, channel->name);
+                addname(&ch->PCData->listening, channel->name);
                 ch_printf(ch, "You now listen to %s\n\r", channel->name);
         }
         return;
@@ -1179,8 +1179,8 @@ CMDF do_channels(CharData * ch, char *argument)
                 }
 
                 if (argument[0] == '-') {
-                        if (hasname(ch->pcdata->listening, argument))
-                                removename(&ch->pcdata->listening, argument);
+                        if (hasname(ch->PCData->listening, argument))
+                                removename(&ch->PCData->listening, argument);
                         ch_printf(ch, "You no longer listen to %s\n\r", channel->name);
                 }
                 else {
@@ -1190,8 +1190,8 @@ CMDF do_channels(CharData * ch, char *argument)
                                                 ch);
                                 return;
                         }
-                        if (!hasname(ch->pcdata->listening, argument))
-                                addname(&ch->pcdata->listening, channel->name);
+                        if (!hasname(ch->PCData->listening, argument))
+                                addname(&ch->PCData->listening, channel->name);
                         ch_printf(ch, "You now listen to %s\n\r", channel->name);
                 }
                 return;
@@ -1218,22 +1218,22 @@ CMDF do_channels(CharData * ch, char *argument)
                         ch_printf(ch, "&B%-c&z%-16s &z[&w%9s&z]&D\n\r",
                                   UPPER(channel->name[0]), channel->name + 1,
                                   (hasname
-                                   (victim->pcdata->listening,
+                                   (victim->PCData->listening,
                                     channel->name)) ? "Listening" : "");
         ch_printf(ch, "&BT&zells             &z[&w%9s&z]&D\n\r",
-                  !xIS_SET(victim->deaf, ChannelTells) ? "Listening" : "");
+                  !IsSet(victim->deaf, ChannelTells) ? "Listening" : "");
         ch_printf(ch, "&BA&zuction           &z[&w%9s&z]&D\n\r",
-                  !xIS_SET(victim->deaf, ChannelAuction) ? "Listening" : "");
+                  !IsSet(victim->deaf, ChannelAuction) ? "Listening" : "");
         if (IsImmortal(victim))
         {
                 ch_printf(ch, "&BL&zog               &z[&w%9s&z]&D\n\r",
-                          !xIS_SET(victim->deaf,
+                          !IsSet(victim->deaf,
                                    ChannelLog) ? "Listening" : "");
                 ch_printf(ch, "&BB&zuild             &z[&w%9s&z]&D\n\r",
-                          !xIS_SET(victim->deaf,
+                          !IsSet(victim->deaf,
                                    ChannelBuild) ? "Listening" : "");
                 ch_printf(ch, "&BC&zomm              &z[&w%9s&z]&D\n\r",
-                          !xIS_SET(victim->deaf,
+                          !IsSet(victim->deaf,
                                    ChannelComm) ? "Listening" : "");
         }
 

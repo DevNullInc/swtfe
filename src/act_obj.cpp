@@ -211,7 +211,7 @@ void get_obj(CharData * ch, ObjData * obj, ObjData * container)
         /*
          * Clan storeroom checks 
          */
-        if (xIS_SET(ch->in_room->RoomFlags, RoomClanstoreroom)
+        if (IsSet(ch->in_room->RoomFlags, RoomClanstoreroom)
             && (!container || container->carried_by == NULL))
                 for (clan = first_clan; clan; clan = clan->next)
                         if (clan->storeroom == ch->in_room->vnum)
@@ -327,7 +327,7 @@ CMDF do_get(CharData * ch, const char *argument)
                         bool      fAll;
                         char     *chk;
 
-                        if (xIS_SET(ch->in_room->RoomFlags, RoomDonation))
+                        if (IsSet(ch->in_room->RoomFlags, RoomDonation))
                         {
                                 send_to_char
                                         ("The gods frown upon such a display of greed!\n\r",
@@ -696,7 +696,7 @@ CMDF do_put(CharData * ch, char *argument)
                 /*
                  * Clan storeroom check 
                  */
-                if (xIS_SET(ch->in_room->RoomFlags, RoomClanstoreroom)
+                if (IsSet(ch->in_room->RoomFlags, RoomClanstoreroom)
                     && container->carried_by == NULL)
                         for (clan = first_clan; clan; clan = clan->next)
                                 if (clan->storeroom == ch->in_room->vnum)
@@ -773,7 +773,7 @@ CMDF do_put(CharData * ch, char *argument)
                 /*
                  * Clan storeroom check 
                  */
-                if (xIS_SET(ch->in_room->RoomFlags, RoomClanstoreroom)
+                if (IsSet(ch->in_room->RoomFlags, RoomClanstoreroom)
                     && container->carried_by == NULL)
                         for (clan = first_clan; clan; clan = clan->next)
                                 if (clan->storeroom == ch->in_room->vnum)
@@ -819,7 +819,7 @@ CMDF do_drop(CharData * ch, char *argument)
         if (ms_find_obj(ch))
                 return;
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomNodrop)
+        if (IsSet(ch->in_room->RoomFlags, RoomNodrop)
             || (!IsNpc(ch) && IsSet(ch->act, PlrLitterbug)))
         {
                 set_char_color(AtMagic, ch);
@@ -911,7 +911,7 @@ CMDF do_drop(CharData * ch, char *argument)
                 /*
                  * Clan storeroom saving 
                  */
-                if (xIS_SET(ch->in_room->RoomFlags, RoomClanstoreroom))
+                if (IsSet(ch->in_room->RoomFlags, RoomClanstoreroom))
                         for (clan = first_clan; clan; clan = clan->next)
                                 if (clan->storeroom == ch->in_room->vnum)
                                         save_clan_storeroom(ch, clan);
@@ -933,7 +933,7 @@ CMDF do_drop(CharData * ch, char *argument)
                 /*
                  * 'drop all' or 'drop all.obj' 
                  */
-                if (xIS_SET(ch->in_room->RoomFlags, RoomNodropall))
+                if (IsSet(ch->in_room->RoomFlags, RoomNodropall))
                 {
                         send_to_char("You can't seem to do that here...\n\r",
                                      ch);
@@ -980,7 +980,7 @@ CMDF do_drop(CharData * ch, char *argument)
                         }
                 }
 
-                if (xIS_SET(ch->in_room->RoomFlags, RoomClanstoreroom))
+                if (IsSet(ch->in_room->RoomFlags, RoomClanstoreroom))
                         for (clan = first_clan; clan; clan = clan->next)
                                 if (clan->storeroom == ch->in_room->vnum)
                                         save_clan_storeroom(ch, clan);
@@ -1282,7 +1282,7 @@ bool could_dual(CharData * ch)
         if (IsSet(ch->bodyparts, BodyLHand)
             || IsSet(ch->bodyparts, BodyRHand))
                 return FALSE;
-        if (ch->pcdata->learned[gsn_dual_wield])
+        if (ch->PCData->learned[gsn_dual_wield])
                 return TRUE;
 
         return FALSE;
@@ -2523,9 +2523,9 @@ CMDF do_auction(CharData * ch, const char *argument)
         if (IsNpc(ch)) /* NPC can be extracted at any time and thus can't auction! */
                 return;
 
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomAuction) &&
-            !xIS_SET(ch->in_room->RoomFlags, RoomHotel) &&
-            !xIS_SET(ch->in_room->RoomFlags, RoomSafe))
+        if (!IsSet(ch->in_room->RoomFlags, RoomAuction) &&
+            !IsSet(ch->in_room->RoomFlags, RoomHotel) &&
+            !IsSet(ch->in_room->RoomFlags, RoomSafe))
         {
                 set_char_color(AtLblue, ch);
                 send_to_char
@@ -2874,7 +2874,7 @@ void obj_fall(ObjData * obj, bool through)
                 return;
         }
 
-        if (xIS_SET(obj->in_room->RoomFlags, RoomNofloor)
+        if (IsSet(obj->in_room->RoomFlags, RoomNofloor)
             && CanGo(obj, DirDown) && !IsObjStat(obj, ItemMagic))
         {
 
@@ -2916,7 +2916,7 @@ void obj_fall(ObjData * obj, bool through)
                             obj->in_room->first_person, obj, NULL, ToChar);
                 }
 
-                if (!xIS_SET(obj->in_room->RoomFlags, RoomNofloor)
+                if (!IsSet(obj->in_room->RoomFlags, RoomNofloor)
                     && through)
                 {
 /*		int dam = (int)9.81*sqrt(fall_count*2/9.81)*obj->weight/2;

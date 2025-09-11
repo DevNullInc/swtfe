@@ -128,7 +128,7 @@ CMDF do_score(CharData * ch, char *argument)
                 do_oldscore(ch, argument);
                 return;
         }
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         send_to_pager
                 ("&w<>&B---------------------------------------------------------------------&w<>\n\r",
                  ch);
@@ -137,17 +137,17 @@ CMDF do_score(CharData * ch, char *argument)
                  ch);
         pager_printf(ch,
                      "&B|| N&zame:&w   %-25.25s&BL&zog In:  &w%-24.24s&B  ||\n\r",
-                     smash_color(ch->pcdata->title), ctime(&(ch->logon)));
+                     smash_color(ch->PCData->title), ctime(&(ch->logon)));
 
         pager_printf(ch,
                      "&B|| R&zace:&w   %-3d year old %-12.12s&BT&zime:&w    %-24.24s&B  ||\n\r",
                      get_age(ch), capitalize(ch->race->name()),
                      ctime(&current_time));
 
-        if (ch->pcdata->spouse && ch->pcdata->spouse[0] != '\0')
+        if (ch->PCData->spouse && ch->PCData->spouse[0] != '\0')
                 pager_printf(ch,
                              "&B|| H&zitroll:&w%-2.2d                       &BS&zpouse:&w   %-23.23s  &B||\n\r",
-                             GetHitroll(ch), ch->pcdata->spouse);
+                             GetHitroll(ch), ch->PCData->spouse);
         else
                 pager_printf(ch, "&B|| H&zitroll:&w%-60.2d&B||\n\r",
                              GetHitroll(ch),
@@ -157,8 +157,8 @@ CMDF do_score(CharData * ch, char *argument)
         pager_printf(ch,
                      "&B|| D&zamroll:&w%-2.2d                       &BM&zarital &BS&ztatus:&w  %-18.18s&B||\n\r",
                      GetDamroll(ch),
-                     ch->pcdata->spouse[0] !=
-                     '\0' ? (IsSet(ch->pcdata->flags, PcflagMarried) ?
+                     ch->PCData->spouse[0] !=
+                     '\0' ? (IsSet(ch->PCData->flags, PcflagMarried) ?
                              "Married" : "Engaged") : "Single ");
 
         pager_printf(ch,
@@ -172,18 +172,18 @@ CMDF do_score(CharData * ch, char *argument)
         pager_printf(ch, "&B|| W&zimpy:  &w%-60d&B||\n\r", ch->wimpy);
         pager_printf(ch,
                      "&B|| Q&zuest &BP&zoints:  &w%-5d             &BR&zole &BP&zlaying &BP&zoints:&w  %-5d        &B||\n\r",
-                     ch->pcdata->quest_curr, ch->pcdata->rp);
+                     ch->PCData->quest_curr, ch->PCData->rp);
 #else
         pager_printf(ch,
                      "&B|| Q&zuest &BP&zoints:  &w%-5d             &BR&zole &BP&zlaying &BP&zoints:&w  %-5d        &B||\n\r",
-                     ch->pcdata->quest_curr,
-                     ch->pcdata->Account ? ch->pcdata->Account->
-                     rppoints : ch->pcdata->rp);
+                     ch->PCData->quest_curr,
+                     ch->PCData->Account ? ch->PCData->Account->
+                     rppoints : ch->PCData->rp);
         pager_printf(ch,
                      "&B|| W&zimpy:  &w%-5d                    &BC&zurrent &BR&zPP:&w          %-5d        &B||\n\r",
                      ch->wimpy,
-                     ch->pcdata->Account ? ch->pcdata->Account->
-                     rpcurrent : ch->pcdata->rp);
+                     ch->PCData->Account ? ch->PCData->Account->
+                     rpcurrent : ch->PCData->rp);
 #endif
         if (ch->top_level >= 10)
                 pager_printf(ch,
@@ -239,8 +239,8 @@ CMDF do_score(CharData * ch, char *argument)
 
         pager_printf(ch,
                      "&B|| C&zredits: &w%15.15s &BP&zkills:&w %-5.5d   &BM&zkills:&w %-5.5d              &B||\n\r",
-                     num_punct_long(ch->gold), ch->pcdata->pkills,
-                     ch->pcdata->mkills);
+                     num_punct_long(ch->gold), ch->PCData->pkills,
+                     ch->PCData->mkills);
 
         pager_printf(ch,
                      "&B|| W&zeight:            &w%5.5d &BM&zax: &w%7.7d&B    &BI&ztems:  &w%5.5d   &BM&zax: &w%5.5d&B &B||\n\r",
@@ -249,8 +249,8 @@ CMDF do_score(CharData * ch, char *argument)
 
         pager_printf(ch,
                      "&B|| P&zager: &B(&w%c&B) %5.5d   &BA&zutoExit&B(&w%c&B)  &BA&zutoLoot&B(&w%c&B)                         &B||\n\r",
-                     IsSet(ch->pcdata->flags, PcflagPageron) ? 'X' : ' ',
-                     ch->pcdata->pagerlen, IsSet(ch->act,
+                     IsSet(ch->PCData->flags, PcflagPageron) ? 'X' : ' ',
+                     ch->PCData->pagerlen, IsSet(ch->act,
                                                   PlrAutoexit) ? 'X' : ' ',
                      IsSet(ch->act, PlrAutoloot) ? 'X' : ' ');
 
@@ -300,44 +300,44 @@ CMDF do_score(CharData * ch, char *argument)
 
         send_to_pager(buf, ch);
 
-        if (!IsNpc(ch) && ch->pcdata->condition[CondDrunk] > 10)
+        if (!IsNpc(ch) && ch->PCData->condition[CondDrunk] > 10)
                 send_to_pager
                         ("&B|| &BY&zou are &wdrunk.                                                      &B||\n\r",
                          ch);
-        if (!IsNpc(ch) && ch->pcdata->condition[CondThirst] == 0)
+        if (!IsNpc(ch) && ch->PCData->condition[CondThirst] == 0)
                 send_to_pager
                         ("&B|| &BY&zou are in danger of &wdehydrating.                                   &B||\n\r",
                          ch);
-        if (!IsNpc(ch) && ch->pcdata->condition[CondFull] == 0)
+        if (!IsNpc(ch) && ch->PCData->condition[CondFull] == 0)
                 send_to_pager
                         ("&B|| &BY&zou are starving to &wdeath.                                          &B||\n\r",
                          ch);
-        if (!IsNpc(ch) && ch->pcdata->illness > (0)
-            && ch->pcdata->illness <= (4))
+        if (!IsNpc(ch) && ch->PCData->illness > (0)
+            && ch->PCData->illness <= (4))
                 send_to_pager
                         ("&B|| &BY&zou feel &wa little bit sick.                                           &B||\n\r",
                          ch);
-        if (!IsNpc(ch) && ch->pcdata->illness >= (5)
-            && ch->pcdata->illness <= (7))
+        if (!IsNpc(ch) && ch->PCData->illness >= (5)
+            && ch->PCData->illness <= (7))
                 send_to_pager
                         ("&B|| &BY&zou feel &wquite sick and queesey.                                      &B||\n\r",
                          ch);
-        if (!IsNpc(ch) && ch->pcdata->illness >= (8)
-            && ch->pcdata->illness <= (10))
+        if (!IsNpc(ch) && ch->PCData->illness >= (8)
+            && ch->PCData->illness <= (10))
                 send_to_pager
                         ("&B|| &BY&zou feel &wweak.                                                        &B||\n\r",
                          ch);
-        if (!IsNpc(ch) && ch->pcdata->illness >= (11)
-            && ch->pcdata->illness <= (12))
+        if (!IsNpc(ch) && ch->PCData->illness >= (11)
+            && ch->PCData->illness <= (12))
                 send_to_pager
                         ("&B|| &BY&zou feel &wvery ill.                                                    &B||\n\r",
                          ch);
-        if (!IsNpc(ch) && ch->pcdata->illness == (13))
+        if (!IsNpc(ch) && ch->PCData->illness == (13))
                 send_to_pager
                         ("&B|| &BY&zou feel &wvery depressed.                                              &B||\n\r",
                          ch);
-        if (!IsNpc(ch) && ch->pcdata->illness >= (14)
-            && ch->pcdata->illness <= (15))
+        if (!IsNpc(ch) && ch->PCData->illness >= (14)
+            && ch->PCData->illness <= (15))
                 send_to_pager
                         ("&B|| &BY&zou feel &wextremely sick.                                              &B||\n\r",
                          ch);
@@ -345,12 +345,12 @@ CMDF do_score(CharData * ch, char *argument)
         /*
          * Wanted information 
          */
-        if (ch->pcdata->first_wanted)
+        if (ch->PCData->first_wanted)
         {
                 WantedData *wanted = NULL;
 
                 mudstrlcpy(buf, "", MSL);
-                for (wanted = ch->pcdata->first_wanted; wanted;
+                for (wanted = ch->PCData->first_wanted; wanted;
                      wanted = wanted->next)
                 {
                         if (wanted->government == NULL ||
@@ -365,11 +365,11 @@ CMDF do_score(CharData * ch, char *argument)
                 pager_printf(ch, "&B|| &BW&zanted: &Y%-59.59s &B||\n\r", buf);
         }
 
-        if (ch->pcdata->bestowments && ch->pcdata->bestowments[0] != '\0')
+        if (ch->PCData->bestowments && ch->PCData->bestowments[0] != '\0')
                 pager_printf(ch, "&B|| &BB&zestowments: %-54.54s &B||\n\r",
-                             ch->pcdata->bestowments);
+                             ch->PCData->bestowments);
 
-        if (ch->pcdata->clan)
+        if (ch->PCData->clan)
         {
                 send_to_pager
                         ("&B||---------------------------------------------------------------------||\n\r",
@@ -379,11 +379,11 @@ CMDF do_score(CharData * ch, char *argument)
                          ch);
                 pager_printf(ch,
                              "&B|| O&zRGANIZATION: &w%-30s &BP&zkills&w/&BD&zeaths:&w %3.3d/%3.3d &B||\n\r",
-                             ch->pcdata->clan->name, ch->pcdata->clan->pkills,
-                             ch->pcdata->clan->pdeaths);
-                if (ch->pcdata->clanrank)
+                             ch->PCData->clan->name, ch->PCData->clan->pkills,
+                             ch->PCData->clan->pdeaths);
+                if (ch->PCData->clanrank)
                         pager_printf(ch, "&B|| R&zANK:&w %-61s &B||\n\r",
-                                     ch->pcdata->clan->rank[ch->pcdata->
+                                     ch->PCData->clan->rank[ch->PCData->
                                                             clanrank]);
         }
         if (IsImmortal(ch))
@@ -397,36 +397,36 @@ CMDF do_score(CharData * ch, char *argument)
                 pager_printf(ch,
                              "&B|| I&zMMORTAL DATA:  &BW&zizinvis &B[&w%s&B]  W&zizlevel &B(&w%-3d&B)                        ||\n\r",
                              IsSet(ch->act, PlrWizinvis) ? "X" : " ",
-                             ch->pcdata->wizinvis);
+                             ch->PCData->wizinvis);
 
                 pager_printf(ch, "&B|| B&zamfin:&w  %58.58s &B||\n\r",
-                             (ch->pcdata->bamfin[0] !=
-                              '\0') ? smash_color(ch->pcdata->
+                             (ch->PCData->bamfin[0] !=
+                              '\0') ? smash_color(ch->PCData->
                                                   bamfin) :
                              "%s appears in a swirling mist.", ch->name);
                 pager_printf(ch, "&B|| B&zamfout:&w %58.58s &B||\n\r",
-                             (ch->pcdata->bamfout[0] !=
-                              '\0') ? smash_color(ch->pcdata->
+                             (ch->PCData->bamfout[0] !=
+                              '\0') ? smash_color(ch->PCData->
                                                   bamfout) :
                              "%s leaves in a swirling mist.", ch->name);
 
                 /*
                  * Area Loaded info - Scryn 8/11
                  */
-                if (ch->pcdata->area)
+                if (ch->PCData->area)
                 {
                         pager_printf(ch,
                                      "&B|| V&znums:   &BR&zoom &B(&w%-5.5d-%-5.5d&B) O&zbject &B(&w%-5.5d-%-5.5d&B) M&zob &B(&w%-5.5d-%-5.5d)  &B||\n\r",
-                                     ch->pcdata->area->low_r_vnum,
-                                     ch->pcdata->area->hi_r_vnum,
-                                     ch->pcdata->area->low_o_vnum,
-                                     ch->pcdata->area->hi_o_vnum,
-                                     ch->pcdata->area->low_m_vnum,
-                                     ch->pcdata->area->hi_m_vnum);
+                                     ch->PCData->area->low_r_vnum,
+                                     ch->PCData->area->hi_r_vnum,
+                                     ch->PCData->area->low_o_vnum,
+                                     ch->PCData->area->hi_o_vnum,
+                                     ch->PCData->area->low_m_vnum,
+                                     ch->PCData->area->hi_m_vnum);
                         pager_printf(ch,
                                      "&B|| A&zrea Loaded &B[&w%-3s&B]                                                   &B||\n\r",
                                      (IsSet
-                                      (ch->pcdata->area->status,
+                                      (ch->PCData->area->status,
                                        AreaLoaded)) ? "yes" : "no");
                 }
         }
@@ -474,7 +474,7 @@ CMDF do_immscore(CharData * ch, char *argument)
                 send_to_char("&RNot on NPC's&W\n\r", ch);
                 return;
         }
-        clan = victim->pcdata->clan;
+        clan = victim->PCData->clan;
         send_to_char
                 ("&w<>&B---------------------------------------------------------------------&w<>\n\r",
                  ch);
@@ -483,7 +483,7 @@ CMDF do_immscore(CharData * ch, char *argument)
                  ch);
         ch_printf(ch,
                   "&B|| N&zame:&w   %-25.25s&BL&zog In:  &w%-24.24s&B  ||\n\r",
-                  smash_color(victim->pcdata->title),
+                  smash_color(victim->PCData->title),
                   ctime(&(victim->logon)));
 
         ch_printf(ch,
@@ -491,10 +491,10 @@ CMDF do_immscore(CharData * ch, char *argument)
                   get_age(victim), capitalize(victim->race->name()),
                   ctime(&current_time));
 
-        if (victim->pcdata->spouse && victim->pcdata->spouse[0] != '\0')
+        if (victim->PCData->spouse && victim->PCData->spouse[0] != '\0')
                 ch_printf(ch,
                           "&B|| H&zitroll:&w%-2.2d                       &BS&zpouse:&w   %-23.23s  &B||\n\r",
-                          GetHitroll(victim), victim->pcdata->spouse);
+                          GetHitroll(victim), victim->PCData->spouse);
         else
                 ch_printf(ch, "&B|| H&zitroll:&w%-60.2d&B||\n\r",
                           GetHitroll(victim),
@@ -504,7 +504,7 @@ CMDF do_immscore(CharData * ch, char *argument)
         ch_printf(ch,
                   "&B|| D&zamroll:&w%-2.2d                       &BM&zarital &BS&ztatus:&w  %-18.18s&B||\n\r",
                   GetDamroll(victim),
-                  victim->pcdata->spouse[0] != '\0' ? "Married" : "Single ");
+                  victim->PCData->spouse[0] != '\0' ? "Married" : "Single ");
 
         ch_printf(ch,
                   "&B|| A&zrmor:  &w%-5d                    &BH&zit &BP&zoints:&w  %-5d &zof &w%-13d&B||\n\r",
@@ -521,18 +521,18 @@ CMDF do_immscore(CharData * ch, char *argument)
         pager_printf(ch, "&B|| W&zimpy:  &w%-60d&B||\n\r", victim->wimpy);
         pager_printf(ch,
                      "&B|| Q&zuest &BP&zoints:  &w%-5d             &BR&zole &BP&zlaying &BP&zoints:&w  %-5d        &B||\n\r",
-                     victim->pcdata->quest_curr, victim->pcdata->rp);
+                     victim->PCData->quest_curr, victim->PCData->rp);
 #else
         pager_printf(ch,
                      "&B|| Q&zuest &BP&zoints:  &w%-5d             &BR&zole &BP&zlaying &BP&zoints:&w  %-5d        &B||\n\r",
-                     victim->pcdata->quest_curr,
-                     victim->pcdata->Account ? victim->pcdata->Account->
-                     rppoints : victim->pcdata->rp);
+                     victim->PCData->quest_curr,
+                     victim->PCData->Account ? victim->PCData->Account->
+                     rppoints : victim->PCData->rp);
         pager_printf(ch,
                      "&B|| W&zimpy:  &w%-5d                    &BC&zurrent &BR&zPP:&w          %-5d        &B||\n\r",
                      victim->wimpy,
-                     victim->pcdata->Account ? victim->pcdata->Account->
-                     rpcurrent : victim->pcdata->rp);
+                     victim->PCData->Account ? victim->PCData->Account->
+                     rpcurrent : victim->PCData->rp);
 #endif
         ch_printf(ch,
                   "&B|| S&ztr: &w%2d  &BD&zex: &w%2d  &BC&zon: &w%2d  &BI&znt: &w%2d  &BW&zis: &w%2d  &BC&zha: &w%2d  &BF&zrc: &w%-9d&B||\n\r",
@@ -568,8 +568,8 @@ CMDF do_immscore(CharData * ch, char *argument)
 
         ch_printf(ch,
                   "&B|| C&zredits: &w%15.15s &BP&zkills:&w %-5.5d   &BM&zkills:&w %-5.5d              &B||\n\r",
-                  num_punct_long(victim->gold), victim->pcdata->pkills,
-                  victim->pcdata->mkills);
+                  num_punct_long(victim->gold), victim->PCData->pkills,
+                  victim->PCData->mkills);
 
         ch_printf(ch,
                   "&B|| W&zeight:        &w%5.5d &BM&zax: &w%7.7d&B    &BI&ztems:  &w%5.5d   &BM&zax: &w%5.5d&B     &B||\n\r",
@@ -578,8 +578,8 @@ CMDF do_immscore(CharData * ch, char *argument)
 
         ch_printf(ch,
                   "&B|| P&zager: &B(&w%c&B) %5.5d   &BA&zutoExit&B(&w%c&B)  &BA&zutoLoot&B(&w%c&B)                         &B||\n\r",
-                  IsSet(victim->pcdata->flags, PcflagPageron) ? 'X' : ' ',
-                  victim->pcdata->pagerlen, IsSet(victim->act,
+                  IsSet(victim->PCData->flags, PcflagPageron) ? 'X' : ' ',
+                  victim->PCData->pagerlen, IsSet(victim->act,
                                                    PlrAutoexit) ? 'X' : ' ',
                   IsSet(victim->act, PlrAutoloot) ? 'X' : ' ');
 
@@ -629,15 +629,15 @@ CMDF do_immscore(CharData * ch, char *argument)
 
         send_to_char(buf, ch);
 
-        if (!IsNpc(victim) && victim->pcdata->condition[CondDrunk] > 10)
+        if (!IsNpc(victim) && victim->PCData->condition[CondDrunk] > 10)
                 send_to_char
                         ("&B|| &wYou are &zdrunk.                                                      &B||\n\r",
                          ch);
-        if (!IsNpc(victim) && victim->pcdata->condition[CondThirst] == 0)
+        if (!IsNpc(victim) && victim->PCData->condition[CondThirst] == 0)
                 send_to_char
                         ("&B|| &wYou are in danger of &zdehydrating.                                   &B||\n\r",
                          ch);
-        if (!IsNpc(victim) && victim->pcdata->condition[CondFull] == 0)
+        if (!IsNpc(victim) && victim->PCData->condition[CondFull] == 0)
                 send_to_char
                         ("&B|| &wYou are starving to &zdeath.                                          &B||\n\r",
                          ch);
@@ -645,12 +645,12 @@ CMDF do_immscore(CharData * ch, char *argument)
         /*
          * Wanted information 
          */
-        if (victim->pcdata->first_wanted)
+        if (victim->PCData->first_wanted)
         {
                 WantedData *wanted = NULL;
 
                 mudstrlcpy(buf, "", MSL);
-                for (wanted = victim->pcdata->first_wanted; wanted;
+                for (wanted = victim->PCData->first_wanted; wanted;
                      wanted = wanted->next)
                 {
                         if (wanted->government == NULL ||
@@ -665,12 +665,12 @@ CMDF do_immscore(CharData * ch, char *argument)
                 ch_printf(ch, "&B|| &BW&zanted: &Y%-59.59s &B||\n\r", buf);
         }
 
-        if (victim->pcdata->bestowments
-            && victim->pcdata->bestowments[0] != '\0')
+        if (victim->PCData->bestowments
+            && victim->PCData->bestowments[0] != '\0')
                 ch_printf(ch, "&B|| Bestowments: %-54.54s &B||\n\r",
-                          victim->pcdata->bestowments);
+                          victim->PCData->bestowments);
 
-        if (victim->pcdata->clan)
+        if (victim->PCData->clan)
         {
                 send_to_char
                         ("&B||---------------------------------------------------------------------||\n\r",
@@ -680,12 +680,12 @@ CMDF do_immscore(CharData * ch, char *argument)
                          ch);
                 ch_printf(ch,
                           "&B|| O&zRGANIZATION: &w%-30s &BP&zkills&w/&BD&zeaths:&w %3.3d/%3.3d &B||\n\r",
-                          victim->pcdata->clan->name,
-                          victim->pcdata->clan->pkills,
-                          victim->pcdata->clan->pdeaths);
-                if (victim->pcdata->clanrank)
+                          victim->PCData->clan->name,
+                          victim->PCData->clan->pkills,
+                          victim->PCData->clan->pdeaths);
+                if (victim->PCData->clanrank)
                         ch_printf(ch, "&B|| R&zANK:&w %-61s &B||\n\r",
-                                  victim->pcdata->clan->rank[victim->pcdata->
+                                  victim->PCData->clan->rank[victim->PCData->
                                                              clanrank]);
         }
         if (IsImmortal(victim))
@@ -699,36 +699,36 @@ CMDF do_immscore(CharData * ch, char *argument)
                 ch_printf(ch,
                           "&B|| I&zMMORTAL DATA:  &BW&zizinvis &B[&w%s&B]  W&zizlevel &B(&w%-3d&B)                        ||\n\r",
                           IsSet(victim->act, PlrWizinvis) ? "X" : " ",
-                          victim->pcdata->wizinvis);
+                          victim->PCData->wizinvis);
 
                 ch_printf(ch, "&B|| B&zamfin:&w  %58.58s &B||\n\r",
-                          (victim->pcdata->bamfin[0] !=
-                           '\0') ? smash_color(victim->pcdata->
+                          (victim->PCData->bamfin[0] !=
+                           '\0') ? smash_color(victim->PCData->
                                                bamfin) :
                           "%s appears in a swirling mist.", victim->name);
                 ch_printf(ch, "&B|| B&zamfout:&w %58.58s &B||\n\r",
-                          (victim->pcdata->bamfout[0] !=
-                           '\0') ? smash_color(victim->pcdata->
+                          (victim->PCData->bamfout[0] !=
+                           '\0') ? smash_color(victim->PCData->
                                                bamfout) :
                           "%s leaves in a swirling mist.", victim->name);
 
                 /*
                  * Area Loaded info - Scryn 8/11
                  */
-                if (victim->pcdata->area)
+                if (victim->PCData->area)
                 {
                         ch_printf(ch,
                                   "&B|| V&znums:   &BR&zoom &B(&w%-5.5d-%-5.5d&B) O&zbject &B(&w%-5.5d-%-5.5d&B) M&zob &B(&w%-5.5d-%-5.5d)  &B||\n\r",
-                                  victim->pcdata->area->low_r_vnum,
-                                  victim->pcdata->area->hi_r_vnum,
-                                  victim->pcdata->area->low_o_vnum,
-                                  victim->pcdata->area->hi_o_vnum,
-                                  victim->pcdata->area->low_m_vnum,
-                                  victim->pcdata->area->hi_m_vnum);
+                                  victim->PCData->area->low_r_vnum,
+                                  victim->PCData->area->hi_r_vnum,
+                                  victim->PCData->area->low_o_vnum,
+                                  victim->PCData->area->hi_o_vnum,
+                                  victim->PCData->area->low_m_vnum,
+                                  victim->PCData->area->hi_m_vnum);
                         ch_printf(ch,
                                   "&B|| A&zrea Loaded &B[&w%-3s&B]                                                   &B||\n\r",
                                   (IsSet
-                                   (victim->pcdata->area->status,
+                                   (victim->PCData->area->status,
                                     AreaLoaded)) ? "yes" : "no");
                 }
         }
@@ -965,7 +965,7 @@ CMDF do_oldscore(CharData * ch, char *argument)
         ch_printf(ch,
                   "You are %s%s, level %d, %d years old (%d hours).\n\r",
                   ch->name,
-                  IsNpc(ch) ? "" : ch->pcdata->title,
+                  IsNpc(ch) ? "" : ch->PCData->title,
                   ch->top_level, get_age(ch), (get_age(ch) - 17));
 
         if (get_trust(ch) != ch->top_level)
@@ -998,7 +998,7 @@ CMDF do_oldscore(CharData * ch, char *argument)
         if (!IsNpc(ch))
                 ch_printf(ch,
                           "You have achieved %d glory during your life, and currently have %d.\n\r",
-                          ch->pcdata->quest_accum, ch->pcdata->quest_curr);
+                          ch->PCData->quest_accum, ch->PCData->quest_curr);
 
         ch_printf(ch,
                   "Autoexit: %s   Autoloot: %s  Autocred: %s\n\r",
@@ -1011,11 +1011,11 @@ CMDF do_oldscore(CharData * ch, char *argument)
 
         ch_printf(ch, "Wimpy set to %d hit points.\n\r", ch->wimpy);
 
-        if (!IsNpc(ch) && ch->pcdata->condition[CondDrunk] > 10)
+        if (!IsNpc(ch) && ch->PCData->condition[CondDrunk] > 10)
                 send_to_char("You are drunk.\n\r", ch);
-        if (!IsNpc(ch) && ch->pcdata->condition[CondThirst] == 0)
+        if (!IsNpc(ch) && ch->PCData->condition[CondThirst] == 0)
                 send_to_char("You are thirsty.\n\r", ch);
-        if (!IsNpc(ch) && ch->pcdata->condition[CondFull] == 0)
+        if (!IsNpc(ch) && ch->PCData->condition[CondFull] == 0)
                 send_to_char("You are hungry.\n\r", ch);
 
         switch (ch->mental_state / 10)
@@ -1207,20 +1207,20 @@ CMDF do_oldscore(CharData * ch, char *argument)
         if (!IsNpc(ch) && IsImmortal(ch))
         {
                 ch_printf(ch, "WizInvis level: %d   WizInvis is %s\n\r",
-                          ch->pcdata->wizinvis,
+                          ch->PCData->wizinvis,
                           IsSet(ch->act, PlrWizinvis) ? "ON" : "OFF");
-                if (ch->pcdata->r_range_lo && ch->pcdata->r_range_hi)
+                if (ch->PCData->r_range_lo && ch->PCData->r_range_hi)
                         ch_printf(ch, "Room Range: %d - %d\n\r",
-                                  ch->pcdata->r_range_lo,
-                                  ch->pcdata->r_range_hi);
-                if (ch->pcdata->o_range_lo && ch->pcdata->o_range_hi)
+                                  ch->PCData->r_range_lo,
+                                  ch->PCData->r_range_hi);
+                if (ch->PCData->o_range_lo && ch->PCData->o_range_hi)
                         ch_printf(ch, "Obj Range : %d - %d\n\r",
-                                  ch->pcdata->o_range_lo,
-                                  ch->pcdata->o_range_hi);
-                if (ch->pcdata->m_range_lo && ch->pcdata->m_range_hi)
+                                  ch->PCData->o_range_lo,
+                                  ch->PCData->o_range_hi);
+                if (ch->PCData->m_range_lo && ch->PCData->m_range_hi)
                         ch_printf(ch, "Mob Range : %d - %d\n\r",
-                                  ch->pcdata->m_range_lo,
-                                  ch->pcdata->m_range_hi);
+                                  ch->PCData->m_range_lo,
+                                  ch->PCData->m_range_hi);
         }
 
         return;
@@ -1737,15 +1737,15 @@ CMDF do_equipment(CharData * ch, char *argument)
 
                         for (count = 0; count < MaxImplantTypes; count++)
                         {
-                                if (ch->pcdata->implants[count] >= 0
-                                    && ch->pcdata->implants[count] <= 3)
+                                if (ch->PCData->implants[count] >= 0
+                                    && ch->PCData->implants[count] <= 3)
                                 {
                                         found = TRUE;
                                         ch_printf(ch,
                                                   "&BN&zame: &w%-35s Status: %s\n\r",
                                                   implant_names[count],
                                                   implant_affect_names[ch->
-                                                                       pcdata->
+                                                                       PCData->
                                                                        implants
                                                                        [count]]);
                                 }
@@ -1766,9 +1766,9 @@ void set_title(CharData * ch, char *title)
                 bug("Set_title: NPC.", 0);
                 return;
         }
-        if (ch->pcdata->title)
-                STRFREE(ch->pcdata->title);
-        ch->pcdata->title = STRALLOC(title);
+        if (ch->PCData->title)
+                STRFREE(ch->PCData->title);
+        ch->PCData->title = STRALLOC(title);
         return;
 }
 
@@ -1779,7 +1779,7 @@ CMDF do_title(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (IsSet(ch->pcdata->flags, PcflagNotitle))
+        if (IsSet(ch->PCData->flags, PcflagNotitle))
         {
                 send_to_char("You try but the Force resists you.\n\r", ch);
                 return;
@@ -1816,18 +1816,18 @@ CMDF do_homepage(CharData * ch, char *argument)
 
         if (argument[0] == '\0')
         {
-                if (!ch->pcdata->homepage)
-                        ch->pcdata->homepage = STRALLOC("");
+                if (!ch->PCData->homepage)
+                        ch->PCData->homepage = STRALLOC("");
                 ch_printf(ch, "Your homepage is: %s\n\r",
-                          show_tilde(ch->pcdata->homepage));
+                          show_tilde(ch->PCData->homepage));
                 return;
         }
 
         if (!str_cmp(argument, "clear"))
         {
-                if (ch->pcdata->homepage)
-                        STRFREE(ch->pcdata->homepage);
-                ch->pcdata->homepage = STRALLOC("");
+                if (ch->PCData->homepage)
+                        STRFREE(ch->PCData->homepage);
+                ch->PCData->homepage = STRALLOC("");
                 send_to_char("Homepage cleared.\n\r", ch);
                 return;
         }
@@ -1840,9 +1840,9 @@ CMDF do_homepage(CharData * ch, char *argument)
                 buf[70] = '\0';
 
         hide_tilde(buf);
-        if (ch->pcdata->homepage)
-                STRFREE(ch->pcdata->homepage);
-        ch->pcdata->homepage = STRALLOC(buf);
+        if (ch->PCData->homepage)
+                STRFREE(ch->PCData->homepage);
+        ch->PCData->homepage = STRALLOC(buf);
         send_to_char("Homepage set.\n\r", ch);
 }
 
@@ -1923,12 +1923,12 @@ CMDF do_bio(CharData * ch, char *argument)
         case SubNone:
                 ch->substate = SubPersonalBio;
                 ch->dest_buf = ch;
-                start_editing(ch, ch->pcdata->bio);
+                start_editing(ch, ch->PCData->bio);
                 return;
 
         case SubPersonalBio:
-                STRFREE(ch->pcdata->bio);
-                ch->pcdata->bio = copy_buffer(ch);
+                STRFREE(ch->PCData->bio);
+                ch->PCData->bio = copy_buffer(ch);
                 stop_editing(ch);
                 return;
         }
@@ -1980,19 +1980,19 @@ CMDF do_prompt(CharData * ch, char *argument)
                 if (ch->desc && ch->desc->descriptor)
                 {
                         sprintf(buf, "%s\n\r",
-                                !str_cmp(ch->pcdata->prompt,
+                                !str_cmp(ch->PCData->prompt,
                                          "") ? "(default prompt)" : ch->
-                                pcdata->prompt);
+                                PCData->prompt);
                         set_char_color(AtWhite, ch);
                         send_to_char("Your current prompt string:\n\r", ch);
                         ch_printf(ch, "%s\n\r",
-                                  full_color(ch->pcdata->prompt));
+                                  full_color(ch->PCData->prompt));
                 }
                 send_to_char("Set prompt to what? (try help prompt)\n\r", ch);
                 return;
         }
-        if (ch->pcdata->prompt)
-                STRFREE(ch->pcdata->prompt);
+        if (ch->PCData->prompt)
+                STRFREE(ch->PCData->prompt);
 
         if (strlen(argument) > 128)
                 argument[128] = '\0';
@@ -2002,33 +2002,33 @@ CMDF do_prompt(CharData * ch, char *argument)
          * 'prompt 1' brings up a different, pre-set prompt 
          */
         if (!str_cmp(arg, "default"))
-                ch->pcdata->prompt = STRALLOC("");
+                ch->PCData->prompt = STRALLOC("");
         else if (!str_cmp(arg, "prompt1"))
-                ch->pcdata->prompt =
+                ch->PCData->prompt =
                         STRALLOC
                         ("&w--==[&BH&zealth %e&B]&w==--%_&w--==[&BE&zndurance &w%v&z/%V &BC&zredits: %g&w]==--");
         else if (!str_cmp(arg, "prompt2"))
-                ch->pcdata->prompt =
+                ch->PCData->prompt =
                         STRALLOC
                         ("&B|----------------------------------------------------------------------------|%_| &BHealth:&w%h/%H    &BEndurance:&w%v/%V          &BCredits: &w%G |%_&B|----------------------------------------------------------------------------|&R&W");
         else if (!str_cmp(arg, "prompt3"))
-                ch->pcdata->prompt =
+                ch->PCData->prompt =
                         STRALLOC("&BHealth:&C%h&B/%H &BMoney:&C%g %e");
         else if (!str_cmp(arg, "prompt4"))
-                ch->pcdata->prompt = STRALLOC("&BHealth:&C%h&B/%H");
+                ch->PCData->prompt = STRALLOC("&BHealth:&C%h&B/%H");
         else if (!str_cmp(arg, "prompt5"))
-                ch->pcdata->prompt = STRALLOC("prompt %E &BMoney:&Y%g %e");
+                ch->PCData->prompt = STRALLOC("prompt %E &BMoney:&Y%g %e");
         else if (!str_cmp(arg, "prompt6"))
-                ch->pcdata->prompt =
+                ch->PCData->prompt =
                         STRALLOC
                         ("&pEndurance: &P%m&p/%M Align: &P%a%_%E&OCredits: &Y%g %e");
         else if (!str_cmp(arg, "prompt7"))
-                ch->pcdata->prompt =
+                ch->PCData->prompt =
                         STRALLOC
                         ("&pEndurance: &P%m&p/%M Align: &P%a%_%E&OCredits: &Y%g %e");
         else
 
-                ch->pcdata->prompt = STRALLOC(argument);
+                ch->PCData->prompt = STRALLOC(argument);
         send_to_char("Ok.\n\r", ch);
         return;
 }
@@ -2117,9 +2117,9 @@ void set_name(CharData * ch, char *name)
 
         name = trim(name);
         name[0] = UPPER(name[0]);
-        if (ch->pcdata->full_name)
-                STRFREE(ch->pcdata->full_name);
-        ch->pcdata->full_name = STRALLOC(name);
+        if (ch->PCData->full_name)
+                STRFREE(ch->PCData->full_name);
+        ch->PCData->full_name = STRALLOC(name);
         return;
 }
 
@@ -2186,7 +2186,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
 
         if (!str_cmp(arg, "fastengineer"))
         {
-                if (ch->pcdata->Account->rpcurrent < 8)
+                if (ch->PCData->Account->rpcurrent < 8)
                 {
                         send_to_char
                                 ("&RYou need 8 RPP to buy this reward.&D\n\r",
@@ -2194,25 +2194,25 @@ CMDF do_rpreward(CharData * ch, char *argument)
                         return;
                 }
 
-                if (IsSet(ch->pcdata->flags, PcflagFastengineer))
+                if (IsSet(ch->PCData->flags, PcflagFastengineer))
                 {
                         send_to_char("&RYou already have this ability!\n\r&D",
                                      ch);
                         return;
                 }
 
-                SetBit(ch->pcdata->flags, PcflagFastengineer);
+                SetBit(ch->PCData->flags, PcflagFastengineer);
                 send_to_char
                         ("&GYou have been rewarded for your RP with the Fast Engineering ability.\n\r&D",
                          ch);
-                ch->pcdata->Account->rpcurrent -= 8;
-                save_account(ch->pcdata->Account);
+                ch->PCData->Account->rpcurrent -= 8;
+                save_account(ch->PCData->Account);
                 return;
         }
 
         if (!str_cmp(arg, "train"))
         {
-                if (ch->pcdata->Account->rpcurrent < 3)
+                if (ch->PCData->Account->rpcurrent < 3)
                 {
                         send_to_char
                                 ("&RYou need 3 RPP to buy this reward.&D\n\r",
@@ -2229,7 +2229,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
                 ClanData *clan;
                 char      filename[256];
 
-                if (ch->pcdata->Account->rpcurrent < 10)
+                if (ch->PCData->Account->rpcurrent < 10)
                 {
                         send_to_char
                                 ("&RYou need 10 RPP to buy this reward.\n\r&D",
@@ -2245,7 +2245,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
                         return;
                 }
 
-                if (ch->pcdata->clan)
+                if (ch->PCData->clan)
                 {
                         send_to_char
                                 ("&RYou must resign from your current clan if you want a new one!&D\n\r",
@@ -2285,9 +2285,9 @@ CMDF do_rpreward(CharData * ch, char *argument)
                 send_to_char
                         ("&GYour new clan has been created. Use clanstat and clanset to modify.&D\n\r",
                          ch);
-                ch->pcdata->clan = clan;
-                ch->pcdata->Account->rpcurrent -= 10;
-                save_account(ch->pcdata->Account);
+                ch->PCData->clan = clan;
+                ch->PCData->Account->rpcurrent -= 10;
+                save_account(ch->PCData->Account);
                 return;
         }
 
@@ -2295,7 +2295,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
         {
                 RaceData *race;
 
-                if (ch->pcdata->Account->rpcurrent < 5)
+                if (ch->PCData->Account->rpcurrent < 5)
                 {
                         send_to_char
                                 ("&RYou need 5 RPP to buy this reward.\n\r&D",
@@ -2324,13 +2324,13 @@ CMDF do_rpreward(CharData * ch, char *argument)
                                 if (is_name
                                     (ch->race->name(),
                                      skill_table[sn]->races))
-                                        ch->pcdata->learned[sn] = 0;
+                                        ch->PCData->learned[sn] = 0;
 
                         for (int p = 0; p < MaxBits; p++)
-                                if (xIS_SET(ch->xflags, p)
-                                    && xIS_SET(skill_table[sn]->body_parts,
+                                if (IsSet(ch->xflags, p)
+                                    && IsSet(skill_table[sn]->body_parts,
                                                p))
-                                        ch->pcdata->learned[sn] = 0;
+                                        ch->PCData->learned[sn] = 0;
                 }
 
                 ch->affected_by -= ch->race->affected();
@@ -2377,20 +2377,20 @@ CMDF do_rpreward(CharData * ch, char *argument)
                         }
                 }
 
-                if (!xIS_EMPTY(ch->race->body_parts())
-                    && xIS_EMPTY(ch->xflags))
+                if (!IsEmpty(ch->race->body_parts())
+                    && IsEmpty(ch->xflags))
                         ch->xflags = ch->race->body_parts();
-                if (!xIS_EMPTY(ch->race->body_parts()))
+                if (!IsEmpty(ch->race->body_parts()))
                 {
                         for (int sn = 0; sn < top_sn; sn++)
                         {
-                                if (!xIS_EMPTY(skill_table[sn]->body_parts))
+                                if (!IsEmpty(skill_table[sn]->body_parts))
                                         for (int p = 0; p < MaxBits; p++)
-                                                if (xIS_SET(ch->xflags, p)
+                                                if (IsSet(ch->xflags, p)
                                                     &&
-                                                    xIS_SET(skill_table[sn]->
+                                                    IsSet(skill_table[sn]->
                                                             body_parts, p))
-                                                        ch->pcdata->
+                                                        ch->PCData->
                                                                 learned[sn] =
                                                                 100;
                         }
@@ -2406,8 +2406,8 @@ CMDF do_rpreward(CharData * ch, char *argument)
                 send_to_char
                         ("&GYour race has been changed. Enjoy your new RP possibilities!&D\n\r",
                          ch);
-                ch->pcdata->Account->rpcurrent -= 5;
-                save_account(ch->pcdata->Account);
+                ch->PCData->Account->rpcurrent -= 5;
+                save_account(ch->PCData->Account);
                 return;
         }
 
@@ -2466,11 +2466,11 @@ CMDF do_fprompt(CharData * ch, char *argument)
                 {
                         set_char_color(AtWhite, ch);
                         send_to_char("Your current prompt string:\n\r", ch);
-                        if (ch->pcdata->fprompt
-                            && ch->pcdata->fprompt[0] != '\0')
+                        if (ch->PCData->fprompt
+                            && ch->PCData->fprompt[0] != '\0')
                         {
                                 ch_printf(ch, "%s\n\r",
-                                          full_color(ch->pcdata->fprompt));
+                                          full_color(ch->PCData->fprompt));
                         }
                         else
                         {
@@ -2483,10 +2483,10 @@ CMDF do_fprompt(CharData * ch, char *argument)
                 return;
         }
 
-        if (ch->pcdata->fprompt)
-                STRFREE(ch->pcdata->fprompt);
+        if (ch->PCData->fprompt)
+                STRFREE(ch->PCData->fprompt);
 
-        ch->pcdata->fprompt = STRALLOC(argument);
+        ch->PCData->fprompt = STRALLOC(argument);
         send_to_char("Ok.\n\r", ch);
         return;
 }

@@ -77,7 +77,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
                 checkbatt = FALSE;
                 Bonus = 0;
 
-                if (!xIS_SET(ch->in_room->RoomFlags, RoomFactory))
+                if (!IsSet(ch->in_room->RoomFlags, RoomFactory))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -129,7 +129,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_craftpike]);
+                        : (int) (ch->PCData->learned[gsn_craftpike]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -166,7 +166,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_craftpike]);
         vnum = 10435;
 
@@ -216,7 +216,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_craftpike]);
+                : (int) (ch->PCData->learned[gsn_craftpike]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checksteel)
             || (!checkplast) || (!checkoven))
@@ -324,7 +324,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
                 checkplast = FALSE;
                 checkoven = FALSE;
 
-                if (!xIS_SET(ch->in_room->RoomFlags, RoomFactory))
+                if (!IsSet(ch->in_room->RoomFlags, RoomFactory))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -377,7 +377,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_craftknife]);
+                        : (int) (ch->PCData->learned[gsn_craftknife]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -414,7 +414,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_craftknife]);
         vnum = 10434;
 
@@ -454,7 +454,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_craftknife]);
+                : (int) (ch->PCData->learned[gsn_craftknife]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checksteel)
             || (!checkplast) || (!checkoven))
@@ -570,7 +570,7 @@ CMDF do_fixship(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_systemmaintenance]);
+                        : (int) (ch->PCData->learned[gsn_systemmaintenance]);
                 if (number_percent() < percentage)
                 {
                         send_to_char("&GYou begin your fix\n\r", ch);
@@ -619,10 +619,10 @@ CMDF do_fixship(CharData * ch, char *argument)
         {
                 change = URANGE(0,
                                 number_range((int)
-                                             (ch->pcdata->
+                                             (ch->PCData->
                                               learned[gsn_systemmaintenance] /
                                               2),
-                                             (int) (ch->pcdata->
+                                             (int) (ch->PCData->
                                                     learned
                                                     [gsn_systemmaintenance])),
                                 (ship->maxhull - ship->hull));
@@ -748,7 +748,7 @@ CMDF do_jab(CharData * ch, char *argument)
 
         WaitState(ch, skill_table[gsn_jab]->beats);
         if (!IsAwake(victim)
-            || IsNpc(ch) || percent < ch->pcdata->learned[gsn_jab])
+            || IsNpc(ch) || percent < ch->PCData->learned[gsn_jab])
         {
                 learn_from_success(ch, gsn_jab);
                 global_retcode = multi_hit(ch, victim, gsn_jab);
@@ -782,16 +782,16 @@ CMDF do_gowithout(CharData * ch, char *argument)
 
         percentage = number_percent() - get_curr_con(ch);
         WaitState(ch, skill_table[gsn_gowithout]->beats);
-        if (IsNpc(ch) || percentage < ch->pcdata->learned[gsn_gowithout])
+        if (IsNpc(ch) || percentage < ch->PCData->learned[gsn_gowithout])
         {
                 learn_from_success(ch, gsn_gowithout);
 
-                condition = ch->pcdata->condition[CondFull];
+                condition = ch->PCData->condition[CondFull];
                 amount = 40 - condition;
 
                 gain_condition(ch, CondFull, amount);
 
-                condition = ch->pcdata->condition[CondThirst];
+                condition = ch->PCData->condition[CondThirst];
                 amount = 40 - condition;
 
                 gain_condition(ch, CondThirst, amount);
@@ -820,7 +820,7 @@ CMDF do_cajole(CharData * ch, char *argument)
         ClanData *clan;
         int       percent = 0;
 
-        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
+        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
             || !ch->in_room->area || !ch->in_room->area->planet)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
@@ -853,7 +853,7 @@ CMDF do_cajole(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
+        if (IsSet(ch->in_room->RoomFlags, RoomSafe))
         {
                 set_char_color(AtMagic, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -891,8 +891,8 @@ CMDF do_cajole(CharData * ch, char *argument)
                 return;
         }
 
-        if ((clan = ch->pcdata->clan->mainclan) == NULL)
-                clan = ch->pcdata->clan;
+        if ((clan = ch->PCData->clan->mainclan) == NULL)
+                clan = ch->PCData->clan;
 
         planet = ch->in_room->area->planet;
 
@@ -900,7 +900,7 @@ CMDF do_cajole(CharData * ch, char *argument)
                  planet->governed_by ? planet->governed_by->
                  name : "their current leaders");
         ch_printf(ch, "You speak to them about the benifits of the %s%s.\n\r",
-                  ch->pcdata->clan->name,
+                  ch->PCData->clan->name,
                   planet->governed_by == clan ? "" : buf);
         act(AtAction, "$n speaks about his organization.\n\r", ch, NULL,
             victim, ToVict);
@@ -910,7 +910,7 @@ CMDF do_cajole(CharData * ch, char *argument)
         WaitState(ch, skill_table[gsn_cajole]->beats);
 
         if (percent - get_curr_cha(ch) + victim->top_level >
-            ch->pcdata->learned[gsn_cajole])
+            ch->PCData->learned[gsn_cajole])
         {
 
                 if (planet->governed_by != clan)
@@ -959,7 +959,7 @@ CMDF do_pretend(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (IsSet(ch->pcdata->flags, PcflagNotitle))
+        if (IsSet(ch->PCData->flags, PcflagNotitle))
         {
                 send_to_char("You try but the Force resists you.\n\r", ch);
                 return;
@@ -971,7 +971,7 @@ CMDF do_pretend(CharData * ch, char *argument)
                 return;
         }
 
-        percentage = (int) (ch->pcdata->learned[gsn_pretend]);
+        percentage = (int) (ch->PCData->learned[gsn_pretend]);
 
         if (number_percent() > percentage)
         {

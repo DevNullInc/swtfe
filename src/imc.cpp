@@ -2025,7 +2025,7 @@ void imc_display_channel(ImcChannel * c, const char *from, char *txt,
                         continue;
 
                 /*
-                 * Freaking stupid PcData crap! 
+                 * Freaking stupid PCData crap! 
                  */
                 if (IsNpc(ch))
                         continue;
@@ -2278,7 +2278,7 @@ PFUN(imc_recv_channelnotify)
                         continue;
 
                 /*
-                 * Freaking stupid PcData crap! 
+                 * Freaking stupid PCData crap! 
                  */
                 if (IsNpc(ch))
                         continue;

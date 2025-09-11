@@ -167,14 +167,14 @@ CMDF do_placevendor(CharData * ch, char *argument)
          * checks to see if there in arena.. might want to pull this out if you dont have
          * arena
          */
-        if (xIS_SET(ch->in_room->RoomFlags, RoomArena))
+        if (IsSet(ch->in_room->RoomFlags, RoomArena))
         {
                 send_to_char("Not here\n\r", ch);
                 log_string("do_placevendor: in the arena");
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomPlayershop))
+        if (!IsSet(ch->in_room->RoomFlags, RoomPlayershop))
         {
                 send_to_char("This is not an empty player shop.\n\r", ch);
                 return;
@@ -609,7 +609,7 @@ CMDF do_nameshop(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomPlayershop))
+        if (!IsSet(ch->in_room->RoomFlags, RoomPlayershop))
         {
                 send_to_char("This is not a player shop.\n\r", ch);
                 return;

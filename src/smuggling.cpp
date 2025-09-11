@@ -88,7 +88,7 @@ CMDF do_placebeacon(CharData * ch, char *argument)
         separate_obj(obj);
         obj_from_char(obj);
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_placebeacon]);
+                : (int) (ch->PCData->learned[gsn_placebeacon]);
         if (number_percent() > percentage)
         {
                 make_scraps(obj);
@@ -158,7 +158,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                 checkbattery = FALSE;
                 checkcirc = FALSE;
 
-                if (!xIS_SET(ch->in_room->RoomFlags, RoomFactory))
+                if (!IsSet(ch->in_room->RoomFlags, RoomFactory))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -224,7 +224,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                 }
 
                 percentage =
-                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                             learned
                                                             [gsn_makebeacon]);
 
@@ -263,7 +263,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_makebeacon]);
 
         checkmetal = FALSE;
@@ -315,7 +315,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
         }
 
         percentage =
-                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_makebeacon]);
 
         if (number_percent() > percentage * 2 || (!checkoven) || (!checktool)

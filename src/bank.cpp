@@ -276,7 +276,7 @@ BankAccount *create_baccount(CharData * ch)
         // ============================================================================
         
         // Enhanced input validation
-        if (!ch || IsNpc(ch) || !ch->pcdata || !ch->name) {
+        if (!ch || IsNpc(ch) || !ch->PCData || !ch->name) {
                 bug("create_baccount: Invalid character data", 0);
                 return nullptr;
         }
@@ -732,7 +732,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
         char      arg3[MaxInputLength];
         char      arg4[MaxInputLength];
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
                 return;
 
         if (get_trust(ch) < LevelImplementor && IsImmortal(ch))
@@ -751,7 +751,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomBank)
+        if (!IsSet(ch->in_room->RoomFlags, RoomBank)
             && get_comlink(ch) == NULL && !IsImmortal(ch))
         {
                 send_to_char
@@ -1236,7 +1236,7 @@ CMDF do_entrust(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("You can't entrust an NPC.\n\r", ch);
                 return;

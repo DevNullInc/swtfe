@@ -1663,7 +1663,7 @@ void echo_to_system(int color, ShipData * ship, char *argument,
                         {
                                 if ((pRoom = get_room_index(rnum)) == NULL)
                                         continue;
-                                if (xIS_SET(pRoom->RoomFlags, RoomMonitor))
+                                if (IsSet(pRoom->RoomFlags, RoomMonitor))
                                         echo_to_room(color, pRoom, argument);
                         }
                 }
@@ -2609,21 +2609,21 @@ void resetship(ShipData * ship)
                 ship->copilot = STRALLOC("");
         }
 
-        if (ship->type == ShipRepublic
+        if (ship->type == Republic
             || (ship->type == MobShip
                 && !str_cmp(ship->owner, "The Galactic Republic")))
         {
                 STRFREE(ship->home);
                 ship->home = STRALLOC("coruscant");
         }
-        else if (ship->type == ShipImperial
+        else if (ship->type == Imperial
                  || (ship->type == MobShip
                      && !str_cmp(ship->owner, "The Crimson Empire")))
         {
                 STRFREE(ship->home);
                 ship->home = STRALLOC("byss");
         }
-        else if (ship->type == ShipCivilian)
+        else if (ship->type == Civilian)
         {
                 STRFREE(ship->home);
                 ship->home = STRALLOC("tatooine");
@@ -3175,11 +3175,11 @@ CMDF do_setship(CharData * ch, char *argument)
         if (!str_cmp(arg2, "type"))
         {
                 if (!str_cmp(argument, "republic"))
-                        ship->type = ShipRepublic;
+                        ship->type = Republic;
                 else if (!str_cmp(argument, "imperial"))
-                        ship->type = ShipImperial;
+                        ship->type = Imperial;
                 else if (!str_cmp(argument, "civilian"))
-                        ship->type = ShipCivilian;
+                        ship->type = Civilian;
                 else if (!str_cmp(argument, "mob"))
                         ship->type = MobShip;
                 else if (!str_cmp(argument, "player"))
@@ -3582,11 +3582,11 @@ CMDF do_showship(CharData * ch, char *argument)
         }
         set_char_color(AtYellow, ch);
         ch_printf(ch, "%s %s : %s\n\rFilename: %s\n\r",
-                  ship->type == ShipRepublic ? "New Republic" :
-                  ship->type == ShipImperial ? "Imperial" :
+                  ship->type == Republic ? "New Republic" :
+                  ship->type == Imperial ? "Imperial" :
                   ship->type == PlayerShip ? "Player" :
                   ship->type == ClanMobShip ? "Clan Mob" :
-                  ship->type == ShipCivilian ? "Civilian" : "Mob",
+                  ship->type == Civilian ? "Civilian" : "Mob",
                   ship->ship_class == FighterShip ? "Starfighter" :
                   (ship->ship_class == MidsizeShip ? "Midship" :
                    (ship->ship_class == CapitalShip ? "Capital Ship" :
@@ -3694,7 +3694,7 @@ CMDF do_makeship(CharData * ch, char *argument)
         ship->home = STRALLOC("");
         ship->selfdestruct = STRALLOC("Not Installed");
         ship->selfdpass = number_range(10001, 99999);
-        ship->type = ShipCivilian;
+        ship->type = Civilian;
         ship->starsystem = NULL;
         ship->energy = ship->maxenergy;
         ship->hull = ship->maxhull;
@@ -3799,18 +3799,18 @@ CMDF do_ships(CharData * ch, char *argument)
                 {
                         if (str_cmp(ship->owner, ch->name))
                         {
-                                if (!ch->pcdata || !ch->pcdata->clan
+                                if (!ch->PCData || !ch->PCData->clan
                                     || str_cmp(ship->owner,
-                                               ch->pcdata->clan->name)
+                                               ch->PCData->clan->name)
                                     || ship->ship_class > ShipPlatform)
                                         continue;
                         }
 
                         if (ship->type == MobShip)
                                 continue;
-                        else if (ship->type == ShipRepublic)
+                        else if (ship->type == Republic)
                                 set_char_color(AtBlood, ch);
-                        else if (ship->type == ShipImperial)
+                        else if (ship->type == Imperial)
                                 set_char_color(AtDgreen, ch);
                         else
                                 set_char_color(AtBlue, ch);
@@ -3857,9 +3857,9 @@ CMDF do_ships(CharData * ch, char *argument)
 
                 if (ship->type == MobShip)
                         continue;
-                else if (ship->type == ShipRepublic)
+                else if (ship->type == Republic)
                         set_char_color(AtBlood, ch);
-                else if (ship->type == ShipImperial)
+                else if (ship->type == Imperial)
                         set_char_color(AtDgreen, ch);
                 else
                         set_char_color(AtBlue, ch);
@@ -3935,9 +3935,9 @@ void show_all_ships(CharData * ch, int type)
                         continue;
                 else if (ship->type == MobShip && !IsImmortal(ch))
                         continue;
-                else if (ship->type == ShipRepublic)
+                else if (ship->type == Republic)
                         set_pager_color(AtBlood, ch);
-                else if (ship->type == ShipImperial)
+                else if (ship->type == Imperial)
                         set_pager_color(AtDgreen, ch);
                 else
                         set_pager_color(AtBlue, ch);
@@ -4205,11 +4205,11 @@ bool check_pilot(CharData * ch, ShipData * ship)
             || !str_cmp("Public", ship->owner))
                 return TRUE;
 
-        if (!IsNpc(ch) && ch->pcdata && ch->pcdata->clan)
+        if (!IsNpc(ch) && ch->PCData && ch->PCData->clan)
         {
-                if (!str_cmp(ch->pcdata->clan->name, ship->owner))
+                if (!str_cmp(ch->PCData->clan->name, ship->owner))
                 {
-                        if (HasClanPerm(ch, ch->pcdata->clan, "pilot"))
+                        if (HasClanPerm(ch, ch->PCData->clan, "pilot"))
                         {
                                 return TRUE;
                         }
@@ -5135,13 +5135,13 @@ CMDF do_launch(CharData * ch, char *argument)
         }
         if (ship->ship_class == FighterShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_starfighters]);
+                        : (int) (ch->PCData->learned[gsn_starfighters]);
         if (ship->ship_class == MidsizeShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_midships]);
+                        : (int) (ch->PCData->learned[gsn_midships]);
         if (ship->ship_class == CapitalShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_capitalships]);
+                        : (int) (ch->PCData->learned[gsn_capitalships]);
         if (number_percent() < percent_chance)
         {
                 if (is_rental(ch, ship))
@@ -5181,21 +5181,21 @@ CMDF do_launch(CharData * ch, char *argument)
                                 price += 50;
                 }
 
-                if (ch->pcdata && ch->pcdata->clan
-                    && !str_cmp(ch->pcdata->clan->name, ship->owner))
+                if (ch->PCData && ch->PCData->clan
+                    && !str_cmp(ch->PCData->clan->name, ship->owner))
                 {
-                        if (ch->pcdata->clan->funds < price)
+                        if (ch->PCData->clan->funds < price)
                         {
                                 ch_printf(ch,
                                           "&R%s doesn't have enough funds to prepare this ship for launch.\n\r",
-                                          ch->pcdata->clan->name);
+                                          ch->PCData->clan->name);
                                 return;
                         }
 
-                        ch->pcdata->clan->funds -= price;
+                        ch->PCData->clan->funds -= price;
                         ch_printf(ch,
                                   "&GIt costs %s %ld credits to ready this ship for launch.\n\r",
-                                  ch->pcdata->clan->name, price);
+                                  ch->PCData->clan->name, price);
                 }
                 else if (str_cmp(ship->owner, "Public"))
                 {
@@ -5230,8 +5230,8 @@ CMDF do_launch(CharData * ch, char *argument)
                 ship->statet2 = LaserReady;
                 ship->shipstate = ShipDocked;
 
-                if (ch->pcdata->clan && str_cmp(ship->owner, "Public"))
-                        ship->clan = ch->pcdata->clan;
+                if (ch->PCData->clan && str_cmp(ship->owner, "Public"))
+                        ship->clan = ch->PCData->clan;
                 else
                         ship->clan = NULL;
 
@@ -5669,13 +5669,13 @@ CMDF do_land(CharData * ch, char *argument)
 
         if (ship->ship_class == FighterShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_starfighters]);
+                        : (int) (ch->PCData->learned[gsn_starfighters]);
         if (ship->ship_class == MidsizeShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_midships]);
+                        : (int) (ch->PCData->learned[gsn_midships]);
         if (ship->ship_class == CapitalShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_capitalships]);
+                        : (int) (ch->PCData->learned[gsn_capitalships]);
         if (number_percent() < percent_chance)
         {
                 set_char_color(AtGreen, ch);
@@ -5889,13 +5889,13 @@ CMDF do_accelerate(CharData * ch, char *argument)
 
         if (ship->ship_class == FighterShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_starfighters]);
+                        : (int) (ch->PCData->learned[gsn_starfighters]);
         if (ship->ship_class == MidsizeShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_midships]);
+                        : (int) (ch->PCData->learned[gsn_midships]);
         if (ship->ship_class == CapitalShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_capitalships]);
+                        : (int) (ch->PCData->learned[gsn_capitalships]);
         if (number_percent() >= percent_chance)
         {
                 send_to_char("&RYou fail to work the controls properly.\n\r",
@@ -6031,13 +6031,13 @@ CMDF do_trajectory(CharData * ch, char *argument)
 
         if (ship->ship_class == FighterShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_starfighters]);
+                        : (int) (ch->PCData->learned[gsn_starfighters]);
         if (ship->ship_class == MidsizeShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_midships]);
+                        : (int) (ch->PCData->learned[gsn_midships]);
         if (ship->ship_class == CapitalShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_capitalships]);
+                        : (int) (ch->PCData->learned[gsn_capitalships]);
         if (number_percent() > percent_chance)
         {
                 send_to_char("&RYou fail to work the controls properly.\n\r",
@@ -6450,7 +6450,7 @@ CMDF do_buyship(CharData * ch, char *argument)
 
 
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("&ROnly players can do that!\n\r", ch);
                 return;
@@ -6529,12 +6529,12 @@ CMDF do_clanbuyship(CharData * ch, char *argument)
         ClanData *clan;
         ClanData *mainclan;
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("&ROnly players can do that!\n\r", ch);
                 return;
         }
-        if (!ch->pcdata->clan)
+        if (!ch->PCData->clan)
         {
                 send_to_char
                         ("&RYou aren't a member of any organizations!\n\r",
@@ -6542,9 +6542,9 @@ CMDF do_clanbuyship(CharData * ch, char *argument)
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         mainclan =
-                ch->pcdata->clan->mainclan ? ch->pcdata->clan->
+                ch->PCData->clan->mainclan ? ch->PCData->clan->
                 mainclan : clan;
 
         if (!HasClanPerm(ch, clan, "clanbuyship"))
@@ -6576,7 +6576,7 @@ CMDF do_clanbuyship(CharData * ch, char *argument)
 
         price = get_ship_value(ship);
 
-        if (ch->pcdata->clan->funds < price)
+        if (ch->PCData->clan->funds < price)
         {
                 ch_printf(ch,
                           "&RThis ship costs %ld. You don't have enough credits!\n\r",
@@ -6606,20 +6606,20 @@ CMDF do_clansellship(CharData * ch, char *argument)
         ShipData *ship;
         ClanData *clan;
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("&ROnly players can do that!\n\r", ch);
                 return;
         }
 
-        if (!ch->pcdata->clan)
+        if (!ch->PCData->clan)
         {
                 send_to_char("&RYou aren't a member of an organization!\n\r",
                              ch);
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
 
         if (!HasClanPerm(ch, clan, "clansellship"))
         {
@@ -6751,8 +6751,8 @@ CMDF do_info(CharData * ch, char *argument)
         }
 
         ch_printf(ch, "&Y%s %s : %s\n\r&B",
-                  target->type == ShipRepublic ? "New Republic" :
-                  (target->type == ShipImperial ? "Imperial" : "Civilian"),
+                  target->type == Republic ? "New Republic" :
+                  (target->type == Imperial ? "Imperial" : "Civilian"),
                   target->ship_class == FighterShip ? "Starfighter" :
                   (target->ship_class == MidsizeShip ? "Midtarget" :
                    (target->ship_class == CapitalShip ? "Capital Ship" :
@@ -6822,7 +6822,7 @@ CMDF do_autorecharge(CharData * ch, char *argument)
         }
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_shipsystems]);
+                : (int) (ch->PCData->learned[gsn_shipsystems]);
         if (number_percent() > percent_chance)
         {
                 send_to_char("&RYou fail to work the controls properly.\n\r",
@@ -7277,7 +7277,7 @@ CMDF do_status(CharData * ch, char *argument)
         }
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_shipsystems]);
+                : (int) (ch->PCData->learned[gsn_shipsystems]);
         if (number_percent() > percent_chance)
         {
                 send_to_char
@@ -7549,13 +7549,13 @@ CMDF do_hyperspace(CharData * ch, char *argument)
 
         if (ship->ship_class == FighterShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_starfighters]);
+                        : (int) (ch->PCData->learned[gsn_starfighters]);
         if (ship->ship_class == MidsizeShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_midships]);
+                        : (int) (ch->PCData->learned[gsn_midships]);
         if (ship->ship_class == CapitalShip)
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_capitalships]);
+                        : (int) (ch->PCData->learned[gsn_capitalships]);
         if (number_percent() > percent_chance)
         {
                 send_to_char("&RYou can't figure out which lever to use.\n\r",
@@ -7737,7 +7737,7 @@ CMDF do_target(CharData * ch, char *argument)
                 }
 
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_weaponsystems]);
+                        : (int) (ch->PCData->learned[gsn_weaponsystems]);
                 if (number_percent() < percent_chance)
                 {
                         send_to_char("&GTracking target.\n\r", ch);
@@ -7878,9 +7878,9 @@ CMDF do_fire(CharData * ch, char *argument)
 
         percent_chance = IsNpc(ch) ? ch->top_level
                 : (int) (ch->perm_dex * 2 +
-                         ch->pcdata->learned[gsn_spacecombat] / 3 +
-                         ch->pcdata->learned[gsn_spacecombat2] / 3 +
-                         ch->pcdata->learned[gsn_spacecombat3] / 3);
+                         ch->PCData->learned[gsn_spacecombat] / 3 +
+                         ch->PCData->learned[gsn_spacecombat2] / 3 +
+                         ch->PCData->learned[gsn_spacecombat3] / 3);
 
         if (ch->in_room->vnum == ship->gunseat
             && !str_prefix(argument, "lasers"))
@@ -8721,7 +8721,7 @@ CMDF do_calculate(CharData * ch, char *argument)
                 return;
         }
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_navigation]);
+                : (int) (ch->PCData->learned[gsn_navigation]);
         if (number_percent() > percent_chance)
         {
                 send_to_char
@@ -8855,7 +8855,7 @@ CMDF do_recharge(CharData * ch, char *argument)
         }
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_shipsystems]);
+                : (int) (ch->PCData->learned[gsn_shipsystems]);
         if (number_percent() > percent_chance)
         {
                 send_to_char("&RYou fail to work the controls properly.\n\r",
@@ -8913,7 +8913,7 @@ CMDF do_repairship(CharData * ch, char *argument)
                 }
 
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_shipmaintenance]);
+                        : (int) (ch->PCData->learned[gsn_shipmaintenance]);
                 if (number_percent() < percent_chance)
                 {
                         send_to_char("&GYou begin your repairs\n\r", ch);
@@ -8963,10 +8963,10 @@ CMDF do_repairship(CharData * ch, char *argument)
         {
                 change = URANGE(0,
                                 number_range((int)
-                                             (ch->pcdata->
+                                             (ch->PCData->
                                               learned[gsn_shipmaintenance] /
                                               2),
-                                             (int) (ch->pcdata->
+                                             (int) (ch->PCData->
                                                     learned
                                                     [gsn_shipmaintenance])),
                                 (ship->maxhull - ship->hull));
@@ -9037,15 +9037,15 @@ CMDF do_addpilot(CharData * ch, char *argument)
         if (str_cmp(ship->owner, ch->name))
         {
 
-                if (!IsNpc(ch) && ch->pcdata && ch->pcdata->clan
-                    && !str_cmp(ch->pcdata->clan->name, ship->owner))
-                        if (!str_cmp(ch->pcdata->clan->leader, ch->name))
+                if (!IsNpc(ch) && ch->PCData && ch->PCData->clan
+                    && !str_cmp(ch->PCData->clan->name, ship->owner))
+                        if (!str_cmp(ch->PCData->clan->leader, ch->name))
                                 ;
                         else if (!str_cmp
-                                 (ch->pcdata->clan->number1, ch->name))
+                                 (ch->PCData->clan->number1, ch->name))
                                 ;
                         else if (!str_cmp
-                                 (ch->pcdata->clan->number2, ch->name))
+                                 (ch->PCData->clan->number2, ch->name))
                                 ;
                         else
                         {
@@ -9114,15 +9114,15 @@ CMDF do_rempilot(CharData * ch, char *argument)
         if (str_cmp(ship->owner, ch->name))
         {
 
-                if (!IsNpc(ch) && ch->pcdata && ch->pcdata->clan
-                    && !str_cmp(ch->pcdata->clan->name, ship->owner))
-                        if (!str_cmp(ch->pcdata->clan->leader, ch->name))
+                if (!IsNpc(ch) && ch->PCData && ch->PCData->clan
+                    && !str_cmp(ch->PCData->clan->name, ship->owner))
+                        if (!str_cmp(ch->PCData->clan->leader, ch->name))
                                 ;
                         else if (!str_cmp
-                                 (ch->pcdata->clan->number1, ch->name))
+                                 (ch->PCData->clan->number1, ch->name))
                                 ;
                         else if (!str_cmp
-                                 (ch->pcdata->clan->number2, ch->name))
+                                 (ch->PCData->clan->number2, ch->name))
                                 ;
                         else
                         {
@@ -9213,7 +9213,7 @@ CMDF do_radar(CharData * ch, char *argument)
         }
 
         percent_chance =
-                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_navigation]);
 
         if (number_percent() > percent_chance)
@@ -9287,13 +9287,13 @@ CMDF do_radar(CharData * ch, char *argument)
                 cansee = TRUE;
                 cloaksee = TRUE;
                 chancescan =
-                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                             learned[gsn_scan1]
                                                             / 10 +
-                                                            ch->pcdata->
+                                                            ch->PCData->
                                                             learned[gsn_scan2]
                                                             / 5 +
-                                                            ch->pcdata->
+                                                            ch->PCData->
                                                             learned[gsn_scan3]
                                                             / 3);
                 chancestealth = number_percent();
@@ -9302,9 +9302,9 @@ CMDF do_radar(CharData * ch, char *argument)
                 if (chancestealth < chancescan)
                         cansee = FALSE;
 
-                if (ch->pcdata->learned[gsn_scan1] == 100 &&
-                    ch->pcdata->learned[gsn_scan2] == 100 &&
-                    ch->pcdata->learned[gsn_scan3] == 100)
+                if (ch->PCData->learned[gsn_scan1] == 100 &&
+                    ch->PCData->learned[gsn_scan2] == 100 &&
+                    ch->PCData->learned[gsn_scan3] == 100)
                         if (chancecloak <= 5)
                                 cloaksee = FALSE;
 
@@ -9425,7 +9425,7 @@ CMDF do_autotrack(CharData * ch, char *argument)
         }
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_shipsystems]);
+                : (int) (ch->PCData->learned[gsn_shipsystems]);
         if (number_percent() > percent_chance)
         {
                 send_to_char("&RYour notsure which switch to flip.\n\r", ch);
@@ -9516,7 +9516,7 @@ CMDF do_closebay(CharData * ch, char *argument)
 
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_shipsystems]);
+                : (int) (ch->PCData->learned[gsn_shipsystems]);
         if (number_percent() > percent_chance)
         {
                 send_to_char("&RYour not sure which switch to flip.\n\r", ch);
@@ -9610,7 +9610,7 @@ CMDF do_openbay(CharData * ch, char *argument)
 
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_shipsystems]);
+                : (int) (ch->PCData->learned[gsn_shipsystems]);
         if (number_percent() > percent_chance)
         {
                 send_to_char("&RYour not sure which switch to flip.\n\r", ch);
@@ -9798,7 +9798,7 @@ CMDF do_tractorbeam(CharData * ch, char *argument)
 
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_tractorbeams]);
+                : (int) (ch->PCData->learned[gsn_tractorbeams]);
 
         /*
          * This is just a first guess percent_chance modifier, feel free to change if needed 
@@ -10034,7 +10034,7 @@ CMDF do_chaff(CharData * ch, char *argument)
                 return;
         }
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_weaponsystems]);
+                : (int) (ch->PCData->learned[gsn_weaponsystems]);
         if (number_percent() > percent_chance)
         {
                 send_to_char("&RYou can't figure out which switch it is.\n\r",
@@ -10165,8 +10165,8 @@ CMDF do_unload_cargo(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomImport)
-            && !xIS_SET(ch->in_room->RoomFlags, RoomSpacecraft))
+        if (!IsSet(ch->in_room->RoomFlags, RoomImport)
+            && !IsSet(ch->in_room->RoomFlags, RoomSpacecraft))
         {
                 send_to_char("You can't do that here!", ch);
                 return;
@@ -10289,8 +10289,8 @@ CMDF do_load_cargo(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomImport)
-            && !xIS_SET(ch->in_room->RoomFlags, RoomSpacecraft))
+        if (!IsSet(ch->in_room->RoomFlags, RoomImport)
+            && !IsSet(ch->in_room->RoomFlags, RoomSpacecraft))
         {
                 send_to_char("You can't do that here!", ch);
                 return;
@@ -10536,7 +10536,7 @@ CMDF do_cloak(CharData * ch, char *argument)
 
 
                 percent_chance = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_cloak]);
+                        : (int) (ch->PCData->learned[gsn_cloak]);
                 if (number_percent() < percent_chance)
                 {
                         act(AtPlain, "$n pulls a series of levers.", ch,
@@ -10679,7 +10679,7 @@ CMDF do_stealth(CharData * ch, char *argument)
 
 
                         percent_chance = IsNpc(ch) ? ch->top_level
-                                : (int) (ch->pcdata->learned[gsn_stealth]);
+                                : (int) (ch->PCData->learned[gsn_stealth]);
                         if (number_percent() < percent_chance)
                         {
                                 act(AtPlain, "$n pulls a series of levers.",
@@ -10819,7 +10819,7 @@ CMDF do_juke(CharData * ch, char *argument)
 
 
                         percent_chance = IsNpc(ch) ? ch->top_level
-                                : (int) (ch->pcdata->learned[gsn_juke]);
+                                : (int) (ch->PCData->learned[gsn_juke]);
                         if (number_percent() < percent_chance)
                         {
 
@@ -10933,7 +10933,7 @@ CMDF do_roll(CharData * ch, char *argument)
 
 
                         percent_chance = IsNpc(ch) ? ch->top_level
-                                : (int) (ch->pcdata->learned[gsn_roll]);
+                                : (int) (ch->PCData->learned[gsn_roll]);
                         if (number_percent() < percent_chance)
                         {
                                 send_to_char
@@ -11047,7 +11047,7 @@ CMDF do_evade(CharData * ch, char *argument)
 
 
                         percent_chance = IsNpc(ch) ? ch->top_level
-                                : (int) (ch->pcdata->learned[gsn_evade]);
+                                : (int) (ch->PCData->learned[gsn_evade]);
                         if (number_percent() < percent_chance)
                         {
                                 send_to_char
@@ -11163,14 +11163,14 @@ CMDF do_interdictor(CharData * ch, char *argument)
 
                 if (ship->ship_class == FighterShip)
                         percent_chance = IsNpc(ch) ? ch->top_level
-                                : (int) (ch->pcdata->
+                                : (int) (ch->PCData->
                                          learned[gsn_starfighters]);
                 if (ship->ship_class == MidsizeShip)
                         percent_chance = IsNpc(ch) ? ch->top_level
-                                : (int) (ch->pcdata->learned[gsn_midships]);
+                                : (int) (ch->PCData->learned[gsn_midships]);
                 if (ship->ship_class == CapitalShip)
                         percent_chance = IsNpc(ch) ? ch->top_level
-                                : (int) (ch->pcdata->
+                                : (int) (ch->PCData->
                                          learned[gsn_capitalships]);
                 if (number_percent() < percent_chance)
                 {
@@ -11278,7 +11278,7 @@ CMDF do_boardship(CharData * ch, char *argument)
                 return;
         }
         percent_chance =
-                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_boardship]);
         if (number_percent() > percent_chance)
         {
@@ -11477,7 +11477,7 @@ CMDF do_giveship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "clan"))
         {
-                clan = ch->pcdata->clan;
+                clan = ch->PCData->clan;
                 if (!clan)
                 {
                         send_to_char("You are not in a clan, sorry.", ch);
@@ -11523,7 +11523,7 @@ CMDF do_taxi(CharData * ch, char *argument)
                          ch);
                 return;
         }
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomImport) && !xIS_SET(ch->in_room->RoomFlags, RoomCanLand))
+        if (!IsSet(ch->in_room->RoomFlags, RoomImport) && !IsSet(ch->in_room->RoomFlags, RoomCanLand))
         {
                 send_to_char("You must be at a spaceport to call a taxi.\n\r",
                              ch);
@@ -11651,13 +11651,13 @@ CMDF do_hmm( CharData *ch, char *argument )
     	        
                 if ( ship->ship_class == FighterShip )
                     percent_chance = IsNpc(ch) ? ch->top_level
-	                 : (int)  (ch->pcdata->learned[gsn_starfighters]) ;
+	                 : (int)  (ch->PCData->learned[gsn_starfighters]) ;
                 if ( ship->ship_class == MidsizeShip )
                     percent_chance = IsNpc(ch) ? ch->top_level
-	                 : (int)  (ch->pcdata->learned[gsn_midships]) ;
+	                 : (int)  (ch->PCData->learned[gsn_midships]) ;
                 if ( ship->ship_class == CapitalShip )
                     percent_chance = IsNpc(ch) ? ch->top_level
-	                 : (int) (ch->pcdata->learned[gsn_capitalships]);
+	                 : (int) (ch->PCData->learned[gsn_capitalships]);
                 if ( number_percent( ) < percent_chance )
     		{
     		   send_to_char( "&G\n\r", ch);
@@ -11764,13 +11764,13 @@ CMDF do_hmm( CharData *ch, char *argument )
     	        
         if ( ship->ship_class == FighterShip )
              percent_chance = IsNpc(ch) ? ch->top_level
-             : (int)  (ch->pcdata->learned[gsn_starfighters]) ;
+             : (int)  (ch->PCData->learned[gsn_starfighters]) ;
         if ( ship->ship_class == MidsizeShip )
              percent_chance = IsNpc(ch) ? ch->top_level
-                 : (int)  (ch->pcdata->learned[gsn_midships]) ;
+                 : (int)  (ch->PCData->learned[gsn_midships]) ;
         if ( ship->ship_class == CapitalShip )
               percent_chance = IsNpc(ch) ? ch->top_level
-                 : (int) (ch->pcdata->learned[gsn_capitalships]);
+                 : (int) (ch->PCData->learned[gsn_capitalships]);
         if ( number_percent( ) > percent_chance )
         {
             send_to_char("&RYou fail to work the controls properly.\n\r",ch);
@@ -11859,7 +11859,7 @@ CMDF do_shipemote(CharData * ch, char *argument)
         MOBtrigger = FALSE;
         snprintf(buf, MaxStringLength, "%s %s", ship->name, argument);
         echo_to_cockpit(AtBlood + AtBlink, ship, buf);
-        if (xIS_SET(ch->in_room->RoomFlags, RoomLogspeech))
+        if (IsSet(ch->in_room->RoomFlags, RoomLogspeech))
         {
                 snprintf(buf, MSL, "%s %s (emote)",
                          IsNpc(ch) ? ch->short_descr : ch->name, argument);

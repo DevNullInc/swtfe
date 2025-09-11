@@ -9,18 +9,18 @@
 
 #if !defined(IMCCIRCLE) && !defined(IMCSTANDALONE)
 // Modernized: prefer inline functions for type safety
-inline auto ChImcdata(auto ch) { return ch->pcdata->imcchardata; }
+inline auto ChImcdata(auto ch) { return ch->PCData->imcchardata; }
 inline auto ChImclevel(auto ch) { return ch->top_level; }
 inline std::string ChImcname(auto ch) { return ch->name; }
 inline auto ChImcsex(auto ch) { return ch->sex; }
-inline std::string ChImctitle(auto ch) { return ch->pcdata->title; }
+inline std::string ChImctitle(auto ch) { return ch->PCData->title; }
 #endif
 
 
 #if defined(IMCSMAUG) || defined(IMCCHRONICLES)
 #define SMAUGSOCIAL
 using SocialData = SocialType;
-inline auto ChImcrank(auto ch) { return ch->pcdata->rank; }
+inline auto ChImcrank(auto ch) { return ch->PCData->rank; }
 #endif
 
 

@@ -1061,7 +1061,7 @@ CMDF do_induct(CharData * ch, char *argument)
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
 
         if (!HasClanPerm(ch, clan, "induct"))
         {
@@ -1089,11 +1089,11 @@ CMDF do_induct(CharData * ch, char *argument)
                 return;
         }
 
-        if (victim->pcdata->clan)
+        if (victim->PCData->clan)
         {
-                if (victim->pcdata->clan->ClanType == ClanCrime)
+                if (victim->PCData->clan->ClanType == ClanCrime)
                 {
-                        if (victim->pcdata->clan == clan)
+                        if (victim->PCData->clan == clan)
                                 send_to_char
                                         ("This player already belongs to your crime family!\n\r",
                                          ch);
@@ -1103,9 +1103,9 @@ CMDF do_induct(CharData * ch, char *argument)
                                          ch);
                         return;
                 }
-                else if (victim->pcdata->clan->ClanType == ClanGuild)
+                else if (victim->PCData->clan->ClanType == ClanGuild)
                 {
-                        if (victim->pcdata->clan == clan)
+                        if (victim->PCData->clan == clan)
                                 send_to_char
                                         ("This player already belongs to your guild!\n\r",
                                          ch);
@@ -1117,7 +1117,7 @@ CMDF do_induct(CharData * ch, char *argument)
                 }
                 else
                 {
-                        if (victim->pcdata->clan == clan)
+                        if (victim->PCData->clan == clan)
                                 send_to_char
                                         ("This player already belongs to your organization!\n\r",
                                          ch);
@@ -1130,9 +1130,9 @@ CMDF do_induct(CharData * ch, char *argument)
 
         }
 #ifndef ACCOUNT
-        if (victim->pcdata->rp < 2)
+        if (victim->PCData->rp < 2)
 #else
-        if (victim->pcdata->Account && victim->pcdata->Account->rppoints < 2)
+        if (victim->PCData->Account && victim->PCData->Account->rppoints < 2)
 #endif
         {
                 ch_printf(ch,
@@ -1145,7 +1145,7 @@ CMDF do_induct(CharData * ch, char *argument)
 
         clan->members++;
 
-        victim->pcdata->clan = clan;
+        victim->PCData->clan = clan;
         if (clan->roster)
         {
                 if (!hasname(clan->roster, victim->name))
@@ -1170,13 +1170,13 @@ CMDF do_outcast(CharData * ch, char *argument)
         ClanData *clan;
         char      buf[MaxStringLength];
 
-        if (IsNpc(ch) || !ch->pcdata->clan)
+        if (IsNpc(ch) || !ch->PCData->clan)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!HasClanPerm(ch, clan, "outcast"))
         {
                 send_to_char("Huh?\n\r", ch);
@@ -1210,7 +1210,7 @@ CMDF do_outcast(CharData * ch, char *argument)
                 return;
         }
 
-        if (victim->pcdata->clan != ch->pcdata->clan)
+        if (victim->PCData->clan != ch->PCData->clan)
         {
                 send_to_char("This player does not belong to your clan!\n\r",
                              ch);
@@ -1219,22 +1219,22 @@ CMDF do_outcast(CharData * ch, char *argument)
 
 
         --clan->members;
-        if (!str_cmp(victim->name, ch->pcdata->clan->number1))
+        if (!str_cmp(victim->name, ch->PCData->clan->number1))
         {
-                STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC(const_cast<char*>(""));
+                STRFREE(ch->PCData->clan->number1);
+                ch->PCData->clan->number1 = STRALLOC(const_cast<char*>(""));
         }
-        if (!str_cmp(victim->name, ch->pcdata->clan->number2))
+        if (!str_cmp(victim->name, ch->PCData->clan->number2))
         {
-                STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC(const_cast<char*>(""));
+                STRFREE(ch->PCData->clan->number2);
+                ch->PCData->clan->number2 = STRALLOC(const_cast<char*>(""));
         }
 
-        if (ch->pcdata->clan->roster)
-                if (hasname(ch->pcdata->clan->roster, ch->name))
-                        removename(&ch->pcdata->clan->roster, ch->name);
+        if (ch->PCData->clan->roster)
+                if (hasname(ch->PCData->clan->roster, ch->name))
+                        removename(&ch->PCData->clan->roster, ch->name);
 
-        victim->pcdata->clan = NULL;
+        victim->PCData->clan = NULL;
         act(AtMagic, "You outcast $N from $t", ch, clan->name, victim,
             ToChar);
         act(AtMagic, "$n outcasts $N from $t", ch, clan->name, victim,
@@ -1245,8 +1245,8 @@ CMDF do_outcast(CharData * ch, char *argument)
                  clan->name);
         echo_to_all(AtMagic, buf, EchoTarAll);
 
-        STRFREE(victim->pcdata->bestowments);
-        victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
+        STRFREE(victim->PCData->bestowments);
+        victim->PCData->bestowments = STRALLOC(const_cast<char*>(""));
 
         save_char_obj(victim);  /* clan gets saved when pfile is saved */
         return;
@@ -1535,7 +1535,7 @@ CMDF do_clanset(CharData * ch, char *argument)
         char      arg1[MaxInputLength];
         ClanData *clan;
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!clan)
         {
                 send_to_char("You are not in a clan.\n\r", ch);
@@ -2435,7 +2435,7 @@ CMDF do_shove(CharData * ch, char *argument)
         }
 
         exit_dir = get_dir(arg2);
-        if (xIS_SET(victim->in_room->RoomFlags, RoomSafe)
+        if (IsSet(victim->in_room->RoomFlags, RoomSafe)
             && get_timer(victim, TimerShovedrag) <= 0)
         {
                 send_to_char("That character cannot be shoved right now.\n\r",
@@ -2498,7 +2498,7 @@ act( AtAction, buf, ch, NULL, NULL, ToRoom );
         /*
          * Remove protection from shove/drag if char shoves -- Blodkai 
          */
-        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe)
+        if (IsSet(ch->in_room->RoomFlags, RoomSafe)
             && get_timer(ch, TimerShovedrag) <= 0)
                 add_timer(ch, TimerShovedrag, 10, NULL, 0);
 }
@@ -2553,7 +2553,7 @@ CMDF do_drag(CharData * ch, char *argument)
 
         exit_dir = get_dir(arg2);
 
-        if (xIS_SET(victim->in_room->RoomFlags, RoomSafe)
+        if (IsSet(victim->in_room->RoomFlags, RoomSafe)
             && get_timer(victim, TimerShovedrag) <= 0)
         {
                 send_to_char
@@ -2629,24 +2629,24 @@ CMDF do_enlist(CharData * ch, char *argument)
         ClanData *clan;
         InstallationData *installation;
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
         }
 
-        if (ch->pcdata->clan)
+        if (ch->PCData->clan)
         {
                 ch_printf(ch,
                           "You will have to resign from %s before you can join a new organization.\n\r",
-                          ch->pcdata->clan->name);
+                          ch->PCData->clan->name);
                 return;
         }
 
 #ifndef ACCOUNT
-        if (ch->pcdata->rp < 2)
+        if (ch->PCData->rp < 2)
 #else
-        if (ch->pcdata->Account && ch->pcdata->Account->rppoints < 2)
+        if (ch->PCData->Account && ch->PCData->Account->rppoints < 2)
 #endif
         {
                 ch_printf(ch,
@@ -2654,7 +2654,7 @@ CMDF do_enlist(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomRecruit))
+        if (!IsSet(ch->in_room->RoomFlags, RoomRecruit))
         {
                 send_to_char
                         ("You don't seem to be in a recruitment office.\n\r",
@@ -2694,8 +2694,8 @@ CMDF do_enlist(CharData * ch, char *argument)
                                 if (clan->enliston == 1)
                                 {
                                         ++clan->members;
-                                        ch->pcdata->clan = clan;
-   									    ch->pcdata->clanrank = 0;
+                                        ch->PCData->clan = clan;
+   									    ch->PCData->clanrank = 0;
                                         if (clan->roster)
                                         {
                                                 if (!hasname
@@ -2727,7 +2727,7 @@ CMDF do_enlist(CharData * ch, char *argument)
                                 if (clan->enliston == 1)
                                 {
                                         ++clan->members;
-                                        ch->pcdata->clan = installation->clan;
+                                        ch->PCData->clan = installation->clan;
                                         ch_printf(ch, "Welcome to %s.\n\r",
                                                   clan->name);
                                         save_clan(clan);
@@ -2757,13 +2757,13 @@ CMDF do_resign(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
 
         if (clan == NULL)
         {
@@ -2773,7 +2773,7 @@ CMDF do_resign(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(ch->name, ch->pcdata->clan->leader))
+        if (!str_cmp(ch->name, ch->PCData->clan->leader))
         {
                 ch_printf(ch,
                           "You can't resign from %s ... you are the leader!\n\r",
@@ -2782,20 +2782,20 @@ CMDF do_resign(CharData * ch, char *argument)
         }
 
         --clan->members;
-        if (!str_cmp(ch->name, ch->pcdata->clan->number1))
+        if (!str_cmp(ch->name, ch->PCData->clan->number1))
         {
-                STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC(const_cast<char*>(""));
+                STRFREE(ch->PCData->clan->number1);
+                ch->PCData->clan->number1 = STRALLOC(const_cast<char*>(""));
         }
-        if (!str_cmp(ch->name, ch->pcdata->clan->number2))
+        if (!str_cmp(ch->name, ch->PCData->clan->number2))
         {
-                STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC(const_cast<char*>(""));
+                STRFREE(ch->PCData->clan->number2);
+                ch->PCData->clan->number2 = STRALLOC(const_cast<char*>(""));
         }
-        if (ch->pcdata->clan->roster)
-                if (hasname(ch->pcdata->clan->roster, ch->name))
-                        removename(&ch->pcdata->clan->roster, ch->name);
-        ch->pcdata->clan = NULL;
+        if (ch->PCData->clan->roster)
+                if (hasname(ch->PCData->clan->roster, ch->name))
+                        removename(&ch->PCData->clan->roster, ch->name);
+        ch->PCData->clan = NULL;
         act(AtMagic, "You resign your position in $t", ch, clan->name, NULL,
             ToChar);
         snprintf(buf, MSL, "%s has quit %s!", ch->name, clan->name);
@@ -2807,9 +2807,9 @@ CMDF do_resign(CharData * ch, char *argument)
         ch_printf(ch, "You lose %ld diplomacy experience.\n\r", lose_exp);
         ch->experience[DiplomacyAbility] -= lose_exp;
 
-        STRFREE(ch->pcdata->bestowments);
-        ch->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
-	ch->pcdata->clanrank = 0;
+        STRFREE(ch->PCData->bestowments);
+        ch->PCData->bestowments = STRALLOC(const_cast<char*>(""));
+	ch->PCData->clanrank = 0;
 
         save_char_obj(ch);  /* clan gets saved when pfile is saved */        return;
 
@@ -2820,7 +2820,7 @@ CMDF do_clan_withdraw(CharData * ch, char *argument)
         ClanData *clan;
         long      amount;
 
-        if (IsNpc(ch) || !ch->pcdata->clan)
+        if (IsNpc(ch) || !ch->PCData->clan)
         {
                 send_to_char
                         ("You don't seem to belong to an organization to withdraw funds from...\n\r",
@@ -2828,13 +2828,13 @@ CMDF do_clan_withdraw(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBank))
+        if (!ch->in_room || !IsSet(ch->in_room->RoomFlags, RoomBank))
         {
                 send_to_char("You must be in a bank to do that!\n\r", ch);
                 return;
         }
 
-        if (!HasClanPerm(ch, ch->pcdata->clan, "withdraw"))
+        if (!HasClanPerm(ch, ch->PCData->clan, "withdraw"))
         {
                 send_to_char
                         ("&RYour organization hasn't seen fit to bestow you with that ability.",
@@ -2842,7 +2842,7 @@ CMDF do_clan_withdraw(CharData * ch, char *argument)
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
 
         amount = atoi(argument);
 
@@ -2879,7 +2879,7 @@ CMDF do_clan_donate(CharData * ch, char *argument)
         ClanData *clan;
         long      amount;
 
-        if (IsNpc(ch) || !ch->pcdata->clan)
+        if (IsNpc(ch) || !ch->PCData->clan)
         {
                 send_to_char
                         ("You don't seem to belong to an organization to donate to...\n\r",
@@ -2887,13 +2887,13 @@ CMDF do_clan_donate(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBank))
+        if (!ch->in_room || !IsSet(ch->in_room->RoomFlags, RoomBank))
         {
                 send_to_char("You must be in a bank to do that!\n\r", ch);
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
 
         amount = atoi(argument);
 
@@ -2939,16 +2939,16 @@ CMDF do_appoint(CharData * ch, char *argument)
 
         argument = one_argument(argument, arg);
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
                 return;
 
-        if (!ch->pcdata->clan)
+        if (!ch->PCData->clan)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
         }
 
-        if (str_cmp(ch->name, ch->pcdata->clan->leader))
+        if (str_cmp(ch->name, ch->PCData->clan->leader))
         {
                 send_to_char("Only your leader can do that!\n\r", ch);
                 return;
@@ -2963,8 +2963,8 @@ CMDF do_appoint(CharData * ch, char *argument)
 
         if (!str_cmp(argument, "first"))
         {
-                if (ch->pcdata->clan->number1
-                    && str_cmp(ch->pcdata->clan->number1, ""))
+                if (ch->PCData->clan->number1
+                    && str_cmp(ch->PCData->clan->number1, ""))
                 {
                         send_to_char
                                 ("You already have someone in that position ... demote them first.\n\r",
@@ -2972,13 +2972,13 @@ CMDF do_appoint(CharData * ch, char *argument)
                         return;
                 }
 
-                STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC(arg);
+                STRFREE(ch->PCData->clan->number1);
+                ch->PCData->clan->number1 = STRALLOC(arg);
         }
         else if (!str_cmp(argument, "second"))
         {
-                if (ch->pcdata->clan->number2
-                    && str_cmp(ch->pcdata->clan->number2, ""))
+                if (ch->PCData->clan->number2
+                    && str_cmp(ch->PCData->clan->number2, ""))
                 {
                         send_to_char
                                 ("You already have someone in that position ... demote them first.\n\r",
@@ -2986,28 +2986,28 @@ CMDF do_appoint(CharData * ch, char *argument)
                         return;
                 }
 
-                STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC(arg);
+                STRFREE(ch->PCData->clan->number2);
+                ch->PCData->clan->number2 = STRALLOC(arg);
         }
         else
                 do_appoint(ch, const_cast<char*>(""));
-        save_clan(ch->pcdata->clan);
+        save_clan(ch->PCData->clan);
 
 }
 
 CMDF do_demote(CharData * ch, char *argument)
 {
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
                 return;
 
-        if (!ch->pcdata->clan)
+        if (!ch->PCData->clan)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
         }
 
-        if (str_cmp(ch->name, ch->pcdata->clan->leader))
+        if (str_cmp(ch->name, ch->PCData->clan->leader))
         {
                 send_to_char("Only your leader can do that!\n\r", ch);
                 return;
@@ -3019,19 +3019,19 @@ CMDF do_demote(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(argument, ch->pcdata->clan->number1))
+        if (!str_cmp(argument, ch->PCData->clan->number1))
         {
                 send_to_char("Player Demoted!", ch);
 
-                STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC(const_cast<char*>(""));
+                STRFREE(ch->PCData->clan->number1);
+                ch->PCData->clan->number1 = STRALLOC(const_cast<char*>(""));
         }
-        else if (!str_cmp(argument, ch->pcdata->clan->number2))
+        else if (!str_cmp(argument, ch->PCData->clan->number2))
         {
                 send_to_char("Player Demoted!", ch);
 
-                STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC(const_cast<char*>(""));
+                STRFREE(ch->PCData->clan->number2);
+                ch->PCData->clan->number2 = STRALLOC(const_cast<char*>(""));
         }
         else
         {
@@ -3039,7 +3039,7 @@ CMDF do_demote(CharData * ch, char *argument)
                              ch);
                 return;
         }
-        save_clan(ch->pcdata->clan);
+        save_clan(ch->PCData->clan);
 
 }
 
@@ -3059,12 +3059,12 @@ CMDF do_capture(CharData * ch, char *argument)
         if (!ch->in_room || !ch->in_room->area)
                 return;
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
         {
                 send_to_char("huh?\n\r", ch);
                 return;
         }
-        if (!ch->pcdata->clan)
+        if (!ch->PCData->clan)
         {
                 send_to_char
                         ("You need to be a member of an organization to do that!\n\r",
@@ -3072,10 +3072,10 @@ CMDF do_capture(CharData * ch, char *argument)
                 return;
         }
 
-        if (ch->pcdata->clan->mainclan)
-                clan = ch->pcdata->clan->mainclan;
+        if (ch->PCData->clan->mainclan)
+                clan = ch->PCData->clan->mainclan;
         else
-                clan = ch->pcdata->clan;
+                clan = ch->PCData->clan;
 
         if (clan->ClanType == ClanCrime)
         {
@@ -3196,13 +3196,13 @@ CMDF do_empower(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         int       ranknum;
 
-        if (IsNpc(ch) || !ch->pcdata->clan)
+        if (IsNpc(ch) || !ch->PCData->clan)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
 		if (!HasClanPerm(ch, clan, "empower"))
         {
                 send_to_char
@@ -3239,27 +3239,27 @@ CMDF do_empower(CharData * ch, char *argument)
                 return;
         }
 
-        if (victim->pcdata->clan != ch->pcdata->clan)
+        if (victim->PCData->clan != ch->PCData->clan)
         {
                 send_to_char("This player does not belong to your clan!\n\r",
                              ch);
                 return;
         }
 
-        if (!victim->pcdata->bestowments)
-                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
+        if (!victim->PCData->bestowments)
+                victim->PCData->bestowments = STRALLOC(const_cast<char*>(""));
 
         if (arg2[0] == '\0' || !str_cmp(arg2, "list"))
         {
                 ch_printf(ch, "Current bestowed commands on %s: %s.\n\r",
-                          victim->name, victim->pcdata->bestowments);
+                          victim->name, victim->PCData->bestowments);
                 return;
         }
 
         if (!str_cmp(arg2, "none"))
         {
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(const_cast<char*>(""));
                 ch_printf(ch, "Bestowments removed from %s.\n\r",
                           victim->name);
                 ch_printf(victim,
@@ -3269,10 +3269,10 @@ CMDF do_empower(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "pilot"))
         {
-                snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments,
+                snprintf(buf, MSL, "%s %s", victim->PCData->bestowments,
                          arg2);
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(buf);
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(buf);
                 ch_printf(victim,
                           "%s has given you permission to fly clan ships.\n\r",
                           ch->name);
@@ -3282,10 +3282,10 @@ CMDF do_empower(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "installations"))
         {
-                snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments,
+                snprintf(buf, MSL, "%s %s", victim->PCData->bestowments,
                          arg2);
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(buf);
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(buf);
                 ch_printf(victim,
                           "%s has given you permission to construct clan installations.\n\r",
                           ch->name);
@@ -3295,10 +3295,10 @@ CMDF do_empower(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "battalions"))
         {
-                snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments,
+                snprintf(buf, MSL, "%s %s", victim->PCData->bestowments,
                          arg2);
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(buf);
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(buf);
                 ch_printf(victim,
                           "%s has given you permission to control clan battalions.\n\r",
                           ch->name);
@@ -3308,10 +3308,10 @@ CMDF do_empower(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "withdraw"))
         {
-                snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments,
+                snprintf(buf, MSL, "%s %s", victim->PCData->bestowments,
                          arg2);
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(buf);
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(buf);
                 ch_printf(victim,
                           "%s has given you permission to withdraw clan funds.\n\r",
                           ch->name);
@@ -3321,10 +3321,10 @@ CMDF do_empower(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "clanbuyship"))
         {
-                snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments,
+                snprintf(buf, MSL, "%s %s", victim->PCData->bestowments,
                          arg2);
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(buf);
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(buf);
                 ch_printf(victim,
                           "%s has given you permission to buy clan ships.\n\r",
                           ch->name);
@@ -3334,10 +3334,10 @@ CMDF do_empower(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "induct"))
         {
-                snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments,
+                snprintf(buf, MSL, "%s %s", victim->PCData->bestowments,
                          arg2);
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(buf);
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(buf);
                 ch_printf(victim,
                           "%s has given you permission to induct new members.\n\r",
                           ch->name);
@@ -3347,10 +3347,10 @@ CMDF do_empower(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "empower"))
         {
-                snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments,
+                snprintf(buf, MSL, "%s %s", victim->PCData->bestowments,
                          arg2);
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(buf);
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(buf);
                 act(AtPlain,
                     "$n has given you permission to empower members.", ch,
                     NULL, victim, ToVict);
@@ -3360,10 +3360,10 @@ CMDF do_empower(CharData * ch, char *argument)
         }
         else if (!str_cmp(arg2, "clansellship"))
         {
-                snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments,
+                snprintf(buf, MSL, "%s %s", victim->PCData->bestowments,
                          arg2);
-                STRFREE(victim->pcdata->bestowments);
-                victim->pcdata->bestowments = STRALLOC(buf);
+                STRFREE(victim->PCData->bestowments);
+                victim->PCData->bestowments = STRALLOC(buf);
                 act(AtPlain,
                     "$n has given you permission to sell clan ships.", ch,
                     NULL, victim, ToVict);
@@ -3374,7 +3374,7 @@ CMDF do_empower(CharData * ch, char *argument)
         else if (!str_cmp(arg2, "rank"))
         {
 				int newrank;
-                ranknum = victim->pcdata->clanrank;
+                ranknum = victim->PCData->clanrank;
                 if (!is_number(arg3))
                 {
                         send_to_char("Rank must be set as a number.\n\r", ch);
@@ -3411,7 +3411,7 @@ CMDF do_empower(CharData * ch, char *argument)
 
                 if (ranknum < newrank)
                 {
-                        victim->pcdata->clanrank = newrank;
+                        victim->PCData->clanrank = newrank;
                         ch_printf(victim, "%s has promoted you.\n\r",ch->name);
                 }
                 if (ranknum == newrank)
@@ -3421,7 +3421,7 @@ CMDF do_empower(CharData * ch, char *argument)
                 }
                 if (ranknum > newrank)
                 {
-                        victim->pcdata->clanrank = newrank;
+                        victim->PCData->clanrank = newrank;
                         ch_printf(victim, "%s has demoted you.\n\r", ch->name);
                 }
                 send_to_char("New rank set.\n\r", ch);
@@ -3495,7 +3495,7 @@ CMDF do_imports(CharData * ch, char *argument)
                           cargo_names[i], planet->cargoimport[i],
                           planet->cargoexport[i], planet->produces[i],
                           planet->consumes[i], planet->resource[i]);
-        if (IsImmortal(ch) || ch->pcdata->learned[gsn_contraband] > 0)
+        if (IsImmortal(ch) || ch->PCData->learned[gsn_contraband] > 0)
                 for (i = ContrabandNone + 1; i < ContrabandMax; i++)
                         ch_printf(ch,
                                   "&G%-14.14s    &C%5d/ton  &Y%5d/ton &P%6d tons  &R%6d tons  &G%9d\r\n",
@@ -3514,7 +3514,7 @@ CMDF do_recruit(CharData * ch, char *argument)
         ShipData *ship;
         int       cost, batamount, percent_chance, xp;
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!clan)
         {
                 send_to_char("You are not in a clan.\n\r", ch);
@@ -3594,7 +3594,7 @@ CMDF do_recruit(CharData * ch, char *argument)
         }
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : static_cast<int>(ch->pcdata->learned[gsn_recruit]);
+                : static_cast<int>(ch->PCData->learned[gsn_recruit]);
 
         if (number_percent() > percent_chance)
         {
@@ -3655,7 +3655,7 @@ CMDF do_load_battalions(CharData * ch, char *argument)
                          ch);
                 return;
         }
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!clan)
         {
                 send_to_char("You are not in a clan.\n\r", ch);
@@ -3775,7 +3775,7 @@ CMDF do_deploy_battalions(CharData * ch, char *argument)
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!clan)
         {
                 send_to_char("You are not in a clan.\n\r", ch);
@@ -3880,7 +3880,7 @@ CMDF do_clanstat(CharData * ch, char *argument)
 
         argument = NULL;
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!clan)
         {
                 send_to_char("You are not in a clan.\n\r", ch);
@@ -3930,7 +3930,7 @@ CMDF do_clanstat(CharData * ch, char *argument)
         {
                 if (ship->type == MobShip)
                         continue;
-                if (str_cmp(ship->owner, ch->pcdata->clan->name)
+                if (str_cmp(ship->owner, ch->PCData->clan->name)
                     || ship->ship_class > ShipPlatform)
                         continue;
 
@@ -3979,14 +3979,14 @@ CMDF do_clanstat(CharData * ch, char *argument)
                   "&c-----------------------------------------------------------------------------&R&W\n\r");
         for (wch = first_char; wch; wch = wch->next)
         {
-                if (wch->pcdata && wch->pcdata->clan)
+                if (wch->PCData && wch->PCData->clan)
                 {
-                        wclan = wch->pcdata->clan;
+                        wclan = wch->PCData->clan;
                         if (clan == wclan)
                         {
                                 ch_printf(ch, "&B%s", wch->name);
                                 ch_printf(ch, " &C(&c%s&C) \n\r",
-                                          clan->rank[wch->pcdata->clanrank]);
+                                          clan->rank[wch->PCData->clanrank]);
                         }
                 }
         }
@@ -4012,7 +4012,7 @@ CMDF do_overthrow(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (!ch->pcdata || !ch->pcdata->clan)
+        if (!ch->PCData || !ch->PCData->clan)
         {
                 send_to_char
                         ("You have to be part of an organization before you can claim leadership.\n\r",
@@ -4020,7 +4020,7 @@ CMDF do_overthrow(CharData * ch, char *argument)
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!clan)
         {
                 send_to_char("No such clan.\n\r", ch);
@@ -4036,27 +4036,27 @@ CMDF do_overthrow(CharData * ch, char *argument)
         }
 
         ch_printf(ch, "OK. You are now a leader of %s.\n\r",
-                  ch->pcdata->clan->name);
+                  ch->PCData->clan->name);
 
-        STRFREE(ch->pcdata->clan->leader);
-        if (!strcmp(ch->name, ch->pcdata->clan->number1))
+        STRFREE(ch->PCData->clan->leader);
+        if (!strcmp(ch->name, ch->PCData->clan->number1))
         {
-                ch->pcdata->clan->leader =
-                        STRALLOC(ch->pcdata->clan->number1);
-                STRFREE(ch->pcdata->clan->number1);
-                ch->pcdata->clan->number1 = STRALLOC(const_cast<char*>(""));
+                ch->PCData->clan->leader =
+                        STRALLOC(ch->PCData->clan->number1);
+                STRFREE(ch->PCData->clan->number1);
+                ch->PCData->clan->number1 = STRALLOC(const_cast<char*>(""));
         }
-        else if (!strcmp(ch->name, ch->pcdata->clan->number2))
+        else if (!strcmp(ch->name, ch->PCData->clan->number2))
         {
-                ch->pcdata->clan->leader =
-                        STRALLOC(ch->pcdata->clan->number2);
-                STRFREE(ch->pcdata->clan->number2);
-                ch->pcdata->clan->number2 = STRALLOC(const_cast<char*>(""));
+                ch->PCData->clan->leader =
+                        STRALLOC(ch->PCData->clan->number2);
+                STRFREE(ch->PCData->clan->number2);
+                ch->PCData->clan->number2 = STRALLOC(const_cast<char*>(""));
         }
         else
-                ch->pcdata->clan->leader = STRALLOC(ch->name);
+                ch->PCData->clan->leader = STRALLOC(ch->name);
 
-        ch->pcdata->clanrank = MaxRank;
+        ch->PCData->clanrank = MaxRank;
         save_char_obj(ch);  /* clan gets saved when pfile is saved */
 }
 
@@ -4068,12 +4068,12 @@ bool is_clan_enemy(CharData * ch, CharData * victim)
         if (IsNpc(victim))
                 vict_clan = get_clan(victim->mob_clan);
         else
-                vict_clan = victim->pcdata->clan;
+                vict_clan = victim->PCData->clan;
 
         if (IsNpc(ch))
                 ch_clan = get_clan(ch->mob_clan);
         else
-                ch_clan = ch->pcdata->clan;
+                ch_clan = ch->PCData->clan;
 
         if (!ch_clan || !vict_clan)
                 return FALSE;
@@ -4101,12 +4101,12 @@ bool is_clan_ally(CharData * ch, CharData * victim)
         if (IsNpc(victim))
                 vict_clan = get_clan(victim->mob_clan);
         else
-                vict_clan = victim->pcdata->clan;
+                vict_clan = victim->PCData->clan;
 
         if (IsNpc(ch))
                 ch_clan = get_clan(ch->mob_clan);
         else
-                ch_clan = ch->pcdata->clan;
+                ch_clan = ch->PCData->clan;
 
         if (!ch_clan || !vict_clan)
                 return FALSE;
@@ -4134,12 +4134,12 @@ bool is_same_clan(CharData * ch, CharData * victim)
         if (IsNpc(victim))
                 vict_clan = get_clan(victim->mob_clan);
         else
-                vict_clan = victim->pcdata->clan;
+                vict_clan = victim->PCData->clan;
 
         if (IsNpc(ch))
                 ch_clan = get_clan(ch->mob_clan);
         else
-                ch_clan = ch->pcdata->clan;
+                ch_clan = ch->PCData->clan;
 
         if (!ch_clan || !vict_clan)
                 return FALSE;
@@ -4195,8 +4195,8 @@ void free_clan(ClanData * clan)
                         ship->clan = NULL;
         for (ch = first_char; ch; ch = ch->next)
         {
-                if (!IsNpc(ch) && ch->pcdata && ch->pcdata->clan)
-                        ch->pcdata->clan = NULL;
+                if (!IsNpc(ch) && ch->PCData && ch->PCData->clan)
+                        ch->PCData->clan = NULL;
                 else if (IsNpc(ch) && ch->mob_clan
                          && ch->mob_clan[0] != '\0')
                 {
@@ -4270,7 +4270,7 @@ CMDF do_stepdown(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (!ch->pcdata || !ch->pcdata->clan)
+        if (!ch->PCData || !ch->PCData->clan)
         {
                 send_to_char
                         ("You have to be part of an organization before you can claim leadership.\n\r",
@@ -4278,7 +4278,7 @@ CMDF do_stepdown(CharData * ch, char *argument)
                 return;
         }
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!clan)
         {
                 send_to_char("No such clan.\n\r", ch);
@@ -4315,6 +4315,6 @@ CMDF do_stepdown(CharData * ch, char *argument)
         ch_printf(ch, "OK. You are no longer in the leadership positions of %s.\n\r",clan->name);
 
 
-        ch->pcdata->clanrank = 0;
+        ch->PCData->clanrank = 0;
         save_char_obj(ch);  /* clan gets saved when pfile is saved */
 }

@@ -55,12 +55,12 @@ void comment_remove(CharData * ch, CharData * victim, NoteData * pnote)
 {
         // Suppress unused parameter warning
         (void)ch;
-        if (!victim->pcdata || !victim->pcdata->Account)
+        if (!victim->PCData || !victim->PCData->Account)
         {
                 bug("comment remove: null Account", 0);
                 return;
         }
-        if (!victim->pcdata->Account->comments)
+        if (!victim->PCData->Account->comments)
         {
                 bug("comment remove: null board", 0);
                 return;
@@ -76,7 +76,7 @@ void comment_remove(CharData * ch, CharData * victim, NoteData * pnote)
          * Remove comment from linked list.
          */
         if (!pnote->prev)
-                victim->pcdata->Account->comments = pnote->next;
+                victim->PCData->Account->comments = pnote->next;
         else
                 pnote->prev->next = pnote->next;
 
@@ -193,7 +193,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!victim->pcdata->Account->comments)
+                if (!victim->PCData->Account->comments)
                 {
                         send_to_char("There are no relevant comments.\n\r",
                                      ch);
@@ -201,7 +201,7 @@ CMDF do_comment(CharData * ch, char *argument)
                 }
 
                 vnum = 0;
-                for (pnote = victim->pcdata->Account->comments; pnote;
+                for (pnote = victim->PCData->Account->comments; pnote;
                      pnote = pnote->next)
                 {
                         vnum++;
@@ -244,7 +244,7 @@ CMDF do_comment(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!victim->pcdata->Account->comments)
+                if (!victim->PCData->Account->comments)
                 {
                         send_to_char("There are no relevant comments.\n\r",
                                      ch);
@@ -270,7 +270,7 @@ CMDF do_comment(CharData * ch, char *argument)
                 }
 
                 vnum = 0;
-                for (pnote = victim->pcdata->Account->comments; pnote;
+                for (pnote = victim->PCData->Account->comments; pnote;
                      pnote = pnote->next)
                 {
                         vnum++;
@@ -402,11 +402,11 @@ CMDF do_comment(CharData * ch, char *argument)
                 /*
                  * LIFO to make life easier 
                  */
-                pnote->next = victim->pcdata->Account->comments;
-                if (victim->pcdata->Account->comments)
-                        victim->pcdata->Account->comments->prev = pnote;
+                pnote->next = victim->PCData->Account->comments;
+                if (victim->PCData->Account->comments)
+                        victim->PCData->Account->comments->prev = pnote;
                 pnote->prev = NULL;
-                victim->pcdata->Account->comments = pnote;
+                victim->PCData->Account->comments = pnote;
 
                 save_char_obj(victim);
 
@@ -468,7 +468,7 @@ CMDF do_comment(CharData * ch, char *argument)
 
                 anum = atoi(argument);
                 vnum = 0;
-                for (pnote = victim->pcdata->Account->comments; pnote;
+                for (pnote = victim->PCData->Account->comments; pnote;
                      pnote = pnote->next)
                 {
                         vnum++;

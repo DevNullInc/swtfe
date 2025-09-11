@@ -407,7 +407,7 @@ SPECF spec_player_guard(CharData * ch)
                         continue;
                 if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
-                if (!IsNpc(victim) && victim->pcdata && IsAwake(victim)
+                if (!IsNpc(victim) && victim->PCData && IsAwake(victim)
                     && str_cmp(ch->leader->name, victim->name))
                 {
                         do_say(ch, "Hey you're not allowed in here!");
@@ -437,36 +437,36 @@ SPECF spec_clan_patrol(CharData * ch)
                         continue;
                 if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
-                if (!IsNpc(victim) && victim->pcdata && victim->pcdata->clan
+                if (!IsNpc(victim) && victim->PCData && victim->PCData->clan
                     && IsAwake(victim) && (victim->top_level > 29))
                 {
-                        if (victim->pcdata->clan->mainclan
+                        if (victim->PCData->clan->mainclan
                             && get_clan(ch->mob_clan)->mainclan)
                         {
                                 if (!str_cmp
                                     (get_clan(ch->mob_clan)->mainclan->name,
-                                     victim->pcdata->clan->mainclan->name))
+                                     victim->PCData->clan->mainclan->name))
                                         return FALSE;
                         }
-                        else if (victim->pcdata->clan->mainclan)
+                        else if (victim->PCData->clan->mainclan)
                         {
                                 if (!str_cmp
                                     (get_clan(ch->mob_clan)->name,
-                                     victim->pcdata->clan->mainclan->name))
+                                     victim->PCData->clan->mainclan->name))
                                         return FALSE;
                         }
                         else if (get_clan(ch->mob_clan)->mainclan)
                         {
                                 if (!str_cmp
                                     (get_clan(ch->mob_clan)->mainclan->name,
-                                     victim->pcdata->clan->name))
+                                     victim->PCData->clan->name))
                                         return FALSE;
                         }
                         else
                         {
                                 if (!str_cmp
                                     (get_clan(ch->mob_clan)->name,
-                                     victim->pcdata->clan->name))
+                                     victim->PCData->clan->name))
                                         return FALSE;
                         }
 
@@ -495,7 +495,7 @@ SPECF spec_player_patrol(CharData * ch)
                         continue;
                 if (get_timer(victim, TimerRecentfight) > 0)
                         continue;
-                if (!IsNpc(victim) && victim->pcdata && IsAwake(victim)
+                if (!IsNpc(victim) && victim->PCData && IsAwake(victim)
                     && (victim->top_level > 29)
                     && str_cmp(ch->leader->name, victim->name))
                 {
@@ -1246,7 +1246,7 @@ SPECF spec_police(CharData * ch)
                                                      planet);
                         }
                         else if (ch->top_level >= victim->top_level
-                                 && !xIS_SET(ch->in_room->RoomFlags,
+                                 && !IsSet(ch->in_room->RoomFlags,
                                              RoomSafe))
                         {
                                 command_printf(ch,
@@ -1483,10 +1483,10 @@ SPECF spec_stormtrooper(CharData * ch)
                         continue;
                 if ((IsNpc(victim) && nifty_is_name("republic", victim->name)
                      && victim->fighting && who_fighting(victim) != ch) ||
-                    (!IsNpc(victim) && victim->pcdata && victim->pcdata->clan
+                    (!IsNpc(victim) && victim->PCData && victim->PCData->clan
                      && IsAwake(victim)
                      && nifty_is_name("republic",
-                                      victim->pcdata->clan->name)))
+                                      victim->PCData->clan->name)))
                 {
                         do_say(ch, "Die Rebel Scum!");
                         multi_hit(ch, victim, TypeUndefined);
@@ -1516,9 +1516,9 @@ SPECF spec_new_republic_trooper(CharData * ch)
                         continue;
                 if ((IsNpc(victim) && nifty_is_name("imperial", victim->name)
                      && victim->fighting && who_fighting(victim) != ch) ||
-                    (!IsNpc(victim) && victim->pcdata && victim->pcdata->clan
+                    (!IsNpc(victim) && victim->PCData && victim->PCData->clan
                      && IsAwake(victim)
-                     && nifty_is_name("empire", victim->pcdata->clan->name)))
+                     && nifty_is_name("empire", victim->PCData->clan->name)))
                 {
                         do_say(ch, "Long live the New Republic!");
                         multi_hit(ch, victim, TypeUndefined);
@@ -1560,7 +1560,7 @@ SPECF spec_guardian(CharData * ch)
                 }
         }
 
-        if (victim && xIS_SET(ch->in_room->RoomFlags, RoomSafe))
+        if (victim && IsSet(ch->in_room->RoomFlags, RoomSafe))
         {
                 snprintf(buf, MSL, "%s is a %s!  As well as a COWARD!",
                          victim->name, crime);
@@ -1707,7 +1707,7 @@ SPECF spec_auth(CharData * ch)
                 /*
                  * Prevent people who need name changes from being authed 
                  */
-                if (victim->pcdata->AuthState == 2)
+                if (victim->PCData->AuthState == 2)
                         continue;
                 if (!IsNpc(victim)
                     && (pObjIndex =
@@ -1732,14 +1732,14 @@ SPECF spec_auth(CharData * ch)
                 }
 
                 if (IsNpc(victim)
-                    || !IsSet(victim->pcdata->flags, PcflagUnauthed))
+                    || !IsSet(victim->PCData->flags, PcflagUnauthed))
                         continue;
 
-                victim->pcdata->AuthState = 3;
-                RemoveBit(victim->pcdata->flags, PcflagUnauthed);
-                if (victim->pcdata->authed_by)
-                        STRFREE(victim->pcdata->authed_by);
-                victim->pcdata->authed_by = QUICKLINK(ch->name);
+                victim->PCData->AuthState = 3;
+                RemoveBit(victim->PCData->flags, PcflagUnauthed);
+                if (victim->PCData->authed_by)
+                        STRFREE(victim->PCData->authed_by);
+                victim->PCData->authed_by = QUICKLINK(ch->name);
                 snprintf(buf, MSL, "%s authorized %s", ch->name,
                          victim->name);
 

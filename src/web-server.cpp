@@ -1788,7 +1788,7 @@ bool check_race_net(WebDescriptor * wdesc)
                         snprintf(buf, MSL * 2, "&BB&zody parts\n<br>");
                         send_buf(wdesc->Fd, buf, 2);
 
-                        if (xIS_EMPTY(race->body_parts()))
+                        if (IsEmpty(race->body_parts()))
                         {
                                 snprintf(buf, MSL * 2, "    &BN&zone<br>\n");
                                 send_buf(wdesc->Fd, buf, 2);

@@ -1003,7 +1003,7 @@ CMDF do_mptransfer(CharData * ch, char *argument)
 
 /* If victim not in area's level range, do not transfer */
         if (!in_hard_range(victim, location->area)
-            && !xIS_SET(location->RoomFlags, RoomPrototype))
+            && !IsSet(location->RoomFlags, RoomPrototype))
                 return;
 
         if (victim->fighting)
@@ -1644,13 +1644,13 @@ CMDF do_mpapply(CharData * ch, char *argument)
         if (!NotAuthed(victim))
                 return;
 
-        if (victim->pcdata->AuthState >= 1)
+        if (victim->PCData->AuthState >= 1)
                 return;
 
         snprintf(log_buf, MSL, "%s@%s new %s applying for authorization...",
                  victim->name, victim->desc->host, victim->race->name());
         log_string(log_buf);
-        victim->pcdata->AuthState = 1;
+        victim->PCData->AuthState = 1;
         return;
 }
 
@@ -1691,7 +1691,7 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
         if (get_timer(victim, TimerApplied) >= 1)
                 return;
 
-        switch (victim->pcdata->AuthState)
+        switch (victim->PCData->AuthState)
         {
         case 0:
         case 1:
@@ -1704,7 +1704,7 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
                          victim->race->name());
                 log_string(log_buf);
                 add_timer(victim, TimerApplied, 10, NULL, 0);
-                victim->pcdata->AuthState = 1;
+                victim->PCData->AuthState = 1;
                 break;
 
         case 2:
@@ -1717,7 +1717,7 @@ CMDF do_mpapplyb(CharData * ch, char *argument)
         case 3:
                 send_to_char("The gods permit you to enter the SWR.\n\r",
                              victim);
-                RemoveBit(victim->pcdata->flags, PcflagUnauthed);
+                RemoveBit(victim->PCData->flags, PcflagUnauthed);
                 if (victim->fighting)
                         stop_fighting(victim, TRUE);
                 char_from_room(victim);

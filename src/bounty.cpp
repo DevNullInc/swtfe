@@ -463,15 +463,15 @@ CMDF do_addbounty(CharData * ch, char *argument)
                 return;
         }
 
-/*        if (ch->pcdata && ch->pcdata->clan
-            && !str_cmp(ch->pcdata->clan->name, "the hunters guild"))
+/*        if (ch->PCData && ch->PCData->clan
+            && !str_cmp(ch->PCData->clan->name, "the hunters guild"))
         {
                 send_to_char("Your job is to collect bounties not post them.",
                              ch);
                 return;
         }*/
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBounty))
+        if (!ch->in_room || !IsSet(ch->in_room->RoomFlags, RoomBounty))
         {
                 send_to_char
                         ("You will have to go to your local Hunters Guild office to add a new bounty.",
@@ -599,8 +599,8 @@ void claim_disintigration(CharData * ch, CharData * victim)
         }
 
         if (bounty
-            && (!ch->pcdata || !ch->pcdata->clan
-                || str_cmp(ch->pcdata->clan->name, "the hunters guild")))
+            && (!ch->PCData || !ch->PCData->clan
+                || str_cmp(ch->PCData->clan->name, "the hunters guild")))
         {
 			    bug("%s is not in the hunters guild", ch->name);
                 remove_bounties(bounty->target);
@@ -627,8 +627,8 @@ void claim_disintigration(CharData * ch, CharData * victim)
                                   experience);
                 }
                 else if (!IsNpc(ch)
-                         && (!ch->pcdata || !ch->pcdata->clan
-                             || str_cmp(ch->pcdata->clan->name,
+                         && (!ch->PCData || !ch->PCData->clan
+                             || str_cmp(ch->PCData->clan->name,
                                         "the hunters guild")))
                 {
                         SetBit(ch->act, PlrKiller);
@@ -665,8 +665,8 @@ void claim_disintigration(CharData * ch, CharData * victim)
         echo_to_all(AtRed, buf, 0);
 
         if (!IsSet(victim->act, PlrKiller)
-            && (!ch->pcdata || !ch->pcdata->clan
-                || str_cmp(ch->pcdata->clan->name, "the hunters guild")))
+            && (!ch->PCData || !ch->PCData->clan
+                || str_cmp(ch->PCData->clan->name, "the hunters guild")))
                 SetBit(ch->act, PlrKiller);
         remove_bounties(bounty->target);
 }
@@ -681,7 +681,7 @@ void add_wanted(CharData * ch, PlanetData * planet)
         if (IsNpc(ch))
                 return;
 
-        for (wanted = ch->pcdata->first_wanted; wanted; wanted = wanted->next)
+        for (wanted = ch->PCData->first_wanted; wanted; wanted = wanted->next)
         {
                 if (wanted->government == planet->governed_by)
                         break;
@@ -690,8 +690,8 @@ void add_wanted(CharData * ch, PlanetData * planet)
         if (!wanted)
         {
                 CREATE(wanted, WantedData, 1);
-                LINK(wanted, ch->pcdata->first_wanted,
-                     ch->pcdata->last_wanted, next, prev);
+                LINK(wanted, ch->PCData->first_wanted,
+                     ch->PCData->last_wanted, next, prev);
                 /*
                  * If we are now wanted 
                  */
@@ -722,7 +722,7 @@ CMDF do_payfee(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, RoomBounty))
+        if (!ch->in_room || !IsSet(ch->in_room->RoomFlags, RoomBounty))
         {
                 send_to_char
                         ("You will have to go to your local Hunters Guild office to pay the fee for a bounty.\n\r",
@@ -807,12 +807,12 @@ bool is_wanted(CharData * ch, PlanetData * pl)
 
         if (IsNpc(ch))
                 return FALSE;
-        if (!ch->pcdata)
+        if (!ch->PCData)
                 return FALSE;
         if (pl->governed_by == NULL)
                 return FALSE;
 
-        for (wanted = ch->pcdata->first_wanted; wanted; wanted = wanted->next)
+        for (wanted = ch->PCData->first_wanted; wanted; wanted = wanted->next)
         {
                 if (wanted->government == pl->governed_by)
                         return TRUE;
@@ -824,10 +824,10 @@ void fwrite_wanted(CharData * ch, FILE * fp)
 {
         WantedData *wanted;
 
-        if (!ch->pcdata)
+        if (!ch->PCData)
                 return;
 
-        for (wanted = ch->pcdata->first_wanted; wanted; wanted = wanted->next)
+        for (wanted = ch->PCData->first_wanted; wanted; wanted = wanted->next)
         {
                 fprintf(fp, "#WANTED\n");
                 fprintf(fp, "Amount %d\n", wanted->amount);
@@ -866,8 +866,8 @@ void fread_wanted(CharData * ch, FILE * fp)
                                 if (!wanted->government)
                                         DISPOSE(wanted);
                                 else
-                                        LINK(wanted, ch->pcdata->first_wanted,
-                                             ch->pcdata->last_wanted, next,
+                                        LINK(wanted, ch->PCData->first_wanted,
+                                             ch->PCData->last_wanted, next,
                                              prev);
                                 return;
                         }
@@ -901,7 +901,7 @@ void remove_wanted(CharData * ch, ClanData * clan)
                 return;
 
 
-        for (wanted = ch->pcdata->first_wanted; wanted; wanted = wanted->next)
+        for (wanted = ch->PCData->first_wanted; wanted; wanted = wanted->next)
         {
                 if (clan == wanted->government)
                         break;
@@ -909,8 +909,8 @@ void remove_wanted(CharData * ch, ClanData * clan)
 
         if (wanted)
         {
-                UNLINK(wanted, ch->pcdata->first_wanted,
-                       ch->pcdata->last_wanted, next, prev);
+                UNLINK(wanted, ch->PCData->first_wanted,
+                       ch->PCData->last_wanted, next, prev);
                 DISPOSE(wanted);
         }
 
@@ -1020,8 +1020,8 @@ CMDF do_imprison(CharData * ch, char *argument)
                 return;
         }
 
-        chance = static_cast<int>(ch->pcdata->learned[gsn_imprison]);
-        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe) && chance < 80)
+        chance = static_cast<int>(ch->PCData->learned[gsn_imprison]);
+        if (IsSet(ch->in_room->RoomFlags, RoomSafe) && chance < 80)
         {
                 set_char_color(AtMagic, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -1243,7 +1243,7 @@ CMDF do_sharpen(CharData * ch, char *argument)
         percent = (number_percent() - get_curr_lck(ch) - 15);   /* too low a chance to damage? */
 
         separate_obj(pobj);
-        if (!IsNpc(ch) && percent > ch->pcdata->learned[gsn_sharpen])
+        if (!IsNpc(ch) && percent > ch->PCData->learned[gsn_sharpen])
         {
                 act(AtObject,
                     "You fail to sharpen $p correctly, damaging the stone.",

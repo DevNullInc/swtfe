@@ -591,8 +591,8 @@ void save_world(CharData * ch)
 #ifdef OlcHomes
                                     || pRoomIndex->home
 #endif
-                                    || xIS_SET(pRoomIndex->RoomFlags, RoomClanstoreroom)  /* These rooms save on their own */
-                                    || xIS_SET(pRoomIndex->RoomFlags, RoomPlrHome))
+                                    || IsSet(pRoomIndex->RoomFlags, RoomClanstoreroom)  /* These rooms save on their own */
+                                    || IsSet(pRoomIndex->RoomFlags, RoomPlrHome))
                                         continue;
 
                                 snprintf(filename, FilenameSize, "%s%d", HotbootDir,
@@ -1318,9 +1318,9 @@ void hotboot(bool debug, bool save)
                         /*
                          * One of two places this gets changed 
                          */
-                        och->pcdata->hotboot = TRUE;
+                        och->PCData->hotboot = TRUE;
                         save_char_obj(och);
-                        save_account(och->pcdata->Account);
+                        save_account(och->PCData->Account);
                         save_home(och);
 #ifdef MCCP
                         compressEnd(d);
@@ -1521,10 +1521,10 @@ void hotboot_recover()
                         load_home(d->character);
                         d->connected = ConPlaying;
 #ifdef ACCOUNT
-                        d->Account = d->character->pcdata->Account;
+                        d->Account = d->character->PCData->Account;
 #endif
 
-                        if (d->character->pcdata->area)
+                        if (d->character->PCData->area)
                                 do_loadarea(d->character, "");
                 }
         }

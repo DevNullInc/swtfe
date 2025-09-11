@@ -290,9 +290,9 @@ CMDF do_working(CharData * ch, char *argument)
                 return;
 
 
-        if (IsSet(ch->pcdata->flags, PcflagWorking))
+        if (IsSet(ch->PCData->flags, PcflagWorking))
         {
-                RemoveBit(ch->pcdata->flags, PcflagWorking);
+                RemoveBit(ch->PCData->flags, PcflagWorking);
                 send_to_char("You relax after working so hard!&R&W\n\r", ch);
                 if (!IsSet(ch->act, PlrWizinvis))
                 {
@@ -303,7 +303,7 @@ CMDF do_working(CharData * ch, char *argument)
         }
         else
         {
-                SetBit(ch->pcdata->flags, PcflagWorking);
+                SetBit(ch->PCData->flags, PcflagWorking);
                 send_to_char
                         ("You get ready to start working really hard!\n\r",
                          ch);

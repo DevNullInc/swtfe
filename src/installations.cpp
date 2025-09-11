@@ -378,9 +378,9 @@ int reserve_rooms_installation(int firstroom, int numrooms)
                         return -1;
                 }
                 room->area = tarea;
-                xSET_BIT(room->RoomFlags, RoomInstallation);
-                xSET_BIT(room->RoomFlags, RoomNoMob);
-                xSET_BIT(room->RoomFlags, RoomIndoors);
+                SetBit(room->RoomFlags, RoomInstallation);
+                SetBit(room->RoomFlags, RoomNoMob);
+                SetBit(room->RoomFlags, RoomIndoors);
         }
         fold_area(tarea, tarea->filename, TRUE, FALSE);
         return i;
@@ -609,7 +609,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if ((clan = ch->pcdata->clan) == NULL || !ch->in_room->area->planet
+        if ((clan = ch->PCData->clan) == NULL || !ch->in_room->area->planet
             || ch->in_room->area->planet->governed_by != clan)
         {
                 send_to_char("You do not belong to this planet's government.",
@@ -634,8 +634,8 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomIndoors) ||
-            xIS_SET(ch->in_room->RoomFlags, RoomSpacecraft))
+        if (IsSet(ch->in_room->RoomFlags, RoomIndoors) ||
+            IsSet(ch->in_room->RoomFlags, RoomSpacecraft))
         {
                 send_to_char("You can't build that here!! Try elsewhere.\r\n",
                              ch);
@@ -643,8 +643,8 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         }
 
 
-        if ((ch->pcdata && ch->pcdata->bestowments &&
-             is_name("installations", ch->pcdata->bestowments)) ||
+        if ((ch->PCData && ch->PCData->bestowments &&
+             is_name("installations", ch->PCData->bestowments)) ||
             !str_cmp(ch->name, clan->leader) ||
             !str_cmp(ch->name, clan->number1) ||
             !str_cmp(ch->name, clan->number2))
@@ -844,7 +844,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_makebase]);
+                        : (int) (ch->PCData->learned[gsn_makebase]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -924,7 +924,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_makebase]);
+                : (int) (ch->PCData->learned[gsn_makebase]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkbatt)
             || (!checksuper) || (!checkcir))
@@ -1240,10 +1240,10 @@ CMDF do_addpersonel(CharData * ch, char *argument)
         int       percentage, credits;
         InstallationData *installation;
 
-        if (IsNpc(ch) || !ch->pcdata)
+        if (IsNpc(ch) || !ch->PCData)
                 return;
 
-        if (ch->pcdata->clan == NULL)
+        if (ch->PCData->clan == NULL)
         {
                 send_to_char("You are not in a clan.", ch);
                 return;
@@ -1262,11 +1262,11 @@ CMDF do_addpersonel(CharData * ch, char *argument)
                         return;
                 }
 
-                if ((ch->pcdata->bestowments
-                     && is_name("installations", ch->pcdata->bestowments))
-                    || !str_cmp(ch->name, ch->pcdata->clan->leader)
-                    || !str_cmp(ch->name, ch->pcdata->clan->number1)
-                    || str_cmp(ch->name, ch->pcdata->clan->number2));
+                if ((ch->PCData->bestowments
+                     && is_name("installations", ch->PCData->bestowments))
+                    || !str_cmp(ch->name, ch->PCData->clan->leader)
+                    || !str_cmp(ch->name, ch->PCData->clan->number1)
+                    || str_cmp(ch->name, ch->PCData->clan->number2));
                 else
                 {
                         send_to_char
@@ -1285,7 +1285,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
                 if ((installation =
                      installation_from_room(ch->in_room->vnum)) != NULL)
                 {
-                        if (installation->clan != ch->pcdata->clan)
+                        if (installation->clan != ch->PCData->clan)
                         {
                                 send_to_char
                                         ("&RYou can not place personel in another clans installation.\n\r",
@@ -1311,7 +1311,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
 					send_to_char("Options are:\n\r\tentranceguard\n\r\tguard\n\r\tcustoms\n\r\tdoctor\n\r", ch);
 					return;
 				}
-                if (ch->pcdata->clan->funds <
+                if (ch->PCData->clan->funds <
                     ch->skill_level[LeadershipAbility] * 30)
                 {
                         ch_printf(ch, "&RYou dont have enough credits.\n\r",
@@ -1319,7 +1319,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = (int) (ch->pcdata->learned[gsn_addpersonel]);
+                percentage = (int) (ch->PCData->learned[gsn_addpersonel]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1365,7 +1365,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
          */
         credits = ch->skill_level[LeadershipAbility] * 30;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
-        ch->pcdata->clan->funds -= UMIN(credits, ch->pcdata->clan->funds);
+        ch->PCData->clan->funds -= UMIN(credits, ch->PCData->clan->funds);
 
         learn_from_success(ch, gsn_addpersonel);
 
@@ -1489,7 +1489,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_lockdoor]);
+                        : (int) (ch->PCData->learned[gsn_lockdoor]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1526,7 +1526,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_lockdoor]);
         vnum = 10438;
 
@@ -1555,7 +1555,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_lockdoor]);
+                : (int) (ch->PCData->learned[gsn_lockdoor]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura))
         {
@@ -1796,7 +1796,7 @@ CMDF do_makekey(CharData * ch, char *argument)
                         }
                 }
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_makekey]);
+                        : (int) (ch->PCData->learned[gsn_makekey]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1840,7 +1840,7 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_makekey]);
         vnum = 10438;
 
@@ -1873,13 +1873,13 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         if (!str_cmp(arg, "lock"))
                 percentage =
-                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                             learned
                                                             [gsn_makekey] /
                                                             4);
         else
                 percentage =
-                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                             learned
                                                             [gsn_makekey]);
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura))
@@ -2183,7 +2183,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_sabotage]);
+                        : (int) (ch->PCData->learned[gsn_sabotage]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2302,7 +2302,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
         }
 
         percentage =
-                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_sabotage]);
 
         if (number_percent() > percentage / 2 || (!checkchem) || (!checksuper)
@@ -2380,8 +2380,8 @@ void addroominstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
-            || ch->pcdata->clan != installation->clan)
+        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+            || ch->PCData->clan != installation->clan)
         {
                 send_to_char
                         ("You must be in this installations clan to do that.\r\n",
@@ -2389,11 +2389,11 @@ void addroominstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if ((ch->pcdata && ch->pcdata->bestowments
-             && is_name("installations", ch->pcdata->bestowments))
-            || !str_cmp(ch->name, ch->pcdata->clan->leader)
-            || !str_cmp(ch->name, ch->pcdata->clan->number1)
-            || !str_cmp(ch->name, ch->pcdata->clan->number2))
+        if ((ch->PCData && ch->PCData->bestowments
+             && is_name("installations", ch->PCData->bestowments))
+            || !str_cmp(ch->name, ch->PCData->clan->leader)
+            || !str_cmp(ch->name, ch->PCData->clan->number1)
+            || !str_cmp(ch->name, ch->PCData->clan->number2))
                 ;
         else
         {
@@ -2479,8 +2479,8 @@ void addroominstallation(CharData * ch, char *argument)
                 }
                 installation->clan->funds -= 10000;
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomFactory);
-                xSET_BIT(room->RoomFlags, RoomRefinery);
+                SetBit(room->RoomFlags, RoomFactory);
+                SetBit(room->RoomFlags, RoomRefinery);
                 stralloc_printf(&room->name, "%s", "A Workshop");
         }
         else if (!str_cmp(arg2, "bacta"))
@@ -2504,7 +2504,7 @@ void addroominstallation(CharData * ch, char *argument)
                 }
                 installation->clan->funds -= 25000;
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomBacta);
+                SetBit(room->RoomFlags, RoomBacta);
                 STRFREE(room->name);
                 room->name = STRALLOC("Bacta Tank");
         }
@@ -2530,8 +2530,8 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 100000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomSilence);
-                xSET_BIT(room->RoomFlags, RoomSafe);
+                SetBit(room->RoomFlags, RoomSilence);
+                SetBit(room->RoomFlags, RoomSafe);
                 stralloc_printf(&room->name, "%s",
                                 "A Quiet Meditation Chamber");
         }
@@ -2555,8 +2555,8 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomHotel);
-                xSET_BIT(room->RoomFlags, RoomInn);
+                SetBit(room->RoomFlags, RoomHotel);
+                SetBit(room->RoomFlags, RoomInn);
                 stralloc_printf(&room->name, "%s", "The Passenger's Lounge");
         }
         else if (!str_cmp(arg2, "bank"))
@@ -2579,7 +2579,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomBank);
+                SetBit(room->RoomFlags, RoomBank);
                 stralloc_printf(&room->name, "%s",
                                 "Local Office of the Galactic Banking Guild");
         }
@@ -2615,7 +2615,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->mainroom = room->vnum;
                 if (installation->type == ShipyardInstallation)
                 {
-                        xSET_BIT(room->RoomFlags, RoomImport);
+                        SetBit(room->RoomFlags, RoomImport);
                         /*
                          * makedock ( installation); 
                          */
@@ -2641,7 +2641,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomAuction);
+                SetBit(room->RoomFlags, RoomAuction);
                 stralloc_printf(&room->name, "%s", "Local Auction Hall");
         }
         else if (!str_cmp(arg2, "arena"))
@@ -2664,7 +2664,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 75000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomArena);
+                SetBit(room->RoomFlags, RoomArena);
                 stralloc_printf(&room->name, "%s", "Training Arena");
         }
         else if (!str_cmp(arg2, "recruitment"))
@@ -2687,7 +2687,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 500000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomRecruit);
+                SetBit(room->RoomFlags, RoomRecruit);
                 stralloc_printf(&room->name, "%s", "A Recruitment Office");
         }
         else if (!str_cmp(arg2, "home"))
@@ -2711,8 +2711,8 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 10000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomEmptyHome);
-                xSET_BIT(room->RoomFlags, RoomHotel);
+                SetBit(room->RoomFlags, RoomEmptyHome);
+                SetBit(room->RoomFlags, RoomHotel);
                 stralloc_printf(&room->name, "%s", "An Empty Apartment");
         }
         else if (!str_cmp(arg2, "restaurant"))
@@ -2737,9 +2737,9 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 1000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomBar);
-                xSET_BIT(room->RoomFlags, RoomKitchen);
-                xSET_BIT(room->RoomFlags, RoomCafe);
+                SetBit(room->RoomFlags, RoomBar);
+                SetBit(room->RoomFlags, RoomKitchen);
+                SetBit(room->RoomFlags, RoomCafe);
                 stralloc_printf(&room->name, "%s", "A Restaurant");
         }
         else if (!str_cmp(arg2, "office"))
@@ -2763,9 +2763,9 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 1000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomOffice);
-                xSET_BIT(room->RoomFlags, RoomExecutive);
-                xSET_BIT(room->RoomFlags, RoomBoardroom);
+                SetBit(room->RoomFlags, RoomOffice);
+                SetBit(room->RoomFlags, RoomExecutive);
+                SetBit(room->RoomFlags, RoomBoardroom);
                 stralloc_printf(&room->name, "%s", "An Office");
         }
         else if (!str_cmp(arg2, "turbolift"))

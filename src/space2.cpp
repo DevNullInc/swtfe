@@ -2035,7 +2035,7 @@ void finish_ship(CharData * ch, ShipData * ship)
                 dock = g_r_i(RoomLimboShipyard);
         else if (!ch->in_room)
                 dock = g_r_i(RoomLimboShipyard);
-        else if (!xIS_SET(ch->in_room->RoomFlags, RoomCanFly))
+        else if (!IsSet(ch->in_room->RoomFlags, RoomCanFly))
                 dock = g_r_i(RoomLimboShipyard);
         else
                 dock = ch->in_room;
@@ -2124,11 +2124,11 @@ RoomIndexData *make_ship_room(ShipData * ship, int svnum)
                         rFound = TRUE;
                         pRoom = make_room(vnum);
                         pRoom->area = sArea;
-                        xSET_BIT(pRoom->RoomFlags, RoomSpacecraft);
+                        SetBit(pRoom->RoomFlags, RoomSpacecraft);
                         /*
-                         * xSET_BIT( pRoom->RoomFlags, RoomIndoors ); 
+                         * SetBit( pRoom->RoomFlags, RoomIndoors ); 
                          */
-                        xREMOVE_BIT(pRoom->RoomFlags, RoomPrototype);
+                        RemoveBit(pRoom->RoomFlags, RoomPrototype);
                 }
         }
 
@@ -2712,8 +2712,8 @@ void fread_shipimage(ShipData * ship, FILE * fp)
 
         ship->act_flags = 0;
         ship->mod_flags = 0;
-        xCLEAR_BITS(ship->flags);
-        xCLEAR_BITS(ship->aflags);
+        ClearBits(ship->flags);
+        ClearBits(ship->aflags);
         ship->first_turret = NULL;
         ship->last_turret = NULL;
         ship->first_hangar = NULL;
@@ -3009,7 +3009,7 @@ void fread_shipimage(ShipData * ship, FILE * fp)
                                 pexit->to_room = get_room_index(pexit->vnum);
                                 pexit->description = fread_string(fp);
                                 pexit->keyword = fread_string(fp);
-                                xCLEAR_BITS(pexit->exit_info);
+                                ClearBits(pexit->exit_info);
                                 pexit->exit_info = fread_bitvector(fp);
                                 fMatch = TRUE;
 
@@ -3109,8 +3109,8 @@ void fread_viewshipimage(ShipData * ship, FILE * fp)
 
         ship->act_flags = 0;
         ship->mod_flags = 0;
-        xCLEAR_BITS(ship->flags);
-        xCLEAR_BITS(ship->aflags);
+        ClearBits(ship->flags);
+        ClearBits(ship->aflags);
         ship->first_turret = NULL;
         ship->last_turret = NULL;
         ship->first_hangar = NULL;

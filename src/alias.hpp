@@ -45,6 +45,7 @@
 
 #ifndef AliasH
 #define AliasH
+#endif
 
 // ============================================================================
 // Data Structures

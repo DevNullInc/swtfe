@@ -283,16 +283,16 @@ void save_char_obj(CharData * ch)
                 return;
 
 #ifdef ACCOUNT
-        if (ch->pcdata && ch->pcdata->Account)
-                save_account(ch->pcdata->Account);
+        if (ch->PCData && ch->PCData->Account)
+                save_account(ch->PCData->Account);
 #endif
 
         saving_char = ch;
         /*
          * save pc's clan's data while we're at it to keep the data in sync 
          */
-        if (!IsNpc(ch) && ch->pcdata->clan)
-                save_clan(ch->pcdata->clan);
+        if (!IsNpc(ch) && ch->PCData->clan)
+                save_clan(ch->PCData->clan);
 
         if (ch->desc && ch->desc->original)
                 ch = ch->desc->original;
@@ -338,20 +338,20 @@ void save_char_obj(CharData * ch)
                 {
                         fprintf(fp, "Level        %d\n", ch->top_level);
                         fprintf(fp, "Pcflags      %d\n",
-                                ch->pcdata->godflags);
-                        if (ch->pcdata->r_range_lo && ch->pcdata->r_range_hi
+                                ch->PCData->godflags);
+                        if (ch->PCData->r_range_lo && ch->PCData->r_range_hi
                             && (ch->top_level > MaxLevel - 4))
                                 fprintf(fp, "RoomRange    %d %d\n",
-                                        ch->pcdata->r_range_lo,
-                                        ch->pcdata->r_range_hi);
-                        if (ch->pcdata->o_range_lo && ch->pcdata->o_range_hi)
+                                        ch->PCData->r_range_lo,
+                                        ch->PCData->r_range_hi);
+                        if (ch->PCData->o_range_lo && ch->PCData->o_range_hi)
                                 fprintf(fp, "ObjRange     %d %d\n",
-                                        ch->pcdata->o_range_lo,
-                                        ch->pcdata->o_range_hi);
-                        if (ch->pcdata->m_range_lo && ch->pcdata->m_range_hi)
+                                        ch->PCData->o_range_lo,
+                                        ch->PCData->o_range_hi);
+                        if (ch->PCData->m_range_lo && ch->PCData->m_range_hi)
                                 fprintf(fp, "MobRange     %d %d\n",
-                                        ch->pcdata->m_range_lo,
-                                        ch->pcdata->m_range_hi);
+                                        ch->PCData->m_range_lo,
+                                        ch->PCData->m_range_hi);
                         FCLOSE(fp);
                 }
         }
@@ -367,7 +367,7 @@ void save_char_obj(CharData * ch)
                 fwrite_wanted(ch, fp);
                 if (ch->first_carrying)
                         fwrite_obj(ch, ch->last_carrying, fp, 0, OsCarry,
-                                   ch->pcdata->hotboot);
+                                   ch->PCData->hotboot);
                 fwrite_greet(ch, fp);
                 fprintf(fp, "#END\n");
                 FCLOSE(fp);
@@ -423,7 +423,7 @@ void save_clone(CharData * ch)
         else
         {
                 fwrite_char(ch, fp);
-//                if (ch->pcdata->Account->comments)   /* comments */
+//                if (ch->PCData->Account->comments)   /* comments */
                 //                       fwrite_comments(ch, fp);    /* comments */
                 fprintf(fp, "#END\n");
                 FCLOSE(fp);
@@ -454,9 +454,9 @@ void fwrite_char(CharData * ch, FILE * fp)
         fprintf(fp, "Version      %d\n", SAVEVERSION);
         fprintf(fp, "Name         %s~\n", ch->name);
 #ifdef ACCOUNT
-        if (ch->pcdata && ch->pcdata->Account && ch->pcdata->Account->name)
+        if (ch->PCData && ch->PCData->Account && ch->PCData->Account->name)
                 fprintf(fp, "Account         %s~\n",
-                        ch->pcdata->Account->name);
+                        ch->PCData->Account->name);
 #endif
         if (ch->short_descr && ch->short_descr[0] != '\0')
                 fprintf(fp, "ShortDescr   %s~\n", ch->short_descr);
@@ -467,13 +467,13 @@ void fwrite_char(CharData * ch, FILE * fp)
         fprintf(fp, "Sex          %d\n", ch->sex);
         fprintf(fp, "Race         %s~\n", ch->race->name());
         fprintf(fp, "MainAbility  %d\n", ch->main_ability);
-        fprintf(fp, "Age          %d\n", ch->pcdata->age);
-        if (ch->pcdata->birthday.year > -1 && ch->pcdata->birthday.day > -1
-            && ch->pcdata->birthday.month > -1
-            && ch->pcdata->birthday.hour > -1)
-                fprintf(fp, "BDay %d %d %d %d\n", ch->pcdata->birthday.hour,
-                        ch->pcdata->birthday.day, ch->pcdata->birthday.month,
-                        ch->pcdata->birthday.year);
+        fprintf(fp, "Age          %d\n", ch->PCData->age);
+        if (ch->PCData->birthday.year > -1 && ch->PCData->birthday.day > -1
+            && ch->PCData->birthday.month > -1
+            && ch->PCData->birthday.hour > -1)
+                fprintf(fp, "BDay %d %d %d %d\n", ch->PCData->birthday.hour,
+                        ch->PCData->birthday.day, ch->PCData->birthday.month,
+                        ch->PCData->birthday.year);
         if (ch->speaking)
                 fprintf(fp, "Languages    %s~\n", ch->speaking->name);
         fprintf(fp, "Toplevel     %d\n", ch->top_level);
@@ -506,7 +506,7 @@ void fwrite_char(CharData * ch, FILE * fp)
                 ch->hit, ch->max_hit, ch->endurance, ch->max_endurance);
         fprintf(fp, "Force        %d %d 0 0\n", ch->perm_frc, ch->mod_frc);
         fprintf(fp, "Gold         %ld\n", ch->gold);
-        fprintf(fp, "Bank         %ld\n", ch->pcdata->bank);
+        fprintf(fp, "Bank         %ld\n", ch->PCData->bank);
         fprintf(fp, "Speed        %d\n", ch->Speed);
 
         {
@@ -531,26 +531,26 @@ void fwrite_char(CharData * ch, FILE * fp)
                 ch->SavingParaPetri,
                 ch->SavingBreath, ch->SavingSpellStaff);
         fprintf(fp, "Alignment    %d\n", ch->alignment);
-        fprintf(fp, "Glory        %d\n", ch->pcdata->quest_curr);
-        fprintf(fp, "MGlory       %d\n", ch->pcdata->quest_accum);
+        fprintf(fp, "Glory        %d\n", ch->PCData->quest_curr);
+        fprintf(fp, "MGlory       %d\n", ch->PCData->quest_accum);
         fprintf(fp, "Hitroll      %d\n", ch->Hitroll);
         fprintf(fp, "Damroll      %d\n", ch->Damroll);
         fprintf(fp, "Armor        %d\n", ch->Armor);
         if (ch->wimpy)
                 fprintf(fp, "Wimpy        %d\n", ch->wimpy);
-        if (!xIS_EMPTY(ch->deaf) && IsImmortal(ch))
+        if (!IsEmpty(ch->deaf) && IsImmortal(ch))
                 fprintf(fp, "Deaf         %s\n", print_bitvector(&ch->deaf));
-        fprintf(fp, "Listening %s~\n", ch->pcdata->listening);
-        if (ch->pcdata->recall != 0)
-                fprintf(fp, "Recall    %d\n", ch->pcdata->recall);
+        fprintf(fp, "Listening %s~\n", ch->PCData->listening);
+        if (ch->PCData->recall != 0)
+                fprintf(fp, "Recall    %d\n", ch->PCData->recall);
         if (ch->resistant)
                 fprintf(fp, "Resistant    %d\n", ch->resistant);
         if (ch->immune)
                 fprintf(fp, "Immune       %d\n", ch->immune);
         if (ch->susceptible)
                 fprintf(fp, "Susceptible  %d\n", ch->susceptible);
-        if (ch->pcdata && ch->pcdata->restore_time)
-                fprintf(fp, "Restore_time %ld\n", ch->pcdata->restore_time);
+        if (ch->PCData && ch->PCData->restore_time)
+                fprintf(fp, "Restore_time %ld\n", ch->PCData->restore_time);
         if (ch->mental_state != -10)
                 fprintf(fp, "Mentalstate  %d\n", ch->mental_state);
         if (ch->master && ch->master->name)
@@ -565,139 +565,139 @@ void fwrite_char(CharData * ch, FILE * fp)
         }
         else
         {
-                fprintf(fp, "Password     %s~\n", ch->pcdata->pwd);
+                fprintf(fp, "Password     %s~\n", ch->PCData->pwd);
                 fprintf(fp, "Lastplayed   %d\n", (int) current_time);
-                if (ch->pcdata->bamfin && ch->pcdata->bamfin[0] != '\0')
-                        fprintf(fp, "Bamfin       %s~\n", ch->pcdata->bamfin);
-                if (ch->pcdata->spouse && ch->pcdata->spouse[0] != '\0')
-                        fprintf(fp, "Spouse       %s~\n", ch->pcdata->spouse);
+                if (ch->PCData->bamfin && ch->PCData->bamfin[0] != '\0')
+                        fprintf(fp, "Bamfin       %s~\n", ch->PCData->bamfin);
+                if (ch->PCData->spouse && ch->PCData->spouse[0] != '\0')
+                        fprintf(fp, "Spouse       %s~\n", ch->PCData->spouse);
 
-                if (ch->pcdata->bamfout && ch->pcdata->bamfout[0] != '\0')
+                if (ch->PCData->bamfout && ch->PCData->bamfout[0] != '\0')
                         fprintf(fp, "Bamfout      %s~\n",
-                                ch->pcdata->bamfout);
-                if (ch->pcdata->rank && ch->pcdata->rank[0] != '\0')
-                        fprintf(fp, "Rank         %s~\n", ch->pcdata->rank);
-                if (ch->pcdata->clanrank)
+                                ch->PCData->bamfout);
+                if (ch->PCData->rank && ch->PCData->rank[0] != '\0')
+                        fprintf(fp, "Rank         %s~\n", ch->PCData->rank);
+                if (ch->PCData->clanrank)
                         fprintf(fp, "Clanrank     %d\n",
-                                ch->pcdata->clanrank);
-                if (ch->pcdata->bestowments
-                    && ch->pcdata->bestowments[0] != '\0')
+                                ch->PCData->clanrank);
+                if (ch->PCData->bestowments
+                    && ch->PCData->bestowments[0] != '\0')
                         fprintf(fp, "Bestowments  %s~\n",
-                                ch->pcdata->bestowments);
-                fprintf(fp, "Title        %s~\n", ch->pcdata->title);
-                if (ch->pcdata->homepage && ch->pcdata->homepage[0] != '\0')
+                                ch->PCData->bestowments);
+                fprintf(fp, "Title        %s~\n", ch->PCData->title);
+                if (ch->PCData->homepage && ch->PCData->homepage[0] != '\0')
                         fprintf(fp, "Homepage     %s~\n",
-                                ch->pcdata->homepage);
-                if (ch->pcdata->aolim && ch->pcdata->aolim[0] != '\0')
-                        fprintf(fp, "Aim          %s~\n", ch->pcdata->aolim);
-                if (ch->pcdata->icq && ch->pcdata->icq[0] != '\0')
-                        fprintf(fp, "Icq          %s~\n", ch->pcdata->icq);
-                if (ch->pcdata->yahoo && ch->pcdata->yahoo[0] != '\0')
-                        fprintf(fp, "Yahoo        %s~\n", ch->pcdata->yahoo);
-                if (ch->pcdata->msn && ch->pcdata->msn[0] != '\0')
-                        fprintf(fp, "Msn          %s~\n", ch->pcdata->msn);
-                if (ch->pcdata->realname && ch->pcdata->realname[0] != '\0')
+                                ch->PCData->homepage);
+                if (ch->PCData->aolim && ch->PCData->aolim[0] != '\0')
+                        fprintf(fp, "Aim          %s~\n", ch->PCData->aolim);
+                if (ch->PCData->icq && ch->PCData->icq[0] != '\0')
+                        fprintf(fp, "Icq          %s~\n", ch->PCData->icq);
+                if (ch->PCData->yahoo && ch->PCData->yahoo[0] != '\0')
+                        fprintf(fp, "Yahoo        %s~\n", ch->PCData->yahoo);
+                if (ch->PCData->msn && ch->PCData->msn[0] != '\0')
+                        fprintf(fp, "Msn          %s~\n", ch->PCData->msn);
+                if (ch->PCData->realname && ch->PCData->realname[0] != '\0')
                         fprintf(fp, "Realname     %s~\n",
-                                ch->pcdata->realname);
-                if (ch->pcdata->bio && ch->pcdata->bio[0] != '\0')
-                        fprintf(fp, "Bio          %s~\n", ch->pcdata->bio);
-                if (ch->pcdata->authed_by && ch->pcdata->authed_by[0] != '\0')
+                                ch->PCData->realname);
+                if (ch->PCData->bio && ch->PCData->bio[0] != '\0')
+                        fprintf(fp, "Bio          %s~\n", ch->PCData->bio);
+                if (ch->PCData->authed_by && ch->PCData->authed_by[0] != '\0')
                         fprintf(fp, "AuthedBy     %s~\n",
-                                ch->pcdata->authed_by);
-                if (ch->pcdata->min_snoop)
+                                ch->PCData->authed_by);
+                if (ch->PCData->min_snoop)
                         fprintf(fp, "Minsnoop     %d\n",
-                                ch->pcdata->min_snoop);
-                if (ch->pcdata->prompt && *ch->pcdata->prompt)
-                        fprintf(fp, "Prompt       %s~\n", ch->pcdata->prompt);
-                if (ch->pcdata->fprompt && *ch->pcdata->fprompt)
+                                ch->PCData->min_snoop);
+                if (ch->PCData->prompt && *ch->PCData->prompt)
+                        fprintf(fp, "Prompt       %s~\n", ch->PCData->prompt);
+                if (ch->PCData->fprompt && *ch->PCData->fprompt)
                         fprintf(fp, "Fprompt       %s~\n",
-                                ch->pcdata->fprompt);
-                if (ch->pcdata->pagerlen != 24)
+                                ch->PCData->fprompt);
+                if (ch->PCData->pagerlen != 24)
                         fprintf(fp, "Pagerlen     %d\n",
-                                ch->pcdata->pagerlen);
-                if (ch->pcdata->rp != 0)
-                        fprintf(fp, "RP          %d\n", ch->pcdata->rp);
-                if (ch->pcdata->comchan != 0)
-                        fprintf(fp, "ComChan     %d\n", ch->pcdata->comchan);
-                if (ch->pcdata->illness)
+                                ch->PCData->pagerlen);
+                if (ch->PCData->rp != 0)
+                        fprintf(fp, "RP          %d\n", ch->PCData->rp);
+                if (ch->PCData->comchan != 0)
+                        fprintf(fp, "ComChan     %d\n", ch->PCData->comchan);
+                if (ch->PCData->illness)
                         fprintf(fp, "Illness          %d\n",
-                                ch->pcdata->illness);
-                if (ch->pcdata->full_name[0] != '\0'
-                    && str_cmp(ch->pcdata->full_name, ch->pcdata->title))
+                                ch->PCData->illness);
+                if (ch->PCData->full_name[0] != '\0'
+                    && str_cmp(ch->PCData->full_name, ch->PCData->title))
                         fprintf(fp, "FullName         %s~\n",
-                                ch->pcdata->full_name);
-                fprintf(fp, "Email       %s~\n", ch->pcdata->email);
-                fprintf(fp, "Height          %d\n", ch->pcdata->height);
-                fprintf(fp, "Weight          %d\n", ch->pcdata->weight);
-                fprintf(fp, "Hair          %d\n", ch->pcdata->hair);
-                fprintf(fp, "Eyes          %d\n", ch->pcdata->eye);
-                fprintf(fp, "Build          %d\n", ch->pcdata->build);
+                                ch->PCData->full_name);
+                fprintf(fp, "Email       %s~\n", ch->PCData->email);
+                fprintf(fp, "Height          %d\n", ch->PCData->height);
+                fprintf(fp, "Weight          %d\n", ch->PCData->weight);
+                fprintf(fp, "Hair          %d\n", ch->PCData->hair);
+                fprintf(fp, "Eyes          %d\n", ch->PCData->eye);
+                fprintf(fp, "Build          %d\n", ch->PCData->build);
                 fprintf(fp, "Complextion          %d\n",
-                        ch->pcdata->complextion);
+                        ch->PCData->complextion);
 
-                if (ch->pcdata->realage)
+                if (ch->PCData->realage)
                         fprintf(fp, "Realage          %d\n",
-                                ch->pcdata->realage);
+                                ch->PCData->realage);
                 fprintf(fp, "Addiction   ");
                 for (drug = 0; drug <= 9; drug++)
-                        fprintf(fp, " %d", ch->pcdata->addiction[drug]);
+                        fprintf(fp, " %d", ch->PCData->addiction[drug]);
                 fprintf(fp, "\n");
                 fprintf(fp, "Druglevel   ");
                 for (drug = 0; drug <= 9; drug++)
-                        fprintf(fp, " %d", ch->pcdata->drug_level[drug]);
+                        fprintf(fp, " %d", ch->PCData->drug_level[drug]);
                 fprintf(fp, "\n");
                 for (pos = 0; pos < MaxIgnore; pos++)
                 {
-                        if (ch->pcdata->ignore[pos] == NULL)
+                        if (ch->PCData->ignore[pos] == NULL)
                                 continue;
 
-                        fprintf(fp, "Ignore %s~\n", ch->pcdata->ignore[pos]);
+                        fprintf(fp, "Ignore %s~\n", ch->PCData->ignore[pos]);
                 }
                 for (pos = 0; pos < MaxImplantTypes; pos++)
-                        if (ch->pcdata->implants[pos] >= 0
-                            && ch->pcdata->implants[pos] <= 3)
+                        if (ch->PCData->implants[pos] >= 0
+                            && ch->PCData->implants[pos] <= 3)
                                 fprintf(fp, "Implant %d %d\n", pos,
-                                        ch->pcdata->implants[pos]);
+                                        ch->PCData->implants[pos]);
 
-                if (IsImmortal(ch) || ch->pcdata->area)
+                if (IsImmortal(ch) || ch->PCData->area)
                 {
                         fprintf(fp, "WizInvis     %d\n",
-                                ch->pcdata->wizinvis);
-                        if (ch->pcdata->r_range_lo && ch->pcdata->r_range_hi)
+                                ch->PCData->wizinvis);
+                        if (ch->PCData->r_range_lo && ch->PCData->r_range_hi)
                                 fprintf(fp, "RoomRange    %d %d\n",
-                                        ch->pcdata->r_range_lo,
-                                        ch->pcdata->r_range_hi);
-                        if (ch->pcdata->o_range_lo && ch->pcdata->o_range_hi)
+                                        ch->PCData->r_range_lo,
+                                        ch->PCData->r_range_hi);
+                        if (ch->PCData->o_range_lo && ch->PCData->o_range_hi)
                                 fprintf(fp, "ObjRange     %d %d\n",
-                                        ch->pcdata->o_range_lo,
-                                        ch->pcdata->o_range_hi);
-                        if (ch->pcdata->m_range_lo && ch->pcdata->m_range_hi)
+                                        ch->PCData->o_range_lo,
+                                        ch->PCData->o_range_hi);
+                        if (ch->PCData->m_range_lo && ch->PCData->m_range_hi)
                                 fprintf(fp, "MobRange     %d %d\n",
-                                        ch->pcdata->m_range_lo,
-                                        ch->pcdata->m_range_hi);
+                                        ch->PCData->m_range_lo,
+                                        ch->PCData->m_range_hi);
                 }
-                if (ch->pcdata->clan)
+                if (ch->PCData->clan)
                         fprintf(fp, "Clan         %s~\n",
-                                ch->pcdata->clan->name);
-                fprintf(fp, "Flags        %d\n", ch->pcdata->flags);
-                fprintf(fp, "GodFlags        %d\n", ch->pcdata->godflags);
-                if (ch->pcdata->release_date > current_time)
+                                ch->PCData->clan->name);
+                fprintf(fp, "Flags        %d\n", ch->PCData->flags);
+                fprintf(fp, "GodFlags        %d\n", ch->PCData->godflags);
+                if (ch->PCData->release_date > current_time)
                         fprintf(fp, "Helled       %d %s~\n",
-                                (int) ch->pcdata->release_date,
-                                ch->pcdata->helled_by);
-                if (ch->pcdata->pkills)
-                        fprintf(fp, "PKills       %d\n", ch->pcdata->pkills);
-                if (ch->pcdata->pdeaths)
-                        fprintf(fp, "PDeaths      %d\n", ch->pcdata->pdeaths);
+                                (int) ch->PCData->release_date,
+                                ch->PCData->helled_by);
+                if (ch->PCData->pkills)
+                        fprintf(fp, "PKills       %d\n", ch->PCData->pkills);
+                if (ch->PCData->pdeaths)
+                        fprintf(fp, "PDeaths      %d\n", ch->PCData->pdeaths);
                 if (get_timer(ch, TimerPkilled)
                     && (get_timer(ch, TimerPkilled) > 0))
                         fprintf(fp, "PTimer       %d\n",
                                 get_timer(ch, TimerPkilled));
-                fprintf(fp, "MKills       %d\n", ch->pcdata->mkills);
-                fprintf(fp, "MDeaths      %d\n", ch->pcdata->mdeaths);
-                if (ch->pcdata->illegal_pk)
+                fprintf(fp, "MKills       %d\n", ch->PCData->mkills);
+                fprintf(fp, "MDeaths      %d\n", ch->PCData->mdeaths);
+                if (ch->PCData->illegal_pk)
                         fprintf(fp, "IllegalPK    %d\n",
-                                ch->pcdata->illegal_pk);
+                                ch->PCData->illegal_pk);
                 fprintf(fp, "AttrPerm     %d %d %d %d %d %d %d\n",
                         ch->perm_str, ch->perm_int, ch->perm_wis,
                         ch->perm_dex, ch->perm_con, ch->perm_cha,
@@ -719,9 +719,9 @@ void fwrite_char(CharData * ch, FILE * fp)
 
 
                 fprintf(fp, "Condition    %d %d %d %d\n",
-                        ch->pcdata->condition[0],
-                        ch->pcdata->condition[1],
-                        ch->pcdata->condition[2], ch->pcdata->condition[3]);
+                        ch->PCData->condition[0],
+                        ch->PCData->condition[1],
+                        ch->PCData->condition[2], ch->PCData->condition[3]);
                 if (ch->desc && ch->desc->host)
                         fprintf(fp, "Site         %s\n", ch->desc->host);
                 else
@@ -730,27 +730,27 @@ void fwrite_char(CharData * ch, FILE * fp)
                 for (sn = 1; sn < top_sn; sn++)
                 {
                         if (skill_table[sn]->name
-                            && ch->pcdata->learned[sn] > 0)
+                            && ch->PCData->learned[sn] > 0)
                                 switch (skill_table[sn]->type)
                                 {
                                 default:
                                         fprintf(fp, "Skill        %d '%s'\n",
-                                                ch->pcdata->learned[sn],
+                                                ch->PCData->learned[sn],
                                                 skill_table[sn]->name);
                                         break;
                                 case SkillSpell:
                                         fprintf(fp, "Spell        %d '%s'\n",
-                                                ch->pcdata->learned[sn],
+                                                ch->PCData->learned[sn],
                                                 skill_table[sn]->name);
                                         break;
                                 case SkillWeapon:
                                         fprintf(fp, "Weapon       %d '%s'\n",
-                                                ch->pcdata->learned[sn],
+                                                ch->PCData->learned[sn],
                                                 skill_table[sn]->name);
                                         break;
                                 case SkillTongue:
                                         fprintf(fp, "Tongue       %d '%s'\n",
-                                                ch->pcdata->learned[sn],
+                                                ch->PCData->learned[sn],
                                                 skill_table[sn]->name);
                                         break;
                                 }
@@ -780,11 +780,11 @@ void fwrite_char(CharData * ch, FILE * fp)
                        MaxKillTrack);
         for (sn = 0; sn < track; sn++)
         {
-                if (ch->pcdata->killed[sn].vnum == 0)
+                if (ch->PCData->killed[sn].vnum == 0)
                         break;
                 fprintf(fp, "Killed       %d %d\n",
-                        ch->pcdata->killed[sn].vnum,
-                        ch->pcdata->killed[sn].count);
+                        ch->PCData->killed[sn].vnum,
+                        ch->PCData->killed[sn].count);
         }
 
         /*
@@ -1010,7 +1010,7 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
         clear_char(ch);
         loading_char = ch;
 
-        CREATE(ch->pcdata, PcData, 1);
+        CREATE(ch->PCData, PCData, 1);
         d->character = ch;
         ch->desc = d;
         ch->name = STRALLOC(name);
@@ -1024,32 +1024,32 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
         ch->perm_lck = 10;
         ch->max_endurance = 0;
         ch->endurance = 0;
-        ch->pcdata->condition[CondThirst] = 48;
-        ch->pcdata->condition[CondFull] = 48;
-        ch->pcdata->condition[CondBloodthirst] = 10;
-        ch->pcdata->statpoints = 0;
-        ch->pcdata->statedit = 0;
-        ch->pcdata->wizinvis = 0;
+        ch->PCData->condition[CondThirst] = 48;
+        ch->PCData->condition[CondFull] = 48;
+        ch->PCData->condition[CondBloodthirst] = 10;
+        ch->PCData->statpoints = 0;
+        ch->PCData->statedit = 0;
+        ch->PCData->wizinvis = 0;
         ch->mental_state = -10;
         ch->mobinvis = 0;
         for (i = 0; i < MaxSkill; i++)
-                ch->pcdata->learned[i] = 0;
-        ch->pcdata->release_date = 0;
-        ch->pcdata->helled_by = NULL;
-        ch->pcdata->recall = 0;
+                ch->PCData->learned[i] = 0;
+        ch->PCData->release_date = 0;
+        ch->PCData->helled_by = NULL;
+        ch->PCData->recall = 0;
         ch->SavingPoisonDeath = 0;
         ch->SavingWand = 0;
         ch->questhp = 0;
         ch->SavingParaPetri = 0;
         ch->SavingBreath = 0;
         ch->SavingSpellStaff = 0;
-        ch->pcdata->pagerlen = 24;
+        ch->PCData->pagerlen = 24;
         ch->mob_clan = STRALLOC("");
         ch->was_sentinel = NULL;
         ch->plr_home = NULL;
-        ch->pcdata->hotboot = FALSE;    /* Never changed except when PC is saved during hotboot save */
+        ch->PCData->hotboot = FALSE;    /* Never changed except when PC is saved during hotboot save */
         for (i = 0; i < MaxImplantTypes; i++)
-                ch->pcdata->implants[i] = -2;
+                ch->PCData->implants[i] = -2;
         found = FALSE;
 #ifdef IMC
         imc_initchar(ch);
@@ -1131,7 +1131,7 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                                 fread_obj(ch, fp, OsCarry);
                         else if (!str_cmp(word, "COMMENT"))
                         {
-                                AccountData *Account = ch->pcdata->Account;
+                                AccountData *Account = ch->PCData->Account;
 
                                 fread_comment(Account, fp); /* Comments */
                         }
@@ -1161,46 +1161,46 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                 ch->description = STRALLOC("");
                 ch->editor = NULL;
                 ch->questhp = 0;
-                ch->pcdata->clan = NULL;
-                ch->pcdata->pwd = str_dup("");
-                ch->pcdata->email = STRALLOC("");
-                ch->pcdata->spouse = STRALLOC("");
-                ch->pcdata->bamfin = STRALLOC("");
-                ch->pcdata->bamfout = STRALLOC("");
-                ch->pcdata->rank = STRALLOC("");
-                ch->pcdata->bestowments = STRALLOC("");
-                ch->pcdata->title = STRALLOC("");
-                ch->pcdata->homepage = STRALLOC("");
-                ch->pcdata->bio = STRALLOC("");
-                ch->pcdata->authed_by = STRALLOC("");
-                ch->pcdata->prompt = STRALLOC("");
-                ch->pcdata->icq = STRALLOC("");
-                ch->pcdata->msn = STRALLOC("");
-                ch->pcdata->aolim = STRALLOC("");
-                ch->pcdata->yahoo = STRALLOC("");
-                ch->pcdata->realname = STRALLOC("");
-                ch->pcdata->listening = STRALLOC("");
-                ch->pcdata->r_range_lo = 0;
-                ch->pcdata->r_range_hi = 0;
-                ch->pcdata->m_range_lo = 0;
-                ch->pcdata->m_range_hi = 0;
-                ch->pcdata->o_range_lo = 0;
-                ch->pcdata->o_range_hi = 0;
-                ch->pcdata->wizinvis = 0;
-                ch->pcdata->recall = 0;
+                ch->PCData->clan = NULL;
+                ch->PCData->pwd = str_dup("");
+                ch->PCData->email = STRALLOC("");
+                ch->PCData->spouse = STRALLOC("");
+                ch->PCData->bamfin = STRALLOC("");
+                ch->PCData->bamfout = STRALLOC("");
+                ch->PCData->rank = STRALLOC("");
+                ch->PCData->bestowments = STRALLOC("");
+                ch->PCData->title = STRALLOC("");
+                ch->PCData->homepage = STRALLOC("");
+                ch->PCData->bio = STRALLOC("");
+                ch->PCData->authed_by = STRALLOC("");
+                ch->PCData->prompt = STRALLOC("");
+                ch->PCData->icq = STRALLOC("");
+                ch->PCData->msn = STRALLOC("");
+                ch->PCData->aolim = STRALLOC("");
+                ch->PCData->yahoo = STRALLOC("");
+                ch->PCData->realname = STRALLOC("");
+                ch->PCData->listening = STRALLOC("");
+                ch->PCData->r_range_lo = 0;
+                ch->PCData->r_range_hi = 0;
+                ch->PCData->m_range_lo = 0;
+                ch->PCData->m_range_hi = 0;
+                ch->PCData->o_range_lo = 0;
+                ch->PCData->o_range_hi = 0;
+                ch->PCData->wizinvis = 0;
+                ch->PCData->recall = 0;
         }
         else
         {
-                if (!ch->pcdata->bio)
-                        ch->pcdata->bio = STRALLOC("");
+                if (!ch->PCData->bio)
+                        ch->PCData->bio = STRALLOC("");
 
-                if (!ch->pcdata->authed_by)
-                        ch->pcdata->authed_by = STRALLOC("");
+                if (!ch->PCData->authed_by)
+                        ch->PCData->authed_by = STRALLOC("");
 
                 if (!IsNpc(ch) && get_trust(ch) > LevelAvatar)
                 {
-                        if (ch->pcdata->wizinvis < 2)
-                                ch->pcdata->wizinvis = ch->top_level;
+                        if (ch->PCData->wizinvis < 2)
+                                ch->PCData->wizinvis = ch->top_level;
                         assign_area(ch);
                 }
                 if (file_ver > 1)
@@ -1223,15 +1223,15 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
                 }
 
         }
-		if (ch->pcdata->clanrank >= MaxRank) 
-			ch->pcdata->clanrank = MaxRank - 1;
+		if (ch->PCData->clanrank >= MaxRank) 
+			ch->PCData->clanrank = MaxRank - 1;
 
 
-		if (ch->pcdata->spouse && ch->pcdata->spouse[0] != '\0' && !char_exists(ch->pcdata->spouse))
+		if (ch->PCData->spouse && ch->PCData->spouse[0] != '\0' && !char_exists(ch->PCData->spouse))
 		{
-			RemoveBit(ch->pcdata->flags, PcflagMarried);
-			if (ch->pcdata->spouse)
-                STRFREE(ch->pcdata->spouse);
+			RemoveBit(ch->PCData->flags, PcflagMarried);
+			if (ch->PCData->spouse)
+                STRFREE(ch->PCData->spouse);
 		}
 
 
@@ -1284,22 +1284,22 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         KEY("AffectedBy", ch->affected_by, fread_number(fp));
                         KEY("Alignment", ch->alignment, fread_number(fp));
                         KEY("Armor", ch->Armor, fread_number(fp));
-                        KEY("Age", ch->pcdata->age, fread_number(fp));
-                        KEY("Aim", ch->pcdata->aolim, fread_string(fp));
+                        KEY("Age", ch->PCData->age, fread_number(fp));
+                        KEY("Aim", ch->PCData->aolim, fread_string(fp));
 #ifdef ACCOUNT
                         if (!str_cmp(word, "Account"))
                         {
                                 char     *name = fread_string_nohash(fp);
 
                                 if (ch->desc && ch->desc->Account)
-                                        ch->pcdata->Account =
+                                        ch->PCData->Account =
                                                 ch->desc->Account;
                                 else
                                 {
                                         AccountData *Account =
                                                 load_account(name);
                                         if (Account)
-                                                ch->pcdata->Account = Account;
+                                                ch->PCData->Account = Account;
                                         else
                                                 bug("Account %s not found.",
                                                     name);
@@ -1317,16 +1317,16 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 sscanf(line, "%d %d %d %d %d %d %d %d %d %d",
                                        &x0, &x1, &x2, &x3, &x4, &x5, &x6, &x7,
                                        &x8, &x9);
-                                ch->pcdata->addiction[0] = x0;
-                                ch->pcdata->addiction[1] = x1;
-                                ch->pcdata->addiction[2] = x2;
-                                ch->pcdata->addiction[3] = x3;
-                                ch->pcdata->addiction[4] = x4;
-                                ch->pcdata->addiction[5] = x5;
-                                ch->pcdata->addiction[6] = x6;
-                                ch->pcdata->addiction[7] = x7;
-                                ch->pcdata->addiction[8] = x8;
-                                ch->pcdata->addiction[9] = x9;
+                                ch->PCData->addiction[0] = x0;
+                                ch->PCData->addiction[1] = x1;
+                                ch->PCData->addiction[2] = x2;
+                                ch->PCData->addiction[3] = x3;
+                                ch->PCData->addiction[4] = x4;
+                                ch->PCData->addiction[5] = x5;
+                                ch->PCData->addiction[6] = x6;
+                                ch->PCData->addiction[7] = x7;
+                                ch->PCData->addiction[8] = x8;
+                                ch->PCData->addiction[9] = x9;
                                 fMatch = TRUE;
                                 break;
                         }
@@ -1439,25 +1439,25 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 fMatch = TRUE;
                                 break;
                         }
-                        KEY("AuthedBy", ch->pcdata->authed_by,
+                        KEY("AuthedBy", ch->PCData->authed_by,
                             fread_string(fp));
                         break;
 
                 case 'B':
-                        KEY("Bamfin", ch->pcdata->bamfin, fread_string(fp));
-                        KEY("Build", ch->pcdata->build, fread_number(fp));
-                        KEY("Bamfout", ch->pcdata->bamfout, fread_string(fp));
-                        KEY("Bestowments", ch->pcdata->bestowments,
+                        KEY("Bamfin", ch->PCData->bamfin, fread_string(fp));
+                        KEY("Build", ch->PCData->build, fread_number(fp));
+                        KEY("Bamfout", ch->PCData->bamfout, fread_string(fp));
+                        KEY("Bestowments", ch->PCData->bestowments,
                             fread_string(fp));
-                        KEY("Bio", ch->pcdata->bio, fread_string(fp));
-                        KEY("Bank", ch->pcdata->bank, fread_number(fp));
+                        KEY("Bio", ch->PCData->bio, fread_string(fp));
+                        KEY("Bank", ch->PCData->bank, fread_number(fp));
                         KEY("Bodyparts", ch->bodyparts, fread_number(fp));
                         if (!strcmp(word, "BDay"))  /* Voltecs player birthdays! */
                         {
-                                ch->pcdata->birthday.hour = fread_number(fp);
-                                ch->pcdata->birthday.day = fread_number(fp);
-                                ch->pcdata->birthday.month = fread_number(fp);
-                                ch->pcdata->birthday.year = fread_number(fp);
+                                ch->PCData->birthday.hour = fread_number(fp);
+                                ch->PCData->birthday.day = fread_number(fp);
+                                ch->PCData->birthday.month = fread_number(fp);
+                                ch->PCData->birthday.year = fread_number(fp);
                                 fMatch = TRUE;
                                 break;
                         }
@@ -1469,7 +1469,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 char     *temp = fread_string(fp);
 
                                 if (!preload && temp[0] != '\0' &&
-                                    (ch->pcdata->clan =
+                                    (ch->PCData->clan =
                                      get_clan(temp)) == NULL)
                                 {
                                         snprintf(buf, MSL,
@@ -1478,19 +1478,19 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                         send_to_char(buf, ch);
                                 }
                                 STRFREE(temp);
-                                if (ch->pcdata->clan && ch->name)
+                                if (ch->PCData->clan && ch->name)
                                 {
-                                        if (ch->pcdata->clan->roster)
+                                        if (ch->PCData->clan->roster)
                                         {
                                                 if (!hasname
-                                                    (ch->pcdata->clan->roster,
+                                                    (ch->PCData->clan->roster,
                                                      ch->name))
-                                                        addname(&ch->pcdata->
+                                                        addname(&ch->PCData->
                                                                 clan->roster,
                                                                 ch->name);
                                         }
                                         else
-                                                ch->pcdata->clan->roster =
+                                                ch->PCData->clan->roster =
                                                         STRALLOC(ch->name);
                                 }
                                 fMatch = TRUE;
@@ -1513,11 +1513,11 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 }
                         }
 
-                        KEY("Clanrank", ch->pcdata->clanrank,
+                        KEY("Clanrank", ch->PCData->clanrank,
                             fread_number(fp));
-                        KEY("Comchan", ch->pcdata->comchan, fread_number(fp));
+                        KEY("Comchan", ch->PCData->comchan, fread_number(fp));
                         KEY("Countdown", ch->countdown, fread_number(fp));
-                        KEY("Complextion", ch->pcdata->complextion,
+                        KEY("Complextion", ch->PCData->complextion,
                             fread_number(fp));
 
                         if (!str_cmp(word, "Condition"))
@@ -1525,10 +1525,10 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 line = fread_line(fp);
                                 sscanf(line, "%d %d %d %d",
                                        &x1, &x2, &x3, &x4);
-                                ch->pcdata->condition[0] = x1;
-                                ch->pcdata->condition[1] = x2;
-                                ch->pcdata->condition[2] = x3;
-                                ch->pcdata->condition[3] = x4;
+                                ch->PCData->condition[0] = x1;
+                                ch->PCData->condition[1] = x2;
+                                ch->PCData->condition[2] = x3;
+                                ch->PCData->condition[3] = x4;
                                 fMatch = TRUE;
                                 break;
                         }
@@ -1546,16 +1546,16 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 sscanf(line, "%d %d %d %d %d %d %d %d %d %d",
                                        &x0, &x1, &x2, &x3, &x4, &x5, &x6, &x7,
                                        &x8, &x9);
-                                ch->pcdata->drug_level[0] = x0;
-                                ch->pcdata->drug_level[1] = x1;
-                                ch->pcdata->drug_level[2] = x2;
-                                ch->pcdata->drug_level[3] = x3;
-                                ch->pcdata->drug_level[4] = x4;
-                                ch->pcdata->drug_level[5] = x5;
-                                ch->pcdata->drug_level[6] = x6;
-                                ch->pcdata->drug_level[7] = x7;
-                                ch->pcdata->drug_level[8] = x8;
-                                ch->pcdata->drug_level[9] = x9;
+                                ch->PCData->drug_level[0] = x0;
+                                ch->PCData->drug_level[1] = x1;
+                                ch->PCData->drug_level[2] = x2;
+                                ch->PCData->drug_level[3] = x3;
+                                ch->PCData->drug_level[4] = x4;
+                                ch->PCData->drug_level[5] = x5;
+                                ch->PCData->drug_level[6] = x6;
+                                ch->PCData->drug_level[7] = x7;
+                                ch->PCData->drug_level[8] = x8;
+                                ch->PCData->drug_level[9] = x9;
                                 fMatch = TRUE;
                                 break;
                         }
@@ -1565,9 +1565,9 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                          * 'E' was moved to after 'S' 
                          */
                 case 'F':
-                        KEY("Flags", ch->pcdata->flags, fread_number(fp));
-                        KEY("FPrompt", ch->pcdata->fprompt, fread_string(fp));
-                        KEY("FullName", ch->pcdata->full_name,
+                        KEY("Flags", ch->PCData->flags, fread_number(fp));
+                        KEY("FPrompt", ch->PCData->fprompt, fread_string(fp));
+                        KEY("FullName", ch->PCData->full_name,
                             fread_string(fp));
                         if (!str_cmp(word, "Force"))
                         {
@@ -1585,33 +1585,33 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         break;
 
                 case 'G':
-                        KEY("Glory", ch->pcdata->quest_curr,
+                        KEY("Glory", ch->PCData->quest_curr,
                             fread_number(fp));
                         KEY("Gold", ch->gold, fread_number(fp));
-                        KEY("GodFlags", ch->pcdata->godflags,
+                        KEY("GodFlags", ch->PCData->godflags,
                             fread_number(fp));
                         break;
 
                 case 'H':
                         if (!str_cmp(word, "Helled"))
                         {
-                                ch->pcdata->release_date = fread_number(fp);
-                                ch->pcdata->helled_by = fread_string(fp);
-                                if (ch->pcdata->release_date < current_time)
+                                ch->PCData->release_date = fread_number(fp);
+                                ch->PCData->helled_by = fread_string(fp);
+                                if (ch->PCData->release_date < current_time)
                                 {
-                                        STRFREE(ch->pcdata->helled_by);
-                                        ch->pcdata->helled_by = NULL;
-                                        ch->pcdata->release_date = 0;
+                                        STRFREE(ch->PCData->helled_by);
+                                        ch->PCData->helled_by = NULL;
+                                        ch->PCData->release_date = 0;
                                 }
                                 fMatch = TRUE;
                                 break;
                         }
 
                         KEY("Hitroll", ch->Hitroll, fread_number(fp));
-                        KEY("Homepage", ch->pcdata->homepage,
+                        KEY("Homepage", ch->PCData->homepage,
                             fread_string(fp));
-                        KEY("Hair", ch->pcdata->hair, fread_number(fp));
-                        KEY("Height", ch->pcdata->height, fread_number(fp));
+                        KEY("Hair", ch->PCData->hair, fread_number(fp));
+                        KEY("Height", ch->PCData->height, fread_number(fp));
 
                         if (!str_cmp(word, "HpManaMove"))
                         {
@@ -1641,11 +1641,11 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         break;
 
                 case 'I':
-                        KEY("IllegalPK", ch->pcdata->illegal_pk,
+                        KEY("IllegalPK", ch->PCData->illegal_pk,
                             fread_number(fp));
-                        KEY("Illness", ch->pcdata->illness, fread_number(fp));
+                        KEY("Illness", ch->PCData->illness, fread_number(fp));
                         KEY("Immune", ch->immune, fread_number(fp));
-                        KEY("Icq", ch->pcdata->icq, fread_string(fp));
+                        KEY("Icq", ch->PCData->icq, fread_string(fp));
                         if (!str_cmp(word, "Ignore"))
                         {
                                 char     *temp = fread_string(fp);
@@ -1653,7 +1653,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 fMatch = TRUE;
                                 if (char_exists(temp))
                                 {
-                                        ch->pcdata->ignore[count] = temp;
+                                        ch->PCData->ignore[count] = temp;
                                         count++;
                                 }
                                 else
@@ -1665,11 +1665,11 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 int       number = 0;
 
                                 number = fread_number(fp);
-                                ch->pcdata->implants[number] =
+                                ch->PCData->implants[number] =
                                         fread_number(fp);
-                                if (ch->pcdata->implants[number] > 3
-                                    || ch->pcdata->implants[number] < 0)
-                                        ch->pcdata->implants[number] = -2;
+                                if (ch->PCData->implants[number] > 3
+                                    || ch->PCData->implants[number] < 0)
+                                        ch->PCData->implants[number] = -2;
                                 fMatch = TRUE;
                                 break;
                         }
@@ -1680,7 +1680,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         break;
 
                 case 'Y':
-                        KEY("Yahoo", ch->pcdata->yahoo, fread_string(fp));
+                        KEY("Yahoo", ch->PCData->yahoo, fread_string(fp));
 
                 case 'K':
                         if (!str_cmp(word, "Killed"))
@@ -1690,9 +1690,9 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                         bug("fread_char: killcnt (%d) >= MaxKillTrack", killcnt);
                                 else
                                 {
-                                        ch->pcdata->killed[killcnt].vnum =
+                                        ch->PCData->killed[killcnt].vnum =
                                                 fread_number(fp);
-                                        ch->pcdata->killed[killcnt++].count =
+                                        ch->PCData->killed[killcnt++].count =
                                                 fread_number(fp);
                                 }
                         }
@@ -1707,7 +1707,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         }
                         KEY("LongDescr", ch->long_descr, fread_string(fp));
                         KEY("Leader", ch->groupleader, fread_string(fp));
-                        KEY("Listening", ch->pcdata->listening,
+                        KEY("Listening", ch->PCData->listening,
                             fread_string(fp));
                         if (!str_cmp(word, "Languages"))
                         {
@@ -1733,22 +1733,22 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                 case 'M':
                         KEY("MainAbility", ch->main_ability,
                             fread_number(fp));
-                        KEY("MDeaths", ch->pcdata->mdeaths, fread_number(fp));
+                        KEY("MDeaths", ch->PCData->mdeaths, fread_number(fp));
                         KEY("MaxColors", max_colors, fread_number(fp));
                         KEY("Mentalstate", ch->mental_state,
                             fread_number(fp));
-                        KEY("MGlory", ch->pcdata->quest_accum,
+                        KEY("MGlory", ch->PCData->quest_accum,
                             fread_number(fp));
-                        KEY("Minsnoop", ch->pcdata->min_snoop,
+                        KEY("Minsnoop", ch->PCData->min_snoop,
                             fread_number(fp));
-                        KEY("MKills", ch->pcdata->mkills, fread_number(fp));
+                        KEY("MKills", ch->PCData->mkills, fread_number(fp));
                         KEY("Mobinvis", ch->mobinvis, fread_number(fp));
-                        KEY("Msn", ch->pcdata->msn, fread_string(fp));
+                        KEY("Msn", ch->PCData->msn, fread_string(fp));
                         KEY("Master", ch->following, fread_string(fp));
                         if (!str_cmp(word, "MobRange"))
                         {
-                                ch->pcdata->m_range_lo = fread_number(fp);
-                                ch->pcdata->m_range_hi = fread_number(fp);
+                                ch->PCData->m_range_lo = fread_number(fp);
+                                ch->PCData->m_range_hi = fread_number(fp);
                                 fMatch = TRUE;
                         }
                         break;
@@ -1768,23 +1768,23 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                 case 'O':
                         if (!str_cmp(word, "ObjRange"))
                         {
-                                ch->pcdata->o_range_lo = fread_number(fp);
-                                ch->pcdata->o_range_hi = fread_number(fp);
+                                ch->PCData->o_range_lo = fread_number(fp);
+                                ch->PCData->o_range_hi = fread_number(fp);
                                 fMatch = TRUE;
                         }
                         break;
 
                 case 'P':
-                        KEY("Pagerlen", ch->pcdata->pagerlen,
+                        KEY("Pagerlen", ch->PCData->pagerlen,
                             fread_number(fp));
-                        KEY("Password", ch->pcdata->pwd,
+                        KEY("Password", ch->PCData->pwd,
                             fread_string_nohash(fp));
-                        KEY("PDeaths", ch->pcdata->pdeaths, fread_number(fp));
-                        KEY("PKills", ch->pcdata->pkills, fread_number(fp));
+                        KEY("PDeaths", ch->PCData->pdeaths, fread_number(fp));
+                        KEY("PKills", ch->PCData->pkills, fread_number(fp));
                         KEY("Played", ch->played, fread_number(fp));
                         KEY("Position", ch->position, fread_number(fp));
                         KEY("Practice", extra, fread_number(fp));
-                        KEY("Prompt", ch->pcdata->prompt, fread_string(fp));
+                        KEY("Prompt", ch->PCData->prompt, fread_string(fp));
                         if (!str_cmp(word, "PTimer"))
                         {
                                 add_timer(ch, TimerPkilled, fread_number(fp),
@@ -1827,27 +1827,27 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         if (!str_cmp(word, "RP"))
                         {
 #ifndef ACCOUNT
-                                ch->pcdata->rp = fread_number(fp);
+                                ch->PCData->rp = fread_number(fp);
 #else
-                                if (ch->pcdata->Account)
+                                if (ch->PCData->Account)
                                 {
-                                        ch->pcdata->Account->rppoints +=
+                                        ch->PCData->Account->rppoints +=
                                                 fread_number(fp);
-                                        ch->pcdata->rp = 0; /* Should this still even be here? - Gavin */
+                                        ch->PCData->rp = 0; /* Should this still even be here? - Gavin */
                                 }
                                 else
-                                        ch->pcdata->rp = fread_number(fp);
+                                        ch->PCData->rp = fread_number(fp);
 #endif
                                 fMatch = TRUE;
                                 break;
                         }
-                        KEY("Realage", ch->pcdata->realage, fread_number(fp));
-                        KEY("Rank", ch->pcdata->rank, fread_string(fp));
-                        KEY("Realname", ch->pcdata->realname,
+                        KEY("Realage", ch->PCData->realage, fread_number(fp));
+                        KEY("Rank", ch->PCData->rank, fread_string(fp));
+                        KEY("Realname", ch->PCData->realname,
                             fread_string(fp));
                         KEY("Resistant", ch->resistant, fread_number(fp));
-                        KEY("Recall", ch->pcdata->recall, fread_number(fp));
-                        KEY("Restore_time", ch->pcdata->restore_time,
+                        KEY("Recall", ch->PCData->recall, fread_number(fp));
+                        KEY("Restore_time", ch->PCData->restore_time,
                             fread_number(fp));
 
                         if (!str_cmp(word, "Room"))
@@ -1863,8 +1863,8 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         }
                         if (!str_cmp(word, "RoomRange"))
                         {
-                                ch->pcdata->r_range_lo = fread_number(fp);
-                                ch->pcdata->r_range_hi = fread_number(fp);
+                                ch->PCData->r_range_lo = fread_number(fp);
+                                ch->PCData->r_range_hi = fread_number(fp);
                                 fMatch = TRUE;
                         }
                         if (!str_cmp(word, "Race"))
@@ -1888,7 +1888,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                 case 'S':
                         KEY("Sex", ch->sex, fread_number(fp));
                         KEY("ShortDescr", ch->short_descr, fread_string(fp));
-                        KEY("Spouse", ch->pcdata->spouse, fread_string(fp));
+                        KEY("Spouse", ch->PCData->spouse, fread_string(fp));
                         KEY("Susceptible", ch->susceptible, fread_number(fp));
                         if (!str_cmp(word, "SavingThrow"))
                         {
@@ -1966,7 +1966,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                 bug("Fread_char: unknown skill.", 0);
                                         else
                                         {
-                                                ch->pcdata->
+                                                ch->PCData->
                                                         learned[skill_number]
                                                         = value;
 
@@ -1996,7 +1996,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                 bug("Fread_char: unknown spell.", 0);
                                         else
                                         {
-                                                ch->pcdata->learned[sn] =
+                                                ch->PCData->learned[sn] =
                                                         value;
 
                                         }
@@ -2016,85 +2016,85 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                         ch->long_descr = STRALLOC("");
                                 if (!ch->description)
                                         ch->description = STRALLOC("");
-                                if (!ch->pcdata->pwd)
-                                        ch->pcdata->pwd = str_dup("");
-                                if (!ch->pcdata->email)
-                                        ch->pcdata->email = STRALLOC("");
-                                if (!ch->pcdata->spouse)
-                                        ch->pcdata->spouse = STRALLOC("");
-                                if (!ch->pcdata->bamfin)
-                                        ch->pcdata->bamfin = STRALLOC("");
-                                if (!ch->pcdata->bamfout)
-                                        ch->pcdata->bamfout = STRALLOC("");
-                                if (!ch->pcdata->bio)
-                                        ch->pcdata->bio = STRALLOC("");
-                                if (!ch->pcdata->rank)
-                                        ch->pcdata->rank = STRALLOC("");
-                                if (!ch->pcdata->bestowments)
-                                        ch->pcdata->bestowments =
+                                if (!ch->PCData->pwd)
+                                        ch->PCData->pwd = str_dup("");
+                                if (!ch->PCData->email)
+                                        ch->PCData->email = STRALLOC("");
+                                if (!ch->PCData->spouse)
+                                        ch->PCData->spouse = STRALLOC("");
+                                if (!ch->PCData->bamfin)
+                                        ch->PCData->bamfin = STRALLOC("");
+                                if (!ch->PCData->bamfout)
+                                        ch->PCData->bamfout = STRALLOC("");
+                                if (!ch->PCData->bio)
+                                        ch->PCData->bio = STRALLOC("");
+                                if (!ch->PCData->rank)
+                                        ch->PCData->rank = STRALLOC("");
+                                if (!ch->PCData->bestowments)
+                                        ch->PCData->bestowments =
                                                 STRALLOC("");
-                                if (!ch->pcdata->title)
-                                        ch->pcdata->title = STRALLOC("");
-                                if (!ch->pcdata->homepage)
-                                        ch->pcdata->homepage = STRALLOC("");
-                                if (!ch->pcdata->authed_by)
-                                        ch->pcdata->authed_by = STRALLOC("");
-                                if (!ch->pcdata->prompt)
-                                        ch->pcdata->prompt = STRALLOC("");
-                                if (!ch->pcdata->full_name)
-                                        ch->pcdata->full_name =
+                                if (!ch->PCData->title)
+                                        ch->PCData->title = STRALLOC("");
+                                if (!ch->PCData->homepage)
+                                        ch->PCData->homepage = STRALLOC("");
+                                if (!ch->PCData->authed_by)
+                                        ch->PCData->authed_by = STRALLOC("");
+                                if (!ch->PCData->prompt)
+                                        ch->PCData->prompt = STRALLOC("");
+                                if (!ch->PCData->full_name)
+                                        ch->PCData->full_name =
                                                 STRALLOC(ch->name);
-                                if (!ch->pcdata->birthday.hour)
-                                        ch->pcdata->birthday.hour =
+                                if (!ch->PCData->birthday.hour)
+                                        ch->PCData->birthday.hour =
                                                 time_info.hour;
-                                if (!ch->pcdata->birthday.day)
-                                        ch->pcdata->birthday.day =
+                                if (!ch->PCData->birthday.day)
+                                        ch->PCData->birthday.day =
                                                 time_info.day;
-                                if (!ch->pcdata->birthday.month)
-                                        ch->pcdata->birthday.month =
+                                if (!ch->PCData->birthday.month)
+                                        ch->PCData->birthday.month =
                                                 time_info.month;
-                                if (!ch->pcdata->birthday.year)
-                                        ch->pcdata->birthday.year =
+                                if (!ch->PCData->birthday.year)
+                                        ch->PCData->birthday.year =
                                                 time_info.year;
-                                if (!ch->pcdata->age)
-                                        ch->pcdata->age = get_age_old(ch);
-                                if (!ch->pcdata->listening)
-                                        ch->pcdata->listening = STRALLOC("");
-                                if (ch->pcdata->listening[0] == '\0') {
+                                if (!ch->PCData->age)
+                                        ch->PCData->age = get_age_old(ch);
+                                if (!ch->PCData->listening)
+                                        ch->PCData->listening = STRALLOC("");
+                                if (ch->PCData->listening[0] == '\0') {
                                         for (channel = first_channel; channel;channel = channel->next)
                                         {
-                                                if (ch->top_level >= channel->level && !hasname(ch->pcdata->listening,channel->name))
-                                                        addname(&ch->pcdata->listening,channel->name);
+                                                if (ch->top_level >= channel->level && !hasname(ch->PCData->listening,channel->name))
+                                                        addname(&ch->PCData->listening,channel->name);
                                         }
                                 }
                                 else {
                                         for (channel = first_channel; channel;channel = channel->next)
                                         {
                                                 // Time to sanatize data
-                                                if (channel->level > ch->top_level && hasname(ch->pcdata->listening, channel->name))
+                                                if (channel->level > ch->top_level && hasname(ch->PCData->listening, channel->name))
                                                 {
-                                                        removename(&ch->pcdata->listening, channel->name);
+                                                        removename(&ch->PCData->listening, channel->name);
                                                 }
                                         }
                                 }
 #ifdef ACCOUNT
-                                if (ch->pcdata->Account)
+                                if (ch->PCData->Account)
                                 {
-                                        ch->pcdata->Account->
+                                        ch->PCData->Account->
                                                 rppoints +=
-                                                ch->pcdata->rp;
-                                        ch->pcdata->rp = 0; /* Should this still even be here? - Gavin */
+                                                ch->PCData->rp;
+                                        ch->PCData->rp = 0; /* Should this still even be here? - Gavin */
                                 }
                                 else if (ch->desc->Account)
                                 {
                                         ch->desc->Account->rppoints +=
-                                                ch->pcdata->rp;
-                                        ch->pcdata->rp = 0; /* Should this still even be here? - Gavin */
+                                                ch->PCData->rp;
+                                        ch->PCData->rp = 0; /* Should this still even be here? - Gavin */
                                 }
 
 #endif
-                                if (ch->pcdata)
-                                        ch->pcdata->arousal = 0;
+                                if (ch->PCData)
+                                        ch->PCData->arousal = 0;
                                 ch->editor = NULL;
                                 killcnt =
                                         URANGE(2,
@@ -2102,7 +2102,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                  3) * MaxKillTrack) /
                                                LevelAvatar, MaxKillTrack);
                                 if (killcnt < MaxKillTrack)
-                                        ch->pcdata->killed[killcnt].vnum = 0;
+                                        ch->PCData->killed[killcnt].vnum = 0;
                                 {
                                         int       ability;
 
@@ -2123,8 +2123,8 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 if (!ch->speaking
                                     || ch->speaking->name[0] == '0')
                                         ch->speaking = ch->race->language();
-                                if (!ch->pcdata->prompt)
-                                        ch->pcdata->prompt = STRALLOC("");
+                                if (!ch->PCData->prompt)
+                                        ch->PCData->prompt = STRALLOC("");
 
                                 if (lastplayed != 0)
                                 {
@@ -2157,7 +2157,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                             guild >= MaxAbility)
                                                 continue;
 
-                                        if (ch->pcdata->
+                                        if (ch->PCData->
                                             learned[skill_number] > 0
                                             && ch->
                                             skill_level[skill_table
@@ -2165,15 +2165,15 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                         guild] <
                                             skill_table[skill_number]->
                                             min_level)
-                                                ch->pcdata->
+                                                ch->PCData->
                                                         learned[skill_number]
                                                         = 0;
 
                                 }
                                 return;
                         }
-                        KEY("Email", ch->pcdata->email, fread_string(fp));
-                        KEY("Eyes", ch->pcdata->eye, fread_number(fp));
+                        KEY("Email", ch->PCData->email, fread_string(fp));
+                        KEY("Eyes", ch->PCData->eye, fread_number(fp));
                         break;
 
                 case 'T':
@@ -2198,7 +2198,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                 bug("Fread_char: unknown tongue.", 0);
                                         else
                                         {
-                                                ch->pcdata->learned[sn] =
+                                                ch->PCData->learned[sn] =
                                                         value;
 
                                         }
@@ -2255,7 +2255,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                 bug("Fread_char: unknown weapon.", 0);
                                         else
                                         {
-                                                ch->pcdata->learned[sn] =
+                                                ch->PCData->learned[sn] =
                                                         value;
 
                                         }
@@ -2264,8 +2264,8 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 break;
                         }
                         KEY("Wimpy", ch->wimpy, fread_number(fp));
-                        KEY("Weight", ch->pcdata->weight, fread_number(fp));
-                        KEY("WizInvis", ch->pcdata->wizinvis,
+                        KEY("Weight", ch->PCData->weight, fread_number(fp));
+                        KEY("WizInvis", ch->PCData->wizinvis,
                             fread_number(fp));
                         if (!str_cmp(word, "Wanted"))
                         {

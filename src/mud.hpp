@@ -61,15 +61,17 @@
 
 #ifdef MCCP
 #include <zlib.h>
+#endif
 
 #include <list>
 #include <map>
+#include <chrono>
+#include <bitset>
 //#include <bits/stl_alloc.h>
 
 typedef int ch_ret;
 typedef int obj_ret;
 
-#ifdef MCCP
 /*
  * MCCP defines
  */
@@ -77,8 +79,7 @@ typedef int obj_ret;
 constexpr int CompressBufSize = 1024;
 constexpr int TeloptCompress = 85;
 constexpr int TeloptCompress2 = 86;
-#endif
-#endif
+#endif // End of MCCP block
 
 /*
  * GMCP (Generic MUD Communication Protocol)
@@ -111,7 +112,22 @@ typedef unsigned char bool;
 
 #define REVISION __STRING($Revision: 1356 $)
 
+/*
+* Time keeping
+*/
 
+// Forward declaration for HourMinSec
+class HourMinSec;
+
+extern std::chrono::system_clock::time_point pfile_time;
+extern std::unique_ptr<HourMinSec> set_pfile_time;
+extern std::unique_ptr<std::tm> new_pfile_time;
+extern std::chrono::system_clock::time_point new_pfile_time_t;
+extern std::int16_t num_pfiles;
+
+void check_pfiles(std::chrono::system_clock::time_point reset);
+void init_pfile_scan_time();
+// End time keeping
 
 
 /**
@@ -125,7 +141,7 @@ class AreaData;
 class AuctionData;
 class WatchData;
 class ExtractCharData;
-class CharData;
+struct CharData; // Forward declaration for macros and pointer usage
 class HHFData;
 class FightData;
 class DescriptorData;
@@ -163,12 +179,6 @@ class CMDType;
 class KilledData;
 class WizEnt;
 class SpecList;
-// Extended bitvector type for x64, modernized for C++23.
-// TODO: Refactor to std::bitset or enum class for >32 bits.
-constexpr int Xbi = 4; // Number of integers in an extended bitvector (must be defined before use)
-struct ExtBV {
-    int bits[Xbi]{};
-};
 
 class LogData;
 class WebDescriptor;
@@ -298,6 +308,10 @@ constexpr uint64_t BV31 = (1ULL << 31);
 #define MFL                  MaxFileLength /* Centralized MFL definition */
 
 #define HASHSTR /* use string hashing */
+#define xIS_SET(var, bit)       ((var).bits[(bit) >> RSV] & 1 << ((bit) & XBM))
+#define xSET_BIT(var, bit)      ((var).bits[(bit) >> RSV] |= 1 << ((bit) & XBM))
+#define xSET_BITS(var, bit)     (ext_set_bits(&(var), &(bit)))
+#define xREMOVE_BIT(var, bit)   ((var).bits[(bit) >> RSV] &= ~(1 << ((bit) & XBM)))
 
 
 constexpr int MaxLayers = 8;  // maximum clothing layers
@@ -348,7 +362,6 @@ constexpr int LevelAvatar = MaxLevel - 5;
 constexpr int LevelBuilder = LevelCreator;
 
 #include "shell.hpp"
-#include "pfiles.hpp"
 #include "autobuild.hpp"
 #include "color.hpp"
 #include "hotboot.hpp"
@@ -427,25 +440,22 @@ constexpr int EchoTarImm = 2;
 
 // Types for new do_who
 constexpr int WtMortal = 0;
-constexpr int WtImm = 2;
 constexpr int WtAvatar = 1;
+constexpr int WtImm = 2;
 constexpr int WtNewbie = 3;
 
 // Defines for extended bitvectors
 #ifndef IntBits
 constexpr int IntBits = 32;
 #endif
-constexpr int Xbm = 31;  // extended bitmask   ( IntBits - 1 )
-constexpr int Rsv = 5;   // right-shift value  ( sqrt(Xbm+1) )
 constexpr int Xbi = 4;   // integers in an extended bitvector
+constexpr int Rsv = 5;   // right-shift value  ( sqrt(Xbm+1) )
+constexpr int Xbm = 31;  // extended bitmask   ( IntBits - 1 )
 constexpr int MaxBits = Xbi * IntBits;
 /*
- * Structure for extended bitvectors -- Thoric
+ * Structure for extended bitvectors -- StygianRenegade
  */
-struct extended_bitvector
-{
-        int bits[Xbi];
-};
+using ExtBV = std::bitset<128>;  // Clean, type-safe, STL bitset for extended bitvectors
 
 #include "olc.hpp"
 #include "dns.hpp"
@@ -501,12 +511,24 @@ struct TimeInfoData
         int year;
 };
 
-struct HourMinSec
-{
-        int hour;
-        int min;
-        int sec;
-        int manual;
+struct HourMinSec {
+public:
+    HourMinSec() = default;
+    HourMinSec(int h, int m, int s) : hour_(h), min_(m), sec_(s) {}
+
+    int get_hour() const { return hour_; }
+    void set_hour(int h) { hour_ = h; }
+
+    int get_min() const { return min_; }
+    void set_min(int m) { min_ = m; }
+
+    int get_sec() const { return sec_; }
+    void set_sec(int s) { sec_ = s; }
+
+private:
+    int hour_{0};
+    int min_{0};
+    int sec_{0};
 };
 
 struct WeatherData
@@ -696,75 +718,75 @@ struct frc_app_type
 
 /* ability classes */
 
-#define AbilityNone		-1
-#define CombatAbility 		0
-#define PilotingAbility	1
-#define EngineeringAbility	2
-#define HuntingAbility		3
-#define SmugglingAbility	4
-#define DiplomacyAbility	5
-#define LeadershipAbility	6
-#define ForceAbility		7
-#define OccupationAbility	8
-#define PiracyAbility	9
-#define MedicAbility	10
+constexpr int AbilityNone	=	-1;
+constexpr int CombatAbility	=	0;
+constexpr int PilotingAbility	=	1;
+constexpr int EngineeringAbility	=	2;
+constexpr int HuntingAbility	=	3;
+constexpr int SmugglingAbility	=	4;
+constexpr int DiplomacyAbility	=	5;
+constexpr int LeadershipAbility	=	6;
+constexpr int ForceAbility	=	7;
+constexpr int OccupationAbility	=	8;
+constexpr int PiracyAbility	=	9;
+constexpr int MedicAbility	=	10;
 
 
 /* the races */
-#define RaceHuman	    	0
-#define RaceWookiee		1
-#define RaceTwiLek		2
-#define RaceRodian		3
-#define RaceHutt		4
-#define RaceMonCalamari	5
-#define RaceNoghri		6
-#define RaceGamorrean		7
-#define RaceJawa		8
-#define RaceAdarian            9
-#define RaceEwok              	10
-#define RaceVerpine           	11
-#define RaceDefel             	12
-#define RaceTrandoshan        	13
-#define RaceShistavanan       	14
-#define RaceDuinuogwuin       	16
-#define RaceDroid           	15
-#define RaceChiss           	17
+constexpr int RaceHuman	=	0;
+constexpr int RaceWookiee	=	1;
+constexpr int RaceTwiLek	=	2;
+constexpr int RaceRodian	=	3;
+constexpr int RaceHutt	=	4;
+constexpr int RaceMonCalamari	=	5;
+constexpr int RaceNoghri	=	6;
+constexpr int RaceGamorrean	=	7;
+constexpr int RaceJawa	=	8;
+constexpr int RaceAdarian	=	9;
+constexpr int RaceEwok	=	10;
+constexpr int RaceVerpine	=	11;
+constexpr int RaceDefel	=	12;
+constexpr int RaceTrandoshan	=	13;
+constexpr int RaceShistavanan	=	14;
+constexpr int RaceDuinuogwuin	=	16;
+constexpr int RaceDroid           	=	15;
+constexpr int RaceChiss           	=	17;
 
 
 /*
  * Languages -- Altrag
  */
-#define LangBasic        BV00  /* Human base language */
-#define LangWookiee      BV01
-#define LangTwiLek      BV02
-#define LangRodian       BV03
-#define LangHutt         BV04
-#define LangMonCalamari BV05
-#define LangNoghri       BV06
-#define LangEwok         BV07
-#define LangIthorian     BV08
-#define LangDevaronian   BV09
-#define LangGamorrean    BV10
-#define LangJawa         BV11
-#define LangClan	      BV12
-#define LangAdarian	  BV13
-#define LangVerpine	  BV14
-#define LangDefel        BV15
-#define LangTrandoshan   BV16
-#define LangShistavanan  BV17
-#define LangBinary       BV18
-#define LangDuinuogwuin  BV19
-#define LangCsillian     BV20
-#define LangKelDor      BV21
-#define LangBothan       BV22
-#define LangBarabel      BV23
-#define LangDurosian     BV24
-#define LangGotal        BV25
-#define LangTalz         BV26
-#define LangHoDin       BV27
-#define LangFalleen      BV28
-#define LangGivin        BV29
-#define LangUnknown        0   /* Anything that doesnt fit a category */
+constexpr int LangBasic        = 0;  /* Human base language */
+constexpr int LangWookiee      = 1;
+constexpr int LangTwiLek      = 2;
+constexpr int LangRodian       = 3;
+constexpr int LangHutt         = 4;
+constexpr int LangMonCalamari = 5;
+constexpr int LangNoghri       = 6;
+constexpr int LangEwok         = 7;
+constexpr int LangIthorian     = 8;
+constexpr int LangDevaronian   = 9;
+constexpr int LangGamorrean    = 10;
+constexpr int LangJawa         = 11;
+constexpr int LangClan	      = 12;
+constexpr int LangAdarian	  = 13;
+constexpr int LangVerpine	  = 14;
+constexpr int LangDefel        = 15;
+constexpr int LangTrandoshan   = 16;
+constexpr int LangShistavanan  = 17;
+constexpr int LangBinary       = 18;
+constexpr int LangDuinuogwuin  = 19;
+constexpr int LangCsillian     = 20;
+constexpr int LangKelDor      = 21;
+constexpr int LangBothan       = 22;
+constexpr int LangBarabel      = 23;
+constexpr int LangDurosian     = 24;
+constexpr int LangGotal        = 25;
+constexpr int LangTalz         = 26;
+constexpr int LangHoDin       = 27;
+constexpr int LangFalleen      = 28;
+constexpr int LangGivin        = 29;
+constexpr int LangUnknown    =    0;   /* Anything that doesnt fit a category */
 #define ValidLangs    ( LangBasic | LangWookiee | LangTwiLek | LangRodian  \
 		       | LangHutt | LangMonCalamari | LangNoghri | LangGamorrean \
 		       | LangJawa | LangAdarian | LangEwok | LangVerpine | LangDefel \
@@ -954,28 +976,60 @@ typedef enum
 		 ) \
 		)
 
-typedef enum
-{ ShipCivilian, ShipRepublic, ShipImperial, MobShip, PlayerShip,
-        ClanMobShip
-} ship_types;
-typedef enum
-{ ShipDocked, ShipReady, ShipBusy, ShipBusy2, ShipBusy3, ShipRefuel,
-        ShipLaunch, ShipLaunch2, ShipLand, ShipLand2, ShipHyperspace,
-        ShipDisabled, ShipFlying
-} ship_states;
-typedef enum
-{ MissileReady, MissileFired, MissileReload, MissileReload2,
-        MissileDamaged
-} missile_states;
-typedef enum
-{ FighterShip, MidsizeShip, CapitalShip, ShipPlatform } ship_classes;
-typedef enum
-{ ConcussionMissile, ProtonTorpedo, HeavyRocket,
-        HeavyBomb
-} missile_types;
+enum class ShipType {
+    Civilian,
+    Republic,
+    Imperial,
+    MobShip,
+    PlayerShip,
+    ClanMobShip
+};
+// Modernized enums for C++23: use enum class for type safety, scoped values, and underlying types.
+// Also, use PascalCase for enum names and values for clarity and consistency.
 
-typedef enum
-{ GroupClan, GroupCouncil, GroupGuild } group_types;
+enum class ShipState : uint8_t {
+        Docked,
+        Ready,
+        Busy,
+        Busy2,
+        Busy3,
+        Refuel,
+        Launch,
+        Launch2,
+        Land,
+        Land2,
+        Hyperspace,
+        Disabled,
+        Flying
+};
+
+enum class MissileState : uint8_t {
+        Ready,
+        Fired,
+        Reload,
+        Reload2,
+        Damaged
+};
+
+enum class ShipClass : uint8_t {
+        Fighter,
+        Midsize,
+        Capital,
+        Platform
+};
+
+enum class MissileType : uint8_t {
+        ConcussionMissile,
+        ProtonTorpedo,
+        HeavyRocket,
+        HeavyBomb
+};
+
+enum class GroupType : uint8_t {
+        Clan,
+        Council,
+        Guild
+};
 
 #define LaserDamaged    -1
 #define LaserReady       0
@@ -1020,24 +1074,24 @@ typedef enum
 } cargo_types;
 
 /* disease types */
-#define IllnessNone            0
-#define IllnessSniffles        1
-#define IllnessGas             2
-#define IllnessCough           3
-#define IllnessCold            4
-#define IllnessFlu             5
-#define IllnessStrep           6
-#define IllnessPnumonia        7
-#define IllnessInfecteye       8
-#define IllnessInfectear       9
-#define IllnessInfectthroat    10
-#define IllnessBachularia      11
-#define IllnessAngina          12
-#define IllnessDepression      13
-#define IllnessCancer          14
-#define IllnessBubonicPlague  15
-#define IllnessAids            16
-#define IllnessMax             17
+constexpr int IllnessNone        =    0;
+constexpr int IllnessSniffles        =    1;
+constexpr int IllnessGas             =    2;
+constexpr int IllnessCough           =    3;
+constexpr int IllnessCold            =    4;
+constexpr int IllnessFlu             =    5;
+constexpr int IllnessStrep           =    6;
+constexpr int IllnessPnumonia        =    7;
+constexpr int IllnessInfecteye       =    8;
+constexpr int IllnessInfectear       =    9;
+constexpr int IllnessInfectthroat    =   10;
+constexpr int IllnessBachularia      =   11;
+constexpr int IllnessAngina          =   12;
+constexpr int IllnessDepression      =   13;
+constexpr int IllnessCancer          =   14;
+constexpr int IllnessBubonicPlague  =   15;
+constexpr int IllnessAids            =   16;
+constexpr int IllnessMax             =   17;
 
 
 struct InstallationData;
@@ -1082,8 +1136,8 @@ struct PlanetData
 };
 
 
-#define PlanetNocapture  BV00
-#define PlanetShield     BV01
+constexpr int PlanetNocapture  = 0;
+constexpr int PlanetShield     = 1;
 
 /* NEVER USE MAGIC NUMBERS */
 /* Pretty sure if we are doing 0-13, this can be 13 */
@@ -1297,184 +1351,182 @@ struct smaug_affect
  * Well known mob virtual numbers.
  * Defined in #MOBILES.
  */
-#define MobVnumAnimatedCorpse   5
-#define MobVnumPolyWolf	   10
+constexpr int MobVnumAnimatedCorpse = 5;
+constexpr int MobVnumPolyWolf = 10;
 
-
-#define MobVnumGuard	21
-#define MobVnumPatrol	23
-#define MobVnumEliteGuard	18
-#define MobVnumSpecialForces  	19
-#define MobVnumPatrol	23
-#define MobVnumMercinary	24
-#define MobVnumBouncer	25
+constexpr int MobVnumGuard = 21;
+constexpr int MobVnumPatrol = 23;
+constexpr int MobVnumEliteGuard = 18;
+constexpr int MobVnumSpecialForces = 19;
+constexpr int MobVnumMercinary = 24;
+constexpr int MobVnumBouncer = 25;
 
 
 /*
  * ACT bits for mobs.
  * Used in #MOBILES.
  */
-#define ActIsNpc		 BV00   /* Auto set for mobs    */
-#define ActSentinel		 BV01   /* Stays in one room    */
-#define ActScavenger		 BV02   /* Picks up objects */
-#define ActNorunsnipe       BV03   /* Won't run and snipe */
-#define ActAggressive		 BV05   /* Attacks PC's     */
-#define ActStayArea		 BV06   /* Won't leave area */
-#define ActWimpy		 BV07   /* Flees when hurt  */
-#define ActPet			 BV08   /* Auto set for pets    */
-#define ActTrain		 BV09   /* Can train PC's   */
-#define ActPractice		 BV10   /* Can practice PC's    */
-#define ActImmortal		 BV11   /* Cannot be killed */
-#define ActDeadly		 BV12   /* Has a deadly poison  */
-#define ActSpeaksall		 BV13
-#define ActMetaAggr		 BV14   /* Extremely aggressive */
-#define ActGuardian		 BV15   /* Protects master  */
-#define ActRunning		 BV16   /* Hunts quickly    */
-#define ActNowander		 BV17   /* Doesn't wander   */
-#define ActMountable		 BV18   /* Can be mounted   */
-#define ActMounted		 BV19   /* Is mounted       */
-#define ActScholar              BV20   /* Can teach languages  */
-#define ActSecretive		 BV21   /* actions aren't seen  */
-#define ActPolymorphed		 BV22   /* Mob is a ch      */
-#define ActMobinvis		 BV23   /* Like wizinvis    */
-#define ActNoassist		 BV24   /* Doesn't assist mobs  */
-#define ActNokill               BV25   /* Mob can't die */
-#define ActDroid                BV26   /* mob is a droid */
-#define ActNocorpse             BV27
-#define ActMail			 BV28   /* Mail */
-#define ActCitizen		 BV29   /* Planet Citizen */
-#define ActPrototype		 BV30   /* A prototype mob  */
+constexpr int ActIsNpc		 = 0;   /* Auto set for mobs    */
+constexpr int ActSentinel		 = 1;   /* Stays in one room    */
+constexpr int ActScavenger		 = 2;   /* Picks up objects */
+constexpr int ActNorunsnipe            = 3;   /* Won't run and snipe */
+constexpr int ActAggressive		 = 5;   /* Attacks PC's     */
+constexpr int ActStayArea		 = 6;   /* Won't leave area */
+constexpr int ActWimpy		 = 7;   /* Flees when hurt  */
+constexpr int ActPet			 = 8;   /* Auto set for pets    */
+constexpr int ActTrain		 = 9;   /* Can train PC's   */
+constexpr int ActPractice		 = 10;   /* Can practice PC's    */
+constexpr int ActImmortal		 = 11;   /* Cannot be killed */
+constexpr int ActDeadly		 = 12;   /* Has a deadly poison  */
+constexpr int ActSpeaksall		 = 13;
+constexpr int ActMetaAggr		 = 14;   /* Extremely aggressive */
+constexpr int ActGuardian		 = 15;   /* Protects master  */
+constexpr int ActRunning		 = 16;   /* Hunts quickly    */
+constexpr int ActNowander		 = 17;   /* Doesn't wander   */
+constexpr int ActMountable		 = 18;   /* Can be mounted   */
+constexpr int ActMounted		 = 19;   /* Is mounted       */
+constexpr int ActScholar               = 20;   /* Can teach languages  */
+constexpr int ActSecretive		 = 21;   /* actions aren't seen  */
+constexpr int ActPolymorphed		 = 22;   /* Mob is a ch      */
+constexpr int ActMobinvis		 = 23;   /* Like wizinvis    */
+constexpr int ActNoassist		 = 24;   /* Doesn't assist mobs  */
+constexpr int ActNokill                = 25;   /* Mob can't die */
+constexpr int ActDroid                 = 26;   /* mob is a droid */
+constexpr int ActNocorpse              = 27;
+constexpr int ActMail			 = 28;   /* Mail */
+constexpr int ActCitizen		 = 29;   /* Planet Citizen */
+constexpr int ActPrototype		 = 30;   /* A prototype mob  */
 /* 20 acts */
 
 /* bits for vip flags */
 
-#define VipCoruscant           BV00
-#define VipKashyyyk          	BV01
-#define VipRyloth            	BV02
-#define VipRodia             	BV03
-#define VipNalHutta           BV04
-#define VipMonCalamari       	BV05
-#define VipHonoghr             BV06
-#define VipGamorr              BV07
-#define VipTatooine            BV08
-#define VipAdari           	BV09
-#define VipByss		        BV10
-#define VipEndor		        BV11
-#define VipRoche		        BV12
-#define VipAfEl		        BV13
-#define VipTrandosha	 	    BV14
-#define VipChad		        BV15
-#define VipHoth		        BV16
+constexpr int VipCoruscant            = 0;
+constexpr int VipKashyyyk          	= 1;
+constexpr int VipRyloth            	= 2;
+constexpr int VipRodia             	= 3;
+constexpr int VipNalHutta             = 4;
+constexpr int VipMonCalamari       	= 5;
+constexpr int VipHonoghr              = 6;
+constexpr int VipGamorr               = 7;
+constexpr int VipTatooine             = 8;
+constexpr int VipAdari           	= 9;
+constexpr int VipByss		        = 10;
+constexpr int VipEndor	        = 11;
+constexpr int VipRoche                = 12;
+constexpr int VipAfEl		        = 13;
+constexpr int VipTrandosha	        = 14;
+constexpr int VipChad		        = 15;
+constexpr int VipHoth		        = 16;
 
 /* player wanted bits */
 
-#define WantedMonCalamari   	VipMonCalamari
-#define WantedCoruscant   	VipCoruscant
-#define WantedAdari   		VipAdari
-#define WantedRodia   		VipRodia
-#define WantedRyloth   	VipRyloth
-#define WantedGamorr   	VipGamorr
-#define WantedTatooine   	VipTatooine
-#define WantedByss   		VipByss
-#define WantedNalHutta   	VipNalHutta
-#define WantedKashyyyk   	VipKashyyyk
-#define WantedHonoghr   	VipHonoghr
-#define WantedEndor		BV11
-#define WantedRoche		BV12
-#define WantedAfEl		BV13
-#define WantedTrandosha		BV14
-#define WantedChad		BV15
-#define WantedHoth		BV16
+constexpr int WantedMonCalamari   =    	VipMonCalamari;
+constexpr int WantedCoruscant   	= 	VipCoruscant;
+constexpr int WantedAdari   		= 	VipAdari;
+constexpr int WantedRodia   		= 	VipRodia;
+constexpr int WantedRyloth   	        = 	VipRyloth;
+constexpr int WantedGamorr   	        = 	VipGamorr;
+constexpr int WantedTatooine   	= 	VipTatooine;
+constexpr int WantedByss   		= 	VipByss;
+constexpr int WantedNalHutta   	= 	VipNalHutta;
+constexpr int WantedKashyyyk   	= 	VipKashyyyk;
+constexpr int WantedHonoghr   	= 	VipHonoghr;
+constexpr int WantedEndor		= 11;
+constexpr int WantedRoche		= 12;
+constexpr int WantedAfEl		= 13;
+constexpr int WantedTrandosha		= 14;
+constexpr int WantedChad		= 15;
+constexpr int WantedHoth		= 16;
 
 /*
  * Bits for 'affected_by'.
  * Used in #MOBILES.
  */
-#define AffNone                  0
+constexpr int AffNone             =     0;
 
-#define AffBlind		  BV00
-#define AffInvisible		  BV01
-#define AffDetectEvil		  BV02
-#define AffDetectInvis	  BV03
-#define AffDetectMagic	  BV04
-#define AffDetectHidden	  BV05
-#define AffWeaken		  BV06
-#define AffSanctuary		  BV07
-#define AffFaerieFire		  BV08
-#define AffInfrared		  BV09
-#define AffCurse		  BV10
-#define AffSecretive		  BV11  /* Unused   */
-#define AffPoison		  BV12
-#define AffProtect		  BV13
-#define AffParalysis		  BV14
-#define AffSneak		  BV15
-#define AffHide		  BV16
-#define AffSleep		  BV17
-#define AffCharm		  BV18
-#define AffFlying		  BV19
-#define AffPassDoor		  BV20
-#define AffFloating		  BV21
-#define AffTruesight		  BV22
-#define AffDetecttraps		  BV23
-#define AffScrying	          BV24
-#define AffFireshield	          BV25
-#define AffShockshield	          BV26
-#define AffRestrained                 BV27 /* not used */
-#define AffIceshield  		  BV28
-#define AffPossess		  BV29
-#define AffBerserk		  BV30
-#define AffAquaBreath		  BV31
+constexpr int AffBlind		  = 0;
+constexpr int AffInvisible		  = 1;
+constexpr int AffDetectEvil		  = 2;
+constexpr int AffDetectInvis	          = 3;
+constexpr int AffDetectMagic	          = 4;
+constexpr int AffDetectHidden	          = 5;
+constexpr int AffWeaken		  = 6;
+constexpr int AffSanctuary		  = 7;
+constexpr int AffFaerieFire		  = 8;
+constexpr int AffInfrared		  = 9;
+constexpr int AffCurse		  = 10;
+constexpr int AffSecretive		  = 11;  /* Unused   */
+constexpr int AffPoison		  = 12;
+constexpr int AffProtect		  = 13;
+constexpr int AffParalysis		  = 14;
+constexpr int AffSneak		  = 15;
+constexpr int AffHide		          = 16;
+constexpr int AffSleep		  = 17;
+constexpr int AffCharm		  = 18;
+constexpr int AffFlying		  = 19;
+constexpr int AffPassDoor		  = 20;
+constexpr int AffFloating		  = 21;
+constexpr int AffTruesight		  = 22;
+constexpr int AffDetecttraps		  = 23;
+constexpr int AffScrying	          = 24;
+constexpr int AffFireshield	          = 25;
+constexpr int AffShockshield	          = 26;
+constexpr int AffRestrained             = 27; /* not used */
+constexpr int AffIceshield  		  = 28;
+constexpr int AffPossess		  = 29;
+constexpr int AffBerserk		  = 30;
+constexpr int AffAquaBreath		  = 31;
 
 /* 31 aff's (1 left.. :P) */
 /* make that none - ugh - time for another field? :P */
 /*
  * Resistant Immune Susceptible flags
  */
-#define RisFire		  BV00
-#define RisCold		  BV01
-#define RisElectricity		  BV02
-#define RisEnergy		  BV03
-#define RisBlunt		  BV04
-#define RisPierce		  BV05
-#define RisSlash		  BV06
-#define RisAcid		  BV07
-#define RisPoison		  BV08
-#define RisDrain		  BV09
-#define RisSleep		  BV10
-#define RisCharm		  BV11
-#define RisHold		  BV12
-#define RisNonmagic		  BV13
-#define RisPlus1		  BV14
-#define RisPlus2		  BV15
-#define RisPlus3		  BV16
-#define RisPlus4		  BV17
-#define RisPlus5		  BV18
-#define RisPlus6		  BV19
-#define RisMagic		  BV20
-#define RisParalysis		  BV21
+constexpr int RisFire		          = 0;
+constexpr int RisCold		          = 1;
+constexpr int RisElectricity		  = 2;
+constexpr int RisEnergy		  = 3;
+constexpr int RisBlunt		  = 4;
+constexpr int RisPierce		  = 5;
+constexpr int RisSlash		  = 6;
+constexpr int RisAcid		          = 7;
+constexpr int RisPoison		  = 8;
+constexpr int RisDrain		  = 9;
+constexpr int RisSleep		  = 10;
+constexpr int RisCharm		  = 11;
+constexpr int RisHold		          = 12;
+constexpr int RisNonmagic		  = 13;
+constexpr int RisPlus1		  = 14;
+constexpr int RisPlus2		  = 15;
+constexpr int RisPlus3		  = 16;
+constexpr int RisPlus4		  = 17;
+constexpr int RisPlus5		  = 18;
+constexpr int RisPlus6		  = 19;
+constexpr int RisMagic		  = 20;
+constexpr int RisParalysis		  = 21;
 /* 21 RIS's*/
 
 /* 
  * Attack types
  */
 
-#define AtckBite          BV00
-#define AtckClaws      BV01
-#define AtckTail          BV02
-#define AtckSting      BV03
-#define AtckPunch      BV04
-#define AtckKick          BV05
-#define AtckTrip          BV06
-#define AtckBackstab      BV10
+constexpr int AtckBite                = 0;
+constexpr int AtckClaws               = 1;
+constexpr int AtckTail                = 2;
+constexpr int AtckSting               = 3;
+constexpr int AtckPunch               = 4;
+constexpr int AtckKick                = 5;
+constexpr int AtckTrip                = 6;
+constexpr int AtckBackstab            = 10;
 
 
 /*
  * Defense types
  */
-#define DfndParry      BV00
-#define DfndDodge      BV01
-#define DfndDisarm      BV19
-#define DfndGrip          BV21
+constexpr int DfndParry               = 0;
+constexpr int DfndDodge               = 1;
+constexpr int DfndDisarm              = 19;
+constexpr int DfndGrip                = 21;
 /* 2 def's */
 
 /*
@@ -1494,66 +1546,66 @@ typedef enum
 /*
  * Autosave flags
  */
-#define SvDeath		  BV00
-#define SvKill			  BV01
-#define SvPasschg		  BV02
-#define SvDrop			  BV03
-#define SvPut			  BV04
-#define SvGive			  BV05
-#define SvAuto			  BV06
-#define SvZapdrop		  BV07
-#define SvAuction		  BV08
-#define SvGet			  BV09
-#define SvReceive		  BV10
-#define SvIdle			  BV11
-#define SvBackup		  BV12
-#define SvWho		  	  BV13
-#define SvScore		  BV14
-#define SvList		  	  BV15
-#define SvN		  	  BV16
-#define SvE			  BV17
-#define SvS			  BV18
-#define SvW			  BV19
-#define SvNe		  	  BV20
-#define SvSe			  BV21
-#define SvNw			  BV22
-#define SvSw			  BV23
-#define SvLook			  BV24
+constexpr int SvDeath		          = 0;
+constexpr int SvKill			  = 1;
+constexpr int SvPasschg		  = 2;
+constexpr int SvDrop			  = 3;
+constexpr int SvPut			  = 4;
+constexpr int SvGive			  = 5;
+constexpr int SvAuto			  = 6;
+constexpr int SvZapdrop		  = 7;
+constexpr int SvAuction		  = 8;
+constexpr int SvGet			  = 9;
+constexpr int SvReceive		  = 10;
+constexpr int SvIdle			  = 11;
+constexpr int SvBackup		  = 12;
+constexpr int SvWho		  	  = 13;
+constexpr int SvScore		          = 14;
+constexpr int SvList		  	  = 15;
+constexpr int SvN		  	  = 16;
+constexpr int SvE			  = 17;
+constexpr int SvS			  = 18;
+constexpr int SvW			  = 19;
+constexpr int SvNe		  	  = 20;
+constexpr int SvSe			  = 21;
+constexpr int SvNw			  = 22;
+constexpr int SvSw			  = 23;
+constexpr int SvLook			  = 24;
 
 /*
  * Pipe flags
  */
-#define PipeTamped		  BV01
-#define PipeLit		  BV02
-#define PipeHot		  BV03
-#define PipeDirty		  BV04
-#define PipeFilthy		  BV05
-#define PipeGoingout		  BV06
-#define PipeBurnt		  BV07
-#define PipeFullofash		  BV08
+constexpr int PipeTamped		  = 1;
+constexpr int PipeLit		          = 2;
+constexpr int PipeHot		          = 3;
+constexpr int PipeDirty		  = 4;
+constexpr int PipeFilthy		  = 5;
+constexpr int PipeGoingout		  = 6;
+constexpr int PipeBurnt		  = 7;
+constexpr int PipeFullofash		  = 8;
 
 /*
  * Skill/Spell flags	The minimum BV *MUST* be 11!
  */
-#define SfWater		  BV11
-#define SfEarth		  BV12
-#define SfAir			  BV13
-#define SfAstral		  BV14
-#define SfArea			  BV15  /* is an area spell     */
-#define SfDistant		  BV16  /* affects something far away   */
-#define SfReverse		  BV17
-#define SfSaveHalfDamage	  BV18  /* save for half damage     */
-#define SfSaveNegates		  BV19  /* save negates affect      */
-#define SfAccumulative		  BV20  /* is accumulative      */
-#define SfRecastable		  BV21  /* can be refreshed     */
-#define SfNoscribe		  BV22  /* cannot be scribed        */
-#define SfNobrew		  BV23  /* cannot be brewed     */
-#define SfGroupspell		  BV24  /* only affects group members   */
-#define SfObject		  BV25  /* directed at an object    */
-#define SfCharacter		  BV26  /* directed at a character  */
-#define SfSecretskill		  BV27  /* hidden unless learned    */
-#define SfPksensitive		  BV28  /* much harder for plr vs. plr  */
-#define SfStoponfail		  BV29  /* stops spell on first failure */
+constexpr int SfWater		          = 11;
+constexpr int SfEarth		          = 12;
+constexpr int SfAir			  = 13;
+constexpr int SfAstral		  = 14;
+constexpr int SfArea			  = 15;  /* is an area spell     */
+constexpr int SfDistant		  = 16;  /* affects something far away   */
+constexpr int SfReverse		  = 17;
+constexpr int SfSaveHalfDamage	  = 18;  /* save for half damage     */
+constexpr int SfSaveNegates		  = 19;  /* save negates affect      */
+constexpr int SfAccumulative		  = 20;  /* is accumulative      */
+constexpr int SfRecastable		  = 21;  /* can be refreshed     */
+constexpr int SfNoscribe		  = 22;  /* cannot be scribed        */
+constexpr int SfNobrew		  = 23;  /* cannot be brewed     */
+constexpr int SfGroupspell		  = 24;  /* only affects group members   */
+constexpr int SfObject		  = 25;  /* directed at an object    */
+constexpr int SfCharacter		  = 26;  /* directed at a character  */
+constexpr int SfSecretskill		  = 27;  /* hidden unless learned    */
+constexpr int SfPksensitive		  = 28;  /* much harder for plr vs. plr  */
+constexpr int SfStoponfail		  = 29;  /* stops spell on first failure */
 
 typedef enum
 { SsNone, SsPoisonDeath, SsRodWands, SsParaPetri,
@@ -1561,10 +1613,10 @@ typedef enum
 } save_types;
 
 #define AllBits		IntMax
-#define SdamMask		AllBits & ~(BV00 | BV01 | BV02)
-#define SactMask		AllBits & ~(BV03 | BV04 | BV05)
-#define SclaMask		AllBits & ~(BV06 | BV07 | BV08)
-#define SpowMask		AllBits & ~(BV09 | BV10)
+#define SdamMask		AllBits & ~(= 0; | = 1; | = 2;)
+#define SactMask		AllBits & ~(= 3; | = 4; | = 5;)
+#define SclaMask		AllBits & ~(= 6; | = 7; | = 8;)
+#define SpowMask		AllBits & ~(= 9; | = 10;)
 
 typedef enum
 { SdNone, SdFire, SdCold, SdElectricity, SdEnergy, SdAcid,
@@ -1595,8 +1647,7 @@ typedef enum
 {
         TrapTypePoisonGas =
                 1, TrapTypePoisonDart, TrapTypePoisonNeedle,
-        TrapTypePoisonDagger, TrapTypePoisonArrow,
-        TrapTypeBlindnessGas,
+        TrapTypePoisonDagger, TrapTypePoisonArrow, TrapTypeBlindnessGas,
         TrapTypeSleepingGas, TrapTypeFlame, TrapTypeExplosion,
         TrapTypeAcidSpray, TrapTypeElectricShock, TrapTypeBlade,
         TrapTypeSexChange
@@ -1604,79 +1655,79 @@ typedef enum
 
 #define MaxTraptype		   TrapTypeSexChange
 
-#define TrapRoom      		   BV00
-#define TrapObj	      	   BV01
-#define TrapEnterRoom		   BV02
-#define TrapLeaveRoom		   BV03
-#define TrapOpen		   BV04
-#define TrapClose		   BV05
-#define TrapGet		   BV06
-#define TrapPut		   BV07
-#define TrapPick		   BV08
-#define TrapUnlock		   BV09
-#define TrapN			   BV10
-#define TrapS			   BV11
-#define TrapE	      		   BV12
-#define TrapW	      		   BV13
-#define TrapU	      		   BV14
-#define TrapD	      		   BV15
-#define TrapExamine		   BV16
-#define TrapNe			   BV17
-#define TrapNw			   BV18
-#define TrapSe			   BV19
-#define TrapSw			   BV20
+constexpr int TrapRoom      		   = 0;
+constexpr int TrapObj	      	           = 1;
+constexpr int TrapEnterRoom		   = 2;
+constexpr int TrapLeaveRoom		   = 3;
+constexpr int TrapOpen		   = 4;
+constexpr int TrapClose		   = 5;
+constexpr int TrapGet		           = 6;
+constexpr int TrapPut		           = 7;
+constexpr int TrapPick		   = 8;
+constexpr int TrapUnlock		   = 9;
+constexpr int TrapN			   = 10;
+constexpr int TrapS			   = 11;
+constexpr int TrapE	      		   = 12;
+constexpr int TrapW	      		   = 13;
+constexpr int TrapU	      		   = 14;
+constexpr int TrapD	      		   = 15;
+constexpr int TrapExamine		   = 16;
+constexpr int TrapNe			   = 17;
+constexpr int TrapNw			   = 18;
+constexpr int TrapSe			   = 19;
+constexpr int TrapSw			   = 20;
 
 /*
  * Well known object virtual numbers.
  * Defined in #OBJECTS.
  */
-#define ObjVnumMoneyOne	      2
-#define ObjVnumMoneySome	      3
+constexpr int ObjVnumMoneyOne	      =        2;
+constexpr int ObjVnumMoneySome	      =        3;
 
-#define ObjVnumDroidCorpse        9
-#define ObjVnumCorpseNpc	     10
-#define ObjVnumCorpsePc	     11
-#define ObjVnumSeveredHead	     12
-#define ObjVnumTornHeart	     13
-#define ObjVnumSlicedArm	     14
-#define ObjVnumSlicedLeg	     15
-#define ObjVnumSpilledGuts	     16
-#define ObjVnumBlood		     17
-#define ObjVnumBloodstain	     18
-#define ObjVnumScraps		     19
+constexpr int ObjVnumDroidCorpse            =        9;
+constexpr int ObjVnumCorpseNpc	     =       10;
+constexpr int ObjVnumCorpsePc	             =       11;
+constexpr int ObjVnumSeveredHead	     =       12;
+constexpr int ObjVnumTornHeart	     =       13;
+constexpr int ObjVnumSlicedArm	     =       14;
+constexpr int ObjVnumSlicedLeg	     =       15;
+constexpr int ObjVnumSpilledGuts	     =       16;
+constexpr int ObjVnumBlood		     =       17;
+constexpr int ObjVnumBloodstain	     =       18;
+constexpr int ObjVnumScraps		     =       19;
 
-#define ObjVnumMushroom	     20
-#define ObjVnumLightBall	     21
-#define ObjVnumSpring		     22
+constexpr int ObjVnumMushroom	             =       20;
+constexpr int ObjVnumLightBall	     =       21;
+constexpr int ObjVnumSpring		     =       22;
 
-#define ObjVnumSlice		     24
-#define ObjVnumShoppingBag	     25
+constexpr int ObjVnumSlice		     =       24;
+constexpr int ObjVnumShoppingBag	     =       25;
 
-#define ObjVnumFire		     30
-#define ObjVnumTrap		     31
-#define ObjVnumPortal		     32
+constexpr int ObjVnumFire		     =       30;
+constexpr int ObjVnumTrap		     =       31;
+constexpr int ObjVnumPortal		     =       32;
 
-#define ObjVnumBlackPowder	     33
-#define ObjVnumScrollScribing     34
-#define ObjVnumFlaskBrewing       35
-#define ObjVnumSharpen             39
+constexpr int ObjVnumBlackPowder	     =       33;
+constexpr int ObjVnumScrollScribing        =       34;
+constexpr int ObjVnumFlaskBrewing          =       35;
+constexpr int ObjVnumSharpen               =       39;
 
-#define ObjVnumDiamondRing	     65
-#define ObjVnumRestraint           66
-#define ObjVnumWeddingBand        67
-#define ObjVnumMedkit              67
+constexpr int ObjVnumDiamondRing	     =       65;
+constexpr int ObjVnumRestraint             =       66;
+constexpr int ObjVnumWeddingBand           =       67;
+constexpr int ObjVnumMedkit                =       67;
 
 /* Academy eq */
-#define ObjVnumSchoolMace	  10315
-#define ObjVnumSchoolDagger	  10312
-#define ObjVnumSchoolSword	  10313
-#define ObjVnumSchoolVest	  10308
-#define ObjVnumSchoolShield	  10310
-#define ObjVnumSchoolBanner    10311
-#define ObjVnumSchoolDiploma   10321
-#define ObjVnumSchoolMoney     10431
+constexpr int ObjVnumSchoolMace	        =       10315;
+constexpr int ObjVnumSchoolDagger	        =       10312;
+constexpr int ObjVnumSchoolSword	        =       10313;
+constexpr int ObjVnumSchoolVest	        =       10308;
+constexpr int ObjVnumSchoolShield	        =       10310;
+constexpr int ObjVnumSchoolBanner	        =       10311;
+constexpr int ObjVnumSchoolDiploma        =       10321;
+constexpr int ObjVnumSchoolMoney          =       10431;
 
-#define ObjVnumBlastechE11     50
+constexpr int ObjVnumBlastechE11        =       50;
 
 /*
  * Item types.
@@ -1684,31 +1735,23 @@ typedef enum
  */
 typedef enum
 {
-        ItemNone, ItemLight, ItemScroll, ItemWand, ItemStaff,
-        ItemWeapon,
+        ItemNone, ItemLight, ItemScroll, ItemWand, ItemStaff, ItemWeapon,
         ItemFireweapon, ItemMissile, ItemTreasure, ItemArmor, ItemPotion,
         ItemWorn, ItemFurniture, ItemTrash, ItemOldtrap, ItemContainer,
         ItemNote, ItemDrinkCon, ItemKey, ItemFood, ItemMoney, ItemPen,
         ItemBoat, ItemCorpseNpc, ItemCorpsePc, ItemFountain, ItemPill,
         ItemBlood, ItemBloodstain, ItemScraps, ItemPipe, ItemHerbCon,
-        ItemHerb, ItemIncense, ItemFire, ItemBook, ItemSwitch,
-        ItemLever,
+        ItemHerb, ItemIncense, ItemFire, ItemBook, ItemSwitch, ItemLever,
         ItemPullchain, ItemButton, ItemBeacon, ItemTrap, ItemRunepouch,
         ItemMatch, ItemRawMetal, ItemCanister, ItemPortal, ItemPaper,
-        ItemTinder, ItemLockpick, ItemSpike, ItemDisease, ItemOil,
-        ItemFuel,
+        ItemTinder, ItemLockpick, ItemSpike, ItemDisease, ItemOil, ItemFuel,
         ItemRestraint, ItemLongBow, ItemCrossbow, ItemAmmo, ItemQuiver,
-        ItemShovel, ItemSalve, ItemRawspice, ItemLens, ItemCrystal,
-        ItemDuraplast,
+        ItemShovel, ItemSalve, ItemRawspice, ItemLens, ItemCrystal, ItemDuraplast,
         ItemBattery, ItemToolkit, ItemDurasteel, ItemOven, ItemMirror,
-        ItemCircuit, ItemSuperconductor, ItemComlink, ItemMedpac,
-        ItemFabric,
-        ItemRareMetal, ItemMagnet, ItemThread, ItemSpice, ItemSmut,
-        ItemDevice, ItemSpacecraft,
-        ItemGrenade, ItemLandmine, ItemGovernment, ItemDroidCorpse,
-        ItemBolt, ItemBond,
-        ItemImplant, ItemChemical, ItemBinding, ItemHolster, 
-        ItemLanddeed,
+        ItemCircuit, ItemSuperconductor, ItemComlink, ItemMedpac, ItemFabric,
+        ItemRareMetal, ItemMagnet, ItemThread, ItemSpice, ItemSmut, ItemDevice, ItemSpacecraft,
+        ItemGrenade, ItemLandmine, ItemGovernment, ItemDroidCorpse, ItemBolt, ItemBond,
+        ItemImplant, ItemChemical, ItemBinding, ItemHolster, ItemLanddeed,
         ItemMax
 } item_types;
 
@@ -1718,68 +1761,68 @@ typedef enum
  * Extra flags.
  * Used in #OBJECTS.
  */
-#define ItemGlow		BV00
-#define ItemHum		BV01
-#define ItemDark		BV02
-#define ItemHuttSize		BV03
-#define ItemContraband		BV04
-#define ItemInvis		BV05
-#define ItemMagic		BV06
-#define ItemNodrop		BV07
-#define ItemBless		BV08
-#define ItemAntiGood		BV09
-#define ItemAntiEvil		BV10
-#define ItemAntiNeutral	BV11
-#define ItemNoremove		BV12
-#define ItemInventory		BV13
-#define ItemAntiSoldier	BV14
-#define ItemAntiThief	        BV15
-#define ItemAntiHunter	BV16
-#define ItemAntiJedi  	BV17
-#define ItemSmallSize		BV18
-#define ItemLargeSize		BV19
-#define ItemDonation		BV20
-#define ItemClanobject		BV21
-#define ItemAntiCitizen	BV22
-#define ItemAntiSith  	BV23
-#define ItemAntiPilot	        BV24
-#define ItemHidden		BV25
-#define ItemPoisoned		BV26
-#define ItemCovering		BV27
-#define ItemDeathrot		BV28
-#define ItemBurried		BV29    /* item is underground */
-#define ItemPrototype		BV30
-#define ItemHumanSize         BV31
+constexpr int ItemGlow		= 0;
+constexpr int ItemHum		        = 1;
+constexpr int ItemDark		= 2;
+constexpr int ItemHuttSize		= 3;
+constexpr int ItemContraband		= 4;
+constexpr int ItemInvis		= 5;
+constexpr int ItemMagic		= 6;
+constexpr int ItemNodrop		= 7;
+constexpr int ItemBless		= 8;
+constexpr int ItemAntiGood		= 9;
+constexpr int ItemAntiEvil		= 10;
+constexpr int ItemAntiNeutral	        = 11;
+constexpr int ItemNoremove		= 12;
+constexpr int ItemInventory		= 13;
+constexpr int ItemAntiSoldier	        = 14;
+constexpr int ItemAntiThief	        = 15;
+constexpr int ItemAntiHunter	        = 16;
+constexpr int ItemAntiJedi  	        = 17;
+constexpr int ItemSmallSize		= 18;
+constexpr int ItemLargeSize		= 19;
+constexpr int ItemDonation		= 20;
+constexpr int ItemClanobject		= 21;
+constexpr int ItemAntiCitizen	        = 22;
+constexpr int ItemAntiSith  	        = 23;
+constexpr int ItemAntiPilot	        = 24;
+constexpr int ItemHidden		= 25;
+constexpr int ItemPoisoned		= 26;
+constexpr int ItemCovering		= 27;
+constexpr int ItemDeathrot		= 28;
+constexpr int ItemBurried		= 29;    /* item is underground */
+constexpr int ItemPrototype		= 30;
+constexpr int ItemHumanSize           = 31;
 
 /* Magic flags - extra extra_flags for objects that are used in spells */
-#define ItemReturning		BV00
-#define ItemBackstabber  	BV01
-#define ItemBane		BV02
-#define ItemLoyal		BV03
-#define ItemHaste		BV04
-#define ItemDrain		BV05
-#define ItemLightningBlade  	BV06
+constexpr int ItemReturning		= 0;
+constexpr int ItemBackstabber  	= 1;
+constexpr int ItemBane		= 2;
+constexpr int ItemLoyal		= 3;
+constexpr int ItemHaste		= 4;
+constexpr int ItemDrain		= 5;
+constexpr int ItemLightningBlade  	= 6;
 
 /* Blaster settings - only saves on characters */
-#define BlasterNormal          0
-#define BlasterHalf		2
-#define BlasterFull            5
-#define BlasterLow		1
-#define	BlasterStun		3
-#define BlasterHigh            4
+constexpr int BlasterNormal     =     0;
+constexpr int BlasterHalf       =     2;
+constexpr int BlasterFull       =     5;
+constexpr int BlasterLow        =     1;
+constexpr int BlasterStun      =     3;
+constexpr int BlasterHigh      =     4;
 
 /* Weapon Types */
 
-#define WeaponNone     	0
-#define WeaponVibroAxe	1
-#define WeaponVibroBlade	2
-#define WeaponLightsaber	3
-#define WeaponWhip  		4
-#define WeaponKnife		5
-#define WeaponBlaster		6
-#define WeaponBludgeon		8
-#define WeaponBowcaster        9
-#define WeaponForcePike	11
+constexpr int WeaponNone     	        =     0;
+constexpr int WeaponVibroAxe	        =     1;
+constexpr int WeaponVibroBlade	        =     2;
+constexpr int WeaponLightsaber	        =     3;
+constexpr int WeaponWhip  		=     4;
+constexpr int WeaponKnife		=     5;
+constexpr int WeaponBlaster		=     6;
+constexpr int WeaponBludgeon		=     8;
+constexpr int WeaponBowcaster           =     9;
+constexpr int WeaponForcePike	        =     11;
 
 
 /* Furniture Settings */
@@ -1802,75 +1845,75 @@ typedef enum
 
 
 /* Lever/dial/switch/button/pullchain flags */
-#define TrigUp			BV00
-#define TrigUnlock		BV01
-#define TrigLock		BV02
-#define TrigDNorth		BV03
-#define TrigDSouth		BV04
-#define TrigDEast		BV05
-#define TrigDWest		BV06
-#define TrigDUp		BV07
-#define TrigDDown		BV08
-#define TrigDoor		BV09
-#define TrigContainer		BV10
-#define TrigOpen		BV11
-#define TrigClose		BV12
-#define TrigPassage		BV13
-#define TrigOload		BV14
-#define TrigMload		BV15
-#define TrigDeath		BV19
-#define TrigCast		BV20
-#define TrigFakeblade		BV21
-#define TrigRand4		BV22
-#define TrigRand6		BV23
-#define TrigTrapdoor		BV24
-#define TrigAnotheroom		BV25
-#define TrigUsedial		BV26    /* Unused */
-#define TrigAbsolutevnum	BV27
-#define TrigShowroomdesc	BV28
-#define TrigAutoreturn		BV29
+constexpr int TrigUp			= 0;
+constexpr int TrigUnlock		= 1;
+constexpr int TrigLock		= 2;
+constexpr int TrigDNorth		= 3;
+constexpr int TrigDSouth		= 4;
+constexpr int TrigDEast		= 5;
+constexpr int TrigDWest		= 6;
+constexpr int TrigDUp		        = 7;
+constexpr int TrigDDown		= 8;
+constexpr int TrigDoor		= 9;
+constexpr int TrigContainer		= 10;
+constexpr int TrigOpen		= 11;
+constexpr int TrigClose		= 12;
+constexpr int TrigPassage		= 13;
+constexpr int TrigOload		= 14;
+constexpr int TrigMload		= 15;
+constexpr int TrigDeath		= 19;
+constexpr int TrigCast		= 20;
+constexpr int TrigFakeblade		= 21;
+constexpr int TrigRand4		= 22;
+constexpr int TrigRand6		= 23;
+constexpr int TrigTrapdoor		= 24;
+constexpr int TrigAnotheroom		= 25;
+constexpr int TrigUsedial		= 26;    /* Unused */
+constexpr int TrigAbsolutevnum	= 27;
+constexpr int TrigShowroomdesc	= 28;
+constexpr int TrigAutoreturn		= 29;
 
 /* drug types */
-#define SpiceGlitterstim        0
-#define SpiceCarsanum           1
-#define SpiceRyll               2
-#define SpiceAndris             3
+constexpr int SpiceGlitterstim        = 0;
+constexpr int SpiceCarsanum           = 1;
+constexpr int SpiceRyll               = 2;
+constexpr int SpiceAndris             = 3;
 
 /* crystal types */
-#define GemNonAdegen          0
-#define GemKathracite		1
-#define GemRelacite		2
-#define GemDanite		3
-#define GemMephite		4
-#define GemPonite		5
-#define GemIllum               6
-#define GemCorusca             7
+constexpr int GemNonAdegen           = 0;
+constexpr int GemKathracite          = 1;
+constexpr int GemRelacite            = 2;
+constexpr int GemDanite              = 3;
+constexpr int GemMephite             = 4;
+constexpr int GemPonite              = 5;
+constexpr int GemIllum               = 6;
+constexpr int GemCorusca             = 7;
 
 /*
  * Wear flags.
  * Used in #OBJECTS.
  */
-#define ItemTake		BV00
-#define ItemWearFinger	BV01
-#define ItemWearNeck		BV02
-#define ItemWearBody		BV03
-#define ItemWearHead		BV04
-#define ItemWearLegs		BV05
-#define ItemWearFeet		BV06
-#define ItemWearHands		BV07
-#define ItemWearArms		BV08
-#define ItemWearShield	BV09
-#define ItemWearAbout		BV10
-#define ItemWearWaist		BV11
-#define ItemWearWrist		BV12
-#define ItemWield		BV13
-#define ItemHold		BV14
-#define ItemDualWield		BV15
-#define ItemWearEars		BV16
-#define ItemWearEyes		BV17
-#define ItemMissileWield	BV18
-#define ItemWearBinding       BV19
-#define ItemWearHolster1	BV20
+constexpr int ItemTake		= 0;
+constexpr int ItemWearFinger	        = 1;
+constexpr int ItemWearNeck		= 2;
+constexpr int ItemWearBody		= 3;
+constexpr int ItemWearHead		= 4;
+constexpr int ItemWearLegs		= 5;
+constexpr int ItemWearFeet		= 6;
+constexpr int ItemWearHands		= 7;
+constexpr int ItemWearArms		= 8;
+constexpr int ItemWearShield	        = 9;
+constexpr int ItemWearAbout		= 10;
+constexpr int ItemWearWaist		= 11;
+constexpr int ItemWearWrist		= 12;
+constexpr int ItemWield		= 13;
+constexpr int ItemHold		= 14;
+constexpr int ItemDualWield		= 15;
+constexpr int ItemWearEars		= 16;
+constexpr int ItemWearEyes		= 17;
+constexpr int ItemMissileWield	= 18;
+constexpr int ItemWearBinding         = 19;
+constexpr int ItemWearHolster1	= 20;
 
 /*
  * Apply types (for affects).
@@ -1886,18 +1929,12 @@ typedef enum
         ApplySavingPara, ApplySavingBreath, ApplySavingSpell, ApplyCha,
         ApplyAffect, ApplyResistant, ApplyImmune, ApplySusceptible,
         ApplyWeaponspell, ApplyLck, ApplyBackstab, ApplyPick, ApplyTrack,
-        ApplySteal, ApplySneak, ApplyHide, ApplyPalm, ApplyDetrap,
-        ApplyDodge,
-        ApplyPeek, ApplyScan, ApplyGouge, ApplySearch, ApplyMount,
-        ApplyDisarm,
-        ApplyKick, ApplyParry, ApplyBash, ApplyStun, ApplyPunch,
-        ApplyClimb,
-        ApplyGrip, ApplyScribe, ApplyBrew, ApplyWearspell,
-        ApplyRemovespell,
-        ApplyEmotion, ApplyMentalstate, ApplyStripsn, ApplyRemove,
-        ApplyDig,
-        ApplyFull, ApplyThirst, ApplyDrunk, ApplyBlood, ApplySecretive,
-        MaxApplyType
+        ApplySteal, ApplySneak, ApplyHide, ApplyPalm, ApplyDetrap, ApplyDodge,
+        ApplyPeek, ApplyScan, ApplyGouge, ApplySearch, ApplyMount, ApplyDisarm,
+        ApplyKick, ApplyParry, ApplyBash, ApplyStun, ApplyPunch, ApplyClimb,
+        ApplyGrip, ApplyScribe, ApplyBrew, ApplyWearspell, ApplyRemovespell,
+        ApplyEmotion, ApplyMentalstate, ApplyStripsn, ApplyRemove, ApplyDig,
+        ApplyFull, ApplyThirst, ApplyDrunk, ApplyBlood, ApplySecretive, MaxApplyType
 } apply_types;
 
 #define ReverseApply		   1000
@@ -1915,38 +1952,38 @@ typedef enum
  * Well known room virtual numbers.
  * Defined in #ROOMS.
  */
-#define RoomVnumLimbo		      2
-#define RoomVnumPoly		      3
-#define RoomCloneEnd	      10000
-#define RoomCloneBegin	  10001
-#define RoomVnumChat		  32144
-#define RoomVnumTemple	  32144
-#define RoomVnumAltar		  32144
-#define RoomVnumSchool	  227
-#define RoomAuthStart		  227
-#define RoomStartHuman            211
-#define RoomStartWookiee        28600
-#define RoomStartTwilek         32148
-#define RoomStartRodian         32148
-#define RoomStartHutt           32148
-#define RoomStartMonCalamarian 21069
-#define RoomStartNoghri          1015
-#define RoomStartGamorrean      28100
-#define RoomStartJawa           31819
-#define RoomStartAdarian        29000
-#define RoomStartEwok           32148
-#define RoomStartVerpine        32148
-#define RoomStartCsillian       32148
-#define RoomStartDefel          32148
-#define RoomStartTrandoshan     32148
-#define RoomStartShistavanan     32148
-#define RoomStartDuinuogwuin    32148
-#define RoomStartDroid        21069
-#define RoomStartImmortal         100
-#define RoomLimboShipyard          45
-#define RoomDefaultCrash        28025
+constexpr int RoomVnumLimbo		    = 2;
+constexpr int RoomVnumPoly		    = 3;
+constexpr int RoomCloneEnd	        = 10000;
+constexpr int RoomCloneBegin	        = 10001;
+constexpr int RoomVnumChat	        = 32144;
+constexpr int RoomVnumTemple	        = 32144;
+constexpr int RoomVnumAltar	        = 32144;
+constexpr int RoomVnumSchool	        = 227;
+constexpr int RoomAuthStart	        = 227;
+constexpr int RoomStartHuman	        = 211;
+constexpr int RoomStartWookiee	    = 28600;
+constexpr int RoomStartTwilek         = 32148;
+constexpr int RoomStartRodian         = 32148;
+constexpr int RoomStartHutt           = 32148;
+constexpr int RoomStartMonCalamarian  = 21069;
+constexpr int RoomStartNoghri          = 1015;
+constexpr int RoomStartGamorrean      = 28100;
+constexpr int RoomStartJawa           = 31819;
+constexpr int RoomStartAdarian        = 29000;
+constexpr int RoomStartEwok           = 32148;
+constexpr int RoomStartVerpine        = 32148;
+constexpr int RoomStartCsillian       = 32148;
+constexpr int RoomStartDefel          = 32148;
+constexpr int RoomStartTrandoshan     = 32148;
+constexpr int RoomStartShistavanan    = 32148;
+constexpr int RoomStartDuinuogwuin    = 32148;
+constexpr int RoomStartDroid          = 21069;
+constexpr int RoomStartImmortal         = 100;
+constexpr int RoomLimboShipyard          = 45;
+constexpr int RoomDefaultCrash        = 28025;
 
-#define RoomPluogusQuit         32148
+constexpr int RoomPluogusQuit         = 32148;
 
 /*
  * Room flags.           Holy cow!  Talked about stripped away..
@@ -1962,39 +1999,34 @@ typedef enum
         RoomNoHailTo, RoomDonation, RoomNodropall,
         RoomSilence, RoomLogspeech, RoomNodrop, RoomClanstoreroom,
         RoomPlrHome, RoomEmptyHome, RoomNothing, RoomHotel,
-        RoomNofloor, RoomRefinery, RoomFactory, RoomRecruit,
-        RoomERecruit,
+        RoomNofloor, RoomRefinery, RoomFactory, RoomRecruit, RoomERecruit,
         RoomSpacecraft, RoomPrototype, RoomAuction, RoomBar, RoomInn,
         RoomOffice, RoomCafe, RoomKitchen, RoomExecutive, RoomBoardroom,
         RoomBacta, RoomImport, RoomBactaCharge, RoomArena, RoomBounty,
-        RoomTempCockpit, RoomTempTurret1, RoomTempTurret2,
-        RoomTempHangar,
-        RoomTempEngineroom, RoomTempNavseat, RoomTempPilotseat,
-        RoomTempCoseat,
-        RoomTempGunseat, RoomTempCorridor, RoomTempBedroom,
-        RoomTempWorkshop,
-        RoomTempTurbolift, RoomPlayershop, RoomMonitor,
-        RoomEmptyplot, MaxRoomFlag
+        RoomTempCockpit, RoomTempTurret1, RoomTempTurret2, RoomTempHangar,
+        RoomTempEngineroom, RoomTempNavseat, RoomTempPilotseat, RoomTempCoseat,
+        RoomTempGunseat, RoomTempCorridor, RoomTempBedroom, RoomTempWorkshop,
+        RoomTempTurbolift, RoomPlayershop, RoomMonitor, RoomEmptyplot, MaxRoomFlag
 } roomflags;
 
 /*Ship Flags*/
-#define ShipSimulator		BV00
-#define ShipCloak          BV01
-#define ShipStealth        BV02
-#define ShipInterdictor    BV03
-#define ShipRepublic       BV04
-#define ShipEmpire         BV05
-#define ShipHunter         BV06
-#define ShipSmuggler       BV07
-#define ShipPirate         BV08
-#define ShipPolice         BV09
-#define ShipClan1          BV10
-#define ShipClan2          BV11
-#define ShipClan3          BV12
-#define ShipClan4          BV13
-#define ShipClan5          BV14
-#define ShipTroop          BV15
-#define ShipTaxi           BV16
+constexpr int ShipSimulator	   = 0;
+constexpr int ShipCloak          = 1;
+constexpr int ShipStealth        = 2;
+constexpr int ShipInterdictor    = 3;
+constexpr int ShipRepublic       = 4;
+constexpr int ShipEmpire         = 5;
+constexpr int ShipHunter         = 6;
+constexpr int ShipSmuggler       = 7;
+constexpr int ShipPirate         = 8;
+constexpr int ShipPolice         = 9;
+constexpr int ShipClan1          = 10;
+constexpr int ShipClan2          = 11;
+constexpr int ShipClan3          = 12;
+constexpr int ShipClan4          = 13;
+constexpr int ShipClan5          = 14;
+constexpr int ShipTroop          = 15;
+constexpr int ShipTaxi           = 16;
 
 
 
@@ -2017,35 +2049,35 @@ typedef enum
  * Exit flags.
  * Used in #ROOMS.
  */
-#define ExIsdoor		  BV00
-#define ExClosed		  BV01
-#define ExLocked		  BV02
-#define ExSecret		  BV03
-#define ExSwim			  BV04
-#define ExPickproof		  BV05
-#define ExFly			  BV06
-#define ExClimb		  BV07
-#define ExDig			  BV08
-#define ExRes1                   BV09  /* are these res[1-4] important? */
-#define ExNopassdoor		  BV10
-#define ExHidden		  BV11
-#define ExPassage		  BV12
-#define ExPortal 		  BV13
-#define ExRes2			  BV14
-#define ExRes3			  BV15
-#define EX_xCLIMB		  BV16
-#define EX_xENTER		  BV17
-#define EX_xLEAVE		  BV18
-#define EX_xAUTO		  BV19
-#define ExRes4	  		  BV20
-#define EX_xSEARCHABLE		  BV21
-#define ExBashed                 BV22
-#define ExBashproof              BV23
-#define ExNomob		  BV24
-#define ExWindow		  BV25
-#define EX_xLOOK		  BV26
-#define ExRubble      BV27
-#define MaxExflag		  27
+constexpr int ExIsdoor		  = 0;
+constexpr int ExClosed		  = 1;
+constexpr int ExLocked		  = 2;
+constexpr int ExSecret		  = 3;
+constexpr int ExSwim			  = 4;
+constexpr int ExPickproof		  = 5;
+constexpr int ExFly			  = 6;
+constexpr int ExClimb		          = 7;
+constexpr int ExDig			  = 8;
+constexpr int ExRes1                    = 9;  /* are these res[1-4] important? */
+constexpr int ExNopassdoor		  = 10;
+constexpr int ExHidden		  = 11;
+constexpr int ExPassage		  = 12;
+constexpr int ExPortal 		  = 13;
+constexpr int ExRes2			  = 14;
+constexpr int ExRes3			  = 15;
+constexpr int EX_xCLIMB		  = 16;
+constexpr int EX_xENTER		  = 17;
+constexpr int EX_xLEAVE		  = 18;
+constexpr int EX_xAUTO		  = 19;
+constexpr int ExRes4	  		  = 20;
+constexpr int EX_xSEARCHABLE		  = 21;
+constexpr int ExBashed                  = 22;
+constexpr int ExBashproof               = 23;
+constexpr int ExNomob		          = 24;
+constexpr int ExWindow		  = 25;
+constexpr int EX_xLOOK		  = 26;
+constexpr int ExRubble                  = 27;
+#define MaxExflag		    27
 
 /*
  * Sector types.
@@ -2053,12 +2085,9 @@ typedef enum
  */
 typedef enum
 {
-        SectInside, SectCity, SectField, SectForest, SectHills,
-        SectMountain,
-        SectWaterSwim, SectWaterNoswim, SectUnderwater, SectAir,
-        SectDesert,
-        SectDunno, SectOceanfloor, SectUnderground, SectSpacecraft,
-        SectMax
+        SectInside, SectCity, SectField, SectForest, SectHills, SectMountain,
+        SectWaterSwim, SectWaterNoswim, SectUnderwater, SectAir, SectDesert,
+        SectDunno, SectOceanfloor, SectUnderground, SectSpacecraft, SectMax
 } sector_types;
 
 /*
@@ -2070,11 +2099,9 @@ typedef enum
         WearNone = -1, WearLight =
                 0, WearFingerL, WearFingerR, WearNeck1,
         WearNeck2, WearBody, WearHead, WearLegs, WearFeet, WearHands,
-        WearArms, WearShield, WearAbout, WearWaist, WearWristL,
-        WearWristR,
+        WearArms, WearShield, WearAbout, WearWaist, WearWristL, WearWristR,
         WearWield, WearHold, WearDualWield, WearEars, WearEyes,
-        WearMissileWield, WearBinding, WearHolsterL, WearHolsterR,
-        MaxWear
+        WearMissileWield, WearBinding, WearHolsterL, WearHolsterR, MaxWear
 } wear_locations;
 
 /***************************************************************************
@@ -2097,10 +2124,8 @@ typedef enum
  */
 typedef enum
 {
-        PosDead, PosMortal, PosIncap, PosStunned, PosSleeping,
-        PosResting,
-        PosSitting, PosFighting, PosStanding, PosMounted, PosShove,
-        PosDrag,
+        PosDead, PosMortal, PosIncap, PosStunned, PosSleeping, PosResting,
+        PosSitting, PosFighting, PosStanding, PosMounted, PosShove, PosDrag,
         PosMax
 } positions;
 
@@ -2109,82 +2134,82 @@ typedef enum
  */
 
 
-#define PlrIsNpc		      BV00  /* Don't EVER set.  */
-#define PlrBoughtPet		      BV01
-#define PlrShovedrag		      BV02
-#define PlrAutoexit		      BV03
-#define PlrAutoloot		      BV04
-#define PlrForsaken                  BV05
-#define PlrBlank		      BV06
-#define PlrSecretive 		      BV07
-#define PlrBrief		      BV08
-#define PlrCombine		      BV09
-#define PlrPrompt		      BV10
-#define PlrTelnetGa		      BV11
-#define PlrHolylight		   BV12
-#define PlrWizinvis		   BV13
-#define PlrRoomvnum		   BV14
-#define	PlrSilence		   BV15
-#define PlrNoEmote		   BV16
-#define PlrAttacker    	   BV17
-#define PlrNoTell		   BV18
-#define PlrLog			   BV19
-#define PlrDeny		   BV20
-#define PlrFreeze		   BV21
-#define PlrKiller    	           BV22
-#define PlrQuestor  	           BV23
-#define PlrLitterbug	           BV24
-#define PlrAnsi	           BV25
-#define PlrSound	           BV26
-#define PlrNice	           BV27
-#define PlrFlee	           BV28
-#define PlrAutogold               BV29
-#define PlrMxp		           BV30
-#define PlrAfk                    BV31
+constexpr int PlrIsNpc		   = 0;  /* Don't EVER set.  */
+constexpr int PlrBoughtPet		   = 1;
+constexpr int PlrShovedrag		   = 2;
+constexpr int PlrAutoexit		   = 3;
+constexpr int PlrAutoloot		   = 4;
+constexpr int PlrForsaken                = 5;
+constexpr int PlrBlank		   = 6;
+constexpr int PlrSecretive 		   = 7;
+constexpr int PlrBrief		   = 8;
+constexpr int PlrCombine		   = 9;
+constexpr int PlrPrompt		   = 10;
+constexpr int PlrTelnetGa		   = 11;
+constexpr int PlrHolylight		   = 12;
+constexpr int PlrWizinvis		   = 13;
+constexpr int PlrRoomvnum		   = 14;
+constexpr int PlrSilence		   = 15;
+constexpr int PlrNoEmote		   = 16;
+constexpr int PlrAttacker    	           = 17;
+constexpr int PlrNoTell		   = 18;
+constexpr int PlrLog			   = 19;
+constexpr int PlrDeny		           = 20;
+constexpr int PlrFreeze		   = 21;
+constexpr int PlrKiller    	           = 22;
+constexpr int PlrQuestor  	           = 23;
+constexpr int PlrLitterbug	           = 24;
+constexpr int PlrAnsi	                   = 25;
+constexpr int PlrSound	           = 26;
+constexpr int PlrNice	                   = 27;
+constexpr int PlrFlee	                   = 28;
+constexpr int PlrAutogold                = 29;
+constexpr int PlrMxp		           = 30;
+constexpr int PlrAfk                     = 31;
 
 /* Bits for pc_data->flags. */
-#define PcflagR1                  BV00
-#define PcflagNohunger	    	   BV01
-#define PcflagUnauthed	    	   BV02
-#define PcflagNorecall            BV03
-#define PcflagNointro             BV04
-#define PcflagGag		           BV05
-#define PcflagRetired             BV06
-#define PcflagGuest               BV07
-#define PcflagNosummon		       BV08
-#define PcflagPageron		       BV09
-#define PcflagNotitle             BV10
-#define PcflagRoom                BV11
-#define PcflagWorking             BV12
-#define PcflagGotmail             BV13
-#define PcflagExempt              BV14
-#define PcflagFastengineer        BV15
-#define PcflagWatch               BV16 /* see function "do_watch" */
-#define PcflagMarried             BV17
-#define PcflagNewbguide           BV18
-#define PcflagAutodraw            BV19
+constexpr int PcflagR1                   = 0;
+constexpr int PcflagNohunger	    	   = 1;
+constexpr int PcflagUnauthed	    	   = 2;
+constexpr int PcflagNorecall             = 3;
+constexpr int PcflagNointro              = 4;
+constexpr int PcflagGag	           = 5;
+constexpr int PcflagRetired              = 6;
+constexpr int PcflagGuest                = 7;
+constexpr int PcflagNosummon	           = 8;
+constexpr int PcflagPageron	           = 9;
+constexpr int PcflagNotitle              = 10;
+constexpr int PcflagRoom                 = 11;
+constexpr int PcflagWorking              = 12;
+constexpr int PcflagGotmail              = 13;
+constexpr int PcflagExempt               = 14;
+constexpr int PcflagFastengineer         = 15;
+constexpr int PcflagWatch                = 16; /* see function "do_watch" */
+constexpr int PcflagMarried              = 17;
+constexpr int PcflagNewbguide            = 18;
+constexpr int PcflagAutodraw             = 19;
 
 /* Bits for ch->pcdata->godflags */
-#define ImmAdmin                  BV00
-#define ImmBuilder                BV01
-#define ImmHighbuilder            BV02
-#define ImmEnforcer               BV03
-#define ImmQuest                  BV04
-#define ImmCoder                  BV05
-#define ImmAll                    BV06
-#define ImmOwner                  BV07
-#define ImmHighenforcer           BV08
+constexpr int ImmAdmin                  = 0;
+constexpr int ImmBuilder                = 1;
+constexpr int ImmHighbuilder            = 2;
+constexpr int ImmEnforcer               = 3;
+constexpr int ImmQuest                  = 4;
+constexpr int ImmCoder                  = 5;
+constexpr int ImmAll                    = 6;
+constexpr int ImmOwner                  = 7;
+constexpr int ImmHighenforcer           = 8;
 
 /* Bits for command->flags */
-#define CommandAdmin                  BV00
-#define CommandBuilder                BV01
-#define CommandHighbuilder            BV02
-#define CommandEnforcer               BV03
-#define CommandQuest                  BV04
-#define CommandCoder                  BV05
-#define CommandAll                    BV06
-#define CommandOwner                  BV07
-#define CommandHighenforcer           BV08
+constexpr int CommandAdmin                  = 0;
+constexpr int CommandBuilder                = 1;
+constexpr int CommandHighbuilder            = 2;
+constexpr int CommandEnforcer               = 3;
+constexpr int CommandQuest                  = 4;
+constexpr int CommandCoder                  = 5;
+constexpr int CommandAll                    = 6;
+constexpr int CommandOwner                  = 7;
+constexpr int CommandHighenforcer           = 8;
 
 
 
@@ -2217,13 +2242,13 @@ typedef enum
 /* Area defines - Scryn 8/11
  *
  */
-#define AreaDeleted		   BV00
-#define AreaLoaded                BV01
+#define AreaDeleted		   = 0;
+#define AreaLoaded                = 1;
 
 /* Area flags - Narn Mar/96 */
-#define AflagNopkill               BV00
-#define AflagNoquest               BV01
-#define AflagPrototype             BV02
+#define AflagNopkill               = 0;
+#define AflagNoquest               = 1;
+#define AflagPrototype             = 2;
 
 /*
  * Prototype for a mob.
@@ -2253,7 +2278,8 @@ struct mob_index_data
         sh_int killed;
         sh_int sex;
         sh_int level;
-        int act;
+//      int act; // Unused
+        ExtBV act;
         int affected_by;
         sh_int alignment;
         sh_int mobthac0;    /* Unused */
@@ -2325,36 +2351,36 @@ struct extracted_char_data
 /*
  * Body Parts Stuff
  */
-#define BodyNone	0
-#define BodyLLeg	BV00
-#define BodyRLeg	BV01
-#define BodyLFoot	BV02
-#define BodyRFoot	BV03
-#define BodyLArm	BV04
-#define BodyRArm	BV05
-#define BodyLWrist	BV06
-#define BodyRWrist	BV07
-#define BodyLKnee	BV08
-#define BodyRKnee	BV09
-#define BodyLAnkle	BV10
-#define BodyRAnkle	BV11
-#define BodyLSholder	BV12
-#define BodyRSholder	BV13
-#define BodyLHand	BV14
-#define BodyRHand	BV15
-#define BodyNose	BV16
-#define BodyRibs	BV17
-#define BodyJaw	BV18
-#define BodyStomach	BV19
-#define BodyChest	BV20
-#define MaxBodyParts  21
+constexpr int BodyNone  = 0;
+constexpr int BodyLLeg   = 1;
+constexpr int BodyRLeg   = 2;
+constexpr int BodyLFoot  = 3;
+constexpr int BodyRFoot  = 4;
+constexpr int BodyLArm   = 5;
+constexpr int BodyRArm   = 6;
+constexpr int BodyLWrist = 7;
+constexpr int BodyRWrist = 8;
+constexpr int BodyLKnee  = 9;
+constexpr int BodyRKnee  = 10;
+constexpr int BodyLAnkle = 11;
+constexpr int BodyRAnkle = 12;
+constexpr int BodyLShoulder = 13;
+constexpr int BodyRShoulder = 14;
+constexpr int BodyLHand  = 15;
+constexpr int BodyRHand  = 16;
+constexpr int BodyNose   = 17;
+constexpr int BodyRibs   = 18;
+constexpr int BodyJaw    = 19;
+constexpr int BodyStomach= 20;
+constexpr int BodyChest  = 21;
+constexpr int MaxBodyParts = 22;
 
 /*
  * One character (PC or NPC).
  * (Shouldn't most of that build interface stuff use substate, dest_buf,
  * spare_ptr and tempnum?  Seems a little redundant)
  */
-struct chardata
+struct CharData
 {
         CharData *next;
         CharData *prev;
@@ -2418,7 +2444,7 @@ struct chardata
         sh_int skill_level[MaxAbility];
         sh_int trust;
         ObjData *on;
-        int played;
+        ExtBV played;
         time_t logon;
         time_t save_time;
         sh_int timer;
@@ -2435,16 +2461,16 @@ struct chardata
         sh_int questhp; /* Greven */
         long int gold;
         long experience[MaxAbility];
-        int act;
-        int affected_by;
-        int carry_weight;
-        int carry_number;
+        ExtBV act;
+        ExtBV affected_by;
+        ExtBV carry_weight;
+        ExtBV carry_number;
         ExtBV xflags;
-        int resistant;
-        int immune;
-        int susceptible;
-        int attacks;
-        int defenses;
+        ExtBV resistant;
+        ExtBV immune;
+        ExtBV susceptible;
+        ExtBV attacks;
+        ExtBV defenses;
         LanguageData *speaking;
         sh_int SavingPoisonDeath;
         sh_int SavingWand;
@@ -2492,20 +2518,20 @@ struct chardata
         sh_int mod_frc;
         sh_int mental_state;    /* simplified */
         sh_int emotional_state; /* simplified */
-        int retran;
-        int regoto;
-        int gpoint; /* personal goto point */
+        ExtBV retran;
+        ExtBV regoto;
+        ExtBV gpoint; /* personal goto point */
         sh_int mobinvis;    /* Mobinvis level SB */
         sh_int backup_wait; /* reinforcements */
-        int backup_mob; /* reinforcements */
+        ExtBV backup_mob; /* reinforcements */
         sh_int was_stunned;
         char     *mob_clan; /* for spec_clan_guard.. set by postguard */
         sh_int main_ability;
         char     *owner;
         RoomIndexData *home;
         sh_int colors[MaxColors];
-        int bodyparts;
-        int home_vnum;  /* hotboot tracker */
+        ExtBV bodyparts;
+        ExtBV home_vnum;  /* hotboot tracker */
         char     *following;
         char     *groupleader;
         sh_int Speed;
@@ -2776,16 +2802,16 @@ struct reset_data
 };
 
 /* Constants for arg2 of 'B' resets. */
-#define	BitResetDoor			0
-#define BitResetObject		1
-#define BitResetMobile		2
-#define BitResetRoom			3
-#define BitResetTypeMask		0xFF    /* 256 should be enough */
-#define BitResetDoorThreshold	8
-#define BitResetDoorMask		0xFF00  /* 256 should be enough */
-#define BitResetSet			BV30
-#define BitResetToggle		BV31
-#define BitResetFreebits	  0x3FFF0000    /* For reference */
+constexpr int BitResetDoor		= 0;
+constexpr int BitResetObject		= 1;
+constexpr int BitResetMobile		= 2;
+constexpr int BitResetRoom		= 3;
+constexpr int BitResetTypeMask	= 0xFF;    /* 256 should be enough */
+constexpr int BitResetDoorThreshold	= 8;
+constexpr int BitResetDoorMask	= 0xFF00;  /* 256 should be enough */
+constexpr int BitResetSet		= 30;
+constexpr int BitResetToggle		= 31;
+constexpr int BitResetFreebits        = 0x3FFF0000;    /* For reference */
 
 
 
@@ -2978,8 +3004,8 @@ public:
  * Must be non-overlapping with spell/skill types,
  * but may be arbitrary beyond that.
  */
-#define TypeUndefined               -1
-#define TypeHit                     1000   /* allows for 1000 skills/spells */
+#define TypeUndefined                  -1
+#define TypeHit                      1000   /* allows for 1000 skills/spells */
 #define TypeHerb		     2000   /* allows for 1000 attack types  */
 #define TypePersonal		     3000   /* allows for 1000 herb types    */
 
@@ -3369,154 +3395,35 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 /*
  * Here are the extended bitvector macros:
  */
-#define xIS_SET(var, bit)	((var).bits[(bit) >> Rsv] & 1 << ((bit) & Xbm))
-#define xSET_BIT(var, bit)	((var).bits[(bit) >> Rsv] |= 1 << ((bit) & Xbm))
-#define xSET_BITS(var, bit)	(ext_set_bits(&(var), &(bit)))
-#define xREMOVE_BIT(var, bit)	((var).bits[(bit) >> Rsv] &= ~(1 << ((bit) & Xbm)))
-#define xREMOVE_BITS(var, bit)	(ext_remove_bits(&(var), &(bit)))
-#define xTOGGLE_BIT(var, bit)	((var).bits[(bit) >> Rsv] ^= 1 << ((bit) & Xbm))
-#define xTOGGLE_BITS(var, bit)	(ext_toggle_bits(&(var), &(bit)))
-#define xCLEAR_BITS(var)	(ext_clear_bits(&(var)))
-#define xIS_EMPTY(var)		(ext_is_empty(&(var)))
-#define xHAS_BITS(var, bit)	(ext_has_bits(&(var), &(bit)))
-#define xSAME_BITS(var, bit)	(ext_same_bits(&(var), &(bit)))
-#define __STRING(x) #x
+// Replace your old macros with std::bitset versions:
+#define IsSet(var, bit)         ((var).test(bit)) // Changed to use std::bitset
+#define SetBit(var, bit)        ((var).set(bit)) // Changed to use std::bitset
+#define RemoveBit(var, bit)     ((var).reset(bit)) // Changed to use std::bitset
+#define ToggleBit(var, bit)     ((var).flip(bit)) // Changed to use std::bitset
+#define ClearBits(var)          ((var).reset()) // Changed to use std::bitset
+#define IsEmpty(var)            ((var).none()) // Changed to use std::bitset
+
+// For the more complex ones, you might need helper functions:
+#define SetBits(var, bit)       ((var) |= (bit)) // Assuming bit is also a std::bitset
+#define RemoveBits(var, bit)    ((var) &= ~(bit)) // Assuming bit is also a std::bitset
+#define HasBits(var, bit)       (((var) & (bit)) == (bit)) // Assuming bit is also a std::bitset
+#define SameBits(var, bit)      ((var) == (bit)) // Assuming bit is also a std::bitset
+#define __STRING(x) #x // Stringify macro
+#define meb(bit)                (ExtBV().set(bit)) // Changed to use std::bitset
+#define multimeb(...)           ([](int bits...) { ExtBV bv; va_list args; va_start(args, bits); for (int b = bits; b != -1; b = va_arg(args, int)) bv.set(b); va_end(args); return bv; }(__VA_ARGS__, -1)) // Changed to use std::bitset
+#define fread_bitvector(fp)     fread_bitvector(fp) // Fix macro definition
+#define fwrite_bitvector(var, fp) fwrite_bitvector(var, fp) // Fix macro definition
+#define print_bitvector(var)      print_bitvector(var) // Fix macro definition
+#define ext_flag_string(var, bit) show_ext_flag_string(sizeof(var) * 8, bit) // Fix macro definition
+#define ext_has_bits(var, bit)  HasBits(var, bit) // Fix macro definition
+#define ext_set_bits(var, bit)  SetBits(var, bit) // Fix macro definition
+#define ext_remove_bits(var, bit) RemoveBits(var, bit) // Fix macro definition
+#define ext_toggle_bits(var, bit) ((var) ^= (bit)) // Fix macro definition
+#define ext_is_empty(var)       IsEmpty(var) // Fix macro definition
+#define ext_clear_bits(var)     ClearBits(var) // Fix macro definition
+#define ext_same_bits(var, bit) SameBits(var, bit) // Fix macro definition
 
 
-/*
- * Character macros.
- */
-#define IsNpc(ch)		(IsSet((ch)->act, ActIsNpc) || (ch)->pcdata == NULL)
-#define IsQuestor(ch)  (IsSet((ch)->act, PlrQuestor))
-#define IsImmortal(ch)		(get_trust((ch)) >= LevelImmortal)
-#define IsHero(ch)		(get_trust((ch)) >= LevelHero)
-#define IsPlaying(d)		((d)->connected == ConPlaying || \
-		(d)->connected == ConForked || (d)->connected == ConIaForked )
-#define IsAffected(ch, sn)	(IsSet((ch)->affected_by, (sn)))
-#define HasBodypart(ch, part)	((ch)->xflags == 0 || IsSet((ch)->xflags, (part)))
-
-#define IsGood(ch)		((ch)->alignment >= 350)
-#define IsEvil(ch)		((ch)->alignment <= -350)
-#define IsNeutral(ch)		(!IsGood(ch) && !IsEvil(ch))
-
-#define IsAwake(ch)		((ch)->position > PosSleeping || IsAffected( (ch), AffCharm ))
-#define GetAc(ch)		( (ch)->Armor + ( IsAwake(ch) ? DexApp[get_curr_dex(ch)].defensive : 0 ) \
-				- ( !str_cmp((ch)->race->name(), "defel") ? (ch)->skill_level[CombatAbility]*2+5 : (ch)->skill_level[CombatAbility]/2 ) )
-#define GetHitroll(ch)		((ch)->Hitroll				    \
-				    +StrApp[get_curr_str(ch)].tohit	    \
-				    +(2-(abs((ch)->mental_state)/10)))
-#define GetDamroll(ch)		((ch)->Damroll                              \
-				    +StrApp[get_curr_str(ch)].todam	    \
-				    +(((ch)->mental_state > 5		    \
-				    &&(ch)->mental_state < 15) ? 1 : 0) )
-
-#define IsOutside(ch)		(IsOutsideRoom((ch)->in_room))
-    /*
-     * (!xIS_SET(                   \
-     * (ch)->in_room->RoomFlags,           \
-     * RoomIndoors) && !xIS_SET(               \
-     * (ch)->in_room->RoomFlags,              \
-     * RoomSpacecraft) )
-     */
-
-#define IsOutsideRoom(room)	(!xIS_SET((room)->RoomFlags,		    \
-				    RoomIndoors) && !xIS_SET(               \
-				    (room)->RoomFlags,              \
-				    RoomSpacecraft) )
-#define IsDrunk(ch, drunk)     (number_percent() < \
-			        ( (ch)->pcdata->condition[CondDrunk] \
-				* 2 / (drunk) ) )
-
-#define IsClanned(ch)		(!IsNpc((ch))				    \
-				&& (ch)->pcdata->clan			    )
-
-#define WaitState(ch, npulse)	((ch)->wait = UMAX((ch)->wait, (IsImmortal(ch) ? 0 :(npulse))))
-
-
-#define EXIT(ch, door)		( get_exit( (ch)->in_room, door ) )
-
-#define CanGo(ch, door)	(EXIT((ch),(door))			 \
-				&& (EXIT((ch),(door))->to_room != NULL)  \
-                          	&& !IsSet(EXIT((ch), (door))->exit_info, ExClosed))
-
-#define IsValidSn(sn)		( (sn) >=0 && (sn) < MaxSkill		     \
-				&& skill_table[(sn)]			     \
-				&& skill_table[(sn)]->name )
-
-#define IsValidHerb(sn)	( (sn) >=0 && (sn) < MaxHerb		     \
-				&& herb_table[(sn)]			     \
-				&& herb_table[(sn)]->name )
-
-#define DefImmFlags		ImmAll | ImmOwner
-#define IsImmBuilder(ch)      ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmBuilder | ImmHighbuilder | DefImmFlags ) )
-#define IsImmHighEnforcer(ch)     ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmHighenforcer | DefImmFlags ) )
-#define IsImmEnforcer(ch)     ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmEnforcer | DefImmFlags ) )
-#define IsImmAdmin(ch)        ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmAdmin | DefImmFlags ) )
-#define IsImmHighBuilder(ch) ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmHighbuilder | DefImmFlags ) )
-#define IsImmCoder(ch)        ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmCoder | DefImmFlags ) )
-#define IsImmQuest(ch)        ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmQuest | DefImmFlags ) )
-
-#define SpellFlag(skill, flag)	( IsSet((skill)->flags, (flag)) )
-#define SpellDamage(skill)	( ((skill)->flags     ) & 7 )
-#define SpellAction(skill)	( ((skill)->flags >> 3) & 7 )
-#define SpellClass(skill)	( ((skill)->flags >> 6) & 7 )
-#define SpellPower(skill)	( ((skill)->flags >> 9) & 3 )
-#define SetSdam(skill, val)	( (skill)->flags =  ((skill)->flags & SdamMask) + ((val) & 7) )
-#define SetSact(skill, val)	( (skill)->flags =  ((skill)->flags & SactMask) + (((val) & 7) << 3) )
-#define SetScla(skill, val)	( (skill)->flags =  ((skill)->flags & SclaMask) + (((val) & 7) << 6) )
-#define SetSpow(skill, val)	( (skill)->flags =  ((skill)->flags & SpowMask) + (((val) & 3) << 9) )
-
-/* Retired and guest imms. */
-#define IsRetired(ch) (ch->pcdata && IsSet(ch->pcdata->flags,PcflagRetired))
-#define IsGuest(ch) (ch->pcdata && IsSet(ch->pcdata->flags,PcflagGuest))
-
-/* RIS by gsn lookups. -- Altrag.
-   Will need to add some || stuff for spells that need a special GSN. */
-
-#define IsFire(dt)		( IsValidSn(dt) &&			     \
-				SpellDamage(skill_table[(dt)]) == SdFire )
-#define IsCold(dt)		( IsValidSn(dt) &&			     \
-				SpellDamage(skill_table[(dt)]) == SdCold )
-#define IsAcid(dt)		( IsValidSn(dt) &&			     \
-				SpellDamage(skill_table[(dt)]) == SdAcid )
-#define IsElectricity(dt)	( IsValidSn(dt) &&			     \
-				SpellDamage(skill_table[(dt)]) == SdElectricity )
-#define IsEnergy(dt)		( IsValidSn(dt) &&			     \
-				SpellDamage(skill_table[(dt)]) == SdEnergy )
-
-#define IsDrain(dt)		( IsValidSn(dt) &&			     \
-				SpellDamage(skill_table[(dt)]) == SdDrain )
-
-#define IsPoison(dt)		( IsValidSn(dt) &&			     \
-				SpellDamage(skill_table[(dt)]) == SdPoison )
-
-
-#define NotAuthed(ch)		(!IsNpc(ch) && ch->pcdata->AuthState <= 3  \
-			      && IsSet(ch->pcdata->flags, PcflagUnauthed) )
-
-#define IsWaitingForAuth(ch) (!IsNpc(ch) && ch->desc		     \
-			      && ch->pcdata->AuthState == 1		     \
-			      && IsSet(ch->pcdata->flags, PcflagUnauthed) )
-
-#define KEY( literal, field, value )					\
-                                _Pragma("GCC diagnostic push")     \
-                                _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"") \
-                                if ( !str_cmp( word, literal ) )	    \
-                                {					                    \
-                                    field  = value;			            \
-                                    fMatch = TRUE;			            \
-                                    break;				                \
-                                }                                       \
-                                _Pragma("GCC diagnostic pop")
-
-// This is a special case of the KEY macro that allows for fallthrough
-#define KeyNoFallthrough( literal, field, value )			\
-                                if ( !str_cmp( word, literal ) )	    \
-                                {					                    \
-                                    field  = value;			            \
-                                    fMatch = TRUE;			            \
-                                    break;				                \
-                                }
 /*
  * Object macros.
  */
@@ -3537,10 +3444,10 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define log_string( txt )	( log_string_plus( (txt), LogNormal, LevelLog ) )
 
 
-#define CmdOoc			BV00
-#define CmdHeld		BV01
-#define CmdWatch               BV02
-#define CmdFullname            BV03
+#define CmdOoc			= 0;
+#define CmdHeld		= 1;
+#define CmdWatch               = 2;
+#define CmdFullname            = 3;
 /*
  * Structure for a command in the command lookup table.
  */
@@ -4687,19 +4594,19 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
 /*
  * defines for use with this get_affect function
  */
-#define Ris000		BV00
-#define RisR00		BV01
-#define Ris0I0		BV02
-#define RisRi0		BV03
-#define Ris00S		BV04
-#define RisR0S		BV05
-#define Ris0Is		BV06
-#define RisRis		BV07
-#define GaAffected	BV09
-#define GaResistant	BV10
-#define GaImmune	BV11
-#define GaSusceptible	BV12
-#define GaRis          BV30
+constexpr int Ris000		= 0;
+constexpr int RisR00		= 1;
+constexpr int Ris0I0		= 2;
+constexpr int RisRi0		= 3;
+constexpr int Ris00S		= 4;
+constexpr int RisR0S		= 5;
+constexpr int Ris0Is		= 6;
+constexpr int RisRis		= 7;
+constexpr int GaAffected	= 9;
+constexpr int GaResistant	= 10;
+constexpr int GaImmune	= 11;
+constexpr int GaSusceptible	= 12;
+constexpr int GaRis          = 30;
 /*
  * mudprograms stuff
  */
@@ -4727,45 +4634,45 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
                    void oprog_pull_trigger(CharData * ch, ObjData * obj);
                    void oprog_push_trigger(CharData * ch, ObjData * obj);
 /* mud prog defines */
-#define ErrorProg        -1
-#define InFileProg       0
-#define ActProg           BV00
-#define SpeechProg        BV01
-#define RandProg          BV02
-#define FightProg         BV03
-#define RfightProg        BV03
-#define DeathProg         BV04
-#define RdeathProg        BV04
-#define HitprcntProg      BV05
-#define EntryProg         BV06
-#define EnterProg         BV06
-#define GreetProg         BV07
-#define RgreetProg	   BV07
-#define OgreetProg        BV07
-#define AllGreetProg	   BV08
-#define GiveProg	   BV09
-#define BribeProg	   BV10
-#define HourProg	   BV11
-#define TimeProg	   BV12
-#define WearProg          BV13
-#define RemoveProg        BV14
-#define SacProg           BV15
-#define LookProg          BV16
-#define ExaProg           BV17
-#define ZapProg           BV18
-#define GetProg 	   BV19
-#define DropProg	   BV20
-#define DamageProg	   BV21
-#define RepairProg	   BV22
-#define RandiwProg	   BV23
-#define SpeechiwProg	   BV24
-#define PullProg	   BV25
-#define PushProg	   BV26
-#define SleepProg         BV27
-#define RestProg          BV28
-#define LeaveProg         BV29
-#define ScriptProg	   BV30
-#define UseProg           BV31
+constexpr int  ErrorProg   = -1;
+constexpr int  InFileProg         = 0;
+constexpr int ActProg      = 0;
+constexpr int  SpeechProg        = 1;
+constexpr int  RandProg          = 2;
+constexpr int  FightProg         = 3;
+constexpr int  RfightProg        = 3;
+constexpr int  DeathProg        = 4;
+constexpr int  RdeathProg       = 4;
+constexpr int  HitprcntProg     = 5;
+constexpr int  EntryProg        = 6;
+constexpr int  EnterProg        = 6;
+constexpr int GreetProg         = 7;
+constexpr int RgreetProg        = 7;
+constexpr int OgreetProg        = 7;
+constexpr int AllGreetProg      = 8;
+constexpr int GiveProg          = 9;
+constexpr int BribeProg         = 10;
+constexpr int HourProg          = 11;
+constexpr int TimeProg          = 12;
+constexpr int WearProg          = 13;
+constexpr int RemoveProg        = 14;
+constexpr int SacProg           = 15;
+constexpr int LookProg          = 16;
+constexpr int ExaProg           = 17;
+constexpr int ZapProg           = 18;
+constexpr int GetProg           = 19;
+constexpr int DropProg          = 20;
+constexpr int DamageProg        = 21;
+constexpr int RepairProg        = 22;
+constexpr int RandiwProg        = 23;
+constexpr int SpeechiwProg      = 24;
+constexpr int PullProg          = 25;
+constexpr int PushProg          = 26;
+constexpr int SleepProg         = 27;
+constexpr int RestProg          = 28;
+constexpr int LeaveProg         = 29;
+constexpr int ScriptProg        = 30;
+constexpr int UseProg           = 31;
                    void rprog_leave_trigger(CharData * ch);
                    void rprog_enter_trigger(CharData * ch);
                    void rprog_sleep_trigger(CharData * ch);
@@ -4789,5 +4696,4 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
                    void rprog_act_trigger(char *buf, RoomIndexData * room,
                                           CharData * ch, ObjData * obj,
                                           void *vo);
-#endif
 #endif

@@ -90,7 +90,7 @@ int reserve_rooms_ship(int firstroom, int numrooms)
                         bug("reserve_rooms: make_room failed");
                         return -1;
                 }
-                xSET_BIT(room->RoomFlags, RoomSpacecraft);
+                SetBit(room->RoomFlags, RoomSpacecraft);
         }
         fold_area(tarea, tarea->filename, true, false);
         return i;
@@ -210,7 +210,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                  * and comment the second one out to use the shipyard flag instead
                  */
 
-                if (!xIS_SET(ch->in_room->RoomFlags, RoomImport))
+                if (!IsSet(ch->in_room->RoomFlags, RoomImport))
                 {
                         send_to_char
                                 ("You can't build that here!! Try a spaceport\r\n",
@@ -250,7 +250,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 durasteel = ship_class * 150 + 100;
                 transparisteel = ship_class * 20 + 10;
 
-                if (xIS_SET(ch->in_room->RoomFlags, RoomInstallation))
+                if (IsSet(ch->in_room->RoomFlags, RoomInstallation))
                 {
                         InstallationData *installation = installation_from_room(ch->in_room->vnum).get();
                         if (installation
@@ -347,7 +347,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_shipdesign]);
+                        : (int) (ch->PCData->learned[gsn_shipdesign]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -515,42 +515,42 @@ CMDF do_designship(CharData* ch, const std::string& argument)
         ship->maxenergy =
                 (ship_class + 1) * (50 +
                                     (get_curr_int(ch) / 5)) *
-                ch->pcdata->learned[gsn_shipdesign];
+                ch->PCData->learned[gsn_shipdesign];
         ship->energy = ship->maxenergy;
         ship->maxhull =
                 (ship_class + 1 +
                  (get_curr_int(ch) / 5)) * 10 *
-                ch->pcdata->learned[gsn_shipdesign];
+                ch->PCData->learned[gsn_shipdesign];
         ship->maxshield =
-                (ship_class + 1) * 5 * ch->pcdata->learned[gsn_shipdesign];
+                (ship_class + 1) * 5 * ch->PCData->learned[gsn_shipdesign];
         ship->realspeed =
-                2 * ch->pcdata->learned[gsn_shipdesign] / (ship_class + 1);
+                2 * ch->PCData->learned[gsn_shipdesign] / (ship_class + 1);
         ship->hyperspeed =
-                ch->pcdata->learned[gsn_shipdesign] + (ship_class + 1) * 60;
+                ch->PCData->learned[gsn_shipdesign] + (ship_class + 1) * 60;
         ship->lasers =
                 (ship_class +
-                 1) * (ch->pcdata->learned[gsn_shipdesign] / 10) +
+                 1) * (ch->PCData->learned[gsn_shipdesign] / 10) +
                 (get_curr_int(ch) / 5);
         ship->manuever =
-                ch->pcdata->learned[gsn_shipdesign] * (get_curr_int(ch) / 5);
+                ch->PCData->learned[gsn_shipdesign] * (get_curr_int(ch) / 5);
         ship->comm =
-                ch->pcdata->learned[gsn_shipdesign] * (get_curr_int(ch) / 5) * (ship_class + 1 );
+                ch->PCData->learned[gsn_shipdesign] * (get_curr_int(ch) / 5) * (ship_class + 1 );
         ship->sensor =
-                ch->pcdata->learned[gsn_shipdesign] * (get_curr_int(ch) / 5) * (ship_class + 1 );
+                ch->PCData->learned[gsn_shipdesign] * (get_curr_int(ch) / 5) * (ship_class + 1 );
         if (ship_class == FighterShip)
-                ship->maxcargo = ch->pcdata->learned[gsn_shipdesign] / 10;
+                ship->maxcargo = ch->PCData->learned[gsn_shipdesign] / 10;
         else
                 ship->maxcargo =
-                        ch->pcdata->learned[gsn_shipdesign] * (ship_class +
+                        ch->PCData->learned[gsn_shipdesign] * (ship_class +
                                                                (get_curr_int
                                                                 (ch) / 5));
         if (ship_class == FighterShip)
                 ship->maxbattalions = 0;
         else if (ship_class == MidsizeShip)
                 ship->maxbattalions =
-                        ch->pcdata->learned[gsn_shipdesign] / 10;
+                        ch->PCData->learned[gsn_shipdesign] / 10;
         else if (ship_class == CapitalShip)
-                ship->maxbattalions = ch->pcdata->learned[gsn_shipdesign];
+                ship->maxbattalions = ch->PCData->learned[gsn_shipdesign];
 
         ship->hull = ship->maxhull;
         ship->in_room = NULL;
@@ -912,8 +912,8 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 }
                 ch->gold -= 10000;
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomFactory);
-                xSET_BIT(room->RoomFlags, RoomRefinery);
+                SetBit(room->RoomFlags, RoomFactory);
+                SetBit(room->RoomFlags, RoomRefinery);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("A Workshop");
@@ -937,7 +937,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 }
                 ch->gold -= 25000;
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomBacta);
+                SetBit(room->RoomFlags, RoomBacta);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("Bacta Tank");
@@ -954,8 +954,8 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 100000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomSilence);
-                xSET_BIT(room->RoomFlags, RoomSafe);
+                SetBit(room->RoomFlags, RoomSilence);
+                SetBit(room->RoomFlags, RoomSafe);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("A Quiet Meditation Chamber");
@@ -972,7 +972,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomHotel);
+                SetBit(room->RoomFlags, RoomHotel);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("The Passenger's Lounge");
@@ -989,8 +989,8 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 10000;
 
                 match = TRUE;
-                xSET_BIT(room->RoomFlags, RoomEmptyHome);
-                xSET_BIT(room->RoomFlags, RoomHotel);
+                SetBit(room->RoomFlags, RoomEmptyHome);
+                SetBit(room->RoomFlags, RoomHotel);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("An Empty Apartment");
@@ -1135,8 +1135,8 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
                                 return;
                         }
                 if (!ship && installation)
-                        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
-                            || ch->pcdata->clan != installation->clan)
+                        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+                            || ch->PCData->clan != installation->clan)
                         {
                                 send_to_char
                                         ("You must be in this installations clan to do that.\r\n",
@@ -1148,13 +1148,13 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
                 {
                         if (installation
                             &&
-                            ((ch->pcdata && ch->pcdata->bestowments
+                            ((ch->PCData && ch->PCData->bestowments
                               && is_name("installations",
-                                         ch->pcdata->bestowments))
-                             || !str_cmp(ch->name, ch->pcdata->clan->leader)
-                             || !str_cmp(ch->name, ch->pcdata->clan->number1)
+                                         ch->PCData->bestowments))
+                             || !str_cmp(ch->name, ch->PCData->clan->leader)
+                             || !str_cmp(ch->name, ch->PCData->clan->number1)
                              || !str_cmp(ch->name,
-                                         ch->pcdata->clan->number2)))
+                                         ch->PCData->clan->number2)))
                                 ;
                         else
                         {
@@ -1267,8 +1267,8 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
                         return;
                 }
         if (!ship && installation)
-                if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
-                    || ch->pcdata->clan != installation->clan)
+                if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+                    || ch->PCData->clan != installation->clan)
                 {
                         send_to_char
                                 ("You must be in this installations clan to do that.\r\n",
@@ -1278,15 +1278,15 @@ CMDF do_decorate(CharData* ch, const std::string& argument)
 
         if (!ship && installation)
         {
-                if (installation && ((ch->pcdata && ch->pcdata->bestowments
+                if (installation && ((ch->PCData && ch->PCData->bestowments
                                       && is_name("installations",
-                                                 ch->pcdata->bestowments))
+                                                 ch->PCData->bestowments))
                                      || !str_cmp(ch->name,
-                                                 ch->pcdata->clan->leader)
+                                                 ch->PCData->clan->leader)
                                      || !str_cmp(ch->name,
-                                                 ch->pcdata->clan->number1)
+                                                 ch->PCData->clan->number1)
                                      || !str_cmp(ch->name,
-                                                 ch->pcdata->clan->number2)))
+                                                 ch->PCData->clan->number2)))
                         ;
                 else
                 {
@@ -1420,7 +1420,7 @@ void fleet_make(CharData* ch, const std::string& argument)
                         return;
                 }
 
-                clan = ch->pcdata->clan;
+                clan = ch->PCData->clan;
                 if (!clan)
                 {
                         send_to_char("You are not in a clan.\n\r", ch);
@@ -1448,7 +1448,7 @@ void fleet_make(CharData* ch, const std::string& argument)
                  * and comment the second one out to use the shipyard flag instead
                  */
 
-                if (!xIS_SET(ch->in_room->RoomFlags, RoomImport))
+                if (!IsSet(ch->in_room->RoomFlags, RoomImport))
                 {
                         send_to_char
                                 ("You can't do that here!! Try a spaceport\r\n",
@@ -1469,7 +1469,7 @@ void fleet_make(CharData* ch, const std::string& argument)
                 }
                 durasteel = ship_class * 15 + 10;
                 transparisteel = ship_class * 2 + 1;
-                if (xIS_SET(ch->in_room->RoomFlags, RoomInstallation))
+                if (IsSet(ch->in_room->RoomFlags, RoomInstallation))
                 {
                         InstallationData *installation =
                                 installation_from_room(ch->in_room->vnum);
@@ -1542,7 +1542,7 @@ void fleet_make(CharData* ch, const std::string& argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_fleet_command1]);
+                        : (int) (ch->PCData->learned[gsn_fleet_command1]);
                 if (number_percent() < percentage)
                 {
                         send_to_char("&GYou begin to launch a ship.\n\r", ch);
@@ -1618,7 +1618,7 @@ void fleet_make(CharData* ch, const std::string& argument)
         }
 
 
-        clan = ch->pcdata->clan;
+        clan = ch->PCData->clan;
         if (!clan)
         {
                 send_to_char("You are not in a clan.\n\r", ch);
@@ -1676,31 +1676,31 @@ void fleet_make(CharData* ch, const std::string& argument)
 
         ship->maxenergy =
                 (ship_class +
-                 1) * 50 * ch->pcdata->learned[gsn_fleet_command1];
+                 1) * 50 * ch->PCData->learned[gsn_fleet_command1];
         ship->energy = ship->maxenergy;
         ship->maxhull =
                 (ship_class +
-                 1) * 10 * ch->pcdata->learned[gsn_fleet_command1];
+                 1) * 10 * ch->PCData->learned[gsn_fleet_command1];
         ship->maxshield =
                 (ship_class +
-                 1) * 5 * ch->pcdata->learned[gsn_fleet_command1];
+                 1) * 5 * ch->PCData->learned[gsn_fleet_command1];
         ship->realspeed =
-                2 * ch->pcdata->learned[gsn_fleet_command1] / (ship_class +
+                2 * ch->PCData->learned[gsn_fleet_command1] / (ship_class +
                                                                1);
         ship->hyperspeed =
-                ch->pcdata->learned[gsn_fleet_command1] + (ship_class +
+                ch->PCData->learned[gsn_fleet_command1] + (ship_class +
                                                            1) * 20;
         ship->lasers =
                 (ship_class +
-                 1) * (ch->pcdata->learned[gsn_fleet_command1] / 20);
+                 1) * (ch->PCData->learned[gsn_fleet_command1] / 20);
         ship->manuever =
-                ch->pcdata->learned[gsn_fleet_command1] * 2 / (ship_class +
+                ch->PCData->learned[gsn_fleet_command1] * 2 / (ship_class +
                                                                1);
         ship->comm =
-                ch->pcdata->learned[gsn_fleet_command1] * 2 / (ship_class +
+                ch->PCData->learned[gsn_fleet_command1] * 2 / (ship_class +
                                                                1);
         ship->sensor =
-                ch->pcdata->learned[gsn_fleet_command1] * 2 / (ship_class +
+                ch->PCData->learned[gsn_fleet_command1] * 2 / (ship_class +
                                                                1);
 
 
@@ -1806,7 +1806,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 }
 
                 percentage =
-                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                             learned
                                                             [gsn_modifyship]);
 
@@ -1874,7 +1874,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
         }
 
         percentage =
-                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_modifyship]);
 
         if (number_percent() > percentage * 2 || (!checktool))
@@ -5553,7 +5553,7 @@ CMDF do_modifyexit(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->pcdata->learned[gsn_modifyexit]);
+                        : (int) (ch->PCData->learned[gsn_modifyexit]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -5615,7 +5615,7 @@ CMDF do_modifyexit(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->pcdata->learned[gsn_modifyexit]);
+                : (int) (ch->PCData->learned[gsn_modifyexit]);
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura))
         {
                 send_to_char
@@ -5783,7 +5783,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
         ShipData *ship = NULL;
         PlanetData *planet;
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomInstallation))
+        if (IsSet(ch->in_room->RoomFlags, RoomInstallation))
         {
                 InstallationData *installation =
                         installation_from_room(ch->in_room->vnum);
@@ -5805,7 +5805,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->RoomFlags, RoomImport))
+        if (!IsSet(ch->in_room->RoomFlags, RoomImport))
         {
                 send_to_char
                         ("You can't build that here!! Try a spaceport\r\n",
@@ -5867,7 +5867,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                         }
                         percentage =
                                 IsNpc(ch) ? ch->top_level : (int) (ch->
-                                                                    pcdata->
+                                                                    PCData->
                                                                     learned
                                                                     [gsn_dismantle_ship]);
                         if (number_percent() < percentage)

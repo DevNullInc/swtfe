@@ -137,14 +137,14 @@ AliasData *get_alias(CharData *ch, char *argument)
                 return nullptr;
 
         // First try exact match
-        for (ali = ch->pcdata->Account->first_alias; ali; ali = ali->next)
+        for (ali = ch->PCData->Account->first_alias; ali; ali = ali->next)
         {
                 if (!str_cmp(argument, ali->name))
                         return ali;
         }
 
         // Then try prefix match
-        for (ali = ch->pcdata->Account->first_alias; ali; ali = ali->next)
+        for (ali = ch->PCData->Account->first_alias; ali; ali = ali->next)
         {
                 if (!str_prefix(argument, ali->name))
                         return ali;
@@ -221,13 +221,13 @@ CMDF do_alias(CharData *ch, char *argument)
                 int count = 0;
 
                 send_to_char(AliasListHeader, ch);
-                if (!ch->pcdata->Account->first_alias)
+                if (!ch->PCData->Account->first_alias)
                 {
                         send_to_char(NoAliasesMsg, ch);
                         return;
                 }
 
-                for (alias = ch->pcdata->Account->first_alias; alias; alias = alias->next)
+                for (alias = ch->PCData->Account->first_alias; alias; alias = alias->next)
                 {
                         count++;
                         ch_printf(ch, "\t&G%s\n\r", alias->name);
@@ -248,7 +248,7 @@ CMDF do_alias(CharData *ch, char *argument)
 
         if (!str_cmp(arg, "create"))
         {
-                for (alias = ch->pcdata->Account->first_alias; alias; alias = alias->next)
+                for (alias = ch->PCData->Account->first_alias; alias; alias = alias->next)
                 {
                         if (!str_cmp(argument, alias->name))
                                 break;
@@ -261,8 +261,8 @@ CMDF do_alias(CharData *ch, char *argument)
                 CREATE(alias, AliasData, 1);
                 alias->name = STRALLOC(cmd);
                 alias->cmd = STRALLOC(const_cast<char*>(""));
-                LINK(alias, ch->pcdata->Account->first_alias,
-                     ch->pcdata->Account->last_alias, next, prev);
+                LINK(alias, ch->PCData->Account->first_alias,
+                     ch->PCData->Account->last_alias, next, prev);
                 send_to_char(AliasCreatedMsg, ch);
 
                 // Now move to editing
@@ -295,7 +295,7 @@ CMDF do_alias(CharData *ch, char *argument)
         }
         else if (!str_cmp(arg, "delete"))
         {
-                free_alias(ch->pcdata->Account, alias);
+                free_alias(ch->PCData->Account, alias);
                 send_to_char(AliasDeletedMsg, ch);
                 return;
         }
@@ -325,7 +325,7 @@ bool check_alias(CharData *ch, char *command, char *argument)
                 return FALSE;
         if (!IsPlaying(ch->desc))
                 return FALSE;
-        if (!ch->pcdata->Account->first_alias)
+        if (!ch->PCData->Account->first_alias)
                 return FALSE;
 
         if ((alias = get_alias(ch, command)) == nullptr)
@@ -393,7 +393,7 @@ bool check_aliases(DescriptorData *d)
         ch = d->original ? d->original : d->character;
         if (IsNpc(ch))
                 return FALSE;
-        if (!ch->pcdata->Account->first_alias)
+        if (!ch->PCData->Account->first_alias)
                 return FALSE;
         if (d->character->substate != SubAlias)
                 return FALSE;

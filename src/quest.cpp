@@ -212,7 +212,7 @@ CMDF do_aquest(CharData * ch, char *argument)
         if (!str_cmp(arg1, "points"))
         {
                 snprintf(buf, MSL, "You have %d quest points.\n\r",
-                         ch->pcdata->quest_curr);
+                         ch->PCData->quest_curr);
                 send_to_char(buf, ch);
                 return;
         }
@@ -347,9 +347,9 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 if (is_name(arg2, "1"))
                 {
-                        if (ch->pcdata->quest_curr >= QuestValue1)
+                        if (ch->PCData->quest_curr >= QuestValue1)
                         {
-                                ch->pcdata->quest_curr -= QuestValue1;
+                                ch->PCData->quest_curr -= QuestValue1;
                                 obj = create_object(get_obj_index
                                                     (QuestItem1),
                                                     ch->top_level);
@@ -365,9 +365,9 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 else if (is_name(arg2, "2"))
                 {
-                        if (ch->pcdata->quest_curr >= QuestValue2)
+                        if (ch->PCData->quest_curr >= QuestValue2)
                         {
-                                ch->pcdata->quest_curr -= QuestValue2;
+                                ch->PCData->quest_curr -= QuestValue2;
                                 obj = create_object(get_obj_index
                                                     (QuestItem2),
                                                     ch->top_level);
@@ -383,9 +383,9 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 else if (is_name(arg2, "3"))
                 {
-                        if (ch->pcdata->quest_curr >= QuestValue3)
+                        if (ch->PCData->quest_curr >= QuestValue3)
                         {
-                                ch->pcdata->quest_curr -= QuestValue3;
+                                ch->PCData->quest_curr -= QuestValue3;
                                 obj = create_object(get_obj_index
                                                     (QuestItem3),
                                                     ch->top_level);
@@ -401,9 +401,9 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 else if (is_name(arg2, "4"))
                 {
-                        if (ch->pcdata->quest_curr >= QuestValue4)
+                        if (ch->PCData->quest_curr >= QuestValue4)
                         {
-                                ch->pcdata->quest_curr -= QuestValue4;
+                                ch->PCData->quest_curr -= QuestValue4;
                                 obj = create_object(get_obj_index
                                                     (QuestItem4),
                                                     ch->top_level);
@@ -419,9 +419,9 @@ CMDF do_aquest(CharData * ch, char *argument)
                 }
                 else if (is_name(arg2, "5"))
                 {
-                        if (ch->pcdata->quest_curr >= QuestValue5)
+                        if (ch->PCData->quest_curr >= QuestValue5)
                         {
-                                ch->pcdata->quest_curr -= QuestValue5;
+                                ch->PCData->quest_curr -= QuestValue5;
                                 obj = create_object(get_obj_index
                                                     (QuestItem5),
                                                     ch->top_level);
@@ -446,9 +446,9 @@ CMDF do_aquest(CharData * ch, char *argument)
                                 return;
                         }
 
-                        if (ch->pcdata->quest_curr >= 200)
+                        if (ch->PCData->quest_curr >= 200)
                         {
-                                ch->pcdata->quest_curr -= 200;
+                                ch->PCData->quest_curr -= 200;
                                 ch->max_hit += 30;
                                 ch->hit += 30;
                                 ch->questhp += 30;
@@ -468,9 +468,9 @@ CMDF do_aquest(CharData * ch, char *argument)
 
                 else if (is_name(arg2, "6"))
                 {
-                        if (ch->pcdata->quest_curr >= 200)
+                        if (ch->PCData->quest_curr >= 200)
                         {
-                                ch->pcdata->quest_curr -= 200;
+                                ch->PCData->quest_curr -= 200;
                                 ch->gold += 100000;
                                 act(AtMagic,
                                     "$N gives 100,000 credits to $n.", ch,
@@ -608,7 +608,7 @@ CMDF do_aquest(CharData * ch, char *argument)
                                 ch->questobj = 0;
                                 ch->nextquest = 20;
                                 ch->gold += reward;
-                                ch->pcdata->quest_curr += pointreward;
+                                ch->PCData->quest_curr += pointreward;
 
                                 return;
                         }
@@ -673,7 +673,7 @@ CMDF do_aquest(CharData * ch, char *argument)
                                         ch->questobj = 0;
                                         ch->nextquest = 20;
                                         ch->gold += reward;
-                                        ch->pcdata->quest_curr += pointreward;
+                                        ch->PCData->quest_curr += pointreward;
                                         extract_obj(obj);
                                         return;
                                 }
@@ -763,7 +763,7 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
                                               vsearch->PlayerName)) == NULL)
                             && IsNpc(victim)
                             && victim->in_room
-                            && !xIS_SET(victim->in_room->RoomFlags,
+                            && !IsSet(victim->in_room->RoomFlags,
                                         RoomSafe) && victim->in_room->area
                             && !IsSet(victim->in_room->area->flags,
                                        AflagNoquest)

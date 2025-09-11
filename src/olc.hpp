@@ -88,16 +88,16 @@ public:
         ~IllnessData() = default;
 };
 
-using ClassList = std::vector<std::shared_ptr<ClassData>>;
-using LanguageList = std::vector<std::shared_ptr<LanguageData>>;
-using ProtoshipList = std::vector<std::shared_ptr<ProtoshipData>>;
-using ListList = std::vector<std::shared_ptr<ListData>>;
-using IllnessList = std::vector<std::shared_ptr<IllnessData>>;
+using ClassDataList = std::vector<std::shared_ptr<ClassData>>;
+using LanguageDataList = std::vector<std::shared_ptr<LanguageData>>;
+using ProtoshipDataList = std::vector<std::shared_ptr<ProtoshipData>>;
+using ListDataList = std::vector<std::shared_ptr<ListData>>;
+using IllnessDataList = std::vector<std::shared_ptr<IllnessData>>;
 
-extern ClassList classes;
-extern LanguageList languages;
-extern ProtoshipList protoships;
-extern ListList lists;
-extern IllnessList illnesses;
+extern ClassDataList classes;
+extern LanguageDataList languages;
+extern ProtoshipDataList protoships;
+extern ListDataList lists;
+extern IllnessDataList illnesses;
 
 std::shared_ptr<ProtoshipData> get_protoship(std::string_view name);

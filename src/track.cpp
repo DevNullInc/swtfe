@@ -74,9 +74,9 @@ static struct bfs_queue_struct *queue_head = NULL,
         *queue_tail = NULL, *room_queue = NULL;
 
 /* Utility macros */
-#define MARK(room)	(xSET_BIT(	(room)->RoomFlags, BfsMark) )
-#define UNMARK(room)	(xREMOVE_BIT(	(room)->RoomFlags, BfsMark) )
-#define IsMarked(room)	(xIS_SET(	(room)->RoomFlags, BfsMark) )
+#define MARK(room)	(SetBit(	(room)->RoomFlags, BfsMark) )
+#define UNMARK(room)	(RemoveBit(	(room)->RoomFlags, BfsMark) )
+#define IsMarked(room)	(IsSet(	(room)->RoomFlags, BfsMark) )
 
 RoomIndexData *toroom(RoomIndexData * room, sh_int door)
 {
@@ -241,7 +241,7 @@ CMDF do_track(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         int       dir, maxdist;
 
-        if (!IsNpc(ch) && !ch->pcdata->learned[gsn_track])
+        if (!IsNpc(ch) && !ch->PCData->learned[gsn_track])
         {
                 send_to_char("You do not know of this skill yet.\n\r", ch);
                 return;
@@ -267,7 +267,7 @@ CMDF do_track(CharData * ch, char *argument)
         maxdist = 100 + ch->top_level * 30;
 
         if (!IsNpc(ch))
-                maxdist = (maxdist * ch->pcdata->learned[gsn_track]) / 100;
+                maxdist = (maxdist * ch->PCData->learned[gsn_track]) / 100;
 
         dir = find_first_step(ch->in_room, vict->in_room, maxdist);
         switch (dir)
@@ -358,7 +358,7 @@ void found_prey(CharData * ch, CharData * victim)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
+        if (IsSet(ch->in_room->RoomFlags, RoomSafe))
         {
                 if (number_percent() < 90)
                         return;
@@ -495,7 +495,7 @@ void hunt_victim(CharData * ch)
                         if ((pexit = get_exit(ch->in_room, ret)) == NULL
                             || !pexit->to_room
                             || IsSet(pexit->exit_info, ExClosed)
-                            || xIS_SET(pexit->to_room->RoomFlags,
+                            || IsSet(pexit->to_room->RoomFlags,
                                        RoomNoMob))
                                 continue;
                 }
@@ -548,7 +548,7 @@ bool mob_snipe(CharData * ch, CharData * victim)
         if (!ch->in_room || !victim->in_room)
                 return FALSE;
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
+        if (IsSet(ch->in_room->RoomFlags, RoomSafe))
                 return FALSE;
 
         for (dir = 0; dir <= 10; dir++)
@@ -601,7 +601,7 @@ bool mob_snipe(CharData * ch, CharData * victim)
                         continue;
                 }
 
-                if (xIS_SET(victim->in_room->RoomFlags, RoomSafe))
+                if (IsSet(victim->in_room->RoomFlags, RoomSafe))
                         return FALSE;
 
                 if (is_safe(ch, victim))

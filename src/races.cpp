@@ -67,7 +67,7 @@ RaceData::RaceData()
         this->_lang_bonus = 0;
         this->_rpneeded = 0;
         this->_start_age = 17;
-        xCLEAR_BITS(this->_body_parts);
+        ClearBits(this->_body_parts);
         for (int imod = 0; imod <= MaxAttr; imod++)
                 this->_attr_mod[imod] = 0;
         for (int iclass = 0; iclass <= MaxAbility; iclass++)
@@ -622,7 +622,7 @@ CMDF do_setrace(CharData * ch, char *argument)
                         if (value < 0 || value > MaxBits)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
-                                xTOGGLE_BIT(race->body_parts(), value);
+                                ToggleBit(race->body_parts(), value);
                 }
         }
         else
@@ -778,7 +778,7 @@ CMDF do_showrace(CharData * ch, char *argument)
                  ch);
 
         ch_printf(ch, "&c==== &w%-54s &c==\n\r",
-                  xIS_EMPTY(race->
+                  IsEmpty(race->
                             body_parts())? "None" : ext_flag_string(&race->
                                                                     body_parts
                                                                     (),

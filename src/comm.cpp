@@ -2802,7 +2802,7 @@ void nanny(DescriptorData * d, char *argument)
                                  ch->name, d->host);
                         log_string_plus(log_buf, LogComm, ch->top_level);
                         show_title(d);
-                        if (ch->pcdata->area)
+                        if (ch->PCData->area)
                                 do_loadarea(ch, "");
                 }
                 else
@@ -2925,7 +2925,7 @@ void nanny(DescriptorData * d, char *argument)
                         d->connected = static_cast<sh_int>(ConGetAlt);
                         return;
                 }
-                if (!verify_password(argument, ch->pcdata->pwd))
+                if (!verify_password(argument, ch->PCData->pwd))
                 {
                         send_to_desc_color("&BW&zrong password.\n\r", d);
                         /*
@@ -3142,7 +3142,7 @@ case ConGetName:
         {
                 write_to_buffer(d, "\n\r", 2);
 
-                if (!verify_password(argument, ch->pcdata->pwd))
+                if (!verify_password(argument, ch->PCData->pwd))
                 {
                         send_to_desc_color("&BW&zrong password.\n\r", d);
                         /*
@@ -3154,11 +3154,11 @@ case ConGetName:
                 }
                 
                 // Check if password needs upgrading to Argon2
-                if (should_upgrade_hash(ch->pcdata->pwd)) {
+                if (should_upgrade_hash(ch->PCData->pwd)) {
                     // Upgrade the hash to Argon2
-                    DISPOSE(ch->pcdata->pwd);
+                    DISPOSE(ch->PCData->pwd);
                     std::string hashed = hash_password(argument);
-                    ch->pcdata->pwd = str_dup(const_cast<char*>(hashed.c_str()));
+                    ch->PCData->pwd = str_dup(const_cast<char*>(hashed.c_str()));
                 }
 
                 write_to_buffer(d, echo_on_str, 0);
@@ -3191,7 +3191,7 @@ case ConGetName:
                          d->host);
                 log_string_plus(log_buf, LogComm, ch->top_level);
                 show_title(d);
-                if (ch->pcdata->area)
+                if (ch->PCData->area)
                         do_loadarea(ch, "");
                 break;
 
@@ -3204,8 +3204,8 @@ case ConGetName:
                         /* If we have an Account, auto-use the Account's password */
                         if (d->Account && d->Account->password) {
                             /* Use the Account's password for the character */
-                            DISPOSE(ch->pcdata->pwd);
-                            ch->pcdata->pwd = str_dup(d->Account->password);
+                            DISPOSE(ch->PCData->pwd);
+                            ch->PCData->pwd = str_dup(d->Account->password);
                             
                             /* Link character to Account automatically */
                             if (!add_to_account(d->Account, ch)) {
@@ -3287,8 +3287,8 @@ case ConGetName:
                 // Generate a strong Argon2 hash
                 std::string new_hash = hash_password(argument);
                 
-                DISPOSE(ch->pcdata->pwd);
-                ch->pcdata->pwd = str_dup(new_hash.c_str());
+                DISPOSE(ch->PCData->pwd);
+                ch->PCData->pwd = str_dup(new_hash.c_str());
                 send_to_desc_color
                         ("\n\r&BP&zlease retype the password to confirm: ",
                          d);
@@ -3299,7 +3299,7 @@ case ConGetName:
         case ConConfirmNewPassword:
                 write_to_buffer(d, "\n\r", 2);
 
-                if (!verify_password(argument, ch->pcdata->pwd))
+                if (!verify_password(argument, ch->PCData->pwd))
                 {
                         send_to_desc_color
                                 ("&BP&zasswords don't match.\n\rRetype password: ",
@@ -3508,7 +3508,7 @@ case ConGetName:
                 send_to_desc_color
                         ("&BI&zf not, enter &w\"DONE\" &z or &w\"RESET\".\n\r&BT&zo add a point to a specifc stat, enter the name of the stat:\n\r",
                          d);
-                ch->pcdata->statpoints = 25;
+                ch->PCData->statpoints = 25;
                 ch->perm_str = static_cast<sh_int>(13);
                 ch->perm_int = static_cast<sh_int>(13);
                 ch->perm_wis = static_cast<sh_int>(13);
@@ -3533,7 +3533,7 @@ case ConGetName:
                 }
                 if (!str_cmp(argument, "done"))
                 {
-                        if (ch->pcdata->statpoints > 0)
+                        if (ch->PCData->statpoints > 0)
                         {
                                 send_to_desc_color
                                         ("\n\r&B[&wWARNING&B] &BY&zou still have some stat points left. Please distribute them.\n\r",
@@ -3559,7 +3559,7 @@ case ConGetName:
                         send_to_desc_color
                                 ("&BI&zf not, enter &w\"DONE\" &z or &w\"RESET\".\n\r&BT&zo add a point to a specifc stat, enter the name of the stat:\n\r",
                                  d);
-                        ch->pcdata->statpoints = 25;
+                        ch->PCData->statpoints = 25;
                         ch->perm_str = static_cast<sh_int>(13);
                         ch->perm_int = static_cast<sh_int>(13);
                         ch->perm_wis = static_cast<sh_int>(13);
@@ -3571,17 +3571,17 @@ case ConGetName:
                         return;
                 }
                 if (!str_prefix(argument, "Strength"))
-                        ch->pcdata->statedit = 1;
+                        ch->PCData->statedit = 1;
                 else if (!str_prefix(argument, "Wisdom"))
-                        ch->pcdata->statedit = 2;
+                        ch->PCData->statedit = 2;
                 else if (!str_prefix(argument, "Intelligence"))
-                        ch->pcdata->statedit = 3;
+                        ch->PCData->statedit = 3;
                 else if (!str_prefix(argument, "Dexterity"))
-                        ch->pcdata->statedit = 4;
+                        ch->PCData->statedit = 4;
                 else if (!str_prefix(argument, "Constitution"))
-                        ch->pcdata->statedit = 5;
+                        ch->PCData->statedit = 5;
                 else if (!str_prefix(argument, "Charisma"))
-                        ch->pcdata->statedit = 6;
+                        ch->PCData->statedit = 6;
                 else
                 {
                         send_to_desc_color
@@ -3592,7 +3592,7 @@ case ConGetName:
                 }
                 send_to_desc_color("&BH&zow much do you want to edit it by? ",
                                    d);
-                if (ch->pcdata->statedit == 1)
+                if (ch->PCData->statedit == 1)
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
@@ -3603,7 +3603,7 @@ case ConGetName:
                                  (20 - ch->perm_str));
                         send_to_desc_color(buf, d);
                 }
-                if (ch->pcdata->statedit == 2)
+                if (ch->PCData->statedit == 2)
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
@@ -3613,7 +3613,7 @@ case ConGetName:
                                  (20 - ch->perm_wis));
                         send_to_desc_color(buf, d);
                 }
-                if (ch->pcdata->statedit == 3)
+                if (ch->PCData->statedit == 3)
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
@@ -3624,7 +3624,7 @@ case ConGetName:
                                  (20 - ch->perm_int));
                         send_to_desc_color(buf, d);
                 }
-                if (ch->pcdata->statedit == 4)
+                if (ch->PCData->statedit == 4)
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
@@ -3635,7 +3635,7 @@ case ConGetName:
                                  (20 - ch->perm_dex));
                         send_to_desc_color(buf, d);
                 }
-                if (ch->pcdata->statedit == 5)
+                if (ch->PCData->statedit == 5)
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
@@ -3646,7 +3646,7 @@ case ConGetName:
                                  (20 - ch->perm_con));
                         send_to_desc_color(buf, d);
                 }
-                if (ch->pcdata->statedit == 6)
+                if (ch->PCData->statedit == 6)
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
@@ -3672,7 +3672,7 @@ case ConGetName:
                         return;
                 }
                 i = atoi(argument);
-                if (i > ch->pcdata->statpoints)
+                if (i > ch->PCData->statpoints)
                 {
                         send_to_desc_color
                                 ("&BY&zou do not have enough stat points. Please enter a new number.",
@@ -3680,7 +3680,7 @@ case ConGetName:
                         d->connected = static_cast<sh_int>(ConEditStatNum);
                         return;
                 }
-                if (ch->pcdata->statedit == 1)
+                if (ch->PCData->statedit == 1)
                 {
                         if ((i + ch->perm_str) > 20 || (i + ch->perm_str) < 1
                             || (i + ch->perm_str +
@@ -3700,7 +3700,7 @@ case ConGetName:
                         else
                                 ch->perm_str += static_cast<sh_int>(i);
                 }
-                else if (ch->pcdata->statedit == 2)
+                else if (ch->PCData->statedit == 2)
                 {
                         if ((i + ch->perm_wis) > 20 || (i + ch->perm_wis) < 1
                             || (i + ch->perm_wis +
@@ -3720,7 +3720,7 @@ case ConGetName:
                         else
                                 ch->perm_wis += static_cast<sh_int>(i);
                 }
-                else if (ch->pcdata->statedit == 3)
+                else if (ch->PCData->statedit == 3)
                 {
                         if ((i + ch->perm_int) > 20 || (i + ch->perm_int) < 1
                             || (i + ch->perm_int +
@@ -3742,7 +3742,7 @@ case ConGetName:
                         else
                                 ch->perm_int += static_cast<sh_int>(i);
                 }
-                else if (ch->pcdata->statedit == 4)
+                else if (ch->PCData->statedit == 4)
                 {
                         if ((i + ch->perm_dex) > 20 || (i + ch->perm_dex) < 1
                             || (i + ch->perm_dex +
@@ -3763,7 +3763,7 @@ case ConGetName:
                         else
                                 ch->perm_dex += static_cast<sh_int>(i);
                 }
-                else if (ch->pcdata->statedit == 5)
+                else if (ch->PCData->statedit == 5)
                 {
                         if ((i + ch->perm_con) > 20
                             || (i + ch->perm_con) < 1
@@ -3784,7 +3784,7 @@ case ConGetName:
                         else
                                 ch->perm_con += static_cast<sh_int>(i);
                 }
-                else if (ch->pcdata->statedit == 6)
+                else if (ch->PCData->statedit == 6)
                 {
                         if ((i + ch->perm_cha) > 20 || (i + ch->perm_cha) < 1
                             || (i + ch->perm_cha +
@@ -3804,7 +3804,7 @@ case ConGetName:
                         else
                                 ch->perm_cha += static_cast<sh_int>(i);
                 }
-                ch->pcdata->statpoints -= static_cast<sh_int>(i);
+                ch->PCData->statpoints -= static_cast<sh_int>(i);
                 send_to_desc_color("Done.\n\r", d);
                 send_to_desc_color
                         ("&BT&zhese are your current stats. Would you like to edit them?\n\r",
@@ -3925,17 +3925,17 @@ case ConGetName:
 #else
                 if (chk_watch(get_trust(ch), ch->name, d->host))    /*  --Gorog */
 #endif
-                        SetBit(ch->pcdata->flags, PcflagWatch);
+                        SetBit(ch->PCData->flags, PcflagWatch);
                 else
-                        RemoveBit(ch->pcdata->flags, PcflagWatch);
+                        RemoveBit(ch->PCData->flags, PcflagWatch);
                 if (IsSet(ch->act, PlrAnsi))
                         send_to_pager("\033[2J", ch);
                 else
                         send_to_pager("\014", ch);
 #ifdef ACCOUNT
-                if (IsSet(ch->act, PlrSound) && ch->pcdata->Account)
+                if (IsSet(ch->act, PlrSound) && ch->PCData->Account)
                 {
-                        SetBit(ch->pcdata->Account->flags, AccountSound);
+                        SetBit(ch->PCData->Account->flags, AccountSound);
                         RemoveBit(ch->act, PlrSound);
                 }
 #endif
@@ -4007,7 +4007,7 @@ case ConGetName:
                         }
                         send_to_pager("\n\r",ch);
 				}
-                if (!IsNpc(ch) && IsSet(ch->pcdata->flags, PcflagGotmail))
+                if (!IsNpc(ch) && IsSet(ch->PCData->flags, PcflagGotmail))
                         send_to_char
                                 ("&R[&YYou've got mail waiting for you!&R]&W",
                                  ch);
@@ -4061,29 +4061,29 @@ case ConGetName:
                 add_char(ch);
                 d->connected = static_cast<sh_int>(ConPlaying);
 #ifdef ACCOUNT
-                ch->pcdata->Account = d->Account;
+                ch->PCData->Account = d->Account;
 #endif
 
-                if (!xIS_EMPTY(ch->race->body_parts())
-                    && xIS_EMPTY(ch->xflags))
+                if (!IsEmpty(ch->race->body_parts())
+                    && IsEmpty(ch->xflags))
                         ch->xflags = ch->race->body_parts();
-                if (!xIS_EMPTY(ch->race->body_parts()))
+                if (!IsEmpty(ch->race->body_parts()))
                 {
                         sh_int    p_index = 0;
                         int       sn;
 
                         for (sn = 0; sn < top_sn; sn++)
                         {
-                                if (!xIS_EMPTY(skill_table[sn]->body_parts))
+                                if (!IsEmpty(skill_table[sn]->body_parts))
                                         /*
                                          * Forgot to initilize, tsk tsk grev 
                                          */
                                         for (p_index = 0; p_index < MaxBits; p_index++)
-                                                if (xIS_SET(ch->xflags, p_index)
+                                                if (IsSet(ch->xflags, p_index)
                                                     &&
-                                                    xIS_SET(skill_table[sn]->
+                                                    IsSet(skill_table[sn]->
                                                             body_parts, p_index))
-                                                        ch->pcdata->
+                                                        ch->PCData->
                                                                 learned[sn] =
                                                                 100;
                         }
@@ -4097,9 +4097,9 @@ case ConGetName:
 
                         if (ch->desc->MxpDetected)
                                 SetBit(ch->act, PlrMxp);
-                        ch->pcdata->clan = NULL;
-                        ch->pcdata->full_name = QUICKLINK(ch->name);
-                        ch->pcdata->spouse = STRALLOC(const_cast<char *>(""));
+                        ch->PCData->clan = NULL;
+                        ch->PCData->full_name = QUICKLINK(ch->name);
+                        ch->PCData->spouse = STRALLOC(const_cast<char *>(""));
 
                         ch->perm_lck = static_cast<sh_int>(number_range(6, 18));
                         if (ch->main_ability == ForceAbility)
@@ -4120,7 +4120,7 @@ case ConGetName:
                                        ch->race->attr_modifier(AttrForce),
                                        20);
 
-                        ch->pcdata->age = static_cast<sh_int>(ch->race->start_age());
+                        ch->PCData->age = static_cast<sh_int>(ch->race->start_age());
 
                         if ((ch->perm_frc -
                              ch->race->attr_modifier(AttrForce)) > 0
@@ -4134,7 +4134,7 @@ case ConGetName:
                                 bug("Nanny: cannot find racial language.");
                         else
                         {
-                                ch->pcdata->learned[iLang] = 100;
+                                ch->PCData->learned[iLang] = 100;
                                 ch->speaking = ch->race->language();
                         }
 
@@ -4186,10 +4186,10 @@ case ConGetName:
                                 {
                                         if (ch->top_level >=
                                             channel->level
-                                            && !hasname(ch->pcdata->
+                                            && !hasname(ch->PCData->
                                                         listening,
                                                         channel->name))
-                                                addname(&ch->pcdata->
+                                                addname(&ch->PCData->
                                                         listening,
                                                         channel->name);
                                 }
@@ -4249,28 +4249,28 @@ case ConGetName:
                                 char_to_room(ch,
                                              get_room_index
                                              (RoomVnumSchool));
-                                ch->pcdata->AuthState = 3;
+                                ch->PCData->AuthState = 3;
                         }
                         else
                         {
                                 char_to_room(ch,
                                              get_room_index
                                              (RoomVnumSchool));
-                                ch->pcdata->AuthState = 1;
-                                SetBit(ch->pcdata->flags, PcflagUnauthed);
+                                ch->PCData->AuthState = 1;
+                                SetBit(ch->PCData->flags, PcflagUnauthed);
                         }
                         if (!add_to_account(d->Account, ch))
                         {
                                 bug("Failed to add new character to Account", 0);
                         }
-                        if (!ch->pcdata->birthday.hour)
-                                ch->pcdata->birthday.hour = time_info.hour;
-                        if (!ch->pcdata->birthday.day)
-                                ch->pcdata->birthday.day = time_info.day;
-                        if (!ch->pcdata->birthday.month)
-                                ch->pcdata->birthday.month = time_info.month;
-                        if (!ch->pcdata->birthday.year)
-                                ch->pcdata->birthday.year = time_info.year;
+                        if (!ch->PCData->birthday.hour)
+                                ch->PCData->birthday.hour = time_info.hour;
+                        if (!ch->PCData->birthday.day)
+                                ch->PCData->birthday.day = time_info.day;
+                        if (!ch->PCData->birthday.month)
+                                ch->PCData->birthday.month = time_info.month;
+                        if (!ch->PCData->birthday.year)
+                                ch->PCData->birthday.year = time_info.year;
                         if (ch->desc->MspDetected)
                         {
                                 SetBit(ch->act, PlrSound);
@@ -4279,7 +4279,7 @@ case ConGetName:
                 else
                 {
                         if (!IsImmortal(ch)
-                            && ch->pcdata->release_date > current_time)
+                            && ch->PCData->release_date > current_time)
                         {
                                 char_to_room(ch, get_room_index(6));
                         }
@@ -4394,14 +4394,14 @@ case ConGetName:
                                  capitalize(ch->name));
                         if ((fp = fopen(motdbuf, "r")) != NULL)
                         {
-                                SetBit(ch->pcdata->flags, PcflagGotmail);
+                                SetBit(ch->PCData->flags, PcflagGotmail);
                                 FCLOSE(fp);
                         }
                 }
 #ifdef ACCOUNT
-                if (IsSet(ch->act, PlrSound) && ch->pcdata->Account)
+                if (IsSet(ch->act, PlrSound) && ch->PCData->Account)
                 {
-                        SetBit(ch->pcdata->Account->flags, AccountSound);
+                        SetBit(ch->PCData->Account->flags, AccountSound);
                         RemoveBit(ch->act, PlrSound);
                 }
 #endif
@@ -4505,9 +4505,9 @@ bool check_reconnect(DescriptorData * d, char *name, bool fConn)
                         }
                         if (fConn == FALSE && d->character)
                         {
-                                DISPOSE(d->character->pcdata->pwd);
-                                d->character->pcdata->pwd =
-                                        str_dup(ch->pcdata->pwd);
+                                DISPOSE(d->character->PCData->pwd);
+                                d->character->PCData->pwd =
+                                        str_dup(ch->PCData->pwd);
                         }
                         else
                         {
@@ -4531,8 +4531,8 @@ bool check_reconnect(DescriptorData * d, char *name, bool fConn)
                                                 UMAX(sysdata.log_level,
                                                      ch->top_level));
 #ifdef ACCOUNT
-                                ch->pcdata->Account = d->Account;
-                                ch->pcdata->Account->inuse--;
+                                ch->PCData->Account = d->Account;
+                                ch->PCData->Account->inuse--;
 #endif
                                 d->connected = static_cast<sh_int>(ConPlaying);
                         }
@@ -4654,7 +4654,7 @@ sh_int check_playing(DescriptorData * d, char *name, bool kick)
                         if (ch->switched)
                                 do_return(ch->switched, "");
                         ch->switched = static_cast<sh_int>(NULL);
-                        ch->pcdata->Account->inuse--;
+                        ch->PCData->Account->inuse--;
                         send_to_char("Reconnecting.\n\r", ch);
                         act(AtAction,
                             "$n has reconnected, kicking off old link.", ch,
@@ -4754,7 +4754,7 @@ char     *obj_short(ObjData * obj)
  */
 /* Major overhaul. -- Alty */
 #define NAME(ch)	(IsNpc((ch)) ? (ch)->short_descr : (ch)->name)
-#define NAME2(ch)	(IsNpc((ch)) ? (ch)->short_descr : (ch)->pcdata->full_name )
+#define NAME2(ch)	(IsNpc((ch)) ? (ch)->short_descr : (ch)->PCData->full_name )
 #define CanSee(ch, vict) ( (OOC && can_see_ooc((vict), (ch))) || (!OOC && can_see((vict), (ch))))
 char     *act_string(const char *format, CharData * to, CharData * ch,
                      void *arg1, void *arg2, bool OOC)
@@ -5083,7 +5083,7 @@ CMDF do_name(CharData * ch, char *argument)
         struct stat fst;
         CharData *tmp;
 
-        if (!NotAuthed(ch) || ch->pcdata->AuthState != 2)
+        if (!NotAuthed(ch) || ch->PCData->AuthState != 2)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -5129,12 +5129,12 @@ CMDF do_name(CharData * ch, char *argument)
 
         STRFREE(ch->name);
         ch->name = STRALLOC(argument);
-        STRFREE(ch->pcdata->full_name);
-        ch->pcdata->full_name = STRALLOC(argument);
+        STRFREE(ch->PCData->full_name);
+        ch->PCData->full_name = STRALLOC(argument);
         send_to_char("Your name has been changed.  Please apply again.\n\r",
                      ch);
-        ch->pcdata->AuthState = 1;
-        SetBit(ch->pcdata->flags, PcflagUnauthed);
+        ch->PCData->AuthState = 1;
+        SetBit(ch->PCData->flags, PcflagUnauthed);
         return;
 }
 
@@ -5205,22 +5205,22 @@ void display_prompt(DescriptorData * d)
         if (IsMxp(ch))
                 send_to_char(MXPTAG("Prompt"), ch);
 
-        if (!IsNpc(ch) && ch->substate != SubNone && ch->pcdata->subprompt
-            && ch->pcdata->subprompt[0] != '\0')
-                prompt = ch->pcdata->subprompt;
+        if (!IsNpc(ch) && ch->substate != SubNone && ch->PCData->subprompt
+            && ch->PCData->subprompt[0] != '\0')
+                prompt = ch->PCData->subprompt;
         else if (IsNpc(ch))
                 prompt = gav_prompt(ch);
-		else if (ch->pcdata->Account && (!ch->pcdata->Account->email || ch->pcdata->Account->email[0] == '\0'))
+		else if (ch->PCData->Account && (!ch->PCData->Account->email || ch->PCData->Account->email[0] == '\0'))
 				prompt = no_email_prompt;
-        else if (ch->fighting && ch->pcdata->fprompt
-                 && ch->pcdata->fprompt[0] != '\0')
-                prompt = ch->pcdata->fprompt;
-        else if (!ch->pcdata->prompt || !*ch->pcdata->prompt)
+        else if (ch->fighting && ch->PCData->fprompt
+                 && ch->PCData->fprompt[0] != '\0')
+                prompt = ch->PCData->fprompt;
+        else if (!ch->PCData->prompt || !*ch->PCData->prompt)
                 prompt = gav_prompt(ch);
-        else if (ch->pcdata && !str_cmp(ch->pcdata->prompt, "old_default"))
+        else if (ch->PCData && !str_cmp(ch->PCData->prompt, "old_default"))
                 prompt = default_prompt(ch);
         else
-                prompt = ch->pcdata->prompt;
+                prompt = ch->PCData->prompt;
 
         if (ansi)
         {
@@ -5487,7 +5487,7 @@ void display_prompt(DescriptorData * d)
                                         && IsSet(ch->act, ActMobinvis)))
                                         snprintf(pbuf, MSL, "(Invis %d) ",
                                                  (IsNpc(ch) ? ch->
-                                                  mobinvis : ch->pcdata->
+                                                  mobinvis : ch->PCData->
                                                   wizinvis));
                                 else if (IsAffected(ch, AffInvisible))
                                         snprintf(pbuf, MSL, "%s", "(Invis) ");
@@ -5499,7 +5499,7 @@ void display_prompt(DescriptorData * d)
                                                                         act,
                                                                         PlrWizinvis)
                                                                  ? ch->
-                                                                 pcdata->
+                                                                 PCData->
                                                                  wizinvis :
                                                                  0));
                                 break;
@@ -5567,7 +5567,7 @@ bool pager_output(DescriptorData * d)
         if (!d || !d->PagePoint || d->PageCmd == -1)
                 return TRUE;
         ch = d->original ? d->original : d->character;
-        pclines = UMAX(ch->pcdata->pagerlen, 5) - 1;
+        pclines = UMAX(ch->PCData->pagerlen, 5) - 1;
         switch (LOWER(d->PageCmd))
         {
         default:
@@ -5738,7 +5738,7 @@ void show_stat_options(DescriptorData * d, CharData * ch)
                  d);
         snprintf(buf, MSL,
                  "&z|&B[&wMin: 1         &wMax:  20&B]&z|&B[      &BY&zou have &B[&w%02d&B] &zstat points left.      &B]&z|\n\r",
-                 ch->pcdata->statpoints);
+                 ch->PCData->statpoints);
         send_to_desc_color(buf, d);
         send_to_desc_color
                 ("&z|-----------------------------------------------------------------------|\n\r",

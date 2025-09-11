@@ -812,13 +812,13 @@ int mprog_do_ifcheck(char *ifcheck, CharData * mob, CharData * actor,
                 if (!str_cmp(chck, "doingquest"))
                 {
                         return IsNpc(actor) ? FALSE :
-                                mprog_veval(chkchar->pcdata->quest_number,
+                                mprog_veval(chkchar->PCData->quest_number,
                                             opr, atoi(rval), mob);
                 }
                 if (!str_cmp(chck, "ishelled"))
                 {
                         return IsNpc(actor) ? FALSE :
-                                mprog_veval(chkchar->pcdata->release_date,
+                                mprog_veval(chkchar->PCData->release_date,
                                             opr, atoi(rval), mob);
                 }
 
@@ -921,11 +921,11 @@ int mprog_do_ifcheck(char *ifcheck, CharData * mob, CharData * actor,
 
                         if (IsNpc(chkchar))
                                 return FALSE;
-                        if (!chkchar->pcdata || !chkchar->pcdata->clan || !chkchar->in_room
+                        if (!chkchar->PCData || !chkchar->PCData->clan || !chkchar->in_room
 							|| !chkchar->in_room->area || !chkchar->in_room->area->planet 
 							|| !chkchar->in_room->area->planet->governed_by)
                                 return FALSE;
-						if ( chkchar->in_room->area->planet->governed_by == chkchar->pcdata->clan )
+						if ( chkchar->in_room->area->planet->governed_by == chkchar->PCData->clan )
 							return TRUE;
 						else
 							return FALSE;
@@ -974,21 +974,21 @@ int mprog_do_ifcheck(char *ifcheck, CharData * mob, CharData * actor,
                 if (!str_cmp(chck, "clan"))
                 {
                         if ((IsNpc(chkchar) && !chkchar->mob_clan)
-                            || (!IsNpc(chkchar) && !chkchar->pcdata->clan))
+                            || (!IsNpc(chkchar) && !chkchar->PCData->clan))
                                 return FALSE;
                         if (IsNpc(chkchar))
                                 return mprog_seval(chkchar->mob_clan, opr,
                                                    rval, mob);
                         else
-                                return mprog_seval(chkchar->pcdata->clan->
+                                return mprog_seval(chkchar->PCData->clan->
                                                    name, opr, rval, mob);
                 }
 
                 if (!str_cmp(chck, "clantype"))
                 {
-                        if (IsNpc(chkchar) || !chkchar->pcdata->clan)
+                        if (IsNpc(chkchar) || !chkchar->PCData->clan)
                                 return FALSE;
-                        return mprog_veval(chkchar->pcdata->clan->ClanType,
+                        return mprog_veval(chkchar->PCData->clan->ClanType,
                                            opr, atoi(rval), mob);
                 }
                 if (!str_cmp(chck, "str"))
@@ -1185,7 +1185,7 @@ void mprog_translate(char ch, char *t, CharData * mob, CharData * actor,
                                 else
                                 {
                                         mudstrlcpy(t, actor->name, MIL);
-                                        mudstrlcat(t, actor->pcdata->title,
+                                        mudstrlcat(t, actor->PCData->title,
                                                    MIL);
                                 }
                         else
@@ -1217,7 +1217,7 @@ void mprog_translate(char ch, char *t, CharData * mob, CharData * actor,
                                 {
                                         mudstrlcpy(t, vict->name, MIL);
                                         mudstrlcat(t, " ", MIL);
-                                        mudstrlcat(t, vict->pcdata->title,
+                                        mudstrlcat(t, vict->PCData->title,
                                                    MIL);
                                 }
                         else
@@ -1250,7 +1250,7 @@ void mprog_translate(char ch, char *t, CharData * mob, CharData * actor,
                                 {
                                         mudstrlcpy(t, rndm->name, MIL);
                                         mudstrlcat(t, " ", MIL);
-                                        mudstrlcat(t, rndm->pcdata->title,
+                                        mudstrlcat(t, rndm->PCData->title,
                                                    MIL);
                                 }
                         else

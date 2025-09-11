@@ -77,7 +77,7 @@ CMDF do_bomb(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsNpc(ch) || !ch->pcdata || !ch->in_room)
+        if (IsNpc(ch) || !ch->PCData || !ch->in_room)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
                 return;
@@ -140,7 +140,7 @@ CMDF do_bomb(CharData * ch, char *argument)
 
         WaitState(ch, skill_table[gsn_bomb]->beats);
 
-        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                      learned[gsn_bomb]);
 
         if (number_percent() > chance)
@@ -449,7 +449,7 @@ CMDF do_dock(CharData * ch, char *argument)
         }
 
         percent_chance =
-                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_dock]);
 
         /*
@@ -513,7 +513,7 @@ CMDF do_undock(CharData * ch, char *argument)
         argument = NULL;
 
         percent_chance =
-                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_dock]);
         if (percent_chance == 0)
         {
@@ -579,7 +579,7 @@ CMDF do_undock(CharData * ch, char *argument)
         }
 
         percent_chance =
-                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                     learned[gsn_dock]);
 
         /*
@@ -678,7 +678,7 @@ CMDF do_extrapolate(CharData * ch, char *argument)
         }
 
         percent_chance =
-                IsNpc(ch) ? ch->top_level : ch->pcdata->
+                IsNpc(ch) ? ch->top_level : ch->PCData->
                 learned[gsn_extrapolate];
         if (percent_chance < number_percent())
         {

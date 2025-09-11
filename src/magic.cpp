@@ -102,7 +102,7 @@ int ch_slookup(CharData * ch, const char *name)
         {
                 if (!skill_table[sn]->name)
                         break;
-                if (ch->pcdata->learned[sn] > 0
+                if (ch->PCData->learned[sn] > 0
                     && LOWER(name[0]) == LOWER(skill_table[sn]->name[0])
                     && !str_prefix(name, skill_table[sn]->name))
                         return sn;
@@ -238,7 +238,7 @@ int ch_bsearch_skill(CharData * ch, const char *name, int first, int top)
 
                 if (LOWER(name[0]) == LOWER(skill_table[sn]->name[0])
                     && !str_prefix(name, skill_table[sn]->name)
-                    && ch->pcdata->learned[sn] > 0)
+                    && ch->PCData->learned[sn] > 0)
                         return sn;
                 if (first >= top)
                         return -1;
@@ -1175,7 +1175,7 @@ CMDF do_cast(CharData * ch, char *argument)
                         return;
                 }
 
-                if (xIS_SET(ch->in_room->RoomFlags, RoomNoMagic))
+                if (IsSet(ch->in_room->RoomFlags, RoomNoMagic))
                 {
                         set_char_color(AtMagic, ch);
                         send_to_char("You failed.\n\r", ch);
@@ -1194,7 +1194,7 @@ CMDF do_cast(CharData * ch, char *argument)
                 if (get_trust(ch) < LevelGod)
                 {
                         if ((sn = find_spell(ch, arg1, TRUE)) < 0
-                            || (!IsNpc(ch) && ch->pcdata->learned[sn] <= 0))
+                            || (!IsNpc(ch) && ch->PCData->learned[sn] <= 0))
                         {
                                 send_to_char("You can't do that.\n\r", ch);
                                 return;
@@ -1521,7 +1521,7 @@ CMDF do_cast(CharData * ch, char *argument)
 
         if (!IsNpc(ch)
             && (number_percent() + skill->difficulty * 5) >
-            ch->pcdata->learned[sn])
+            ch->PCData->learned[sn])
         {
                 /*
                  * Some more interesting loss of concentration messages  -Thoric 
@@ -1691,7 +1691,7 @@ ch_ret obj_cast_spell(int sn, int level, CharData * ch, CharData * victim,
                 return rERROR;
         }
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomNoMagic))
+        if (IsSet(ch->in_room->RoomFlags, RoomNoMagic))
         {
                 set_char_color(AtMagic, ch);
                 send_to_char("Nothing seems to happen...\n\r", ch);
@@ -2277,7 +2277,7 @@ SPELLF spell_earthquake(int sn, int level, CharData * ch, void *vo)
         ch_died = FALSE;
         retcode = rNONE;
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
+        if (IsSet(ch->in_room->RoomFlags, RoomSafe))
         {
                 failed_casting(skill, ch, NULL, NULL);
                 return rSPELL_FAILED;
@@ -2302,7 +2302,7 @@ SPELLF spell_earthquake(int sn, int level, CharData * ch, void *vo)
                 if (vch->in_room == ch->in_room)
                 {
                         if (!IsNpc(vch) && IsSet(vch->act, PlrWizinvis)
-                            && vch->pcdata->wizinvis >= LevelImmortal)
+                            && vch->PCData->wizinvis >= LevelImmortal)
                                 continue;
 
                         if (IsAffected(vch, AffFloating)
@@ -2948,7 +2948,7 @@ SPELLF spell_locate_object(int sn, int level, CharData * ch, void *vo)
                         if (IsImmortal(in_obj->carried_by)
                             && !IsNpc(in_obj->carried_by)
                             && (get_trust(ch) <
-                                in_obj->carried_by->pcdata->wizinvis)
+                                in_obj->carried_by->PCData->wizinvis)
                             && IsSet(in_obj->carried_by->act, PlrWizinvis))
                                 continue;
 
@@ -3212,7 +3212,7 @@ SPELLF spell_sleep(int sn, int level, CharData * ch, void *vo)
             || (percent_chance = ris_save(victim, tmp, RisSleep)) == 1000
             || level < victim->top_level
             || (victim != ch
-                && xIS_SET(victim->in_room->RoomFlags, RoomSafe))
+                && IsSet(victim->in_room->RoomFlags, RoomSafe))
             || saves_spell_staff(percent_chance, victim))
         {
                 failed_casting(skill, ch, victim, NULL);
@@ -3571,8 +3571,8 @@ SPELLF spell_farsight(int sn, int level, CharData * ch, void *vo)
         if ((victim = get_char_world(ch, target_name)) == NULL
             || victim == ch
             || !victim->in_room
-            || xIS_SET(victim->in_room->RoomFlags, RoomPrivate)
-            || xIS_SET(victim->in_room->RoomFlags, RoomPrototype)
+            || IsSet(victim->in_room->RoomFlags, RoomPrivate)
+            || IsSet(victim->in_room->RoomFlags, RoomPrototype)
             || (IsNpc(victim) && IsSet(victim->act, ActPrototype)))
         {
                 failed_casting(skill, ch, victim, NULL);
@@ -4120,8 +4120,8 @@ CMDF do_revert(CharData * ch, char *argument)
 /*  else
   {
     location = NULL;
-    if(ch->desc->original->pcdata->clan)
-      location = get_room_index(ch->desc->original->pcdata->clan->recall);
+    if(ch->desc->original->PCData->clan)
+      location = get_room_index(ch->desc->original->PCData->clan->recall);
     if(!location)
       location = get_room_index(RoomVnumTemple);
     char_to_room(ch->desc->original, location);
@@ -4150,7 +4150,7 @@ SPELLF spell_spiral_blast(int sn, int level, CharData * ch, void *vo)
 
         ch_died = FALSE;
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
+        if (IsSet(ch->in_room->RoomFlags, RoomSafe))
         {
                 set_char_color(AtMagic, ch);
                 send_to_char("You fail to breathe.\n\r", ch);
@@ -4167,7 +4167,7 @@ SPELLF spell_spiral_blast(int sn, int level, CharData * ch, void *vo)
         {
                 vch_next = vch->next_in_room;
                 if (!IsNpc(vch) && IsSet(vch->act, PlrWizinvis)
-                    && vch->pcdata->wizinvis >= LevelImmortal)
+                    && vch->PCData->wizinvis >= LevelImmortal)
                         continue;
 
                 if (IsNpc(ch) ? !IsNpc(vch) : IsNpc(vch))
@@ -4318,7 +4318,7 @@ SPELLF spell_area_attack(int sn, int level, CharData * ch, void *vo)
         ch->alignment = URANGE(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
-        if (xIS_SET(ch->in_room->RoomFlags, RoomSafe))
+        if (IsSet(ch->in_room->RoomFlags, RoomSafe))
         {
                 failed_casting(skill, ch, NULL, NULL);
                 return rSPELL_FAILED;
@@ -4335,7 +4335,7 @@ SPELLF spell_area_attack(int sn, int level, CharData * ch, void *vo)
                 vch_next = vch->next_in_room;
 
                 if (!IsNpc(vch) && IsSet(vch->act, PlrWizinvis)
-                    && vch->pcdata->wizinvis >= LevelImmortal)
+                    && vch->PCData->wizinvis >= LevelImmortal)
                         continue;
 
                 if (vch != ch && (IsNpc(ch) ? !IsNpc(vch) : IsNpc(vch)))
@@ -5642,8 +5642,8 @@ SPELLF spell_force_healing(int sn, int level, CharData * ch, void *vo)
         victim->hit +=
                 (number_percent() +
                  (victim ==
-                  ch ? (int) ch->pcdata->
-                  learned[gsn_force_healing] : (int) ch->pcdata->
+                  ch ? (int) ch->PCData->
+                  learned[gsn_force_healing] : (int) ch->PCData->
                   learned[gsn_force_healing] / 2));
         if (victim->hit > victim->max_hit)
                 victim->hit = victim->max_hit;
@@ -5703,7 +5703,7 @@ CMDF do_meditate(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
                                                      learned[gsn_meditate]);
 
         if (ch->perm_frc <= 0)

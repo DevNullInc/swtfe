@@ -210,7 +210,7 @@ void create_arena(void)
 bool arena_can_fight(CharData * ch, CharData * victim)
 {
         (void)victim;  // Silence unused parameter warning
-        if (xIS_SET(ch->in_room->RoomFlags, RoomArena))
+        if (IsSet(ch->in_room->RoomFlags, RoomArena))
         {
                 if (arena && arena->fighting)
                         return TRUE;
@@ -377,7 +377,7 @@ void win_fight(CharData * winner, CharData * looser)
         act(AtPlain, "You have defeated $n", looser, NULL, winner, ToVict);
 
         snprintf(buf, MIL, "%s has defeated %s in combat",
-                 winner->pcdata->full_name, looser->pcdata->full_name);
+                 winner->PCData->full_name, looser->PCData->full_name);
         command_printf(arena->challenger, const_cast<char*>("achat %s"), buf);
 
         /*
@@ -408,7 +408,7 @@ void win_fight(CharData * winner, CharData * looser)
                 {
                         snprintf(buf, MIL, "%s Your bet on %s paid off.",
                                  bet->better->name,
-                                 bet->better->pcdata->full_name);
+                                 bet->better->PCData->full_name);
                         do_tell(arena->announcer, buf);
                         snprintf(buf, MIL, "%s You get %d credits.",
                                  bet->better->name,
@@ -438,7 +438,7 @@ void win_fight(CharData * winner, CharData * looser)
          */
 
         snprintf(buf, MIL, "%s Your victory over %s has been rewarded!.",
-                 winner->name, looser->pcdata->full_name);
+                 winner->name, looser->PCData->full_name);
         do_tell(arena->announcer, buf);
         snprintf(buf, MIL, "%s You get %d credits.", winner->name,
                  arena->pot / 2);
@@ -446,7 +446,7 @@ void win_fight(CharData * winner, CharData * looser)
         winner->gold += arena->pot / 2;
 
         snprintf(buf, MIL, "%s Your loss against %s has gained you nothing!",
-                 looser->name, winner->pcdata->full_name);
+                 looser->name, winner->PCData->full_name);
         do_tell(arena->announcer, buf);
 
         /*
@@ -565,7 +565,7 @@ CMDF do_bet(CharData * ch, char *argument)
 
         add_bet(ch, amount, victim);
         ch_printf(ch, "You place a %d credit bet on %s.\n\r", amount,
-                  victim->pcdata->full_name);
+                  victim->PCData->full_name);
         return;
 }
 
@@ -589,9 +589,9 @@ CMDF do_bets(CharData * ch, char *argument)
         if (arena->challenger && arena->challenged)
         {
                 pager_printf(ch, "&RChallenger: &G%s&w (&C%d credits&w backing them)\n\r",
-                           arena->challenger->pcdata->full_name, arena->bet_challenger);
+                           arena->challenger->PCData->full_name, arena->bet_challenger);
                 pager_printf(ch, "&RChallenged:  &G%s&w (&C%d credits&w backing them)\n\r",
-                           arena->challenged->pcdata->full_name, arena->bet_challenged);
+                           arena->challenged->PCData->full_name, arena->bet_challenged);
                 pager_printf(ch, "&YTotal Pot: &C%d&w credits\n\r\n\r", arena->pot);
         }
         
@@ -600,8 +600,8 @@ CMDF do_bets(CharData * ch, char *argument)
         for (bet = arena->first_better; bet; bet = bet->next)
         {
                 pager_printf(ch, "&G%s&w bet &C%d&w on &G%s&w\n\r",
-                             bet->better->pcdata->full_name,
-                             bet->amount, bet->bet_on->pcdata->full_name);
+                             bet->better->PCData->full_name,
+                             bet->amount, bet->bet_on->PCData->full_name);
         }
         return;
 }
@@ -734,7 +734,7 @@ CMDF do_challenge(CharData * ch, char *argument)
                     && !str_cmp(argument, "ooc"))
                         arena->ooc = TRUE;
                 snprintf(buf, 150, "I CHOOSE YOU %s%s",
-                         strupper(victim->pcdata->full_name),
+                         strupper(victim->PCData->full_name),
                          arena->ooc ? " FOR AN OOC BATTLE" : "");
                 arena->challenger = ch;
                 arena->challenged = victim;
@@ -895,7 +895,7 @@ bool in_arena(CharData * ch)
 {
 
         if (!str_cmp(ch->in_room->area->filename, "arena.are")
-            || xIS_SET(ch->in_room->RoomFlags, RoomArena))
+            || IsSet(ch->in_room->RoomFlags, RoomArena))
                 return TRUE;
 
         if (ch->in_room->vnum < 29 || ch->in_room->vnum > 43)

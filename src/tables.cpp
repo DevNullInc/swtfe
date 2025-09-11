@@ -193,7 +193,7 @@ void fwrite_skill(FILE * fpout, SkillType * skill)
                         aff->bitvector);
         if (skill->alignment)
                 fprintf(fpout, "Alignment   %d\n", skill->alignment);
-        if (!xIS_EMPTY(skill->body_parts))
+        if (!IsEmpty(skill->body_parts))
                 fprintf(fpout, "BodyParts   %s\n",
                         print_bitvector(&skill->body_parts));
         fprintf(fpout, "Held     %d\n", skill->held);
