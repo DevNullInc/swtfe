@@ -49,8 +49,8 @@
 
 struct note_data;
 using NOTE_DATA = note_data;
-struct board_data;
-using BOARD_DATA = board_data;
+struct BoardData;
+using BOARD_DATA = BoardData;
 
 #define VNUM_IDEA_BOARD 10123
 #define VNUM_MAIL_BOARD 38
@@ -84,14 +84,14 @@ struct note_data
         char     *text;
 };
 
-struct board_data
+struct BoardData
 {
         BOARD_DATA *next;   /* Next board in list          */
         BOARD_DATA *prev;   /* Previous board in list      */
         NOTE_DATA *first_note;  /* First note on board         */
         NOTE_DATA *last_note;   /* Last note on board          */
         char     *note_file;    /* Filename to save notes to       */
-        char     *board_name;   /* Name of the board.              */
+        char     *BoardName;   /* Name of the board.              */
         char     *read_group;   /* Can restrict a board to a       */
         char     *post_group;   /* council, clan, guild etc        */
         char     *extra_readers;    /* Can give read rights to players */

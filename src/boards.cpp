@@ -160,9 +160,9 @@ void write_boards_txt(void)
         for (tboard = first_board; tboard; tboard = tboard->next)
         {
                 fprintf(fpout, "Filename          %s~\n", tboard->note_file);
-                if (tboard->board_name && tboard->board_name[0] != '\0')
+                if (tboard->BoardName && tboard->BoardName[0] != '\0')
                         fprintf(fpout, "Name              %s~\n",
-                                tboard->board_name);
+                                tboard->BoardName);
                 fprintf(fpout, "Vnum              %d\n", tboard->board_obj);
                 fprintf(fpout, "Min_read_level    %d\n",
                         tboard->min_read_level);
@@ -1385,8 +1385,8 @@ BOARD_DATA *read_board(char * /* boardfile */, FILE * fp)
                                         board->extra_readers = str_dup("");
                                 if (!board->extra_removers)
                                         board->extra_removers = str_dup("");
-                                if (!board->board_name)
-                                        board->board_name =
+                                if (!board->BoardName)
+                                        board->BoardName =
                                                 str_dup(board->note_file);
 
                                 return board;
@@ -1399,7 +1399,7 @@ BOARD_DATA *read_board(char * /* boardfile */, FILE * fp)
                         break;
 
                 case 'N':
-                        KEY("Name", board->board_name,
+                        KEY("Name", board->BoardName,
                             fread_string_nohash(fp));
                         break;
 
@@ -1578,7 +1578,7 @@ CMDF do_makeboard(CharData * ch, char *argument)
 
         LINK(board, first_board, last_board, next, prev);
         board->note_file = str_dup(strlower(arg));
-        board->board_name = str_dup(strlower(arg));
+        board->BoardName = str_dup(strlower(arg));
         board->read_group = str_dup("");
         board->post_group = str_dup("");
         board->extra_readers = str_dup("");
@@ -1725,8 +1725,8 @@ CMDF do_bset(CharData * ch, char *argument)
                         send_to_char("No Name specified.\n\r", ch);
                         return;
                 }
-                DISPOSE(board->board_name);
-                board->board_name = str_dup(argument);
+                DISPOSE(board->BoardName);
+                board->BoardName = str_dup(argument);
         }
 
         else if (!str_cmp(arg2, "post"))
@@ -1820,7 +1820,7 @@ CMDF do_bstat(CharData * ch, char *argument)
                   "\tRead_group:     %s\n\r"
                   "\tPost_group:     %s\n\r"
                   "\tExtra_readers:  %s\n\r",
-                  board->board_name, board->note_file,
+                  board->BoardName, board->note_file,
                   board->board_obj, board->min_read_level,
                   board->min_post_level, board->min_remove_level,
                   board->max_posts, board->num_posts,
@@ -1909,7 +1909,7 @@ CMDF do_global(CharData * ch, char *argument)
                 {
                         if (board->type != BOARD_GLOBAL)
                                 continue;
-                        ch_printf(ch, "\t %s\n\r", board->board_name);
+                        ch_printf(ch, "\t %s\n\r", board->BoardName);
                         count++;
                 }
 
@@ -1926,7 +1926,7 @@ CMDF do_global(CharData * ch, char *argument)
          */
         for (board = first_board; board; board = board->next)
         {
-                if (nifty_is_name_prefix(arg1, board->board_name))
+                if (nifty_is_name_prefix(arg1, board->BoardName))
                         break;
         }
 
@@ -1945,7 +1945,7 @@ void free_board(BOARD_DATA * board)
 
         UNLINK(board, first_board, last_board, next, prev);
         DISPOSE(board->note_file);
-        DISPOSE(board->board_name);
+        DISPOSE(board->BoardName);
         DISPOSE(board->read_group);
         DISPOSE(board->post_group);
         DISPOSE(board->extra_readers);
