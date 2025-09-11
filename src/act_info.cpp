@@ -4035,7 +4035,7 @@ CMDF do_practice(CharData* ch, char* argument)
                 {
                         ch->gold -= skill_table[sn]->min_level * 10;
                         ch->pcdata->learned[sn] +=
-                                int_app[get_curr_int(ch)].learn;
+                                IntApp[get_curr_int(ch)].learn;
                         act(AT_ACTION, "You practice $T.", ch, NULL,
                             skill_table[sn]->name, TO_CHAR);
                         act(AT_ACTION, "$n practices $T.", ch, NULL,
@@ -4188,7 +4188,7 @@ CMDF do_teach(CharData * ch, char *argument)
                         else
                         {
                                 victim->pcdata->learned[sn] +=
-                                        int_app[get_curr_int(ch)].learn;
+                                        IntApp[get_curr_int(ch)].learn;
                                 snprintf(buf, MSL, "You teach %s $T.",
                                          victim->name);
                                 act(AT_ACTION, buf, ch, NULL,

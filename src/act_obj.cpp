@@ -2087,7 +2087,7 @@ void wear_obj(CharData * ch, ObjData * obj, bool fReplace, sh_int wear_bit)
                         {
                                 if (get_obj_weight(obj) +
                                     get_obj_weight(tmpobj) >
-                                    str_app[get_curr_str(ch)].wield)
+                                    StrApp[get_curr_str(ch)].wield)
                                 {
                                         send_to_char
                                                 ("It is too heavy for you to wield.\n\r",
@@ -2116,7 +2116,7 @@ void wear_obj(CharData * ch, ObjData * obj, bool fReplace, sh_int wear_bit)
                         return;
                 }
 
-                if (get_obj_weight(obj) > str_app[get_curr_str(ch)].wield)
+                if (get_obj_weight(obj) > StrApp[get_curr_str(ch)].wield)
                 {
                         send_to_char("It is too heavy for you to wield.\n\r",
                                      ch);

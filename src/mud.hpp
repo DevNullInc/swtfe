@@ -1260,7 +1260,7 @@ struct missile_data
 /*
  * An affect.
  */
-struct affect_data
+struct AffectData
 {
         AffectData *next;
         AffectData *prev;
@@ -3399,13 +3399,13 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define IS_NEUTRAL(ch)		(!IS_GOOD(ch) && !IS_EVIL(ch))
 
 #define IS_AWAKE(ch)		((ch)->position > POS_SLEEPING || IS_AFFECTED( (ch), AFF_CHARM ))
-#define GET_AC(ch)		( (ch)->Armor + ( IS_AWAKE(ch) ? dex_app[get_curr_dex(ch)].defensive : 0 ) \
+#define GET_AC(ch)		( (ch)->Armor + ( IS_AWAKE(ch) ? DexApp[get_curr_dex(ch)].defensive : 0 ) \
 				- ( !str_cmp((ch)->race->name(), "defel") ? (ch)->skill_level[COMBAT_ABILITY]*2+5 : (ch)->skill_level[COMBAT_ABILITY]/2 ) )
 #define GET_HITROLL(ch)		((ch)->Hitroll				    \
-				    +str_app[get_curr_str(ch)].tohit	    \
+				    +StrApp[get_curr_str(ch)].tohit	    \
 				    +(2-(abs((ch)->mental_state)/10)))
 #define GET_DAMROLL(ch)		((ch)->Damroll                              \
-				    +str_app[get_curr_str(ch)].todam	    \
+				    +StrApp[get_curr_str(ch)].todam	    \
 				    +(((ch)->mental_state > 5		    \
 				    &&(ch)->mental_state < 15) ? 1 : 0) )
 
@@ -3591,13 +3591,13 @@ extern HourMinSec *set_boot_time;
 extern struct tm *new_boot_time;
 extern time_t new_boot_time_t;
 
-extern const struct StrAppType str_app[41];
-extern const struct IntAppType int_app[41];
-extern const struct wis_app_type wis_app[41];
-extern const struct dex_app_type dex_app[41];
-extern const struct con_app_type con_app[41];
-extern const struct cha_app_type cha_app[41];
-extern const struct lck_app_type lck_app[41];
+extern const struct StrAppType StrApp[41];
+extern const struct IntAppType IntApp[41];
+extern const struct wis_app_type WisApp[41];
+extern const struct dex_app_type DexApp[41];
+extern const struct con_app_type ConApp[41];
+extern const struct cha_app_type ChaApp[41];
+extern const struct lck_app_type LckApp[41];
 extern const struct frc_app_type frc_app[41];
 
 extern const char* const wear_locs[];

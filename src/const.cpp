@@ -190,7 +190,7 @@ const char *const ability_name[MaxAbility] = {
 /*
  * Attribute Bonus tables.
  */
-const struct StrAppType str_app[41] = {
+const struct StrAppType StrApp[41] = {
         {-5, -4, 0, 0}, /* 0  */
         {-5, -4, 3, 1}, /* 1  */
         {-3, -2, 3, 2},
@@ -236,7 +236,7 @@ const struct StrAppType str_app[41] = {
 
 
 
-const struct IntAppType int_app[41] = {
+const struct IntAppType IntApp[41] = {
         {3},    /*  0 */
         {5},    /*  1 */
         {7},
@@ -283,7 +283,7 @@ const struct IntAppType int_app[41] = {
 
 
 
-const struct wis_app_type wis_app[41] = {
+const struct wis_app_type WisApp[41] = {
         {0},    /*  0 */
         {0},    /*  1 */
         {0},
@@ -329,7 +329,7 @@ const struct wis_app_type wis_app[41] = {
 
 
 
-const struct dex_app_type dex_app[41] = {
+const struct dex_app_type DexApp[41] = {
         {60},   /* 0 */
         {50},   /* 1 */
         {50},
@@ -375,7 +375,7 @@ const struct dex_app_type dex_app[41] = {
 
 
 
-const struct con_app_type con_app[41] = {
+const struct con_app_type ConApp[41] = {
         {-4, 20},   /*  0 */
         {-3, 25},   /*  1 */
         {-2, 30},
@@ -420,7 +420,7 @@ const struct con_app_type con_app[41] = {
 };
 
 
-const struct cha_app_type cha_app[41] = {
+const struct cha_app_type ChaApp[41] = {
         {-60},  /* 0 */
         {-50},  /* 1 */
         {-50},
@@ -465,7 +465,7 @@ const struct cha_app_type cha_app[41] = {
 };
 
 /* Have to fix this up - not exactly sure how it works (Scryn) */
-const struct lck_app_type lck_app[41] = {
+const struct lck_app_type LckApp[41] = {
         {60},   /* 0 */
         {50},   /* 1 */
         {50},

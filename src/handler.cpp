@@ -597,7 +597,7 @@ int can_carry_w(CharData * ch)
         if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET))
                 return 0;
 
-        return str_app[get_curr_str(ch)].carry;
+        return StrApp[get_curr_str(ch)].carry;
 }
 
 
@@ -1061,7 +1061,7 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
         if (!IS_NPC(ch)
                         && saving_char != ch
                         && (wield = get_eq_char(ch, WEAR_WIELD)) != NULL
-                        && get_obj_weight(wield) > str_app[get_curr_str(ch)].wield)
+                        && get_obj_weight(wield) > StrApp[get_curr_str(ch)].wield)
         {
                 static int depth;
 
