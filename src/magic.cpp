@@ -4778,7 +4778,7 @@ SPELLF spell_obj_inv(int sn, int level, CharData * ch, void *vo)
                                                         skill->
                                                         dice) : level) *
                                      (weather_info.sky >=
-                                      SKY_RAINING ? 2 : 1),
+                                      SkyRaining ? 2 : 1),
                                      obj->value[0] - obj->value[1]);
 
                         if (water > 0)

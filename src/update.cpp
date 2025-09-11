@@ -1477,32 +1477,32 @@ void weather_update(void)
         switch (++time_info.hour)
         {
         case 5:
-                weather_info.sunlight = SUN_LIGHT;
+                weather_info.sunlight = SunLight;
                 mudstrlcat(buf, "The day has begun.", MSL);
                 AT_TEMP = AT_YELLOW;
                 break;
 
         case 6:
-                weather_info.sunlight = SUN_RISE;
+                weather_info.sunlight = SunRise;
                 mudstrlcat(buf, "The sun rises in the east.", MSL);
                 AT_TEMP = AT_ORANGE;
                 break;
 
         case 12:
-                weather_info.sunlight = SUN_LIGHT;
+                weather_info.sunlight = SunLight;
                 mudstrlcat(buf, "It's noon.", MSL);
                 AT_TEMP = AT_YELLOW;
                 break;
 
         case 19:
-                weather_info.sunlight = SUN_SET;
+                weather_info.sunlight = SunSet;
                 mudstrlcat(buf, "The sun slowly disappears in the west.",
                            MSL);
                 AT_TEMP = AT_BLOOD;
                 break;
 
         case 20:
-                weather_info.sunlight = SUN_DARK;
+                weather_info.sunlight = SunDark;
                 mudstrlcat(buf, "The night has begun.", MSL);
                 AT_TEMP = AT_DGREY;
                 break;
@@ -1565,41 +1565,41 @@ void weather_update(void)
         {
         default:
                 bug("Weather_update: bad sky %d.", weather_info.sky);
-                weather_info.sky = SKY_CLOUDLESS;
+                weather_info.sky = SkyCloudless;
                 break;
 
-        case SKY_CLOUDLESS:
+        case SkyCloudless:
                 if (weather_info.mmhg < 990
                     || (weather_info.mmhg < 1010 && number_bits(2) == 0))
                 {
                         mudstrlcat(buf, "The sky is getting cloudy.", MSL);
-                        weather_info.sky = SKY_CLOUDY;
+                        weather_info.sky = SkyCloudy;
                         AT_TEMP = AT_GREY;
                 }
                 break;
 
-        case SKY_CLOUDY:
+        case SkyCloudy:
                 if (weather_info.mmhg < 970
                     || (weather_info.mmhg < 990 && number_bits(2) == 0))
                 {
                         mudstrlcat(buf, "It starts to rain.", MSL);
-                        weather_info.sky = SKY_RAINING;
+                        weather_info.sky = SkyRaining;
                         AT_TEMP = AT_BLUE;
                 }
 
                 if (weather_info.mmhg > 1030 && number_bits(2) == 0)
                 {
                         mudstrlcat(buf, "The clouds disappear.", MSL);
-                        weather_info.sky = SKY_CLOUDLESS;
+                        weather_info.sky = SkyCloudless;
                         AT_TEMP = AT_WHITE;
                 }
                 break;
 
-        case SKY_RAINING:
+        case SkyRaining:
                 if (weather_info.mmhg < 970 && number_bits(2) == 0)
                 {
                         mudstrlcat(buf, "Lightning flashes in the sky.", MSL);
-                        weather_info.sky = SKY_LIGHTNING;
+                        weather_info.sky = SkyLightning;
                         AT_TEMP = AT_YELLOW;
                 }
 
@@ -1607,17 +1607,17 @@ void weather_update(void)
                     || (weather_info.mmhg > 1010 && number_bits(2) == 0))
                 {
                         mudstrlcat(buf, "The rain stopped.", MSL);
-                        weather_info.sky = SKY_CLOUDY;
+                        weather_info.sky = SkyCloudy;
                         AT_TEMP = AT_WHITE;
                 }
                 break;
 
-        case SKY_LIGHTNING:
+        case SkyLightning:
                 if (weather_info.mmhg > 1010
                     || (weather_info.mmhg > 990 && number_bits(2) == 0))
                 {
                         mudstrlcat(buf, "The lightning has stopped.", MSL);
-                        weather_info.sky = SKY_RAINING;
+                        weather_info.sky = SkyRaining;
                         AT_TEMP = AT_GREY;
                         break;
                 }

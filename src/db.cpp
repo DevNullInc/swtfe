@@ -544,15 +544,15 @@ void initialize_timeweather(void)
         time_info.year = INT_TO_SHINT(lmonth / 17);
 
         if (time_info.hour < 5)
-                weather_info.sunlight = SUN_DARK;
+                weather_info.sunlight = SunDark;
         else if (time_info.hour < 6)
-                weather_info.sunlight = SUN_RISE;
+                weather_info.sunlight = SunRise;
         else if (time_info.hour < 19)
-                weather_info.sunlight = SUN_LIGHT;
+                weather_info.sunlight = SunLight;
         else if (time_info.hour < 20)
-                weather_info.sunlight = SUN_SET;
+                weather_info.sunlight = SunSet;
         else
-                weather_info.sunlight = SUN_DARK;
+                weather_info.sunlight = SunDark;
         weather_info.change = 0;
         weather_info.mmhg = 960;
 
@@ -562,13 +562,13 @@ void initialize_timeweather(void)
                 weather_info.mmhg += number_range(1, 80);
 
         if (weather_info.mmhg <= 980)
-                weather_info.sky = SKY_LIGHTNING;
+                weather_info.sky = SkyLightning;
         else if (weather_info.mmhg <= 1000)
-                weather_info.sky = SKY_RAINING;
+                weather_info.sky = SkyRaining;
         else if (weather_info.mmhg <= 1020)
-                weather_info.sky = SKY_CLOUDY;
+                weather_info.sky = SkyCloudy;
         else
-                weather_info.sky = SKY_CLOUDLESS;
+                weather_info.sky = SkyCloudless;
 }
 
 void initialize_globals(void)

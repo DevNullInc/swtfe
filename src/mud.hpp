@@ -484,13 +484,13 @@ struct WatchData
  */
 typedef enum
 {
-        SUN_DARK, SUN_RISE, SUN_LIGHT, SUN_SET
-} sun_positions;
+        SunDark, SunRise, SunLight, SunSet
+} SunPositions;
 
 typedef enum
 {
-        SKY_CLOUDLESS, SKY_CLOUDY, SKY_RAINING, SKY_LIGHTNING
-} sky_conditions;
+        SkyCloudless, SkyCloudy, SkyRaining, SkyLightning
+} SkyConditions;
 
 struct TimeInfoData
 {
@@ -500,7 +500,7 @@ struct TimeInfoData
         int year;
 };
 
-struct hour_min_sec
+struct HourMinSec
 {
         int hour;
         int min;
@@ -508,7 +508,7 @@ struct hour_min_sec
         int manual;
 };
 
-struct weather_data
+struct WeatherData
 {
         int mmhg;
         int change;
