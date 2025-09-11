@@ -48,7 +48,7 @@
 #include <cstddef>
 
 // Forward declarations for types used in function signatures
-struct CharData; // Align with typedef in Account.hpp and imccfg.hpp
+struct CharData; // Align with typedef in account.hpp and imccfg.hpp
 using CharDataPtr = std::shared_ptr<CharData>;
 using CMDF = void(*)(CharDataPtr, std::string_view);
 

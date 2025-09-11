@@ -53,7 +53,7 @@
 #include "mud.hpp"
 #include "editor.hpp"
 #include "bounty.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 #include "races.hpp"
 /* Telnet protocol constants for GMCP */
 #ifndef IAC

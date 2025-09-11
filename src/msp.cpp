@@ -43,7 +43,7 @@
 #include <arpa/telnet.h>
 #include "mud.hpp"
 #include "msp.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 
 /* Good Example:
  * do_beep

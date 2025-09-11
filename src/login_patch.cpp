@@ -15,7 +15,7 @@
  */
 
 #include "mud.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 
 #ifndef ConGetCharSelection
 #define ConGetCharSelection  76765  // Use an unused integer value appropriate for your codebase

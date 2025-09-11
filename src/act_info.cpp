@@ -66,7 +66,7 @@
 #endif
 #include "editor.hpp"
 #include "boards.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 #include "astral.hpp"
 #include "races.hpp"
 #include "greet.hpp"

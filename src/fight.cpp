@@ -55,7 +55,7 @@
 
 #include "mud.hpp"
 #ifdef ACCOUNT
-#include "Account.hpp"
+#include "account.hpp"
 #endif
 #include "msp.hpp"
 #include "bounty.hpp"

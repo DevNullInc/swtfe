@@ -48,7 +48,7 @@
 #include <time.h>
 #include "mud.hpp"
 #include <stdlib.h>
-#include "Account.hpp"
+#include "account.hpp"
 #include "alias.hpp"
 #include "channels.hpp"
 

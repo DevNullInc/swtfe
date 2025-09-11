@@ -95,7 +95,7 @@
 #include "hotboot.hpp"
 #include "ban.hpp"
 #include "editor.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 #include "alias.hpp"
 #include "channels.hpp"
 #include "races.hpp"

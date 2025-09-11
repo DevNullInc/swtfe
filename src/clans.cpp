@@ -66,7 +66,7 @@
 #include <time.h>
 #include <memory.h>
 #include "mud.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 #include "astral.hpp"
 #include "bounty.hpp"
 #include "space2.hpp"

@@ -47,7 +47,7 @@
 #include "mud.hpp"
 #include "editor.hpp"
 #include "boards.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 
 void      note_attach(CharData * ch);
 

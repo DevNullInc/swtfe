@@ -47,7 +47,7 @@
 #include <crypt.h>
 #include "mud.hpp"
 #include "editor.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 #include "races.hpp"
 #include "password.hpp"
 

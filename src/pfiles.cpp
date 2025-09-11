@@ -60,7 +60,7 @@
 #include <signal.h>
 #include <stdarg.h>
 #include "mud.hpp"
-#include "Account.hpp"
+#include "account.hpp"
 
 /* Globals */
 time_t    pfile_time;
