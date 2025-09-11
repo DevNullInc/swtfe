@@ -43,9 +43,9 @@
 #include "mud.hpp"
 
 
-CMDF do_placebeacon(CHAR_DATA * ch, char *argument)
+CMDF do_placebeacon(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         int       percentage;
 
         if (argument[0] == '\0' || !is_number(argument))
@@ -129,14 +129,14 @@ CMDF do_placebeacon(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_makebeacon(CHAR_DATA * ch, char *argument)
+CMDF do_makebeacon(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       level, percentage, cost;
         bool      checktool, checkoven, checkmetal, checkcom, checkbattery,
                 checkcirc;
-        OBJ_DATA *obj;
-        OBJ_DATA *metal = NULL;
+        ObjData *obj;
+        ObjData *metal = NULL;
 
 
         mudstrlcpy(arg, argument, MIL);
@@ -357,7 +357,7 @@ CMDF do_makebeacon(CHAR_DATA * ch, char *argument)
         act(AT_PLAIN, "$n finishes working on a piece of metal.", ch, NULL,
             argument, TO_ROOM);
         {
-                SKILLTYPE *skill = skill_table[gsn_makebeacon];
+                SkillType *skill = skill_table[gsn_makebeacon];
                 long      xpgain;
 
                 xpgain = UMIN((level * level * 2),  //This should equal anywhere from 20-40k exp,

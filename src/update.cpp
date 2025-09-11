@@ -57,10 +57,10 @@
 /* from swskills.c
  * Local functions.
  */
-int hit_gain args((CHAR_DATA * ch));
-int mana_gain args((CHAR_DATA * ch));
-int move_gain args((CHAR_DATA * ch));
-void gain_addiction args((CHAR_DATA * ch));
+int hit_gain args((CharData * ch));
+int mana_gain args((CharData * ch));
+int move_gain args((CharData * ch));
+void gain_addiction args((CharData * ch));
 void mobile_update args((void));
 void weather_update args((void));
 void update_taxes args((void));
@@ -78,8 +78,8 @@ void obj_act_update args((void));
 void char_check args((void));
 void bacta_update args((void));
 void quest_update args((void)); /* Vassago - quest.c */
-void drunk_randoms args((CHAR_DATA * ch));
-void halucinations args((CHAR_DATA * ch));
+void drunk_randoms args((CharData * ch));
+void halucinations args((CharData * ch));
 void subtract_times args((struct timeval * etime, struct timeval * systime));
 void init_crashover args((void));
 void arena_update args((void));
@@ -87,10 +87,10 @@ void arena_update args((void));
 /*
  * Global Variables
  */
-CHAR_DATA *gch_prev;
-OBJ_DATA *gobj_prev;
+CharData *gch_prev;
+ObjData *gobj_prev;
 
-CHAR_DATA *timechar;
+CharData *timechar;
 
 char     *corpse_descs[] = {
         "The corpse of %s will soon be gone.",
@@ -113,7 +113,7 @@ extern int top_exit;
 /*
  * Advancement stuff.
  */
-int max_level(CHAR_DATA * ch, int ability)
+int max_level(CharData * ch, int ability)
 {
         int       level = 0;
 
@@ -288,7 +288,7 @@ int max_level(CHAR_DATA * ch, int ability)
         return level;
 }
 
-void advance_level(CHAR_DATA * ch, int ability)
+void advance_level(CharData * ch, int ability)
 {
 
         if (ch->top_level < ch->skill_level[ability] && ch->top_level < 100)
@@ -301,7 +301,7 @@ void advance_level(CHAR_DATA * ch, int ability)
         return;
 }
 
-void gain_exp_new(CHAR_DATA * ch, int gain, int ability, bool outtext)
+void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
 {
         /*
          * why were these global variables? - Gavin 
@@ -500,7 +500,7 @@ void gain_exp_new(CHAR_DATA * ch, int gain, int ability, bool outtext)
         return;
 }
 
-void gain_exp(CHAR_DATA * ch, int gain, int ability)
+void gain_exp(CharData * ch, int gain, int ability)
 {
         gain_exp_new(ch, gain, ability, TRUE);
         return;
@@ -509,7 +509,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int ability)
 /*
  * Regeneration stuff.
  */
-int hit_gain(CHAR_DATA * ch)
+int hit_gain(CharData * ch)
 {
         int       gain;
 
@@ -585,7 +585,7 @@ int hit_gain(CHAR_DATA * ch)
 }
 
 
-int mana_gain(CHAR_DATA * ch)
+int mana_gain(CharData * ch)
 {
         int       gain;
 
@@ -633,7 +633,7 @@ int mana_gain(CHAR_DATA * ch)
         return UMIN(gain, ch->max_endurance - ch->endurance);
 }
 
-int move_gain(CHAR_DATA * ch)
+int move_gain(CharData * ch)
 {
         int       gain;
 
@@ -707,11 +707,11 @@ int move_gain(CHAR_DATA * ch)
         return UMIN(gain, ch->max_endurance - ch->endurance);
 }
 
-void gain_addiction(CHAR_DATA * ch)
+void gain_addiction(CharData * ch)
 {
         short     drug;
         ch_ret    retcode;
-        AFFECT_DATA af;
+        AffectData af;
 
         for (drug = 0; drug <= 9; drug++)
         {
@@ -824,12 +824,12 @@ void gain_addiction(CHAR_DATA * ch)
 
 }
 
-void gain_condition(CHAR_DATA * ch, int iCond, int value)
+void gain_condition(CharData * ch, int iCond, int value)
 {
         int       condition;
         ch_ret    retcode = rNONE;
 
-        if (value == 0 || IS_NPC(ch) || get_trust(ch) >= LEVEL_IMMORTAL ||
+        if (value == 0 || IS_NPC(ch) || get_trust(ch) >= LevelImmortal ||
             NOT_AUTHED(ch) || !str_cmp("droid", ch->race->name())
             || IS_SET(ch->pcdata->flags, PCFLAG_NOHUNGER))
                 return;
@@ -847,7 +847,7 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
                 switch (iCond)
                 {
                 case COND_FULL:
-                        if (ch->top_level <= LEVEL_AVATAR)
+                        if (ch->top_level <= LevelAvatar)
                         {
                                 set_char_color(AT_HUNGRY, ch);
                                 send_to_char("You are STARVING!\n\r", ch);
@@ -859,7 +859,7 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
                         break;
 
                 case COND_THIRST:
-                        if (ch->top_level < LEVEL_AVATAR)
+                        if (ch->top_level < LevelAvatar)
                         {
                                 set_char_color(AT_THIRSTY, ch);
                                 send_to_char("You are DYING of THIRST!\n\r",
@@ -895,7 +895,7 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
                 switch (iCond)
                 {
                 case COND_FULL:
-                        if (ch->top_level < LEVEL_AVATAR)
+                        if (ch->top_level < LevelAvatar)
                         {
                                 set_char_color(AT_HUNGRY, ch);
                                 send_to_char("You are really hungry.\n\r",
@@ -909,7 +909,7 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
                         break;
 
                 case COND_THIRST:
-                        if (ch->top_level < LEVEL_AVATAR)
+                        if (ch->top_level < LevelAvatar)
                         {
                                 set_char_color(AT_THIRSTY, ch);
                                 send_to_char("You are really thirsty.\n\r",
@@ -936,7 +936,7 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
                 switch (iCond)
                 {
                 case COND_FULL:
-                        if (ch->top_level < LEVEL_AVATAR)
+                        if (ch->top_level < LevelAvatar)
                         {
                                 set_char_color(AT_HUNGRY, ch);
                                 send_to_char("You are hungry.\n\r", ch);
@@ -944,7 +944,7 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
                         break;
 
                 case COND_THIRST:
-                        if (ch->top_level < LEVEL_AVATAR)
+                        if (ch->top_level < LevelAvatar)
                         {
                                 set_char_color(AT_THIRSTY, ch);
                                 send_to_char("You are thirsty.\n\r", ch);
@@ -959,7 +959,7 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
                 switch (iCond)
                 {
                 case COND_FULL:
-                        if (ch->top_level < LEVEL_AVATAR)
+                        if (ch->top_level < LevelAvatar)
                         {
                                 set_char_color(AT_HUNGRY, ch);
                                 send_to_char("You are a mite peckish.\n\r",
@@ -968,7 +968,7 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
                         break;
 
                 case COND_THIRST:
-                        if (ch->top_level < LEVEL_AVATAR)
+                        if (ch->top_level < LevelAvatar)
                         {
                                 set_char_color(AT_THIRSTY, ch);
                                 send_to_char
@@ -988,9 +988,9 @@ void gain_condition(CHAR_DATA * ch, int iCond, int value)
  */
 void mobile_update(void)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *ch;
-        EXIT_DATA *pexit;
+        char      buf[MaxStringLength];
+        CharData *ch;
+        ExitData *pexit;
         int       door;
         ch_ret    retcode;
 
@@ -1052,17 +1052,17 @@ void mobile_update(void)
                     && !ch->fighting && ch->hunting)
                 {
                         if (ch->top_level < 20)
-                                WAIT_STATE(ch, 6 * PULSE_PER_SECOND);
+                                WAIT_STATE(ch, 6 * PulsePerSecond);
                         else if (ch->top_level < 40)
-                                WAIT_STATE(ch, 5 * PULSE_PER_SECOND);
+                                WAIT_STATE(ch, 5 * PulsePerSecond);
                         else if (ch->top_level < 60)
-                                WAIT_STATE(ch, 4 * PULSE_PER_SECOND);
+                                WAIT_STATE(ch, 4 * PulsePerSecond);
                         else if (ch->top_level < 80)
-                                WAIT_STATE(ch, 3 * PULSE_PER_SECOND);
+                                WAIT_STATE(ch, 3 * PulsePerSecond);
                         else if (ch->top_level < 100)
-                                WAIT_STATE(ch, 2 * PULSE_PER_SECOND);
+                                WAIT_STATE(ch, 2 * PulsePerSecond);
                         else
-                                WAIT_STATE(ch, 1 * PULSE_PER_SECOND);
+                                WAIT_STATE(ch, 1 * PulsePerSecond);
                         hunt_victim(ch);
                         continue;
                 }
@@ -1153,8 +1153,8 @@ void mobile_update(void)
                 if (IS_SET(ch->act, ACT_SCAVENGER)
                     && ch->in_room->first_content && number_bits(2) == 0)
                 {
-                        OBJ_DATA *obj;
-                        OBJ_DATA *obj_best;
+                        ObjData *obj;
+                        ObjData *obj_best;
                         int       max;
 
                         max = 1;
@@ -1222,7 +1222,7 @@ void mobile_update(void)
                     && !IS_SET(pexit->exit_info, EX_CLOSED)
                     && !xIS_SET(pexit->to_room->room_flags, ROOM_NO_MOB))
                 {
-                        CHAR_DATA *rch;
+                        CharData *rch;
                         bool      found;
 
                         found = FALSE;
@@ -1269,9 +1269,9 @@ void mobile_update(void)
 
 void update_salaries(void)
 {
-        CHAR_DATA *ch;
-        CLAN_DATA *clan;
-        DESCRIPTOR_DATA *d;
+        CharData *ch;
+        ClanData *clan;
+        DescriptorData *d;
         int       amount;
 
         for (d = first_descriptor; d; d = d->next)
@@ -1304,10 +1304,10 @@ void update_salaries(void)
 
 void update_taxes(void)
 {
-        PLANET_DATA *planet;
+        PlanetData *planet;
         int       i, iv, ev;
-        CLAN_DATA *clan;
-        char      buf[MAX_STRING_LENGTH];
+        ClanData *clan;
+        char      buf[MaxStringLength];
 
         for (planet = first_planet; planet; planet = planet->next)
         {
@@ -1467,8 +1467,8 @@ void update_taxes(void)
  */
 void weather_update(void)
 {
-        char      buf[MAX_STRING_LENGTH];
-        DESCRIPTOR_DATA *d;
+        char      buf[MaxStringLength];
+        DescriptorData *d;
         int       diff;
         sh_int    AT_TEMP = AT_PLAIN;
 
@@ -1645,14 +1645,14 @@ void weather_update(void)
  */
 void char_update(void)
 {
-        CHAR_DATA *ch;
+        CharData *ch;
 
         char      buf[MSL];
 
-        CHAR_DATA *ch_save;
+        CharData *ch_save;
         int       value;
         sh_int    save_count = 0;
-        OBJ_DATA *binding = NULL;
+        ObjData *binding = NULL;
 
         ch_save = NULL;
         for (ch = last_char; ch; ch = gch_prev)
@@ -2060,9 +2060,9 @@ void char_update(void)
                         gain_addiction(ch);
 
 
-                if (!IS_NPC(ch) && ch->top_level < LEVEL_IMMORTAL)
+                if (!IS_NPC(ch) && ch->top_level < LevelImmortal)
                 {
-                        OBJ_DATA *obj;
+                        ObjData *obj;
 
                         if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
                             && obj->item_type == ITEM_LIGHT
@@ -2353,8 +2353,8 @@ void char_update(void)
                         {
                                 if (++ch->timer > 15 && !ch->desc)
                                 {
-                                        EXT_BV    room_flags;
-                                        ROOM_INDEX_DATA *room = ch->in_room;
+                                        ExtBV    room_flags;
+                                        RoomIndexData *room = ch->in_room;
 
                                         if (NOT_AUTHED(ch)
                                             && ch->pcdata->account)
@@ -2404,12 +2404,12 @@ void char_update(void)
  */
 void obj_update(void)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         sh_int    AT_TEMP = 0;
 
         for (obj = last_object; obj; obj = gobj_prev)
         {
-                CHAR_DATA *rch;
+                CharData *rch;
                 char     *message;
 
                 if (obj == first_object && obj->prev)
@@ -2506,8 +2506,8 @@ void obj_update(void)
 
                         if (obj->timer > 0 && obj->value[2] > timerfrac)
                         {
-                                char      buf[MAX_STRING_LENGTH];
-                                char      name[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
+                                char      name[MaxStringLength];
                                 char     *bufptr;
 
                                 bufptr = one_argument(obj->short_descr, name);
@@ -2643,8 +2643,8 @@ void obj_update(void)
      */
 void char_check(void)
 {
-        CHAR_DATA *ch, *ch_next;
-        EXIT_DATA *pexit;
+        CharData *ch, *ch_next;
+        ExitData *pexit;
         static int cnt = 0;
         int       door, retcode;
 
@@ -2669,7 +2669,7 @@ void char_check(void)
                         if (!IS_SET(ch->act, ACT_SENTINEL)
                             && !ch->fighting && ch->hunting)
                         {
-                                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+                                WAIT_STATE(ch, 2 * PulseViolence);
                                 hunt_victim(ch);
                                 continue;
                         }
@@ -2731,7 +2731,7 @@ void char_check(void)
                         {
                                 if (!IS_AFFECTED(ch, AFF_AQUA_BREATH))
                                 {
-                                        if (get_trust(ch) < LEVEL_IMMORTAL)
+                                        if (get_trust(ch) < LevelImmortal)
                                         {
                                                 int       dam;
 
@@ -2769,7 +2769,7 @@ void char_check(void)
                                     && !IS_AFFECTED(ch, AFF_AQUA_BREATH)
                                     && !ch->mount)
                                 {
-                                        if (get_trust(ch) < LEVEL_IMMORTAL)
+                                        if (get_trust(ch) < LevelImmortal)
                                         {
                                                 int       dam;
 
@@ -2815,11 +2815,11 @@ void char_check(void)
      */
 void aggr_update(void)
 {
-        DESCRIPTOR_DATA *d, *dnext;
-        CHAR_DATA *wch;
-        CHAR_DATA *ch;
-        CHAR_DATA *ch_next;
-        CHAR_DATA *victim;
+        DescriptorData *d, *dnext;
+        CharData *wch;
+        CharData *ch;
+        CharData *ch_next;
+        CharData *victim;
         struct act_prog_data *apdtmp;
 
 #ifdef UNDEFD
@@ -2830,7 +2830,7 @@ void aggr_update(void)
         if (IS_NPC(wch) && wch->mpactnum > 0
             && wch->in_room->area->nplayer > 0)
         {
-                MPROG_ACT_LIST *tmp_act, *tmp2_act;
+                MProgActList *tmp_act, *tmp2_act;
 
                 for (tmp_act = wch->mpact; tmp_act; tmp_act = tmp_act->next)
                 {
@@ -2854,10 +2854,10 @@ void aggr_update(void)
          */
         while ((apdtmp = mob_act_list) != NULL)
         {
-                wch = (CHAR_DATA *) mob_act_list->vo;
+                wch = (CharData *) mob_act_list->vo;
                 if (!char_died(wch) && wch->mpactnum > 0)
                 {
-                        MPROG_ACT_LIST *tmp_act;
+                        MProgActList *tmp_act;
 
                         while ((tmp_act = wch->mpact) != NULL)
                         {
@@ -2892,7 +2892,7 @@ void aggr_update(void)
 
                 if (char_died(wch)
                     || IS_NPC(wch)
-                    || wch->top_level >= LEVEL_IMMORTAL || !wch->in_room)
+                    || wch->top_level >= LevelImmortal || !wch->in_room)
                         continue;
 
                 for (ch = wch->in_room->first_person; ch; ch = ch_next)
@@ -2933,7 +2933,7 @@ void aggr_update(void)
 
                         if (IS_NPC(ch) && IS_SET(ch->attacks, ATCK_BACKSTAB))
                         {
-                                OBJ_DATA *obj;
+                                ObjData *obj;
 
                                 if (!ch->mount
                                     && (obj =
@@ -2972,16 +2972,16 @@ void aggr_update(void)
 }
 
 /* From interp.c */
-bool check_social args((CHAR_DATA * ch, char *command, char *argument));
+bool check_social args((CharData * ch, char *command, char *argument));
 
 /*
  * drunk randoms	- Tricops
  * (Made part of mobile_update	-Thoric)
  */
-void drunk_randoms(CHAR_DATA * ch)
+void drunk_randoms(CharData * ch)
 {
-        CHAR_DATA *rvch = NULL;
-        CHAR_DATA *vch;
+        CharData *rvch = NULL;
+        CharData *vch;
         sh_int    drunk;
         sh_int    position;
 
@@ -3017,7 +3017,7 @@ void drunk_randoms(CHAR_DATA * ch)
         return;
 }
 
-void halucinations(CHAR_DATA * ch)
+void halucinations(CharData * ch)
 {
         if (ch->mental_state >= 30
             && number_bits(5 - (ch->mental_state >= 50) -
@@ -3096,9 +3096,9 @@ void halucinations(CHAR_DATA * ch)
 
 void auth_update(void)
 {
-        CHAR_DATA *victim;
-        DESCRIPTOR_DATA *d;
-        char      buf[MAX_INPUT_LENGTH], log_buffer[MAX_INPUT_LENGTH];
+        CharData *victim;
+        DescriptorData *d;
+        char      buf[MaxInputLength], log_buffer[MaxInputLength];
         bool      found_hit = FALSE;    /* was at least one found? */
 
         mudstrlcpy(log_buffer, "Pending authorizations:\n\r", MIL);
@@ -3145,7 +3145,7 @@ void update_handler(void)
         if (--sysdata.pulse_area <= 0)  /* > */
         {
                 sysdata.pulse_area =
-                        number_range(PULSE_AREA / 2, 3 * PULSE_AREA / 2);
+                        number_range(PulseArea / 2, 3 * PulseArea / 2);
                 area_update();
                 quest_update();
                 bacta_update();
@@ -3154,7 +3154,7 @@ void update_handler(void)
 
         if (--sysdata.pulse_taxes <= 0)
         {
-                sysdata.pulse_taxes = PULSE_TAXES;
+                sysdata.pulse_taxes = PulseTaxes;
                 update_orbit();
                 update_taxes();
                 update_salaries();
@@ -3163,13 +3163,13 @@ void update_handler(void)
 
         if (--sysdata.pulse_mobile <= 0)
         {
-                sysdata.pulse_mobile = PULSE_MOBILE;
+                sysdata.pulse_mobile = PulseMobile;
                 mobile_update();
         }
 
         if (--sysdata.pulse_space <= 0)
         {
-                sysdata.pulse_space = PULSE_SPACE;
+                sysdata.pulse_space = PulseSpace;
                 update_shuttle();
                 update_space();
                 do_who(NULL, "");
@@ -3177,19 +3177,19 @@ void update_handler(void)
 
         if (--sysdata.pulse_recharge <= 0)
         {
-                sysdata.pulse_recharge = PULSE_SPACE / 3;
+                sysdata.pulse_recharge = PulseSpace / 3;
                 recharge_ships();
         }
 
         if (--sysdata.pulse_ship <= 0)
         {
-                sysdata.pulse_ship = PULSE_SPACE / 10;
+                sysdata.pulse_ship = PulseSpace / 10;
                 move_ships();
         }
 
         if (--sysdata.pulse_violence <= 0)
         {
-                sysdata.pulse_violence = PULSE_VIOLENCE;
+                sysdata.pulse_violence = PulseViolence;
                 arena_update();
                 violence_update();
         }
@@ -3197,8 +3197,8 @@ void update_handler(void)
         if (--sysdata.pulse_point <= 0)
         {
                 sysdata.pulse_point =
-                        number_range((int) (PULSE_TICK * 0.75),
-                                     (int) (PULSE_TICK * 1.25));
+                        number_range((int) (PulseTick * 0.75),
+                                     (int) (PulseTick * 1.25));
                 weather_update();
                 char_update();
                 obj_update();
@@ -3209,23 +3209,23 @@ void update_handler(void)
          */
         if (--pulse_crashover <= 0)
         {
-                pulse_crashover = PULSE_CRASHOVER;
+                pulse_crashover = PulseCrashOver;
         }
         else if (--pulse_crashover <= 0)
         {
-                pulse_crashover = PULSE_CRASHOVER;
+                pulse_crashover = PulseCrashOver;
                 init_crashover();
         }
 
         if (--pulse_auth <= 0)
         {
-                pulse_auth = PULSE_AUTH;
+                pulse_auth = PulseAuth;
                 auth_update();  /* Gorog */
         }
 
         if (--sysdata.pulse_second <= 0)
         {
-                sysdata.pulse_second = PULSE_PER_SECOND;
+                sysdata.pulse_second = PulsePerSecond;
                 char_check();
 #ifdef OLC_HOMES
                 save_homes_check();
@@ -3248,7 +3248,7 @@ void update_handler(void)
 
         if (auction->item && --auction->pulse <= 0)
         {
-                auction->pulse = PULSE_AUCTION;
+                auction->pulse = PulseAuction;
                 auction_update();
         }
 
@@ -3273,11 +3273,11 @@ void update_handler(void)
 }
 
 
-void remove_portal(OBJ_DATA * portal)
+void remove_portal(ObjData * portal)
 {
-        ROOM_INDEX_DATA *fromRoom, *toRoom;
-        CHAR_DATA *ch;
-        EXIT_DATA *pexit;
+        RoomIndexData *fromRoom, *toRoom;
+        CharData *ch;
+        ExitData *pexit;
         bool      found;
 
         if (!portal)
@@ -3363,7 +3363,7 @@ void reboot_check(time_t reset)
         static const int times[] = { 10, 30, 60, 120, 180, 240, 300, 600 };
         static const int timesize = UMIN(sizeof(times) / sizeof(*times),
                                          sizeof(tmsg) / sizeof(*tmsg));
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         static int trun;
         static bool init;
 
@@ -3389,7 +3389,7 @@ void reboot_check(time_t reset)
 
         if (new_boot_time_t <= current_time)
         {
-                CHAR_DATA *vch;
+                CharData *vch;
                 extern bool mud_down;
 
                 if (auction->item)
@@ -3414,7 +3414,7 @@ void reboot_check(time_t reset)
                 echo_to_all(AT_YELLOW,
                             "You are forced from these realms by a strong "
                             "presence\n\ras life here is reconstructed.",
-                            ECHOTAR_ALL);
+                            EchoTarAll);
 
                 for (vch = first_char; vch; vch = vch->next)
                         if (!IS_NPC(vch))
@@ -3425,7 +3425,7 @@ void reboot_check(time_t reset)
 
         if (trun != -1 && new_boot_time_t - current_time <= times[trun])
         {
-                echo_to_all(AT_YELLOW, tmsg[trun], ECHOTAR_ALL);
+                echo_to_all(AT_YELLOW, tmsg[trun], EchoTarAll);
                 if (trun <= 5)
                         sysdata.DENY_NEW_PLAYERS = TRUE;
                 --trun;
@@ -3440,7 +3440,7 @@ void reboot_check(time_t reset)
 void auction_update(void)
 {
         int       tax, pay;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         switch (++auction->going)   /* increase the going state */
         {
@@ -3576,7 +3576,7 @@ void subtract_times(struct timeval *etime, struct timeval *systime)
 
 void bacta_update(void)
 {
-        CHAR_DATA *ch;
+        CharData *ch;
 
         for (ch = first_char; ch != NULL; ch = ch->next)
         {
@@ -3622,14 +3622,14 @@ void bacta_update(void)
 
 void battalion_update(void)
 {
-        PLANET_DATA *planet;
+        PlanetData *planet;
         int       attchange, defchange, attmult, defmult;
-        CLAN_DATA *clan;
-        CLAN_DATA *aclan;
-        CLAN_DATA *attacker;
-        AREA_DATA *area;
-        CHAR_DATA *ch;
-        char      buf[MAX_STRING_LENGTH];
+        ClanData *clan;
+        ClanData *aclan;
+        ClanData *attacker;
+        AreaData *area;
+        CharData *ch;
+        char      buf[MaxStringLength];
         INSTALLATION_DATA *installation;
 
         for (planet = first_planet; planet; planet = planet->next)
@@ -3755,7 +3755,7 @@ void battalion_update(void)
 /* Can I remove this? */
 void logsize_update(void)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         snprintf(buf, MSL, "%s%s", SYSTEM_DIR, BUG_FILE);
         if (file_size(buf) > sysdata.log_size)

@@ -77,10 +77,10 @@ struct dns_data
 };
 
 DECLARE_DO_FUN(do_cache);
-void resolve_dns(DESCRIPTOR_DATA *d, long ip);
-void resolve_dns(std::shared_ptr<DESCRIPTOR_DATA> d, long ip);
-void process_dns(DESCRIPTOR_DATA *d);
-void process_dns(std::shared_ptr<DESCRIPTOR_DATA> d);
+void resolve_dns(DescriptorData *d, long ip);
+void resolve_dns(std::shared_ptr<DescriptorData> d, long ip);
+void process_dns(DescriptorData *d);
+void process_dns(std::shared_ptr<DescriptorData> d);
 char *in_dns_cache(const char *ip);
 char *in_dns_cache(std::string_view ip);
 void load_dns();

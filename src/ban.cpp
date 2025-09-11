@@ -200,7 +200,7 @@ char* format_ban_creation_time(const BAN_DATA* ban)
  */
 void load_banlist(void)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         FILE     *fp;
         bool      fMatch = FALSE;
@@ -296,7 +296,7 @@ void fread_ban(FILE * fp, int type)
 
         if (type == BAN_CLASS)
         {
-                for (i = 0; i < MAX_ABILITY; i++)
+                for (i = 0; i < MaxAbility; i++)
                 {
                         if (!str_cmp(ability_name[i], pban->name))
                         {
@@ -307,7 +307,7 @@ void fread_ban(FILE * fp, int type)
         }
         else if (type == BAN_RACE)
         {
-                RACE_DATA *race = NULL;
+                RaceData *race = NULL;
 
                 FOR_EACH_LIST(RACE_LIST, races, race)
                 {
@@ -439,12 +439,12 @@ void save_banlist(void)
  * change here.		Shaddai
  */
 
-CMDF do_ban(CHAR_DATA * ch, char *argument)
+CMDF do_ban(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      arg4[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      arg4[MaxInputLength];
         char     *temp;
         BAN_DATA *pban;
         int       value = 0, time;
@@ -677,11 +677,11 @@ CMDF do_ban(CHAR_DATA * ch, char *argument)
  * Allow a already banned site/class or race.  Shaddai
  */
 
-CMDF do_allow(CHAR_DATA * ch, char *argument)
+CMDF do_allow(CharData * ch, char *argument)
 {
         BAN_DATA *pban;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         char     *temp = NULL;
         bool      fMatch = FALSE;
         int       value = 0;
@@ -826,10 +826,10 @@ CMDF do_allow(CHAR_DATA * ch, char *argument)
 /* 
  *  Sets the warn flag on bans.
  */
-CMDF do_warn(CHAR_DATA * ch, char *argument)
+CMDF do_warn(CharData * ch, char *argument)
 {
-        char      arg1[MAX_STRING_LENGTH];
-        char      arg2[MAX_STRING_LENGTH];
+        char      arg1[MaxStringLength];
+        char      arg2[MaxStringLength];
         char     *name;
         int       count = -1, type;
         BAN_DATA *pban;
@@ -955,9 +955,9 @@ CMDF do_warn(CHAR_DATA * ch, char *argument)
  *  initializes its data.  Shaddai
  */
 
-int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
+int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
 {
-        char      arg[MAX_STRING_LENGTH];
+        char      arg[MaxStringLength];
         BAN_DATA *pban, *temp;
         struct tm *tms;
         char     *name;
@@ -990,20 +990,20 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                         if (is_number(arg2))
                         {
                                 level = atoi(arg2);
-                                if (level < 0 || level > LEVEL_SUPREME)
+                                if (level < 0 || level > LevelSupreme)
                                 {
                                         ch_printf(ch,
                                                   "Level range is from 0 to %d.\n\r",
-                                                  LEVEL_SUPREME);
+                                                  LevelSupreme);
                                         return 0;
                                 }
                         }
                         else if (!str_cmp(arg2, "all"))
-                                level = LEVEL_SUPREME;
+                                level = LevelSupreme;
                         else if (!str_cmp(arg2, "newbie"))
                                 level = 1;
                         else if (!str_cmp(arg2, "mortal"))
-                                level = LEVEL_AVATAR;
+                                level = LevelAvatar;
                         else if (!str_cmp(arg2, "warn"))
                                 level = BAN_WARN;
                         else
@@ -1022,7 +1022,7 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                                                 value = atoi(arg);
                                         else
                                         {
-                                                for (i = 0; i < MAX_ABILITY;
+                                                for (i = 0; i < MaxAbility;
                                                      i++)
                                                 {
                                                         if (!str_cmp
@@ -1032,7 +1032,7 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                                                 }
                                                 value = i;
                                         }
-                                        if (value < 0 || value >= MAX_ABILITY)
+                                        if (value < 0 || value >= MaxAbility)
                                         {
                                                 send_to_char
                                                         ("Unknown ability.\n\r",
@@ -1087,7 +1087,7 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
                                 }
                         case BAN_RACE:
                                 {
-                                        RACE_DATA *race = NULL;
+                                        RaceData *race = NULL;
 
                                         FOR_EACH_LIST(RACE_LIST, races, race)
                                                 if (!str_cmp
@@ -1338,7 +1338,7 @@ int add_ban(CHAR_DATA * ch, char *arg1, char *arg2, int time, int type)
  * Print the bans out to the screen.  Shaddai
  */
 
-void show_bans(CHAR_DATA * ch, int type)
+void show_bans(CharData * ch, int type)
 {
         BAN_DATA *pban;
         int       bnum;
@@ -1417,10 +1417,10 @@ void show_bans(CHAR_DATA * ch, int type)
  * char struct yet.  Shaddai
  */
 
-bool check_total_bans(DESCRIPTOR_DATA * d)
+bool check_total_bans(DescriptorData * d)
 {
         BAN_DATA *pban;
-        char      new_host[MAX_STRING_LENGTH];
+        char      new_host[MaxStringLength];
         int       i;
 
         for (i = 0; i < static_cast<int>(strlen(d->host)); i++)
@@ -1429,7 +1429,7 @@ bool check_total_bans(DESCRIPTOR_DATA * d)
 
         for (pban = first_ban; pban; pban = pban->next)
         {
-                if (pban->level != LEVEL_SUPREME)
+                if (pban->level != LevelSupreme)
                         continue;
                 if (pban->prefix && pban->suffix &&
                     strstr(pban->name, new_host))
@@ -1487,11 +1487,11 @@ bool check_total_bans(DESCRIPTOR_DATA * d)
  * The workhose, checks for bans on sites/classes and races. Shaddai
  */
 
-bool check_bans(CHAR_DATA * ch, int type)
+bool check_bans(CharData * ch, int type)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         BAN_DATA *pban;
-        char      new_host[MAX_STRING_LENGTH];
+        char      new_host[MaxStringLength];
         int       i;
         bool      fMatch = FALSE;
 
@@ -1617,7 +1617,7 @@ bool check_expire(BAN_DATA* pban)
     // Use the new time utilities for consistent handling
     if (is_ban_expired(pban))
     {
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
         snprintf(buf, MSL, "%s ban has expired (%s).", 
                 pban->name ? pban->name : "unknown",
                 format_ban_creation_time(pban));
@@ -1691,9 +1691,9 @@ void save_reserved(void)
         return;
 }
 
-CMDF do_reserve(CHAR_DATA * ch, char *argument)
+CMDF do_reserve(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         RESERVE_DATA *res;
 
         set_char_color(AT_PLAIN, ch);

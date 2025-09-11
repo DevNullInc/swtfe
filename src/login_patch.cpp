@@ -25,13 +25,13 @@
 ACCOUNT_DATA *get_account(const char *name);
 
 // Store account password temporarily for auto-linking
-char account_password[MAX_STRING_LENGTH];
+char account_password[MaxStringLength];
 
 /*
  * Function to auto-link character to account
  * Call this after character creation instead of asking for a second password
  */
-void auto_link_character(DESCRIPTOR_DATA *d, CHAR_DATA *ch, ACCOUNT_DATA *account)
+void auto_link_character(DescriptorData *d, CharData *ch, ACCOUNT_DATA *account)
 {
     if (!d || !ch || !account)
         return;
@@ -50,10 +50,10 @@ void auto_link_character(DESCRIPTOR_DATA *d, CHAR_DATA *ch, ACCOUNT_DATA *accoun
  * Replace the account login process with this streamlined version
  * This simplifies the initial account selection/creation
  */
-void streamlined_account_login(DESCRIPTOR_DATA *d, char *argument)
+void streamlined_account_login(DescriptorData *d, char *argument)
 {
     ACCOUNT_DATA *account;
-    char buf[MAX_STRING_LENGTH];
+    char buf[MaxStringLength];
     
     // Check if account exists
     account = get_account(argument);
@@ -70,7 +70,7 @@ void streamlined_account_login(DESCRIPTOR_DATA *d, char *argument)
     }
     
     // New account
-    snprintf(buf, MAX_STRING_LENGTH, "Account '%s' doesn't exist. Create it? (Y/N) ", argument);
+    snprintf(buf, MaxStringLength, "Account '%s' doesn't exist. Create it? (Y/N) ", argument);
     write_to_buffer(d, buf, 0);
     d->connected = CON_CONFIRM_NEW_NAME;
 }
@@ -79,10 +79,10 @@ void streamlined_account_login(DESCRIPTOR_DATA *d, char *argument)
  * Handle existing character selection - streamlined version
  * This lets the user select a character or create a new one
  */
-void streamlined_character_selection(DESCRIPTOR_DATA *d, ACCOUNT_DATA *account)
+void streamlined_character_selection(DescriptorData *d, ACCOUNT_DATA *account)
 {
     int count = 0;
-    char buf[MAX_STRING_LENGTH];
+    char buf[MaxStringLength];
     
     write_to_buffer(d, "Characters linked to this account:\r\n", 0);
     
@@ -92,7 +92,7 @@ void streamlined_character_selection(DESCRIPTOR_DATA *d, ACCOUNT_DATA *account)
     // For illustration:
     // for (each character linked to account) {
     //     count++;
-    //     snprintf(buf, MAX_STRING_LENGTH, "%d. %s\r\n", count, character_name);
+    //     snprintf(buf, MaxStringLength, "%d. %s\r\n", count, character_name);
     //     write_to_buffer(d, buf, 0);
     // }
     

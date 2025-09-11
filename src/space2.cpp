@@ -46,7 +46,7 @@
 #include <string.h>
 #include <time.h>
 #include "mud.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include <algorithm>
 #include "space2.hpp"
 #include "installations.hpp"
@@ -55,15 +55,15 @@ void write_starsystem_list args((void));
 
 int get_rflag args((char *flag));
 int get_vnum_range args((int range));
-AREA_DATA *create_auto_area
-args((int low_vnum, int high_vnum, BODY_DATA * body));
+AreaData *create_auto_area
+args((int low_vnum, int high_vnum, BodyData * body));
 
 /*
  * Remove carriage returns from a line
  */
 char     *strip_cr(char *str)
 {
-        static char newstr[MAX_STRING_LENGTH];
+        static char newstr[MaxStringLength];
         int       i, j;
 
         for (i = j = 0; str[i] != '\0'; i++)
@@ -98,10 +98,10 @@ DOCK_DATA *get_dock(char *name)
         return NULL;
 }
 
-DOCK_DATA *get_dock_isname(SHIP_DATA * ship, char *name)
+DOCK_DATA *get_dock_isname(ShipData * ship, char *name)
 {
         DOCK_DATA *dock = NULL;
-        BODY_DATA *body = NULL;
+        BodyData *body = NULL;
 
         if (name == NULL)
         {
@@ -112,14 +112,14 @@ DOCK_DATA *get_dock_isname(SHIP_DATA * ship, char *name)
         if (!ship->starsystem)
                 return NULL;
 
-        FOR_EACH_LIST(BODY_LIST, ship->starsystem->bodies, body)
+        FOR_EACH_LIST(BodyList, ship->starsystem->bodies, body)
         {
                 FOR_EACH_LIST(DOCK_LIST, body->docks(), dock)
                         if (!str_cmp(name, dock->name))
                         return dock;
         }
 
-        FOR_EACH_LIST(BODY_LIST, ship->starsystem->bodies, body)
+        FOR_EACH_LIST(BodyList, ship->starsystem->bodies, body)
         {
                 FOR_EACH_LIST(DOCK_LIST, body->docks(), dock)
                         if (nifty_is_name_prefix(name, dock->name))
@@ -128,7 +128,7 @@ DOCK_DATA *get_dock_isname(SHIP_DATA * ship, char *name)
         return NULL;
 }
 
-char     *get_direction_ship(SHIP_DATA * target, SHIP_DATA * ship)
+char     *get_direction_ship(ShipData * target, ShipData * ship)
 {
         static char buf[11];
 
@@ -160,14 +160,14 @@ char     *get_direction_ship(SHIP_DATA * target, SHIP_DATA * ship)
         return buf;
 }
 
-int distance_ship_ship(SHIP_DATA * target, SHIP_DATA * ship)
+int distance_ship_ship(ShipData * target, ShipData * ship)
 {
         return (int) sqrt(pow(((int) (ship->vx - target->vx)), 2) +
                           pow(((int) (ship->vy - target->vy)),
                               2) + pow(((int) (ship->vz - target->vz)), 2));
 }
 
-int distance_missile_ship(MISSILE_DATA * missile, SHIP_DATA * ship)
+int distance_missile_ship(MissileData * missile, ShipData * ship)
 {
         return (int) sqrt(pow(((int) (ship->vx - missile->mx)), 2) +
                           pow(((int) (ship->vy - missile->my)),
@@ -379,11 +379,11 @@ void load_docks()
         return;
 }
 
-CMDF do_makedock(CHAR_DATA * ch, char *argument)
+CMDF do_makedock(CharData * ch, char *argument)
 {
         char      arg[MIL];
         DOCK_DATA *dock;
-        BODY_DATA *body = NULL;
+        BodyData *body = NULL;
 
         argument = one_argument(argument, arg);
         if (arg[0] == '\0' || argument[0] == '\0')
@@ -427,10 +427,10 @@ void makedock(INSTALLATION_DATA * installation)
         LINK(dock, first_dock, last_dock, next, prev);
 }
 
-CMDF do_makebody(CHAR_DATA * ch, char *argument)
+CMDF do_makebody(CharData * ch, char *argument)
 {
         char      filename[256];
-        BODY_DATA *body;
+        BodyData *body;
 
         if (!argument || argument[0] == '\0')
         {
@@ -441,7 +441,7 @@ CMDF do_makebody(CHAR_DATA * ch, char *argument)
         snprintf(filename, 256, "%s.%s", strlower(argument),
                  "body");
 
-        NEW(body, BODY_DATA);
+        NEW(body, BodyData);
         bodies.push_back(body);
         body->name(argument);
         body->filename(smash_space(filename));
@@ -458,11 +458,11 @@ CMDF do_makebody(CHAR_DATA * ch, char *argument)
                   body->name());
 }
 
-CMDF do_setdock(CHAR_DATA * ch, char *argument)
+CMDF do_setdock(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
         DOCK_DATA *dock;
 
         if (IS_NPC(ch))
@@ -503,7 +503,7 @@ CMDF do_setdock(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg2, "body"))
         {
-                BODY_DATA *body = get_body(arg3);
+                BodyData *body = get_body(arg3);
 
                 if (body)
                 {
@@ -521,7 +521,7 @@ CMDF do_setdock(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg2, "clan"))
         {
-                CLAN_DATA *clan;
+                ClanData *clan;
 
                 clan = get_clan(arg3);
                 if (clan)
@@ -574,12 +574,12 @@ CMDF do_setdock(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_setbody(CHAR_DATA * ch, char *argument)
+CMDF do_setbody(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        BODY_DATA *body;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        BodyData *body;
 
         if (IS_NPC(ch))
         {
@@ -624,7 +624,7 @@ CMDF do_setbody(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg2, "planet"))
         {
-                PLANET_DATA *planet;
+                PlanetData *planet;
 
                 planet = get_planet(arg3);
                 if (planet)
@@ -640,7 +640,7 @@ CMDF do_setbody(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg2, "starsystem"))
         {
-                SPACE_DATA *starsystem;
+                SpaceData *starsystem;
 
                 if ((starsystem = starsystem_from_name(arg3)))
                 {
@@ -809,7 +809,7 @@ CMDF do_setbody(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_showdock(CHAR_DATA * ch, char *argument)
+CMDF do_showdock(CharData * ch, char *argument)
 {
         DOCK_DATA *dock;
 
@@ -846,10 +846,10 @@ CMDF do_showdock(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_showbody(CHAR_DATA * ch, char *argument)
+CMDF do_showbody(CharData * ch, char *argument)
 {
-        BODY_DATA *body = NULL;
-        AREA_DATA *area = NULL;
+        BodyData *body = NULL;
+        AreaData *area = NULL;
 
         if (IS_NPC(ch))
                 return;
@@ -888,14 +888,14 @@ CMDF do_showbody(CHAR_DATA * ch, char *argument)
         ch_printf(ch, "&WOrbit Tick:  &G%d\n\r", body->orbitcount());
         ch_printf(ch, "&WType:        &G%s\n\r", body->type_name());
         send_to_char("&WAreas:       &G", ch);
-        FOR_EACH_LIST(AREA_LIST, body->areas(), area)
+        FOR_EACH_LIST(AreaList, body->areas(), area)
                 ch_printf(ch, "%s, ", area->filename);
         send_to_char("\n\r", ch);
         return;
 }
 
 
-CMDF do_listdock(CHAR_DATA * ch, char *argument)
+CMDF do_listdock(CharData * ch, char *argument)
 {
         DOCK_DATA *tdock;
 
@@ -907,25 +907,25 @@ CMDF do_listdock(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_listbody(CHAR_DATA * ch, char *argument)
+CMDF do_listbody(CharData * ch, char *argument)
 {
-        BODY_DATA *tbody = NULL;
+        BodyData *tbody = NULL;
 
         argument = NULL;
 
-        FOR_EACH_LIST(BODY_LIST, bodies, tbody)
+        FOR_EACH_LIST(BodyList, bodies, tbody)
                 ch_printf(ch, "%-25s - %s\n\r", tbody->name(),
                           tbody->filename());
         return;
 }
 
-CMDF do_resetbody(CHAR_DATA * ch, char *argument)
+CMDF do_resetbody(CharData * ch, char *argument)
 {
-        BODY_DATA *tbody = NULL;
+        BodyData *tbody = NULL;
 
         argument = NULL;
 
-        FOR_EACH_LIST(BODY_LIST, bodies, tbody)
+        FOR_EACH_LIST(BodyList, bodies, tbody)
         {
                 tbody->xpos(tbody->centerx() - (tbody->xmove() * 0));
                 tbody->ypos(tbody->centery() - (tbody->ymove() * 0));
@@ -937,14 +937,14 @@ CMDF do_resetbody(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_placebody(CHAR_DATA * ch, char *argument)
+CMDF do_placebody(CharData * ch, char *argument)
 {
         /*
          * this function will determine the starting coordinate of a planet
          * * * it will be called once makebody is done 
          */
-        char      arg1[MAX_INPUT_LENGTH];
-        BODY_DATA *body;
+        char      arg1[MaxInputLength];
+        BodyData *body;
 
         if (IS_NPC(ch))
         {
@@ -991,13 +991,13 @@ CMDF do_placebody(CHAR_DATA * ch, char *argument)
 
 void update_orbit(void)
 {
-        BODY_DATA *tbody = NULL;
+        BodyData *tbody = NULL;
         char      buf[MSL];
-        SHIP_DATA *ship;
-        BODY_DATA *body = NULL;
+        ShipData *ship;
+        BodyData *body = NULL;
         int       phaze = 0, xtravel, ytravel, ztravel;
 
-        FOR_EACH_LIST(BODY_LIST, bodies, body)
+        FOR_EACH_LIST(BodyList, bodies, body)
         {
                 if (!body->starsystem())
                         continue;
@@ -1104,7 +1104,7 @@ void update_orbit(void)
 
                 if (body->starsystem())
                 {
-                        SPACE_DATA *starsystem = body->starsystem();
+                        SpaceData *starsystem = body->starsystem();
 
                         for (ship = starsystem->first_ship; ship;
                              ship = ship->next_in_starsystem)
@@ -1134,7 +1134,7 @@ void update_orbit(void)
                 /*
                  * Send a message to imms if planet is too close to sun 
                  */
-                FOR_EACH_LIST(BODY_LIST, body->starsystem()->bodies, tbody)
+                FOR_EACH_LIST(BodyList, body->starsystem()->bodies, tbody)
                 {
                         if (tbody == body)
                                 continue;
@@ -1169,12 +1169,12 @@ void update_orbit(void)
 }
 
 
-CMDF do_adjship(CHAR_DATA * ch, char *argument)
+CMDF do_adjship(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        SHIP_DATA *ship;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        ShipData *ship;
         int       randchek;
 
         argument = one_argument(argument, arg1);
@@ -1466,7 +1466,7 @@ CMDF do_adjship(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_makessrand(CHAR_DATA * ch, char *argument)
+CMDF do_makessrand(CharData * ch, char *argument)
 {
         argument = NULL;
         send_to_char
@@ -1475,7 +1475,7 @@ CMDF do_makessrand(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_getvnumrange(CHAR_DATA * ch, char *argument)
+CMDF do_getvnumrange(CharData * ch, char *argument)
 {
         ch_printf(ch, "Start: %d End: %d", get_vnum_range(atoi(argument)),
                   get_vnum_range(atoi(argument)) + atoi(argument));
@@ -1483,13 +1483,13 @@ CMDF do_getvnumrange(CHAR_DATA * ch, char *argument)
 
 int get_vnum_range(int range)
 {
-        AREA_DATA *pArea;
+        AreaData *pArea;
         bool      a_conflict;
         int       count = 0;
         int       curr = 0;
         int       reset_amount = 0;
 
-        for (curr = 0; curr <= MAX_VNUMS; curr++)
+        for (curr = 0; curr <= MaxVnums; curr++)
         {
                 a_conflict = FALSE;
                 for (pArea = first_asort; pArea; pArea = pArea->next_sort)
@@ -1547,17 +1547,17 @@ int get_vnum_range(int range)
         return -1;
 }
 
-AREA_DATA *create_auto_area(int low_vnum, int high_vnum, BODY_DATA * body)
+AreaData *create_auto_area(int low_vnum, int high_vnum, BodyData * body)
 {
         int       firstvnum;
-        AREA_DATA *pArea;
-        ROOM_INDEX_DATA *location;
-        MOB_INDEX_DATA *pMobIndex;
-        OBJ_INDEX_DATA *pObjIndex;
-        CHAR_DATA *mob;
-        OBJ_DATA *obj;
+        AreaData *pArea;
+        RoomIndexData *location;
+        MobIndexData *pMobIndex;
+        ObjIndexData *pObjIndex;
+        CharData *mob;
+        ObjData *obj;
 
-        CREATE(pArea, AREA_DATA, 1);
+        CREATE(pArea, AreaData, 1);
         pArea->first_reset = NULL;
         pArea->last_reset = NULL;
         pArea->next_on_planet = NULL;
@@ -1601,9 +1601,9 @@ AREA_DATA *create_auto_area(int low_vnum, int high_vnum, BODY_DATA * body)
         pArea->resetmsg = str_dup("You hear a buzzing sound in the distance");
         SET_BIT(pArea->status, AREA_LOADED);
         pArea->low_soft_range = 0;
-        pArea->hi_soft_range = MAX_LEVEL;
+        pArea->hi_soft_range = MaxLevel;
         pArea->low_hard_range = 0;
-        pArea->hi_hard_range = MAX_LEVEL;
+        pArea->hi_hard_range = MaxLevel;
         LINK(pArea, first_area, last_area, next, prev);
         for (firstvnum = pArea->low_r_vnum; firstvnum <= pArea->hi_r_vnum;
              firstvnum++)
@@ -1729,7 +1729,7 @@ void free_dock(DOCK_DATA * dock)
                 return;
         if (dock->body)
         {
-                BODY_DATA *body = dock->body;
+                BodyData *body = dock->body;
 
                 body->docks().
                         erase(find
@@ -1743,11 +1743,11 @@ void free_dock(DOCK_DATA * dock)
         DISPOSE(dock);
 }
 
-void generate_exits(int x, AREA_DATA * area)
+void generate_exits(int x, AreaData * area)
 {
         int       vnum, first, last, row = 0, column = 0;
-        EXIT_DATA *pexit;
-        ROOM_INDEX_DATA *room, *toroom;
+        ExitData *pexit;
+        RoomIndexData *room, *toroom;
 
         first = area->low_r_vnum;
         last = area->hi_r_vnum;
@@ -1814,11 +1814,11 @@ void generate_exits(int x, AREA_DATA * area)
         }
 }
 
-CMDF do_testexits(CHAR_DATA * ch, char *argument)
+CMDF do_testexits(CharData * ch, char *argument)
 {
         char      arg1[MSL];
         char      arg2[MSL];
-        AREA_DATA *area;
+        AreaData *area;
         int       x, y, firstvnum;
 
         argument = one_argument(argument, arg1);
@@ -1845,12 +1845,12 @@ CMDF do_testexits(CHAR_DATA * ch, char *argument)
 }
 
 #ifdef IMAGES
-void do_fastship(CHAR_DATA * ch, char *argument)
+void do_fastship(CharData * ch, char *argument)
 {
-        SHIP_DATA *ship = NULL;
+        ShipData *ship = NULL;
         PROTOSHIP_DATA *proto = NULL;
-        char      arg1[MAX_STRING_LENGTH];
-        char      arg2[MAX_STRING_LENGTH];
+        char      arg1[MaxStringLength];
+        char      arg2[MaxStringLength];
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -1884,7 +1884,7 @@ void do_fastship(CHAR_DATA * ch, char *argument)
          *  Pass the character, ship ship image and ship name.
          */
         ship = make_ship(ch, proto, argument);
-        if (get_trust(ch) > LEVEL_HERO)
+        if (get_trust(ch) > LevelHero)
         {
                 if (ship != NULL)
                 {
@@ -1904,13 +1904,13 @@ void do_fastship(CHAR_DATA * ch, char *argument)
         return;
 }
 
-void do_viewship(CHAR_DATA * ch, char *argument)
+void do_viewship(CharData * ch, char *argument)
 {
-        SHIP_DATA *ship = NULL;
-        char      arg1[MAX_STRING_LENGTH];
+        ShipData *ship = NULL;
+        char      arg1[MaxStringLength];
 
         /*
-         * char arg2[MAX_STRING_LENGTH]; 
+         * char arg2[MaxStringLength]; 
          */
 
         argument = one_argument(argument, arg1);
@@ -1990,9 +1990,9 @@ void do_viewship(CHAR_DATA * ch, char *argument)
         return;
 }
 
-void finish_ship(CHAR_DATA * ch, SHIP_DATA * ship)
+void finish_ship(CharData * ch, ShipData * ship)
 {
-        ROOM_INDEX_DATA *dock;
+        RoomIndexData *dock;
 
         if (!ship || ship == NULL)
         {
@@ -2061,8 +2061,8 @@ void finish_ship(CHAR_DATA * ch, SHIP_DATA * ship)
  */
 char     *get_free_ship(char *arg)
 {
-        SHIP_DATA *ship;
-        char      buf[MAX_STRING_LENGTH];
+        ShipData *ship;
+        char      buf[MaxStringLength];
         int       snum = 0;
         bool      sExists = FALSE;
 
@@ -2089,10 +2089,10 @@ char     *get_free_ship(char *arg)
 /*
  * All *FASTSHIPS* are created in vships.are
  */
-ROOM_INDEX_DATA *make_ship_room(SHIP_DATA * ship, int svnum)
+RoomIndexData *make_ship_room(ShipData * ship, int svnum)
 {
-        ROOM_INDEX_DATA *pRoom = NULL;
-        AREA_DATA *sArea;
+        RoomIndexData *pRoom = NULL;
+        AreaData *sArea;
         int       vnum;
         bool      aFound, rFound;
 
@@ -2143,8 +2143,8 @@ ROOM_INDEX_DATA *make_ship_room(SHIP_DATA * ship, int svnum)
 
 int find_room_range(int total)
 {
-        char      buf[MAX_STRING_LENGTH];
-        AREA_DATA *sArea;
+        char      buf[MaxStringLength];
+        AreaData *sArea;
         int       vnum, cnt = 0, fvnum = 0;
         bool      aFound;
 
@@ -2202,7 +2202,7 @@ int find_room_range(int total)
 
 void fold_vships(void)
 {
-        AREA_DATA *area;
+        AreaData *area;
         bool      aFound = FALSE;
 
         for (area = first_area; area; area = area->next)
@@ -2223,14 +2223,14 @@ void fold_vships(void)
         return;
 }
 
-SHIP_DATA *make_ship(CHAR_DATA * ch, PROTOSHIP_DATA * proto, char *arg2)
+ShipData *make_ship(CharData * ch, PROTOSHIP_DATA * proto, char *arg2)
 {
         FILE     *fp;
-        SHIP_DATA *ship;
-        char      shipname[MAX_STRING_LENGTH];
-        char      filename[MAX_STRING_LENGTH];
+        ShipData *ship;
+        char      shipname[MaxStringLength];
+        char      filename[MaxStringLength];
 
-        CREATE(ship, SHIP_DATA, 1);
+        CREATE(ship, ShipData, 1);
 
         ship->description = STRALLOC("");
         ship->owner = STRALLOC("");
@@ -2292,7 +2292,7 @@ SHIP_DATA *make_ship(CHAR_DATA * ch, PROTOSHIP_DATA * proto, char *arg2)
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 sprintf(buf, "Make_ship: bad section: %s.",
                                         word);
@@ -2330,13 +2330,13 @@ SHIP_DATA *make_ship(CHAR_DATA * ch, PROTOSHIP_DATA * proto, char *arg2)
         return ship;
 }
 
-SHIP_DATA *view_ship(char *arg1)
+ShipData *view_ship(char *arg1)
 {
         FILE     *fp;
-        SHIP_DATA *ship;
-        char      filename[MAX_STRING_LENGTH];
+        ShipData *ship;
+        char      filename[MaxStringLength];
 
-        CREATE(ship, SHIP_DATA, 1);
+        CREATE(ship, ShipData, 1);
 
         ship->description = STRALLOC("");
         ship->owner = STRALLOC("");
@@ -2399,7 +2399,7 @@ SHIP_DATA *view_ship(char *arg1)
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 sprintf(buf, "View_ship: bad section: %s.",
                                         word);
@@ -2453,10 +2453,10 @@ SHIP_DATA *view_ship(char *arg1)
 
 /* if ( !lock_rprog( to, mprg->comlist, mprg->arglist, mprg->type ) ) */
 
-bool lock_rprog(ROOM_INDEX_DATA * room, char *prog, char *argument,
+bool lock_rprog(RoomIndexData * room, char *prog, char *argument,
                 int mptype)
 {
-        MPROG_DATA *mprog = NULL, *mprg = NULL;
+        MProgData *mprog = NULL, *mprg = NULL;
 
         mprog = room->mudprogs;
         if (mprog)
@@ -2466,7 +2466,7 @@ bool lock_rprog(ROOM_INDEX_DATA * room, char *prog, char *argument,
                 }
         }
 
-        CREATE(mprg, MPROG_DATA, 1);
+        CREATE(mprg, MProgData, 1);
 
         if (mprog)
         {
@@ -2495,12 +2495,12 @@ bool lock_rprog(ROOM_INDEX_DATA * room, char *prog, char *argument,
  *  Owner: FASTSHIP Module
  *  Author: Ghost
  */
-void do_imageship(CHAR_DATA * ch, char *argument)
+void do_imageship(CharData * ch, char *argument)
 {
-        char      arg1[MAX_STRING_LENGTH];
-        char      arg2[MAX_STRING_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-        SHIP_DATA *ship = NULL;
+        char      arg1[MaxStringLength];
+        char      arg2[MaxStringLength];
+        char      buf[MaxStringLength];
+        ShipData *ship = NULL;
         bool      rtn = FALSE;
 
         argument = one_argument(argument, arg1);
@@ -2558,20 +2558,20 @@ void do_imageship(CHAR_DATA * ch, char *argument)
         return;
 }
 
-bool save_shipimage(SHIP_DATA * ship, char *fname)
+bool save_shipimage(ShipData * ship, char *fname)
 {
         FILE     *fp;
         char      filename[256];
 
         /*
-         * char buf[MAX_STRING_LENGTH]; 
+         * char buf[MaxStringLength]; 
          */
         TURRET_DATA *turret;
         HANGAR_DATA *hangar;
         ESCAPE_DATA *escape;
         CARGO_DATA *cargo;
-        ROOM_INDEX_DATA *room = NULL;
-        EXIT_DATA *pexit = NULL;
+        RoomIndexData *room = NULL;
+        ExitData *pexit = NULL;
         int       vnum;
 
         if (!ship)
@@ -2692,11 +2692,11 @@ bool save_shipimage(SHIP_DATA * ship, char *fname)
         return TRUE;
 }
 
-void fread_shipimage(SHIP_DATA * ship, FILE * fp)
+void fread_shipimage(ShipData * ship, FILE * fp)
 {
-        ROOM_INDEX_DATA *room = NULL;
-        EXIT_DATA *pexit = NULL;
-        char      buf[MAX_STRING_LENGTH];
+        RoomIndexData *room = NULL;
+        ExitData *pexit = NULL;
+        char      buf[MaxStringLength];
         char     *line;
         char     *word;
         bool      fMatch;
@@ -3089,11 +3089,11 @@ void fread_shipimage(SHIP_DATA * ship, FILE * fp)
         }
 }
 
-void fread_viewshipimage(SHIP_DATA * ship, FILE * fp)
+void fread_viewshipimage(ShipData * ship, FILE * fp)
 {
-        EXT_BV    stuff;
+        ExtBV    stuff;
         char     *trash;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         char     *line;
         char     *word;
         bool      fMatch;
@@ -3454,7 +3454,7 @@ void fread_viewshipimage(SHIP_DATA * ship, FILE * fp)
 
 bool shipimage_exist(char *name)
 {
-        char      strsave[MAX_INPUT_LENGTH];
+        char      strsave[MaxInputLength];
 
         /*
          * FILE *fp; 
@@ -3466,13 +3466,13 @@ bool shipimage_exist(char *name)
 }
 
 
-void do_images(CHAR_DATA * ch, char *argument)
+void do_images(CharData * ch, char *argument)
 {
         DIR      *directory;
         int       count = 0;
         int       wrap = 0;
         struct dirent *dentry;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         argument = NULL;
         /*
@@ -3492,7 +3492,7 @@ void do_images(CHAR_DATA * ch, char *argument)
         /*
          * Set buf to nothing 
          */
-        strncpy(buf, "", MAX_STRING_LENGTH);
+        strncpy(buf, "", MaxStringLength);
 
         send_to_char("&z&W&YScanning images directory:&z\n\r", ch);
         /*
@@ -3505,18 +3505,18 @@ void do_images(CHAR_DATA * ch, char *argument)
                  */
                 if (dentry->d_name[0] != '.')
                 {
-                        strncat(buf, dentry->d_name, MAX_STRING_LENGTH);
-                        strncat(buf, "        ", MAX_STRING_LENGTH);
+                        strncat(buf, dentry->d_name, MaxStringLength);
+                        strncat(buf, "        ", MaxStringLength);
                         count++;
                         if (++wrap > 3)
                         {
-                                strncat(buf, "\n\r", MAX_STRING_LENGTH);
+                                strncat(buf, "\n\r", MaxStringLength);
                                 wrap = 0;
                         }
                 }
                 dentry = readdir(directory);
         }
-        strncat(buf, "\n\r", MAX_STRING_LENGTH);
+        strncat(buf, "\n\r", MaxStringLength);
         if (count < 0)
         {
                 send_to_char

@@ -86,7 +86,7 @@ struct VnumCountEntry {
         int qty;
         std::string name;
 };
-void birth_date args((CHAR_DATA * ch));
+void birth_date args((CharData * ch));
 
 /*
  *  Locals
@@ -96,7 +96,7 @@ void write_clan_list args((void));
 bool write_to_descriptor args((int desc, char *txt, int length));
 char     *full_color args((char *str));
 
-CMDF do_gold(CHAR_DATA * ch, char *argument)
+CMDF do_gold(CharData * ch, char *argument)
 {
         argument = NULL;
         set_char_color(AT_GOLD, ch);
@@ -114,14 +114,14 @@ CMDF do_gold(CHAR_DATA * ch, char *argument)
 /*
  * New score command by Haus
  */
-CMDF do_score(CHAR_DATA * ch, char *argument)
+CMDF do_score(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         /*
-         * AFFECT_DATA    *paf; 
+         * AffectData    *paf; 
          */
-        CLAN_DATA *clan;
+        ClanData *clan;
 
         if (IS_NPC(ch))
         {
@@ -209,7 +209,7 @@ CMDF do_score(CHAR_DATA * ch, char *argument)
         {
                 int       ability;
 
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         if ((ability == FORCE_ABILITY
                              && ch->skill_level[FORCE_ABILITY] > 1)
                             || (get_trust(ch) >= 5
@@ -448,13 +448,13 @@ CMDF do_score(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_immscore(CHAR_DATA * ch, char *argument)
+CMDF do_immscore(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH];
-        AFFECT_DATA *paf;
-        CLAN_DATA *clan;
-        CHAR_DATA *victim;
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength];
+        AffectData *paf;
+        ClanData *clan;
+        CharData *victim;
 
         argument = one_argument(argument, arg);
 
@@ -549,7 +549,7 @@ CMDF do_immscore(CHAR_DATA * ch, char *argument)
         {
                 int       ability;
 
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         ch_printf(ch,
                                   "&B|| &w%-15s &BL&zevel: &w%-3d &BM&zax: &w%-3d &BE&zxp: &w%-10ld &BN&zext: &w%-10ld&B||\n\r",
                                   capitalize(ability_name[ability]),
@@ -738,7 +738,7 @@ CMDF do_immscore(CHAR_DATA * ch, char *argument)
         if (victim->first_affect)
         {
                 int       count = 0;
-                SKILLTYPE *skill;
+                SkillType *skill;
                 char     *affname;
 
                 set_pager_color(AT_BLUE, ch);
@@ -947,10 +947,10 @@ char     *tiny_affect_loc_name(int location)
         return ("?");
 }
 
-CMDF do_oldscore(CHAR_DATA * ch, char *argument)
+CMDF do_oldscore(CharData * ch, char *argument)
 {
-        AFFECT_DATA *paf;
-        SKILLTYPE *skill;
+        AffectData *paf;
+        SkillType *skill;
 
         argument = NULL;    /* Squelch Warning */
         if (IS_AFFECTED(ch, AFF_POSSESS))
@@ -1229,7 +1229,7 @@ CMDF do_oldscore(CHAR_DATA * ch, char *argument)
 /*								-Thoric
  * Display your current exp, level, and surrounding level exp requirements
  */
-CMDF do_level(CHAR_DATA * ch, char *argument)
+CMDF do_level(CharData * ch, char *argument)
 {
         argument = NULL;    /* Squelch Warning */
         send_to_char
@@ -1241,7 +1241,7 @@ CMDF do_level(CHAR_DATA * ch, char *argument)
         {
                 int       ability;
 
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         if ((ability == FORCE_ABILITY
                              && ch->skill_level[FORCE_ABILITY] > 1)
                             || (get_trust(ch) > 5
@@ -1269,11 +1269,11 @@ CMDF do_level(CHAR_DATA * ch, char *argument)
                  ch);
 }
 
-CMDF do_affected(CHAR_DATA * ch, char *argument)
+CMDF do_affected(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        AFFECT_DATA *paf;
-        SKILLTYPE *skill;
+        char      arg[MaxInputLength];
+        AffectData *paf;
+        SkillType *skill;
 
         if (IS_NPC(ch))
                 return;
@@ -1403,9 +1403,9 @@ CMDF do_affected(CHAR_DATA * ch, char *argument)
 /*
  * Count the number of objects of a specific vnum in character's inventory
  */
-int count_obj_in_inventory(CHAR_DATA * ch, int vnum)
+int count_obj_in_inventory(CharData * ch, int vnum)
 {
-    OBJ_DATA *obj;
+    ObjData *obj;
     int count = 0;
 
     for (obj = ch->first_carrying; obj; obj = obj->next_content)
@@ -1420,7 +1420,7 @@ int count_obj_in_inventory(CHAR_DATA * ch, int vnum)
  * Helper to send a GMCP event over the descriptor, framing with Telnet IAC SB ... IAC SE
  * and doubling any IAC bytes inside the payload.
  */
-static void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *data)
+static void send_gmcp_event(DescriptorData *d, const char *event, const char *data)
 {
     if (!d || !event)
         return;
@@ -1458,9 +1458,9 @@ static void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *d
     write_to_descriptor(d->descriptor, const_cast<char*>(sb.c_str()), (int)sb.size());
 }
 
-CMDF do_inventory(CHAR_DATA *ch, char *argument)
+CMDF do_inventory(CharData *ch, char *argument)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         // 1) Show plain-text inventory
         (void)argument;  // Squelch warning
@@ -1552,12 +1552,12 @@ CMDF do_inventory(CHAR_DATA *ch, char *argument)
 }
 
 
-CMDF do_equipment(CHAR_DATA * ch, char *argument)
+CMDF do_equipment(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         int       iWear, dam;
         bool      found;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         argument = NULL;    /* Squelch Warning */
         set_char_color(AT_RED, ch);
         send_to_char("&BYou are using:\n\r", ch);
@@ -1759,7 +1759,7 @@ CMDF do_equipment(CHAR_DATA * ch, char *argument)
 
 
 
-void set_title(CHAR_DATA * ch, char *title)
+void set_title(CharData * ch, char *title)
 {
         if (IS_NPC(ch))
         {
@@ -1774,7 +1774,7 @@ void set_title(CHAR_DATA * ch, char *title)
 
 
 
-CMDF do_title(CHAR_DATA * ch, char *argument)
+CMDF do_title(CharData * ch, char *argument)
 {
         if (IS_NPC(ch))
                 return;
@@ -1792,7 +1792,7 @@ CMDF do_title(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if ((get_trust(ch) <= LEVEL_IMMORTAL)
+        if ((get_trust(ch) <= LevelImmortal)
             && (!nifty_is_name(ch->name, smash_color(argument))))
         {
                 send_to_char
@@ -1807,9 +1807,9 @@ CMDF do_title(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_homepage(CHAR_DATA * ch, char *argument)
+CMDF do_homepage(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (IS_NPC(ch))
                 return;
@@ -1851,7 +1851,7 @@ CMDF do_homepage(CHAR_DATA * ch, char *argument)
 /*
  * Set your personal description				-Thoric
  */
-CMDF do_description(CHAR_DATA * ch, char *argument)
+CMDF do_description(CharData * ch, char *argument)
 {
         argument = NULL;    /* Squelch Warning */
         if (IS_NPC(ch))
@@ -1893,7 +1893,7 @@ CMDF do_description(CHAR_DATA * ch, char *argument)
 }
 
 /* Ripped off do_description for whois bio's -- Scryn*/
-CMDF do_bio(CHAR_DATA * ch, char *argument)
+CMDF do_bio(CharData * ch, char *argument)
 {
         argument = NULL;    /* Squelch Warning */
         if (IS_NPC(ch))
@@ -1936,9 +1936,9 @@ CMDF do_bio(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_report(CHAR_DATA * ch, char *argument)
+CMDF do_report(CharData * ch, char *argument)
 {
-        char      buf[MAX_INPUT_LENGTH];
+        char      buf[MaxInputLength];
 
         argument = NULL;    /* Squelch Warning */
         if (IS_AFFECTED(ch, AFF_POSSESS))
@@ -1963,9 +1963,9 @@ CMDF do_report(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_prompt(CHAR_DATA * ch, char *argument)
+CMDF do_prompt(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         char      buf[MIL];
 
         if (IS_NPC(ch))
@@ -2035,7 +2035,7 @@ CMDF do_prompt(CHAR_DATA * ch, char *argument)
 
 char     *smash_color(char *str)
 {
-        static char ret[MAX_STRING_LENGTH];
+        static char ret[MaxStringLength];
         char     *retptr;
 
         retptr = ret;
@@ -2055,7 +2055,7 @@ char     *smash_color(char *str)
 
 char     *smash_space(const char *str)
 {
-        static char ret[MAX_STRING_LENGTH];
+        static char ret[MaxStringLength];
         char     *retptr;
 
         retptr = ret;
@@ -2075,7 +2075,7 @@ char     *smash_space(const char *str)
 
 char     *trim(const char *str)
 {
-        static char ret[MAX_STRING_LENGTH];
+        static char ret[MaxStringLength];
         char     *retptr;
         const char *beginptr;
 
@@ -2105,7 +2105,7 @@ char     *trim(const char *str)
 }
 
 
-void set_name(CHAR_DATA * ch, char *name)
+void set_name(CharData * ch, char *name)
 {
         if (IS_NPC(ch))
         {
@@ -2124,7 +2124,7 @@ void set_name(CHAR_DATA * ch, char *name)
 }
 
 
-CMDF do_fullname(CHAR_DATA * ch, char *argument)
+CMDF do_fullname(CharData * ch, char *argument)
 {
 
         if (IS_NPC(ch))
@@ -2138,7 +2138,7 @@ CMDF do_fullname(CHAR_DATA * ch, char *argument)
 
         argument = smash_color(argument);
 
-        if ((get_trust(ch) <= LEVEL_IMMORTAL)
+        if ((get_trust(ch) <= LevelImmortal)
             && (!nifty_is_name(ch->name, argument)))
         {
                 send_to_char
@@ -2152,7 +2152,7 @@ CMDF do_fullname(CHAR_DATA * ch, char *argument)
 }
 
 #ifdef ACCOUNT
-CMDF do_rpreward(CHAR_DATA * ch, char *argument)
+CMDF do_rpreward(CharData * ch, char *argument)
 {
         char      arg[MIL];
 
@@ -2226,7 +2226,7 @@ CMDF do_rpreward(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "makeclan"))
         {
-                CLAN_DATA *clan;
+                ClanData *clan;
                 char      filename[256];
 
                 if (ch->pcdata->account->rpcurrent < 10)
@@ -2256,7 +2256,7 @@ CMDF do_rpreward(CHAR_DATA * ch, char *argument)
                 snprintf(filename, 256, "%s%s", CLAN_DIR,
                          strlower(smash_space(argument)));
 
-                CREATE(clan, CLAN_DATA, 1);
+                CREATE(clan, ClanData, 1);
                 LINK(clan, first_clan, last_clan, next, prev);
                 clan->next_subclan = NULL;
                 clan->prev_subclan = NULL;
@@ -2293,7 +2293,7 @@ CMDF do_rpreward(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg, "changerace"))
         {
-                RACE_DATA *race;
+                RaceData *race;
 
                 if (ch->pcdata->account->rpcurrent < 5)
                 {
@@ -2326,7 +2326,7 @@ CMDF do_rpreward(CHAR_DATA * ch, char *argument)
                                      skill_table[sn]->races))
                                         ch->pcdata->learned[sn] = 0;
 
-                        for (int p = 0; p < MAX_BITS; p++)
+                        for (int p = 0; p < MaxBits; p++)
                                 if (xIS_SET(ch->xflags, p)
                                     && xIS_SET(skill_table[sn]->body_parts,
                                                p))
@@ -2337,7 +2337,7 @@ CMDF do_rpreward(CHAR_DATA * ch, char *argument)
 
                 ch->race = race;
 
-                for (int ability = 0; ability < MAX_ABILITY; ability++)
+                for (int ability = 0; ability < MaxAbility; ability++)
                 {
                         if (ch->skill_level[ability] > max_level(ch, ability))
                         {
@@ -2385,7 +2385,7 @@ CMDF do_rpreward(CHAR_DATA * ch, char *argument)
                         for (int sn = 0; sn < top_sn; sn++)
                         {
                                 if (!xIS_EMPTY(skill_table[sn]->body_parts))
-                                        for (int p = 0; p < MAX_BITS; p++)
+                                        for (int p = 0; p < MaxBits; p++)
                                                 if (xIS_SET(ch->xflags, p)
                                                     &&
                                                     xIS_SET(skill_table[sn]->
@@ -2417,7 +2417,7 @@ CMDF do_rpreward(CHAR_DATA * ch, char *argument)
 
 char     *convert_newline(char *str)
 {
-        static char ret[MAX_STRING_LENGTH];
+        static char ret[MaxStringLength];
         char     *retptr;
 
         retptr = ret;
@@ -2442,14 +2442,14 @@ char     *convert_newline(char *str)
         return ret;
 }
 
-CMDF do_testnewling(CHAR_DATA * ch, char *argument)
+CMDF do_testnewling(CharData * ch, char *argument)
 {
         send_to_char(convert_newline(argument), ch);
 }
 
-CMDF do_fprompt(CHAR_DATA * ch, char *argument)
+CMDF do_fprompt(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         char      buf[MIL];
 
         if (IS_NPC(ch))

@@ -91,7 +91,7 @@ void fwrite_language_list(void)
 
 void fread_language(LANGUAGE_DATA * language, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
 
@@ -131,7 +131,7 @@ void fwrite_language(LANGUAGE_DATA * language)
 {
         FILE     *fp;
         char      filename[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (!language)
         {
@@ -217,7 +217,7 @@ bool load_language_file(char *languagefile)
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 snprintf(buf, MSL,
                                          "Load_language_file: bad section: %s.",
@@ -243,7 +243,7 @@ void load_languages(void)
         FILE     *fpList;
         const char *filename;
         char      languagelist[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         first_language = NULL;
         last_language = NULL;
@@ -304,7 +304,7 @@ PROTOSHIP_DATA *get_protoship(char *name)
 }
 
 
-CMDF do_setlanguage(CHAR_DATA * ch, char *argument)
+CMDF do_setlanguage(CharData * ch, char *argument)
 {
         LANGUAGE_DATA *language;
         char      arg1[MSL];
@@ -353,7 +353,7 @@ CMDF do_setlanguage(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_showlanguages(CHAR_DATA * ch, char *argument)
+CMDF do_showlanguages(CharData * ch, char *argument)
 {
         LANGUAGE_DATA *language;
 
@@ -364,7 +364,7 @@ CMDF do_showlanguages(CHAR_DATA * ch, char *argument)
                           language->name, language->min_intelligence);
 }
 
-CMDF do_makelanguage(CHAR_DATA * ch, char *argument)
+CMDF do_makelanguage(CharData * ch, char *argument)
 {
         LANGUAGE_DATA *language;
         int       sn;
@@ -493,7 +493,7 @@ void save_protoship(PROTOSHIP_DATA * ship)
 {
         FILE     *fp;
         char      filename[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (!ship)
         {
@@ -577,7 +577,7 @@ void save_protoship(PROTOSHIP_DATA * ship)
 
 void fread_protoship(PROTOSHIP_DATA * ship, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
 
@@ -748,7 +748,7 @@ bool load_protoship_file(char *shipfile)
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 snprintf(buf, MSL,
                                          "Load_protoship_file: bad section: %s.",
@@ -771,7 +771,7 @@ void load_protoships(void)
         FILE     *fpList;
         const char *filename;
         char      shiplist[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         PROTOSHIP_DATA *ship;
 
 
@@ -816,10 +816,10 @@ void load_protoships(void)
         return;
 }
 
-CMDF do_setprotoship(CHAR_DATA * ch, char *argument)
+CMDF do_setprotoship(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         PROTOSHIP_DATA *ship;
 
         if (IS_NPC(ch))
@@ -1241,7 +1241,7 @@ CMDF do_setprotoship(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_showprotoship(CHAR_DATA * ch, char *argument)
+CMDF do_showprotoship(CharData * ch, char *argument)
 {
         PROTOSHIP_DATA *ship;
 
@@ -1347,10 +1347,10 @@ CMDF do_showprotoship(CHAR_DATA * ch, char *argument)
                   ship->minchaff, ship->maxchaff);
 }
 
-CMDF do_showability(CHAR_DATA * ch, char *argument)
+CMDF do_showability(CharData * ch, char *argument)
 {
         int       iclass = 0;
-        RACE_DATA *race = NULL;
+        RaceData *race = NULL;
 
         if (argument[0] == '\0')
         {
@@ -1365,12 +1365,12 @@ CMDF do_showability(CHAR_DATA * ch, char *argument)
                 int       total;
 
                 send_to_char("&BR&zace Name:                   ", ch);
-                for (iclass = 0; iclass < MAX_ABILITY; iclass++)
+                for (iclass = 0; iclass < MaxAbility; iclass++)
                         ch_printf(ch, "&B[&w%-3.3s&B]&z|",
                                   ability_name[iclass]);
                 send_to_char("&B[&wTot&B]\n\r", ch);
                 send_to_char("&B-----------------------------", ch);
-                for (iclass = 0; iclass < MAX_ABILITY; iclass++)
+                for (iclass = 0; iclass < MaxAbility; iclass++)
                         ch_printf(ch, "-----&z+&B", ability_name[iclass]);
                 send_to_char("-----\n\r", ch);
                 FOR_EACH_LIST(RACE_LIST, races, race)
@@ -1378,7 +1378,7 @@ CMDF do_showability(CHAR_DATA * ch, char *argument)
                         total = 0;
                         ch_printf(ch, "&BN&zame&w: &B[&w%-20s&B]&z|",
                                   race->name());
-                        for (iclass = 0; iclass < MAX_ABILITY; iclass++)
+                        for (iclass = 0; iclass < MaxAbility; iclass++)
                         {
                                 ch_printf(ch, "&B[&w%+3d&B]&z|&B",
                                           race->class_modifier(iclass));
@@ -1392,7 +1392,7 @@ CMDF do_showability(CHAR_DATA * ch, char *argument)
         /*
          * For all Classes 
          */
-        for (iclass = 0; iclass < MAX_ABILITY; iclass++)
+        for (iclass = 0; iclass < MaxAbility; iclass++)
         {
                 if (!str_cmp(ability_name[iclass], argument))
                 {
@@ -1451,7 +1451,7 @@ void fwrite_illness(ILLNESS_DATA * illness)
 {
         FILE     *fp;
         char      filename[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (!illness)
         {
@@ -1512,7 +1512,7 @@ void fwrite_illness(ILLNESS_DATA * illness)
 
 void fread_illness(ILLNESS_DATA * illness, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
 
@@ -1607,7 +1607,7 @@ bool load_illness_file(char *illnessfile)
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 snprintf(buf, MSL,
                                          "Load_illness_file: bad section: %s.",
@@ -1627,7 +1627,7 @@ void load_illness(void)
         FILE     *fpList;
         const char *filename;
         char      illnesslist[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         first_illness = NULL;
         last_illness = NULL;
@@ -1670,7 +1670,7 @@ ILLNESS_DATA *get_illness(char *string)
         return NULL;
 }
 
-CMDF do_makeillness(CHAR_DATA * ch, char *argument)
+CMDF do_makeillness(CharData * ch, char *argument)
 {
         ILLNESS_DATA *illness = NULL;
 
@@ -1700,7 +1700,7 @@ CMDF do_makeillness(CHAR_DATA * ch, char *argument)
                   name : "<ERROR1>" : "<ERROR2>");
 }
 
-CMDF do_showillness(CHAR_DATA * ch, char *argument)
+CMDF do_showillness(CharData * ch, char *argument)
 {
         ILLNESS_DATA *illness;
 
@@ -1752,7 +1752,7 @@ CMDF do_showillness(CHAR_DATA * ch, char *argument)
                   '\0' ? "None set" : illness->message3);
 }
 
-CMDF do_setillness(CHAR_DATA * ch, char *argument)
+CMDF do_setillness(CharData * ch, char *argument)
 {
         ILLNESS_DATA *illness;
         char      arg1[MSL];

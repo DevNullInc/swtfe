@@ -87,7 +87,7 @@ namespace {
 // ============================================================================
 // Forward Declarations
 // ============================================================================
-void stop_idling args((CHAR_DATA * ch));
+void stop_idling args((CharData * ch));
 
 // ============================================================================
 // Section: String Parsing Utilities
@@ -129,7 +129,7 @@ char *one_line(char *argument, char *arg_first)
 // Section: Alias Lookup and Management
 // ============================================================================
 
-ALIAS_DATA *get_alias(CHAR_DATA *ch, char *argument)
+ALIAS_DATA *get_alias(CharData *ch, char *argument)
 {
         ALIAS_DATA *ali;
 
@@ -179,7 +179,7 @@ void free_aliases(ACCOUNT_DATA *account)
 // Section: Alias Command Interface
 // ============================================================================
 
-CMDF do_alias(CHAR_DATA *ch, char *argument)
+CMDF do_alias(CharData *ch, char *argument)
 {
         ALIAS_DATA *alias;
         char cmd[MSL];
@@ -317,7 +317,7 @@ CMDF do_alias(CHAR_DATA *ch, char *argument)
 // Section: Alias Execution and Processing
 // ============================================================================
 
-bool check_alias(CHAR_DATA *ch, char *command, char *argument)
+bool check_alias(CharData *ch, char *command, char *argument)
 {
         ALIAS_DATA *alias;
 
@@ -378,12 +378,12 @@ bool check_alias(CHAR_DATA *ch, char *command, char *argument)
         return TRUE;
 }
 
-bool check_aliases(DESCRIPTOR_DATA *d)
+bool check_aliases(DescriptorData *d)
 {
         char arg[MSL];
         char *rem = nullptr;
         size_t len = 0;
-        CHAR_DATA *ch;
+        CharData *ch;
 
         if (!d || !d->character)
                 return FALSE;

@@ -100,7 +100,7 @@ void send_telcode(int desc, int ddww, int code) noexcept {
         write(desc, reinterpret_cast<char*>(buf), 4);
 }
 
-CMDF do_mudexec(CHAR_DATA* ch, const char* argument)
+CMDF do_mudexec(CharData* ch, const char* argument)
 {
         int desc;
         int flags;
@@ -205,7 +205,7 @@ bool check_forks(const DescriptorData& d, std::string_view cmdline) noexcept {
 }
 
 // Modernize: Use std::string_view, validate filename for security
-int copy_file(CHAR_DATA* ch, std::string_view filename) {
+int copy_file(CharData* ch, std::string_view filename) {
         // Security: Only allow files within allowed directories
         if (filename.find("..") != std::string_view::npos || filename.find('$') != std::string_view::npos || filename.find(';') != std::string_view::npos) {
                 set_char_color(AT_RED, ch);
@@ -223,7 +223,7 @@ int copy_file(CHAR_DATA* ch, std::string_view filename) {
 }
 
 // Modernize: Use shell::SOURCE_DIR for src path
-void compile_code(CHAR_DATA* ch, std::string_view argument) {
+void compile_code(CharData* ch, std::string_view argument) {
         std::string buf;
         std::string src_path = std::string(shell::SOURCE_DIR);
         if (argument == "cvs") {
@@ -246,7 +246,7 @@ void compile_code(CHAR_DATA* ch, std::string_view argument) {
 }
 
 // Modernize: Use shell::bootlock and shell::compilelock
-CMDF do_compile(CHAR_DATA* ch, std::string_view argument) {
+CMDF do_compile(CharData* ch, std::string_view argument) {
         using namespace shell;
         if (bootlock) {
                 send_to_char("&RThe reboot timer is running, the compiler cannot be used at this time.\n\r", ch);
@@ -260,7 +260,7 @@ CMDF do_compile(CHAR_DATA* ch, std::string_view argument) {
         set_char_color(AT_RED, ch);
         std::ostringstream oss;
         oss << "Compiler operation initiated by " << ch->name << ". Reboot and shutdown commands are locked.";
-        echo_to_all(AT_RED, oss.str().c_str(), ECHOTAR_IMM);
+        echo_to_all(AT_RED, oss.str().c_str(), EchoTarImm);
         compile_code(ch, argument);
 }
 
@@ -272,7 +272,7 @@ GREP In-Game command	-Nopey
 */
 /* Modified by Samson to be a bit less restrictive. So one can grep anywhere the account will allow. */
 // Modernize: Use std::string_view, validate arguments for security
-CMDF do_grep(CHAR_DATA* ch, std::string_view argument) {
+CMDF do_grep(CharData* ch, std::string_view argument) {
         std::ostringstream oss;
         std::string_view arg1;
         // Parse first argument

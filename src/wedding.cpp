@@ -55,9 +55,9 @@
 #include "mud.hpp"
 
 
-CMDF do_propose(CHAR_DATA * ch, char *argument)
+CMDF do_propose(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         if (IS_NPC(ch))
                 return;
@@ -135,9 +135,9 @@ CMDF do_propose(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_accept(CHAR_DATA * ch, char *argument)
+CMDF do_accept(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -200,9 +200,9 @@ CMDF do_accept(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_refuse(CHAR_DATA * ch, char *argument)
+CMDF do_refuse(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -252,11 +252,11 @@ CMDF do_refuse(CHAR_DATA * ch, char *argument)
             victim, TO_VICT);
 }
 
-CMDF do_marry(CHAR_DATA * ch, char *argument)
+CMDF do_marry(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim1;
-        CHAR_DATA *victim2;
+        char      arg[MaxInputLength];
+        CharData *victim1;
+        CharData *victim2;
 
         argument = one_argument(argument, arg);
 
@@ -314,11 +314,11 @@ CMDF do_marry(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_divorce(CHAR_DATA * ch, char *argument)
+CMDF do_divorce(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim1;
-        CHAR_DATA *victim2;
+        char      arg[MaxInputLength];
+        CharData *victim1;
+        CharData *victim2;
 
         argument = one_argument(argument, arg);
 

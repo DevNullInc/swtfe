@@ -138,7 +138,7 @@ static void safe_file_close(FILE* fp)
  * Create a new list file
  * Usage: createlist <filename>
  */
-CMDF do_create_list(CHAR_DATA* ch, char* argument)
+CMDF do_create_list(CharData* ch, char* argument)
 {
     char filename[MAX_FILENAME_LENGTH];
     
@@ -180,10 +180,10 @@ CMDF do_create_list(CHAR_DATA* ch, char* argument)
  * Add text to an existing list file
  * Usage: addtolist <filename> <text>
  */
-CMDF do_addto_list(CHAR_DATA* ch, char* argument)
+CMDF do_addto_list(CharData* ch, char* argument)
 {
     char filename[MAX_FILENAME_LENGTH];
-    char arg1[MAX_INPUT_LENGTH];
+    char arg1[MaxInputLength];
     
     argument = one_argument(argument, arg1);
     
@@ -217,7 +217,7 @@ CMDF do_addto_list(CHAR_DATA* ch, char* argument)
  * Display contents of a list file with line numbers
  * Usage: showlist <filename>
  */
-CMDF do_showlist(CHAR_DATA* ch, char* argument)
+CMDF do_showlist(CharData* ch, char* argument)
 {
     char filename[MAX_FILENAME_LENGTH];
     FILE* fp;
@@ -278,11 +278,11 @@ CMDF do_showlist(CHAR_DATA* ch, char* argument)
  * Remove a specific line from a list file
  * Usage: remlist <filename> <line_number>
  */
-CMDF do_remlist(CHAR_DATA* ch, char* argument)
+CMDF do_remlist(CharData* ch, char* argument)
 {
     char filename[MAX_FILENAME_LENGTH];
     char temp_filename[MAX_FILENAME_LENGTH];
-    char arg1[MAX_INPUT_LENGTH];
+    char arg1[MaxInputLength];
     FILE* fp = nullptr;
     FILE* temp_fp = nullptr;
     int total_lines = 0;

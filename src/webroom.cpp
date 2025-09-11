@@ -48,13 +48,13 @@
 
 #define WEB_ROOMS "../webrooms/"   /* Directory to store room HTML files */
 
-void room_to_html args((ROOM_INDEX_DATA * room, bool complete));
-extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
+void room_to_html args((RoomIndexData * room, bool complete));
+extern RoomIndexData *room_index_hash[MAX_KEY_HASH];
 
 CMDF do_webroom(char *argument)
 {
 
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
         int       hash;
         bool      complete = FALSE;
 
@@ -74,12 +74,12 @@ CMDF do_webroom(char *argument)
 
 }
 
-void room_to_html(ROOM_INDEX_DATA * room, bool complete)
+void room_to_html(RoomIndexData * room, bool complete)
 {
         FILE     *fp = NULL;
         char      filename[256];
-        char      buf[MAX_INPUT_LENGTH * 10];
-        EXIT_DATA *pexit;
+        char      buf[MaxInputLength * 10];
+        ExitData *pexit;
         bool      found = FALSE;
 
         if (!room)
@@ -131,8 +131,8 @@ void room_to_html(ROOM_INDEX_DATA * room, bool complete)
                         "<font color=#FF0000 font=Courier>-----------------------------------------------------------------------<br></font>\n\r");
                 if (complete)
                 {
-                        OBJ_DATA *obj, *obj_next = NULL;
-                        CHAR_DATA *rch;
+                        ObjData *obj, *obj_next = NULL;
+                        CharData *rch;
 
                         for (obj = room->first_content; obj; obj = obj_next)
                         {

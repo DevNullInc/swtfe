@@ -65,9 +65,9 @@ enum class RaceAttr : int {
 };
 
 
-class RACE_DATA {
+class RaceData {
 private:
-        EXT_BV body_parts_;
+        ExtBV body_parts_;
         std::shared_ptr<LANGUAGE_DATA> language_;
         int affected_{0};
         int con_plus_{0};
@@ -82,7 +82,7 @@ private:
         std::string name_;
         int str_plus_{0};
         int wis_plus_{0};
-        std::array<int, MAX_ABILITY> class_modifier_{};
+        std::array<int, MaxAbility> class_modifier_{};
         std::array<int, static_cast<int>(RaceAttr::MaxAttr)> attr_mod_{};
         int home_{0};
         int death_age_{0};
@@ -93,13 +93,13 @@ private:
         int class_restriction_{0};
 
 public:
-        RACE_DATA() = default;
-        ~RACE_DATA() = default;
+        RaceData() = default;
+        ~RaceData() = default;
 
         std::shared_ptr<LANGUAGE_DATA> language() const { return language_; }
         void set_language(std::shared_ptr<LANGUAGE_DATA> p) { language_ = std::move(p); }
 
-        EXT_BV& body_parts() { return body_parts_; }
+        ExtBV& body_parts() { return body_parts_; }
         void set_body_parts(int bit, bool set);
         void toggle_body_parts(int bit);
 
@@ -152,7 +152,7 @@ public:
         static void load_races();
 };
 
-using RACE_LIST = std::vector<std::shared_ptr<RACE_DATA>>;
+using RACE_LIST = std::vector<std::shared_ptr<RaceData>>;
 extern RACE_LIST races;
 
 

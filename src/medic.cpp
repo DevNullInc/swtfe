@@ -42,13 +42,13 @@
 #include "mud.hpp"
 #include "races.hpp"
 
-CMDF do_autopsy(CHAR_DATA * ch, char *argument)
+CMDF do_autopsy(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
-        char      arg[MAX_STRING_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        ObjData *obj;
+        char      arg[MaxStringLength];
+        char      buf[MaxStringLength];
         int       chance;
-		char      armed_by[MAX_STRING_LENGTH];
+		char      armed_by[MaxStringLength];
 
         mudstrlcpy(arg, argument, MSL);
 
@@ -175,14 +175,14 @@ CMDF do_autopsy(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_autopsy);
 }
 
-CMDF do_diagnose(CHAR_DATA * ch, char *argument)
+CMDF do_diagnose(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       percentage;
         bool      checkmedpac;
-        OBJ_DATA *obj;
-        CHAR_DATA *victim;
+        ObjData *obj;
+        CharData *victim;
 
         if (IS_NPC(ch))
                 return;
@@ -385,12 +385,12 @@ CMDF do_diagnose(CHAR_DATA * ch, char *argument)
 }
 
 int       get_bodypart(char *flag);
-CMDF do_splint(CHAR_DATA * ch, char *argument)
+CMDF do_splint(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg3[MaxInputLength];
         int       value, chance;
-        CHAR_DATA *victim;
+        CharData *victim;
 
         if (IS_NPC(ch))
                 return;
@@ -443,7 +443,7 @@ CMDF do_splint(CHAR_DATA * ch, char *argument)
                         act(AT_ACTION,
                             "$n takes out some plaster and gauss from $s's bag and begins to assemble a cast on $N's $t.",
                             ch, argument, victim, TO_NOTVICT);
-                        WAIT_STATE(victim, 10 * PULSE_VIOLENCE);
+                        WAIT_STATE(victim, 10 * PulseViolence);
                         add_timer(ch, TIMER_DO_FUN, 10, do_splint, 1);
                         ch->dest_buf = str_dup(arg);
                         ch->dest_buf_2 = str_dup(argument);
@@ -525,10 +525,10 @@ CMDF do_splint(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_splint);
 }
 
-CMDF do_first_aid(CHAR_DATA * ch, char *argument)
+CMDF do_first_aid(CharData * ch, char *argument)
 {
-        OBJ_DATA *medpac;
-        CHAR_DATA *victim;
+        ObjData *medpac;
+        CharData *victim;
         int       heal;
 
         if (IS_NPC(ch))
@@ -606,14 +606,14 @@ CMDF do_first_aid(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_first_aid);
 }
 
-CMDF do_makemedkit(CHAR_DATA * ch, char *argument)
+CMDF do_makemedkit(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, chance, strength = 0, weight = 0;
         bool      checktool, checkdrink, checkchem;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
 
         mudstrlcpy(arg, argument, MIL);

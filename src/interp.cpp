@@ -60,9 +60,9 @@ void      subtract_times(struct timeval *etime, struct timeval *systime);
 
 
 
-void write_watch_files args((CHAR_DATA * ch, CMDTYPE * cmd, char *logline));
+void write_watch_files args((CharData * ch, CMDType * cmd, char *logline));
 bool valid_watch args((char *logline));
-bool check_social args((CHAR_DATA * ch, char *command, char *argument));
+bool check_social args((CharData * ch, char *command, char *argument));
 
 
 /*
@@ -71,13 +71,13 @@ bool check_social args((CHAR_DATA * ch, char *command, char *argument));
 bool      fLogAll = FALSE;
 
 
-CMDTYPE  *command_hash[126];    /* hash table for cmd_table */
-SOCIALTYPE *social_index[27];   /* hash table for socials   */
+CMDType  *command_hash[126];    /* hash table for cmd_table */
+SocialType *social_index[27];   /* hash table for socials   */
 
 /*
  * Character not in position for command?
  */
-bool check_pos(CHAR_DATA * ch, sh_int position)
+bool check_pos(CharData * ch, sh_int position)
 {
         if (ch->position < position)
 
@@ -126,19 +126,19 @@ bool check_pos(CHAR_DATA * ch, sh_int position)
         return TRUE;
 }
 
-extern char lastplayercmd[MAX_INPUT_LENGTH * 2];
+extern char lastplayercmd[MaxInputLength * 2];
 
 /*
  * The main entry point for executing commands.
  * Can be recursively called from 'at', 'order', 'force'.
  */
-void interpret(CHAR_DATA * ch, char *argument)
+void interpret(CharData * ch, char *argument)
 {
-        char      command[MAX_INPUT_LENGTH];
-        char      logline[MAX_INPUT_LENGTH];
-        char      logname[MAX_INPUT_LENGTH];
-        TIMER    *timer = NULL;
-        CMDTYPE  *cmd = NULL;
+        char      command[MaxInputLength];
+        char      logline[MaxInputLength];
+        char      logname[MaxInputLength];
+        Timer    *timer = NULL;
+        CMDType  *cmd = NULL;
         int       trust;
         int       loglvl;
         bool      found, chan;
@@ -146,8 +146,8 @@ void interpret(CHAR_DATA * ch, char *argument)
         long      tmptime;
         bool      ooc, held;
         int       string_count = allocated_strings();
-        char      cmd_copy[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      cmd_copy[MaxInputLength];
+        char      buf[MaxStringLength];
 
 
         if (!ch)
@@ -162,7 +162,7 @@ void interpret(CHAR_DATA * ch, char *argument)
         chan = FALSE;
         if (ch->substate == SUB_REPEATCMD)
         {
-                DO_FUN   *fun;
+                DoFun   *fun;
 
                 if ((fun = ch->last_cmd) == NULL)
                 {
@@ -350,7 +350,7 @@ void interpret(CHAR_DATA * ch, char *argument)
                  * all imm commands are ooc 
                  */
                 if (IS_SET(cmd->flags, CMD_OOC)
-                    || cmd->level > LEVEL_IMMORTAL)
+                    || cmd->level > LevelImmortal)
                         ooc = TRUE;
                 if (IS_SET(cmd->flags, CMD_HELD))
                         held = TRUE;
@@ -424,7 +424,7 @@ void interpret(CHAR_DATA * ch, char *argument)
 #endif
                         )
                 {
-                        EXIT_DATA *pexit;
+                        ExitData *pexit;
 
                         /*
                          * check for an auto-matic exit command 
@@ -523,9 +523,9 @@ void register_custom_commands(void)
         /* If your code has a build-time command table, you may instead add these statically. */
 }
 
-CMDTYPE  *find_command(char *command)
+CMDType  *find_command(char *command)
 {
-        CMDTYPE  *cmd;
+        CMDType  *cmd;
         int       hash;
 
         hash = LOWER(command[0]) % 126;
@@ -537,9 +537,9 @@ CMDTYPE  *find_command(char *command)
         return NULL;
 }
 
-SOCIALTYPE *find_social(char *command)
+SocialType *find_social(char *command)
 {
-        SOCIALTYPE *social;
+        SocialType *social;
         int       hash;
 
         if (command[0] < 'a' || command[0] > 'z')
@@ -555,9 +555,9 @@ SOCIALTYPE *find_social(char *command)
         return NULL;
 }
 
-SOCIALTYPE *find_xsocial(char *command)
+SocialType *find_xsocial(char *command)
 {
-        SOCIALTYPE *social;
+        SocialType *social;
         int       hash;
 
         if (command[0] < 'a' || command[0] > 'z')
@@ -572,11 +572,11 @@ SOCIALTYPE *find_xsocial(char *command)
         return NULL;
 }
 
-bool check_social(CHAR_DATA * ch, char *command, char *argument)
+bool check_social(CharData * ch, char *command, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        SOCIALTYPE *social;
+        char      arg[MaxInputLength];
+        CharData *victim;
+        SocialType *social;
 
         if ((social = find_social(command)) == NULL)
                 return FALSE;
@@ -753,13 +753,13 @@ int number_argument(char *argument, char *arg)
         return 1;
 }
 
-CMDF do_timecmd(CHAR_DATA * ch, char *argument)
+CMDF do_timecmd(CharData * ch, char *argument)
 {
         struct timeval systime;
         struct timeval etime;
         static bool timing;
-        extern CHAR_DATA *timechar;
-        char      arg[MAX_INPUT_LENGTH];
+        extern CharData *timechar;
+        char      arg[MaxInputLength];
 
         send_to_char("Timing\n\r", ch);
         if (timing)
@@ -832,7 +832,7 @@ time_t end_timer(struct timeval * systime)
         return (etime.tv_sec * 1000000) + etime.tv_usec;
 }
 
-void send_timer(struct timerset *vtime, CHAR_DATA * ch)
+void send_timer(struct timerset *vtime, CharData * ch)
 {
         struct timeval ntime;
         int       carry;
@@ -877,7 +877,7 @@ void update_userec(struct timeval *time_used, struct timerset *userec)
         return;
 }
 
-bool check_command(CHAR_DATA * ch, CMDTYPE * command)
+bool check_command(CharData * ch, CMDType * command)
 {
         sh_int    i = 0;
 
@@ -893,7 +893,7 @@ bool check_command(CHAR_DATA * ch, CMDTYPE * command)
                         return FALSE;
         }
 
-        if (command->level < (MAX_LEVEL - 4))
+        if (command->level < (MaxLevel - 4))
                 return TRUE;
 
         if (!ch || IS_NPC(ch) || !ch->pcdata || !ch->pcdata->godflags)
@@ -937,11 +937,11 @@ bool valid_watch(char *logline)
 /*
  * Write input line to watch files if applicable
  */
-void write_watch_files(CHAR_DATA * ch, CMDTYPE * cmd, char *logline)
+void write_watch_files(CharData * ch, CMDType * cmd, char *logline)
 {
-        WATCH_DATA *pw;
+        WatchData *pw;
         FILE     *fp;
-        char      fname[MAX_INPUT_LENGTH], buf[MAX_STRING_LENGTH];
+        char      fname[MaxInputLength], buf[MaxStringLength];
         struct tm *t = localtime(&current_time);
 
         if (!first_watch)   /* no active watches */

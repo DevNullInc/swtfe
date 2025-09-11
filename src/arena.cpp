@@ -107,15 +107,15 @@ struct bet_data
 {
         BET_DATA *next;
         BET_DATA *prev;
-        CHAR_DATA *better;          // Who placed the bet
-        CHAR_DATA *bet_on;          // Who they bet on (challenger or challenged)
+        CharData *better;          // Who placed the bet
+        CharData *bet_on;          // Who they bet on (challenger or challenged)
         int amount;                 // Amount of credits bet
 };
 
 struct arena_data
 {
-        CHAR_DATA *challenger;      // The player who issued the challenge
-        CHAR_DATA *challenged;      // The player who was challenged
+        CharData *challenger;      // The player who issued the challenge
+        CharData *challenged;      // The player who was challenged
         bool accepted;              // Has the challenge been accepted?
         bool fighting;              // Is the battle currently in progress?
         bool ooc;                   // Is this an out-of-character battle?
@@ -139,7 +139,7 @@ struct arena_data
         BET_DATA *first_better;     // All bets (unified list)
         BET_DATA *last_better;      // All bets (unified list)
         
-        CHAR_DATA *announcer;       // Arena announcer NPC
+        CharData *announcer;       // Arena announcer NPC
 };
 
 // ============================================================================
@@ -151,7 +151,7 @@ ARENA_DATA *arena = nullptr;
 // Forward Declarations  
 // ============================================================================
 void free_arena args((void));
-CMDF do_tell(CHAR_DATA *ch, char *argument);
+CMDF do_tell(CharData *ch, char *argument);
 
 // ============================================================================
 // Section: Arena Status and Utility Functions
@@ -170,7 +170,7 @@ bool is_area_inprogress(void)
 
 void create_arena(void)
 {
-        MOB_INDEX_DATA *pMobIndex;
+        MobIndexData *pMobIndex;
 
         CREATE(arena, ARENA_DATA, 1);
 
@@ -207,7 +207,7 @@ void create_arena(void)
         arena->last_challenged_better = nullptr;
 }
 
-bool arena_can_fight(CHAR_DATA * ch, CHAR_DATA * victim)
+bool arena_can_fight(CharData * ch, CharData * victim)
 {
         (void)victim;  // Silence unused parameter warning
         if (xIS_SET(ch->in_room->room_flags, ROOM_ARENA))
@@ -223,7 +223,7 @@ bool arena_can_fight(CHAR_DATA * ch, CHAR_DATA * victim)
 // Section: Betting System Management
 // ============================================================================
 
-void add_bet(CHAR_DATA * better, int amount, CHAR_DATA * who)
+void add_bet(CharData * better, int amount, CharData * who)
 {
         BET_DATA *bet;
 
@@ -300,7 +300,7 @@ void add_bet(CHAR_DATA * better, int amount, CHAR_DATA * who)
 }
 
 /* for do quit */
-void remove_better(CHAR_DATA * better)
+void remove_better(CharData * better)
 {
         BET_DATA *bet, *bet_next;
 
@@ -343,7 +343,7 @@ void remove_better(CHAR_DATA * better)
         }
 }
 
-void win_fight(CHAR_DATA * winner, CHAR_DATA * looser)
+void win_fight(CharData * winner, CharData * looser)
 {
         BET_DATA *bet, *next_bet = NULL;
         char      buf[MIL];
@@ -491,11 +491,11 @@ void free_arena(void)
 // Section: Player Commands - Betting Interface
 // ============================================================================
 
-CMDF do_bet(CHAR_DATA * ch, char *argument)
+CMDF do_bet(CharData * ch, char *argument)
 {
         char      arg[MIL];
         int       amount;
-        CHAR_DATA *victim = NULL;
+        CharData *victim = NULL;
 
         if (IS_NPC(ch))
                 return;
@@ -569,7 +569,7 @@ CMDF do_bet(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_bets(CHAR_DATA * ch, char *argument)
+CMDF do_bets(CharData * ch, char *argument)
 {
         BET_DATA *bet;
 
@@ -611,9 +611,9 @@ CMDF do_bets(CHAR_DATA * ch, char *argument)
 // Section: Player Commands - Challenge System
 // ============================================================================
 
-CMDF do_challenge(CHAR_DATA * ch, char *argument)
+CMDF do_challenge(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = NULL;
+        CharData *victim = NULL;
         char      arg[MSL];
 
         argument = one_argument(argument, arg);
@@ -791,7 +791,7 @@ void arena_update(void)
 // Section: Administrative Commands - Arena Management
 // ============================================================================
 
-CMDF do_arena(CHAR_DATA * ch, char *argument)
+CMDF do_arena(CharData * ch, char *argument)
 {
         if (!argument || argument[0] == '\0')
         {
@@ -891,7 +891,7 @@ CMDF do_arena(CHAR_DATA * ch, char *argument)
         }
 }
 
-bool in_arena(CHAR_DATA * ch)
+bool in_arena(CharData * ch)
 {
 
         if (!str_cmp(ch->in_room->area->filename, "arena.are")

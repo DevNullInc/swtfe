@@ -68,21 +68,21 @@
 #include "ban.hpp"
 #include "olc-shuttle.hpp"
 #include "channels.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include "installations.hpp"
 #include "space2.hpp"
 #include "races.hpp"
 #include "utils.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 
-void free_desc args((DESCRIPTOR_DATA * d));
-void free_object args((OBJ_DATA * obj));
-void free_clan args((CLAN_DATA * clan));
-void free_planet args((PLANET_DATA * planet));
-void free_ship args((SHIP_DATA * ship));
+void free_desc args((DescriptorData * d));
+void free_object args((ObjData * obj));
+void free_clan args((ClanData * clan));
+void free_planet args((PlanetData * planet));
+void free_ship args((ShipData * ship));
 void free_protoship args((PROTOSHIP_DATA * ship));
-void free_system args((SPACE_DATA * system));
-void free_skill args((SKILLTYPE * skill));
+void free_system args((SpaceData * system));
+void free_skill args((SkillType * skill));
 void free_home args((HOME_DATA * home));
 void free_dns args((DNS_DATA * cache));
 void free_board args((BOARD_DATA * board));
@@ -93,14 +93,14 @@ void free_channel args((CHANNEL_DATA * channel));
 void free_restore args((RESTORE_DATA * restore));
 void free_changes args((void));
 void free_bounty args((BOUNTY_DATA * bounty));
-void free_baccount(BANK_ACCOUNT * account);
+void free_baccount(BankAccount * account);
 
 extern RACE_LIST races;
-extern BODY_LIST bodies;
+extern BodyList bodies;
 
 void free_helps(void)
 {
-        HELP_DATA *help, *next_help;
+        HelpData *help, *next_help;
 
         for (help = first_help; help; help = next_help)
         {
@@ -112,8 +112,8 @@ void free_helps(void)
 
 void free_shops(void)
 {
-        SHOP_DATA *shop, *next_shop;
-        REPAIR_DATA *repair, *next_repair;
+        ShopData *shop, *next_shop;
+        RepairData *repair, *next_repair;
 
         for (shop = first_shop; shop; shop = next_shop)
         {
@@ -132,7 +132,7 @@ void free_shops(void)
 
 void free_characters(void)
 {
-        CHAR_DATA *ch;
+        CharData *ch;
 
         if (supermob)
         {
@@ -149,7 +149,7 @@ void free_characters(void)
 
 void free_descriptors(void)
 {
-        DESCRIPTOR_DATA *d, *next_d;
+        DescriptorData *d, *next_d;
 
         for (d = first_descriptor; d; d = next_d)
         {
@@ -161,7 +161,7 @@ void free_descriptors(void)
 
 void free_objects(void)
 {
-        OBJ_DATA *object;
+        ObjData *object;
 
         clean_obj_queue();
         while ((object = last_object) != NULL)
@@ -173,7 +173,7 @@ void free_objects(void)
 
 void free_clans(void)
 {
-        CLAN_DATA *clan, *next_clan;
+        ClanData *clan, *next_clan;
 
         for (clan = first_clan; clan; clan = next_clan)
         {
@@ -185,7 +185,7 @@ void free_clans(void)
 
 void free_planets(void)
 {
-        PLANET_DATA *planet, *next_planet;
+        PlanetData *planet, *next_planet;
 
         for (planet = first_planet; planet; planet = next_planet)
         {
@@ -197,7 +197,7 @@ void free_planets(void)
 
 void free_ships(void)
 {
-        SHIP_DATA *ship, *next_ship;
+        ShipData *ship, *next_ship;
         PROTOSHIP_DATA *protoship, *next_protoship;
 
         for (ship = first_ship; ship; ship = next_ship)
@@ -220,7 +220,7 @@ void free_ships(void)
 
 void free_starsystems(void)
 {
-        SPACE_DATA *system, *next_system;
+        SpaceData *system, *next_system;
 
         for (system = first_starsystem; system; system = next_system)
         {
@@ -232,7 +232,7 @@ void free_starsystems(void)
 
 void free_areas(void)
 {
-        AREA_DATA *area, *next_area;
+        AreaData *area, *next_area;
 
         for (area = first_area; area; area = next_area)
         {
@@ -251,7 +251,7 @@ void free_areas(void)
 
 void free_specfuns(void)
 {
-        SPEC_LIST *spec, *next_spec;
+        SpecList *spec, *next_spec;
 
         for (spec = first_specfun; spec; spec = next_spec)
         {
@@ -281,7 +281,7 @@ void free_sysdata(void)
 
 void free_commands(void)
 {
-        CMDTYPE  *command, *cmd_next;
+        CMDType  *command, *cmd_next;
         int       hash;
 
         for (hash = 0; hash < 126; hash++)
@@ -302,7 +302,7 @@ void free_skills(void)
 {
         int       x;
 
-        for (x = 0; x < MAX_SKILL; x++)
+        for (x = 0; x < MaxSkill; x++)
         {
                 free_skill(skill_table[x]);
         }
@@ -341,7 +341,7 @@ void free_dnses(void)
 
 void free_socials(void)
 {
-        SOCIALTYPE *social, *social_next;
+        SocialType *social, *social_next;
         int       hash;
 
         for (hash = 0; hash < 27; hash++)
@@ -369,8 +369,8 @@ void free_boards(void)
 
 void free_races(void)
 {
-        std::list < RACE_DATA * >::iterator iter;
-        RACE_DATA * race;
+        std::list < RaceData * >::iterator iter;
+        RaceData * race;
 
         for (iter = races.begin(); iter != races.end(); iter++)
         {
@@ -460,8 +460,8 @@ void free_installations(void)
 
 void free_bodies(void)
 {
-        std::list < BODY_DATA * >::iterator iter;
-        BODY_DATA * body;
+        std::list < BodyData * >::iterator iter;
+        BodyData * body;
 
         for (iter = bodies.begin(); iter != bodies.end(); iter++)
         {
@@ -546,7 +546,7 @@ void free_restores(void)
 
 void free_bank_accounts(void)
 {
-	BANK_ACCOUNT *baccount, *next_baccount;
+	BankAccount *baccount, *next_baccount;
 
 	for(baccount = first_baccount; baccount; baccount = next_baccount)
 	{

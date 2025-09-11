@@ -77,42 +77,42 @@ struct renumber_area
 };
 typedef struct renumber_area RENUMBER_AREA;
 
-void      renumber_area(CHAR_DATA * ch, AREA_DATA * area,
+void      renumber_area(CharData * ch, AreaData * area,
                         RENUMBER_AREA * r_area, bool area_is_proto,
                         bool verbose);
 
-RENUMBER_AREA *gather_renumber_data(AREA_DATA * area, int new_base,
+RENUMBER_AREA *gather_renumber_data(AreaData * area, int new_base,
                                     bool fill_gaps);
 RENUMBER_DATA *gather_one_list(sh_int type, int low, int high, int new_base,
                                bool fill_gaps, int *max_vnum);
 void      free_renumber_data(RENUMBER_DATA * r_data);
 
-AREA_DATA *find_area(char *filename, bool * p_is_proto);
-bool      check_vnums(CHAR_DATA * ch, AREA_DATA * tarea,
+AreaData *find_area(char *filename, bool * p_is_proto);
+bool      check_vnums(CharData * ch, AreaData * tarea,
                       RENUMBER_AREA * r_area);
 
 int       find_translation(int vnum, RENUMBER_DATA * r_data);
-void      translate_reset(RESET_DATA * reset, RENUMBER_AREA * r_data);
-void      translate_objvals(CHAR_DATA * ch, AREA_DATA * area,
+void      translate_reset(ResetData * reset, RENUMBER_AREA * r_data);
+void      translate_objvals(CharData * ch, AreaData * area,
                             RENUMBER_AREA * r_data, bool verbose);
-void      translate_exits(CHAR_DATA * ch, AREA_DATA * area,
+void      translate_exits(CharData * ch, AreaData * area,
                           RENUMBER_AREA * r_area, bool verbose);
-void      warn_progs(CHAR_DATA * ch, int low, int high, AREA_DATA * area,
+void      warn_progs(CharData * ch, int low, int high, AreaData * area,
                      RENUMBER_AREA * r_area);
-void      warn_in_prog(CHAR_DATA * ch, int low, int high, char *where,
-                       int vnum, MPROG_DATA * mprog, RENUMBER_AREA * r_area);
+void      warn_in_prog(CharData * ch, int low, int high, char *where,
+                       int vnum, MProgData * mprog, RENUMBER_AREA * r_area);
 
 /* from db.c */
-extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
-extern MOB_INDEX_DATA *mob_index_hash[MAX_KEY_HASH];
-extern OBJ_INDEX_DATA *obj_index_hash[MAX_KEY_HASH];
+extern RoomIndexData *room_index_hash[MAX_KEY_HASH];
+extern MobIndexData *mob_index_hash[MAX_KEY_HASH];
+extern ObjIndexData *obj_index_hash[MAX_KEY_HASH];
 
-CMDF do_renumber(CHAR_DATA * ch, char *argument)
+CMDF do_renumber(CharData * ch, char *argument)
 {
         RENUMBER_AREA *r_area;
-        AREA_DATA *area;
+        AreaData *area;
         bool      is_proto;
-        char      arg1[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
         int       new_base;
         bool      fill_gaps, verbose;
 
@@ -195,12 +195,12 @@ CMDF do_renumber(CHAR_DATA * ch, char *argument)
                 ch_printf(ch, "Yeah, right.\n\r");
                 return;
         }
-        if (ch->top_level < LEVEL_SAVIOR)
+        if (ch->top_level < LevelSavior)
         {
                 ch_printf(ch, "You don't have enough privileges.\n\r");
                 return;
         }
-        if (ch->top_level == LEVEL_SAVIOR)
+        if (ch->top_level == LevelSavior)
         {
                 if (area->low_r_vnum < ch->pcdata->r_range_lo
                     || area->hi_r_vnum > ch->pcdata->r_range_hi
@@ -224,7 +224,7 @@ CMDF do_renumber(CHAR_DATA * ch, char *argument)
         /*
          * one more restriction 
          */
-        if (ch->top_level == LEVEL_SAVIOR)
+        if (ch->top_level == LevelSavior)
         {
                 if (r_area->low_room < ch->pcdata->r_range_lo
                     || r_area->hi_room > ch->pcdata->r_range_hi
@@ -293,10 +293,10 @@ CMDF do_renumber(CHAR_DATA * ch, char *argument)
         DISPOSE(r_area);
 }
 
-bool check_vnums(CHAR_DATA * ch, AREA_DATA * tarea, RENUMBER_AREA * r_area)
+bool check_vnums(CharData * ch, AreaData * tarea, RENUMBER_AREA * r_area)
 {
         int       high, low;
-        AREA_DATA *area;
+        AreaData *area;
         bool      proto;
 
         /*
@@ -337,7 +337,7 @@ bool check_vnums(CHAR_DATA * ch, AREA_DATA * tarea, RENUMBER_AREA * r_area)
         return FALSE;
 }
 
-RENUMBER_AREA *gather_renumber_data(AREA_DATA * area, int new_base,
+RENUMBER_AREA *gather_renumber_data(AreaData * area, int new_base,
                                     bool fill_gaps)
 /* this function actualy gathers all the renumber data for an area */
 {
@@ -374,9 +374,9 @@ RENUMBER_DATA *gather_one_list(sh_int type, int low, int high, int new_base,
         int       cur_vnum;
         RENUMBER_DATA *r_data, root;
         bool      found;
-        ROOM_INDEX_DATA *room;
-        OBJ_INDEX_DATA *obj;
-        MOB_INDEX_DATA *mob;
+        RoomIndexData *room;
+        ObjIndexData *obj;
+        MobIndexData *mob;
         int       i;
         int       highest;
 
@@ -440,16 +440,16 @@ void free_renumber_data(RENUMBER_DATA * r_data)
         }
 }
 
-void renumber_area(CHAR_DATA * ch, AREA_DATA * area, RENUMBER_AREA * r_area,
+void renumber_area(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                    bool area_is_proto, bool verbose)
 /* this is the function that actualy does the renumbering of "area" according
    to the renumber data in "r_area". "ch" is to show messages. */
 {
         RENUMBER_DATA *r_data;
-        ROOM_INDEX_DATA *room, *room_prev, *room_list, *room_next;
-        MOB_INDEX_DATA *mob, *mob_prev, *mob_list, *mob_next;
-        OBJ_INDEX_DATA *obj, *obj_prev, *obj_list, *obj_next;
-        RESET_DATA *reset;
+        RoomIndexData *room, *room_prev, *room_list, *room_next;
+        MobIndexData *mob, *mob_prev, *mob_list, *mob_next;
+        ObjIndexData *obj, *obj_prev, *obj_list, *obj_next;
+        ResetData *reset;
         int       iHash;
         int       low, high;
 
@@ -708,12 +708,12 @@ void renumber_area(CHAR_DATA * ch, AREA_DATA * area, RENUMBER_AREA * r_area,
         }
 }
 
-void translate_exits(CHAR_DATA * ch, AREA_DATA * area, RENUMBER_AREA * r_area,
+void translate_exits(CharData * ch, AreaData * area, RENUMBER_AREA * r_area,
                      bool verbose)
 {
         int       i, new_vnum;
-        EXIT_DATA *pexit, *rev_exit;
-        ROOM_INDEX_DATA *room;
+        ExitData *pexit, *rev_exit;
+        RoomIndexData *room;
         int       old_vnum;
 
         verbose = 0;
@@ -775,11 +775,11 @@ void translate_exits(CHAR_DATA * ch, AREA_DATA * area, RENUMBER_AREA * r_area,
         }
 }
 
-void translate_objvals(CHAR_DATA * ch, AREA_DATA * area,
+void translate_objvals(CharData * ch, AreaData * area,
                        RENUMBER_AREA * r_area, bool verbose)
 {
         int       i, new_vnum;
-        OBJ_INDEX_DATA *obj;
+        ObjIndexData *obj;
 
         for (i = area->low_o_vnum; i <= area->hi_o_vnum; i++)
         {
@@ -855,13 +855,13 @@ void translate_objvals(CHAR_DATA * ch, AREA_DATA * area,
         }
 }
 
-void warn_progs(CHAR_DATA * ch, int low, int high, AREA_DATA * area,
+void warn_progs(CharData * ch, int low, int high, AreaData * area,
                 RENUMBER_AREA * r_area)
 {
-        ROOM_INDEX_DATA *room;
-        OBJ_INDEX_DATA *obj;
-        MOB_INDEX_DATA *mob;
-        MPROG_DATA *mprog;
+        RoomIndexData *room;
+        ObjIndexData *obj;
+        MobIndexData *mob;
+        MProgData *mprog;
         int       i;
 
         for (i = area->low_r_vnum; i <= area->hi_r_vnum; i++)
@@ -906,8 +906,8 @@ void warn_progs(CHAR_DATA * ch, int low, int high, AREA_DATA * area,
 
 
 
-void warn_in_prog(CHAR_DATA * ch, int low, int high, char *where, int vnum,
-                  MPROG_DATA * mprog, RENUMBER_AREA * r_area)
+void warn_in_prog(CharData * ch, int low, int high, char *where, int vnum,
+                  MProgData * mprog, RENUMBER_AREA * r_area)
 {
         char     *p, *start_number, cTmp;
         int       num;
@@ -945,7 +945,7 @@ void warn_in_prog(CHAR_DATA * ch, int low, int high, char *where, int vnum,
 }
 
 
-void translate_reset(RESET_DATA * reset, RENUMBER_AREA * r_data)
+void translate_reset(ResetData * reset, RENUMBER_AREA * r_data)
 /* this function translates a reset according to the renumber data in r_data */
 {
         /*
@@ -1063,12 +1063,12 @@ int find_translation(int vnum, RENUMBER_DATA * r_data)
 }
 
 
-AREA_DATA *find_area(char *filename, bool * p_is_proto)
+AreaData *find_area(char *filename, bool * p_is_proto)
 /* simply returns a pointer to a "filename" or NULL if no such area. stores
    TRUE in *p_is_proto if the area is proto */
 {
         bool      found;
-        AREA_DATA *area;
+        AreaData *area;
 
         found = FALSE;
 

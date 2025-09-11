@@ -66,9 +66,9 @@ constexpr const char* ACCOUNT_DIR = "../account/";
 struct account_data;
 using ACCOUNT_DATA = account_data;
 struct char_data;
-using CHAR_DATA = char_data;
+using CharData = char_data;
 struct descriptor_data;
-using DESCRIPTOR_DATA = descriptor_data;
+using DescriptorData = descriptor_data;
 
 // =============================================================================
 // Global Variables
@@ -89,7 +89,7 @@ struct account_data
         struct alias_data *last_alias{nullptr};
         char     *name{nullptr};
         char     *password{nullptr};
-        char     *character[MAX_CHARACTERS]{nullptr};
+        char     *character[MaxCharacters]{nullptr};
         long     rppoints{0};        // 64-bit signed for RP points (was int)
         long     rpcurrent{-1};      // 64-bit signed for current RP character (was int)
         long     qpoints{0};         // 64-bit signed for quest points (was int)
@@ -107,11 +107,11 @@ struct account_data
 [[nodiscard]] ACCOUNT_DATA *load_account(std::string_view name);
 [[nodiscard]] ACCOUNT_DATA *create_account() noexcept;
 void save_account(ACCOUNT_DATA *account);
-[[nodiscard]] bool add_to_account(ACCOUNT_DATA *account, CHAR_DATA *ch);
-[[nodiscard]] bool add_to_account(std::shared_ptr<ACCOUNT_DATA> account, std::shared_ptr<CHAR_DATA> ch);
-[[nodiscard]] bool del_from_account(ACCOUNT_DATA *account, CHAR_DATA *ch);
-[[nodiscard]] bool del_from_account(std::shared_ptr<ACCOUNT_DATA> account, std::shared_ptr<CHAR_DATA> ch);
-void show_account_characters(DESCRIPTOR_DATA *d);
-void show_account_characters(std::shared_ptr<DESCRIPTOR_DATA> d);
+[[nodiscard]] bool add_to_account(ACCOUNT_DATA *account, CharData *ch);
+[[nodiscard]] bool add_to_account(std::shared_ptr<ACCOUNT_DATA> account, std::shared_ptr<CharData> ch);
+[[nodiscard]] bool del_from_account(ACCOUNT_DATA *account, CharData *ch);
+[[nodiscard]] bool del_from_account(std::shared_ptr<ACCOUNT_DATA> account, std::shared_ptr<CharData> ch);
+void show_account_characters(DescriptorData *d);
+void show_account_characters(std::shared_ptr<DescriptorData> d);
 void free_account(ACCOUNT_DATA *account);
 void fread_account(ACCOUNT_DATA *account, FILE *fp);

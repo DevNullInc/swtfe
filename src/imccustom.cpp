@@ -2,7 +2,7 @@
 #include "mud.hpp"
 
 /* Prototype for the info logging function used below */
-void info(CHAR_DATA *ch, int level, const char *format, ...)
+void info(CharData *ch, int level, const char *format, ...)
 {
     // Simple stub implementation for info logging
     va_list args;
@@ -17,9 +17,9 @@ int global_exp_ticks = 0;
 sh_int display_ticks = 0;
 
 /* do_doublexp: imm-level command to set ticks of double XP (safe bounds) */
-CMDF do_doublexp(CHAR_DATA *ch, char *argument)
+CMDF do_doublexp(CharData *ch, char *argument)
 {
-    char arg[MAX_INPUT_LENGTH];
+    char arg[MaxInputLength];
     argument = one_argument(argument, arg);
 
     if (!arg || arg[0] == '\0') {
@@ -64,7 +64,7 @@ CMDF do_doublexp(CHAR_DATA *ch, char *argument)
 }
 
 /* do_gpoint: allows immortals to set a personal goto point, or clear it */
-CMDF do_gpoint(CHAR_DATA *ch, char *argument)
+CMDF do_gpoint(CharData *ch, char *argument)
 {
     if (IS_NPC(ch))
         return;

@@ -19,7 +19,7 @@ inline std::string CH_IMCTITLE(auto ch) { return ch->pcdata->title; }
 
 #if defined(IMCSMAUG) || defined(IMCCHRONICLES)
 #define SMAUGSOCIAL
-using SOCIAL_DATA = SOCIALTYPE;
+using SOCIAL_DATA = SocialType;
 inline auto CH_IMCRANK(auto ch) { return ch->pcdata->rank; }
 #endif
 
@@ -74,8 +74,8 @@ extern social_messg* soc_mess_list;
 social_messg* find_social(const std::string& name);
 
 using SOCIAL_DATA = social_messg;
-using CHAR_DATA = char_data;
-using DESCRIPTOR_DATA = descriptor_data;
+using CharData = char_data;
+using DescriptorData = descriptor_data;
 
 extern const char* class_abbrevs[];
 

@@ -49,9 +49,9 @@
 #include "boards.hpp"
 #include "account.hpp"
 
-void      note_attach(CHAR_DATA * ch);
+void      note_attach(CharData * ch);
 
-void comment_remove(CHAR_DATA * ch, CHAR_DATA * victim, NOTE_DATA * pnote)
+void comment_remove(CharData * ch, CharData * victim, NOTE_DATA * pnote)
 {
         // Suppress unused parameter warning
         (void)ch;
@@ -95,13 +95,13 @@ void comment_remove(CHAR_DATA * ch, CHAR_DATA * victim, NOTE_DATA * pnote)
         return;
 }
 
-CMDF do_comment(CHAR_DATA * ch, char *argument)
+CMDF do_comment(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg1[MAX_INPUT_LENGTH];
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength];
+        char      arg1[MaxInputLength];
         NOTE_DATA *pnote;
-        CHAR_DATA *victim;
+        CharData *victim;
         int       vnum;
         int       anum;
 
@@ -449,7 +449,7 @@ CMDF do_comment(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                if ((get_trust(victim) >= get_trust(ch)) || (get_trust(ch) < LEVEL_IMMORTAL))   /* switch to some LEVEL_ thingie */
+                if ((get_trust(victim) >= get_trust(ch)) || (get_trust(ch) < LevelImmortal))   /* switch to some LEVEL_ thingie */
                 {
                         send_to_char
                                 ("You're not of the right caliber to do this...\n\r",
@@ -472,7 +472,7 @@ CMDF do_comment(CHAR_DATA * ch, char *argument)
                      pnote = pnote->next)
                 {
                         vnum++;
-                        if ((LEVEL_IMMORTAL <= get_trust(ch))   /* switch to some LEVEL_ thingie */
+                        if ((LevelImmortal <= get_trust(ch))   /* switch to some LEVEL_ thingie */
                             && (vnum == anum))
                         {
                                 comment_remove(ch, victim, pnote);
@@ -602,7 +602,7 @@ There are no relevent comments.
 */
 
 
-void comment_add_comment(CHAR_DATA * from, ACCOUNT_DATA * account, char * subject, char * text)
+void comment_add_comment(CharData * from, ACCOUNT_DATA * account, char * subject, char * text)
 {
 	NOTE_DATA * pnote;
 	char     *strtime;

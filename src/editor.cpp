@@ -74,7 +74,7 @@ void smush_tilde(char *str)
         return;
 }
 
-void start_editing(CHAR_DATA * ch, char *data)
+void start_editing(CharData * ch, char *data)
 {
         EDITOR_DATA *edit;
         sh_int    lines, size, lpos;
@@ -139,9 +139,9 @@ void start_editing(CHAR_DATA * ch, char *data)
         ch->desc->connected = CON_EDITING;
 }
 
-char     *copy_buffer(CHAR_DATA * ch)
+char     *copy_buffer(CharData * ch)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         char      tmp[160];
         sh_int    x, len;
 
@@ -172,7 +172,7 @@ char     *copy_buffer(CHAR_DATA * ch)
         return STRALLOC(buf);
 }
 
-void stop_editing(CHAR_DATA * ch)
+void stop_editing(CharData * ch)
 {
         set_char_color(AT_PLAIN, ch);
         DISPOSE(ch->editor);
@@ -193,12 +193,12 @@ void stop_editing(CHAR_DATA * ch)
  * Simple but nice and handle line editor.			-Thoric
  */
 char     *one_argument3(char *argument, char *arg_first);
-void edit_buffer(CHAR_DATA * ch, char *argument)
+void edit_buffer(CharData * ch, char *argument)
 {
-        DESCRIPTOR_DATA *d;
+        DescriptorData *d;
         EDITOR_DATA *edit;
-        char      cmd[MAX_INPUT_LENGTH];
-        char      buf[MAX_INPUT_LENGTH];
+        char      cmd[MaxInputLength];
+        char      buf[MaxInputLength];
         sh_int    x, line, max_buf_lines;
         bool      save;
 
@@ -259,7 +259,7 @@ void edit_buffer(CHAR_DATA * ch, char *argument)
                         send_to_char
                                 ("/f              format text ( to fit screen )\n\r",
                                  ch);
-                        if (get_trust(ch) > LEVEL_IMMORTAL)
+                        if (get_trust(ch) > LevelImmortal)
                                 send_to_char
                                         ("/! <command>    execute command (do not use another editing command)\n\r",
                                          ch);
@@ -279,8 +279,8 @@ void edit_buffer(CHAR_DATA * ch, char *argument)
                 }
                 if (!str_cmp(cmd + 1, "r"))
                 {
-                        char      word1[MAX_INPUT_LENGTH];
-                        char      word2[MAX_INPUT_LENGTH];
+                        char      word1[MaxInputLength];
+                        char      word2[MaxInputLength];
                         char     *sptr, *wptr, *lwptr;
                         int       count, wordln, word2ln, lineln;
 
@@ -534,9 +534,9 @@ void edit_buffer(CHAR_DATA * ch, char *argument)
                         stop_editing(ch);
                         return;
                 }
-                if (get_trust(ch) > LEVEL_IMMORTAL && !str_cmp(cmd + 1, "!"))
+                if (get_trust(ch) > LevelImmortal && !str_cmp(cmd + 1, "!"))
                 {
-                        DO_FUN   *last_cmd;
+                        DoFun   *last_cmd;
                         int       substate = ch->substate;
 
                         last_cmd = ch->last_cmd;
@@ -569,7 +569,7 @@ void edit_buffer(CHAR_DATA * ch, char *argument)
                 }
         }
 
-        if (edit->size + strlen(argument) + 1 >= MAX_STRING_LENGTH - 1)
+        if (edit->size + strlen(argument) + 1 >= MaxStringLength - 1)
                 send_to_char("You buffer is full.\n\r", ch);
         else
         {
@@ -661,9 +661,9 @@ void edit_buffer(CHAR_DATA * ch, char *argument)
         send_to_char("> ", ch);
 }
 
-CMDF do_notepeek(CHAR_DATA * ch, char *argument)
+CMDF do_notepeek(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
         char     *buf;
 
         if ((victim = get_char_world(ch, argument)) == NULL)

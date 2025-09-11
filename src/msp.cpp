@@ -55,13 +55,13 @@
 const unsigned char will_msp_str[] = { IAC, WILL, TELOPT_MSP, '\0' };
 const unsigned char start_msp_str[] = { IAC, SB, TELOPT_MSP, IAC, SE, '\0' };
 
-void start_msp(DESCRIPTOR_DATA * d)
+void start_msp(DescriptorData * d)
 {
 /*	d->msp = TRUE; */
         write_to_buffer(d, (const char *) start_msp_str, 0);
 }
 
-CMDF do_testsound(CHAR_DATA * ch, char *argument)
+CMDF do_testsound(CharData * ch, char *argument)
 {
         char      arg[MSL];
 
@@ -71,7 +71,7 @@ CMDF do_testsound(CHAR_DATA * ch, char *argument)
         sound_to_char(ch, arg);
 }
 
-void reset_sound(CHAR_DATA * ch)
+void reset_sound(CharData * ch)
 {
 #ifdef ACCOUNT
         if (ch->pcdata->account
@@ -83,7 +83,7 @@ void reset_sound(CHAR_DATA * ch)
         send_to_char("!!SOUND(Off)\n\r", ch);
 }
 
-void reset_music(CHAR_DATA * ch)
+void reset_music(CharData * ch)
 {
 #ifdef ACCOUNT
         if (ch->pcdata->account
@@ -95,9 +95,9 @@ void reset_music(CHAR_DATA * ch)
         send_to_char("!!MUSIC(Off)\n\r", ch);
 }
 
-void sound_to_room(ROOM_INDEX_DATA * room, char *sound)
+void sound_to_room(RoomIndexData * room, char *sound)
 {
-        CHAR_DATA *vch;
+        CharData *vch;
 
         if (room == NULL)
                 return;
@@ -106,10 +106,10 @@ void sound_to_room(ROOM_INDEX_DATA * room, char *sound)
                 sound_to_char(vch, sound);
 }
 
-void sound_to_ship(SHIP_DATA * ship, char *argument)
+void sound_to_ship(ShipData * ship, char *argument)
 {
         int       roomnum;
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
 
         for (roomnum = ship->firstroom; roomnum <= ship->lastroom; roomnum++)
         {
@@ -121,7 +121,7 @@ void sound_to_ship(SHIP_DATA * ship, char *argument)
 
 }
 
-void sound_to_char(CHAR_DATA * ch, char *sound)
+void sound_to_char(CharData * ch, char *sound)
 {
         char     *type = "";
         char      url[255];
@@ -144,7 +144,7 @@ void sound_to_char(CHAR_DATA * ch, char *sound)
         return;
 }
 
-CMDF do_sound(CHAR_DATA * ch, char *argument)
+CMDF do_sound(CharData * ch, char *argument)
 {
         if (IS_NPC(ch))
                 return;

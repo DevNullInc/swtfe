@@ -44,8 +44,8 @@
 
 /* Only need to define functions that other functions call */
 
-#define DECLARE_DO_FUN( fun ) CMDFV (fun)( CHAR_DATA * ch, const char * argument)
-#define DECLARE_SPELL_FUN( fun ) SPELLF (fun)( int sn, int level, CHAR_DATA *ch, void *vo )
+#define DECLARE_DO_FUN( fun ) CMDFV (fun)( CharData * ch, const char * argument)
+#define DECLARE_SPELL_FUN( fun ) SPELLF (fun)( int sn, int level, CharData *ch, void *vo )
 
 DECLARE_DO_FUN(skill_notfound);
 

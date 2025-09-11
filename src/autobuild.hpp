@@ -49,8 +49,8 @@
 
 // Forward declarations for types used in function signatures
 struct char_data; // Align with typedef in account.hpp and imccfg.hpp
-using CHAR_DATA = char_data;
-using CMDF = void(*)(std::shared_ptr<CHAR_DATA>, std::string_view);
+using CharData = chardata;
+using CMDF = void(*)(std::shared_ptr<CharData>, std::string_view);
 
 // ============================================================================
 // AutoBuild System - Function Declarations
@@ -62,10 +62,10 @@ using CMDF = void(*)(std::shared_ptr<CHAR_DATA>, std::string_view);
  */
 
 // Command function declarations
-CMDF do_create_list(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);   // Create new list file
-CMDF do_addto_list(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);    // Add text to existing list
-CMDF do_showlist(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);      // Display list contents with line numbers
-CMDF do_remlist(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);       // Remove specific line from list
+CMDF do_create_list(std::shared_ptr<CharData> ch, std::string_view argument);   // Create new list file
+CMDF do_addto_list(std::shared_ptr<CharData> ch, std::string_view argument);    // Add text to existing list
+CMDF do_showlist(std::shared_ptr<CharData> ch, std::string_view argument);      // Display list contents with line numbers
+CMDF do_remlist(std::shared_ptr<CharData> ch, std::string_view argument);       // Remove specific line from list
 
 // ============================================================================
 // Configuration Constants

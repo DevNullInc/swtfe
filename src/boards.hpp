@@ -105,23 +105,23 @@ struct board_data
         int       type; /* Normal board or mail board? */
 };
 
-bool is_note_to(CHAR_DATA *ch, NOTE_DATA *pnote);
-bool is_note_to(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<NOTE_DATA> pnote);
-bool is_note_to_def(CHAR_DATA *ch, NOTE_DATA *pnote);
-bool is_note_to_def(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<NOTE_DATA> pnote);
-void note_attach(CHAR_DATA *ch);
-void note_attach(std::shared_ptr<CHAR_DATA> ch);
-void note_remove(CHAR_DATA *ch, BOARD_DATA *board, NOTE_DATA *pnote);
-void note_remove(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<BOARD_DATA> board, std::shared_ptr<NOTE_DATA> pnote);
-void note(CHAR_DATA *ch, const char *arg_passed, BOARD_DATA *board);
-void note(CHAR_DATA *ch, std::string_view arg_passed, BOARD_DATA *board);
-void note(std::shared_ptr<CHAR_DATA> ch, std::string_view arg_passed, std::shared_ptr<BOARD_DATA> board);
+bool is_note_to(CharData *ch, NOTE_DATA *pnote);
+bool is_note_to(std::shared_ptr<CharData> ch, std::shared_ptr<NOTE_DATA> pnote);
+bool is_note_to_def(CharData *ch, NOTE_DATA *pnote);
+bool is_note_to_def(std::shared_ptr<CharData> ch, std::shared_ptr<NOTE_DATA> pnote);
+void note_attach(CharData *ch);
+void note_attach(std::shared_ptr<CharData> ch);
+void note_remove(CharData *ch, BOARD_DATA *board, NOTE_DATA *pnote);
+void note_remove(std::shared_ptr<CharData> ch, std::shared_ptr<BOARD_DATA> board, std::shared_ptr<NOTE_DATA> pnote);
+void note(CharData *ch, const char *arg_passed, BOARD_DATA *board);
+void note(CharData *ch, std::string_view arg_passed, BOARD_DATA *board);
+void note(std::shared_ptr<CharData> ch, std::string_view arg_passed, std::shared_ptr<BOARD_DATA> board);
 void write_board(BOARD_DATA *board);
 void write_board(std::shared_ptr<BOARD_DATA> board);
 
 // boards.c
 void load_boards();
-BOARD_DATA *get_board(OBJ_DATA *obj);
-BOARD_DATA *get_board(std::shared_ptr<OBJ_DATA> obj);
+BOARD_DATA *get_board(ObjData *obj);
+BOARD_DATA *get_board(std::shared_ptr<ObjData> obj);
 void free_note(NOTE_DATA *pnote);
 void free_note(std::shared_ptr<NOTE_DATA> pnote);

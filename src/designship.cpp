@@ -72,14 +72,14 @@
 
 
 void write_ship_list();
-void fleet_make(CHAR_DATA* ch, const std::string& argument);
+void fleet_make(CharData* ch, const std::string& argument);
 void smush_tilde(std::string& str);
 std::shared_ptr<INSTALLATION_DATA> installation_from_room(int vnum);
 
 int reserve_rooms_ship(int firstroom, int numrooms)
 {
-        AREA_DATA* tarea = nullptr;
-        ROOM_INDEX_DATA* room = nullptr;
+        AreaData* tarea = nullptr;
+        RoomIndexData* room = nullptr;
         int i = 0;
         for (tarea = first_area; tarea; tarea = tarea->next)
                 if (std::string_view(PSHIP_AREA) == std::string_view(tarea->filename))
@@ -100,12 +100,12 @@ int find_pvnum_block(int num_needed, const std::string& areaname)
 {
         bool counting = false;
         int count = 0;
-        AREA_DATA* tarea = nullptr;
+        AreaData* tarea = nullptr;
         int lrange = 0;
         int trange = 0;
         int vnum = 0;
         int startvnum = -1;
-        ROOM_INDEX_DATA* room = nullptr;
+        RoomIndexData* room = nullptr;
         for (tarea = first_area; tarea; tarea = tarea->next)
                 if (std::string_view(areaname) == std::string_view(tarea->filename))
                         break;
@@ -134,7 +134,7 @@ int find_pvnum_block(int num_needed, const std::string& areaname)
 have one*/
 
 
-void transship(SHIP_DATA* ship, int destination)
+void transship(ShipData* ship, int destination)
 {
         if (!ship)
                 return;
@@ -152,17 +152,17 @@ void transship(SHIP_DATA* ship, int destination)
 }
 
 
-CMDF do_designship(CHAR_DATA* ch, const std::string& argument)
+CMDF do_designship(CharData* ch, const std::string& argument)
 {
         std::string arg1;
         std::string arg2;
         std::string filename;
         int percentage = 0, numrooms = 0, ship_class = 0;
         bool checktool = false, checkdura = false, checkcir = false, checksuper = false;
-        ROOM_INDEX_DATA* room = nullptr;
-        OBJ_DATA* obj = nullptr;
-        SHIP_DATA* ship = nullptr;
-        PLANET_DATA* planet = nullptr;
+        RoomIndexData* room = nullptr;
+        ObjData* obj = nullptr;
+        ShipData* ship = nullptr;
+        PlanetData* planet = nullptr;
         int vnum = 0, durasteel = 0, transparisteel = 0, cost = 0, fee = 0;
 
         std::string rest = argument;
@@ -496,7 +496,7 @@ CMDF do_designship(CHAR_DATA* ch, const std::string& argument)
         }
         filename = std::format("{}.pship", vnum);
 
-        auto ship_ptr = std::make_shared<SHIP_DATA>();
+        auto ship_ptr = std::make_shared<ShipData>();
         ship = ship_ptr.get();
         LINK(ship, first_ship, last_ship, next, prev);
         ship->filename = STRALLOC(filename.c_str());
@@ -608,13 +608,13 @@ CMDF do_designship(CHAR_DATA* ch, const std::string& argument)
 
 }
 
-CMDF do_addroom(CHAR_DATA* ch, const std::string& argument)
+CMDF do_addroom(CharData* ch, const std::string& argument)
 {
         std::string arg, arg1, arg2, buf;
-        ROOM_INDEX_DATA* room = nullptr;
-        SHIP_DATA* ship = nullptr;
+        RoomIndexData* room = nullptr;
+        ShipData* ship = nullptr;
         bool match = false, tset = false;
-        EXIT_DATA* pexit = nullptr;
+        ExitData* pexit = nullptr;
 
 
 		if (IS_NPC(ch)) 
@@ -1076,11 +1076,11 @@ CMDF do_addroom(CHAR_DATA* ch, const std::string& argument)
         fold_area(room->area, room->area->filename, TRUE, FALSE);
 }
 
-CMDF do_decorate(CHAR_DATA* ch, const std::string& argument)
+CMDF do_decorate(CharData* ch, const std::string& argument)
 {
-        SHIP_DATA *ship;
-        ROOM_INDEX_DATA *room;
-        AREA_DATA *tarea;
+        ShipData *ship;
+        RoomIndexData *room;
+        AreaData *tarea;
         int tmplvl = 0;
         std::string arg1;
         std::string buf;
@@ -1182,7 +1182,7 @@ CMDF do_decorate(CHAR_DATA* ch, const std::string& argument)
 
         if (arg1[0] != '\0' && !str_cmp(arg1, "ambiance"))
         {
-                MPROG_DATA *mprog, *mprg;
+                MProgData *mprog, *mprg;
                 int       mptype, len;
                 char      buf[MSL];
 
@@ -1205,7 +1205,7 @@ CMDF do_decorate(CHAR_DATA* ch, const std::string& argument)
 
                 if (mprog)
                         for (; mprog->next; mprog = mprog->next);
-                CREATE(mprg, MPROG_DATA, 1);
+                CREATE(mprg, MProgData, 1);
 
                 if (mprog)
                         mprog->next = mprg;
@@ -1316,10 +1316,10 @@ CMDF do_decorate(CHAR_DATA* ch, const std::string& argument)
           player ships to give them a reson to recycle rather than sell.
 */
 
-CMDF do_recycle(CHAR_DATA* ch, const std::string& argument)
+CMDF do_recycle(CharData* ch, const std::string& argument)
 {
         long      price;
-        SHIP_DATA *ship;
+        ShipData *ship;
 
         if (argument[0] == '\0')
         {
@@ -1369,7 +1369,7 @@ CMDF do_recycle(CHAR_DATA* ch, const std::string& argument)
 
 
 
-CMDF do_fleet(CHAR_DATA* ch, const std::string& argument)
+CMDF do_fleet(CharData* ch, const std::string& argument)
 {
         std::string arg;
         std::string rest = argument;
@@ -1389,14 +1389,14 @@ CMDF do_fleet(CHAR_DATA* ch, const std::string& argument)
 		fleet_disbandfleet(ch, argument);	*/
 }
 
-void fleet_make(CHAR_DATA* ch, const std::string& argument)
+void fleet_make(CharData* ch, const std::string& argument)
 {
         std::string arg1, arg2, filename;
         int percentage = 0, ship_class = 0;
-        SHIP_DATA* ship = nullptr;
-        PLANET_DATA* planet = nullptr;
-        SPACE_DATA* starsystem = nullptr;
-        CLAN_DATA* clan = nullptr;
+        ShipData* ship = nullptr;
+        PlanetData* planet = nullptr;
+        SpaceData* starsystem = nullptr;
+        ClanData* clan = nullptr;
         int durasteel = 0, transparisteel = 0, cost = 0;
         std::string rest = argument;
         arg1 = one_argument(rest, rest);
@@ -1657,7 +1657,7 @@ void fleet_make(CHAR_DATA* ch, const std::string& argument)
 
         filename = std::format("{}.mship", arg2);
 
-        ship = new SHIP_DATA();
+        ship = new ShipData();
         LINK(ship, first_ship, last_ship, next, prev);
         ship->filename = STRALLOC(smash_space(filename).c_str());
         ship->name = STRALLOC(arg2.c_str());
@@ -1736,13 +1736,13 @@ void fleet_make(CHAR_DATA* ch, const std::string& argument)
         write_ship_list();
 }
 
-CMDF do_modifyship(CHAR_DATA* ch, const std::string& argument)
+CMDF do_modifyship(CharData* ch, const std::string& argument)
 {
         std::string arg, arg1, arg2;
-        SHIP_DATA* ship = nullptr;
+        ShipData* ship = nullptr;
         bool match = false, checktool = false;
         int percentage = 0;
-        OBJ_DATA* obj = nullptr;
+        ObjData* obj = nullptr;
         std::string rest = argument;
         arg = one_argument(rest, rest);
         arg1 = one_argument(rest, rest);
@@ -5447,14 +5447,14 @@ CMDF do_modifyship(CHAR_DATA* ch, const std::string& argument)
 }
 
 
-CMDF do_modifyexit(CHAR_DATA * ch, char *argument)
+CMDF do_modifyexit(CharData * ch, char *argument)
 {
-        EXIT_DATA *xit;
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        ExitData *xit;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       percentage, type = 0;
         bool      checktool, checkdura;
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         argument = one_argument(argument, arg);
         argument = one_argument(argument, arg2);
@@ -5686,9 +5686,9 @@ CMDF do_modifyexit(CHAR_DATA * ch, char *argument)
                           FALSE, FALSE);
 }
 
-CMDF do_addmprogstring(CHAR_DATA * ch, char *argument)
+CMDF do_addmprogstring(CharData * ch, char *argument)
 {
-        MPROG_DATA *mprog, *mprg;
+        MProgData *mprog, *mprg;
         int       mptype, len;
         char      buf[MSL];
 
@@ -5703,7 +5703,7 @@ CMDF do_addmprogstring(CHAR_DATA * ch, char *argument)
         }
         if (mprog)
                 for (; mprog->next; mprog = mprog->next);
-        CREATE(mprg, MPROG_DATA, 1);
+        CREATE(mprg, MProgData, 1);
         if (mprog)
                 mprog->next = mprg;
         else
@@ -5727,7 +5727,7 @@ CMDF do_addmprogstring(CHAR_DATA * ch, char *argument)
         return;
 }
 
-bool dismantle_values(SHIP_DATA * ship, PLANET_DATA * planet,int * durasteel, int * transparisteel, int * cost, int * fee)
+bool dismantle_values(ShipData * ship, PlanetData * planet,int * durasteel, int * transparisteel, int * cost, int * fee)
 {
         *durasteel = 0;
         *transparisteel = 0;
@@ -5770,7 +5770,7 @@ bool dismantle_values(SHIP_DATA * ship, PLANET_DATA * planet,int * durasteel, in
         return TRUE;
 }
 
-CMDF do_dismantle_ship(CHAR_DATA * ch, char *argument)
+CMDF do_dismantle_ship(CharData * ch, char *argument)
 {
         int       percentage;
         bool      checktool;
@@ -5778,10 +5778,10 @@ CMDF do_dismantle_ship(CHAR_DATA * ch, char *argument)
         int       transparisteel = 0;
         int       cost = 0;
         int       fee = 0;
-        ROOM_INDEX_DATA *room;
-        OBJ_DATA *obj;
-        SHIP_DATA *ship = NULL;
-        PLANET_DATA *planet;
+        RoomIndexData *room;
+        ObjData *obj;
+        ShipData *ship = NULL;
+        PlanetData *planet;
 
         if (xIS_SET(ch->in_room->room_flags, ROOM_INSTALLATION))
         {
@@ -5906,10 +5906,10 @@ CMDF do_dismantle_ship(CHAR_DATA * ch, char *argument)
         }
         ship = NULL;
 
-        for (SHIP_DATA * tmp = ch->in_room->first_ship; tmp;
+        for (ShipData * tmp = ch->in_room->first_ship; tmp;
              tmp = tmp->next_in_room)
         {
-                if (tmp == (SHIP_DATA *) ch->dest_buf)
+                if (tmp == (ShipData *) ch->dest_buf)
                 {
                         ship = tmp;
                         break;
@@ -5947,7 +5947,7 @@ CMDF do_dismantle_ship(CHAR_DATA * ch, char *argument)
         room = get_room_index(ship->firstroom);
         if (room)
         {
-                AREA_DATA *area;
+                AreaData *area;
 
                 area = room->area;
                 /*

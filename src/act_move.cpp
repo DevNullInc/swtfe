@@ -86,10 +86,10 @@ namespace {
 // Function Prototypes
 // ============================================================================
 char     *grab_word(char *argument, char *arg_first);
-void      decorate_room(ROOM_INDEX_DATA * room);
-ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit);
-void      toggle_bexit_flag(EXIT_DATA * pexit, int flag);
-void      remove_bexit_flag(EXIT_DATA * pexit, int flag);
+void      decorate_room(RoomIndexData * room);
+RoomIndexData *generate_exit(RoomIndexData * in_room, ExitData ** pexit);
+void      toggle_bexit_flag(ExitData * pexit, int flag);
+void      remove_bexit_flag(ExitData * pexit, int flag);
 
 // ============================================================================
 // Movement and Direction Data
@@ -112,12 +112,12 @@ const sh_int rev_dir[] = {
         2, 3, 0, 1, 5, 4, 9, 8, 7, 6, 10
 };
 
-ROOM_INDEX_DATA *vroom_hash[VROOM_HASH_SIZE];
+RoomIndexData *vroom_hash[VROOM_HASH_SIZE];
 
 /*
  * Local functions.
  */
-bool has_key(CHAR_DATA * ch, int key);
+bool has_key(CharData * ch, int key);
 
 
 // ============================================================================
@@ -232,7 +232,7 @@ const char *const room_sents[SECT_MAX][25] = {
 // Utility Functions
 // ============================================================================
 
-int wherehome(CHAR_DATA * ch)
+int wherehome(CharData * ch)
 {
 
         if (ch->pcdata && ch->pcdata->recall != 0)
@@ -241,7 +241,7 @@ int wherehome(CHAR_DATA * ch)
         if (ch->plr_home)
                 return ch->plr_home->vnum;
 
-        if (get_trust(ch) >= LEVEL_IMMORTAL)
+        if (get_trust(ch) >= LevelImmortal)
                 return ROOM_START_IMMORTAL;
         return ROOM_VNUM_TEMPLE;
 }
@@ -279,7 +279,7 @@ char     *grab_word(char *argument, char *arg_first)
 
 char     *smash_newline(const char *str)
 {
-        static char ret[MAX_STRING_LENGTH];
+        static char ret[MaxStringLength];
         char     *retptr;
 
         retptr = ret;
@@ -302,15 +302,15 @@ char     *smash_newline(const char *str)
 
 char     *wordwrap(char *txt, sh_int wrap)
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
         char     *bufp;
 
         buf[0] = '\0';
         bufp = buf;
         if (txt != NULL)
         {
-                char      line[MAX_STRING_LENGTH];
-                char      temp[MAX_STRING_LENGTH];
+                char      line[MaxStringLength];
+                char      temp[MaxStringLength];
                 char     *ptr, *p;
                 int       ln, x;
 
@@ -352,10 +352,10 @@ char     *wordwrap(char *txt, sh_int wrap)
 }
 
 
-void decorate_room(ROOM_INDEX_DATA * room)
+void decorate_room(RoomIndexData * room)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      buf2[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      buf2[MaxStringLength];
         int       nRand;
         int       iRand, len;
         int       previous[8];
@@ -410,16 +410,16 @@ void decorate_room(ROOM_INDEX_DATA * room)
 // Room Description and Auto-Generation Functions
 // ============================================================================
 
-CMDF do_autodescription(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_autodescription(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      buf2[MAX_STRING_LENGTH];
-        char      arg[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      buf2[MaxStringLength];
+        char      arg[MaxStringLength];
         int       nRand;
         int       iRand, len;
         int       previous[MAX_ROOM_DESCRIPTIONS];
         int       sector;
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
 
         one_argument(const_cast<char*>(argument), arg);
 
@@ -486,7 +486,7 @@ CMDF do_autodescription(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 void clear_vrooms()
 {
         int       hash;
-        ROOM_INDEX_DATA *room, *room_next, *prev;
+        RoomIndexData *room, *room_next, *prev;
 
         for (hash = static_cast<sh_int>(0); hash < VROOM_HASH_SIZE; hash++)
         {
@@ -522,9 +522,9 @@ void clear_vrooms()
  * Function to get the equivelant exit of DIR 0-MAXDIR out of linked list.
  * Made to allow old-style diku-merc exit functions to work.	-Thoric
  */
-EXIT_DATA *get_exit(ROOM_INDEX_DATA * room, sh_int dir)
+ExitData *get_exit(RoomIndexData * room, sh_int dir)
 {
-        EXIT_DATA *xit;
+        ExitData *xit;
 
         if (!room)
         {
@@ -541,9 +541,9 @@ EXIT_DATA *get_exit(ROOM_INDEX_DATA * room, sh_int dir)
 /*
  * Function to get an exit, leading the the specified room
  */
-EXIT_DATA *get_exit_to(ROOM_INDEX_DATA * room, sh_int dir, int vnum)
+ExitData *get_exit_to(RoomIndexData * room, sh_int dir, int vnum)
 {
-        EXIT_DATA *xit;
+        ExitData *xit;
 
         if (!room)
         {
@@ -560,9 +560,9 @@ EXIT_DATA *get_exit_to(ROOM_INDEX_DATA * room, sh_int dir, int vnum)
 /*
  * Function to get the nth exit of a room			-Thoric
  */
-EXIT_DATA *get_exit_num(ROOM_INDEX_DATA * room, sh_int count)
+ExitData *get_exit_num(RoomIndexData * room, sh_int count)
 {
-        EXIT_DATA *xit;
+        ExitData *xit;
         int       cnt;
 
         if (!room)
@@ -584,7 +584,7 @@ EXIT_DATA *get_exit_num(ROOM_INDEX_DATA * room, sh_int count)
 /*
  * Modify movement due to encumbrance				-Thoric
  */
-sh_int encumbrance(CHAR_DATA * ch, sh_int endurance)
+sh_int encumbrance(CharData * ch, sh_int endurance)
 {
         int       cur, max;
 
@@ -610,7 +610,7 @@ sh_int encumbrance(CHAR_DATA * ch, sh_int endurance)
 /*
  * Check to see if a character can fall down, checks for looping   -Thoric
  */
-bool will_fall(CHAR_DATA * ch, int fall)
+bool will_fall(CharData * ch, int fall)
 {
         if (!ch)
                 return FALSE;
@@ -641,11 +641,11 @@ bool will_fall(CHAR_DATA * ch, int fall)
 /*
  * create a 'virtual' room					-Thoric
  */
-ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
+RoomIndexData *generate_exit(RoomIndexData * in_room, ExitData ** pexit)
 {
-        EXIT_DATA *xit, *bxit;
-        EXIT_DATA *orig_exit = static_cast<EXIT_DATA *>(*pexit);
-        ROOM_INDEX_DATA *room, *backroom;
+        ExitData *xit, *bxit;
+        ExitData *orig_exit = static_cast<ExitData *>(*pexit);
+        RoomIndexData *room, *backroom;
         int       brvnum;
         int       serial;
         int       distance = -1;
@@ -653,16 +653,16 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
         sh_int    hash;
         bool      found = FALSE;
 
-        if (in_room->vnum > MAX_VNUMS)  /* room is virtual */
+        if (in_room->vnum > MaxVnums)  /* room is virtual */
         {
                 serial = in_room->vnum;
-                if ((serial & MAX_VNUMS) == orig_exit->vnum)
+                if ((serial & MaxVnums) == orig_exit->vnum)
                 {
                         brvnum = serial >> 16;
                 }
                 else
                 {
-                        brvnum = serial & MAX_VNUMS;
+                        brvnum = serial & MaxVnums;
                         distance = orig_exit->distance - 1;
                 }
                 backroom = get_room_index(brvnum);
@@ -682,7 +682,7 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
         for (room = vroom_hash[hash]; room; room = room->next)
                 if (!found)
                 {
-                        CREATE(room, ROOM_INDEX_DATA, 1);
+                        CREATE(room, RoomIndexData, 1);
                         room->area = in_room->area;
                         room->vnum = serial;
                         room->sector_type = in_room->sector_type;
@@ -707,7 +707,7 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
                 bxit->description = STRALLOC(const_cast<char*>(""));
                 bxit->key = -1;
                 {
-                        EXIT_DATA *tmp;
+                        ExitData *tmp;
                         int       fulldist = 0;
 
                         if ((tmp = get_exit(backroom, static_cast<sh_int>(vdir))) != NULL)
@@ -719,7 +719,7 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
                 }
         }
         /*
-         * (EXIT_DATA *) pexit = xit; - FIXED - Gavin - This isn't actually right, should be deferfencing not typecasting 
+         * (ExitData *) pexit = xit; - FIXED - Gavin - This isn't actually right, should be deferfencing not typecasting 
          */
         *pexit = xit;
         return room;
@@ -729,12 +729,12 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit)
 // Core Movement Functions
 // ============================================================================
 
-ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
+ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
 {
-        ROOM_INDEX_DATA *in_room;
-        ROOM_INDEX_DATA *to_room;
-        ROOM_INDEX_DATA *from_room;
-        char      buf[MAX_STRING_LENGTH];
+        RoomIndexData *in_room;
+        RoomIndexData *to_room;
+        RoomIndexData *from_room;
+        char      buf[MaxStringLength];
         char     *txt;
         char     *dtxt;
         ch_ret    retcode;
@@ -926,7 +926,7 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
                 if (in_room->sector_type == SECT_WATER_NOSWIM
                     || to_room->sector_type == SECT_WATER_NOSWIM)
                 {
-                        OBJ_DATA *obj;
+                        ObjData *obj;
                         bool      found;
 
                         found = FALSE;
@@ -1143,7 +1143,7 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
          */
         if (to_room->tunnel > 0)
         {
-                CHAR_DATA *ctmp;
+                CharData *ctmp;
                 int       count = ch->mount ? 1 : 0;
 
                 for (ctmp = to_room->first_person; ctmp;
@@ -1361,8 +1361,8 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
          */
         if (!fall)
         {
-                CHAR_DATA *fch;
-                CHAR_DATA *nextinroom;
+                CharData *fch;
+                CharData *nextinroom;
                 int       chars = 0, count = 0;
 
                 for (fch = from_room->first_person; fch;
@@ -1434,66 +1434,66 @@ ch_ret move_char(CHAR_DATA * ch, EXIT_DATA * pexit, int fall, bool running)
 // Directional Movement Commands
 // ============================================================================
 
-CMDF do_north(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_north(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_NORTH), 0, FALSE);
         return;
 }
 
 
-CMDF do_east(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_east(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_EAST), 0, FALSE);
         return;
 }
 
 
-CMDF do_south(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_south(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_SOUTH), 0, FALSE);
         return;
 }
 
 
-CMDF do_west(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_west(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_WEST), 0, FALSE);
         return;
 }
 
 
-CMDF do_up(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_up(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_UP), 0, FALSE);
         return;
 }
 
 
-CMDF do_down(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_down(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_DOWN), 0, FALSE);
         return;
 }
 
-CMDF do_northeast(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_northeast(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_NORTHEAST), 0, FALSE);
         return;
 }
 
-CMDF do_northwest(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_northwest(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_NORTHWEST), 0, FALSE);
         return;
 }
 
-CMDF do_southeast(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_southeast(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_SOUTHEAST), 0, FALSE);
         return;
 }
 
-CMDF do_southwest(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_southwest(CharData * ch, [[maybe_unused]] const char *argument)
 {
         move_char(ch, get_exit(ch->in_room, DIR_SOUTHWEST), 0, FALSE);
         return;
@@ -1501,9 +1501,9 @@ CMDF do_southwest(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 
 
 
-EXIT_DATA *find_door(CHAR_DATA * ch, const char *arg, bool quiet)
+ExitData *find_door(CharData * ch, const char *arg, bool quiet)
 {
-        EXIT_DATA *pexit;
+        ExitData *pexit;
         int       door;
 
         if (arg == NULL || !str_cmp(arg, ""))
@@ -1576,38 +1576,38 @@ EXIT_DATA *find_door(CHAR_DATA * ch, const char *arg, bool quiet)
 // Door and Exit Manipulation Functions  
 // ============================================================================
 
-void toggle_bexit_flag(EXIT_DATA * pexit, int flag)
+void toggle_bexit_flag(ExitData * pexit, int flag)
 {
-        EXIT_DATA *pexit_rev;
+        ExitData *pexit_rev;
 
         TOGGLE_BIT(pexit->exit_info, flag);
         if ((pexit_rev = pexit->rexit) != NULL && pexit_rev != pexit)
                 TOGGLE_BIT(pexit_rev->exit_info, flag);
 }
 
-void set_bexit_flag(EXIT_DATA * pexit, int flag)
+void set_bexit_flag(ExitData * pexit, int flag)
 {
-        EXIT_DATA *pexit_rev;
+        ExitData *pexit_rev;
 
         SET_BIT(pexit->exit_info, flag);
         if ((pexit_rev = pexit->rexit) != NULL && pexit_rev != pexit)
                 SET_BIT(pexit_rev->exit_info, flag);
 }
 
-void remove_bexit_flag(EXIT_DATA * pexit, int flag)
+void remove_bexit_flag(ExitData * pexit, int flag)
 {
-        EXIT_DATA *pexit_rev;
+        ExitData *pexit_rev;
 
         REMOVE_BIT(pexit->exit_info, flag);
         if ((pexit_rev = pexit->rexit) != NULL && pexit_rev != pexit)
                 REMOVE_BIT(pexit_rev->exit_info, flag);
 }
 
-CMDF do_open(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_open(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        EXIT_DATA *pexit;
+        char      arg[MaxInputLength];
+        ObjData *obj;
+        ExitData *pexit;
         int       door;
 
         one_argument(const_cast<char*>(argument), arg);
@@ -1623,7 +1623,7 @@ CMDF do_open(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
                 /*
                  * 'open door' 
                  */
-                EXIT_DATA *pexit_rev;
+                ExitData *pexit_rev;
 
                 if (!IS_SET(pexit->exit_info, EX_ISDOOR))
                 {
@@ -1651,7 +1651,7 @@ CMDF do_open(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
                         if ((pexit_rev = pexit->rexit) != NULL
                             && pexit_rev->to_room == ch->in_room)
                         {
-                                CHAR_DATA *rch;
+                                CharData *rch;
 
                                 for (rch = pexit->to_room->first_person; rch;
                                      rch = rch->next_in_room)
@@ -1721,11 +1721,11 @@ CMDF do_open(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 
 
 
-CMDF do_close(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_close(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        EXIT_DATA *pexit;
+        char      arg[MaxInputLength];
+        ObjData *obj;
+        ExitData *pexit;
         int       door;
 
         one_argument(const_cast<char*>(argument), arg);
@@ -1741,7 +1741,7 @@ CMDF do_close(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
                 /*
                  * 'close door' 
                  */
-                EXIT_DATA *pexit_rev;
+                ExitData *pexit_rev;
 
                 if (!IS_SET(pexit->exit_info, EX_ISDOOR))
                 {
@@ -1765,7 +1765,7 @@ CMDF do_close(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
                 if ((pexit_rev = pexit->rexit) != NULL
                     && pexit_rev->to_room == ch->in_room)
                 {
-                        CHAR_DATA *rch;
+                        CharData *rch;
 
                         SET_BIT(pexit_rev->exit_info, EX_CLOSED);
                         for (rch = pexit->to_room->first_person; rch;
@@ -1821,9 +1821,9 @@ CMDF do_close(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 }
 
 
-bool has_key(CHAR_DATA * ch, int key)
+bool has_key(CharData * ch, int key)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         for (obj = ch->first_carrying; obj; obj = obj->next_content)
                 if (obj->pIndexData->vnum == key || obj->value[0] == key)
@@ -1833,11 +1833,11 @@ bool has_key(CHAR_DATA * ch, int key)
 }
 
 
-CMDF do_lock(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_lock(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        EXIT_DATA *pexit;
+        char      arg[MaxInputLength];
+        ObjData *obj;
+        ExitData *pexit;
 
         one_argument(const_cast<char*>(argument), arg);
 
@@ -1933,11 +1933,11 @@ CMDF do_lock(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 
 
 
-CMDF do_unlock(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_unlock(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        EXIT_DATA *pexit;
+        char      arg[MaxInputLength];
+        ObjData *obj;
+        ExitData *pexit;
 
         one_argument(const_cast<char*>(argument), arg);
 
@@ -2031,10 +2031,10 @@ CMDF do_unlock(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
         return;
 }
 
-CMDF do_bashdoor(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_bashdoor(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        EXIT_DATA *pexit;
-        char      arg[MAX_INPUT_LENGTH];
+        ExitData *pexit;
+        char      arg[MaxInputLength];
 
         if (!IS_NPC(ch) && ch->pcdata->learned[gsn_bashdoor] <= 0)
         {
@@ -2060,8 +2060,8 @@ CMDF do_bashdoor(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 
         if ((pexit = find_door(ch, arg, FALSE)) != NULL)
         {
-                ROOM_INDEX_DATA *to_room;
-                EXIT_DATA *pexit_rev;
+                RoomIndexData *to_room;
+                ExitData *pexit_rev;
                 int       percent_chance;
                 char     *keyword;
 
@@ -2104,7 +2104,7 @@ CMDF do_bashdoor(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
                             && (pexit_rev = pexit->rexit) != NULL
                             && pexit_rev->to_room == ch->in_room)
                         {
-                                CHAR_DATA *rch;
+                                CharData *rch;
 
                                 REMOVE_BIT(pexit_rev->exit_info, EX_CLOSED);
                                 if (IS_SET(pexit_rev->exit_info, EX_LOCKED))
@@ -2154,7 +2154,7 @@ CMDF do_bashdoor(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 // Character Position and Stance Commands
 // ============================================================================
 
-CMDF do_stand(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_stand(CharData * ch, [[maybe_unused]] const char *argument)
 {
         argument = NULL;
         switch (ch->position)
@@ -2201,9 +2201,9 @@ CMDF do_stand(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 }
 
 
-CMDF do_sit(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_sit(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        OBJ_DATA *obj = NULL;
+        ObjData *obj = NULL;
 
 
         if (ch->position == POS_FIGHTING)
@@ -2345,9 +2345,9 @@ CMDF do_sit(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
         return;
 }
 
-CMDF do_rest(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_rest(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        OBJ_DATA *obj = NULL;
+        ObjData *obj = NULL;
 
         /*
          * okay, now that we know we can rest, find an object to rest on 
@@ -2501,9 +2501,9 @@ CMDF do_rest(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
         return;
 }
 
-CMDF do_sleep(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_sleep(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        OBJ_DATA *obj = NULL;
+        ObjData *obj = NULL;
 
 
         switch (ch->position)
@@ -2594,10 +2594,10 @@ CMDF do_sleep(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 
 
 
-CMDF do_wake(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_wake(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
 
         one_argument(const_cast<char*>(argument), arg);
         if (arg[0] == '\0')
@@ -2642,9 +2642,9 @@ CMDF do_wake(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 /*
  * "Climb" in a certain direction.				-Thoric
  */
-CMDF do_climb(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_climb(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         if (argument[0] == '\0')
         {
@@ -2672,9 +2672,9 @@ CMDF do_climb(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 /*
  * "enter" something (moves through an exit)			-Thoric
  */
-CMDF do_enter(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_enter(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         if (argument[0] == '\0')
         {
@@ -2702,9 +2702,9 @@ CMDF do_enter(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 /*
  * Leave through an exit.					-Thoric
  */
-CMDF do_leave(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_leave(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         if (argument[0] == '\0')
         {
@@ -2735,10 +2735,10 @@ CMDF do_leave(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
  * Added Overland support to the command. Samson 4-4-01
  */
 /* Supressed display of rooms/terrain until you stop to prevent buffer overflows - Samson 4-16-01 */
-CMDF do_run(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_run(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        ROOM_INDEX_DATA *from_room;
-        EXIT_DATA *pexit;
+        RoomIndexData *from_room;
+        ExitData *pexit;
         int       diff = 0;
 
         if (argument[0] == '\0')
@@ -2798,9 +2798,9 @@ CMDF do_run(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 // Character Binding and Holding System
 // ============================================================================
 
-CMDF do_struggle_binding(CHAR_DATA * ch)
+CMDF do_struggle_binding(CharData * ch)
 {
-        OBJ_DATA *obj = NULL;
+        ObjData *obj = NULL;
         int       chance = 0;
 
         if (!ch->held)
@@ -2858,10 +2858,10 @@ CMDF do_struggle_binding(CHAR_DATA * ch)
                 }
         }
 }
-CMDF do_hold_person(CHAR_DATA * ch, const char *argument)
+CMDF do_hold_person(CharData * ch, const char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *victim = NULL;
+        char      buf[MaxStringLength];
+        CharData *victim = NULL;
 
         if (argument[0] == '\0')
         {
@@ -2918,10 +2918,10 @@ CMDF do_hold_person(CHAR_DATA * ch, const char *argument)
         return;
 }
 
-CMDF do_struggle(CHAR_DATA * ch)
+CMDF do_struggle(CharData * ch)
 {
-        CHAR_DATA *holder = NULL;
-        OBJ_DATA *obj = NULL;
+        CharData *holder = NULL;
+        ObjData *obj = NULL;
         int       chance = 0, diff_str = 0;
 
         if (!ch->held)
@@ -3014,11 +3014,11 @@ CMDF do_struggle(CHAR_DATA * ch)
                 }
         }
 }
-CMDF do_unbind(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_unbind(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        CHAR_DATA *victim = NULL;
-        OBJ_DATA *obj = NULL;
-        char      arg[MAX_INPUT_LENGTH];
+        CharData *victim = NULL;
+        ObjData *obj = NULL;
+        char      arg[MaxInputLength];
         int       keycode = 0;
         bool      keybind = FALSE;
 
@@ -3094,10 +3094,10 @@ CMDF do_unbind(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 
 
 
-CMDF do_subdue(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_subdue(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *victim = NULL;
+        char      buf[MaxStringLength];
+        CharData *victim = NULL;
         int       strain_amount = 0;
 
         if (argument[0] == '\0')
@@ -3150,11 +3150,11 @@ CMDF do_subdue(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
                 return;
         }
 }
-CMDF do_bind(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_bind(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        OBJ_DATA *obj = NULL;
-        CHAR_DATA *victim = NULL;
-        char      arg[MAX_INPUT_LENGTH];
+        ObjData *obj = NULL;
+        CharData *victim = NULL;
+        char      arg[MaxInputLength];
         int       keycode = 0;
         bool      keylock = FALSE;
 
@@ -3232,10 +3232,10 @@ CMDF do_bind(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
                 return;
         }
 }
-CMDF do_release(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_release(CharData * ch, [[maybe_unused]] const char *argument)
 {
-        CHAR_DATA *victim = NULL;
-        OBJ_DATA *obj = NULL;
+        CharData *victim = NULL;
+        ObjData *obj = NULL;
 
         argument = NULL;
 

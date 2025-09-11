@@ -47,7 +47,7 @@
 #include "mud.hpp"
 #include "homes.hpp"
 #include "account.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include "races.hpp"
 #include "space2.hpp"
 #include "greet.hpp"
@@ -60,12 +60,12 @@ extern int top_ed;
 extern int top_affect;
 extern int cur_qobjs;
 extern int cur_qchars;
-extern CHAR_DATA *gch_prev;
-extern OBJ_DATA *gobj_prev;
+extern CharData *gch_prev;
+extern ObjData *gobj_prev;
 extern int top_reset;
 
-CHAR_DATA *cur_char;
-ROOM_INDEX_DATA *cur_room;
+CharData *cur_char;
+RoomIndexData *cur_room;
 bool      cur_char_died;
 ch_ret    global_retcode;
 
@@ -74,20 +74,20 @@ int       cur_obj_serial;
 bool      cur_obj_extracted;
 obj_ret   global_objcode;
 
-bool      is_wizvis(CHAR_DATA * ch, CHAR_DATA * victim);
+bool      is_wizvis(CharData * ch, CharData * victim);
 
-OBJ_DATA *group_object(OBJ_DATA * obj1, OBJ_DATA * obj2);
+ObjData *group_object(ObjData * obj1, ObjData * obj2);
 
-void      room_explode(OBJ_DATA * obj, CHAR_DATA * xch,
-                ROOM_INDEX_DATA * room);
-void      room_explode_1(OBJ_DATA * obj, CHAR_DATA * xch,
-                ROOM_INDEX_DATA * room, int blast);
-void      room_explode_2(ROOM_INDEX_DATA * room, int blast);
-void remove_better args((CHAR_DATA * better));
+void      room_explode(ObjData * obj, CharData * xch,
+                RoomIndexData * room);
+void      room_explode_1(ObjData * obj, CharData * xch,
+                RoomIndexData * room, int blast);
+void      room_explode_2(RoomIndexData * room, int blast);
+void remove_better args((CharData * better));
 
-int count_users(OBJ_DATA * obj)
+int count_users(ObjData * obj)
 {
-        CHAR_DATA *fch;
+        CharData *fch;
         int       count = 0;
 
         if (obj->in_room == NULL)
@@ -102,12 +102,12 @@ int count_users(OBJ_DATA * obj)
 }
 
 
-void explode(OBJ_DATA * obj)
+void explode(ObjData * obj)
 {
         if (obj->armed_by)
         {
-                ROOM_INDEX_DATA *room;
-                CHAR_DATA *xch;
+                RoomIndexData *room;
+                CharData *xch;
                 bool      held = FALSE;
 
                 for (xch = first_char; xch; xch = xch->next)
@@ -145,7 +145,7 @@ void explode(OBJ_DATA * obj)
         make_scraps(obj);
 }
 
-void room_explode(OBJ_DATA * obj, CHAR_DATA * xch, ROOM_INDEX_DATA * room)
+void room_explode(ObjData * obj, CharData * xch, RoomIndexData * room)
 {
         int       blast;
 
@@ -154,13 +154,13 @@ void room_explode(OBJ_DATA * obj, CHAR_DATA * xch, ROOM_INDEX_DATA * room)
         room_explode_2(room, blast);
 }
 
-void room_explode_1(OBJ_DATA * obj, CHAR_DATA * xch, ROOM_INDEX_DATA * room,
+void room_explode_1(ObjData * obj, CharData * xch, RoomIndexData * room,
                 int blast)
 {
-        CHAR_DATA *rch;
-        CHAR_DATA *rnext;
-        OBJ_DATA *robj;
-        OBJ_DATA *robj_next;
+        CharData *rch;
+        CharData *rnext;
+        ObjData *robj;
+        ObjData *robj_next;
         int       dam;
 
         if (xIS_SET(room->room_flags, BFS_MARK))
@@ -206,7 +206,7 @@ void room_explode_1(OBJ_DATA * obj, CHAR_DATA * xch, ROOM_INDEX_DATA * room,
          * other rooms 
          */
         {
-                EXIT_DATA *pexit;
+                ExitData *pexit;
 
                 for (pexit = room->first_exit; pexit; pexit = pexit->next)
                 {
@@ -230,7 +230,7 @@ void room_explode_1(OBJ_DATA * obj, CHAR_DATA * xch, ROOM_INDEX_DATA * room,
 
 }
 
-void room_explode_2(ROOM_INDEX_DATA * room, int blast)
+void room_explode_2(RoomIndexData * room, int blast)
 {
 
         if (!xIS_SET(room->room_flags, BFS_MARK))
@@ -241,7 +241,7 @@ void room_explode_2(ROOM_INDEX_DATA * room, int blast)
         if (blast > 0)
         {
                 int       roomblast;
-                EXIT_DATA *pexit;
+                ExitData *pexit;
 
                 for (pexit = room->first_exit; pexit; pexit = pexit->next)
                 {
@@ -255,7 +255,7 @@ void room_explode_2(ROOM_INDEX_DATA * room, int blast)
 
 }
 
-bool is_wizvis(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_wizvis(CharData * ch, CharData * victim)
 {
         if (!IS_NPC(victim)
                         && IS_SET(victim->act, PLR_WIZINVIS)
@@ -268,9 +268,9 @@ bool is_wizvis(CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * Return how much exp a char has
  */
-int get_exp(CHAR_DATA * ch, int ability)
+int get_exp(CharData * ch, int ability)
 {
-        if (ability >= MAX_ABILITY || ability < 0)
+        if (ability >= MaxAbility || ability < 0)
                 return 0;
 
         return ch->experience[ability];
@@ -279,7 +279,7 @@ int get_exp(CHAR_DATA * ch, int ability)
 /*
  * Calculate roughly how much experience a character is worth
  */
-int get_exp_worth(CHAR_DATA * ch)
+int get_exp_worth(CharData * ch)
 {
         int       experience;
 
@@ -295,7 +295,7 @@ int get_exp_worth(CHAR_DATA * ch)
                 experience += (int) (experience * 1.2);
         if (IS_AFFECTED(ch, AFF_SHOCKSHIELD))
                 experience += (int) (experience * 1.2);
-        experience = URANGE(MIN_EXP_WORTH, experience, MAX_EXP_WORTH);
+        experience = URANGE(MinExpWorth, experience, MaxExpWorth);
 
         return experience;
 }
@@ -315,13 +315,13 @@ int exp_level(sh_int level)
 /*
  * Get what level ch is based on exp
  */
-sh_int level_exp(CHAR_DATA * ch, int experience)
+sh_int level_exp(CharData * ch, int experience)
 {
         int       x, lastx, y, tmp;
 
         ch = NULL;
 
-        x = LEVEL_SUPREME;
+        x = LevelSupreme;
         lastx = x;
         y = 0;
         while (!y)
@@ -337,15 +337,15 @@ sh_int level_exp(CHAR_DATA * ch, int experience)
         }
         if (y < 1)
                 y = 1;
-        if (y > LEVEL_SUPREME)
-                y = LEVEL_SUPREME;
+        if (y > LevelSupreme)
+                y = LevelSupreme;
         return y;
 }
 
 /*
  * Retrieve a character's trusted level for permission checking.
  */
-sh_int get_trust(CHAR_DATA * ch)
+sh_int get_trust(CharData * ch)
 {
         if (!ch)
                 return 0;
@@ -357,11 +357,11 @@ sh_int get_trust(CHAR_DATA * ch)
         if (ch->trust != 0)
                 return ch->trust;
 
-        if (IS_NPC(ch) && ch->top_level >= LEVEL_AVATAR)
-                return LEVEL_AVATAR;
+        if (IS_NPC(ch) && ch->top_level >= LevelAvatar)
+                return LevelAvatar;
 
-        if (ch->top_level >= LEVEL_NEOPHYTE && IS_RETIRED(ch))
-                return LEVEL_NEOPHYTE;
+        if (ch->top_level >= LevelNeophyte && IS_RETIRED(ch))
+                return LevelNeophyte;
 
         return ch->top_level;
 }
@@ -370,7 +370,7 @@ sh_int get_trust(CHAR_DATA * ch)
 /*
  * Retrieve a character's age.
  */
-sh_int get_age_old(CHAR_DATA * ch)
+sh_int get_age_old(CharData * ch)
 {
         return 17 + (ch->played + (current_time - ch->logon)) / 14400;
 }
@@ -380,7 +380,7 @@ sh_int get_age_old(CHAR_DATA * ch)
  * Updated for new code by Gavin
  * With help from Darrik Vequir of SW:RiP
  */
-sh_int get_age_timeinfo(TIME_INFO_DATA * birthday)
+sh_int get_age_timeinfo(TimeInfoData * birthday)
 {
         int       years;
         int       months;
@@ -399,7 +399,7 @@ sh_int get_age_timeinfo(TIME_INFO_DATA * birthday)
         return years;
 }
 
-sh_int get_age(CHAR_DATA * ch)
+sh_int get_age(CharData * ch)
 {
         if (IS_NPC(ch))
                 return 17 + (ch->played + (current_time - ch->logon)) / 14400;
@@ -410,7 +410,7 @@ sh_int get_age(CHAR_DATA * ch)
 /*
  * Retrieve character's current strength.
  */
-sh_int get_curr_str(CHAR_DATA * ch)
+sh_int get_curr_str(CharData * ch)
 {
         sh_int    max;
 
@@ -427,7 +427,7 @@ sh_int get_curr_str(CHAR_DATA * ch)
 /*
  * Retrieve character's current intelligence.
  */
-sh_int get_curr_int(CHAR_DATA * ch)
+sh_int get_curr_int(CharData * ch)
 {
         sh_int    max;
 
@@ -445,7 +445,7 @@ sh_int get_curr_int(CHAR_DATA * ch)
 /*
  * Retrieve character's current wisdom.
  */
-sh_int get_curr_wis(CHAR_DATA * ch)
+sh_int get_curr_wis(CharData * ch)
 {
         sh_int    max;
 
@@ -463,7 +463,7 @@ sh_int get_curr_wis(CHAR_DATA * ch)
 /*
  * Retrieve character's current dexterity.
  */
-sh_int get_curr_dex(CHAR_DATA * ch)
+sh_int get_curr_dex(CharData * ch)
 {
         sh_int    max;
 
@@ -481,7 +481,7 @@ sh_int get_curr_dex(CHAR_DATA * ch)
 /*
  * Retrieve character's current constitution.
  */
-sh_int get_curr_con(CHAR_DATA * ch)
+sh_int get_curr_con(CharData * ch)
 {
         sh_int    max;
 
@@ -497,7 +497,7 @@ sh_int get_curr_con(CHAR_DATA * ch)
 /*
  * Retrieve character's current charisma.
  */
-sh_int get_curr_cha(CHAR_DATA * ch)
+sh_int get_curr_cha(CharData * ch)
 {
         sh_int    max;
 
@@ -513,7 +513,7 @@ sh_int get_curr_cha(CHAR_DATA * ch)
 /*
  * Retrieve character's current luck.
  */
-sh_int get_curr_lck(CHAR_DATA * ch)
+sh_int get_curr_lck(CharData * ch)
 {
         sh_int    max;
 
@@ -524,7 +524,7 @@ sh_int get_curr_lck(CHAR_DATA * ch)
         return URANGE(3, ch->perm_lck + ch->mod_lck + ch->bonus_lck, max);
 }
 
-sh_int get_curr_frc(CHAR_DATA * ch)
+sh_int get_curr_frc(CharData * ch)
 {
         sh_int    max;
 
@@ -540,16 +540,16 @@ sh_int get_curr_frc(CHAR_DATA * ch)
  * Retrieve a character's carry capacity.
  * Vastly reduced (finally) due to containers		-Thoric
  */
-int can_carry_n(CHAR_DATA * ch)
+int can_carry_n(CharData * ch)
 {
         int       penalty = 0;
 
-        if (!IS_NPC(ch) && get_trust(ch) >= LEVEL_IMMORTAL)
+        if (!IS_NPC(ch) && get_trust(ch) >= LevelImmortal)
                 return get_trust(ch) * 200;
 
         if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET))
                 return 0;
-        if (IS_NPC(ch) && ch->pIndexData->vnum == MOB_VNUM_VENDOR)
+        if (IS_NPC(ch) && ch->pIndexData->vnum == MobVnumVendor)
                 return 9999;
 
         if (get_eq_char(ch, WEAR_WIELD))
@@ -568,7 +568,7 @@ int can_carry_n(CHAR_DATA * ch)
 }
 
 
-sh_int max_languages(CHAR_DATA * ch)
+sh_int max_languages(CharData * ch)
 {
         int       max = 0;
 
@@ -586,12 +586,12 @@ sh_int max_languages(CHAR_DATA * ch)
 /*
  * Retrieve a character's carry capacity.
  */
-int can_carry_w(CHAR_DATA * ch)
+int can_carry_w(CharData * ch)
 {
-        if (!IS_NPC(ch) && get_trust(ch) >= LEVEL_IMMORTAL)
+        if (!IS_NPC(ch) && get_trust(ch) >= LevelImmortal)
                 return 1000000;
 
-        if (IS_NPC(ch) && ch->pIndexData->vnum == MOB_VNUM_VENDOR)
+        if (IS_NPC(ch) && ch->pIndexData->vnum == MobVnumVendor)
                 return 1000000;
 
         if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET))
@@ -604,7 +604,7 @@ int can_carry_w(CHAR_DATA * ch)
 /*
  * See if a player/mob can take a piece of prototype eq		-Thoric
  */
-bool can_take_proto(CHAR_DATA * ch)
+bool can_take_proto(CharData * ch)
 {
         if (IS_IMMORTAL(ch))
                 return TRUE;
@@ -620,7 +620,7 @@ bool can_take_proto(CHAR_DATA * ch)
  */
 bool is_name(const char *str, char *namelist)
 {
-        char      name[MAX_INPUT_LENGTH];
+        char      name[MaxInputLength];
 
         for (;;)
         {
@@ -634,7 +634,7 @@ bool is_name(const char *str, char *namelist)
 
 bool is_name_prefix(const char *str, char *namelist)
 {
-        char      name[MAX_INPUT_LENGTH];
+        char      name[MaxInputLength];
 
         for (;;)
         {
@@ -652,7 +652,7 @@ bool is_name_prefix(const char *str, char *namelist)
  */
 bool is_name2(const char *str, char *namelist)
 {
-        char      name[MAX_INPUT_LENGTH];
+        char      name[MaxInputLength];
 
         for (;;)
         {
@@ -666,7 +666,7 @@ bool is_name2(const char *str, char *namelist)
 
 bool is_name2_prefix(const char *str, char *namelist)
 {
-        char      name[MAX_INPUT_LENGTH];
+        char      name[MaxInputLength];
 
         for (;;)
         {
@@ -683,7 +683,7 @@ bool is_name2_prefix(const char *str, char *namelist)
  */
 bool nifty_is_name(char *str, char *namelist)
 {
-        char      name[MAX_INPUT_LENGTH];
+        char      name[MaxInputLength];
 
         if (!str || str[0] == '\0')
                 return FALSE;
@@ -700,7 +700,7 @@ bool nifty_is_name(char *str, char *namelist)
 
 bool nifty_is_name_prefix(const char *str, const char *namelist)
 {
-        char      name[MAX_INPUT_LENGTH];
+        char      name[MaxInputLength];
 
         if (!str || str[0] == '\0')
                 return FALSE;
@@ -718,9 +718,9 @@ bool nifty_is_name_prefix(const char *str, const char *namelist)
 /*
  * Apply or remove an affect to a character.
  */
-void affect_modify(CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd)
+void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
 {
-        OBJ_DATA *wield;
+        ObjData *wield;
         int       mod;
         struct skill_type *skill;
         ch_ret    retcode;
@@ -1086,9 +1086,9 @@ void affect_modify(CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd)
 /*
  * Give an affect to a char.
  */
-void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * paf)
+void affect_to_char(CharData * ch, AffectData * paf)
 {
-        AFFECT_DATA *paf_new;
+        AffectData *paf_new;
 
         if (!ch)
         {
@@ -1102,7 +1102,7 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * paf)
                 return;
         }
 
-        CREATE(paf_new, AFFECT_DATA, 1);
+        CREATE(paf_new, AffectData, 1);
         LINK(paf_new, ch->first_affect, ch->last_affect, next, prev);
         paf_new->type = paf->type;
         paf_new->duration = paf->duration;
@@ -1118,7 +1118,7 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * paf)
 /*
  * Remove an affect from a char.
  */
-void affect_remove(CHAR_DATA * ch, AFFECT_DATA * paf)
+void affect_remove(CharData * ch, AffectData * paf)
 {
         if (!ch->first_affect)
         {
@@ -1136,10 +1136,10 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA * paf)
 /*
  * Strip all affects of a given sn.
  */
-void affect_strip(CHAR_DATA * ch, int sn)
+void affect_strip(CharData * ch, int sn)
 {
-        AFFECT_DATA *paf;
-        AFFECT_DATA *paf_next;
+        AffectData *paf;
+        AffectData *paf_next;
 
         for (paf = ch->first_affect; paf; paf = paf_next)
         {
@@ -1156,9 +1156,9 @@ void affect_strip(CHAR_DATA * ch, int sn)
 /*
  * Return true if a char is affected by a spell.
  */
-bool is_affected(CHAR_DATA * ch, int sn)
+bool is_affected(CharData * ch, int sn)
 {
-        AFFECT_DATA *paf;
+        AffectData *paf;
 
         for (paf = ch->first_affect; paf; paf = paf->next)
                 if (paf->type == sn)
@@ -1173,9 +1173,9 @@ bool is_affected(CHAR_DATA * ch, int sn)
  * Limitations put in place by Thoric, they may be high... but at least
  * they're there :)
  */
-void affect_join(CHAR_DATA * ch, AFFECT_DATA * paf)
+void affect_join(CharData * ch, AffectData * paf)
 {
-        AFFECT_DATA *paf_old;
+        AffectData *paf_old;
 
         for (paf_old = ch->first_affect; paf_old; paf_old = paf_old->next)
                 if (paf_old->type == paf->type)
@@ -1202,9 +1202,9 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA * paf)
 /*
  * Move a char out of a room.
  */
-void char_from_room(CHAR_DATA * ch)
+void char_from_room(CharData * ch)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         if (!ch)
         {
@@ -1247,9 +1247,9 @@ void char_from_room(CHAR_DATA * ch)
 /*
  * Move a char into a room.
  */
-void char_to_room(CHAR_DATA * ch, ROOM_INDEX_DATA * pRoomIndex)
+void char_to_room(CharData * ch, RoomIndexData * pRoomIndex)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         if (!ch)
         {
@@ -1266,7 +1266,7 @@ void char_to_room(CHAR_DATA * ch, ROOM_INDEX_DATA * pRoomIndex)
 
         if (!pRoomIndex)
         {
-                char      buf[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength];
 
                 snprintf(buf, MSL,
                                 "Char_to_room: %s -> NULL room!  Putting char in limbo (%d)",
@@ -1312,10 +1312,10 @@ void char_to_room(CHAR_DATA * ch, ROOM_INDEX_DATA * pRoomIndex)
 /*
  * Give an obj to a char.
  */
-OBJ_DATA *obj_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
+ObjData *obj_to_char(ObjData * obj, CharData * ch)
 {
-        OBJ_DATA *otmp;
-        OBJ_DATA *oret = obj;
+        ObjData *otmp;
+        ObjData *oret = obj;
         bool      skipgroup, grouped;
         int       oweight = get_obj_weight(obj);
         int       onum = get_obj_number(obj);
@@ -1337,7 +1337,7 @@ OBJ_DATA *obj_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
                 int       x, y;
 
                 for (x = 0; x < MAX_WEAR; x++)
-                        for (y = 0; y < MAX_LAYERS; y++)
+                        for (y = 0; y < MaxLayers; y++)
                                 if (save_equipment[x][y] == obj)
                                 {
                                         skipgroup = TRUE;
@@ -1380,9 +1380,9 @@ OBJ_DATA *obj_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 /*
  * Take an obj from its character.
  */
-void obj_from_char(OBJ_DATA * obj)
+void obj_from_char(ObjData * obj)
 {
-        CHAR_DATA *ch;
+        CharData *ch;
 
         if ((ch = obj->carried_by) == NULL)
         {
@@ -1417,7 +1417,7 @@ void obj_from_char(OBJ_DATA * obj)
 /*
  * Find the ac value of an obj, including position effect.
  */
-int apply_ac(OBJ_DATA * obj, int iWear)
+int apply_ac(ObjData * obj, int iWear)
 {
         if (obj->item_type != ITEM_ARMOR)
                 return 0;
@@ -1469,9 +1469,9 @@ int apply_ac(OBJ_DATA * obj, int iWear)
  * Find a piece of eq on a character.
  * Will pick the top layer if clothing is layered.		-Thoric
  */
-OBJ_DATA *get_eq_char(CHAR_DATA * ch, int iWear)
+ObjData *get_eq_char(CharData * ch, int iWear)
 {
-        OBJ_DATA *obj, *maxobj = NULL;
+        ObjData *obj, *maxobj = NULL;
 
         for (obj = ch->first_carrying; obj; obj = obj->next_content)
                 if (obj->wear_loc == iWear)
@@ -1491,10 +1491,10 @@ OBJ_DATA *get_eq_char(CHAR_DATA * ch, int iWear)
 /*
  * Equip a char with an obj.
  */
-void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int iWear)
+void equip_char(CharData * ch, ObjData * obj, int iWear)
 {
-        AFFECT_DATA *paf;
-        OBJ_DATA *otmp;
+        AffectData *paf;
+        ObjData *otmp;
 
         if ((otmp = get_eq_char(ch, iWear)) != NULL
                         && (!otmp->pIndexData->layers || !obj->pIndexData->layers))
@@ -1553,9 +1553,9 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int iWear)
 /*
  * Unequip a char with an obj.
  */
-void unequip_char(CHAR_DATA * ch, OBJ_DATA * obj)
+void unequip_char(CharData * ch, ObjData * obj)
 {
-        AFFECT_DATA *paf;
+        AffectData *paf;
 
         if (obj->wear_loc == WEAR_NONE)
         {
@@ -1591,9 +1591,9 @@ void unequip_char(CHAR_DATA * ch, OBJ_DATA * obj)
 /*
  * Count occurrences of an obj in a list.
  */
-int count_obj_list(OBJ_INDEX_DATA * pObjIndex, OBJ_DATA * list)
+int count_obj_list(ObjIndexData * pObjIndex, ObjData * list)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         int       nMatch;
 
         nMatch = 0;
@@ -1609,13 +1609,13 @@ int count_obj_list(OBJ_INDEX_DATA * pObjIndex, OBJ_DATA * list)
 /*
  * Move an obj out of a room.
  */
-void write_corpses args((CHAR_DATA * ch, char *name));
+void write_corpses args((CharData * ch, char *name));
 
 int       falling;
 
-void obj_from_room(OBJ_DATA * obj)
+void obj_from_room(ObjData * obj)
 {
-        ROOM_INDEX_DATA *in_room;
+        RoomIndexData *in_room;
 
         if ((in_room = obj->in_room) == NULL)
         {
@@ -1668,9 +1668,9 @@ void obj_from_room(OBJ_DATA * obj)
 /*
  * Move an obj into a room.
  */
-OBJ_DATA *obj_to_room(OBJ_DATA * obj, ROOM_INDEX_DATA * pRoomIndex)
+ObjData *obj_to_room(ObjData * obj, RoomIndexData * pRoomIndex)
 {
-        OBJ_DATA *otmp, *oret;
+        ObjData *otmp, *oret;
         sh_int    count;
         sh_int    item_type;
 
@@ -1706,7 +1706,7 @@ OBJ_DATA *obj_to_room(OBJ_DATA * obj, ROOM_INDEX_DATA * pRoomIndex)
         {
                 if (pRoomIndex->area->body && obj->value[1])
                 {
-                        BODY_DATA *body = pRoomIndex->area->body;
+                        BodyData *body = pRoomIndex->area->body;
                         DOCK_DATA *dock;
                         char      buf[32];
 
@@ -1737,9 +1737,9 @@ OBJ_DATA *obj_to_room(OBJ_DATA * obj, ROOM_INDEX_DATA * pRoomIndex)
 /*
  * Move an object into an object.
  */
-OBJ_DATA *obj_to_obj(OBJ_DATA * obj, OBJ_DATA * obj_to)
+ObjData *obj_to_obj(ObjData * obj, ObjData * obj_to)
 {
-        OBJ_DATA *otmp, *oret;
+        ObjData *otmp, *oret;
 
         if (obj == obj_to)
         {
@@ -1776,9 +1776,9 @@ OBJ_DATA *obj_to_obj(OBJ_DATA * obj, OBJ_DATA * obj_to)
 /*
  * Move an object out of an object.
  */
-void obj_from_obj(OBJ_DATA * obj)
+void obj_from_obj(ObjData * obj)
 {
-        OBJ_DATA *obj_from;
+        ObjData *obj_from;
 
         if ((obj_from = obj->in_obj) == NULL)
         {
@@ -1809,9 +1809,9 @@ void obj_from_obj(OBJ_DATA * obj)
 /*
  * Extract an obj from the world.
  */
-void extract_obj(OBJ_DATA * obj)
+void extract_obj(ObjData * obj)
 {
-        OBJ_DATA *obj_content;
+        ObjData *obj_content;
 
         if (!obj)
         {
@@ -1857,8 +1857,8 @@ void extract_obj(OBJ_DATA * obj)
                 extract_obj(obj_content);
 
         {
-                AFFECT_DATA *paf;
-                AFFECT_DATA *paf_next;
+                AffectData *paf;
+                AffectData *paf_next;
 
                 for (paf = obj->first_affect; paf; paf = paf_next)
                 {
@@ -1869,8 +1869,8 @@ void extract_obj(OBJ_DATA * obj)
         }
 
         {
-                EXTRA_DESCR_DATA *ed;
-                EXTRA_DESCR_DATA *ed_next;
+                ExtraDescrData *ed;
+                ExtraDescrData *ed_next;
 
                 for (ed = obj->first_extradesc; ed; ed = ed_next)
                 {
@@ -1902,12 +1902,12 @@ void extract_obj(OBJ_DATA * obj)
 /*
  * Extract a char from the world.
  */
-void extract_char(CHAR_DATA * ch, bool fPull)
+void extract_char(CharData * ch, bool fPull)
 {
-        CHAR_DATA *wch;
-        OBJ_DATA *obj;
-        char      buf[MAX_STRING_LENGTH];
-        ROOM_INDEX_DATA *location;
+        CharData *wch;
+        ObjData *obj;
+        char      buf[MaxStringLength];
+        RoomIndexData *location;
 
         if (!ch)
         {
@@ -2055,17 +2055,17 @@ void extract_char(CHAR_DATA * ch, bool fPull)
 /*
  * Find a char in the room.
  */
-CHAR_DATA *get_char_room(CHAR_DATA * ch, char *argument)
+CharData *get_char_room(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *rch;
+        char      arg[MaxInputLength];
+        CharData *rch;
         int       number, count, vnum;
 
         number = number_argument(argument, arg);
         if (!str_cmp(arg, "self"))
                 return ch;
 
-        if (get_trust(ch) >= LEVEL_SAVIOR && is_number(arg))
+        if (get_trust(ch) >= LevelSavior && is_number(arg))
                 vnum = atoi(arg);
         else
                 vnum = -1;
@@ -2127,10 +2127,10 @@ CHAR_DATA *get_char_room(CHAR_DATA * ch, char *argument)
 /*
  * Find a char in the world with nothing to check against.
  */
-CHAR_DATA *get_char_world_nocheck(char *argument)
+CharData *get_char_world_nocheck(char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *wch;
+        char      arg[MaxInputLength];
+        CharData *wch;
         int       number, count, vnum;
 
         number = number_argument(argument, arg);
@@ -2183,10 +2183,10 @@ CHAR_DATA *get_char_world_nocheck(char *argument)
 /*
  * Find a char in the world.
  */
-CHAR_DATA *get_char_world(CHAR_DATA * ch, char *argument)
+CharData *get_char_world(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *wch;
+        char      arg[MaxInputLength];
+        CharData *wch;
         int       number, count, vnum;
 
         number = number_argument(argument, arg);
@@ -2197,7 +2197,7 @@ CHAR_DATA *get_char_world(CHAR_DATA * ch, char *argument)
         /*
          * Allow reference by vnum for saints+          -Thoric
          */
-        if (get_trust(ch) >= LEVEL_SAVIOR && is_number(arg))
+        if (get_trust(ch) >= LevelSavior && is_number(arg))
                 vnum = atoi(arg);
         else
                 vnum = -1;
@@ -2279,9 +2279,9 @@ CHAR_DATA *get_char_world(CHAR_DATA * ch, char *argument)
  * Find some object with a given index data.
  * Used by area-reset 'P', 'T' and 'H' commands.
  */
-OBJ_DATA *get_obj_type(OBJ_INDEX_DATA * pObjIndex)
+ObjData *get_obj_type(ObjIndexData * pObjIndex)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         for (obj = last_object; obj; obj = obj->prev)
                 if (obj->pIndexData == pObjIndex)
@@ -2294,10 +2294,10 @@ OBJ_DATA *get_obj_type(OBJ_INDEX_DATA * pObjIndex)
 /*
  * Find an obj in a list.
  */
-OBJ_DATA *get_obj_list(CHAR_DATA * ch, char *argument, OBJ_DATA * list)
+ObjData *get_obj_list(CharData * ch, char *argument, ObjData * list)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         int       number;
         int       count;
 
@@ -2326,10 +2326,10 @@ OBJ_DATA *get_obj_list(CHAR_DATA * ch, char *argument, OBJ_DATA * list)
 /*
  * Find an obj in a list...going the other way			-Thoric
  */
-OBJ_DATA *get_obj_list_rev(CHAR_DATA * ch, char *argument, OBJ_DATA * list)
+ObjData *get_obj_list_rev(CharData * ch, char *argument, ObjData * list)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         int       number;
         int       count;
 
@@ -2360,14 +2360,14 @@ OBJ_DATA *get_obj_list_rev(CHAR_DATA * ch, char *argument, OBJ_DATA * list)
 /*
  * Find an obj in player's inventory.
  */
-OBJ_DATA *get_obj_carry(CHAR_DATA * ch, char *argument)
+ObjData *get_obj_carry(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         int       number, count, vnum;
 
         number = number_argument(argument, arg);
-        if (get_trust(ch) >= LEVEL_SAVIOR && is_number(arg))
+        if (get_trust(ch) >= LevelSavior && is_number(arg))
                 vnum = atoi(arg);
         else
                 vnum = -1;
@@ -2400,14 +2400,14 @@ OBJ_DATA *get_obj_carry(CHAR_DATA * ch, char *argument)
         return NULL;
 }
 
-OBJ_DATA *get_obj_carry_type(CHAR_DATA * ch, char *argument, int type)
+ObjData *get_obj_carry_type(CharData * ch, char *argument, int type)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         int       number, count, vnum;
 
         number = number_argument(argument, arg);
-        if (get_trust(ch) >= LEVEL_SAVIOR && is_number(arg))
+        if (get_trust(ch) >= LevelSavior && is_number(arg))
                 vnum = atoi(arg);
         else
                 vnum = -1;
@@ -2445,10 +2445,10 @@ OBJ_DATA *get_obj_carry_type(CHAR_DATA * ch, char *argument, int type)
 /*
  * Find an obj in player's equipment.
  */
-OBJ_DATA *get_obj_wear(CHAR_DATA * ch, char *argument)
+ObjData *get_obj_wear(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         int       number, count, vnum;
 
         if (!ch)
@@ -2458,7 +2458,7 @@ OBJ_DATA *get_obj_wear(CHAR_DATA * ch, char *argument)
 
         number = number_argument(argument, arg);
 
-        if (get_trust(ch) >= LEVEL_SAVIOR && is_number(arg))
+        if (get_trust(ch) >= LevelSavior && is_number(arg))
                 vnum = atoi(arg);
         else
                 vnum = -1;
@@ -2496,9 +2496,9 @@ OBJ_DATA *get_obj_wear(CHAR_DATA * ch, char *argument)
 /*
  * Find an obj in the room or in inventory.
  */
-OBJ_DATA *get_obj_here(CHAR_DATA * ch, char *argument)
+ObjData *get_obj_here(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         if (!ch || !ch->in_room)
                 return NULL;
@@ -2521,10 +2521,10 @@ OBJ_DATA *get_obj_here(CHAR_DATA * ch, char *argument)
 /*
  * Find an obj in the world.
  */
-OBJ_DATA *get_obj_world(CHAR_DATA * ch, char *argument)
+ObjData *get_obj_world(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         int       number, count, vnum;
 
         if (!ch)
@@ -2538,7 +2538,7 @@ OBJ_DATA *get_obj_world(CHAR_DATA * ch, char *argument)
         /*
          * Allow reference by vnum for saints+          -Thoric
          */
-        if (get_trust(ch) >= LEVEL_SAVIOR && is_number(arg))
+        if (get_trust(ch) >= LevelSavior && is_number(arg))
                 vnum = atoi(arg);
         else
                 vnum = -1;
@@ -2578,7 +2578,7 @@ OBJ_DATA *get_obj_world(CHAR_DATA * ch, char *argument)
  * Used by get/drop/put/quaff/recite/etc
  * Increasingly freaky based on mental state and drunkeness
  */
-bool ms_find_obj(CHAR_DATA * ch)
+bool ms_find_obj(CharData * ch)
 {
         int       ms = ch->mental_state;
         int       drunk = IS_NPC(ch) ? 0 : ch->pcdata->condition[COND_DRUNK];
@@ -2694,11 +2694,11 @@ bool ms_find_obj(CHAR_DATA * ch)
  * Generic get obj function that supports optional containers.	-Thoric
  * currently only used for "eat" and "quaff".
  */
-OBJ_DATA *find_obj(CHAR_DATA * ch, char *argument, bool carryonly)
+ObjData *find_obj(CharData * ch, char *argument, bool carryonly)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjData *obj;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -2723,7 +2723,7 @@ OBJ_DATA *find_obj(CHAR_DATA * ch, char *argument, bool carryonly)
         }
         else
         {
-                OBJ_DATA *container;
+                ObjData *container;
 
                 if (carryonly
                                 && (container = get_obj_carry(ch, arg2)) == NULL
@@ -2759,7 +2759,7 @@ OBJ_DATA *find_obj(CHAR_DATA * ch, char *argument, bool carryonly)
         return NULL;
 }
 
-int get_obj_number(OBJ_DATA * obj)
+int get_obj_number(ObjData * obj)
 {
         return obj->count;
 }
@@ -2768,7 +2768,7 @@ int get_obj_number(OBJ_DATA * obj)
 /*
  * Return weight of an object, including weight of contents.
  */
-int get_obj_weight(OBJ_DATA * obj)
+int get_obj_weight(ObjData * obj)
 {
         int       weight;
 
@@ -2784,7 +2784,7 @@ int get_obj_weight(OBJ_DATA * obj)
 /*
  * True if room is dark.
  */
-bool room_is_dark(ROOM_INDEX_DATA * pRoomIndex)
+bool room_is_dark(RoomIndexData * pRoomIndex)
 {
         if (!pRoomIndex)
         {
@@ -2814,9 +2814,9 @@ bool room_is_dark(ROOM_INDEX_DATA * pRoomIndex)
 /*
  * True if room is private.
  */
-bool room_is_private(CHAR_DATA * ch, ROOM_INDEX_DATA * pRoomIndex)
+bool room_is_private(CharData * ch, RoomIndexData * pRoomIndex)
 {
-        CHAR_DATA *rch;
+        CharData *rch;
         int       count;
 
         if (!ch)
@@ -2830,7 +2830,7 @@ bool room_is_private(CHAR_DATA * ch, ROOM_INDEX_DATA * pRoomIndex)
                 bug("room_is_private: NULL pRoomIndex", 0);
                 return FALSE;
         }
-        if (get_trust(ch) == MAX_LEVEL)
+        if (get_trust(ch) == MaxLevel)
                 return FALSE;
 
 #ifdef OLC_HOMES
@@ -2858,7 +2858,7 @@ bool room_is_private(CHAR_DATA * ch, ROOM_INDEX_DATA * pRoomIndex)
 /*
  * True if char can see victim.
  */
-bool can_see_ooc(CHAR_DATA * ch, CHAR_DATA * victim)
+bool can_see_ooc(CharData * ch, CharData * victim)
 {
         if (!victim)
                 return FALSE;
@@ -2890,7 +2890,7 @@ bool can_see_ooc(CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * True if char can see victim.
  */
-bool can_see(CHAR_DATA * ch, CHAR_DATA * victim)
+bool can_see(CharData * ch, CharData * victim)
 {
         if (!victim)
                 return FALSE;
@@ -2978,7 +2978,7 @@ bool can_see(CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * True if char can see obj.
  */
-bool can_see_obj(CHAR_DATA * ch, OBJ_DATA * obj)
+bool can_see_obj(CharData * ch, ObjData * obj)
 {
         if (!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT))
                 return TRUE;
@@ -3019,12 +3019,12 @@ bool can_see_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 /*
  * True if char can drop obj.
  */
-bool can_drop_obj(CHAR_DATA * ch, OBJ_DATA * obj)
+bool can_drop_obj(CharData * ch, ObjData * obj)
 {
         if (!IS_OBJ_STAT(obj, ITEM_NODROP))
                 return TRUE;
 
-        if (!IS_NPC(ch) && get_trust(ch) >= LEVEL_IMMORTAL)
+        if (!IS_NPC(ch) && get_trust(ch) >= LevelImmortal)
                 return TRUE;
 
         if (IS_NPC(ch) && ch->pIndexData->vnum == 3)
@@ -3037,7 +3037,7 @@ bool can_drop_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 /*
  * Return ascii name of an item type.
  */
-char     *item_type_name(OBJ_DATA * obj)
+char     *item_type_name(ObjData * obj)
 {
         if (obj->item_type < 1 || obj->item_type > MAX_ITEM_TYPE)
         {
@@ -3361,13 +3361,13 @@ char     *magic_bit_name(int magic_flags)
 /*
  * Set off a trap (obj) upon character (ch)			-Thoric
  */
-ch_ret spring_trap(CHAR_DATA * ch, OBJ_DATA * obj)
+ch_ret spring_trap(CharData * ch, ObjData * obj)
 {
         int       dam;
         int       typ;
         int       lev;
         char     *txt;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         ch_ret    retcode;
 
         typ = obj->value[1];
@@ -3478,9 +3478,9 @@ ch_ret spring_trap(CHAR_DATA * ch, OBJ_DATA * obj)
 /*
  * Check an object for a trap					-Thoric
  */
-ch_ret check_for_trap(CHAR_DATA * ch, OBJ_DATA * obj, int flag)
+ch_ret check_for_trap(CharData * ch, ObjData * obj, int flag)
 {
-        OBJ_DATA *check;
+        ObjData *check;
         ch_ret    retcode;
 
         if (!obj->first_content)
@@ -3502,9 +3502,9 @@ ch_ret check_for_trap(CHAR_DATA * ch, OBJ_DATA * obj, int flag)
 /*
  * Check the room for a trap					-Thoric
  */
-ch_ret check_room_for_traps(CHAR_DATA * ch, int flag)
+ch_ret check_room_for_traps(CharData * ch, int flag)
 {
-        OBJ_DATA *check;
+        ObjData *check;
         ch_ret    retcode;
 
         retcode = rNONE;
@@ -3537,9 +3537,9 @@ ch_ret check_room_for_traps(CHAR_DATA * ch, int flag)
 /*
  * return TRUE if an object contains a trap			-Thoric
  */
-bool is_trapped(OBJ_DATA * obj)
+bool is_trapped(ObjData * obj)
 {
-        OBJ_DATA *check;
+        ObjData *check;
 
         if (!obj->first_content)
                 return FALSE;
@@ -3554,9 +3554,9 @@ bool is_trapped(OBJ_DATA * obj)
 /*
  * If an object contains a trap, return the pointer to the trap	-Thoric
  */
-OBJ_DATA *get_trap(OBJ_DATA * obj)
+ObjData *get_trap(ObjData * obj)
 {
-        OBJ_DATA *check;
+        ObjData *check;
 
         if (!obj->first_content)
                 return NULL;
@@ -3571,7 +3571,7 @@ OBJ_DATA *get_trap(OBJ_DATA * obj)
 /*
  * Remove an exit from a room					-Thoric
  */
-void extract_exit(ROOM_INDEX_DATA * room, EXIT_DATA * pexit)
+void extract_exit(RoomIndexData * room, ExitData * pexit)
 {
         UNLINK(pexit, room->first_exit, room->last_exit, next, prev);
         if (pexit->rexit)
@@ -3584,7 +3584,7 @@ void extract_exit(ROOM_INDEX_DATA * room, EXIT_DATA * pexit)
 /*
  * Remove a room
  */
-void extract_room(ROOM_INDEX_DATA * room)
+void extract_room(RoomIndexData * room)
 {
         room = NULL;
         bug("extract_room: not implemented", 0);
@@ -3599,11 +3599,11 @@ void extract_room(ROOM_INDEX_DATA * room)
 /*
  * clean out a room (leave list pointers intact )		-Thoric
  */
-void clean_room(ROOM_INDEX_DATA * room)
+void clean_room(RoomIndexData * room)
 {
-        EXTRA_DESCR_DATA *ed, *ed_next;
-        EXIT_DATA *pexit, *pexit_next;
-        MPROG_DATA *mprog, *mprog_next;
+        ExtraDescrData *ed, *ed_next;
+        ExitData *pexit, *pexit_next;
+        MProgData *mprog, *mprog_next;
 
         STRFREE(room->description);
         STRFREE(room->name);
@@ -3640,11 +3640,11 @@ void clean_room(ROOM_INDEX_DATA * room)
 /*
  * clean out an object (index) (leave list pointers intact )	-Thoric
  */
-void clean_obj(OBJ_INDEX_DATA * obj)
+void clean_obj(ObjIndexData * obj)
 {
-        AFFECT_DATA *paf, *paf_next;
-        EXTRA_DESCR_DATA *ed, *ed_next;
-        MPROG_DATA *mprog, *mprog_next;
+        AffectData *paf, *paf_next;
+        ExtraDescrData *ed, *ed_next;
+        MProgData *mprog, *mprog_next;
 
         STRFREE(obj->name);
         STRFREE(obj->short_descr);
@@ -3694,9 +3694,9 @@ void clean_obj(OBJ_INDEX_DATA * obj)
 /*
  * clean out a mobile (index) (leave list pointers intact )	-Thoric
  */
-void clean_mob(MOB_INDEX_DATA * mob)
+void clean_mob(MobIndexData * mob)
 {
-        MPROG_DATA *mprog, *mprog_next;
+        MProgData *mprog, *mprog_next;
 
         STRFREE(mob->player_name);
         STRFREE(mob->short_descr);
@@ -3740,9 +3740,9 @@ void clean_mob(MOB_INDEX_DATA * mob)
 /*
  * Remove all resets from an area				-Thoric
  */
-void clean_resets(AREA_DATA * tarea)
+void clean_resets(AreaData * tarea)
 {
-        RESET_DATA *pReset, *pReset_next;
+        ResetData *pReset, *pReset_next;
 
         for (pReset = tarea->first_reset; pReset; pReset = pReset_next)
         {
@@ -3755,7 +3755,7 @@ void clean_resets(AREA_DATA * tarea)
 }
 
 /* no more silliness */
-void name_stamp_stats(CHAR_DATA * ch)
+void name_stamp_stats(CharData * ch)
 {
         ch = NULL;
 }
@@ -3763,10 +3763,10 @@ void name_stamp_stats(CHAR_DATA * ch)
 /*
  * "Fix" a character's stats					-Thoric
  */
-void fix_char(CHAR_DATA * ch)
+void fix_char(CharData * ch)
 {
-        AFFECT_DATA *aff;
-        OBJ_DATA *obj;
+        AffectData *aff;
+        ObjData *obj;
 
         de_equip_char(ch);
 
@@ -3858,9 +3858,9 @@ void fix_char(CHAR_DATA * ch)
 /*
  * Show an affect verbosely to a character			-Thoric
  */
-void showaffect(CHAR_DATA * ch, AFFECT_DATA * paf)
+void showaffect(CharData * ch, AffectData * paf)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         int       x;
 
         if (!paf)
@@ -3918,7 +3918,7 @@ void showaffect(CHAR_DATA * ch, AFFECT_DATA * paf)
 /*
  * Set the current global object to obj				-Thoric
  */
-void set_cur_obj(OBJ_DATA * obj)
+void set_cur_obj(ObjData * obj)
 {
         obj = NULL;
         cur_obj_extracted = FALSE;
@@ -3928,9 +3928,9 @@ void set_cur_obj(OBJ_DATA * obj)
 /*
  * Check the recently extracted object queue for obj		-Thoric
  */
-bool obj_extracted(OBJ_DATA * obj)
+bool obj_extracted(ObjData * obj)
 {
-        OBJ_DATA *cod;
+        ObjData *cod;
 
         if (!obj)
                 return TRUE;
@@ -3945,7 +3945,7 @@ bool obj_extracted(OBJ_DATA * obj)
 /*
  * Stick obj onto extraction queue
  */
-void queue_extracted_obj(OBJ_DATA * obj)
+void queue_extracted_obj(ObjData * obj)
 {
 
         ++cur_qobjs;
@@ -3958,7 +3958,7 @@ void queue_extracted_obj(OBJ_DATA * obj)
  */
 void clean_obj_queue()
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         while (extracted_obj_queue)
         {
@@ -3978,9 +3978,9 @@ void clean_obj_queue()
 /*
  * Check to see if ch died recently				-Thoric
  */
-bool char_died(CHAR_DATA * ch)
+bool char_died(CharData * ch)
 {
-        EXTRACT_CHAR_DATA *ccd;
+        ExtractCharData *ccd;
 
         for (ccd = extracted_char_queue; ccd; ccd = ccd->next)
                 if (ccd->ch == ch)
@@ -3991,16 +3991,16 @@ bool char_died(CHAR_DATA * ch)
 /*
  * Add ch to the queue of recently extracted characters		-Thoric
  */
-void queue_extracted_char(CHAR_DATA * ch, bool extract)
+void queue_extracted_char(CharData * ch, bool extract)
 {
-        EXTRACT_CHAR_DATA *ccd;
+        ExtractCharData *ccd;
 
         if (!ch)
         {
                 bug("queue_extracted char: ch = NULL", 0);
                 return;
         }
-        CREATE(ccd, EXTRACT_CHAR_DATA, 1);
+        CREATE(ccd, ExtractCharData, 1);
         ccd->ch = ch;
         ccd->room = ch->in_room;
         ccd->extract = extract;
@@ -4014,7 +4014,7 @@ void queue_extracted_char(CHAR_DATA * ch, bool extract)
  */
 void clean_char_queue()
 {
-        EXTRACT_CHAR_DATA *ccd;
+        ExtractCharData *ccd;
 
         for (ccd = extracted_char_queue; ccd; ccd = extracted_char_queue)
         {
@@ -4030,10 +4030,10 @@ void clean_char_queue()
  * Add a timer to ch						-Thoric
  * Support for "call back" time delayed commands
  */
-void add_timer(CHAR_DATA * ch, sh_int type, sh_int count, DO_FUN * fun,
+void add_timer(CharData * ch, sh_int type, sh_int count, DoFun * fun,
                 int value)
 {
-        TIMER    *timer;
+        Timer    *timer;
 
         for (timer = ch->first_timer; timer; timer = timer->next)
                 if (timer->type == type)
@@ -4045,7 +4045,7 @@ void add_timer(CHAR_DATA * ch, sh_int type, sh_int count, DO_FUN * fun,
                 }
         if (!timer)
         {
-                CREATE(timer, TIMER, 1);
+                CREATE(timer, Timer, 1);
                 timer->count = count;
                 if (IS_IMMORTAL(ch))
                         timer->count = 0;
@@ -4056,9 +4056,9 @@ void add_timer(CHAR_DATA * ch, sh_int type, sh_int count, DO_FUN * fun,
         }
 }
 
-TIMER    *get_timerptr(CHAR_DATA * ch, sh_int type)
+Timer    *get_timerptr(CharData * ch, sh_int type)
 {
-        TIMER    *timer;
+        Timer    *timer;
 
         for (timer = ch->first_timer; timer; timer = timer->next)
                 if (timer->type == type)
@@ -4066,9 +4066,9 @@ TIMER    *get_timerptr(CHAR_DATA * ch, sh_int type)
         return NULL;
 }
 
-sh_int get_timer(CHAR_DATA * ch, sh_int type)
+sh_int get_timer(CharData * ch, sh_int type)
 {
-        TIMER    *timer;
+        Timer    *timer;
 
         if ((timer = get_timerptr(ch, type)) != NULL)
                 return timer->count;
@@ -4076,7 +4076,7 @@ sh_int get_timer(CHAR_DATA * ch, sh_int type)
                 return 0;
 }
 
-void extract_timer(CHAR_DATA * ch, TIMER * timer)
+void extract_timer(CharData * ch, Timer * timer)
 {
         if (!timer)
         {
@@ -4089,9 +4089,9 @@ void extract_timer(CHAR_DATA * ch, TIMER * timer)
         return;
 }
 
-void remove_timer(CHAR_DATA * ch, sh_int type)
+void remove_timer(CharData * ch, sh_int type)
 {
-        TIMER    *timer;
+        Timer    *timer;
 
         for (timer = ch->first_timer; timer; timer = timer->next)
                 if (timer->type == type)
@@ -4101,7 +4101,7 @@ void remove_timer(CHAR_DATA * ch, sh_int type)
                 extract_timer(ch, timer);
 }
 
-bool in_soft_range(CHAR_DATA * ch, AREA_DATA * tarea)
+bool in_soft_range(CharData * ch, AreaData * tarea)
 {
         /*
          * Until we ACtually remove this useless code 
@@ -4119,7 +4119,7 @@ bool in_soft_range(CHAR_DATA * ch, AREA_DATA * tarea)
                 return FALSE;
 }
 
-bool in_hard_range(CHAR_DATA * ch, AREA_DATA * tarea)
+bool in_hard_range(CharData * ch, AreaData * tarea)
 {
         /*
          * Until we ACtually remove this useless code 
@@ -4140,7 +4140,7 @@ bool in_hard_range(CHAR_DATA * ch, AREA_DATA * tarea)
 /*
  * Scryn, standard luck check 2/2/96
  */
-bool chance(CHAR_DATA * ch, sh_int percent)
+bool chance(CharData * ch, sh_int percent)
 {
         /*  sh_int clan_factor, ms;*/
         sh_int    ms;
@@ -4182,7 +4182,7 @@ bool chance(CHAR_DATA * ch, sh_int percent)
                 return FALSE;
 }
 
-bool chance_attrib(CHAR_DATA * ch, sh_int percent, sh_int attrib)
+bool chance_attrib(CharData * ch, sh_int percent, sh_int attrib)
 {
         /* Scryn, standard luck check + consideration of 1 attrib 2/2/96*/
 
@@ -4203,11 +4203,11 @@ bool chance_attrib(CHAR_DATA * ch, sh_int percent, sh_int attrib)
 /*
  * Make a simple clone of an object (no extras...yet)		-Thoric
  */
-OBJ_DATA *clone_object(OBJ_DATA * obj)
+ObjData *clone_object(ObjData * obj)
 {
-        OBJ_DATA *clone;
+        ObjData *clone;
 
-        CREATE(clone, OBJ_DATA, 1);
+        CREATE(clone, ObjData, 1);
         clone->pIndexData = obj->pIndexData;
         clone->name = QUICKLINK(obj->name);
         clone->short_descr = QUICKLINK(obj->short_descr);
@@ -4245,7 +4245,7 @@ OBJ_DATA *clone_object(OBJ_DATA * obj)
  * as this will allow them to be grouped together both in memory, and in
  * the player files.
  */
-OBJ_DATA *group_object(OBJ_DATA * obj1, OBJ_DATA * obj2)
+ObjData *group_object(ObjData * obj1, ObjData * obj2)
 {
         if (!obj1 || !obj2)
                 return NULL;
@@ -4293,10 +4293,10 @@ OBJ_DATA *group_object(OBJ_DATA * obj1, OBJ_DATA * obj2)
  * Split off a grouped object					-Thoric
  * decreased obj's count to num, and creates a new object containing the rest
  */
-void split_obj(OBJ_DATA * obj, int num)
+void split_obj(ObjData * obj, int num)
 {
         int       count;
-        OBJ_DATA *rest;
+        ObjData *rest;
 
         if (!obj)
                 return;
@@ -4339,7 +4339,7 @@ void split_obj(OBJ_DATA * obj, int num)
         }
 }
 
-void separate_obj(OBJ_DATA * obj)
+void separate_obj(ObjData * obj)
 {
         split_obj(obj, 1);
 }
@@ -4347,10 +4347,10 @@ void separate_obj(OBJ_DATA * obj)
 /*
  * Empty an obj's contents... optionally into another obj, or a room
  */
-bool empty_obj(OBJ_DATA * obj, OBJ_DATA * destobj, ROOM_INDEX_DATA * destroom)
+bool empty_obj(ObjData * obj, ObjData * destobj, RoomIndexData * destroom)
 {
-        OBJ_DATA *otmp, *otmp_next;
-        CHAR_DATA *ch = obj->carried_by;
+        ObjData *otmp, *otmp_next;
+        CharData *ch = obj->carried_by;
         bool      movedsome = FALSE;
 
         if (!obj)
@@ -4418,7 +4418,7 @@ bool empty_obj(OBJ_DATA * obj, OBJ_DATA * destobj, ROOM_INDEX_DATA * destroom)
 /*
  * Improve mental state						-Thoric
  */
-void better_mental_state(CHAR_DATA * ch, int mod)
+void better_mental_state(CharData * ch, int mod)
 {
         int       c = URANGE(0, abs(mod), 20);
         int       con = get_curr_con(ch);
@@ -4434,7 +4434,7 @@ void better_mental_state(CHAR_DATA * ch, int mod)
 /*
  * Deteriorate mental state					-Thoric
  */
-void worsen_mental_state(CHAR_DATA * ch, int mod)
+void worsen_mental_state(CharData * ch, int mod)
 {
         int       c = URANGE(0, abs(mod), 20);
         int       con = get_curr_con(ch);
@@ -4456,7 +4456,7 @@ void worsen_mental_state(CHAR_DATA * ch, int mod)
 /*
  * Add gold to an area's economy				-Thoric
  */
-void boost_economy(AREA_DATA * tarea, int gold)
+void boost_economy(AreaData * tarea, int gold)
 {
         while (gold >= 1000000000)
         {
@@ -4474,7 +4474,7 @@ void boost_economy(AREA_DATA * tarea, int gold)
 /*
  * Take gold from an area's economy				-Thoric
  */
-void lower_economy(AREA_DATA * tarea, int gold)
+void lower_economy(AreaData * tarea, int gold)
 {
         while (gold >= 1000000000)
         {
@@ -4492,7 +4492,7 @@ void lower_economy(AREA_DATA * tarea, int gold)
 /*
  * Check to see if economy has at least this much gold		   -Thoric
  */
-bool economy_has(AREA_DATA * tarea, int gold)
+bool economy_has(AreaData * tarea, int gold)
 {
         int       hasgold = ((tarea->high_economy > 0) ? 1 : 0) * 1000000000
                 + tarea->low_economy;
@@ -4507,10 +4507,10 @@ bool economy_has(AREA_DATA * tarea, int gold)
  * Makes sure mob doesn't get more than 10% of that area's gold,
  * and reduces area economy by the amount of gold given to the mob
  */
-void economize_mobgold(CHAR_DATA * mob)
+void economize_mobgold(CharData * mob)
 {
         int       gold;
-        AREA_DATA *tarea;
+        AreaData *tarea;
 
         /*
          * make sure it isn't way too much 
@@ -4532,7 +4532,7 @@ void economize_mobgold(CHAR_DATA * mob)
  * Add another notch on that there belt... ;)
  * Keep track of the last so many kills by vnum			-Thoric
  */
-void add_kill(CHAR_DATA * ch, CHAR_DATA * mob)
+void add_kill(CharData * ch, CharData * mob)
 {
         int       x;
         sh_int    vnum, track;
@@ -4546,7 +4546,7 @@ void add_kill(CHAR_DATA * ch, CHAR_DATA * mob)
         vnum = mob->pIndexData->vnum;
         track = URANGE(2,
                         ((ch->skill_level[COMBAT_ABILITY] +
-                          3) * MAX_KILLTRACK) / LEVEL_AVATAR, MAX_KILLTRACK);
+                          3) * MaxKillTrack) / LevelAvatar, MaxKillTrack);
         for (x = 0; x < track; x++)
                 if (ch->pcdata->killed[x].vnum == vnum)
                 {
@@ -4556,19 +4556,19 @@ void add_kill(CHAR_DATA * ch, CHAR_DATA * mob)
                 }
                 else if (ch->pcdata->killed[x].vnum == 0)
                         break;
-        memmove((char *) ch->pcdata->killed + sizeof(KILLED_DATA),
-                        ch->pcdata->killed, (track - 1) * sizeof(KILLED_DATA));
+        memmove((char *) ch->pcdata->killed + sizeof(KilledData),
+                        ch->pcdata->killed, (track - 1) * sizeof(KilledData));
         ch->pcdata->killed[0].vnum = vnum;
         ch->pcdata->killed[0].count = 1;
-        if (track < MAX_KILLTRACK)
+        if (track < MaxKillTrack)
                 ch->pcdata->killed[track].vnum = 0;
 }
 
 /*
  * Return how many times this player has killed this mob	-Thoric
- * Only keeps track of so many (MAX_KILLTRACK), and keeps track by vnum
+ * Only keeps track of so many (MaxKillTrack), and keeps track by vnum
  */
-int times_killed(CHAR_DATA * ch, CHAR_DATA * mob)
+int times_killed(CharData * ch, CharData * mob)
 {
         int       x;
         sh_int    vnum, track;
@@ -4582,7 +4582,7 @@ int times_killed(CHAR_DATA * ch, CHAR_DATA * mob)
         vnum = mob->pIndexData->vnum;
         track = URANGE(2,
                         ((ch->skill_level[COMBAT_ABILITY] +
-                          3) * MAX_KILLTRACK) / LEVEL_AVATAR, MAX_KILLTRACK);
+                          3) * MaxKillTrack) / LevelAvatar, MaxKillTrack);
         for (x = 0; x < track; x++)
                 if (ch->pcdata->killed[x].vnum == vnum)
                         return ch->pcdata->killed[x].count;
@@ -4748,7 +4748,7 @@ char     *one_argument3(char *argument, char *arg_first)
  * Checks how old a char is
  * Done by Gavin
  */
-void birth_date(CHAR_DATA * ch)
+void birth_date(CharData * ch)
 {
         int       years;
         int       months;
@@ -4791,31 +4791,31 @@ void birth_date(CHAR_DATA * ch)
  */
 
 /* check to see if the extended bitvector is completely empty */
-bool ext_is_empty(EXT_BV * bits)
+bool ext_is_empty(ExtBV * bits)
 {
         int       x;
 
-        for (x = 0; x < XBI; x++)
+        for (x = 0; x < Xbi; x++)
                 if (bits->bits[x] != 0)
                         return FALSE;
 
         return TRUE;
 }
 
-void ext_clear_bits(EXT_BV * bits)
+void ext_clear_bits(ExtBV * bits)
 {
         int       x;
 
-        for (x = 0; x < XBI; x++)
+        for (x = 0; x < Xbi; x++)
                 bits->bits[x] = 0;
 }
 
 /* for use by xHAS_BITS() -- works like IS_SET() */
-int ext_has_bits(EXT_BV * var, EXT_BV * bits)
+int ext_has_bits(ExtBV * var, ExtBV * bits)
 {
         int       x, bit;
 
-        for (x = 0; x < XBI; x++)
+        for (x = 0; x < Xbi; x++)
                 if ((bit = (var->bits[x] & bits->bits[x])) != 0)
                         return bit;
 
@@ -4823,11 +4823,11 @@ int ext_has_bits(EXT_BV * var, EXT_BV * bits)
 }
 
 /* for use by xSAME_BITS() -- works like == */
-bool ext_same_bits(EXT_BV * var, EXT_BV * bits)
+bool ext_same_bits(ExtBV * var, ExtBV * bits)
 {
         int       x;
 
-        for (x = 0; x < XBI; x++)
+        for (x = 0; x < Xbi; x++)
                 if (var->bits[x] != bits->bits[x])
                         return FALSE;
 
@@ -4835,38 +4835,38 @@ bool ext_same_bits(EXT_BV * var, EXT_BV * bits)
 }
 
 /* for use by xSET_BITS() -- works like SET_BIT() */
-void ext_set_bits(EXT_BV * var, EXT_BV * bits)
+void ext_set_bits(ExtBV * var, ExtBV * bits)
 {
         int       x;
 
-        for (x = 0; x < XBI; x++)
+        for (x = 0; x < Xbi; x++)
                 var->bits[x] |= bits->bits[x];
 }
 
 /* for use by xREMOVE_BITS() -- works like REMOVE_BIT() */
-void ext_remove_bits(EXT_BV * var, EXT_BV * bits)
+void ext_remove_bits(ExtBV * var, ExtBV * bits)
 {
         int       x;
 
-        for (x = 0; x < XBI; x++)
+        for (x = 0; x < Xbi; x++)
                 var->bits[x] &= ~(bits->bits[x]);
 }
 
 /* for use by xTOGGLE_BITS() -- works like TOGGLE_BIT() */
-void ext_toggle_bits(EXT_BV * var, EXT_BV * bits)
+void ext_toggle_bits(ExtBV * var, ExtBV * bits)
 {
         int       x;
 
-        for (x = 0; x < XBI; x++)
+        for (x = 0; x < Xbi; x++)
                 var->bits[x] ^= bits->bits[x];
 }
 
 /*
  * Read an extended bitvector from a file.			-Thoric
  */
-EXT_BV fread_bitvector(FILE * fp)
+ExtBV fread_bitvector(FILE * fp)
 {
-        EXT_BV    ret;
+        ExtBV    ret;
         int       c, x = 0;
         int       num = 0;
 
@@ -4874,7 +4874,7 @@ EXT_BV fread_bitvector(FILE * fp)
         for (;;)
         {
                 num = fread_number(fp);
-                if (x < XBI)
+                if (x < Xbi)
                         ret.bits[x] = num;
                 ++x;
                 if ((c = getc(fp)) != '&')
@@ -4888,18 +4888,18 @@ EXT_BV fread_bitvector(FILE * fp)
 }
 
 /* return a string for writing a bitvector to a file */
-char     *print_bitvector(EXT_BV * bits)
+char     *print_bitvector(ExtBV * bits)
 {
-        static char buf[XBI * 12];
+        static char buf[Xbi * 12];
         char     *p = buf;
         int       x, cnt = 0;
 
-        for (cnt = XBI - 1; cnt > 0; cnt--)
+        for (cnt = Xbi - 1; cnt > 0; cnt--)
                 if (bits->bits[cnt])
                         break;
         for (x = 0; x <= cnt; x++)
         {
-                snprintf(p, XBI * 12, "%d", bits->bits[x]);
+                snprintf(p, Xbi * 12, "%d", bits->bits[x]);
                 p += strlen(p);
                 if (x < cnt)
                         *p++ = '&';
@@ -4912,15 +4912,15 @@ char     *print_bitvector(EXT_BV * bits)
 /*
  * Write an extended bitvector to a file			-Thoric
  */
-void fwrite_bitvector(EXT_BV * bits, FILE * fp)
+void fwrite_bitvector(ExtBV * bits, FILE * fp)
 {
         fputs(print_bitvector(bits), fp);
 }
 
 
-EXT_BV meb(int bit)
+ExtBV meb(int bit)
 {
-        EXT_BV    bits;
+        ExtBV    bits;
 
         xCLEAR_BITS(bits);
         if (bit >= 0)
@@ -4930,9 +4930,9 @@ EXT_BV meb(int bit)
 }
 
 
-EXT_BV multimeb(int bit, ...)
+ExtBV multimeb(int bit, ...)
 {
-        EXT_BV    bits;
+        ExtBV    bits;
         va_list   param;
         int       b;
 
@@ -4952,13 +4952,13 @@ EXT_BV multimeb(int bit, ...)
         return bits;
 }
 
-char     *ext_flag_string(EXT_BV * bitvector, const char *const flagarray[])
+char     *ext_flag_string(ExtBV * bitvector, const char *const flagarray[])
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
         int       x;
 
         buf[0] = '\0';
-        for (x = 0; x < MAX_BITS; x++)
+        for (x = 0; x < MaxBits; x++)
                 if (xIS_SET(*bitvector, x))
                 {
                         mudstrlcat(buf, flagarray[x], MSL);
@@ -4972,7 +4972,7 @@ char     *ext_flag_string(EXT_BV * bitvector, const char *const flagarray[])
 
 char     *show_ext_flag_string(int len, const char *const flagarray[])
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
         int       x;
 
         buf[0] = '\0';
@@ -4987,10 +4987,10 @@ char     *show_ext_flag_string(int len, const char *const flagarray[])
         return buf;
 }
 
-CMDF do_approve(CHAR_DATA * ch, char *argument)
+CMDF do_approve(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) ch->dest_buf;
-        char      arg[MAX_INPUT_LENGTH];
+        CharData *victim = (CharData *) ch->dest_buf;
+        char      arg[MaxInputLength];
         void     *safety;
 
         argument = NULL;
@@ -5034,9 +5034,9 @@ CMDF do_approve(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_decline(CHAR_DATA * ch, char *argument)
+CMDF do_decline(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) ch->dest_buf;
+        CharData *victim = (CharData *) ch->dest_buf;
 
         argument = NULL;
 
@@ -5062,9 +5062,9 @@ CMDF do_decline(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_what(CHAR_DATA * ch, char *argument)
+CMDF do_what(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) ch->dest_buf;
+        CharData *victim = (CharData *) ch->dest_buf;
 
         argument = NULL;
 
@@ -5078,10 +5078,10 @@ CMDF do_what(CHAR_DATA * ch, char *argument)
         ch_printf(ch, "%s offered to %s\n\r", PERS(victim, ch), ch->alloc_ptr); // Example: Bob offerred to teach fireball
 }
 
-void add_request(CHAR_DATA * ch, CHAR_DATA * victim, char *argument,
+void add_request(CharData * ch, CharData * victim, char *argument,
                 char *syntax)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (!ch || !victim || !argument || argument[0] == '\0')
                 return;

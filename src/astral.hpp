@@ -37,7 +37,7 @@
  * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
  * and Sebastian Hammer.                                                                 *
  *****************************************************************************************
- *                             SWTFE Corpse/Body Module                                  *
+ *                             SWTFE Astral Body Module                                  *
  ****************************************************************************************/
 
 #pragma once
@@ -58,12 +58,12 @@ namespace BodyConstants {
 // Legacy macros for compatibility
 #define BODY_DIR       "../body/"
 #define FILE_BODY_LIST	"body.lst"
-typedef std::list < DOCK_DATA * >DOCK_LIST;
-extern DOCK_DATA *first_dock;
-extern DOCK_DATA *last_dock;
+typedef std::list < DockData * >DockList;
+extern DockData *first_dock;
+extern DockData *last_dock;
 
 // Body type enumeration - modernized enum class
-enum class BodyType : int {
+enum class BodyTypes : int {
     STAR = 0,
     PLANET = 1,
     MOON = 2,
@@ -75,10 +75,7 @@ enum class BodyType : int {
 };
 
 // Legacy compatibility typedef
-typedef enum { 
-    STAR_BODY = 0, PLANET_BODY = 1, MOON_BODY = 2, COMET_BODY = 3, 
-    ASTEROID_BODY = 4, BLACKHOLE_BODY = 5, NEBULA_BODY = 6, BODY_ALL = 7
-} BODY_TYPES;
+
 
 // Modern utility functions for body system
 namespace BodyUtils {
@@ -87,13 +84,13 @@ namespace BodyUtils {
     }
     
     inline bool is_valid_body_type(int type) {
-        return type >= 0 && type <= static_cast<int>(BodyType::ALL);
+        return type >= 0 && type <= static_cast<int>(BodyTypes::ALL);
     }
 }
 
 
 /**
- * @class BODY_DATA
+ * @class BodyData
  * @brief Modernized celestial body management system
  * 
  * Represents a celestial body (planet, star, moon, etc.) in the space simulation.
@@ -106,13 +103,13 @@ namespace BodyUtils {
  * - Modern enum class support with legacy compatibility
  * - RAII pattern for automatic resource cleanup
  */
-class BODY_DATA
+class BodyData
 {
       private:
         std::string _filename;    // Modernized from char*
         int _gravity;
         std::string _name;        // Modernized from char*
-        int _type;
+        BodyTypes _type;
         int _xpos;
         int _ypos;
         int _zpos;
@@ -124,35 +121,35 @@ class BODY_DATA
         int _centery;
         int _centerz;
 
-        PLANET_DATA *_planet;
-        SPACE_DATA *_starsystem;
-        AREA_LIST _areas;
-        DOCK_LIST _docks;
+        PlanetData *_planet;
+        SpaceData *_starsystem;
+        AreaList _areas;
+        DockList _docks;
 
         /*
          * Get Functions 
          */
       public:
-        BODY_DATA();
-        ~BODY_DATA();
-        inline SPACE_DATA *starsystem()
+        BodyData();
+        ~BodyData();
+        inline SpaceData *starsystem()
         {
                 return this->_starsystem;
         }
-        void starsystem(SPACE_DATA * s);
+        void starsystem(SpaceData * s);
 
-        inline PLANET_DATA *planet()
+        inline PlanetData *planet()
         {
                 return this->_planet;
         }
-        inline void planet(PLANET_DATA * p)
+        inline void planet(PlanetData * p)
         {
                 this->_planet = p;
-        } inline DOCK_LIST & docks(void)
+        } inline DockList & docks(void)
         {
                 return this->_docks;
         }
-        inline AREA_LIST & areas(void)
+        inline AreaList & areas(void)
         {
                 return this->_areas;
         }
@@ -280,29 +277,29 @@ class BODY_DATA
          */
       public:void save();
 
-        BODY_DATA *load(FILE *);
-        void remove_area(AREA_DATA * pArea);
-        void add_area(AREA_DATA * pArea);
-        void add_dock(DOCK_DATA *);
-        void remove_dock(DOCK_DATA *);
-        char     *get_direction(SHIP_DATA * ship);
+        BodyData *load(FILE *);
+        void remove_area(AreaData * pArea);
+        void add_area(AreaData * pArea);
+        void add_dock(DockData *);
+        void remove_dock(DockData *);
+        char     *get_direction(ShipData * ship);
         const char *type_name() const;
-        int distance(SHIP_DATA * ship);
-        int distance(BODY_DATA * pbody);
-        int hyperdistance(SHIP_DATA * ship);
-        ROOM_INDEX_DATA *get_rand_room(int bit, bool include);
+        int distance(ShipData * ship);
+        int distance(BodyData * pbody);
+        int hyperdistance(ShipData * ship);
+        RoomIndexData *get_rand_room(int bit, bool include);
 };
 
 
 // Modern function declarations
-BODY_DATA *get_body(const char *name);
-BODY_DATA *get_body(std::string_view name);
-BODY_DATA *get_body(std::shared_ptr<std::string> name);
-DOCK_DATA *get_dock(const char *name);
-DOCK_DATA *get_dock(std::string_view name);
-DOCK_DATA *get_dock(std::shared_ptr<std::string> name);
-DOCK_DATA *get_dock_isname(SHIP_DATA *ship, const char *name);
-DOCK_DATA *get_dock_isname(SHIP_DATA *ship, std::string_view name);
-DOCK_DATA *get_dock_isname(std::shared_ptr<SHIP_DATA> ship, std::string_view name);
+BodyData *get_body(const char *name);
+BodyData *get_body(std::string_view name);
+BodyData *get_body(std::shared_ptr<std::string> name);
+DockData *get_dock(const char *name);
+DockData *get_dock(std::string_view name);
+DockData *get_dock(std::shared_ptr<std::string> name);
+DockData *get_dock_isname(ShipData *ship, const char *name);
+DockData *get_dock_isname(ShipData *ship, std::string_view name);
+DockData *get_dock_isname(std::shared_ptr<ShipData> ship, std::string_view name);
 void load_bodies();
 

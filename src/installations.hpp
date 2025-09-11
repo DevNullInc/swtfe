@@ -76,7 +76,7 @@ public:
         int32_t flags = 0;
         int32_t last_built = 0;
         int32_t last_room = 0;
-        std::shared_ptr<PLANET_DATA> planet;
+        std::shared_ptr<PlanetData> planet;
         int32_t type = 0;
         int32_t mainroom = 0;
         int16_t timer = 0;

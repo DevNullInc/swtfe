@@ -58,13 +58,13 @@ struct editor_data
         char line[100][160];
 };
 
-void start_editing(CHAR_DATA *ch, const char *data);
-void start_editing(CHAR_DATA *ch, std::string_view data);
-void start_editing(std::shared_ptr<CHAR_DATA> ch, std::string_view data);
-void stop_editing(CHAR_DATA *ch);
-void stop_editing(std::shared_ptr<CHAR_DATA> ch);
-void edit_buffer(CHAR_DATA *ch, const char *argument);
-void edit_buffer(CHAR_DATA *ch, std::string_view argument);
-void edit_buffer(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
-char *copy_buffer(CHAR_DATA *ch);
-std::string copy_buffer(std::shared_ptr<CHAR_DATA> ch);
+void start_editing(CharData *ch, const char *data);
+void start_editing(CharData *ch, std::string_view data);
+void start_editing(std::shared_ptr<CharData> ch, std::string_view data);
+void stop_editing(CharData *ch);
+void stop_editing(std::shared_ptr<CharData> ch);
+void edit_buffer(CharData *ch, const char *argument);
+void edit_buffer(CharData *ch, std::string_view argument);
+void edit_buffer(std::shared_ptr<CharData> ch, std::string_view argument);
+char *copy_buffer(CharData *ch);
+std::string copy_buffer(std::shared_ptr<CharData> ch);

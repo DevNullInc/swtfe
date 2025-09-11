@@ -150,17 +150,17 @@ extern RESERVE_DATA* last_reserved;
 // Core ban management
 void load_banlist();
 void save_banlist();
-bool check_total_bans(DESCRIPTOR_DATA* d);
-bool check_total_bans(std::shared_ptr<DESCRIPTOR_DATA> d);
-bool check_bans(CHAR_DATA* ch, int type);
-bool check_bans(std::shared_ptr<CHAR_DATA> ch, int type);
+bool check_total_bans(DescriptorData* d);
+bool check_total_bans(std::shared_ptr<DescriptorData> d);
+bool check_bans(CharData* ch, int type);
+bool check_bans(std::shared_ptr<CharData> ch, int type);
 
 // Ban operations
-int add_ban(CHAR_DATA* ch, const char* arg1, const char* arg2, int time, int type);
-int add_ban(CHAR_DATA* ch, std::string_view arg1, std::string_view arg2, int time, int type);
-int add_ban(std::shared_ptr<CHAR_DATA> ch, std::string_view arg1, std::string_view arg2, int time, int type);
-void show_bans(CHAR_DATA* ch, int type);
-void show_bans(std::shared_ptr<CHAR_DATA> ch, int type);
+int add_ban(CharData* ch, const char* arg1, const char* arg2, int time, int type);
+int add_ban(CharData* ch, std::string_view arg1, std::string_view arg2, int time, int type);
+int add_ban(std::shared_ptr<CharData> ch, std::string_view arg1, std::string_view arg2, int time, int type);
+void show_bans(CharData* ch, int type);
+void show_bans(std::shared_ptr<CharData> ch, int type);
 bool check_expire(BAN_DATA* ban);
 void dispose_ban(BAN_DATA* ban, int type);
 void free_ban(BAN_DATA* ban);
@@ -180,15 +180,15 @@ void sort_reserved(RESERVE_DATA* pRes);
 void sort_reserved(std::shared_ptr<RESERVE_DATA> pRes);
 
 // Command functions
-CMDF do_ban(CHAR_DATA* ch, const char* argument);
-CMDF do_ban(CHAR_DATA* ch, std::string_view argument);
-CMDF do_ban(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
-CMDF do_allow(CHAR_DATA* ch, const char* argument);
-CMDF do_allow(CHAR_DATA* ch, std::string_view argument);
-CMDF do_allow(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
-CMDF do_warn(CHAR_DATA* ch, const char* argument);
-CMDF do_warn(CHAR_DATA* ch, std::string_view argument);
-CMDF do_warn(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
-CMDF do_reserve(CHAR_DATA* ch, const char* argument);
-CMDF do_reserve(CHAR_DATA* ch, std::string_view argument);
-CMDF do_reserve(std::shared_ptr<CHAR_DATA> ch, std::string_view argument);
+CMDF do_ban(CharData* ch, const char* argument);
+CMDF do_ban(CharData* ch, std::string_view argument);
+CMDF do_ban(std::shared_ptr<CharData> ch, std::string_view argument);
+CMDF do_allow(CharData* ch, const char* argument);
+CMDF do_allow(CharData* ch, std::string_view argument);
+CMDF do_allow(std::shared_ptr<CharData> ch, std::string_view argument);
+CMDF do_warn(CharData* ch, const char* argument);
+CMDF do_warn(CharData* ch, std::string_view argument);
+CMDF do_warn(std::shared_ptr<CharData> ch, std::string_view argument);
+CMDF do_reserve(CharData* ch, const char* argument);
+CMDF do_reserve(CharData* ch, std::string_view argument);
+CMDF do_reserve(std::shared_ptr<CharData> ch, std::string_view argument);

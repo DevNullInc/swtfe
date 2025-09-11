@@ -65,18 +65,18 @@
 
 #define VENDOR_FEE  .05 /*fee vendor charges, taken out of all gode with teh GETGOLD command */
 
-CHAR_DATA *find_keepernotext args((CHAR_DATA * ch));
+CharData *find_keepernotext args((CharData * ch));
 bool      char_exists(char *player);
 
 /*
 This is the command used to buy a contract from a vendor to place a player
 owned vendor
 */
-CMDF do_buyvendor(CHAR_DATA * ch, char *argument)
+CMDF do_buyvendor(CharData * ch, char *argument)
 {
-        CHAR_DATA *keeper;
-        OBJ_DATA *deed;
-        char      buf1[MAX_STRING_LENGTH];
+        CharData *keeper;
+        ObjData *deed;
+        char      buf1[MaxStringLength];
 
         argument = NULL;
 
@@ -91,7 +91,7 @@ CMDF do_buyvendor(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if ((ch->gold < COST_BUY_VENDOR))
+        if ((ch->gold < CostBuyVendor))
         {
                 snprintf(buf1, MSL, "%s says, You are to poor!\n\r",
                          keeper->name);
@@ -99,37 +99,37 @@ CMDF do_buyvendor(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if ((ch->top_level) < LEVEL_BUY_VENDOR)
+        if ((ch->top_level) < LevelBuyVendor)
         {
                 snprintf(buf1, MSL, "you must be at least %d level.\n\r",
-                         LEVEL_BUY_VENDOR);
+                         LevelBuyVendor);
                 send_to_char(buf1, ch);
                 return;
         }
 
-        if ((get_obj_index(OBJ_VNUM_DEED)) == NULL)
+        if ((get_obj_index(ObjVnumDeed)) == NULL)
         {
                 bug("BUYVENDOR: Deed is missing!");
                 return;
         }
-        deed = create_object(get_obj_index(OBJ_VNUM_DEED), 0);
+        deed = create_object(get_obj_index(ObjVnumDeed), 0);
         obj_to_char(deed, ch);
         send_to_char_color
                 ("&bVery well, you may have a contract for a vendor.\n\r",
                  ch);
-        ch->gold = ch->gold - COST_BUY_VENDOR;
+        ch->gold = ch->gold - CostBuyVendor;
 
 }
 
 
 /*this is the command that places the vendor at the specified location*/
-CMDF do_placevendor(CHAR_DATA * ch, char *argument)
+CMDF do_placevendor(CharData * ch, char *argument)
 {
-        CHAR_DATA *vendor;
-        MOB_INDEX_DATA *temp;
-        OBJ_DATA *obj;
+        CharData *vendor;
+        MobIndexData *temp;
+        ObjData *obj;
         int       vnum, check;
-        char      buf[MAX_INPUT_LENGTH];
+        char      buf[MaxInputLength];
 
         argument = NULL;
 
@@ -190,7 +190,7 @@ around in hell do we?*/
         }
 
 
-        if ((temp = get_mob_index(MOB_VNUM_VENDOR)) == NULL)
+        if ((temp = get_mob_index(MobVnumVendor)) == NULL)
         {
                 log_string("do_placevendor: no vendor vnum");
                 return;
@@ -234,13 +234,13 @@ around in hell do we?*/
 
 
 
-CMDF do_pricevendor(CHAR_DATA * ch, char *argument)
+CMDF do_pricevendor(CharData * ch, char *argument)
 {
-        CHAR_DATA *vendor;
-        CHAR_DATA *ch1;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        CharData *vendor;
+        CharData *ch1;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjData *obj;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -292,13 +292,13 @@ CMDF do_pricevendor(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_collectcredits(CHAR_DATA * ch, char *argument)
+CMDF do_collectcredits(CharData * ch, char *argument)
 {
-        CHAR_DATA *vendor;
-        CHAR_DATA *ch1;
+        CharData *vendor;
+        CharData *ch1;
         long      gold;
-        char      buf[MAX_INPUT_LENGTH];
-        char      name[MAX_INPUT_LENGTH];
+        char      buf[MaxInputLength];
+        char      name[MaxInputLength];
 
         argument = NULL;
 
@@ -352,7 +352,7 @@ CMDF do_collectcredits(CHAR_DATA * ch, char *argument)
 
 
 /* Write vendor to file */
-void fwrite_vendor(FILE * fp, CHAR_DATA * mob)
+void fwrite_vendor(FILE * fp, CharData * mob)
 {
         if (!IS_NPC(mob) || !fp)
                 return;
@@ -374,18 +374,18 @@ void fwrite_vendor(FILE * fp, CHAR_DATA * mob)
 
 
 /* read vendor from file */
-CHAR_DATA *fread_vendor(FILE * fp)
+CharData *fread_vendor(FILE * fp)
 {
-        CHAR_DATA *mob = NULL;
+        CharData *mob = NULL;
 
         const char *word;
         bool      fMatch;
         int       inroom = 0;
-        ROOM_INDEX_DATA *pRoomIndex = NULL;
-        CHAR_DATA *victim;
-        CHAR_DATA *vnext;
-        char      buf[MAX_INPUT_LENGTH];
-        char      vnum1[MAX_INPUT_LENGTH];
+        RoomIndexData *pRoomIndex = NULL;
+        CharData *victim;
+        CharData *vnext;
+        char      buf[MaxInputLength];
+        char      vnum1[MaxInputLength];
 
         word = feof(fp) ? "END" : fread_word(fp);
         if (!strcmp(word, "Vnum"))
@@ -452,12 +452,12 @@ CHAR_DATA *fread_vendor(FILE * fp)
                                         return NULL;
                                 }
                                 if (inroom == 0)
-                                        inroom = ROOM_VNUM_VENSTOR;
+                                        inroom = RoomVnumVenstor;
                                 pRoomIndex = get_room_index(inroom);
                                 if (!pRoomIndex)
                                         pRoomIndex =
                                                 get_room_index
-                                                (ROOM_VNUM_VENSTOR);
+                                                (RoomVnumVenstor);
                                 mob->home = pRoomIndex;
                                 mob->in_room = pRoomIndex;
                                 /*
@@ -544,9 +544,9 @@ CHAR_DATA *fread_vendor(FILE * fp)
 
 
 
-void save_vendor(CHAR_DATA * ch)
+void save_vendor(CharData * ch)
 {
-        char      strsave[MAX_INPUT_LENGTH];
+        char      strsave[MaxInputLength];
         FILE     *fp;
 
         if (!ch)
@@ -558,7 +558,7 @@ void save_vendor(CHAR_DATA * ch)
         de_equip_char(ch);
 
 
-        snprintf(strsave, MSL, "%s%s", VENDOR_DIR, capitalize(ch->owner));
+        snprintf(strsave, MSL, "%s%s", VendorDir, capitalize(ch->owner));
 
 
 
@@ -601,10 +601,10 @@ void save_vendor(CHAR_DATA * ch)
         return;
 }
 
-CMDF do_nameshop(CHAR_DATA * ch, char *argument)
+CMDF do_nameshop(CharData * ch, char *argument)
 {
-        CHAR_DATA *vendor;
-        CHAR_DATA *wch;
+        CharData *vendor;
+        CharData *wch;
 
         if (IS_NPC(ch))
                 return;

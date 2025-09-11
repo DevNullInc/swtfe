@@ -57,7 +57,7 @@ struct ROOMMATE_DATA {
 };
 
 
-using ROOM_LIST = std::list<ROOM_INDEX_DATA*>;
+using ROOM_LIST = std::list<RoomIndexData*>;
 using ROOMMATE_LIST = std::list<std::shared_ptr<ROOMMATE_DATA>>;
 
 struct HOME_DATA {
@@ -80,10 +80,10 @@ struct HOME_DATA {
 	HOME_DATA();
 	~HOME_DATA();
 	void save();
-	void add_room(CHAR_DATA* ch, const std::string& argument);
-	void decorate_room(CHAR_DATA* ch, const std::string& argument);
-	bool check_member(CHAR_DATA* ch);
-	bool can_enter(CHAR_DATA* ch);
+	void add_room(CharData* ch, const std::string& argument);
+	void decorate_room(CharData* ch, const std::string& argument);
+	bool check_member(CharData* ch);
+	bool can_enter(CharData* ch);
 	void echo(int color, const std::string& argument);
 	void reset();
 
@@ -96,12 +96,12 @@ struct HOME_DATA {
 		roommates.push_back(roomie);
 	}
 	// Remove a room
-	inline void remove(ROOM_INDEX_DATA* room) {
+	inline void remove(RoomIndexData* room) {
 		rooms.remove(room);
 		room->home = nullptr;
 	}
 	// Add a room
-	inline void add(ROOM_INDEX_DATA* room) {
+	inline void add(RoomIndexData* room) {
 		rooms.push_back(room);
 		room->home = this;
 	}

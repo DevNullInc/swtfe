@@ -50,18 +50,18 @@
 #include "mud.hpp"
 #include "homes.hpp"
 #include "changes.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include "space2.hpp"
 
-void list_resets args((CHAR_DATA * ch, AREA_DATA * pArea,
-                       ROOM_INDEX_DATA * pRoom, int start, int end));
+void list_resets args((CharData * ch, AreaData * pArea,
+                       RoomIndexData * pRoom, int start, int end));
 void save_sysdata args((SYSTEM_DATA sys));
 void save_banlist args((void));
 
 
-CMDF do_fakequit(CHAR_DATA * ch, char *argument)
+CMDF do_fakequit(CharData * ch, char *argument)
 {
-        char      buf[MAX_INPUT_LENGTH];
+        char      buf[MaxInputLength];
 
         argument = NULL;
         set_char_color(AT_WHITE, ch);
@@ -82,9 +82,9 @@ CMDF do_fakequit(CHAR_DATA * ch, char *argument)
 
 
 }
-CMDF do_fakeenter(CHAR_DATA * ch, char *argument)
+CMDF do_fakeenter(CharData * ch, char *argument)
 {
-        char      buf[MAX_INPUT_LENGTH];
+        char      buf[MaxInputLength];
 
         argument = NULL;
         set_char_color(AT_WHITE, ch);
@@ -102,11 +102,11 @@ CMDF do_fakeenter(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_lagout(CHAR_DATA * ch, char *argument)
+CMDF do_lagout(CharData * ch, char *argument)
 {
 
-        CHAR_DATA *victim;
-        char      arg1[MAX_STRING_LENGTH];
+        CharData *victim;
+        char      arg1[MaxStringLength];
         int       x;
 
         argument = one_argument(argument, arg1);
@@ -152,10 +152,10 @@ CMDF do_lagout(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_rseek(CHAR_DATA * ch, char *argument)
+CMDF do_rseek(CharData * ch, char *argument)
 {
-        RESET_DATA *pReset;
-        AREA_DATA *pArea;
+        ResetData *pReset;
+        AreaData *pArea;
         int       x, counter = 1;
 
         if (!is_number(argument))
@@ -188,17 +188,17 @@ CMDF do_rseek(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_mudsave(CHAR_DATA * ch, char *argument)
+CMDF do_mudsave(CharData * ch, char *argument)
 {
 
-        CHAR_DATA *wch;
-        SHIP_DATA *ship;
-        SPACE_DATA *starsystem;
-        CLAN_DATA *clan;
-        PLANET_DATA *planet;
-        char      arg[MAX_INPUT_LENGTH];
-        AREA_DATA *tarea;
-        BODY_DATA *body = NULL;
+        CharData *wch;
+        ShipData *ship;
+        SpaceData *starsystem;
+        ClanData *clan;
+        PlanetData *planet;
+        char      arg[MaxInputLength];
+        AreaData *tarea;
+        BodyData *body = NULL;
 
         if (IS_NPC(ch))
                 return;
@@ -253,7 +253,7 @@ CMDF do_mudsave(CHAR_DATA * ch, char *argument)
                 save_starsystem(starsystem);
         }
         send_to_char("Saving Body.....................Done.\n\r", ch);
-        FOR_EACH_LIST(BODY_LIST, bodies, body) body->save();
+        FOR_EACH_LIST(BodyList, bodies, body) body->save();
         send_to_char("Done.\n\r", ch);
 #ifdef OLC_HOMES
         send_to_char("Saving Homes.....................", ch);
@@ -281,9 +281,9 @@ CMDF do_mudsave(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_working(CHAR_DATA * ch, char *argument)
+CMDF do_working(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         argument = NULL;
         if (IS_NPC(ch))

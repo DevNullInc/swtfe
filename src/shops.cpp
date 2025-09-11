@@ -50,22 +50,22 @@
  * Local functions
  */
 
-#define	CD	CHAR_DATA
-CD       *find_keepernotext args((CHAR_DATA * ch));
-CD       *find_fixer args((CHAR_DATA * ch));
-int get_cost args((CHAR_DATA * ch, CHAR_DATA * keeper,
-                   OBJ_DATA * obj, bool fBuy));
-int get_repaircost args((CHAR_DATA * keeper, OBJ_DATA * obj));
+#define	CD	CharData
+CD       *find_keepernotext args((CharData * ch));
+CD       *find_fixer args((CharData * ch));
+int get_cost args((CharData * ch, CharData * keeper,
+                   ObjData * obj, bool fBuy));
+int get_repaircost args((CharData * keeper, ObjData * obj));
 
 #undef CD
 
 /*
  * Shopping commands.
  */
-CHAR_DATA *find_keeper(CHAR_DATA * ch)
+CharData *find_keeper(CharData * ch)
 {
-        CHAR_DATA *keeper;
-        SHOP_DATA *pShop;
+        CharData *keeper;
+        ShopData *pShop;
 
         pShop = NULL;
         for (keeper = ch->in_room->first_person;
@@ -110,10 +110,10 @@ CHAR_DATA *find_keeper(CHAR_DATA * ch)
         return keeper;
 }
 
-CHAR_DATA *find_keepernotext(CHAR_DATA * ch)
+CharData *find_keepernotext(CharData * ch)
 {
-        CHAR_DATA *keeper;
-        SHOP_DATA *pShop;
+        CharData *keeper;
+        ShopData *pShop;
 
         pShop = NULL;
         for (keeper = ch->in_room->first_person;
@@ -152,10 +152,10 @@ CHAR_DATA *find_keepernotext(CHAR_DATA * ch)
 /*
  * repair commands.
  */
-CHAR_DATA *find_fixer(CHAR_DATA * ch)
+CharData *find_fixer(CharData * ch)
 {
-        CHAR_DATA *keeper;
-        REPAIR_DATA *rShop;
+        CharData *keeper;
+        RepairData *rShop;
 
         rShop = NULL;
         for (keeper = ch->in_room->first_person;
@@ -198,9 +198,9 @@ CHAR_DATA *find_fixer(CHAR_DATA * ch)
 
 
 
-int get_cost(CHAR_DATA * ch, CHAR_DATA * keeper, OBJ_DATA * obj, bool fBuy)
+int get_cost(CharData * ch, CharData * keeper, ObjData * obj, bool fBuy)
 {
-        SHOP_DATA *pShop;
+        ShopData *pShop;
         int       cost;
         bool      richcustomer;
         int       profitmod;
@@ -216,17 +216,17 @@ int get_cost(CHAR_DATA * ch, CHAR_DATA * keeper, OBJ_DATA * obj, bool fBuy)
         if (fBuy)
         {
                 cost = (int) (cost *
-                              (80 + UMIN(ch->top_level, LEVEL_AVATAR))) / 100;
+                              (80 + UMIN(ch->top_level, LevelAvatar))) / 100;
 
                 profitmod = 13 - get_curr_cha(ch) + (richcustomer ? 15 : 0)
-                        + ((URANGE(5, ch->top_level, LEVEL_AVATAR) - 20) / 2);
+                        + ((URANGE(5, ch->top_level, LevelAvatar) - 20) / 2);
                 cost = (int) (obj->cost
                               * UMAX((pShop->profit_sell + 1),
                                      pShop->profit_buy + profitmod)) / 100;
         }
         else
         {
-                OBJ_DATA *obj2;
+                ObjData *obj2;
                 int       itype;
 
                 profitmod = get_curr_cha(ch) - 13 - (richcustomer ? 15 : 0);
@@ -263,9 +263,9 @@ int get_cost(CHAR_DATA * ch, CHAR_DATA * keeper, OBJ_DATA * obj, bool fBuy)
         return cost;
 }
 
-int get_repaircost(CHAR_DATA * keeper, OBJ_DATA * obj)
+int get_repaircost(CharData * keeper, ObjData * obj)
 {
-        REPAIR_DATA *rShop;
+        RepairData *rShop;
         int       cost;
         int       itype;
         bool      found;
@@ -321,9 +321,9 @@ int get_repaircost(CHAR_DATA * keeper, OBJ_DATA * obj)
 
 
 
-CMDF do_buy(CHAR_DATA * ch, char *argument)
+CMDF do_buy(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       maxgold;
 
         argument = one_argument(argument, arg);
@@ -336,10 +336,10 @@ CMDF do_buy(CHAR_DATA * ch, char *argument)
 
         if (xIS_SET(ch->in_room->room_flags, ROOM_PET_SHOP))
         {
-                char      buf[MAX_STRING_LENGTH];
-                CHAR_DATA *pet;
-                ROOM_INDEX_DATA *pRoomIndexNext;
-                ROOM_INDEX_DATA *in_room;
+                char      buf[MaxStringLength];
+                CharData *pet;
+                RoomIndexData *pRoomIndexNext;
+                RoomIndexData *in_room;
 
                 if (IS_NPC(ch))
                         return;
@@ -419,8 +419,8 @@ CMDF do_buy(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                CHAR_DATA *keeper;
-                OBJ_DATA *obj;
+                CharData *keeper;
+                ObjData *obj;
                 int       cost;
                 int       noi = 1;  /* Number of items */
                 sh_int    mnoi = 20;    /* Max number of items to be bought at once */
@@ -507,7 +507,7 @@ CMDF do_buy(CHAR_DATA * ch, char *argument)
                 }
 
                 if (IS_SET(obj->extra_flags, ITEM_PROTOTYPE)
-                    && get_trust(ch) < LEVEL_IMMORTAL)
+                    && get_trust(ch) < LevelImmortal)
                 {
                         act(AT_TELL,
                             "$n tells you 'This is a only a prototype!  I can't sell you that...'",
@@ -571,7 +571,7 @@ CMDF do_buy(CHAR_DATA * ch, char *argument)
 
                 if (IS_OBJ_STAT(obj, ITEM_INVENTORY))
                 {
-                        OBJ_DATA *buy_obj, *bag;
+                        ObjData *buy_obj, *bag;
 
                         buy_obj = create_object(obj->pIndexData, obj->level);
 
@@ -626,12 +626,12 @@ CMDF do_buy(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_list(CHAR_DATA * ch, char *argument)
+CMDF do_list(CharData * ch, char *argument)
 {
         if (xIS_SET(ch->in_room->room_flags, ROOM_PET_SHOP))
         {
-                ROOM_INDEX_DATA *pRoomIndexNext;
-                CHAR_DATA *pet;
+                RoomIndexData *pRoomIndexNext;
+                CharData *pet;
                 bool      found;
 
                 pRoomIndexNext = get_room_index(ch->in_room->vnum + 1);
@@ -669,9 +669,9 @@ CMDF do_list(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                char      arg[MAX_INPUT_LENGTH];
-                CHAR_DATA *keeper;
-                OBJ_DATA *obj;
+                char      arg[MaxInputLength];
+                CharData *keeper;
+                ObjData *obj;
                 int       cost;
                 int       oref = 0;
                 bool      found;
@@ -740,12 +740,12 @@ CMDF do_list(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_sell(CHAR_DATA * ch, char *argument)
+CMDF do_sell(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *keeper;
-        OBJ_DATA *obj;
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength];
+        CharData *keeper;
+        ObjData *obj;
         int       cost;
 
         one_argument(argument, arg);
@@ -845,11 +845,11 @@ CMDF do_sell(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_value(CHAR_DATA * ch, char *argument)
+CMDF do_value(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *keeper;
-        OBJ_DATA *obj;
+        char      buf[MaxStringLength];
+        CharData *keeper;
+        ObjData *obj;
         int       cost;
 
         if (argument[0] == '\0')
@@ -893,10 +893,10 @@ CMDF do_value(CHAR_DATA * ch, char *argument)
 /*
  * Repair a single object. Used when handling "repair all" - Gorog
  */
-void repair_one_obj(CHAR_DATA * ch, CHAR_DATA * keeper, OBJ_DATA * obj,
+void repair_one_obj(CharData * ch, CharData * keeper, ObjData * obj,
                     char *arg, int maxgold, char *fixstr, char *fixstr2)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         int       cost;
 
         if (!can_drop_obj(ch, obj))
@@ -969,10 +969,10 @@ void repair_one_obj(CHAR_DATA * ch, CHAR_DATA * keeper, OBJ_DATA * obj,
         }
 }
 
-CMDF do_repair(CHAR_DATA * ch, char *argument)
+CMDF do_repair(CharData * ch, char *argument)
 {
-        CHAR_DATA *keeper;
-        OBJ_DATA *obj;
+        CharData *keeper;
+        ObjData *obj;
         char     *fixstr;
         char     *fixstr2;
         int       maxgold;
@@ -1026,10 +1026,10 @@ CMDF do_repair(CHAR_DATA * ch, char *argument)
         repair_one_obj(ch, keeper, obj, argument, maxgold, fixstr, fixstr2);
 }
 
-void appraise_all(CHAR_DATA * ch, CHAR_DATA * keeper, char *fixstr)
+void appraise_all(CharData * ch, CharData * keeper, char *fixstr)
 {
-        OBJ_DATA *obj;
-        char      buf[MAX_STRING_LENGTH], *pbuf = buf;
+        ObjData *obj;
+        char      buf[MaxStringLength], *pbuf = buf;
         int       cost = 0, total = 0;
 
         for (obj = ch->first_carrying; obj != NULL; obj = obj->next_content)
@@ -1080,12 +1080,12 @@ void appraise_all(CHAR_DATA * ch, CHAR_DATA * keeper, char *fixstr)
 }
 
 
-CMDF do_appraise(CHAR_DATA * ch, char *argument)
+CMDF do_appraise(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *keeper;
-        OBJ_DATA *obj;
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength];
+        CharData *keeper;
+        ObjData *obj;
         int       cost;
         char     *fixstr;
 
@@ -1158,11 +1158,11 @@ CMDF do_appraise(CHAR_DATA * ch, char *argument)
 /* ------------------ Shop Building and Editing Section ----------------- */
 
 
-CMDF do_makeshop(CHAR_DATA * ch, char *argument)
+CMDF do_makeshop(CharData * ch, char *argument)
 {
-        SHOP_DATA *shop;
+        ShopData *shop;
         int       vnum;
-        MOB_INDEX_DATA *mob;
+        MobIndexData *mob;
 
         if (!argument || argument[0] == '\0')
         {
@@ -1187,7 +1187,7 @@ CMDF do_makeshop(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        CREATE(shop, SHOP_DATA, 1);
+        CREATE(shop, ShopData, 1);
 
         LINK(shop, first_shop, last_shop, next, prev);
         shop->keeper = vnum;
@@ -1201,12 +1201,12 @@ CMDF do_makeshop(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_shopset(CHAR_DATA * ch, char *argument)
+CMDF do_shopset(CharData * ch, char *argument)
 {
-        SHOP_DATA *shop;
-        MOB_INDEX_DATA *mob, *mob2;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        ShopData *shop;
+        MobIndexData *mob, *mob2;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       vnum;
         int       value;
 
@@ -1388,10 +1388,10 @@ CMDF do_shopset(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_shopstat(CHAR_DATA * ch, char *argument)
+CMDF do_shopstat(CharData * ch, char *argument)
 {
-        SHOP_DATA *shop;
-        MOB_INDEX_DATA *mob;
+        ShopData *shop;
+        MobIndexData *mob;
         int       vnum;
 
         if (argument[0] == '\0')
@@ -1429,9 +1429,9 @@ CMDF do_shopstat(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_shops(CHAR_DATA * ch, char *argument)
+CMDF do_shops(CharData * ch, char *argument)
 {
-        SHOP_DATA *shop;
+        ShopData *shop;
 
         argument = NULL;
 
@@ -1457,11 +1457,11 @@ CMDF do_shops(CHAR_DATA * ch, char *argument)
 /* -------------- Repair Shop Building and Editing Section -------------- */
 
 
-CMDF do_makerepair(CHAR_DATA * ch, char *argument)
+CMDF do_makerepair(CharData * ch, char *argument)
 {
-        REPAIR_DATA *repair;
+        RepairData *repair;
         int       vnum;
-        MOB_INDEX_DATA *mob;
+        MobIndexData *mob;
 
         if (!argument || argument[0] == '\0')
         {
@@ -1487,7 +1487,7 @@ CMDF do_makerepair(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        CREATE(repair, REPAIR_DATA, 1);
+        CREATE(repair, RepairData, 1);
 
         LINK(repair, first_repair, last_repair, next, prev);
         repair->keeper = vnum;
@@ -1501,12 +1501,12 @@ CMDF do_makerepair(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_repairset(CHAR_DATA * ch, char *argument)
+CMDF do_repairset(CharData * ch, char *argument)
 {
-        REPAIR_DATA *repair;
-        MOB_INDEX_DATA *mob, *mob2;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        RepairData *repair;
+        MobIndexData *mob, *mob2;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       vnum;
         int       value;
 
@@ -1662,10 +1662,10 @@ CMDF do_repairset(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_repairstat(CHAR_DATA * ch, char *argument)
+CMDF do_repairstat(CharData * ch, char *argument)
 {
-        REPAIR_DATA *repair;
-        MOB_INDEX_DATA *mob;
+        RepairData *repair;
+        MobIndexData *mob;
         int       vnum;
 
 
@@ -1703,9 +1703,9 @@ CMDF do_repairstat(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_repairshops(CHAR_DATA * ch, char *argument)
+CMDF do_repairshops(CharData * ch, char *argument)
 {
-        REPAIR_DATA *repair;
+        RepairData *repair;
 
         argument = NULL;
         if (!first_repair)

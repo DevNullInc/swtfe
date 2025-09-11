@@ -79,7 +79,7 @@ struct wanted_data
         /*
          * This should be government instead 
          */
-        CLAN_DATA *government;
+        ClanData *government;
         int       amount;
 };
 
@@ -91,24 +91,24 @@ BOUNTY_DATA *get_disintigration(std::shared_ptr<std::string> target);
 void load_bounties();
 void save_bounties();
 void save_disintigrations();
-void remove_wanted(CHAR_DATA *ch, CLAN_DATA *clan);
-void remove_wanted(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<CLAN_DATA> clan);
-void remove_wanted_planet(CHAR_DATA *ch, PLANET_DATA *planet);
-void remove_wanted_planet(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<PLANET_DATA> planet);
+void remove_wanted(CharData *ch, ClanData *clan);
+void remove_wanted(std::shared_ptr<CharData> ch, std::shared_ptr<ClanData> clan);
+void remove_wanted_planet(CharData *ch, PlanetData *planet);
+void remove_wanted_planet(std::shared_ptr<CharData> ch, std::shared_ptr<PlanetData> planet);
 void remove_disintigration(BOUNTY_DATA *bounty);
 void remove_disintigration(std::shared_ptr<BOUNTY_DATA> bounty);
-void claim_disintigration(CHAR_DATA *ch, CHAR_DATA *victim);
-void claim_disintigration(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<CHAR_DATA> victim);
-void add_police_bounty(CHAR_DATA *ch, PLANET_DATA *planet);
-void add_police_bounty(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<PLANET_DATA> planet);
-void add_wanted(CHAR_DATA *ch, PLANET_DATA *planet);
-void add_wanted(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<PLANET_DATA> planet);
-bool is_wanted(CHAR_DATA *ch, PLANET_DATA *pl);
-bool is_wanted(std::shared_ptr<CHAR_DATA> ch, std::shared_ptr<PLANET_DATA> pl);
-void fwrite_wanted(CHAR_DATA *ch, FILE *fp);
-void fwrite_wanted(std::shared_ptr<CHAR_DATA> ch, FILE *fp);
-void fread_wanted(CHAR_DATA *ch, FILE *fp);
-void fread_wanted(std::shared_ptr<CHAR_DATA> ch, FILE *fp);
+void claim_disintigration(CharData *ch, CharData *victim);
+void claim_disintigration(std::shared_ptr<CharData> ch, std::shared_ptr<CharData> victim);
+void add_police_bounty(CharData *ch, PlanetData *planet);
+void add_police_bounty(std::shared_ptr<CharData> ch, std::shared_ptr<PlanetData> planet);
+void add_wanted(CharData *ch, PlanetData *planet);
+void add_wanted(std::shared_ptr<CharData> ch, std::shared_ptr<PlanetData> planet);
+bool is_wanted(CharData *ch, PlanetData *pl);
+bool is_wanted(std::shared_ptr<CharData> ch, std::shared_ptr<PlanetData> pl);
+void fwrite_wanted(CharData *ch, FILE *fp);
+void fwrite_wanted(std::shared_ptr<CharData> ch, FILE *fp);
+void fread_wanted(CharData *ch, FILE *fp);
+void fread_wanted(std::shared_ptr<CharData> ch, FILE *fp);
 
 // ============================================================================
 // Modern C++ Bounty Utilities (Incremental Modernization)
@@ -141,6 +141,6 @@ namespace BountyUtils {
                                      int type, const std::string& source = "");
     
     // Example function showing modern/legacy interoperability
-    void display_bounty_info_secure(CHAR_DATA* ch, BOUNTY_DATA* bounty);
+    void display_bounty_info_secure(CharData* ch, BOUNTY_DATA* bounty);
     
 } // namespace BountyUtils

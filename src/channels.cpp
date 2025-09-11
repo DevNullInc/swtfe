@@ -64,7 +64,7 @@ static char fmt_emote[]  = "(%s) * $n $t";
 static char fmt_social[] = "(%s) * $t";
 
 DECLARE_DO_FUN(do_history);
-extern bool is_ignoring(CHAR_DATA * ch, CHAR_DATA * victim);
+extern bool is_ignoring(CharData * ch, CharData * victim);
 extern char *const valid_color[];
 char     *scramble args((const char *argument, LANGUAGE_DATA * language));
 
@@ -120,10 +120,10 @@ void free_channel(CHANNEL_DATA * channel)
 
 #define IC_CHANNEL(channel) (((channel)->type == CHANNEL_IC || (channel)->type == CHANNEL_IC_COM))
 #define OOC_CHANNEL(channel) (!IC_CHANNEL((channel)))
-char     *act_string(const char *format, CHAR_DATA * to, CHAR_DATA * ch,
+char     *act_string(const char *format, CharData * to, CharData * ch,
                      void *arg1, void *arg2, bool OOC);
 
-bool player_is_listening(CHAR_DATA * ch, CHANNEL_DATA * channel)
+bool player_is_listening(CharData * ch, CHANNEL_DATA * channel)
 {
 	if (IS_NPC(ch) || !ch->pcdata || !channel)
 		return FALSE;
@@ -134,16 +134,16 @@ bool player_is_listening(CHAR_DATA * ch, CHANNEL_DATA * channel)
 	return true;
 }
 
-bool check_channel(CHAR_DATA * ch, char *command, char *argument)
+bool check_channel(CharData * ch, char *command, char *argument)
 {
         CHANNEL_DATA *channel;
-        CHAR_DATA *victim = NULL;
-        PLANET_DATA *planet = NULL;
-        CLAN_DATA *clan = NULL;
-        DESCRIPTOR_DATA *d;
-        SHIP_DATA *ship = NULL;
+        CharData *victim = NULL;
+        PlanetData *planet = NULL;
+        ClanData *clan = NULL;
+        DescriptorData *d;
+        ShipData *ship = NULL;
         bool      emote = false;
-        SOCIALTYPE *social = NULL;
+        SocialType *social = NULL;
         char      buf[MSL], buf2[MSL];
         char      arg[MSL];
 
@@ -386,8 +386,8 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
 
         for (d = first_descriptor; d; d = d->next)
         {
-                CHAR_DATA *och;
-                CHAR_DATA *vch;
+                CharData *och;
+                CharData *vch;
 
                 och = d->original ? d->original : d->character;
                 vch = d->character;
@@ -433,7 +433,7 @@ bool check_channel(CHAR_DATA * ch, char *command, char *argument)
                         }
                         if (channel->range == CHANNEL_SYSTEM)
                         {
-                                SHIP_DATA *target;
+                                ShipData *target;
 
                                 if (!ship)
                                         continue;
@@ -733,7 +733,7 @@ void load_channels(void)
         }
 }
 
-CMDF do_showchannels(CHAR_DATA * ch, char *argument)
+CMDF do_showchannels(CharData * ch, char *argument)
 {
         CHANNEL_DATA *channel;
 
@@ -773,7 +773,7 @@ CMDF do_showchannels(CHAR_DATA * ch, char *argument)
         ch_printf(ch, "&BC&zost:&w          %d\n\r", channel->cost);
 }
 
-CMDF do_makechannel(CHAR_DATA * ch, char *argument)
+CMDF do_makechannel(CharData * ch, char *argument)
 {
         CHANNEL_DATA *channel;
 
@@ -798,7 +798,7 @@ CMDF do_makechannel(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_setchannel(CHAR_DATA * ch, char *argument)
+CMDF do_setchannel(CharData * ch, char *argument)
 {
         CHANNEL_DATA *channel;
         char      arg[MSL];
@@ -1048,7 +1048,7 @@ void removename(char **list, const char *name)
         *list = STRALLOC(buf);
 }
 
-CMDF do_listen(CHAR_DATA * ch, char *argument)
+CMDF do_listen(CharData * ch, char *argument)
 {
         CHANNEL_DATA *channel;
 
@@ -1165,10 +1165,10 @@ CMDF do_listen(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_channels(CHAR_DATA * ch, char *argument)
+CMDF do_channels(CharData * ch, char *argument)
 {
         CHANNEL_DATA *channel;
-        CHAR_DATA *victim = NULL;
+        CharData *victim = NULL;
 
         if ( argument[0] == '-'  || argument[0] == '+') {
                 /* add in support for +|-all */
@@ -1240,7 +1240,7 @@ CMDF do_channels(CHAR_DATA * ch, char *argument)
         return;
 }
 
-void add_channel_log(CHAR_DATA * from, char *message, CHANNEL_DATA * channel)
+void add_channel_log(CharData * from, char *message, CHANNEL_DATA * channel)
 {
         int       i;
 
@@ -1289,7 +1289,7 @@ void add_channel_log(CHAR_DATA * from, char *message, CHANNEL_DATA * channel)
         channel->log[channel->logpos].language = from->speaking;
 }
 
-CMDF do_history(CHAR_DATA * ch, const char *argument)
+CMDF do_history(CharData * ch, const char *argument)
 {
         int       count = 0;
         int       pos = 0;
@@ -1356,7 +1356,7 @@ CMDF do_history(CHAR_DATA * ch, const char *argument)
 
 char     *full_color(char *str)
 {
-        static char ret[MAX_STRING_LENGTH];
+        static char ret[MaxStringLength];
         char     *retptr;
 
         retptr = ret;
@@ -1380,7 +1380,7 @@ char     *full_color(char *str)
 }
 
 #if 0
-void send_social(CHAR_DATA * from, CHAR_DATA * to, char *argument)
+void send_social(CharData * from, CharData * to, char *argument)
 {
         if (argument[0] == '\0')
         {

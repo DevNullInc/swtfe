@@ -46,15 +46,15 @@
 #include <string.h>
 #include "mud.hpp"
 
-extern bool could_dual(CHAR_DATA * ch);
-extern void separate_obj(OBJ_DATA * obj);
+extern bool could_dual(CharData * ch);
+extern void separate_obj(ObjData * obj);
 
-CMDF do_draw(CHAR_DATA * ch, char *argument)
+CMDF do_draw(CharData * ch, char *argument)
 {
         bool      silent = FALSE;
-        OBJ_DATA *holster1 = NULL, *holster2 = NULL;
-        OBJ_DATA *wield1, *wield2;
-        OBJ_DATA *hold;
+        ObjData *holster1 = NULL, *holster2 = NULL;
+        ObjData *wield1, *wield2;
+        ObjData *hold;
 
         if (!strcmp(argument, "-silence"))
                 silent = TRUE;
@@ -136,13 +136,13 @@ CMDF do_draw(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_holster(CHAR_DATA * ch, char * argument)
+CMDF do_holster(CharData * ch, char * argument)
 {
         static_cast<void>(argument);    /* Unused parameter */
         
-        OBJ_DATA *wield1 = get_eq_char(ch, WEAR_WIELD),
+        ObjData *wield1 = get_eq_char(ch, WEAR_WIELD),
                 *wield2 = get_eq_char(ch, WEAR_DUAL_WIELD);
-        OBJ_DATA *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
+        ObjData *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
                 *holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
 
         if (!(holster1 = get_eq_char(ch, WEAR_HOLSTER_L)))
@@ -179,7 +179,7 @@ CMDF do_holster(CHAR_DATA * ch, char * argument)
 
         if (wield1 != NULL)
         {
-                char      buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength], buf2[MaxStringLength];
 
                 if (!holster1->first_content)
                 {
@@ -230,7 +230,7 @@ CMDF do_holster(CHAR_DATA * ch, char * argument)
 
         if (wield2 != NULL)
         {
-                char      buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength], buf2[MaxStringLength];
 
                 if (!holster1->first_content)
                 {

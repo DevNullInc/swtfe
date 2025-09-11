@@ -45,7 +45,7 @@ int get_partflag args((char *flag));
 /*
  * Cleaner to all be in one place - Gavin
  */
-RACE_DATA::RACE_DATA()
+RaceData::RaceData()
 {
         this->_name = NULL;
         this->_affected = 0;
@@ -70,21 +70,21 @@ RACE_DATA::RACE_DATA()
         xCLEAR_BITS(this->_body_parts);
         for (int imod = 0; imod <= MAX_ATTR; imod++)
                 this->_attr_mod[imod] = 0;
-        for (int iclass = 0; iclass <= MAX_ABILITY; iclass++)
+        for (int iclass = 0; iclass <= MaxAbility; iclass++)
                 this->_class_modifier[iclass] = 0;
 }
 
-RACE_DATA::~RACE_DATA()
+RaceData::~RaceData()
 {
         if (this->_name)
 			STRFREE(this->_name);
 }
 
-void RACE_DATA::save()
+void RaceData::save()
 {
         FILE     *fp;
         char filename[256];
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
         int iclass;
 
         if (!this)
@@ -137,7 +137,7 @@ void RACE_DATA::save()
                         print_bitvector(&this->_body_parts));
                 fprintf(fp, "ClassRestricted   %d\n",
                         this->_class_restriction);
-                for (iclass = 0; iclass <= MAX_ABILITY; iclass++)
+                for (iclass = 0; iclass <= MaxAbility; iclass++)
                         fprintf(fp, "Class             %d\n",
                                 this->_class_modifier[iclass]);
                 fprintf(fp, "End\n\n");
@@ -148,9 +148,9 @@ void RACE_DATA::save()
         return;
 }
 
-void RACE_DATA::load(FILE * fp)
+void RaceData::load(FILE * fp)
 {
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
         const char *word;
         bool fMatch;
         int iclass = 0;
@@ -179,7 +179,7 @@ void RACE_DATA::load(FILE * fp)
                         if (!str_cmp(word, "Class"))
                         {
                                 fMatch = TRUE;
-                                if (iclass > MAX_ABILITY)
+                                if (iclass > MaxAbility)
                                         break;
                                 this->_class_modifier[iclass] =
                                         fread_number(fp);
@@ -272,10 +272,10 @@ void RACE_DATA::load(FILE * fp)
         }
 }
 
-bool RACE_DATA::load_race_file(char *racefile)
+bool RaceData::load_race_file(char *racefile)
 {
         char filename[256];
-        RACE_DATA *race;
+        RaceData *race;
 
         FILE     *fp;
 
@@ -304,7 +304,7 @@ bool RACE_DATA::load_race_file(char *racefile)
                         word = fread_word(fp);
                         if (!str_cmp(word, "RACE"))
                         {
-                                race = new RACE_DATA;
+                                race = new RaceData;
                                 race->load(fp);
                                 races.push_back(race);
                                 break;
@@ -323,11 +323,11 @@ bool RACE_DATA::load_race_file(char *racefile)
         return FALSE;
 }
 
-void RACE_DATA::fwrite_race_list(void)
+void RaceData::fwrite_race_list(void)
 {
         FILE     *fp;
         char filename[256];
-        RACE_DATA *race = NULL;
+        RaceData *race = NULL;
 
         snprintf(filename, 256, "%s%s", RACES_DIR, FILE_RACE_LIST);
         fp = fopen(filename, "w");
@@ -342,12 +342,12 @@ void RACE_DATA::fwrite_race_list(void)
         FCLOSE(fp);
 }
 
-void RACE_DATA::load_races(void)
+void RaceData::load_races(void)
 {
         FILE     *fpList;
         const char *filename;
         char racelist[256];
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
 
         snprintf(racelist, 256, "%s%s", RACES_DIR, FILE_RACE_LIST);
         FCLOSE(fpReserve);
@@ -377,9 +377,9 @@ void RACE_DATA::load_races(void)
         return;
 }
 
-RACE_DATA *get_race(const char *string)
+RaceData *get_race(const char *string)
 {
-        RACE_DATA *race = NULL;
+        RaceData *race = NULL;
 
         FOR_EACH_LIST(RACE_LIST, races, race)
                 if (!str_cmp(string, race->name()))
@@ -391,9 +391,9 @@ RACE_DATA *get_race(const char *string)
         return NULL;
 }
 
-RACE_DATA *get_race_number(int number)
+RaceData *get_race_number(int number)
 {
-        RACE_DATA *race = NULL;
+        RaceData *race = NULL;
 
         FOR_EACH_LIST(RACE_LIST, races, race)
                 if (!str_cmp(race->name(), race_table[number].race_name))
@@ -401,9 +401,9 @@ RACE_DATA *get_race_number(int number)
         return get_race("human");
 }
 
-CMDF do_setrace(CHAR_DATA * ch, char *argument)
+CMDF do_setrace(CharData * ch, char *argument)
 {
-        RACE_DATA *race = NULL;
+        RaceData *race = NULL;
         char arg1[MSL];
         char arg2[MSL];
 
@@ -535,7 +535,7 @@ CMDF do_setrace(CHAR_DATA * ch, char *argument)
         {
                 int i = 0;
 
-                for (i = 0; i < MAX_ABILITY; i++)
+                for (i = 0; i < MaxAbility; i++)
                 {
                         if (!str_cmp(argument, ability_name[i]))
                         {
@@ -585,7 +585,7 @@ CMDF do_setrace(CHAR_DATA * ch, char *argument)
         else if (!str_cmp(arg2, "name"))
         {
                 race->name(argument);
-                RACE_DATA::fwrite_race_list();
+                RaceData::fwrite_race_list();
         }
         else if (!str_cmp(arg2, "class"))
         {
@@ -600,10 +600,10 @@ CMDF do_setrace(CHAR_DATA * ch, char *argument)
                                  ch);
                         return;
                 }
-                for (iclass = 0; iclass < MAX_ABILITY; iclass++)
+                for (iclass = 0; iclass < MaxAbility; iclass++)
                         if (!str_prefix(arg3, ability_name[iclass]))
                                 break;
-                if (iclass == MAX_ABILITY)
+                if (iclass == MaxAbility)
                 {
                         send_to_char("That is not a valid class.", ch);
                         return;
@@ -619,7 +619,7 @@ CMDF do_setrace(CHAR_DATA * ch, char *argument)
                 {
                         argument = one_argument(argument, arg3);
                         value = get_partflag(arg3);
-                        if (value < 0 || value > MAX_BITS)
+                        if (value < 0 || value > MaxBits)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
                                 xTOGGLE_BIT(race->body_parts(), value);
@@ -635,9 +635,9 @@ CMDF do_setrace(CHAR_DATA * ch, char *argument)
         send_to_char("Race set.", ch);
 }
 
-CMDF do_showrace(CHAR_DATA * ch, char *argument)
+CMDF do_showrace(CharData * ch, char *argument)
 {
-        RACE_DATA *race;
+        RaceData *race;
         char arg1[MSL];
         int iclass;
 
@@ -748,7 +748,7 @@ CMDF do_showrace(CHAR_DATA * ch, char *argument)
                          "&c======= &BClass Restrictions &c=====================================\n\r"
                          "&c==============================================================\n\r",
                          ch);
-                for (iClass = 0; iClass < MAX_ABILITY; iClass++)
+                for (iClass = 0; iClass < MaxAbility; iClass++)
                 {
                         if (IS_SET(race->class_restriction(), 1 << iClass))
                         {
@@ -765,7 +765,7 @@ CMDF do_showrace(CHAR_DATA * ch, char *argument)
                  "&c==============================================================\n\r",
                  ch);
 
-        for (iclass = 0; iclass < MAX_ABILITY; iclass++)
+        for (iclass = 0; iclass < MaxAbility; iclass++)
                 ch_printf(ch,
                           "&c==== &B%-15s : &w%-2d &c====================================\n\r",
                           capitalize(ability_name[iclass]),
@@ -788,9 +788,9 @@ CMDF do_showrace(CHAR_DATA * ch, char *argument)
                  ch);
 }
 
-CMDF do_makerace(CHAR_DATA * ch, char *argument)
+CMDF do_makerace(CharData * ch, char *argument)
 {
-        RACE_DATA *race = NULL;
+        RaceData *race = NULL;
 
         if (!argument || argument[0] == '\0')
         {
@@ -809,11 +809,11 @@ CMDF do_makerace(CHAR_DATA * ch, char *argument)
                         }
         }
 
-        race = new RACE_DATA;
+        race = new RaceData;
         races.push_back(race);
         race->name(argument);
         race->save();
-        RACE_DATA::fwrite_race_list();
+        RaceData::fwrite_race_list();
         ch_printf(ch, "Race \"%s\" created and saved.\n\r",
                   race ? race->name()? race->
                   name() : "<ERROR1>" : "<ERROR2>");

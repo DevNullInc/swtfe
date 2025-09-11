@@ -52,28 +52,28 @@
 #include "space2.hpp"
 
 
-ch_ret one_hit args((CHAR_DATA * ch, CHAR_DATA * victim, int dt));
-int       xp_compute(CHAR_DATA * ch, CHAR_DATA * victim);
-ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit);
-int       ris_save(CHAR_DATA * ch, int percentage, int ris);
-CHAR_DATA *get_char_room_mp(CHAR_DATA * ch, char *argument);
-bool remove_obj args((CHAR_DATA * ch, int iWear, bool fReplace));
+ch_ret one_hit args((CharData * ch, CharData * victim, int dt));
+int       xp_compute(CharData * ch, CharData * victim);
+RoomIndexData *generate_exit(RoomIndexData * in_room, ExitData ** pexit);
+int       ris_save(CharData * ch, int percentage, int ris);
+CharData *get_char_room_mp(CharData * ch, char *argument);
+bool remove_obj args((CharData * ch, int iWear, bool fReplace));
 void      wear_obj
-args((CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, sh_int wear_bit));
+args((CharData * ch, ObjData * obj, bool fReplace, sh_int wear_bit));
 
 extern int top_affect;
 extern char *const crystal_table[8];
 
-CMDF do_makeblade(CHAR_DATA * ch, char *argument)
+CMDF do_makeblade(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, charge = 0;
         bool      checktool, checkdura, checkbatt, checkoven;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
-        AFFECT_DATA *paf2;
+        AffectData *paf2;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -256,7 +256,7 @@ CMDF do_makeblade(CHAR_DATA * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was left here.", MSL);
         obj->description = STRALLOC(buf);
-        CREATE(paf2, AFFECT_DATA, 1);
+        CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("hitroll");
@@ -296,15 +296,15 @@ CMDF do_makeblade(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makeblade);
 }
 
-CMDF do_makefurniture(CHAR_DATA * ch, char *argument)
+CMDF do_makefurniture(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, type;
         bool      checksew, checkfab, checktool, checkdura;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
 
         argument = one_argument(argument, arg);
@@ -552,18 +552,18 @@ CMDF do_makefurniture(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_makebowcaster(CHAR_DATA * ch, char *argument)
+CMDF do_makebowcaster(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, charge = 0;
         bool      checktool, checkdura, checkbatt, checkoven, checkcond,
                 checkcirc;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
-        AFFECT_DATA *paf;
-        AFFECT_DATA *paf2;
+        AffectData *paf;
+        AffectData *paf2;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -788,7 +788,7 @@ CMDF do_makebowcaster(CHAR_DATA * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was left here.", MSL);
         obj->description = STRALLOC(buf);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("damroll");
@@ -797,7 +797,7 @@ CMDF do_makebowcaster(CHAR_DATA * ch, char *argument)
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        CREATE(paf2, AFFECT_DATA, 1);
+        CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("hitroll");
@@ -838,18 +838,18 @@ CMDF do_makebowcaster(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_makeblaster(CHAR_DATA * ch, char *argument)
+CMDF do_makeblaster(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage;
         bool      checktool, checkdura, checkbatt, checkoven, checkcond,
                 checkcirc, checkammo;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum, power, scope, ammo, canister;
-        AFFECT_DATA *paf;
-        AFFECT_DATA *paf2;
+        AffectData *paf;
+        AffectData *paf2;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -1098,7 +1098,7 @@ CMDF do_makeblaster(CHAR_DATA * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was carelessly misplaced here.", MSL);
         obj->description = STRALLOC(buf);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("hitroll");
@@ -1107,7 +1107,7 @@ CMDF do_makeblaster(CHAR_DATA * ch, char *argument)
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        CREATE(paf2, AFFECT_DATA, 1);
+        CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("damroll");
@@ -1146,19 +1146,19 @@ CMDF do_makeblaster(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makeblaster);
 }
 
-CMDF do_makelightsaber(CHAR_DATA * ch, char *argument)
+CMDF do_makelightsaber(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       percentage;
         bool      checktool, checkdura, checkbatt,
                 checkoven, checkcond, checkcirc, checklens, checkgems,
                 checkmirr;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum, level, gems, charge, gemtype;
-        AFFECT_DATA *paf;
-        AFFECT_DATA *paf2;
+        AffectData *paf;
+        AffectData *paf2;
 
         if (ch->pcdata->learned[gsn_lightsaber_crafting] < 1)
         {
@@ -1469,7 +1469,7 @@ CMDF do_makelightsaber(CHAR_DATA * ch, char *argument)
         mudstrlcpy(buf, arg, MSL);
         mudstrlcat(buf, " ignites with a hum and a soft glow.", MSL);
         obj->action_desc = STRALLOC(buf);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("hitroll");
@@ -1478,7 +1478,7 @@ CMDF do_makelightsaber(CHAR_DATA * ch, char *argument)
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        CREATE(paf2, AFFECT_DATA, 1);
+        CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("parry");
@@ -1520,12 +1520,12 @@ CMDF do_makelightsaber(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_makespice(CHAR_DATA * ch, char *argument)
+CMDF do_makespice(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       percentage;
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         switch (ch->substate)
         {
@@ -1653,14 +1653,14 @@ CMDF do_makespice(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_makegrenade(CHAR_DATA * ch, char *argument)
+CMDF do_makegrenade(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, strength = 0, weight = 0;
         bool      checktool, checkdrink, checkbatt, checkchem, checkcirc;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1892,14 +1892,14 @@ CMDF do_makegrenade(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makegrenade);
 }
 
-CMDF do_makelandmine(CHAR_DATA * ch, char *argument)
+CMDF do_makelandmine(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, strength = 0, weight = 0;
         bool      checktool, checkdrink, checkbatt, checkchem, checkcirc;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2132,14 +2132,14 @@ CMDF do_makelandmine(CHAR_DATA * ch, char *argument)
         }
         learn_from_success(ch, gsn_makelandmine);
 }
-CMDF do_makelight(CHAR_DATA * ch, char *argument)
+CMDF do_makelight(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, strength = 0;
         bool      checktool, checkbatt, checkchem, checkcirc, checklens;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2364,15 +2364,15 @@ CMDF do_makelight(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makelight);
 }
 
-CMDF do_makejewelry(CHAR_DATA * ch, char *argument)
+CMDF do_makejewelry(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage;
         bool      checktool, checkoven, checkmetal;
-        OBJ_DATA *obj;
-        OBJ_DATA *metal = NULL;
+        ObjData *obj;
+        ObjData *metal = NULL;
         int       value, cost;
 
         switch (ch->substate)
@@ -2628,15 +2628,15 @@ CMDF do_makejewelry(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_makearmor(CHAR_DATA * ch, char *argument)
+CMDF do_makearmor(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage;
         bool      checksew, checkfab;
-        OBJ_DATA *obj;
-        OBJ_DATA *material = NULL;
+        ObjData *obj;
+        ObjData *material = NULL;
         int       value;
 
         argument = one_argument(argument, arg);
@@ -2842,15 +2842,15 @@ CMDF do_makearmor(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_makecomlink(CHAR_DATA * ch, char *argument)
+CMDF do_makecomlink(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxStringLength];
         int       percentage;
         bool      checktool, checkgem, checkbatt, checkcirc;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
         int       value;
 
@@ -3082,14 +3082,14 @@ CMDF do_makecomlink(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makecomlink);
 }
 
-CMDF do_makeshield(CHAR_DATA * ch, char *argument)
+CMDF do_makeshield(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       percentage;
         bool      checktool, checkbatt, checkcond, checkcirc, checkgems;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum, level, charge, gemtype = 0;
 
         mudstrlcpy(arg, argument, MIL);
@@ -3328,15 +3328,15 @@ CMDF do_makeshield(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_makecontainer(CHAR_DATA * ch, char *argument)
+CMDF do_makecontainer(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, capacity;
         bool      checksew, checkfab;
-        OBJ_DATA *obj;
-        OBJ_DATA *material = NULL;
+        ObjData *obj;
+        ObjData *material = NULL;
         int       value;
 
         argument = one_argument(argument, arg);
@@ -3572,18 +3572,18 @@ CMDF do_makecontainer(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makecontainer);
 }
 
-CMDF do_gemcutting(CHAR_DATA * ch, char *argument)
+CMDF do_gemcutting(CharData * ch, char *argument)
 {
 
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, gemtype = 0;
         bool      checktool, checkgems;
-        OBJ_DATA *obj;
-        OBJ_DATA *crystal;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjData *crystal;
+        ObjIndexData *pObjIndex;
         int       vnum;
-        AFFECT_DATA *paf = NULL;
+        AffectData *paf = NULL;
 
 
 
@@ -3749,7 +3749,7 @@ CMDF do_gemcutting(CHAR_DATA * ch, char *argument)
                         "crystaline");
         if (gemtype > -1 && gemtype < 8)
         {
-                CREATE(paf, AFFECT_DATA, 1);
+                CREATE(paf, AffectData, 1);
                 paf->type = -1;
                 paf->duration = -1;
                 if (gemtype == 0)
@@ -3821,9 +3821,9 @@ CMDF do_gemcutting(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_gemcutting);
 }
 
-CMDF do_reinforcements(CHAR_DATA * ch, char *argument)
+CMDF do_reinforcements(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percentage, credits;
 
         if (IS_NPC(ch) || !ch->pcdata)
@@ -3929,9 +3929,9 @@ CMDF do_reinforcements(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_postguard(CHAR_DATA * ch, char *argument)
+CMDF do_postguard(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percentage, credits;
 
         if (IS_NPC(ch) || !ch->pcdata)
@@ -4036,9 +4036,9 @@ CMDF do_postguard(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_add_patrol(CHAR_DATA * ch, char *argument)
+CMDF do_add_patrol(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percentage, credits;
 
         if (IS_NPC(ch) || !ch->pcdata)
@@ -4148,18 +4148,18 @@ CMDF do_add_patrol(CHAR_DATA * ch, char *argument)
 
 
 
-void add_reinforcements(CHAR_DATA * ch)
+void add_reinforcements(CharData * ch)
 {
-        MOB_INDEX_DATA *pMobIndex;
-        OBJ_DATA *blaster;
-        OBJ_INDEX_DATA *pObjIndex;
+        MobIndexData *pMobIndex;
+        ObjData *blaster;
+        ObjIndexData *pObjIndex;
 
         if ((pMobIndex = get_mob_index(ch->backup_mob)) == NULL)
                 return;
 
         if (ch->backup_mob == MOB_VNUM_MERCINARY)
         {
-                CHAR_DATA *mob[3];
+                CharData *mob[3];
                 int       mob_cnt;
 
                 send_to_char("Your reinforcements have arrived.\n\r", ch);
@@ -4173,7 +4173,7 @@ void add_reinforcements(CHAR_DATA * ch)
                             mob[mob_cnt], TO_ROOM);
                         mob[mob_cnt]->top_level =
                                 ch->skill_level[LEADERSHIP_ABILITY] / 3;
-                        for (ability = 0; ability < MAX_ABILITY; ability++)
+                        for (ability = 0; ability < MaxAbility; ability++)
                                 mob[mob_cnt]->skill_level[ability] =
                                         mob[mob_cnt]->top_level;
                         mob[mob_cnt]->hit = mob[mob_cnt]->top_level * 15;
@@ -4202,7 +4202,7 @@ void add_reinforcements(CHAR_DATA * ch)
 
         else if (ch->backup_mob == MOB_VNUM_SPECIAL_FORCES)
         {
-                CHAR_DATA *mob[3];
+                CharData *mob[3];
                 int       mob_cnt;
 
                 send_to_char("Your special forces have arrived.\n\r", ch);
@@ -4216,7 +4216,7 @@ void add_reinforcements(CHAR_DATA * ch)
                             mob[mob_cnt], TO_ROOM);
                         mob[mob_cnt]->top_level =
                                 ch->skill_level[LEADERSHIP_ABILITY];
-                        for (ability = 0; ability < MAX_ABILITY; ability++)
+                        for (ability = 0; ability < MaxAbility; ability++)
                                 mob[mob_cnt]->skill_level[ability] =
                                         mob[mob_cnt]->top_level;
                         mob[mob_cnt]->hit = mob[mob_cnt]->top_level * 15;
@@ -4244,7 +4244,7 @@ void add_reinforcements(CHAR_DATA * ch)
         }
         else if (ch->backup_mob == MOB_VNUM_ELITE_GUARD)
         {
-                CHAR_DATA *mob;
+                CharData *mob;
                 int       ability;
 
                 mob = create_mobile(pMobIndex);
@@ -4289,7 +4289,7 @@ void add_reinforcements(CHAR_DATA * ch)
                 act(AT_IMMORT, "$N has arrived.", ch, NULL, mob, TO_ROOM);
                 send_to_char("Your elite guard has arrived.\n\r", ch);
                 mob->top_level = ch->skill_level[LEADERSHIP_ABILITY];
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
@@ -4310,7 +4310,7 @@ void add_reinforcements(CHAR_DATA * ch)
 
         else if (ch->backup_mob == MOB_VNUM_INSTALL_GUARD)
         {
-                CHAR_DATA *mob;
+                CharData *mob;
                 int       ability;
 
                 mob = create_mobile(pMobIndex);
@@ -4331,7 +4331,7 @@ void add_reinforcements(CHAR_DATA * ch)
                 act(AT_IMMORT, "$N has arrived.", ch, NULL, mob, TO_ROOM);
                 send_to_char("Your installation guard has arrived.\n\r", ch);
                 mob->top_level = ch->skill_level[LEADERSHIP_ABILITY];
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
@@ -4359,7 +4359,7 @@ void add_reinforcements(CHAR_DATA * ch)
 
         else if (ch->backup_mob == MOB_VNUM_INSTALL_ENTERANCE_GUARD)
         {
-                CHAR_DATA *mob;
+                CharData *mob;
                 int       ability;
 
                 mob = create_mobile(pMobIndex);
@@ -4382,7 +4382,7 @@ void add_reinforcements(CHAR_DATA * ch)
                 act(AT_IMMORT, "$N has arrived.", ch, NULL, mob, TO_ROOM);
                 send_to_char("Your installation guard has arrived.\n\r", ch);
                 mob->top_level = ch->skill_level[LEADERSHIP_ABILITY];
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
@@ -4410,7 +4410,7 @@ void add_reinforcements(CHAR_DATA * ch)
 
         else if (ch->backup_mob == MOB_VNUM_INSTALL_CUSTOMS)
         {
-                CHAR_DATA *mob;
+                CharData *mob;
                 int       ability;
 
                 mob = create_mobile(pMobIndex);
@@ -4431,7 +4431,7 @@ void add_reinforcements(CHAR_DATA * ch)
                 act(AT_IMMORT, "$N has arrived.", ch, NULL, mob, TO_ROOM);
                 send_to_char("Your installation guard has arrived.\n\r", ch);
                 mob->top_level = ch->skill_level[LEADERSHIP_ABILITY];
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
@@ -4459,7 +4459,7 @@ void add_reinforcements(CHAR_DATA * ch)
 
         else if (ch->backup_mob == MOB_VNUM_INSTALL_DOCTOR)
         {
-                CHAR_DATA *mob;
+                CharData *mob;
                 int       ability;
 
                 mob = create_mobile(pMobIndex);
@@ -4481,7 +4481,7 @@ void add_reinforcements(CHAR_DATA * ch)
                 act(AT_IMMORT, "$N has arrived.", ch, NULL, mob, TO_ROOM);
                 send_to_char("Your installation doctor has arrived.\n\r", ch);
                 mob->top_level = ch->skill_level[LEADERSHIP_ABILITY];
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
@@ -4515,7 +4515,7 @@ void add_reinforcements(CHAR_DATA * ch)
 
         else if (ch->backup_mob == MOB_VNUM_GUARD)
         {
-                CHAR_DATA *mob;
+                CharData *mob;
                 int       ability;
 
                 mob = create_mobile(pMobIndex);
@@ -4554,7 +4554,7 @@ void add_reinforcements(CHAR_DATA * ch)
                 act(AT_IMMORT, "$N has arrived.", ch, NULL, mob, TO_ROOM);
                 send_to_char("Your guard has arrived.\n\r", ch);
                 mob->top_level = ch->skill_level[LEADERSHIP_ABILITY];
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 15;
                 mob->max_hit = mob->hit;
@@ -4574,7 +4574,7 @@ void add_reinforcements(CHAR_DATA * ch)
         }
         else
         {
-                CHAR_DATA *mob;
+                CharData *mob;
                 int       ability;
 
                 mob = create_mobile(pMobIndex);
@@ -4616,7 +4616,7 @@ void add_reinforcements(CHAR_DATA * ch)
                 act(AT_IMMORT, "$N has arrived.", ch, NULL, mob, TO_ROOM);
                 send_to_char("Your patrol has arrived.\n\r", ch);
                 mob->top_level = ch->skill_level[LEADERSHIP_ABILITY];
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 10;
                 mob->max_hit = mob->hit;
@@ -4638,10 +4638,10 @@ void add_reinforcements(CHAR_DATA * ch)
 }
 
 
-CMDF do_torture(CHAR_DATA * ch, char *argument)
+CMDF do_torture(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
         int       percentage, dam;
         bool      fail;
 
@@ -4726,8 +4726,8 @@ CMDF do_torture(CHAR_DATA * ch, char *argument)
                 ch->pcdata->learned[gsn_torture]))
         {
                 learn_from_success(ch, gsn_torture);
-                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-                WAIT_STATE(victim, PULSE_VIOLENCE);
+                WAIT_STATE(ch, 2 * PulseViolence);
+                WAIT_STATE(victim, PulseViolence);
                 act(AT_SKILL,
                     "$N slowly tortures you. The pain is excruciating.",
                     victim, NULL, ch, TO_CHAR);
@@ -4754,15 +4754,15 @@ CMDF do_torture(CHAR_DATA * ch, char *argument)
                     TO_CHAR);
                 act(AT_SKILL, "$n tries to painfully torture $N.", ch, NULL,
                     victim, TO_NOTVICT);
-                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 2 * PulseViolence);
                 global_retcode = multi_hit(victim, ch, TYPE_UNDEFINED);
         }
         return;
 
 }
 
-void      set_name(CHAR_DATA * ch, char *name);
-CMDF do_disguise(CHAR_DATA * ch, char *argument)
+void      set_name(CharData * ch, char *name);
+CMDF do_disguise(CharData * ch, char *argument)
 {
         int       percentage;
 
@@ -4788,7 +4788,7 @@ CMDF do_disguise(CHAR_DATA * ch, char *argument)
                 send_to_char("You try to disguise yourself but fail.\n\r",
                              ch);
                 set_name(ch, ch->name);
-                WAIT_STATE(ch, 4 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 4 * PulseViolence);
                 return;
         }
 
@@ -4801,10 +4801,10 @@ CMDF do_disguise(CHAR_DATA * ch, char *argument)
         send_to_char("Ok.\n\r", ch);
 }
 
-CMDF do_mine(CHAR_DATA * ch, char *argument)
+CMDF do_mine(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         bool      shovel;
         sh_int    move;
 
@@ -4904,19 +4904,19 @@ CMDF do_mine(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_snipe(CHAR_DATA * ch, char *argument)
+CMDF do_snipe(CharData * ch, char *argument)
 {
-        OBJ_DATA *wield;
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        ObjData *wield;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
         sh_int    dir, dist;
         sh_int    max_dist = 3;
-        EXIT_DATA *pexit;
-        ROOM_INDEX_DATA *was_in_room;
-        ROOM_INDEX_DATA *to_room;
-        CHAR_DATA *victim = NULL;
+        ExitData *pexit;
+        RoomIndexData *was_in_room;
+        RoomIndexData *to_room;
+        CharData *victim = NULL;
         int       percentage;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         bool      pfound = FALSE;
 
         if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
@@ -5117,16 +5117,16 @@ CMDF do_snipe(CHAR_DATA * ch, char *argument)
         char_to_room(ch, was_in_room);
 
         if (IS_NPC(ch))
-                WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 1 * PulseViolence);
         else
         {
                 if (number_percent() < ch->pcdata->learned[gsn_third_attack])
-                        WAIT_STATE(ch, 1 * PULSE_PER_SECOND);
+                        WAIT_STATE(ch, 1 * PulsePerSecond);
                 else if (number_percent() <
                          ch->pcdata->learned[gsn_second_attack])
-                        WAIT_STATE(ch, 2 * PULSE_PER_SECOND);
+                        WAIT_STATE(ch, 2 * PulsePerSecond);
                 else
-                        WAIT_STATE(ch, 3 * PULSE_PER_SECOND);
+                        WAIT_STATE(ch, 3 * PulsePerSecond);
         }
         if (IS_NPC(victim) && !char_died(victim))
         {
@@ -5145,19 +5145,19 @@ CMDF do_snipe(CHAR_DATA * ch, char *argument)
 
 /* syntax throw <obj> [direction] [target] */
 
-CMDF do_throw(CHAR_DATA * ch, char *argument)
+CMDF do_throw(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
-        OBJ_DATA *tmpobj;
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
+        ObjData *obj;
+        ObjData *tmpobj;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
         sh_int    dir;
-        EXIT_DATA *pexit;
-        ROOM_INDEX_DATA *was_in_room;
-        ROOM_INDEX_DATA *to_room;
-        CHAR_DATA *victim;
-        char      buf[MAX_STRING_LENGTH];
+        ExitData *pexit;
+        RoomIndexData *was_in_room;
+        RoomIndexData *to_room;
+        CharData *victim;
+        char      buf[MaxStringLength];
 
 
         argument = one_argument(argument, arg);
@@ -5442,20 +5442,20 @@ CMDF do_throw(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_pickshiplock(CHAR_DATA * ch, char *argument)
+CMDF do_pickshiplock(CharData * ch, char *argument)
 {
         do_pick(ch, argument);
 }
 
-CMDF do_hijack(CHAR_DATA * ch, char *argument)
+CMDF do_hijack(CharData * ch, char *argument)
 {
         int       percentage;
-        SHIP_DATA *ship;
-        char      buf[MAX_STRING_LENGTH];
+        ShipData *ship;
+        char      buf[MaxStringLength];
         long      xpgain;
-        CLAN_DATA *clan;
-        CHAR_DATA *owner;
-        ROOM_INDEX_DATA *room;
+        ClanData *clan;
+        CharData *owner;
+        RoomIndexData *room;
 
         if ((ship = ship_from_cockpit(ch->in_room->vnum)) == NULL)
         {
@@ -5614,9 +5614,9 @@ CMDF do_hijack(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_special_forces(CHAR_DATA * ch, char *argument)
+CMDF do_special_forces(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percentage, credits;
 
         if (IS_NPC(ch) || !ch->pcdata)
@@ -5722,9 +5722,9 @@ CMDF do_special_forces(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_elite_guard(CHAR_DATA * ch, char *argument)
+CMDF do_elite_guard(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percentage, credits;
 
         if (IS_NPC(ch) || !ch->pcdata)
@@ -5829,12 +5829,12 @@ CMDF do_elite_guard(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_jail(CHAR_DATA * ch, char *argument)
+CMDF do_jail(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = NULL;
-        CLAN_DATA *clan = NULL;
+        CharData *victim = NULL;
+        ClanData *clan = NULL;
         BOUNTY_DATA *bounty = NULL;
-        ROOM_INDEX_DATA *jail = NULL;
+        RoomIndexData *jail = NULL;
 
         if (IS_NPC(ch))
                 return;
@@ -5950,12 +5950,12 @@ CMDF do_jail(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_smalltalk(CHAR_DATA * ch, char *argument)
+CMDF do_smalltalk(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim = NULL;
-        PLANET_DATA *planet = NULL;
-        CLAN_DATA *clan = NULL;
+        char      arg1[MaxInputLength];
+        CharData *victim = NULL;
+        PlanetData *planet = NULL;
+        ClanData *clan = NULL;
         int       percent;
 
         if (IS_NPC(ch) || !ch->pcdata)
@@ -6087,13 +6087,13 @@ CMDF do_smalltalk(CHAR_DATA * ch, char *argument)
                 planet->pop_support = 100;
 }
 
-CMDF do_propeganda(CHAR_DATA * ch, char *argument)
+CMDF do_propeganda(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg1[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        PLANET_DATA *planet;
-        CLAN_DATA *clan;
+        char      buf[MaxStringLength];
+        char      arg1[MaxInputLength];
+        CharData *victim;
+        PlanetData *planet;
+        ClanData *clan;
         int       percent;
 
         if (IS_NPC(ch) || !ch->pcdata || !ch->pcdata->clan
@@ -6227,12 +6227,12 @@ CMDF do_propeganda(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_bribe(CHAR_DATA * ch, char *argument)
+CMDF do_bribe(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        PLANET_DATA *planet;
-        CLAN_DATA *clan;
+        char      arg1[MaxInputLength];
+        CharData *victim;
+        PlanetData *planet;
+        ClanData *clan;
         int       percent, amount;
 
         if (IS_NPC(ch) || !ch->pcdata || !ch->pcdata->clan
@@ -6372,14 +6372,14 @@ CMDF do_bribe(CHAR_DATA * ch, char *argument)
                 planet->pop_support = 100;
 }
 
-CMDF do_seduce(CHAR_DATA * ch, char *argument)
+CMDF do_seduce(CharData * ch, char *argument)
 {
-        AFFECT_DATA af;
+        AffectData af;
         int       percentage;
         int       level;
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *victim;
-        CHAR_DATA *rch;
+        char      buf[MaxStringLength];
+        CharData *victim;
+        CharData *rch;
 
         if (argument[0] == '\0')
         {
@@ -6470,7 +6470,7 @@ CMDF do_seduce(CHAR_DATA * ch, char *argument)
                 }
         }
         af.type = gsn_seduce;
-        af.duration = (int) ((number_fuzzy((level + 1) / 3) + 1) * DUR_CONV);
+        af.duration = (int) ((number_fuzzy((level + 1) / 3) + 1) * DurConv);
         af.location = 0;
         af.modifier = 0;
         af.bitvector = AFF_CHARM;
@@ -6488,12 +6488,12 @@ CMDF do_seduce(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_mass_propeganda(CHAR_DATA * ch, char *argument)
+CMDF do_mass_propeganda(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *rch;
-        PLANET_DATA *planet;
-        CLAN_DATA *clan;
+        char      buf[MaxStringLength];
+        CharData *rch;
+        PlanetData *planet;
+        ClanData *clan;
         int       victims = 0;
 
         argument = NULL;
@@ -6605,9 +6605,9 @@ CMDF do_mass_propeganda(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_changesex(CHAR_DATA * ch, char *argument)
+CMDF do_changesex(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percentage;
 
         one_argument(argument, arg);
@@ -6655,12 +6655,12 @@ CMDF do_changesex(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_changesex);
 }
 
-CMDF do_research(CHAR_DATA * ch, char *argument)
+CMDF do_research(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *victim;
+        char      buf[MaxStringLength];
         int       percentage;
-        SHIP_DATA *ship;
+        ShipData *ship;
         int       count;
 
 
@@ -6806,17 +6806,17 @@ CMDF do_research(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_makeknife(CHAR_DATA * ch, char *argument)
+CMDF do_makeknife(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage;
         bool      checktool, checksteel, checkplast, checkoven;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
-        AFFECT_DATA *paf;
-        AFFECT_DATA *paf2;
+        AffectData *paf;
+        AffectData *paf2;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -6998,7 +6998,7 @@ CMDF do_makeknife(CHAR_DATA * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was left here.", MSL);
         obj->description = STRALLOC(buf);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("backstab");
@@ -7007,7 +7007,7 @@ CMDF do_makeknife(CHAR_DATA * ch, char *argument)
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        CREATE(paf2, AFFECT_DATA, 1);
+        CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("hitroll");
@@ -7046,17 +7046,17 @@ CMDF do_makeknife(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_makepike(CHAR_DATA * ch, char *argument)
+CMDF do_makepike(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage;
         bool      checktool, checksteel, checkplast, checkoven, checkbatt;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum, bonus = 0;
-        AFFECT_DATA *paf;
-        AFFECT_DATA *paf2;
+        AffectData *paf;
+        AffectData *paf2;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -7249,7 +7249,7 @@ CMDF do_makepike(CHAR_DATA * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was left here.", MSL);
         obj->description = STRALLOC(buf);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("grip");
@@ -7258,7 +7258,7 @@ CMDF do_makepike(CHAR_DATA * ch, char *argument)
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        CREATE(paf2, AFFECT_DATA, 1);
+        CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("hitroll");
@@ -7296,10 +7296,10 @@ CMDF do_makepike(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makepike);
 }
 
-CMDF do_itemrepair(CHAR_DATA * ch, char *argument)
+CMDF do_itemrepair(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj, *cobj;
-        char      arg[MAX_STRING_LENGTH];
+        ObjData *obj, *cobj;
+        char      arg[MaxStringLength];
         int       percentage;
         bool      checktool, checksew;
 
@@ -7469,10 +7469,10 @@ CMDF do_itemrepair(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_causedissension(CHAR_DATA * ch, char *argument)
+CMDF do_causedissension(CharData * ch, char *argument)
 {
-        PLANET_DATA *planet;
-        CLAN_DATA *clan;
+        PlanetData *planet;
+        ClanData *clan;
         int       percent;
 
         argument = NULL;
@@ -7616,11 +7616,11 @@ CMDF do_causedissension(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_causedessertion(CHAR_DATA * ch, char *argument)
+CMDF do_causedessertion(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        PLANET_DATA *planet;
-        CLAN_DATA *clan;
+        char      buf[MaxStringLength];
+        PlanetData *planet;
+        ClanData *clan;
         int       percentage;
 
         argument = NULL;
@@ -7759,13 +7759,13 @@ CMDF do_causedessertion(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_causedesertion);
 }
 
-CMDF do_boostmorale(CHAR_DATA * ch, char *argument)
+CMDF do_boostmorale(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg1[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        PLANET_DATA *planet;
-        CLAN_DATA *clan;
+        char      buf[MaxStringLength];
+        char      arg1[MaxInputLength];
+        CharData *victim;
+        PlanetData *planet;
+        ClanData *clan;
         int       percent;
 
         if (IS_NPC(ch) || !ch->pcdata || !ch->pcdata->clan
@@ -7894,19 +7894,19 @@ CMDF do_boostmorale(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_throwsaber(CHAR_DATA * ch, char *argument)
+CMDF do_throwsaber(CharData * ch, char *argument)
 {
-        OBJ_DATA *wield;
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        ObjData *wield;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
         sh_int    dir, dist;
         sh_int    max_dist = 3;
-        EXIT_DATA *pexit;
-        ROOM_INDEX_DATA *was_in_room;
-        ROOM_INDEX_DATA *to_room;
-        CHAR_DATA *victim = NULL;
+        ExitData *pexit;
+        RoomIndexData *was_in_room;
+        RoomIndexData *to_room;
+        CharData *victim = NULL;
         int       percentage;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         bool      pfound = FALSE;
 
         if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
@@ -8116,16 +8116,16 @@ CMDF do_throwsaber(CHAR_DATA * ch, char *argument)
         char_to_room(ch, was_in_room);
 
         if (IS_NPC(ch))
-                WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 1 * PulseViolence);
         else
         {
                 if (number_percent() < ch->pcdata->learned[gsn_third_attack])
-                        WAIT_STATE(ch, 1 * PULSE_PER_SECOND);
+                        WAIT_STATE(ch, 1 * PulsePerSecond);
                 else if (number_percent() <
                          ch->pcdata->learned[gsn_second_attack])
-                        WAIT_STATE(ch, 2 * PULSE_PER_SECOND);
+                        WAIT_STATE(ch, 2 * PulsePerSecond);
                 else
-                        WAIT_STATE(ch, 3 * PULSE_PER_SECOND);
+                        WAIT_STATE(ch, 3 * PulsePerSecond);
         }
         if (IS_NPC(victim) && !char_died(victim))
         {
@@ -8142,13 +8142,13 @@ CMDF do_throwsaber(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_makebinding(CHAR_DATA * ch, char *argument)
+CMDF do_makebinding(CharData * ch, char *argument)
 {
         char      buf[MSL], arg[MSL];
         int       level, percentage;
         bool      checkcirc, checktool, checkdura;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
 
         mudstrlcpy(arg, argument, MSL);
@@ -8313,7 +8313,7 @@ CMDF do_makebinding(CHAR_DATA * ch, char *argument)
 
         obj = create_object(pObjIndex, level);
         {
-                char      str1[MAX_INPUT_LENGTH];
+                char      str1[MaxInputLength];
 
                 strcat(str1, "binding binder ");
                 strcat(str1, arg);

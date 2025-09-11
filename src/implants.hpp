@@ -52,7 +52,7 @@ extern const std::array<std::string, MAX_IMPLANT_TYPES> implant_names;
 extern const std::array<std::string, MAX_IMPLANT_TYPES> implant_affect_names;
 extern const std::array<int, MAX_IMPLANT_TYPES> implant_affect_modifier;
 
-int get_implant_affect(CHAR_DATA* ch, int implant);
+int get_implant_affect(CharData* ch, int implant);
 
 
 enum class ImplantType : int {

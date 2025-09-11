@@ -89,13 +89,13 @@ namespace {
 // ============================================================================
 // Function Prototypes
 // ============================================================================
-void get_obj args((CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * container));
-bool remove_obj args((CHAR_DATA * ch, int iWear, bool fReplace));
+void get_obj args((CharData * ch, ObjData * obj, ObjData * container));
+bool remove_obj args((CharData * ch, int iWear, bool fReplace));
 void      wear_obj
-args((CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, sh_int wear_bit));
-bool      could_dual(CHAR_DATA * ch);
-bool      can_dual(CHAR_DATA * ch);
-bool      can_layer(CHAR_DATA * ch, OBJ_DATA * obj, sh_int wear_loc);
+args((CharData * ch, ObjData * obj, bool fReplace, sh_int wear_bit));
+bool      could_dual(CharData * ch);
+bool      can_dual(CharData * ch);
+bool      can_layer(CharData * ch, ObjData * obj, sh_int wear_loc);
 
 // ============================================================================
 // Object Resistance and Durability Functions
@@ -104,7 +104,7 @@ bool      can_layer(CHAR_DATA * ch, OBJ_DATA * obj, sh_int wear_loc);
 /*
  * how resistant an object is to damage				-Thoric
  */
-sh_int get_obj_resistance(OBJ_DATA * obj)
+sh_int get_obj_resistance(ObjData * obj)
 {
         sh_int    resist;
 
@@ -144,9 +144,9 @@ sh_int get_obj_resistance(OBJ_DATA * obj)
 // Object Transfer and Manipulation Functions
 // ============================================================================
 
-void get_obj(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * container)
+void get_obj(CharData * ch, ObjData * obj, ObjData * container)
 {
-        CLAN_DATA *clan;
+        ClanData *clan;
         int       weight;
 
         if (IS_SET(ch->affected_by, AFF_RESTRAINED))
@@ -244,14 +244,14 @@ void get_obj(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * container)
 // Object Retrieval Commands
 // ============================================================================
 
-CMDF do_get(CHAR_DATA * ch, const char *argument)
+CMDF do_get(CharData * ch, const char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      mutable_argument[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        OBJ_DATA *obj_next;
-        OBJ_DATA *container;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      mutable_argument[MaxInputLength];
+        ObjData *obj;
+        ObjData *obj_next;
+        ObjData *container;
         sh_int    number;
         bool      found;
 
@@ -551,14 +551,14 @@ CMDF do_get(CHAR_DATA * ch, const char *argument)
 // Object Storage Commands
 // ============================================================================
 
-CMDF do_put(CHAR_DATA * ch, char *argument)
+CMDF do_put(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_DATA *container;
-        OBJ_DATA *obj;
-        OBJ_DATA *obj_next;
-        CLAN_DATA *clan;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjData *container;
+        ObjData *obj;
+        ObjData *obj_next;
+        ClanData *clan;
         sh_int    count;
         int       number;
         bool      save_char = FALSE;
@@ -787,13 +787,13 @@ CMDF do_put(CHAR_DATA * ch, char *argument)
 // Object Dropping and Disposal Commands
 // ============================================================================
 
-CMDF do_drop(CHAR_DATA * ch, char *argument)
+CMDF do_drop(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        OBJ_DATA *obj_next;
+        char      arg[MaxInputLength];
+        ObjData *obj;
+        ObjData *obj_next;
         bool      found;
-        CLAN_DATA *clan;
+        ClanData *clan;
         int       number;
 
         argument = one_argument(argument, arg);
@@ -1005,13 +1005,13 @@ CMDF do_drop(CHAR_DATA * ch, char *argument)
 // Object Transfer Between Characters
 // ============================================================================
 
-CMDF do_give(CHAR_DATA * ch, char *argument)
+CMDF do_give(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        OBJ_DATA *obj;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxInputLength];
+        CharData *victim;
+        ObjData *obj;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -1163,9 +1163,9 @@ CMDF do_give(CHAR_DATA * ch, char *argument)
  * Make object into scraps if necessary.
  * Send message about damaged object.
  */
-obj_ret damage_obj(OBJ_DATA * obj)
+obj_ret damage_obj(ObjData * obj)
 {
-        CHAR_DATA *ch;
+        CharData *ch;
         obj_ret   objcode;
 
         ch = obj->carried_by;
@@ -1233,9 +1233,9 @@ obj_ret damage_obj(OBJ_DATA * obj)
 /*
  * Remove an object.
  */
-bool remove_obj(CHAR_DATA * ch, int iWear, bool fReplace)
+bool remove_obj(CharData * ch, int iWear, bool fReplace)
 {
-        OBJ_DATA *obj, *tmpobj;
+        ObjData *obj, *tmpobj;
 
         if ((obj = get_eq_char(ch, iWear)) == NULL)
                 return TRUE;
@@ -1272,7 +1272,7 @@ bool remove_obj(CHAR_DATA * ch, int iWear, bool fReplace)
 /*
  * See if char could be capable of dual-wielding		-Thoric
  */
-bool could_dual(CHAR_DATA * ch)
+bool could_dual(CharData * ch)
 {
         if (IS_NPC(ch))
                 return TRUE;
@@ -1291,7 +1291,7 @@ bool could_dual(CHAR_DATA * ch)
 /*
  * See if char can dual wield at this time			-Thoric
  */
-bool can_dual(CHAR_DATA * ch)
+bool can_dual(CharData * ch)
 {
         if (!could_dual(ch))
                 return FALSE;
@@ -1316,9 +1316,9 @@ bool can_dual(CHAR_DATA * ch)
  * Check to see if there is room to wear another object on this location
  * (Layered clothing support)
  */
-bool can_layer(CHAR_DATA * ch, OBJ_DATA * obj, sh_int wear_loc)
+bool can_layer(CharData * ch, ObjData * obj, sh_int wear_loc)
 {
-        OBJ_DATA *otmp;
+        ObjData *otmp;
         sh_int    bitlayers = 0;
         sh_int    objlayers = obj->pIndexData->layers;
 
@@ -1343,10 +1343,10 @@ bool can_layer(CHAR_DATA * ch, OBJ_DATA * obj, sh_int wear_loc)
  * Big repetitive code, ick.
  * Restructured a bit to allow for specifying body location	-Thoric
  */
-void wear_obj(CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, sh_int wear_bit)
+void wear_obj(CharData * ch, ObjData * obj, bool fReplace, sh_int wear_bit)
 {
-        char      buf[MAX_STRING_LENGTH];
-        OBJ_DATA *tmpobj;
+        char      buf[MaxStringLength];
+        ObjData *tmpobj;
         sh_int    bit, tmp;
         bool      check_size;
 
@@ -2171,11 +2171,11 @@ void wear_obj(CHAR_DATA * ch, OBJ_DATA * obj, bool fReplace, sh_int wear_bit)
 }
 
 
-CMDF do_wear(CHAR_DATA * ch, char *argument)
+CMDF do_wear(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjData *obj;
         sh_int    wear_bit;
 
         argument = one_argument(argument, arg1);
@@ -2195,7 +2195,7 @@ CMDF do_wear(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg1, "all"))
         {
-                OBJ_DATA *obj_next;
+                ObjData *obj_next;
 
                 for (obj = ch->first_carrying; obj; obj = obj_next)
                 {
@@ -2225,10 +2225,10 @@ CMDF do_wear(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_remove(CHAR_DATA * ch, const char *argument)
+CMDF do_remove(CharData * ch, const char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj, *obj_next;
+        char      arg[MaxInputLength];
+        ObjData *obj, *obj_next;
 
 
         one_argument(const_cast<char*>(argument), arg);
@@ -2274,10 +2274,10 @@ CMDF do_remove(CHAR_DATA * ch, const char *argument)
 // Object Burial and Recovery Commands
 // ============================================================================
 
-CMDF do_bury(CHAR_DATA * ch, char *argument)
+CMDF do_bury(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         bool      shovel;
         sh_int    move;
 
@@ -2364,12 +2364,12 @@ CMDF do_bury(CHAR_DATA * ch, char *argument)
 // Magic Item Commands
 // ============================================================================
 
-CMDF do_zap(CHAR_DATA * ch, char *argument)
+CMDF do_zap(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        OBJ_DATA *wand;
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        CharData *victim;
+        ObjData *wand;
+        ObjData *obj;
         ch_ret    retcode;
 
         one_argument(argument, arg);
@@ -2414,7 +2414,7 @@ CMDF do_zap(CHAR_DATA * ch, char *argument)
                 }
         }
 
-        WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+        WAIT_STATE(ch, 1 * PulseViolence);
 
         if (wand->value[2] > 0)
         {
@@ -2468,12 +2468,12 @@ CMDF do_zap(CHAR_DATA * ch, char *argument)
 /*
  * Save items in a clan storage room			-Scryn & Thoric
  */
-void save_clan_storeroom(CHAR_DATA * ch, CLAN_DATA * clan)
+void save_clan_storeroom(CharData * ch, ClanData * clan)
 {
         FILE     *fp;
         char      filename[256];
         sh_int    templvl;
-        OBJ_DATA *contents;
+        ObjData *contents;
 
         if (!clan)
         {
@@ -2496,7 +2496,7 @@ void save_clan_storeroom(CHAR_DATA * ch, CLAN_DATA * clan)
         else
         {
                 templvl = ch->top_level;
-                ch->top_level = LEVEL_HERO; /* make sure EQ doesn't get lost */
+                ch->top_level = LevelHero; /* make sure EQ doesn't get lost */
                 contents = ch->in_room->last_content;
                 if (contents && contents->item_type != ITEM_CORPSE_PC)
                         fwrite_obj(ch, contents, fp, 0, OS_CARRY, FALSE);
@@ -2509,13 +2509,13 @@ void save_clan_storeroom(CHAR_DATA * ch, CLAN_DATA * clan)
 }
 
 /* put an item on auction, or see the stats on the current item or bet */
-CMDF do_auction(CHAR_DATA * ch, const char *argument)
+CMDF do_auction(CharData * ch, const char *argument)
 {
-        OBJ_DATA *obj;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-        char      mutable_argument[MAX_INPUT_LENGTH];
+        ObjData *obj;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxStringLength];
+        char      mutable_argument[MaxInputLength];
 
         strcpy(mutable_argument, argument);
         one_argument(mutable_argument, arg1);
@@ -2538,7 +2538,7 @@ CMDF do_auction(CHAR_DATA * ch, const char *argument)
         {
                 if (auction->item != NULL)
                 {
-                        AFFECT_DATA *paf;
+                        AffectData *paf;
 
                         obj = auction->item;
 
@@ -2554,7 +2554,7 @@ CMDF do_auction(CHAR_DATA * ch, const char *argument)
                                          "No bids on this item have been received.\n\r");
                         set_char_color(AT_BLUE, ch);
                         send_to_char(buf, ch);
-/*          spell_identify (0, LEVEL_HERO - 1, ch, auction->item); */
+/*          spell_identify (0, LevelHero - 1, ch, auction->item); */
 
                         snprintf(buf, MSL,
                                  "Object '%s' is %s, special properties: %s %s.\n\rIts weight is %d, value is %d.\n\r",
@@ -2736,7 +2736,7 @@ CMDF do_auction(CHAR_DATA * ch, const char *argument)
                         auction->buyer = ch;
                         auction->bet = newbet;
                         auction->going = 0;
-                        auction->pulse = PULSE_AUCTION; /* start the auction over again */
+                        auction->pulse = PulseAuction; /* start the auction over again */
 
                         snprintf(buf, MSL,
                                  "A bid of %d credits has been received on %s.\n\r",
@@ -2826,7 +2826,7 @@ CMDF do_auction(CHAR_DATA * ch, const char *argument)
                         auction->bet = 0;
                         auction->buyer = ch;
                         auction->seller = ch;
-                        auction->pulse = PULSE_AUCTION;
+                        auction->pulse = PulseAuction;
                         auction->going = 0;
                         auction->starting = atoi(arg2);
 
@@ -2846,7 +2846,7 @@ CMDF do_auction(CHAR_DATA * ch, const char *argument)
                 act(AT_TELL,
                     "Try again later - $p is being auctioned right now!", ch,
                     auction->item, NULL, TO_CHAR);
-                WAIT_STATE(ch, static_cast<sh_int>(1.5 * PULSE_VIOLENCE));
+                WAIT_STATE(ch, static_cast<sh_int>(1.5 * PulseViolence));
                 return;
         }
 }
@@ -2855,12 +2855,12 @@ CMDF do_auction(CHAR_DATA * ch, const char *argument)
 
 /* Make objects in rooms that are nofloor fall - Scryn 1/23/96 */
 
-void obj_fall(OBJ_DATA * obj, bool through)
+void obj_fall(ObjData * obj, bool through)
 {
-        EXIT_DATA *pexit;
-        ROOM_INDEX_DATA *to_room;
+        ExitData *pexit;
+        RoomIndexData *to_room;
         static int fall_count;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         static bool is_falling; /* Stop loops from the call to obj_to_room()  -- Altrag */
 
         if (!obj->in_room || is_falling)
@@ -2929,8 +2929,8 @@ void obj_fall(OBJ_DATA * obj, bool through)
                         if (obj->in_room->first_person
                             && number_percent() > 15)
                         {
-                                CHAR_DATA *rch;
-                                CHAR_DATA *vch = NULL;
+                                CharData *rch;
+                                CharData *vch = NULL;
                                 int       chcnt = 0;
 
                                 for (rch = obj->in_room->first_person; rch;
@@ -2997,9 +2997,9 @@ void obj_fall(OBJ_DATA * obj, bool through)
         return;
 }
 
-CMDF do_hold(CHAR_DATA * ch, char *argument)
+CMDF do_hold(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = NULL;
+        CharData *victim = NULL;
 
         if (argument[0] == '\0')
         {
@@ -3017,12 +3017,12 @@ CMDF do_hold(CHAR_DATA * ch, char *argument)
                 return;
         }
 }
-CMDF do_setcode(CHAR_DATA * ch, char *argument)
+CMDF do_setcode(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj = NULL;
-        CHAR_DATA *victim = NULL;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjData *obj = NULL;
+        CharData *victim = NULL;
 
         if (argument[0] == '\0')
         {
@@ -3084,11 +3084,11 @@ CMDF do_setcode(CHAR_DATA * ch, char *argument)
 // Object Memory Management
 // ============================================================================
 
-void free_object(OBJ_DATA * obj)
+void free_object(ObjData * obj)
 {
 
-        AFFECT_DATA *paf, *next_paf;
-        EXTRA_DESCR_DATA *ed, *next_ed;
+        AffectData *paf, *next_paf;
+        ExtraDescrData *ed, *next_ed;
 
         for (paf = obj->first_affect; paf; paf = next_paf)
         {

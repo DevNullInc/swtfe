@@ -80,27 +80,27 @@ char     *const target_type[] =
         { "ignore", "offensive", "defensive", "self", "objinv" };
 
 
-void      show_char_to_char(CHAR_DATA * list, CHAR_DATA * ch);
+void      show_char_to_char(CharData * list, CharData * ch);
 
-int       ris_save(CHAR_DATA * ch, int percent_chance, int ris);
-bool      check_illegal_psteal(CHAR_DATA * ch, CHAR_DATA * victim);
+int       ris_save(CharData * ch, int percent_chance, int ris);
+bool      check_illegal_psteal(CharData * ch, CharData * victim);
 int get_partflag args((char *flag));
 
 /* from arena.c */
-bool    in_arena        args((CHAR_DATA * ch));
+bool    in_arena        args((CharData * ch));
 
 /* from magic.c */
-void      failed_casting(struct skill_type *skill, CHAR_DATA * ch,
-                         CHAR_DATA * victim, OBJ_DATA * obj);
+void      failed_casting(struct skill_type *skill, CharData * ch,
+                         CharData * victim, ObjData * obj);
 
-int xp_compute args((CHAR_DATA * gch, CHAR_DATA * victim));
+int xp_compute args((CharData * gch, CharData * victim));
 
-ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit);
+RoomIndexData *generate_exit(RoomIndexData * in_room, ExitData ** pexit);
 
 /*
  * Dummy function
  */
-void skill_notfound(CHAR_DATA * ch, char *argument)
+void skill_notfound(CharData * ch, char *argument)
 {
         argument = NULL;
         send_to_char("Huh?\n\r", ch);
@@ -178,7 +178,7 @@ int get_sclass(char *name)
         return -1;
 }
 
-bool is_legal_kill(CHAR_DATA * ch, CHAR_DATA * vch)
+bool is_legal_kill(CharData * ch, CharData * vch)
 {
         if (IS_NPC(ch) || IS_NPC(vch))
                 return TRUE;
@@ -195,7 +195,7 @@ extern char *target_name;   /* from magic.c */
  * Each different section of the skill table is sorted alphabetically
  * Only match skills player knows				-Thoric
  */
-bool check_skill(CHAR_DATA * ch, char *command, char *argument)
+bool check_skill(CharData * ch, char *command, char *argument)
 {
         int       sn;
         int       first = gsn_first_skill;
@@ -279,8 +279,8 @@ bool check_skill(CHAR_DATA * ch, char *command, char *argument)
         {
                 ch_ret    retcode = rNONE;
                 void     *vo = NULL;
-                CHAR_DATA *victim = NULL;
-                OBJ_DATA *obj = NULL;
+                CharData *victim = NULL;
+                ObjData *obj = NULL;
 
                 target_name = "";
 
@@ -364,7 +364,7 @@ bool check_skill(CHAR_DATA * ch, char *command, char *argument)
                             (IS_NPC(ch) ? 75 : ch->pcdata->learned[sn]))
                         {
                                 failed_casting(skill_table[sn], ch,
-                                               (CHAR_DATA *) vo, obj);
+                                               (CharData *) vo, obj);
                                 learn_from_failure(ch, sn);
                                 if (endurance)
                                 {
@@ -401,8 +401,8 @@ bool check_skill(CHAR_DATA * ch, char *command, char *argument)
                 if (skill_table[sn]->target == TAR_CHAR_OFFENSIVE
                     && victim != ch && !char_died(victim))
                 {
-                        CHAR_DATA *vch;
-                        CHAR_DATA *vch_next;
+                        CharData *vch;
+                        CharData *vch_next;
 
                         for (vch = ch->in_room->first_person; vch;
                              vch = vch_next)
@@ -440,12 +440,12 @@ bool check_skill(CHAR_DATA * ch, char *command, char *argument)
  * Lookup a skills information
  * High god command
  */
-CMDF do_slookup(CHAR_DATA * ch, char *argument)
+CMDF do_slookup(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH], arg2[MIL];
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength], arg2[MIL];
         int       sn;
-        SKILLTYPE *skill = NULL;
+        SkillType *skill = NULL;
 
         argument = one_argument(argument, arg);
         argument = one_argument(argument, arg2);
@@ -525,7 +525,7 @@ CMDF do_slookup(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                SMAUG_AFF *aff;
+                SmaugAff *aff;
                 int       cnt = 0;
 
                 if (is_number(arg))
@@ -687,7 +687,7 @@ CMDF do_slookup(CHAR_DATA * ch, char *argument)
                         ch_printf(ch, "Immvict   : %s\n\r", skill->imm_vict);
                 if (skill->imm_room && skill->imm_room[0] != '\0')
                         ch_printf(ch, "Immroom   : %s\n\r", skill->imm_room);
-                if (skill->guild >= 0 && skill->guild < MAX_ABILITY)
+                if (skill->guild >= 0 && skill->guild < MaxAbility)
                 {
                         snprintf(buf, MSL,
                                  "guild: %s   Align: %4d   lvl: %3d held: %d\n\r",
@@ -705,11 +705,11 @@ CMDF do_slookup(CHAR_DATA * ch, char *argument)
  * Set a skill's attributes or what skills a player has.
  * High god command, with support for creating skills/spells/etc
  */
-CMDF do_sset(CHAR_DATA * ch, char *argument)
+CMDF do_sset(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        CharData *victim;
         int       value;
         int       sn;
         bool      fAll;
@@ -721,7 +721,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
         {
                 send_to_char("Syntax: sset <victim> <skill> <value>\n\r", ch);
                 send_to_char("or:     sset <victim> all     <value>\n\r", ch);
-                if (get_trust(ch) > LEVEL_SUB_IMPLEM)
+                if (get_trust(ch) > LevelSubImplem)
                 {
                         send_to_char("or:     sset save skill table\n\r", ch);
                         send_to_char
@@ -730,7 +730,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                         send_to_char("or:     sset <sn> delete <sn> \n\r",
                                      ch);
                 }
-                if (get_trust(ch) > LEVEL_GREATER)
+                if (get_trust(ch) > LevelGreater)
                 {
                         send_to_char
                                 ("or:     sset <sn>     <field> <value>\n\r",
@@ -757,7 +757,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (get_trust(ch) > LEVEL_SUB_IMPLEM
+        if (get_trust(ch) > LevelSubImplem
             && !str_cmp(arg1, "save") && !str_cmp(argument, "table"))
         {
                 if (!str_cmp(arg2, "skill"))
@@ -767,13 +767,13 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                         return;
                 }
         }
-        if (get_trust(ch) > LEVEL_SUB_IMPLEM
+        if (get_trust(ch) > LevelSubImplem
             && !str_cmp(arg1, "create") && (!str_cmp(arg2, "skill")))
         {
                 struct skill_type *skill;
                 sh_int    type = SKILL_UNKNOWN;
 
-                if (top_sn >= MAX_SKILL)
+                if (top_sn >= MaxSkill)
                 {
                         ch_printf(ch,
                                   "The current top sn is %d, which is the maximum.  "
@@ -797,7 +797,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                 sn = atoi(arg1 + 1);
         else
                 sn = atoi(arg1);
-        if (get_trust(ch) > LEVEL_GREATER
+        if (get_trust(ch) > LevelGreater
             &&
             ((arg1[0] == 'h' && is_number(arg1 + 1)
               && (sn = atoi(arg1 + 1)) >= 0) || (is_number(arg1)
@@ -853,7 +853,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                         {
                                 argument = one_argument(argument, arg3);
                                 value = get_partflag(arg3);
-                                if (value < 0 || value > MAX_BITS)
+                                if (value < 0 || value > MaxBits)
                                         ch_printf(ch, "Unknown flag: %s\n\r",
                                                   arg3);
                                 else
@@ -932,8 +932,8 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
 
                 if (!str_cmp(arg2, "code"))
                 {
-                        SPELL_FUN *spellfun;
-                        DO_FUN   *dofun;
+                        SpellFun *spellfun;
+                        DoFun   *dofun;
 
                         if (!str_prefix("do_", argument)
                             && (dofun =
@@ -994,7 +994,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                 if (!str_cmp(arg2, "minlevel"))
                 {
                         skill->min_level =
-                                URANGE(1, atoi(argument), MAX_LEVEL);
+                                URANGE(1, atoi(argument), MaxLevel);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
@@ -1037,8 +1037,8 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                 }
                 if (!str_cmp(arg2, "rmaffect"))
                 {
-                        SMAUG_AFF *aff = skill->affects;
-                        SMAUG_AFF *aff_next;
+                        SmaugAff *aff = skill->affects;
+                        SmaugAff *aff_next;
                         int       num = atoi(argument);
                         int       cnt = 1;
 
@@ -1079,12 +1079,12 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                  */
                 if (!str_cmp(arg2, "affect"))
                 {
-                        char      location[MAX_INPUT_LENGTH];
-                        char      modifier[MAX_INPUT_LENGTH];
-                        char      duration[MAX_INPUT_LENGTH];
-                        char      bitvector[MAX_INPUT_LENGTH];
+                        char      location[MaxInputLength];
+                        char      modifier[MaxInputLength];
+                        char      duration[MaxInputLength];
+                        char      bitvector[MaxInputLength];
                         int       loc, bit, tmpbit;
-                        SMAUG_AFF *aff;
+                        SmaugAff *aff;
 
                         argument = one_argument(argument, location);
                         argument = one_argument(argument, modifier);
@@ -1113,7 +1113,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                                 else
                                         bit |= (1 << tmpbit);
                         }
-                        CREATE(aff, SMAUG_AFF, 1);
+                        CREATE(aff, SmaugAff, 1);
                         if (!str_cmp(duration, "0"))
                                 duration[0] = '\0';
                         if (!str_cmp(modifier, "0"))
@@ -1131,7 +1131,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                                  */
                                 if (modval < 0)
                                         modval = 0;
-                                snprintf(modifier, MAX_INPUT_LENGTH, "%d",
+                                snprintf(modifier, MaxInputLength, "%d",
                                          modval);
                         }
                         aff->modifier = str_dup(modifier);
@@ -1144,7 +1144,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                 if (!str_cmp(arg2, "level"))
                 {
                         skill->min_level =
-                                URANGE(1, atoi(argument), MAX_LEVEL);
+                                URANGE(1, atoi(argument), MaxLevel);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
@@ -1443,7 +1443,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
                          * Fix by Narn to prevent ssetting skills the player shouldn't have. 
                          */
                         if (skill_table[sn]->guild < 0
-                            || skill_table[sn]->guild >= MAX_ABILITY)
+                            || skill_table[sn]->guild >= MaxAbility)
                                 continue;
                         if (skill_table[sn]->name
                             && (victim->skill_level[skill_table[sn]->guild] >=
@@ -1458,7 +1458,7 @@ CMDF do_sset(CHAR_DATA * ch, char *argument)
 }
 
 
-void learn_from_success(CHAR_DATA * ch, int sn)
+void learn_from_success(CharData * ch, int sn)
 {
         int       adept, gain, sklvl, learn, percent, percent_chance;
 
@@ -1477,7 +1477,7 @@ void learn_from_success(CHAR_DATA * ch, int sn)
         sklvl = skill_table[sn]->min_level;
 
         if (skill_table[sn]->guild < 0
-            || skill_table[sn]->guild >= MAX_ABILITY)
+            || skill_table[sn]->guild >= MaxAbility)
                 return;
 
         adept = (ch->skill_level[skill_table[sn]->guild] -
@@ -1528,16 +1528,16 @@ void learn_from_success(CHAR_DATA * ch, int sn)
 }
 
 
-void learn_from_failure(CHAR_DATA * ch, int sn)
+void learn_from_failure(CharData * ch, int sn)
 {
         ch = NULL;
         sn = 0;
 }
 
-CMDF do_gouge(CHAR_DATA * ch, char *argument)
+CMDF do_gouge(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
-        AFFECT_DATA af;
+        CharData *victim;
+        AffectData af;
         sh_int    dam;
         int       percent;
 
@@ -1591,8 +1591,8 @@ CMDF do_gouge(CHAR_DATA * ch, char *argument)
                                 act(AT_SKILL, "You can't see a thing!",
                                     victim, NULL, NULL, TO_CHAR);
                         }
-                        WAIT_STATE(ch, PULSE_VIOLENCE);
-                        WAIT_STATE(victim, PULSE_VIOLENCE);
+                        WAIT_STATE(ch, PulseViolence);
+                        WAIT_STATE(victim, PulseViolence);
                         /*
                          * Taken out by request - put back in by Thoric
                          * * This is how it was designed.  You'd be a tad stunned
@@ -1619,11 +1619,11 @@ CMDF do_gouge(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_detrap(CHAR_DATA * ch, char *argument)
+CMDF do_detrap(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        OBJ_DATA *trap;
+        char      arg[MaxInputLength];
+        ObjData *obj;
+        ObjData *trap;
         int       percent;
         bool      found = FALSE;
 
@@ -1752,13 +1752,13 @@ CMDF do_detrap(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_dig(CHAR_DATA * ch, char *argument)
+CMDF do_dig(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        OBJ_DATA *startobj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
+        ObjData *startobj;
         bool      found, shovel;
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         switch (ch->substate)
         {
@@ -1928,12 +1928,12 @@ CMDF do_dig(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_search(CHAR_DATA * ch, char *argument)
+CMDF do_search(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj = NULL;
-        OBJ_DATA *container;
-        OBJ_DATA *startobj;
+        char      arg[MaxInputLength];
+        ObjData *obj = NULL;
+        ObjData *container;
+        ObjData *startobj;
         int       percent, door;
         bool      found, room;
 
@@ -2035,7 +2035,7 @@ CMDF do_search(CHAR_DATA * ch, char *argument)
 
         if (door != -1)
         {
-                EXIT_DATA *pexit;
+                ExitData *pexit;
 
                 if ((pexit = get_exit(ch->in_room, door)) != NULL
                     && IS_SET(pexit->exit_info, EX_SECRET)
@@ -2079,12 +2079,12 @@ CMDF do_search(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_steal(CHAR_DATA * ch, char *argument)
+CMDF do_steal(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim, *mst;
-        OBJ_DATA *obj, *obj_next;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        CharData *victim, *mst;
+        ObjData *obj, *obj_next;
         int       percent, xp;
 
         argument = one_argument(argument, arg1);
@@ -2293,11 +2293,11 @@ CMDF do_steal(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_backstab(CHAR_DATA * ch, char *argument)
+CMDF do_backstab(CharData * ch, char *argument)
 {
-	char      arg[MAX_INPUT_LENGTH];
-	CHAR_DATA *victim;
-	OBJ_DATA *obj;
+	char      arg[MaxInputLength];
+	CharData *victim;
+	ObjData *obj;
 	int       percent;
 
 	if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
@@ -2348,7 +2348,7 @@ CMDF do_backstab(CHAR_DATA * ch, char *argument)
                                                 obj->value[3] !=WEAPON_KNIFE)) &&
                                 !IS_NPC(ch) && IS_SET(ch->pcdata->flags, PCFLAG_AUTODRAW))
                 {
-                        OBJ_DATA *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
+                        ObjData *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
                                  *holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
                         if (!obj && holster1 && holster1->first_content) {
                                 if (holster1->first_content->item_type == ITEM_WEAPON &&
@@ -2410,11 +2410,11 @@ CMDF do_backstab(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_rescue(CHAR_DATA * ch, char *argument)
+CMDF do_rescue(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        CHAR_DATA *fch;
+        char      arg[MaxInputLength];
+        CharData *victim;
+        CharData *fch;
         int       percent;
 
         if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
@@ -2505,9 +2505,9 @@ CMDF do_rescue(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_kick(CHAR_DATA * ch, char *argument)
+CMDF do_kick(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -2542,9 +2542,9 @@ CMDF do_kick(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_punch(CHAR_DATA * ch, char *argument)
+CMDF do_punch(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -2588,9 +2588,9 @@ CMDF do_punch(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_bite(CHAR_DATA * ch, char *argument)
+CMDF do_bite(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -2624,9 +2624,9 @@ CMDF do_bite(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_claw(CHAR_DATA * ch, char *argument)
+CMDF do_claw(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -2660,9 +2660,9 @@ CMDF do_claw(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_sting(CHAR_DATA * ch, char *argument)
+CMDF do_sting(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -2696,9 +2696,9 @@ CMDF do_sting(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_tail(CHAR_DATA * ch, char *argument)
+CMDF do_tail(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -2732,9 +2732,9 @@ CMDF do_tail(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_bash(CHAR_DATA * ch, char *argument)
+CMDF do_bash(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
         int       percent_chance;
 
         argument = NULL;
@@ -2776,8 +2776,8 @@ CMDF do_bash(CHAR_DATA * ch, char *argument)
                 /*
                  * do not change anything here!  -Thoric 
                  */
-                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-                WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 2 * PulseViolence);
+                WAIT_STATE(victim, 2 * PulseViolence);
                 victim->position = POS_SITTING;
                 global_retcode =
                         damage(ch, victim,
@@ -2787,7 +2787,7 @@ CMDF do_bash(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 2 * PulseViolence);
                 learn_from_failure(ch, gsn_bash);
                 global_retcode = damage(ch, victim, 0, gsn_bash);
         }
@@ -2795,10 +2795,10 @@ CMDF do_bash(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_stun(CHAR_DATA * ch, char *argument)
+CMDF do_stun(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
-        AFFECT_DATA af;
+        CharData *victim;
+        AffectData af;
         int       percent_chance;
         bool      fail;
 
@@ -2862,8 +2862,8 @@ CMDF do_stun(CHAR_DATA * ch, char *argument)
                  * DO *NOT* CHANGE!    -Thoric    
                  */
                 ch->endurance -= 15;
-                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-                WAIT_STATE(victim, PULSE_VIOLENCE);
+                WAIT_STATE(ch, 2 * PulseViolence);
+                WAIT_STATE(victim, PulseViolence);
                 act(AT_SKILL, "$N smashes into you, leaving you stunned!",
                     victim, NULL, ch, TO_CHAR);
                 act(AT_SKILL, "You smash into $N, leaving $M stunned!", ch,
@@ -2883,7 +2883,7 @@ CMDF do_stun(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 2 * PulseViolence);
                 ch->endurance -= 5;
                 learn_from_failure(ch, gsn_stun);
                 act(AT_SKILL,
@@ -2907,9 +2907,9 @@ CMDF do_stun(CHAR_DATA * ch, char *argument)
  * Caller must check for successful attack.
  * Check for loyalty flag (weapon disarms to inventory) for pkillers -Blodkai
  */
-void disarm(CHAR_DATA * ch, CHAR_DATA * victim)
+void disarm(CharData * ch, CharData * victim)
 {
-        OBJ_DATA *obj, *tmpobj;
+        ObjData *obj, *tmpobj;
 
         if ((obj = get_eq_char(victim, WEAR_WIELD)) == NULL)
                 return;
@@ -2955,10 +2955,10 @@ void disarm(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 
-CMDF do_disarm(CHAR_DATA * ch, char *argument)
+CMDF do_disarm(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
-        OBJ_DATA *obj;
+        CharData *victim;
+        ObjData *obj;
         int       percent;
 
         argument = NULL;
@@ -3018,7 +3018,7 @@ CMDF do_disarm(CHAR_DATA * ch, char *argument)
  * Trip a creature.
  * Caller must check for successful attack.
  */
-void trip(CHAR_DATA * ch, CHAR_DATA * victim)
+void trip(CharData * ch, CharData * victim)
 {
         if (IS_AFFECTED(victim, AFF_FLYING)
             || IS_AFFECTED(victim, AFF_FLOATING))
@@ -3036,8 +3036,8 @@ void trip(CHAR_DATA * ch, CHAR_DATA * victim)
                     NULL, victim, TO_NOTVICT);
                 REMOVE_BIT(victim->mount->act, ACT_MOUNTED);
                 victim->mount = NULL;
-                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-                WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 2 * PulseViolence);
+                WAIT_STATE(victim, 2 * PulseViolence);
                 victim->position = POS_RESTING;
                 return;
         }
@@ -3050,8 +3050,8 @@ void trip(CHAR_DATA * ch, CHAR_DATA * victim)
                 act(AT_SKILL, "$n trips $N and $N goes down!", ch, NULL,
                     victim, TO_NOTVICT);
 
-                WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-                WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 2 * PulseViolence);
+                WAIT_STATE(victim, 2 * PulseViolence);
                 victim->position = POS_RESTING;
         }
 
@@ -3059,13 +3059,13 @@ void trip(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 
-CMDF do_pick(CHAR_DATA * ch, char *argument)
+CMDF do_pick(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *gch;
-        OBJ_DATA *obj;
-        EXIT_DATA *pexit;
-        SHIP_DATA *ship;
+        char      arg[MaxInputLength];
+        CharData *gch;
+        ObjData *obj;
+        ExitData *pexit;
+        ShipData *ship;
 
         if (IS_NPC(ch))
         {
@@ -3119,11 +3119,11 @@ CMDF do_pick(CHAR_DATA * ch, char *argument)
                  * 'pick door' 
                  */
                 /*
-                 * ROOM_INDEX_DATA *to_room; 
+                 * RoomIndexData *to_room; 
                  *//*
                  * Unused 
                  */
-                EXIT_DATA *pexit_rev;
+                ExitData *pexit_rev;
 
                 if (!IS_SET(pexit->exit_info, EX_CLOSED))
                 {
@@ -3249,7 +3249,7 @@ CMDF do_pick(CHAR_DATA * ch, char *argument)
 
         if ((ship = ship_in_room(ch->in_room, arg)) != NULL)
         {
-                char      buf[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength];
 
                 if (IS_NPC(ch) || ch->pcdata->learned[gsn_pickshiplock] == 0)
                 {
@@ -3330,9 +3330,9 @@ CMDF do_pick(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_sneak(CHAR_DATA * ch, char *argument)
+CMDF do_sneak(CharData * ch, char *argument)
 {
-        AFFECT_DATA af;
+        AffectData af;
 
         argument = NULL;
 
@@ -3356,7 +3356,7 @@ CMDF do_sneak(CHAR_DATA * ch, char *argument)
         {
                 af.type = gsn_sneak;
                 af.duration =
-                        (int) (ch->skill_level[SMUGGLING_ABILITY] * DUR_CONV);
+                        (int) (ch->skill_level[SMUGGLING_ABILITY] * DurConv);
                 af.location = APPLY_NONE;
                 af.modifier = 0;
                 af.bitvector = AFF_SNEAK;
@@ -3371,7 +3371,7 @@ CMDF do_sneak(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_hide(CHAR_DATA * ch, char *argument)
+CMDF do_hide(CharData * ch, char *argument)
 {
         argument = NULL;
         if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
@@ -3402,7 +3402,7 @@ CMDF do_hide(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_slight(CHAR_DATA * ch, char *argument)
+CMDF do_slight(CharData * ch, char *argument)
 {
         argument = NULL;
         if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
@@ -3436,7 +3436,7 @@ CMDF do_slight(CHAR_DATA * ch, char *argument)
 /*
  * Contributed by Alander.
  */
-CMDF do_visible(CHAR_DATA * ch, char *argument)
+CMDF do_visible(CharData * ch, char *argument)
 {
         argument = NULL;
         affect_strip(ch, gsn_invis);
@@ -3455,19 +3455,19 @@ CMDF do_visible(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_recall(CHAR_DATA * ch, char *argument)
+CMDF do_recall(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *location;
-        CHAR_DATA *opponent;
+        RoomIndexData *location;
+        CharData *opponent;
 
         argument = NULL;
         location = NULL;
 
         location = get_room_index(wherehome(ch));
 
-        if (get_trust(ch) < LEVEL_IMMORTAL)
+        if (get_trust(ch) < LevelImmortal)
         {
-                AREA_DATA *pArea;
+                AreaData *pArea;
 
                 if (!ch->pcdata || !(pArea = ch->pcdata->area))
                 {
@@ -3527,10 +3527,10 @@ CMDF do_recall(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_aid(CHAR_DATA * ch, char *argument)
+CMDF do_aid(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
         int       percent;
 
         if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
@@ -3606,9 +3606,9 @@ CMDF do_aid(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_mount(CHAR_DATA * ch, char *argument)
+CMDF do_mount(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         if (!IS_NPC(ch) && ch->pcdata->learned[gsn_mount] <= 0)
         {
@@ -3679,9 +3679,9 @@ CMDF do_mount(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_dismount(CHAR_DATA * ch, char *argument)
+CMDF do_dismount(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
 
@@ -3728,10 +3728,10 @@ CMDF do_dismount(CHAR_DATA * ch, char *argument)
 /*
  * Check for parry.
  */
-bool check_parry(CHAR_DATA * ch, CHAR_DATA * victim)
+bool check_parry(CharData * ch, CharData * victim)
 {
         int       chances;
-        OBJ_DATA *wield;
+        ObjData *wield;
 
         if (!IS_AWAKE(victim))
                 return FALSE;
@@ -3784,7 +3784,7 @@ bool check_parry(CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * Check for dodge.
  */
-bool check_dodge(CHAR_DATA * ch, CHAR_DATA * victim)
+bool check_dodge(CharData * ch, CharData * victim)
 {
         int       chances;
 
@@ -3817,12 +3817,12 @@ bool check_dodge(CHAR_DATA * ch, CHAR_DATA * victim)
         return TRUE;
 }
 
-CMDF do_poison_weapon(CHAR_DATA * ch, char *argument)
+CMDF do_poison_weapon(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
-        OBJ_DATA *pobj;
-        OBJ_DATA *wobj;
-        char      arg[MAX_INPUT_LENGTH];
+        ObjData *obj;
+        ObjData *pobj;
+        ObjData *wobj;
+        char      arg[MaxInputLength];
         int       percent;
 
         if (!IS_NPC(ch) && ch->pcdata->learned[gsn_poison_weapon] <= 0)
@@ -3963,7 +3963,7 @@ CMDF do_poison_weapon(CHAR_DATA * ch, char *argument)
         return;
 }
 
-bool check_grip(CHAR_DATA * ch, CHAR_DATA * victim)
+bool check_grip(CharData * ch, CharData * victim)
 {
         int       percent_chance;
 
@@ -3998,11 +3998,11 @@ bool check_grip(CHAR_DATA * ch, CHAR_DATA * victim)
         return TRUE;
 }
 
-CMDF do_circle(CHAR_DATA * ch, char *argument)
+CMDF do_circle(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        CharData *victim;
+        ObjData *obj;
         int       percent;
 
         if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
@@ -4100,10 +4100,10 @@ CMDF do_circle(CHAR_DATA * ch, char *argument)
 }
 
 /* Berserk and HitAll. -- Altrag */
-CMDF do_berserk(CHAR_DATA * ch, char *argument)
+CMDF do_berserk(CharData * ch, char *argument)
 {
         sh_int    percent;
-        AFFECT_DATA af;
+        AffectData af;
 
         argument = NULL;
 
@@ -4148,11 +4148,11 @@ CMDF do_berserk(CHAR_DATA * ch, char *argument)
 }
 
 /* External from fight.c */
-ch_ret one_hit args((CHAR_DATA * ch, CHAR_DATA * victim, int dt));
-CMDF do_hitall(CHAR_DATA * ch, char *argument)
+ch_ret one_hit args((CharData * ch, CharData * victim, int dt));
+CMDF do_hitall(CharData * ch, char *argument)
 {
-        CHAR_DATA *vch;
-        CHAR_DATA *vch_next;
+        CharData *vch;
+        CharData *vch_next;
         sh_int    nvict = 0;
         sh_int    nhit = 0;
         sh_int    percent;
@@ -4208,17 +4208,17 @@ CMDF do_hitall(CHAR_DATA * ch, char *argument)
 
 
 
-bool check_illegal_psteal(CHAR_DATA * ch, CHAR_DATA * victim)
+bool check_illegal_psteal(CharData * ch, CharData * victim)
 {
         ch = victim = NULL;
         return FALSE;
 }
 
-CMDF do_scan(CHAR_DATA * ch, char *argument)
+CMDF do_scan(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *was_in_room;
-        ROOM_INDEX_DATA *to_room;
-        EXIT_DATA *pexit;
+        RoomIndexData *was_in_room;
+        RoomIndexData *to_room;
+        ExitData *pexit;
         sh_int    dir = -1;
         sh_int    dist;
         sh_int    max_dist = 5;
@@ -4283,7 +4283,7 @@ CMDF do_scan(CHAR_DATA * ch, char *argument)
                         to_room = pexit->to_room;
 
                 if (room_is_private(ch, to_room)
-                    && get_trust(ch) < LEVEL_GREATER)
+                    && get_trust(ch) < LevelGreater)
                 {
                         act(AT_GREY,
                             "Your view $t is blocked by a private room.", ch,
@@ -4352,12 +4352,12 @@ CMDF do_scan(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_add_teacher(CHAR_DATA * ch, char *argument)
+CMDF do_add_teacher(CharData * ch, char *argument)
 {
         char      arg1[MIL];
         char      buf[MSL];
         int       sn, vnum;
-        SKILLTYPE *skill;
+        SkillType *skill;
 
         argument = one_argument(argument, arg1);
 
@@ -4376,7 +4376,7 @@ CMDF do_add_teacher(CHAR_DATA * ch, char *argument)
                 vnum = atoi(argument);
         else
         {
-                CHAR_DATA *vch = NULL;
+                CharData *vch = NULL;
 
                 if ((vch = get_char_world(ch, argument)) == NULL
                     || !IS_NPC(vch))
@@ -4406,7 +4406,7 @@ CMDF do_add_teacher(CHAR_DATA * ch, char *argument)
 }
 
 /*
-CMDF do_convertskillraces(CHAR_DATA *ch, char *argument)
+CMDF do_convertskillraces(CharData *ch, char *argument)
 {
 	char buf[MSL];
 	char tmpbuf[MSL];
@@ -4433,11 +4433,11 @@ CMDF do_convertskillraces(CHAR_DATA *ch, char *argument)
 }*/
 
 
-CMDF do_skilllist(CHAR_DATA * ch, char *argument)
+CMDF do_skilllist(CharData * ch, char *argument)
 {
         char      buf[MSL];
         int       sn, count = 0;
-        CHAR_DATA *vch = NULL;
+        CharData *vch = NULL;
 
         if ((vch = get_char_room(ch, argument)) == NULL || !IS_NPC(vch)
             || !IS_SET(vch->act, ACT_PRACTICE))

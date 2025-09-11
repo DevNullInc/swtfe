@@ -230,9 +230,9 @@ void load_olc_bounties(void)
         }
 }
 
-bool check_olc_bounties(ROOM_INDEX_DATA * room)
+bool check_olc_bounties(RoomIndexData * room)
 {
-        CHAR_DATA *mob;
+        CharData *mob;
 
         if (!room)
         {
@@ -253,7 +253,7 @@ bool check_olc_bounties(ROOM_INDEX_DATA * room)
         return FALSE;
 }
 
-bool check_olc_bounties(CHAR_DATA * mob)
+bool check_olc_bounties(CharData * mob)
 {
 
         if (!IS_NPC(mob))
@@ -267,14 +267,14 @@ bool check_olc_bounties(CHAR_DATA * mob)
         return FALSE;
 }
 
-int print_olc_bounties(CHAR_DATA * ch)
+int print_olc_bounties(CharData * ch)
 {
         int count = 0;
-        CHAR_DATA *mob;
+        CharData *mob;
 
         std::list < OLC_BOUNTY_DATA * >::const_iterator iter;
         OLC_BOUNTY_DATA *bounty;
-        MOB_INDEX_DATA *imob;
+        MobIndexData *imob;
 
         if (!ch)
         {
@@ -314,7 +314,7 @@ int print_olc_bounties(CHAR_DATA * ch)
         return count;
 }
 
-void print_olc_bounties_mob(CHAR_DATA * ch, CHAR_DATA * mob)
+void print_olc_bounties_mob(CharData * ch, CharData * mob)
 {
         int count = 0;
 
@@ -347,7 +347,7 @@ void print_olc_bounties_mob(CHAR_DATA * ch, CHAR_DATA * mob)
         }
 }
 
-OLC_BOUNTY_DATA *has_olc_bounty(CHAR_DATA * victim)
+OLC_BOUNTY_DATA *has_olc_bounty(CharData * victim)
 {
         std::list < OLC_BOUNTY_DATA * >::iterator iter;
         OLC_BOUNTY_DATA *bounty;
@@ -368,7 +368,7 @@ OLC_BOUNTY_DATA *has_olc_bounty(CHAR_DATA * victim)
         return NULL;
 }
 
-bool check_given_bounty(CHAR_DATA * ch, CHAR_DATA * hunter, OBJ_DATA * obj)
+bool check_given_bounty(CharData * ch, CharData * hunter, ObjData * obj)
 {
         std::list < OLC_BOUNTY_DATA * >::iterator iter;
         OLC_BOUNTY_DATA *bounty;
@@ -408,14 +408,14 @@ bool check_given_bounty(CHAR_DATA * ch, CHAR_DATA * hunter, OBJ_DATA * obj)
         return FALSE;
 }
 
-void mset_bounty(CHAR_DATA * ch, CHAR_DATA * mob, char *argument)
+void mset_bounty(CharData * ch, CharData * mob, char *argument)
 {
         OLC_BOUNTY_DATA *bounty;
 
         std::list < OLC_BOUNTY_DATA * >::iterator iter;
-        char arg1[MAX_INPUT_LENGTH];
-        char arg2[MAX_INPUT_LENGTH];
-        char arg3[MAX_INPUT_LENGTH];
+        char arg1[MaxInputLength];
+        char arg2[MaxInputLength];
+        char arg3[MaxInputLength];
         int number = 0, count = 0, i = 0;
 
         if (NULLSTR(argument))
@@ -616,7 +616,7 @@ void mset_bounty(CHAR_DATA * ch, CHAR_DATA * mob, char *argument)
         mset_bounty(ch, mob, "");
 }
 
-CMDF do_showallbounties(CHAR_DATA * ch, char *argument)
+CMDF do_showallbounties(CharData * ch, char *argument)
 {
         OLC_BOUNTY_DATA *bounty;
 

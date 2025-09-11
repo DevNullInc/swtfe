@@ -50,17 +50,17 @@
 /*
  * Local functions.
  */
-void say_spell args((CHAR_DATA * ch, int sn));
-CHAR_DATA *make_poly_mob args((CHAR_DATA * ch, int vnum));
-ch_ret spell_affect args((int sn, int level, CHAR_DATA * ch, void *vo));
-ch_ret spell_affectchar args((int sn, int level, CHAR_DATA * ch, void *vo));
-bool arena_can_fight args((CHAR_DATA * ch, CHAR_DATA * victim));
+void say_spell args((CharData * ch, int sn));
+CharData *make_poly_mob args((CharData * ch, int vnum));
+ch_ret spell_affect args((int sn, int level, CharData * ch, void *vo));
+ch_ret spell_affectchar args((int sn, int level, CharData * ch, void *vo));
+bool arena_can_fight args((CharData * ch, CharData * victim));
 
 
 /*
  * Is immune to a damage type
  */
-bool is_immune(CHAR_DATA * ch, sh_int damtype)
+bool is_immune(CharData * ch, sh_int damtype)
 {
         switch (damtype)
         {
@@ -92,7 +92,7 @@ bool is_immune(CHAR_DATA * ch, sh_int damtype)
 /*
  * Lookup a skill by name, only stopping at skills the player has.
  */
-int ch_slookup(CHAR_DATA * ch, const char *name)
+int ch_slookup(CharData * ch, const char *name)
 {
         int       sn;
 
@@ -114,7 +114,7 @@ int ch_slookup(CHAR_DATA * ch, const char *name)
 /*
  * Lookup a personal skill
  */
-int personal_lookup(CHAR_DATA * ch, const char *name)
+int personal_lookup(CharData * ch, const char *name)
 {
         ch = NULL;
         name = NULL;
@@ -165,7 +165,7 @@ int skill_lookup(const char *name)
  * Return a skilltype pointer based on sn			-Thoric
  * Returns NULL if bad, unused or personal sn.
  */
-SKILLTYPE *get_skilltype(int sn)
+SkillType *get_skilltype(int sn)
 {
         if (sn >= TYPE_PERSONAL)
                 return NULL;
@@ -228,7 +228,7 @@ int bsearch_skill_exact(const char *name, int first, int top)
  * Each different section of the skill table is sorted alphabetically
  * Only match skills player knows				-Thoric
  */
-int ch_bsearch_skill(CHAR_DATA * ch, const char *name, int first, int top)
+int ch_bsearch_skill(CharData * ch, const char *name, int first, int top)
 {
         int       sn;
 
@@ -251,7 +251,7 @@ int ch_bsearch_skill(CHAR_DATA * ch, const char *name, int first, int top)
 }
 
 
-int find_spell(CHAR_DATA * ch, const char *name, bool know)
+int find_spell(CharData * ch, const char *name, bool know)
 {
         if (IS_NPC(ch) || !know)
                 return bsearch_skill(name, gsn_first_spell,
@@ -261,7 +261,7 @@ int find_spell(CHAR_DATA * ch, const char *name, bool know)
                                         gsn_first_skill - 1);
 }
 
-int find_skill(CHAR_DATA * ch, const char *name, bool know)
+int find_skill(CharData * ch, const char *name, bool know)
 {
         if (IS_NPC(ch) || !know)
                 return bsearch_skill(name, gsn_first_skill,
@@ -271,7 +271,7 @@ int find_skill(CHAR_DATA * ch, const char *name, bool know)
                                         gsn_first_weapon - 1);
 }
 
-int find_weapon(CHAR_DATA * ch, const char *name, bool know)
+int find_weapon(CharData * ch, const char *name, bool know)
 {
         if (IS_NPC(ch) || !know)
                 return bsearch_skill(name, gsn_first_weapon,
@@ -281,7 +281,7 @@ int find_weapon(CHAR_DATA * ch, const char *name, bool know)
                                         gsn_first_tongue - 1);
 }
 
-int find_tongue(CHAR_DATA * ch, const char *name, bool know)
+int find_tongue(CharData * ch, const char *name, bool know)
 {
         if (IS_NPC(ch) || !know)
                 return bsearch_skill(name, gsn_first_tongue, gsn_top_sn - 1);
@@ -319,8 +319,8 @@ int slot_lookup(int slot)
 /*
  * Fancy message handling for a successful casting		-Thoric
  */
-void successful_casting(SKILLTYPE * skill, CHAR_DATA * ch,
-                        CHAR_DATA * victim, OBJ_DATA * obj)
+void successful_casting(SkillType * skill, CharData * ch,
+                        CharData * victim, ObjData * obj)
 {
         sh_int    chitroom =
                 (skill->type == SKILL_SPELL ? AT_MAGIC : AT_ACTION);
@@ -358,8 +358,8 @@ void successful_casting(SKILLTYPE * skill, CHAR_DATA * ch,
 /*
  * Fancy message handling for a failed casting			-Thoric
  */
-void failed_casting(SKILLTYPE * skill, CHAR_DATA * ch, CHAR_DATA * victim,
-                    OBJ_DATA * obj)
+void failed_casting(SkillType * skill, CharData * ch, CharData * victim,
+                    ObjData * obj)
 {
         sh_int    chitroom =
                 (skill->type == SKILL_SPELL ? AT_MAGIC : AT_ACTION);
@@ -403,8 +403,8 @@ void failed_casting(SKILLTYPE * skill, CHAR_DATA * ch, CHAR_DATA * victim,
 /*
  * Fancy message handling for being immune to something		-Thoric
  */
-void immune_casting(SKILLTYPE * skill, CHAR_DATA * ch,
-                    CHAR_DATA * victim, OBJ_DATA * obj)
+void immune_casting(SkillType * skill, CharData * ch,
+                    CharData * victim, ObjData * obj)
 {
         sh_int    chitroom =
                 (skill->type == SKILL_SPELL ? AT_MAGIC : AT_ACTION);
@@ -468,9 +468,9 @@ void immune_casting(SKILLTYPE * skill, CHAR_DATA * ch,
 /*
  * Utter mystical words for an sn.
  */
-void say_spell(CHAR_DATA * ch, int sn)
+void say_spell(CharData * ch, int sn)
 {
-        CHAR_DATA *rch;
+        CharData *rch;
 
         sn = 0;
 
@@ -489,7 +489,7 @@ void say_spell(CHAR_DATA * ch, int sn)
 /*
  * Make adjustments to saving throw based in RIS		-Thoric
  */
-int ris_save(CHAR_DATA * ch, int percent_chance, int ris)
+int ris_save(CharData * ch, int percent_chance, int ris)
 {
         sh_int    modifier;
 
@@ -518,7 +518,7 @@ int ris_save(CHAR_DATA * ch, int percent_chance, int ris)
  * Used for spell dice parsing, ie: 3d8+L-6
  *
  */
-int rd_parse(CHAR_DATA * ch, int level, char *expression)
+int rd_parse(CharData * ch, int level, char *expression)
 {
         int       x, lop = 0, gop = 0, eop = 0;
         char      operation;
@@ -670,9 +670,9 @@ int rd_parse(CHAR_DATA * ch, int level, char *expression)
 }
 
 /* wrapper function so as not to destroy exp */
-int dice_parse(CHAR_DATA * ch, int level, char *expression)
+int dice_parse(CharData * ch, int level, char *expression)
 {
-        char      buf[MAX_INPUT_LENGTH];
+        char      buf[MaxInputLength];
 
         mudstrlcpy(buf, expression, MIL);
         return rd_parse(ch, level, buf);
@@ -682,7 +682,7 @@ int dice_parse(CHAR_DATA * ch, int level, char *expression)
  * Compute a saving throw.
  * Negative apply's make saving throw better.
  */
-bool saves_poison_death(int level, CHAR_DATA * victim)
+bool saves_poison_death(int level, CharData * victim)
 {
         int       save;
 
@@ -692,7 +692,7 @@ bool saves_poison_death(int level, CHAR_DATA * victim)
         return chance(victim, save);
 }
 
-bool saves_wands(int level, CHAR_DATA * victim)
+bool saves_wands(int level, CharData * victim)
 {
         int       save;
 
@@ -704,7 +704,7 @@ bool saves_wands(int level, CHAR_DATA * victim)
         return chance(victim, save);
 }
 
-bool saves_para_petri(int level, CHAR_DATA * victim)
+bool saves_para_petri(int level, CharData * victim)
 {
         int       save;
 
@@ -714,7 +714,7 @@ bool saves_para_petri(int level, CHAR_DATA * victim)
         return chance(victim, save);
 }
 
-bool saves_breath(int level, CHAR_DATA * victim)
+bool saves_breath(int level, CharData * victim)
 {
         int       save;
 
@@ -723,7 +723,7 @@ bool saves_breath(int level, CHAR_DATA * victim)
         return chance(victim, save);
 }
 
-bool saves_spell_staff(int level, CHAR_DATA * victim)
+bool saves_spell_staff(int level, CharData * victim)
 {
         int       save;
 
@@ -758,15 +758,15 @@ bool saves_spell_staff(int level, CHAR_DATA * victim)
  * ^ decrease component's value[4], and extract if it reaches 0
  * & decrease component's value[5], and extract if it reaches 0
  */
-bool process_spell_components(CHAR_DATA * ch, int sn)
+bool process_spell_components(CharData * ch, int sn)
 {
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
         char     *comp = skill->components;
         char     *check;
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         bool      consume, fail, found;
         int       val, value;
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         /*
          * if no components necessary, then everything is cool 
@@ -987,10 +987,10 @@ int       pAbort;
 /*
  * Locate targets.
  */
-void     *locate_targets(CHAR_DATA * ch, char *arg, int sn,
-                         CHAR_DATA ** victim, OBJ_DATA ** obj)
+void     *locate_targets(CharData * ch, char *arg, int sn,
+                         CharData ** victim, ObjData ** obj)
 {
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
         void     *vo = NULL;
 
         *victim = NULL;
@@ -1136,19 +1136,19 @@ char     *target_name;
 /*
  * Cast a spell.  Multi-caster and component support by Thoric
  */
-CMDF do_cast(CHAR_DATA * ch, char *argument)
+CMDF do_cast(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        static char staticbuf[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        OBJ_DATA *obj;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        static char staticbuf[MaxInputLength];
+        CharData *victim;
+        ObjData *obj;
         void     *vo = NULL;
         int       endurance;
         int       sn;
         ch_ret    retcode;
         bool      dont_wait = FALSE;
-        SKILLTYPE *skill = NULL;
+        SkillType *skill = NULL;
         struct timeval time_used;
 
         retcode = rNONE;
@@ -1191,7 +1191,7 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                if (get_trust(ch) < LEVEL_GOD)
+                if (get_trust(ch) < LevelGod)
                 {
                         if ((sn = find_spell(ch, arg1, TRUE)) < 0
                             || (!IS_NPC(ch) && ch->pcdata->learned[sn] <= 0))
@@ -1216,7 +1216,7 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
                                          ch);
                                 return;
                         }
-                        if (sn >= MAX_SKILL)
+                        if (sn >= MaxSkill)
                         {
                                 send_to_char("Hmm... that might hurt.\n\r",
                                              ch);
@@ -1368,7 +1368,7 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
                                       ch->alignment) / 100)) +
                                    1) * skill_table[sn]->min_endurance;
 
-                        if (get_trust(ch) < LEVEL_IMMORTAL) /* so imms dont lose endurance */
+                        if (get_trust(ch) < LevelImmortal) /* so imms dont lose endurance */
                                 ch->endurance -= endurance / 3;
                 }
                 set_char_color(AT_MAGIC, ch);
@@ -1410,8 +1410,8 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
                 if (skill->participants > 1)
                 {
                         int       cnt = 1;
-                        CHAR_DATA *tmp;
-                        TIMER    *t;
+                        CharData *tmp;
+                        Timer    *t;
 
                         for (tmp = ch->in_room->first_person; tmp;
                              tmp = tmp->next_in_room)
@@ -1473,7 +1473,7 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
                                         ("There was not enough power for that to succeed...\n\r",
                                          ch);
 
-                                if (get_trust(ch) < LEVEL_IMMORTAL) /* so imms dont lose endurance */
+                                if (get_trust(ch) < LevelImmortal) /* so imms dont lose endurance */
                                         ch->endurance -= endurance / 2;
                                 learn_from_failure(ch, sn);
                                 return;
@@ -1493,7 +1493,7 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
         if (!process_spell_components(ch, sn))
         {
 
-                if (get_trust(ch) < LEVEL_IMMORTAL) /* so imms dont lose endurance */
+                if (get_trust(ch) < LevelImmortal) /* so imms dont lose endurance */
                         ch->endurance -= endurance / 2;
                 learn_from_failure(ch, sn);
                 return;
@@ -1505,14 +1505,14 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
       if ( ch->alignment > skill->alignment  )
       {
           send_to_char( "You do not have enough anger in you.\n\r", ch );
-	  if (get_trust(ch)  < LEVEL_IMMORTAL)   
+	  if (get_trust(ch)  < LevelImmortal)   
 	        ch->endurance -= endurance / 2;
 	  return;	
       }
       if (  ch->alignment < skill->alignment )
       {
           send_to_char( "Your anger and hatred prevent you from focusing.\n\r", ch );
-	  if (get_trust(ch)  < LEVEL_IMMORTAL)   
+	  if (get_trust(ch)  < LevelImmortal)   
 	        ch->endurance -= endurance / 2;
 	  return;	
       }
@@ -1587,7 +1587,7 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
                         break;
                 }
 
-                if (get_trust(ch) < LEVEL_IMMORTAL) /* so imms dont lose endurance */
+                if (get_trust(ch) < LevelImmortal) /* so imms dont lose endurance */
                         ch->endurance -= endurance;
                 learn_from_failure(ch, sn);
                 return;
@@ -1650,7 +1650,7 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
         if (skill->target == TAR_CHAR_OFFENSIVE
             && victim && !char_died(victim) && victim != ch)
         {
-                CHAR_DATA *vch, *vch_next;
+                CharData *vch, *vch_next;
 
                 for (vch = ch->in_room->first_person; vch; vch = vch_next)
                 {
@@ -1674,13 +1674,13 @@ CMDF do_cast(CHAR_DATA * ch, char *argument)
 /*
  * Cast spells at targets using a magical object.
  */
-ch_ret obj_cast_spell(int sn, int level, CHAR_DATA * ch, CHAR_DATA * victim,
-                      OBJ_DATA * obj)
+ch_ret obj_cast_spell(int sn, int level, CharData * ch, CharData * victim,
+                      ObjData * obj)
 {
         void     *vo;
         ch_ret    retcode = rNONE;
         int       levdiff = ch->top_level - level;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
         struct timeval time_used;
 
         if (sn == -1)
@@ -1815,8 +1815,8 @@ ch_ret obj_cast_spell(int sn, int level, CHAR_DATA * ch, CHAR_DATA * victim,
         if (skill->target == TAR_CHAR_OFFENSIVE
             && victim != ch && !char_died(victim))
         {
-                CHAR_DATA *vch;
-                CHAR_DATA *vch_next;
+                CharData *vch;
+                CharData *vch_next;
 
                 for (vch = ch->in_room->first_person; vch; vch = vch_next)
                 {
@@ -1839,9 +1839,9 @@ ch_ret obj_cast_spell(int sn, int level, CHAR_DATA * ch, CHAR_DATA * victim,
 /*
  * Spell functions.
  */
-SPELLF spell_acid_blast(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_acid_blast(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
@@ -1859,12 +1859,12 @@ SPELLF spell_acid_blast(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_blindness(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_blindness(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        AFFECT_DATA af;
+        CharData *victim = (CharData *) vo;
+        AffectData af;
         int       tmp;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         if (SPELL_FLAG(skill, SF_PKSENSITIVE)
             && !IS_NPC(ch) && !IS_NPC(victim))
@@ -1886,7 +1886,7 @@ SPELLF spell_blindness(int sn, int level, CHAR_DATA * ch, void *vo)
         af.type = sn;
         af.location = APPLY_HITROLL;
         af.modifier = -4;
-        af.duration = (int) ((1 + (level / 3)) * DUR_CONV);
+        af.duration = (int) ((1 + (level / 3)) * DurConv);
         af.bitvector = AFF_BLIND;
         affect_to_char(victim, &af);
         set_char_color(AT_MAGIC, victim);
@@ -1896,46 +1896,46 @@ SPELLF spell_blindness(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-SPELLF spell_cause_light(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_cause_light(int sn, int level, CharData * ch, void *vo)
 {
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 50;
         ch->alignment = URANGE(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
-        return damage(ch, (CHAR_DATA *) vo, dice(1, 8) + level / 3, sn);
+        return damage(ch, (CharData *) vo, dice(1, 8) + level / 3, sn);
 }
 
 
 
-SPELLF spell_cause_critical(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_cause_critical(int sn, int level, CharData * ch, void *vo)
 {
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 70;
         ch->alignment = URANGE(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
-        return damage(ch, (CHAR_DATA *) vo, dice(3, 8) + level, sn);
+        return damage(ch, (CharData *) vo, dice(3, 8) + level, sn);
 }
 
 
 
-SPELLF spell_cause_serious(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_cause_serious(int sn, int level, CharData * ch, void *vo)
 {
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 90;
         ch->alignment = URANGE(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
-        return damage(ch, (CHAR_DATA *) vo, dice(level, 2), sn);
+        return damage(ch, (CharData *) vo, dice(level, 2), sn);
 }
 
 
-SPELLF spell_change_sex(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_change_sex(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        AFFECT_DATA af;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
+        AffectData af;
+        SkillType *skill = get_skilltype(sn);
 
         if (IS_SET(victim->immune, RIS_MAGIC))
         {
@@ -1945,7 +1945,7 @@ SPELLF spell_change_sex(int sn, int level, CHAR_DATA * ch, void *vo)
         if (is_affected(victim, sn))
                 return rSPELL_FAILED;
         af.type = sn;
-        af.duration = (int) (10 * level * DUR_CONV);
+        af.duration = (int) (10 * level * DurConv);
         af.location = APPLY_SEX;
         do
         {
@@ -1962,13 +1962,13 @@ SPELLF spell_change_sex(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_charm_person(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_charm_person(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        AFFECT_DATA af;
+        CharData *victim = (CharData *) vo;
+        AffectData af;
         int       percent_chance;
-        char      buf[MAX_STRING_LENGTH];
-        SKILLTYPE *skill = get_skilltype(sn);
+        char      buf[MaxStringLength];
+        SkillType *skill = get_skilltype(sn);
 
         if (victim == ch)
         {
@@ -2009,7 +2009,7 @@ SPELLF spell_charm_person(int sn, int level, CHAR_DATA * ch, void *vo)
                 stop_follower(victim);
         add_follower(victim, ch);
         af.type = sn;
-        af.duration = (int) ((number_fuzzy((level + 1) / 3) + 1) * DUR_CONV);
+        af.duration = (int) ((number_fuzzy((level + 1) / 3) + 1) * DurConv);
         af.location = 0;
         af.modifier = 0;
         af.bitvector = AFF_CHARM;
@@ -2024,10 +2024,10 @@ SPELLF spell_charm_person(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-SPELLF spell_cure_blindness(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_cure_blindness(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
+        SkillType *skill = get_skilltype(sn);
 
         level = 0;
 
@@ -2059,10 +2059,10 @@ SPELLF spell_cure_blindness(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_cure_poison(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_cure_poison(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
+        SkillType *skill = get_skilltype(sn);
 
         level = 0;
 
@@ -2100,11 +2100,11 @@ SPELLF spell_cure_poison(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_curse(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_curse(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        AFFECT_DATA af;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
+        AffectData af;
+        SkillType *skill = get_skilltype(sn);
 
         if (IS_SET(victim->immune, RIS_MAGIC))
         {
@@ -2119,7 +2119,7 @@ SPELLF spell_curse(int sn, int level, CHAR_DATA * ch, void *vo)
                 return rSPELL_FAILED;
         }
         af.type = sn;
-        af.duration = (int) ((4 * level) * DUR_CONV);
+        af.duration = (int) ((4 * level) * DurConv);
         af.location = APPLY_HITROLL;
         af.modifier = -1;
         af.bitvector = AFF_CURSE;
@@ -2143,9 +2143,9 @@ SPELLF spell_curse(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_detect_poison(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_detect_poison(int sn, int level, CharData * ch, void *vo)
 {
-        OBJ_DATA *obj = (OBJ_DATA *) vo;
+        ObjData *obj = (ObjData *) vo;
 
         sn = level = 0;
 
@@ -2166,11 +2166,11 @@ SPELLF spell_detect_poison(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_dispel_evil(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_dispel_evil(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         if (!IS_NPC(ch) && IS_EVIL(ch))
                 victim = ch;
@@ -2202,11 +2202,11 @@ SPELLF spell_dispel_evil(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_dispel_magic(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_dispel_magic(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       affected_by, cnt;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         if (IS_SET(victim->immune, RIS_MAGIC))
         {
@@ -2264,13 +2264,13 @@ SPELLF spell_dispel_magic(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_earthquake(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_earthquake(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *vch;
-        CHAR_DATA *vch_next;
+        CharData *vch;
+        CharData *vch_next;
         bool      ch_died;
         ch_ret    retcode;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         vo = NULL;
 
@@ -2302,7 +2302,7 @@ SPELLF spell_earthquake(int sn, int level, CHAR_DATA * ch, void *vo)
                 if (vch->in_room == ch->in_room)
                 {
                         if (!IS_NPC(vch) && IS_SET(vch->act, PLR_WIZINVIS)
-                            && vch->pcdata->wizinvis >= LEVEL_IMMORTAL)
+                            && vch->pcdata->wizinvis >= LevelImmortal)
                                 continue;
 
                         if (IS_AFFECTED(vch, AFF_FLOATING)
@@ -2337,10 +2337,10 @@ SPELLF spell_earthquake(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_enchant_weapon(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_enchant_weapon(int sn, int level, CharData * ch, void *vo)
 {
-        OBJ_DATA *obj = (OBJ_DATA *) vo;
-        AFFECT_DATA *paf;
+        ObjData *obj = (ObjData *) vo;
+        AffectData *paf;
 
         sn = 0;
 
@@ -2352,7 +2352,7 @@ SPELLF spell_enchant_weapon(int sn, int level, CHAR_DATA * ch, void *vo)
          * Bug fix here. -- Alty 
          */
         separate_obj(obj);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = APPLY_HITROLL;
@@ -2360,7 +2360,7 @@ SPELLF spell_enchant_weapon(int sn, int level, CHAR_DATA * ch, void *vo)
         paf->bitvector = 0;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
 
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = APPLY_DAMROLL;
@@ -2395,12 +2395,12 @@ SPELLF spell_enchant_weapon(int sn, int level, CHAR_DATA * ch, void *vo)
  * Drain XP, MANA, HP.
  * Caster gains HP.
  */
-SPELLF spell_energy_drain(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_energy_drain(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
         int       percent_chance;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         if (IS_SET(victim->immune, RIS_MAGIC))
         {
@@ -2438,9 +2438,9 @@ SPELLF spell_energy_drain(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_fireball(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_fireball(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
 
         static const sh_int dam_each[] = {
                 1,
@@ -2471,9 +2471,9 @@ SPELLF spell_fireball(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_flamestrike(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_flamestrike(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
@@ -2487,11 +2487,11 @@ SPELLF spell_flamestrike(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_harm(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_harm(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         if (IS_SET(victim->immune, RIS_MAGIC))
         {
@@ -2513,14 +2513,14 @@ SPELLF spell_harm(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_identify(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_identify(int sn, int level, CharData * ch, void *vo)
 {
 /* Modified by Scryn to work on mobs/players/objs */
-        OBJ_DATA *obj;
-        CHAR_DATA *victim;
-        AFFECT_DATA *paf;
-        SKILLTYPE *sktmp;
-        SKILLTYPE *skill = get_skilltype(sn);
+        ObjData *obj;
+        CharData *victim;
+        AffectData *paf;
+        SkillType *sktmp;
+        SkillType *skill = get_skilltype(sn);
 
         level = 0;
         vo = NULL;
@@ -2763,10 +2763,10 @@ SPELLF spell_identify(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_invis(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_invis(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim;
+        SkillType *skill = get_skilltype(sn);
 
         vo = NULL;
 
@@ -2779,7 +2779,7 @@ SPELLF spell_invis(int sn, int level, CHAR_DATA * ch, void *vo)
 
         if (victim)
         {
-                AFFECT_DATA af;
+                AffectData af;
 
                 if (IS_SET(victim->immune, RIS_MAGIC))
                 {
@@ -2796,7 +2796,7 @@ SPELLF spell_invis(int sn, int level, CHAR_DATA * ch, void *vo)
                 act(AT_MAGIC, "$n fades out of existence.", victim, NULL,
                     NULL, TO_ROOM);
                 af.type = sn;
-                af.duration = (int) (((level / 4) + 12) * DUR_CONV);
+                af.duration = (int) (((level / 4) + 12) * DurConv);
                 af.location = APPLY_NONE;
                 af.modifier = 0;
                 af.bitvector = AFF_INVISIBLE;
@@ -2807,7 +2807,7 @@ SPELLF spell_invis(int sn, int level, CHAR_DATA * ch, void *vo)
         }
         else
         {
-                OBJ_DATA *obj;
+                ObjData *obj;
 
                 obj = get_obj_carry(ch, target_name);
 
@@ -2832,12 +2832,12 @@ SPELLF spell_invis(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_know_alignment(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_know_alignment(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         char     *msg;
         int       ap;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         level = 0;
 
@@ -2875,9 +2875,9 @@ SPELLF spell_know_alignment(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_lightning_bolt(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_lightning_bolt(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         static const sh_int dam_each[] = {
                 1,
                 2, 4, 6, 8, 10, 12, 14, 16, 18, 20,
@@ -2907,11 +2907,11 @@ SPELLF spell_lightning_bolt(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_locate_object(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_locate_object(int sn, int level, CharData * ch, void *vo)
 {
-        char      buf[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        OBJ_DATA *in_obj;
+        char      buf[MaxInputLength];
+        ObjData *obj;
+        ObjData *in_obj;
         bool      found;
         int       cnt;
 
@@ -2933,12 +2933,12 @@ SPELLF spell_locate_object(int sn, int level, CHAR_DATA * ch, void *vo)
                      in_obj->in_obj && cnt < 100;
                      in_obj = in_obj->in_obj, ++cnt)
                         ;
-                if (cnt >= MAX_NEST)
+                if (cnt >= MaxNest)
                 {
                         snprintf(buf, MSL,
                                  "spell_locate_obj: object [%d] %s is nested more than %d times!",
                                  obj->pIndexData->vnum, obj->short_descr,
-                                 MAX_NEST);
+                                 MaxNest);
                         bug(buf, 0);
                         continue;
                 }
@@ -2978,9 +2978,9 @@ SPELLF spell_locate_object(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_magic_missile(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_magic_missile(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         static const sh_int dam_each[] = {
                 1,
                 3, 3, 4, 4, 5, 6, 6, 6, 6, 6,
@@ -3013,11 +3013,11 @@ SPELLF spell_magic_missile(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_pass_door(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_pass_door(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        AFFECT_DATA af;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
+        AffectData af;
+        SkillType *skill = get_skilltype(sn);
 
         if (IS_SET(victim->immune, RIS_MAGIC))
         {
@@ -3031,7 +3031,7 @@ SPELLF spell_pass_door(int sn, int level, CHAR_DATA * ch, void *vo)
                 return rSPELL_FAILED;
         }
         af.type = sn;
-        af.duration = (int) (number_fuzzy(level / 4) * DUR_CONV);
+        af.duration = (int) (number_fuzzy(level / 4) * DurConv);
         af.location = APPLY_NONE;
         af.modifier = 0;
         af.bitvector = AFF_PASS_DOOR;
@@ -3043,10 +3043,10 @@ SPELLF spell_pass_door(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_poison(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_poison(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        AFFECT_DATA af;
+        CharData *victim = (CharData *) vo;
+        AffectData af;
         int       percent_chance;
         bool      first = TRUE;
 
@@ -3062,7 +3062,7 @@ SPELLF spell_poison(int sn, int level, CHAR_DATA * ch, void *vo)
         if (IS_AFFECTED(victim, AFF_POISON))
                 first = FALSE;
         af.type = sn;
-        af.duration = (int) (level * DUR_CONV);
+        af.duration = (int) (level * DurConv);
         af.location = APPLY_STR;
         af.modifier = -2;
         af.bitvector = AFF_POISON;
@@ -3076,13 +3076,13 @@ SPELLF spell_poison(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-SPELLF spell_remove_trap(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_remove_trap(int sn, int level, CharData * ch, void *vo)
 {
-        OBJ_DATA *obj;
-        OBJ_DATA *trap;
+        ObjData *obj;
+        ObjData *trap;
         bool      found;
         int       retcode;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         level = 0;
         vo = NULL;
@@ -3138,9 +3138,9 @@ SPELLF spell_remove_trap(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_shocking_grasp(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_shocking_grasp(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         static const int dam_each[] = {
                 1,
                 2, 4, 6, 8, 10, 15, 20, 25, 29, 33,
@@ -3170,14 +3170,14 @@ SPELLF spell_shocking_grasp(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_sleep(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_sleep(int sn, int level, CharData * ch, void *vo)
 {
-        AFFECT_DATA af;
+        AffectData af;
         int       retcode;
         int       percent_chance;
         int       tmp;
-        CHAR_DATA *victim;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim;
+        SkillType *skill = get_skilltype(sn);
 
         vo = NULL;
 
@@ -3227,7 +3227,7 @@ SPELLF spell_sleep(int sn, int level, CHAR_DATA * ch, void *vo)
                 }
         }
         af.type = sn;
-        af.duration = (int) ((4 + level) * DUR_CONV);
+        af.duration = (int) ((4 + level) * DurConv);
         af.location = APPLY_NONE;
         af.modifier = 0;
         af.bitvector = AFF_SLEEP;
@@ -3257,12 +3257,12 @@ SPELLF spell_sleep(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-SPELLF spell_ventriloquate(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_ventriloquate(int sn, int level, CharData * ch, void *vo)
 {
-        char      buf1[MAX_STRING_LENGTH];
-        char      buf2[MAX_STRING_LENGTH];
-        char      speaker[MAX_INPUT_LENGTH];
-        CHAR_DATA *vch;
+        char      buf1[MaxStringLength];
+        char      buf2[MaxStringLength];
+        char      speaker[MaxInputLength];
+        CharData *vch;
 
         sn = 0;
         vo = NULL;
@@ -3289,11 +3289,11 @@ SPELLF spell_ventriloquate(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_weaken(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_weaken(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        AFFECT_DATA af;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
+        AffectData af;
+        SkillType *skill = get_skilltype(sn);
 
         if (IS_SET(victim->immune, RIS_MAGIC))
         {
@@ -3303,7 +3303,7 @@ SPELLF spell_weaken(int sn, int level, CHAR_DATA * ch, void *vo)
         if (is_affected(victim, sn) || saves_wands(level, victim))
                 return rSPELL_FAILED;
         af.type = sn;
-        af.duration = (int) (level / 2 * DUR_CONV);
+        af.duration = (int) (level / 2 * DurConv);
         af.location = APPLY_STR;
         af.modifier = -2;
         af.bitvector = 0;
@@ -3318,11 +3318,11 @@ SPELLF spell_weaken(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * NPC spells.
  */
-SPELLF spell_acid_breath(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_acid_breath(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        OBJ_DATA *obj_lose;
-        OBJ_DATA *obj_next;
+        CharData *victim = (CharData *) vo;
+        ObjData *obj_lose;
+        ObjData *obj_next;
         int       dam;
         int       hpch;
 
@@ -3388,11 +3388,11 @@ SPELLF spell_acid_breath(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_fire_breath(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_fire_breath(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        OBJ_DATA *obj_lose;
-        OBJ_DATA *obj_next;
+        CharData *victim = (CharData *) vo;
+        ObjData *obj_lose;
+        ObjData *obj_next;
         int       dam;
         int       hpch;
 
@@ -3464,11 +3464,11 @@ SPELLF spell_fire_breath(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_frost_breath(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_frost_breath(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        OBJ_DATA *obj_lose;
-        OBJ_DATA *obj_next;
+        CharData *victim = (CharData *) vo;
+        ObjData *obj_lose;
+        ObjData *obj_next;
         int       dam;
         int       hpch;
 
@@ -3520,9 +3520,9 @@ SPELLF spell_frost_breath(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_lightning_breath(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_lightning_breath(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
         int       hpch;
 
@@ -3533,7 +3533,7 @@ SPELLF spell_lightning_breath(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_null(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_null(int sn, int level, CharData * ch, void *vo)
 {
         sn = level = 0;
         vo = NULL;
@@ -3542,7 +3542,7 @@ SPELLF spell_null(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 /* don't remove, may look redundant, but is important */
-SPELLF spell_notfound(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_notfound(int sn, int level, CharData * ch, void *vo)
 {
         sn = level = 0;
         vo = NULL;
@@ -3551,12 +3551,12 @@ SPELLF spell_notfound(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_farsight(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_farsight(int sn, int level, CharData * ch, void *vo)
 {
-        ROOM_INDEX_DATA *location;
-        ROOM_INDEX_DATA *original;
-        CHAR_DATA *victim;
-        SKILLTYPE *skill = get_skilltype(sn);
+        RoomIndexData *location;
+        RoomIndexData *original;
+        CharData *victim;
+        SkillType *skill = get_skilltype(sn);
 
         sn = level = 0;
         vo = NULL;
@@ -3595,9 +3595,9 @@ SPELLF spell_farsight(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-SPELLF spell_recharge(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_recharge(int sn, int level, CharData * ch, void *vo)
 {
-        OBJ_DATA *obj = (OBJ_DATA *) vo;
+        ObjData *obj = (ObjData *) vo;
 
         sn = level = 0;
 
@@ -3668,10 +3668,10 @@ SPELLF spell_recharge(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 /* Scryn 2/2/96 */
-SPELLF spell_remove_invis(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_remove_invis(int sn, int level, CharData * ch, void *vo)
 {
-        OBJ_DATA *obj;
-        SKILLTYPE *skill = get_skilltype(sn);
+        ObjData *obj;
+        SkillType *skill = get_skilltype(sn);
 
         vo = NULL;
         level = 0;
@@ -3698,7 +3698,7 @@ SPELLF spell_remove_invis(int sn, int level, CHAR_DATA * ch, void *vo)
         }
         else
         {
-                CHAR_DATA *victim;
+                CharData *victim;
 
                 victim = get_char_room(ch, target_name);
 
@@ -3770,12 +3770,12 @@ SPELLF spell_remove_invis(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 /* Works now.. -- Altrag */
-SPELLF spell_possess(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_possess(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim;
-        char      buf[MAX_STRING_LENGTH];
-        AFFECT_DATA af;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim;
+        char      buf[MaxStringLength];
+        AffectData af;
+        SkillType *skill = get_skilltype(sn);
 
         vo = NULL;
 
@@ -3854,10 +3854,10 @@ SPELLF spell_possess(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 /* Ignores pickproofs, but can't unlock containers. -- Altrag 17/2/96 */
-SPELLF spell_knock(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_knock(int sn, int level, CharData * ch, void *vo)
 {
-        EXIT_DATA *pexit;
-        SKILLTYPE *skill = get_skilltype(sn);
+        ExitData *pexit;
+        SkillType *skill = get_skilltype(sn);
 
         level = 0;
         vo = NULL;
@@ -3884,10 +3884,10 @@ SPELLF spell_knock(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 /* Tells to sleepers in are. -- Altrag 17/2/96 */
-SPELLF spell_dream(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_dream(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim;
-        char      arg[MAX_INPUT_LENGTH];
+        CharData *victim;
+        char      arg[MaxInputLength];
 
         sn = level = 0;
         vo = NULL;
@@ -3917,10 +3917,10 @@ SPELLF spell_dream(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-SPELLF spell_polymorph(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_polymorph(int sn, int level, CharData * ch, void *vo)
 {
         int       poly_vnum;
-        CHAR_DATA *poly_mob;
+        CharData *poly_mob;
 
         sn = level = 0;
         vo = NULL;
@@ -3966,10 +3966,10 @@ SPELLF spell_polymorph(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-CHAR_DATA *make_poly_mob(CHAR_DATA * ch, int vnum)
+CharData *make_poly_mob(CharData * ch, int vnum)
 {
-        CHAR_DATA *mob;
-        MOB_INDEX_DATA *pMobIndex;
+        CharData *mob;
+        MobIndexData *pMobIndex;
 
         if (!ch)
         {
@@ -3994,12 +3994,12 @@ CHAR_DATA *make_poly_mob(CHAR_DATA * ch, int vnum)
 }
 
 
-SPELLF spell_potential(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_potential(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         char     *msg;
         int       toop;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         level = 0;
 
@@ -4036,12 +4036,12 @@ SPELLF spell_potential(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-SPELLF spell_sense_force(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_sense_force(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         char     *msg;
         int       toop;
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
 
         level = 0;
 
@@ -4087,10 +4087,10 @@ SPELLF spell_sense_force(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-CMDF do_revert(CHAR_DATA * ch, char *argument)
+CMDF do_revert(CharData * ch, char *argument)
 {
 
-        CHAR_DATA *mob;
+        CharData *mob;
 
         argument = NULL;
 
@@ -4138,10 +4138,10 @@ CMDF do_revert(CHAR_DATA * ch, char *argument)
 /* Added spells spiral_blast, scorching surge,
     nostrum, and astral   by SB for Augurer class 
 7/10/96 */
-SPELLF spell_spiral_blast(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_spiral_blast(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *vch;
-        CHAR_DATA *vch_next;
+        CharData *vch;
+        CharData *vch_next;
         int       dam;
         int       hpch;
         bool      ch_died;
@@ -4167,7 +4167,7 @@ SPELLF spell_spiral_blast(int sn, int level, CHAR_DATA * ch, void *vo)
         {
                 vch_next = vch->next_in_room;
                 if (!IS_NPC(vch) && IS_SET(vch->act, PLR_WIZINVIS)
-                    && vch->pcdata->wizinvis >= LEVEL_IMMORTAL)
+                    && vch->pcdata->wizinvis >= LevelImmortal)
                         continue;
 
                 if (IS_NPC(ch) ? !IS_NPC(vch) : IS_NPC(vch))
@@ -4193,9 +4193,9 @@ SPELLF spell_spiral_blast(int sn, int level, CHAR_DATA * ch, void *vo)
                 return rNONE;
 }
 
-SPELLF spell_scorching_surge(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_scorching_surge(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         static const sh_int dam_each[] = {
                 1,
                 1, 2, 3, 4, 5, 6, 8, 10, 12, 14,
@@ -4233,9 +4233,9 @@ SPELLF spell_scorching_surge(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * saving throw check						-Thoric
  */
-bool check_save(int sn, int level, CHAR_DATA * ch, CHAR_DATA * victim)
+bool check_save(int sn, int level, CharData * ch, CharData * victim)
 {
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
         bool      saved = FALSE;
 
         if (SPELL_FLAG(skill, SF_PKSENSITIVE)
@@ -4267,10 +4267,10 @@ bool check_save(int sn, int level, CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * Generic offensive spell damage attack			-Thoric
  */
-SPELLF spell_attack(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_attack(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
+        SkillType *skill = get_skilltype(sn);
         bool      saved = check_save(sn, level, ch, victim);
         int       dam;
         ch_ret    retcode;
@@ -4301,10 +4301,10 @@ SPELLF spell_attack(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * Generic area attack						-Thoric
  */
-SPELLF spell_area_attack(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_area_attack(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *vch, *vch_next;
-        SKILLTYPE *skill = get_skilltype(sn);
+        CharData *vch, *vch_next;
+        SkillType *skill = get_skilltype(sn);
         bool      saved;
         bool      affects;
         int       dam;
@@ -4335,7 +4335,7 @@ SPELLF spell_area_attack(int sn, int level, CHAR_DATA * ch, void *vo)
                 vch_next = vch->next_in_room;
 
                 if (!IS_NPC(vch) && IS_SET(vch->act, PLR_WIZINVIS)
-                    && vch->pcdata->wizinvis >= LEVEL_IMMORTAL)
+                    && vch->pcdata->wizinvis >= LevelImmortal)
                         continue;
 
                 if (vch != ch && (IS_NPC(ch) ? !IS_NPC(vch) : IS_NPC(vch)))
@@ -4367,12 +4367,12 @@ SPELLF spell_area_attack(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-ch_ret spell_affectchar(int sn, int level, CHAR_DATA * ch, void *vo)
+ch_ret spell_affectchar(int sn, int level, CharData * ch, void *vo)
 {
-        AFFECT_DATA af;
-        SMAUG_AFF *saf;
-        SKILLTYPE *skill = get_skilltype(sn);
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        AffectData af;
+        SmaugAff *saf;
+        SkillType *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
         int       percent_chance;
         ch_ret    retcode = rNONE;
 		bool affected = FALSE, first = TRUE;
@@ -4399,7 +4399,7 @@ ch_ret spell_affectchar(int sn, int level, CHAR_DATA * ch, void *vo)
      victim = ch;
     }
     else
-      victim = (CHAR_DATA *) vo;;
+      victim = (CharData *) vo;;
                 /*
                  * Check if char has this bitvector already 
                  */
@@ -4574,11 +4574,11 @@ ch_ret spell_affectchar(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * Generic spell affect						-Thoric
  */
-ch_ret spell_affect(int sn, int level, CHAR_DATA * ch, void *vo)
+ch_ret spell_affect(int sn, int level, CharData * ch, void *vo)
 {
-        SMAUG_AFF *saf;
-        SKILLTYPE *skill = get_skilltype(sn);
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        SmaugAff *saf;
+        SkillType *skill = get_skilltype(sn);
+        CharData *victim = (CharData *) vo;
         bool      groupsp;
         bool      areasp;
         bool      hitchar = FALSE, hitroom = FALSE, hitvict = FALSE;
@@ -4735,10 +4735,10 @@ ch_ret spell_affect(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * Generic inventory object spell				-Thoric
  */
-SPELLF spell_obj_inv(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_obj_inv(int sn, int level, CharData * ch, void *vo)
 {
-        OBJ_DATA *obj = (OBJ_DATA *) vo;
-        SKILLTYPE *skill = get_skilltype(sn);
+        ObjData *obj = (ObjData *) vo;
+        SkillType *skill = get_skilltype(sn);
 
         if (!obj)
         {
@@ -4788,7 +4788,7 @@ SPELLF spell_obj_inv(int sn, int level, CHAR_DATA * ch, void *vo)
                                 obj->value[1] += water;
                                 if (!is_name("water", obj->name))
                                 {
-                                        char      buf[MAX_STRING_LENGTH];
+                                        char      buf[MaxStringLength];
 
                                         snprintf(buf, MSL, "%s water",
                                                  obj->name);
@@ -4848,7 +4848,7 @@ SPELLF spell_obj_inv(int sn, int level, CHAR_DATA * ch, void *vo)
                 }
                 switch (SPELL_POWER(skill)) /* clone object */
                 {
-                        OBJ_DATA *clone;
+                        ObjData *clone;
 
                 default:
                 case SP_NONE:
@@ -4945,13 +4945,13 @@ SPELLF spell_obj_inv(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * Generic object creating spell				-Thoric
  */
-SPELLF spell_create_obj(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_create_obj(int sn, int level, CharData * ch, void *vo)
 {
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
         int       lvl;
         int       vnum = skill->value;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *oi;
+        ObjData *obj;
+        ObjIndexData *oi;
 
         vo = NULL;
 
@@ -5001,14 +5001,14 @@ SPELLF spell_create_obj(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * Generic mob creating spell					-Thoric
  */
-SPELLF spell_create_mob(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_create_mob(int sn, int level, CharData * ch, void *vo)
 {
-        SKILLTYPE *skill = get_skilltype(sn);
+        SkillType *skill = get_skilltype(sn);
         int       lvl;
         int       vnum = skill->value;
-        CHAR_DATA *mob;
-        MOB_INDEX_DATA *mi;
-        AFFECT_DATA af;
+        CharData *mob;
+        MobIndexData *mi;
+        AffectData af;
 
         vo = NULL;
 
@@ -5062,7 +5062,7 @@ SPELLF spell_create_mob(int sn, int level, CHAR_DATA * ch, void *vo)
         char_to_room(mob, ch->in_room);
         add_follower(mob, ch);
         af.type = sn;
-        af.duration = (int) ((number_fuzzy((level + 1) / 3) + 1) * DUR_CONV);
+        af.duration = (int) ((number_fuzzy((level + 1) / 3) + 1) * DurConv);
         af.location = 0;
         af.modifier = 0;
         af.bitvector = AFF_CHARM;
@@ -5073,7 +5073,7 @@ SPELLF spell_create_mob(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * Generic handler for new "SMAUG" spells			-Thoric
  */
-SPELLF spell_smaug(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_smaug(int sn, int level, CharData * ch, void *vo)
 {
         struct skill_type *skill = get_skilltype(sn);
 
@@ -5139,7 +5139,7 @@ SPELLF spell_smaug(int sn, int level, CHAR_DATA * ch, void *vo)
         case TAR_CHAR_SELF:
                 if (vo && SPELL_ACTION(skill) == SA_DESTROY)
                 {
-                        CHAR_DATA *victim = (CHAR_DATA *) vo;
+                        CharData *victim = (CharData *) vo;
 
                         /*
                          * cure poison 
@@ -5191,9 +5191,9 @@ SPELLF spell_smaug(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  *  4 Energy Spells
  */
-SPELLF spell_ethereal_fist(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_ethereal_fist(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5217,9 +5217,9 @@ SPELLF spell_ethereal_fist(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_spectral_furor(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_spectral_furor(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
@@ -5238,9 +5238,9 @@ SPELLF spell_spectral_furor(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_hand_of_chaos(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_hand_of_chaos(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5261,9 +5261,9 @@ SPELLF spell_hand_of_chaos(int sn, int level, CHAR_DATA * ch, void *vo)
 }
 
 
-SPELLF spell_disruption(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_disruption(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5283,9 +5283,9 @@ SPELLF spell_disruption(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_sonic_resonance(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_sonic_resonance(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5309,9 +5309,9 @@ SPELLF spell_sonic_resonance(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * 3 Mentalstate spells
  */
-SPELLF spell_mind_wrack(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_mind_wrack(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         /*
@@ -5334,9 +5334,9 @@ SPELLF spell_mind_wrack(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_mind_wrench(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_mind_wrench(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         /*
@@ -5361,9 +5361,9 @@ SPELLF spell_mind_wrench(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 /* Non-offensive spell! */
-SPELLF spell_revive(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_revive(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         /*
@@ -5382,9 +5382,9 @@ SPELLF spell_revive(int sn, int level, CHAR_DATA * ch, void *vo)
 /*
  * n Acid Spells
  */
-SPELLF spell_sulfurous_spray(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_sulfurous_spray(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5405,9 +5405,9 @@ SPELLF spell_sulfurous_spray(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_caustic_fount(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_caustic_fount(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5429,9 +5429,9 @@ SPELLF spell_caustic_fount(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_acetum_primus(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_acetum_primus(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5449,9 +5449,9 @@ SPELLF spell_acetum_primus(int sn, int level, CHAR_DATA * ch, void *vo)
  *  Electrical
  */
 
-SPELLF spell_galvanic_whip(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_galvanic_whip(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5472,9 +5472,9 @@ SPELLF spell_galvanic_whip(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_magnetic_thrust(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_magnetic_thrust(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5494,9 +5494,9 @@ SPELLF spell_magnetic_thrust(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_quantum_spike(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_quantum_spike(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam, l;
 
         level = UMAX(0, level);
@@ -5522,9 +5522,9 @@ SPELLF spell_quantum_spike(int sn, int level, CHAR_DATA * ch, void *vo)
  */
 
 /* L2 Mage Spell */
-SPELLF spell_black_hand(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_black_hand(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5545,9 +5545,9 @@ SPELLF spell_black_hand(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_black_fist(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_black_fist(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         level = UMAX(0, level);
@@ -5567,9 +5567,9 @@ SPELLF spell_black_fist(int sn, int level, CHAR_DATA * ch, void *vo)
         return damage(ch, victim, dam, sn);
 }
 
-SPELLF spell_black_lightning(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_black_lightning(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim = (CHAR_DATA *) vo;
+        CharData *victim = (CharData *) vo;
         int       dam;
 
         dam = 100;
@@ -5604,9 +5604,9 @@ SPELLF spell_black_lightning(int sn, int level, CHAR_DATA * ch, void *vo)
 
 
 
-SPELLF spell_force_healing(int sn, int level, CHAR_DATA * ch, void *vo)
+SPELLF spell_force_healing(int sn, int level, CharData * ch, void *vo)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         vo = NULL;
         sn = 0;
@@ -5651,9 +5651,9 @@ SPELLF spell_force_healing(int sn, int level, CHAR_DATA * ch, void *vo)
         return rNONE;
 }
 
-CMDF do_meditate(CHAR_DATA * ch, char *argument)
+CMDF do_meditate(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       chance = 0, boost = 0, xp = 0;
 
         mudstrlcpy(arg, argument, MIL);

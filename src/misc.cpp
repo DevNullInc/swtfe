@@ -54,11 +54,11 @@
 
 extern int top_exit;
 
-CMDF do_buyhome(CHAR_DATA * ch, char *argument)
+CMDF do_buyhome(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *room;
-        AREA_DATA *pArea;
-        CHAR_DATA *vch;
+        RoomIndexData *room;
+        AreaData *pArea;
+        CharData *vch;
         int       ppl = 0;
 
 
@@ -139,10 +139,10 @@ CMDF do_buyhome(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_sellhome(CHAR_DATA * ch, char *argument)
+CMDF do_sellhome(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *room;
-        AREA_DATA *pArea;
+        RoomIndexData *room;
+        AreaData *pArea;
 
         argument = NULL;
 
@@ -195,15 +195,15 @@ CMDF do_sellhome(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_clone(CHAR_DATA * ch, char *argument)
+CMDF do_clone(CharData * ch, char *argument)
 {
         long      credits, bank;
         long      played;
-        CLAN_DATA *clan = NULL;
-        char      bestowments[MAX_STRING_LENGTH];
+        ClanData *clan = NULL;
+        char      bestowments[MaxStringLength];
         int       flags, i;
         int       bodyparts;
-        ROOM_INDEX_DATA *home;
+        RoomIndexData *home;
         int       implants[MAX_IMPLANT_TYPES];
 
         argument = NULL;
@@ -307,10 +307,10 @@ CMDF do_clone(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_arm(CHAR_DATA * ch, char *argument)
+CMDF do_arm(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
-        char      arg1[MAX_INPUT_LENGTH];
+        ObjData *obj;
+        char      arg1[MaxInputLength];
         int       timer;
 
         /*
@@ -360,10 +360,10 @@ CMDF do_arm(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_grenades);
 }
 
-CMDF do_ammo(CHAR_DATA * ch, char *argument)
+CMDF do_ammo(CharData * ch, char *argument)
 {
-        OBJ_DATA *wield;
-        OBJ_DATA *obj;
+        ObjData *wield;
+        ObjData *obj;
         bool      checkammo = FALSE;
         int       charge = 0;
 
@@ -611,10 +611,10 @@ CMDF do_ammo(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_setblaster(CHAR_DATA * ch, char *argument)
+CMDF do_setblaster(CharData * ch, char *argument)
 {
-        OBJ_DATA *wield;
-        OBJ_DATA *wield2;
+        ObjData *wield;
+        ObjData *wield2;
 
         /*
          * Should we check for wrist, arm, and sholder too? 
@@ -775,13 +775,13 @@ CMDF do_setblaster(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_use(CHAR_DATA * ch, char *argument)
+CMDF do_use(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      argd[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        OBJ_DATA *device;
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        char      argd[MaxInputLength];
+        CharData *victim;
+        ObjData *device;
+        ObjData *obj;
         ch_ret    retcode;
 
         /*
@@ -858,7 +858,7 @@ CMDF do_use(CHAR_DATA * ch, char *argument)
                 }
         }
 
-        WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+        WAIT_STATE(ch, 1 * PulseViolence);
 
         if (device->value[2] > 0)
         {
@@ -899,10 +899,10 @@ CMDF do_use(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_takedrug(CHAR_DATA * ch, char *argument)
+CMDF do_takedrug(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
-        AFFECT_DATA af;
+        ObjData *obj;
+        AffectData af;
         int       drug;
         int       sn = 0;
 
@@ -989,7 +989,7 @@ CMDF do_takedrug(CHAR_DATA * ch, char *argument)
 
                 drug = obj->value[0];
 
-                WAIT_STATE(ch, PULSE_PER_SECOND / 4);
+                WAIT_STATE(ch, PulsePerSecond / 4);
 
                 gain_condition(ch, COND_THIRST, 1);
 
@@ -1022,7 +1022,7 @@ CMDF do_takedrug(CHAR_DATA * ch, char *argument)
                 case SPICE_GLITTERSTIM:
 
                         sn = skill_lookup("true sight");
-                        if (sn < MAX_SKILL && !IS_AFFECTED(ch, AFF_TRUESIGHT))
+                        if (sn < MaxSkill && !IS_AFFECTED(ch, AFF_TRUESIGHT))
                         {
                                 af.type = sn;
                                 af.location = APPLY_AC;
@@ -1040,7 +1040,7 @@ CMDF do_takedrug(CHAR_DATA * ch, char *argument)
                 case SPICE_CARSANUM:
 
                         sn = skill_lookup("sanctuary");
-                        if (sn < MAX_SKILL && !IS_AFFECTED(ch, AFF_SANCTUARY))
+                        if (sn < MaxSkill && !IS_AFFECTED(ch, AFF_SANCTUARY))
                         {
                                 af.type = sn;
                                 af.location = APPLY_NONE;
@@ -1115,7 +1115,7 @@ CMDF do_takedrug(CHAR_DATA * ch, char *argument)
         return;
 }
 
-void jedi_bonus(CHAR_DATA * ch)
+void jedi_bonus(CharData * ch)
 {
         if (number_range(1, 100) == 1)
         {
@@ -1128,7 +1128,7 @@ void jedi_bonus(CHAR_DATA * ch)
         }
 }
 
-void sith_penalty(CHAR_DATA * ch)
+void sith_penalty(CharData * ch)
 {
         if (number_range(1, 100) == 1)
         {
@@ -1146,12 +1146,12 @@ void sith_penalty(CHAR_DATA * ch)
  * Fill a container
  * Many enhancements added by Thoric (ie: filling non-drink containers)
  */
-CMDF do_fill(CHAR_DATA * ch, char *argument)
+CMDF do_fill(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        OBJ_DATA *source;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjData *obj;
+        ObjData *source;
         sh_int    dest_item, src_item1, src_item2, src_item3, src_item4;
         int       diff = 0;
         bool      all = FALSE;
@@ -1307,7 +1307,7 @@ CMDF do_fill(CHAR_DATA * ch, char *argument)
         if (!source)
         {
                 bool      found = FALSE;
-                OBJ_DATA *src_next;
+                ObjData *src_next;
 
                 found = FALSE;
                 separate_obj(obj);
@@ -1381,9 +1381,9 @@ CMDF do_fill(CHAR_DATA * ch, char *argument)
 
         if (dest_item == ITEM_CONTAINER)
         {
-                OBJ_DATA *otmp, *otmp_next;
-                char      name[MAX_INPUT_LENGTH];
-                CHAR_DATA *gch;
+                ObjData *otmp, *otmp_next;
+                char      name[MaxInputLength];
+                CharData *gch;
                 char     *pd;
                 bool      found = FALSE;
 
@@ -1583,10 +1583,10 @@ CMDF do_fill(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_drink(CHAR_DATA * ch, char *argument)
+CMDF do_drink(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
         int       amount;
         int       liquid;
 
@@ -1778,7 +1778,7 @@ CMDF do_drink(CHAR_DATA * ch, char *argument)
                         /*
                          * The drink was poisoned! 
                          */
-                        AFFECT_DATA af;
+                        AffectData af;
 
                         act(AT_POISON, "$n sputters and gags.", ch, NULL,
                             NULL, TO_ROOM);
@@ -1798,13 +1798,13 @@ CMDF do_drink(CHAR_DATA * ch, char *argument)
                 break;
         }
 
-        WAIT_STATE(ch, PULSE_PER_SECOND);
+        WAIT_STATE(ch, PulsePerSecond);
         return;
 }
 
-CMDF do_eat(CHAR_DATA * ch, char *argument)
+CMDF do_eat(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         ch_ret    retcode;
         int       foodcond;
 
@@ -1876,7 +1876,7 @@ CMDF do_eat(CHAR_DATA * ch, char *argument)
          */
         separate_obj(obj);
 
-        WAIT_STATE(ch, PULSE_PER_SECOND / 2);
+        WAIT_STATE(ch, PulsePerSecond / 2);
 
         if (obj->in_obj)
         {
@@ -1926,7 +1926,7 @@ CMDF do_eat(CHAR_DATA * ch, char *argument)
                         /*
                          * The food was poisoned! 
                          */
-                        AFFECT_DATA af;
+                        AffectData af;
 
                         if (obj->value[3] != 0)
                         {
@@ -1993,9 +1993,9 @@ CMDF do_eat(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_quaff(CHAR_DATA * ch, char *argument)
+CMDF do_quaff(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         ch_ret    retcode;
 
         if (argument[0] == '\0' || !str_cmp(argument, ""))
@@ -2086,7 +2086,7 @@ CMDF do_quaff(CHAR_DATA * ch, char *argument)
                             TO_CHAR);
                 }
 
-                WAIT_STATE(ch, PULSE_PER_SECOND / 4);
+                WAIT_STATE(ch, PulsePerSecond / 4);
 
                 gain_condition(ch, COND_THIRST, 1);
                 retcode =
@@ -2107,13 +2107,13 @@ CMDF do_quaff(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_recite(CHAR_DATA * ch, char *argument)
+CMDF do_recite(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        OBJ_DATA *scroll;
-        OBJ_DATA *obj;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        CharData *victim;
+        ObjData *scroll;
+        ObjData *obj;
         ch_ret    retcode;
 
         argument = one_argument(argument, arg1);
@@ -2190,7 +2190,7 @@ CMDF do_recite(CHAR_DATA * ch, char *argument)
         act(AT_MAGIC, "You activate $p.", ch, scroll, NULL, TO_CHAR);
 
 
-        WAIT_STATE(ch, PULSE_PER_SECOND / 2);
+        WAIT_STATE(ch, PulsePerSecond / 2);
 
         retcode =
                 obj_cast_spell(scroll->value[1], scroll->value[0], ch, victim,
@@ -2212,13 +2212,13 @@ CMDF do_recite(CHAR_DATA * ch, char *argument)
 /*
  * Function to handle the state changing of a triggerobject (lever)  -Thoric
  */
-void pullorpush(CHAR_DATA * ch, OBJ_DATA * obj, bool pull)
+void pullorpush(CharData * ch, ObjData * obj, bool pull)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *rch;
+        char      buf[MaxStringLength];
+        CharData *rch;
         bool      isup;
-        ROOM_INDEX_DATA *room, *to_room = NULL;
-        EXIT_DATA *pexit, *pexit_rev;
+        RoomIndexData *room, *to_room = NULL;
+        ExitData *pexit, *pexit_rev;
         int       edir;
         char     *txt;
 
@@ -2455,10 +2455,10 @@ void pullorpush(CHAR_DATA * ch, OBJ_DATA * obj, bool pull)
 }
 
 
-CMDF do_pull(CHAR_DATA * ch, char *argument)
+CMDF do_pull(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
 
         /*
          * Should we check for wrist, arm, and sholder too? 
@@ -2491,10 +2491,10 @@ CMDF do_pull(CHAR_DATA * ch, char *argument)
         pullorpush(ch, obj, TRUE);
 }
 
-CMDF do_push(CHAR_DATA * ch, char *argument)
+CMDF do_push(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        ObjData *obj;
 
         /*
          * Should we check for wrist, arm, and sholder too? 
@@ -2527,11 +2527,11 @@ CMDF do_push(CHAR_DATA * ch, char *argument)
         pullorpush(ch, obj, FALSE);
 }
 
-CMDF do_empty(CHAR_DATA * ch, char *argument)
+CMDF do_empty(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        ObjData *obj;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
 
         /*
          * Should we check for wrist, arm, and sholder too? 
@@ -2642,7 +2642,7 @@ CMDF do_empty(CHAR_DATA * ch, char *argument)
                 }
                 else
                 {
-                        OBJ_DATA *dest = get_obj_here(ch, arg2);
+                        ObjData *dest = get_obj_here(ch, arg2);
 
                         if (!dest)
                         {
@@ -2690,9 +2690,9 @@ CMDF do_empty(CHAR_DATA * ch, char *argument)
 /*
  * Apply a salve/ointment					-Thoric
  */
-CMDF do_apply(CHAR_DATA * ch, char *argument)
+CMDF do_apply(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         ch_ret    retcode;
 
         if (argument[0] == '\0')
@@ -2753,10 +2753,10 @@ CMDF do_apply(CHAR_DATA * ch, char *argument)
         return;
 }
 
-void actiondesc(CHAR_DATA * ch, OBJ_DATA * obj, void *vo)
+void actiondesc(CharData * ch, ObjData * obj, void *vo)
 {
-        char      charbuf[MAX_STRING_LENGTH];
-        char      roombuf[MAX_STRING_LENGTH];
+        char      charbuf[MaxStringLength];
+        char      roombuf[MaxStringLength];
         char     *srcptr = obj->action_desc;
         char     *charptr = charbuf;
         char     *roomptr = roombuf;
@@ -2837,9 +2837,9 @@ void actiondesc(CHAR_DATA * ch, OBJ_DATA * obj, void *vo)
 
 /*
 snprintf( buf, MSL, "Charbuf: %s", charbuf );
-log_string_plus( buf, LOG_HIGH, LEVEL_LESSER ); 
+log_string_plus( buf, LOG_HIGH, LevelLesser ); 
 snprintf( buf, MSL, "Roombuf: %s", roombuf );
-log_string_plus( buf, LOG_HIGH, LEVEL_LESSER ); 
+log_string_plus( buf, LOG_HIGH, LevelLesser ); 
 */
 
         switch (obj->item_type)
@@ -2879,13 +2879,13 @@ log_string_plus( buf, LOG_HIGH, LEVEL_LESSER );
         return;
 }
 
-CMDF do_hail(CHAR_DATA * ch, char *argument)
+CMDF do_hail(CharData * ch, char *argument)
 {
         int       vnum, type;
-        ROOM_INDEX_DATA *room = NULL;
-        char      arg1[MAX_INPUT_LENGTH];
-        PLANET_DATA *planet;
-        AREA_DATA *area;
+        RoomIndexData *room = NULL;
+        char      arg1[MaxInputLength];
+        PlanetData *planet;
+        AreaData *area;
         int       home_vnum;
 
         argument = one_argument(argument, arg1);
@@ -3066,9 +3066,9 @@ CMDF do_hail(CHAR_DATA * ch, char *argument)
         do_look(ch, "auto");
 }
 
-CMDF do_train(CHAR_DATA * ch, char *argument)
+CMDF do_train(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         if (IS_NPC(ch))
                 return;
@@ -3287,9 +3287,9 @@ CMDF do_train(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_suicide(CHAR_DATA * ch, char *argument)
+CMDF do_suicide(CharData * ch, char *argument)
 {
-        char      logbuf[MAX_STRING_LENGTH];
+        char      logbuf[MaxStringLength];
 
         if (IS_NPC(ch) || !ch->pcdata)
         {
@@ -3340,10 +3340,10 @@ CMDF do_suicide(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_bank(CHAR_DATA * ch, char *argument)
+CMDF do_bank(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         long      amount = 0;
 
         argument = one_argument(argument, arg1);
@@ -3441,12 +3441,12 @@ CMDF do_bank(CHAR_DATA * ch, char *argument)
 }
 
 /*
-CMDF do_invest( CHAR_DATA *ch, char *argument )
+CMDF do_invest( CharData *ch, char *argument )
 {
-    char arg1[MAX_INPUT_LENGTH];
+    char arg1[MaxInputLength];
     long amount = 0;
-    OBJ_DATA *obj;
-    OBJ_INDEX_DATA *pObjIndex;
+    ObjData *obj;
+    ObjIndexData *pObjIndex;
     vnum = 10437;
     
     if ( ( pObjIndex = get_obj_index( vnum ) ) == NULL )
@@ -3526,10 +3526,10 @@ CMDF do_invest( CHAR_DATA *ch, char *argument )
 }
 */
 
-CMDF do_junk(CHAR_DATA * ch, char *argument)
+CMDF do_junk(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj, *obj_next;
-        char      arg[MAX_INPUT_LENGTH];
+        ObjData *obj, *obj_next;
+        char      arg[MaxInputLength];
         bool      found = FALSE;
 
         argument = one_argument(argument, arg);
@@ -3552,7 +3552,7 @@ CMDF do_junk(CHAR_DATA * ch, char *argument)
         }
         if (found)
         {
-                if (!can_drop_obj(ch, obj) && ch->top_level < LEVEL_IMMORTAL)
+                if (!can_drop_obj(ch, obj) && ch->top_level < LevelImmortal)
                 {
                         send_to_char("You cannot junk that, it's cursed!\n\r",
                                      ch);
@@ -3619,7 +3619,7 @@ int check_email_syntax(char *arg1, char *arg2)
         return TRUE;
 }
 
-void send_email(char *subject, char *email, char *message, CHAR_DATA * ch)
+void send_email(char *subject, char *email, char *message, CharData * ch)
 {
         static char sendstring[1000];
         FILE     *fp;
@@ -3655,7 +3655,7 @@ void send_email(char *subject, char *email, char *message, CHAR_DATA * ch)
                 ch_printf(ch, "Your email has been sent to %s\n\r", email);
 }
 
-CMDF do_sendmail(CHAR_DATA * ch, char *argument)
+CMDF do_sendmail(CharData * ch, char *argument)
 {
         char      arg1[MSL];
         char      passargument[MSL];

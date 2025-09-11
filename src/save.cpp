@@ -67,39 +67,39 @@
 /*
  * Array to keep track of equipment temporarily.		-Thoric
  */
-OBJ_DATA *save_equipment[MAX_WEAR][MAX_LAYERS];
-CHAR_DATA *quitting_char, *loading_char, *saving_char;
+ObjData *save_equipment[MAX_WEAR][MaxLayers];
+CharData *quitting_char, *loading_char, *saving_char;
 
 int       file_ver;
 
 /*
  * Externals
  */
-sh_int    get_age_old(CHAR_DATA * ch);
+sh_int    get_age_old(CharData * ch);
 bool      char_exists(char *player);
 
 /*
  * Array of containers read for proper re-nesting of objects.
  */
-static OBJ_DATA *rgObjNest[MAX_NEST];
+static ObjData *rgObjNest[MaxNest];
 
 /*
  * Local functions.
  */
-void fwrite_char args((CHAR_DATA * ch, FILE * fp));
+void fwrite_char args((CharData * ch, FILE * fp));
 void      fread_char
-args((CHAR_DATA * ch, FILE * fp, bool preload, bool copyover));
-void write_corpses args((CHAR_DATA * ch, char *name));
+args((CharData * ch, FILE * fp, bool preload, bool copyover));
+void write_corpses args((CharData * ch, char *name));
 void      fread_comment(ACCOUNT_DATA * account, FILE * fp);
 
-void save_home(CHAR_DATA * ch)
+void save_home(CharData * ch)
 {
         if (ch->plr_home)
         {
                 FILE     *fp;
                 char      filename[256];
                 sh_int    templvl;
-                OBJ_DATA *contents;
+                ObjData *contents;
 
 
                 snprintf(filename, MSL, "%s%c/%s.home", PLAYER_DIR,
@@ -110,7 +110,7 @@ void save_home(CHAR_DATA * ch)
                 else
                 {
                         templvl = ch->top_level;
-                        ch->top_level = LEVEL_HERO; /* make sure EQ doesn't get lost */
+                        ch->top_level = LevelHero; /* make sure EQ doesn't get lost */
                         contents = ch->plr_home->last_content;
                         if (contents)
                                 fwrite_obj(ch, contents, fp, 0, OS_CARRY,
@@ -122,12 +122,12 @@ void save_home(CHAR_DATA * ch)
         }
 }
 
-void load_home(CHAR_DATA * ch)
+void load_home(CharData * ch)
 {
         char      filename[256];
         FILE     *fph;
-        ROOM_INDEX_DATA *storeroom = ch->plr_home;
-        OBJ_DATA *obj, *obj_next;
+        RoomIndexData *storeroom = ch->plr_home;
+        ObjData *obj, *obj_next;
 
 
         if (!storeroom)
@@ -147,10 +147,10 @@ void load_home(CHAR_DATA * ch)
         {
                 int       iNest;
                 bool      found;
-                OBJ_DATA *tobj, *tobj_next;
+                ObjData *tobj, *tobj_next;
 
                 rset_supermob(storeroom);
-                for (iNest = 0; iNest < MAX_NEST; iNest++)
+                for (iNest = 0; iNest < MaxNest; iNest++)
                         rgObjNest[iNest] = NULL;
 
                 found = TRUE;
@@ -208,31 +208,31 @@ void load_home(CHAR_DATA * ch)
  * Un-equip character before saving to ensure proper	-Thoric
  * stats are saved in case of changes to or removal of EQ
  */
-void de_equip_char(CHAR_DATA * ch)
+void de_equip_char(CharData * ch)
 {
-        char      buf[MAX_STRING_LENGTH];
-        OBJ_DATA *obj;
+        char      buf[MaxStringLength];
+        ObjData *obj;
         int       x, y;
 
         for (x = 0; x < MAX_WEAR; x++)
-                for (y = 0; y < MAX_LAYERS; y++)
+                for (y = 0; y < MaxLayers; y++)
                         save_equipment[x][y] = NULL;
         for (obj = ch->first_carrying; obj; obj = obj->next_content)
                 if (obj->wear_loc > -1 && obj->wear_loc < MAX_WEAR)
                 {
 
-                        for (x = 0; x < MAX_LAYERS; x++)
+                        for (x = 0; x < MaxLayers; x++)
                                 if (!save_equipment[obj->wear_loc][x])
                                 {
                                         save_equipment[obj->wear_loc][x] =
                                                 obj;
                                         break;
                                 }
-                        if (x == MAX_LAYERS)
+                        if (x == MaxLayers)
                         {
                                 snprintf(buf, MSL,
                                          "%s had on more than %d layers of clothing in one location (%d): %s",
-                                         ch->name, MAX_LAYERS, obj->wear_loc,
+                                         ch->name, MaxLayers, obj->wear_loc,
                                          obj->name);
                                 bug(buf, 0);
                         }
@@ -244,12 +244,12 @@ void de_equip_char(CHAR_DATA * ch)
 /*
  * Re-equip character					-Thoric
  */
-void re_equip_char(CHAR_DATA * ch)
+void re_equip_char(CharData * ch)
 {
         int       x, y;
 
         for (x = 0; x < MAX_WEAR; x++)
-                for (y = 0; y < MAX_LAYERS; y++)
+                for (y = 0; y < MaxLayers; y++)
                         if (save_equipment[x][y] != NULL)
                         {
                                 if (quitting_char != ch)
@@ -267,10 +267,10 @@ void re_equip_char(CHAR_DATA * ch)
  * Would be cool to save NPC's too for quest purposes,
  *   some of the infrastructure is provided.
  */
-void save_char_obj(CHAR_DATA * ch)
+void save_char_obj(CharData * ch)
 {
-        char      strsave[MAX_INPUT_LENGTH];
-        char      strback[MAX_INPUT_LENGTH];
+        char      strsave[MaxInputLength];
+        char      strback[MaxInputLength];
         FILE     *fp;
 
         if (!ch)
@@ -325,7 +325,7 @@ void save_char_obj(CHAR_DATA * ch)
          * Also save the player flags so we the wizlist builder can see
          * who is a guest and who is retired.
          */
-        if (get_trust(ch) > LEVEL_HERO)
+        if (get_trust(ch) > LevelHero)
         {
                 snprintf(strback, MSL, "%s%s", GOD_DIR, capitalize(ch->name));
 
@@ -340,7 +340,7 @@ void save_char_obj(CHAR_DATA * ch)
                         fprintf(fp, "Pcflags      %d\n",
                                 ch->pcdata->godflags);
                         if (ch->pcdata->r_range_lo && ch->pcdata->r_range_hi
-                            && (ch->top_level > MAX_LEVEL - 4))
+                            && (ch->top_level > MaxLevel - 4))
                                 fprintf(fp, "RoomRange    %d %d\n",
                                         ch->pcdata->r_range_lo,
                                         ch->pcdata->r_range_hi);
@@ -381,10 +381,10 @@ void save_char_obj(CHAR_DATA * ch)
         return;
 }
 
-void save_clone(CHAR_DATA * ch)
+void save_clone(CharData * ch)
 {
-        char      strsave[MAX_INPUT_LENGTH];
-        char      strback[MAX_INPUT_LENGTH];
+        char      strsave[MaxInputLength];
+        char      strback[MaxInputLength];
         FILE     *fp;
 
         if (!ch)
@@ -442,11 +442,11 @@ void save_clone(CHAR_DATA * ch)
 /*
  * Write the char.
  */
-void fwrite_char(CHAR_DATA * ch, FILE * fp)
+void fwrite_char(CharData * ch, FILE * fp)
 {
-        AFFECT_DATA *paf;
+        AffectData *paf;
         int       sn, track, drug;
-        SKILLTYPE *skill = NULL;
+        SkillType *skill = NULL;
         int       pos;
 
         fprintf(fp, "#%s\n", IS_NPC(ch) ? "MOB" : "PLAYER");
@@ -512,7 +512,7 @@ void fwrite_char(CHAR_DATA * ch, FILE * fp)
         {
                 int       ability;
 
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         fprintf(fp, "Ability        %d %d %ld\n",
                                 ability, ch->skill_level[ability],
                                 ch->experience[ability]);
@@ -646,7 +646,7 @@ void fwrite_char(CHAR_DATA * ch, FILE * fp)
                 for (drug = 0; drug <= 9; drug++)
                         fprintf(fp, " %d", ch->pcdata->drug_level[drug]);
                 fprintf(fp, "\n");
-                for (pos = 0; pos < MAX_IGNORE; pos++)
+                for (pos = 0; pos < MaxIgnore; pos++)
                 {
                         if (ch->pcdata->ignore[pos] == NULL)
                                 continue;
@@ -776,8 +776,8 @@ void fwrite_char(CHAR_DATA * ch, FILE * fp)
         }
 
         track = URANGE(2,
-                       ((ch->top_level + 3) * MAX_KILLTRACK) / LEVEL_AVATAR,
-                       MAX_KILLTRACK);
+                       ((ch->top_level + 3) * MaxKillTrack) / LevelAvatar,
+                       MaxKillTrack);
         for (sn = 0; sn < track; sn++)
         {
                 if (ch->pcdata->killed[sn].vnum == 0)
@@ -811,16 +811,16 @@ void fwrite_char(CHAR_DATA * ch, FILE * fp)
 /*
  * Write an object and its contents.
  */
-void fwrite_obj(CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest,
+void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
                 sh_int os_type, bool hotboot)
 {
-        EXTRA_DESCR_DATA *ed;
-        AFFECT_DATA *paf;
+        ExtraDescrData *ed;
+        AffectData *paf;
         sh_int    wear, wear_loc, x;
 
-        if (iNest >= MAX_NEST)
+        if (iNest >= MaxNest)
         {
-                bug("fwrite_obj: iNest hit MAX_NEST %d", iNest);
+                bug("fwrite_obj: iNest hit MaxNest %d", iNest);
                 return;
         }
 
@@ -880,7 +880,7 @@ void fwrite_obj(CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest,
                 fprintf(fp, "WearFlags    %d\n", obj->wear_flags);
         wear_loc = -1;
         for (wear = 0; wear < MAX_WEAR; wear++)
-                for (x = 0; x < MAX_LAYERS; x++)
+                for (x = 0; x < MaxLayers; x++)
                         if (obj == save_equipment[wear][x])
                         {
                                 wear_loc = wear;
@@ -990,27 +990,27 @@ void fwrite_obj(CHAR_DATA * ch, OBJ_DATA * obj, FILE * fp, int iNest,
 /*
  * Load a char and inventory into a new ch structure.
  */
-bool load_char_obj(DESCRIPTOR_DATA * d, char *name, bool preload,
+bool load_char_obj(DescriptorData * d, char *name, bool preload,
                    bool copyover)
 {
-        char      strsave[MAX_INPUT_LENGTH];
-        CHAR_DATA *ch;
+        char      strsave[MaxInputLength];
+        CharData *ch;
         FILE     *fp;
         bool      found;
         struct stat fst;
         int       i, x;
         extern FILE *fpArea;
-        extern char strArea[MAX_INPUT_LENGTH];
-        char      buf[MAX_INPUT_LENGTH];
+        extern char strArea[MaxInputLength];
+        char      buf[MaxInputLength];
 
-        CREATE(ch, CHAR_DATA, 1);
+        CREATE(ch, CharData, 1);
         for (x = 0; x < MAX_WEAR; x++)
-                for (i = 0; i < MAX_LAYERS; i++)
+                for (i = 0; i < MaxLayers; i++)
                         save_equipment[x][i] = NULL;
         clear_char(ch);
         loading_char = ch;
 
-        CREATE(ch->pcdata, PC_DATA, 1);
+        CREATE(ch->pcdata, PcData, 1);
         d->character = ch;
         ch->desc = d;
         ch->name = STRALLOC(name);
@@ -1032,7 +1032,7 @@ bool load_char_obj(DESCRIPTOR_DATA * d, char *name, bool preload,
         ch->pcdata->wizinvis = 0;
         ch->mental_state = -10;
         ch->mobinvis = 0;
-        for (i = 0; i < MAX_SKILL; i++)
+        for (i = 0; i < MaxSkill; i++)
                 ch->pcdata->learned[i] = 0;
         ch->pcdata->release_date = 0;
         ch->pcdata->helled_by = NULL;
@@ -1079,7 +1079,7 @@ bool load_char_obj(DESCRIPTOR_DATA * d, char *name, bool preload,
                         snprintf(buf, MSL, "%s player data for: %s (%dK)",
                                  preload ? "Preloading" : "Loading", ch->name,
                                  (int) fst.st_size / 1024);
-                        log_string_plus(buf, LOG_COMM, LEVEL_GREATER);
+                        log_string_plus(buf, LOG_COMM, LevelGreater);
                 }
         }
         /*
@@ -1090,7 +1090,7 @@ bool load_char_obj(DESCRIPTOR_DATA * d, char *name, bool preload,
         {
                 int       iNest;
 
-                for (iNest = 0; iNest < MAX_NEST; iNest++)
+                for (iNest = 0; iNest < MaxNest; iNest++)
                         rgObjNest[iNest] = NULL;
 
                 found = TRUE;
@@ -1197,7 +1197,7 @@ bool load_char_obj(DESCRIPTOR_DATA * d, char *name, bool preload,
                 if (!ch->pcdata->authed_by)
                         ch->pcdata->authed_by = STRALLOC("");
 
-                if (!IS_NPC(ch) && get_trust(ch) > LEVEL_AVATAR)
+                if (!IS_NPC(ch) && get_trust(ch) > LevelAvatar)
                 {
                         if (ch->pcdata->wizinvis < 2)
                                 ch->pcdata->wizinvis = ch->top_level;
@@ -1207,7 +1207,7 @@ bool load_char_obj(DESCRIPTOR_DATA * d, char *name, bool preload,
                 {
                         for (i = 0; i < MAX_WEAR; i++)
                         {
-                                for (x = 0; x < MAX_LAYERS; x++)
+                                for (x = 0; x < MaxLayers; x++)
                                 {
                                         if (save_equipment[i][x])
                                         {
@@ -1245,9 +1245,9 @@ bool load_char_obj(DESCRIPTOR_DATA * d, char *name, bool preload,
  * Read in a char.
  */
 
-void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
+void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         char     *line;
         const char *word;
         int       x1, x2, x3, x4, x5, x6, x7, x8, x9, x0;
@@ -1336,7 +1336,7 @@ void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
                                 line = fread_line(fp);
                                 x0 = x1 = x2 = 0;
                                 sscanf(line, "%d %d %d", &x0, &x1, &x2);
-                                if (x0 >= 0 && x0 < MAX_ABILITY)
+                                if (x0 >= 0 && x0 < MaxAbility)
                                 {
                                         ch->skill_level[x0] = x1;
                                         ch->experience[x0] = x2;
@@ -1349,7 +1349,7 @@ void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
                         if (!str_cmp(word, "Affect")
                             || !str_cmp(word, "AffectData"))
                         {
-                                AFFECT_DATA *paf;
+                                AffectData *paf;
 
                                 if (preload)
                                 {
@@ -1357,7 +1357,7 @@ void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
                                         fread_to_eol(fp);
                                         break;
                                 }
-                                CREATE(paf, AFFECT_DATA, 1);
+                                CREATE(paf, AffectData, 1);
                                 if (!str_cmp(word, "Affect"))
                                 {
                                         paf->type = fread_number(fp);
@@ -1686,8 +1686,8 @@ void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
                         if (!str_cmp(word, "Killed"))
                         {
                                 fMatch = TRUE;
-                                if (killcnt >= MAX_KILLTRACK)
-                                        bug("fread_char: killcnt (%d) >= MAX_KILLTRACK", killcnt);
+                                if (killcnt >= MaxKillTrack)
+                                        bug("fread_char: killcnt (%d) >= MaxKillTrack", killcnt);
                                 else
                                 {
                                         ch->pcdata->killed[killcnt].vnum =
@@ -2099,15 +2099,15 @@ void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
                                 killcnt =
                                         URANGE(2,
                                                ((ch->top_level +
-                                                 3) * MAX_KILLTRACK) /
-                                               LEVEL_AVATAR, MAX_KILLTRACK);
-                                if (killcnt < MAX_KILLTRACK)
+                                                 3) * MaxKillTrack) /
+                                               LevelAvatar, MaxKillTrack);
+                                if (killcnt < MaxKillTrack)
                                         ch->pcdata->killed[killcnt].vnum = 0;
                                 {
                                         int       ability;
 
                                         for (ability = 0;
-                                             ability < MAX_ABILITY; ability++)
+                                             ability < MaxAbility; ability++)
                                         {
                                                 if (ch->
                                                     skill_level[ability] == 0)
@@ -2154,7 +2154,7 @@ void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
                                         if (skill_table[skill_number]->guild <
                                             0
                                             || skill_table[skill_number]->
-                                            guild >= MAX_ABILITY)
+                                            guild >= MaxAbility)
                                                 continue;
 
                                         if (ch->pcdata->
@@ -2210,7 +2210,7 @@ void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
                         /*
                          * Let no character be trusted higher than one below maxlevel -- Narn 
                          */
-                        ch->trust = UMIN(ch->trust, MAX_LEVEL - 1);
+                        ch->trust = UMIN(ch->trust, MaxLevel - 1);
 
                         if (!str_cmp(word, "Title"))
                         {
@@ -2357,15 +2357,15 @@ void fread_char(CHAR_DATA * ch, FILE * fp, bool preload, bool copyover)
 }
 
 
-void fread_obj(CHAR_DATA * ch, FILE * fp, sh_int os_type)
+void fread_obj(CharData * ch, FILE * fp, sh_int os_type)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         const char *word;
         int       iNest;
         bool      fMatch;
         bool      fNest;
         bool      fVnum;
-        ROOM_INDEX_DATA *room = NULL;
+        RoomIndexData *room = NULL;
 
         if (ch)
         {
@@ -2374,7 +2374,7 @@ void fread_obj(CHAR_DATA * ch, FILE * fp, sh_int os_type)
                         file_ver = 0;
         }
 
-        CREATE(obj, OBJ_DATA, 1);
+        CREATE(obj, ObjData, 1);
         obj->count = 1;
         obj->wear_loc = -1;
         obj->weight = 1;
@@ -2401,10 +2401,10 @@ void fread_obj(CHAR_DATA * ch, FILE * fp, sh_int os_type)
                         if (!str_cmp(word, "Affect")
                             || !str_cmp(word, "AffectData"))
                         {
-                                AFFECT_DATA *paf;
+                                AffectData *paf;
                                 int       pafmod;
 
-                                CREATE(paf, AFFECT_DATA, 1);
+                                CREATE(paf, AffectData, 1);
                                 if (!str_cmp(word, "Affect"))
                                 {
                                         paf->type = fread_number(fp);
@@ -2452,9 +2452,9 @@ void fread_obj(CHAR_DATA * ch, FILE * fp, sh_int os_type)
 
                         if (!str_cmp(word, "ExtraDescr"))
                         {
-                                EXTRA_DESCR_DATA *ed;
+                                ExtraDescrData *ed;
 
-                                CREATE(ed, EXTRA_DESCR_DATA, 1);
+                                CREATE(ed, ExtraDescrData, 1);
                                 ed->keyword = fread_string(fp);
                                 ed->description = fread_string(fp);
                                 LINK(ed, obj->first_extradesc,
@@ -2540,7 +2540,7 @@ void fread_obj(CHAR_DATA * ch, FILE * fp, sh_int os_type)
                                                         int       x;
 
                                                         for (x = 0;
-                                                             x < MAX_LAYERS;
+                                                             x < MaxLayers;
                                                              x++)
                                                                 if (!save_equipment[wear_loc][x])
                                                                 {
@@ -2553,7 +2553,7 @@ void fread_obj(CHAR_DATA * ch, FILE * fp, sh_int os_type)
                                                                         reslot = TRUE;
                                                                         break;
                                                                 }
-                                                        if (x == MAX_LAYERS)
+                                                        if (x == MaxLayers)
                                                                 bug("Fread_obj: too many layers %d", wear_loc);
                                                 }
                                                 obj = obj_to_char(obj, ch);
@@ -2599,7 +2599,7 @@ void fread_obj(CHAR_DATA * ch, FILE * fp, sh_int os_type)
                         if (!str_cmp(word, "Nest"))
                         {
                                 iNest = fread_number(fp);
-                                if (iNest < 0 || iNest >= MAX_NEST)
+                                if (iNest < 0 || iNest >= MaxNest)
                                 {
                                         bug("Fread_obj: bad nest %d.", iNest);
                                         iNest = 0;
@@ -2701,8 +2701,8 @@ void fread_obj(CHAR_DATA * ch, FILE * fp, sh_int os_type)
 
                 if (!fMatch)
                 {
-                        EXTRA_DESCR_DATA *ed;
-                        AFFECT_DATA *paf;
+                        ExtraDescrData *ed;
+                        AffectData *paf;
 
                         bug("Fread_obj: no match.", 0);
                         bug(word, 0);
@@ -2741,11 +2741,11 @@ void set_alarm(long seconds)
 /*
  * Based on last time modified, show when a player was last on	-Thoric
  */
-CMDF do_last(CHAR_DATA * ch, char *argument)
+CMDF do_last(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH];
-        char      name[MAX_INPUT_LENGTH];
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength];
+        char      name[MaxInputLength];
         struct stat fst;
 
         one_argument(argument, arg);
@@ -2764,9 +2764,9 @@ CMDF do_last(CHAR_DATA * ch, char *argument)
         send_to_char(buf, ch);
 }
 
-void write_corpses(CHAR_DATA * ch, char *name)
+void write_corpses(CharData * ch, char *name)
 {
-        OBJ_DATA *corpse;
+        ObjData *corpse;
         FILE     *fp = NULL;
 
         /*
@@ -2823,7 +2823,7 @@ void load_corpses(void)
         DIR      *dp;
         struct dirent *de;
         extern FILE *fpArea;
-        extern char strArea[MAX_INPUT_LENGTH];
+        extern char strArea[MaxInputLength];
         extern int falling;
 
         if (!(dp = opendir(CORPSE_DIR)))
@@ -2889,16 +2889,16 @@ void load_corpses(void)
 void load_vendors(void)
 {
         DIR      *dp;
-        CHAR_DATA *mob = NULL;
+        CharData *mob = NULL;
         struct dirent *de;
         extern FILE *fpArea;
-        extern char strArea[MAX_INPUT_LENGTH];
+        extern char strArea[MaxInputLength];
         extern int falling;
 
-        if (!(dp = opendir(VENDOR_DIR)))
+        if (!(dp = opendir(VendorDir)))
         {
-                bug("Load_vendors: can't open VENDOR_DIR", 0);
-                perror(VENDOR_DIR);
+                bug("Load_vendors: can't open VendorDir", 0);
+                perror(VendorDir);
                 return;
         }
 
@@ -2907,7 +2907,7 @@ void load_vendors(void)
         {
                 if (de->d_name[0] != '.')
                 {
-                        snprintf(strArea, MSL, "%s%s", VENDOR_DIR,
+                        snprintf(strArea, MSL, "%s%s", VendorDir,
                                  de->d_name);
                         if (!(fpArea = fopen(strArea, "r")))
                         {

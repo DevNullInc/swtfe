@@ -131,7 +131,7 @@
 /* Local functions */
 
 void      generate_quest
-args((CHAR_DATA * ch, CHAR_DATA * questman, char *argument));
+args((CharData * ch, CharData * questman, char *argument));
 void quest_update args((void));
 bool qchance args((int num));
 
@@ -145,16 +145,16 @@ bool qchance(int num)
 
 /* The main quest function */
 
-CMDF do_aquest(CHAR_DATA * ch, char *argument)
+CMDF do_aquest(CharData * ch, char *argument)
 {
-        CHAR_DATA *questman;
-        OBJ_DATA *obj = NULL, *obj_next;
-        OBJ_INDEX_DATA *obj1, *obj2, *obj3, *obj4, *obj5;
-        OBJ_INDEX_DATA *questinfoobj;
-        MOB_INDEX_DATA *questinfo;
-        char      buf[MAX_STRING_LENGTH];
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        CharData *questman;
+        ObjData *obj = NULL, *obj_next;
+        ObjIndexData *obj1, *obj2, *obj3, *obj4, *obj5;
+        ObjIndexData *questinfoobj;
+        MobIndexData *questinfo;
+        char      buf[MaxStringLength];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -713,13 +713,13 @@ CMDF do_aquest(CHAR_DATA * ch, char *argument)
         return;
 }
 
-void generate_quest(CHAR_DATA * ch, CHAR_DATA * questman, char *argument)
+void generate_quest(CharData * ch, CharData * questman, char *argument)
 {
-        CHAR_DATA *victim = NULL;
-        MOB_INDEX_DATA *vsearch;
-        ROOM_INDEX_DATA *room;
-        OBJ_DATA *questitem;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *victim = NULL;
+        MobIndexData *vsearch;
+        RoomIndexData *room;
+        ObjData *questitem;
+        char      buf[MaxStringLength];
         long      mcounter;
         int       level_diff, mob_vnum;
 
@@ -927,7 +927,7 @@ void generate_quest(CHAR_DATA * ch, CHAR_DATA * questman, char *argument)
 
 void quest_update(void)
 {
-        CHAR_DATA *ch, *ch_next;
+        CharData *ch, *ch_next;
 
         for (ch = first_char; ch != NULL; ch = ch_next)
         {
@@ -951,7 +951,7 @@ void quest_update(void)
                 {
                         if (--ch->countdown <= 0)
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 ch->nextquest = 20;
                                 snprintf(buf, MSL,

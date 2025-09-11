@@ -41,7 +41,7 @@
  ****************************************************************************************/
 
 #include "mud.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 
 space_data::space_data()
 {

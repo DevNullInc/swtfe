@@ -47,9 +47,9 @@
 #include <time.h>
 #include "mud.hpp"
 
-CMDF do_cook(CHAR_DATA * ch, char *argument)
+CMDF do_cook(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -169,12 +169,12 @@ CMDF do_cook(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_beg(CHAR_DATA * ch, char *argument)
+CMDF do_beg(CharData * ch, char *argument)
 {
 
 
-        char      arg1[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg1[MaxInputLength];
+        CharData *victim;
         int       percent, xp;
         int       amount;
 
@@ -319,10 +319,10 @@ CMDF do_beg(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_dishwasher(CHAR_DATA * ch, char *argument)
+CMDF do_dishwasher(CharData * ch, char *argument)
 {
 
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -437,9 +437,9 @@ CMDF do_dishwasher(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_busser(CHAR_DATA * ch, char *argument)
+CMDF do_busser(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -554,9 +554,9 @@ CMDF do_busser(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_waiter(CHAR_DATA * ch, char *argument)
+CMDF do_waiter(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -671,9 +671,9 @@ CMDF do_waiter(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_chef(CHAR_DATA * ch, char *argument)
+CMDF do_chef(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -794,9 +794,9 @@ CMDF do_chef(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_streetcleaner(CHAR_DATA * ch, char *argument)
+CMDF do_streetcleaner(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -911,9 +911,9 @@ CMDF do_streetcleaner(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_bartender(CHAR_DATA * ch, char *argument)
+CMDF do_bartender(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1033,9 +1033,9 @@ CMDF do_bartender(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_interiorcleaner(CHAR_DATA * ch, char *argument)
+CMDF do_interiorcleaner(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1150,9 +1150,9 @@ CMDF do_interiorcleaner(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_hotelcleaner(CHAR_DATA * ch, char *argument)
+CMDF do_hotelcleaner(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1267,9 +1267,9 @@ CMDF do_hotelcleaner(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_secretary(CHAR_DATA * ch, char *argument)
+CMDF do_secretary(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1383,9 +1383,9 @@ CMDF do_secretary(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_clerk(CHAR_DATA * ch, char *argument)
+CMDF do_clerk(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1496,9 +1496,9 @@ CMDF do_clerk(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_commmarketer(CHAR_DATA * ch, char *argument)
+CMDF do_commmarketer(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1613,9 +1613,9 @@ CMDF do_commmarketer(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_marketer(CHAR_DATA * ch, char *argument)
+CMDF do_marketer(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1730,9 +1730,9 @@ CMDF do_marketer(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_solicitor(CHAR_DATA * ch, char *argument)
+CMDF do_solicitor(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1836,9 +1836,9 @@ CMDF do_solicitor(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_advertiser(CHAR_DATA * ch, char *argument)
+CMDF do_advertiser(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -1954,9 +1954,9 @@ CMDF do_advertiser(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_banker(CHAR_DATA * ch, char *argument)
+CMDF do_banker(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2068,9 +2068,9 @@ CMDF do_banker(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_accountant(CHAR_DATA * ch, char *argument)
+CMDF do_accountant(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2185,9 +2185,9 @@ CMDF do_accountant(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_investor(CHAR_DATA * ch, char *argument)
+CMDF do_investor(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2301,9 +2301,9 @@ CMDF do_investor(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_broker(CHAR_DATA * ch, char *argument)
+CMDF do_broker(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2416,9 +2416,9 @@ CMDF do_broker(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_boardmember(CHAR_DATA * ch, char *argument)
+CMDF do_boardmember(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2533,9 +2533,9 @@ CMDF do_boardmember(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_ceo(CHAR_DATA * ch, char *argument)
+CMDF do_ceo(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2649,9 +2649,9 @@ CMDF do_ceo(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_yourmom(CHAR_DATA * ch, char *argument)
+CMDF do_yourmom(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percent, xp, amount, percentage;
 
         mudstrlcpy(arg, argument, MIL);

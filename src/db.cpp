@@ -63,7 +63,7 @@
 #include "bounty.hpp"
 #include "olc-shuttle.hpp"
 #include "channels.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include "account.hpp"
 #include "races.hpp"
 #include "olc_bounty.hpp"
@@ -95,26 +95,26 @@ void towwwwizfile args((const char *line, bool Border));
  */
 
 time_t    last_restore_all_time = 0;
-WIZENT   *first_wiz = NULL;
-WIZENT   *last_wiz = NULL;
-OBJ_DATA *extracted_obj_queue = NULL;
-OBJ_DATA *first_object = NULL;
-OBJ_DATA *last_object = NULL;
-HELP_DATA *first_help = NULL;
-HELP_DATA *last_help = NULL;
-SHOP_DATA *first_shop = NULL;
-SHOP_DATA *last_shop = NULL;
-REPAIR_DATA *first_repair = NULL;
-REPAIR_DATA *last_repair = NULL;
-EXTRACT_CHAR_DATA *extracted_char_queue = NULL;
-char      bug_buf[2 * MAX_INPUT_LENGTH];
-CHAR_DATA *first_char = NULL;
-CHAR_DATA *last_char = NULL;
+WizEnt   *first_wiz = NULL;
+WizEnt   *last_wiz = NULL;
+ObjData *extracted_obj_queue = NULL;
+ObjData *first_object = NULL;
+ObjData *last_object = NULL;
+HelpData *first_help = NULL;
+HelpData *last_help = NULL;
+ShopData *first_shop = NULL;
+ShopData *last_shop = NULL;
+RepairData *first_repair = NULL;
+RepairData *last_repair = NULL;
+ExtractCharData *extracted_char_queue = NULL;
+char      bug_buf[2 * MaxInputLength];
+CharData *first_char = NULL;
+CharData *last_char = NULL;
 char     *help_greeting;
-char      log_buf[2 * MAX_INPUT_LENGTH];
-TIME_INFO_DATA time_info;
-WEATHER_DATA weather_info;
-AUCTION_DATA *auction = NULL;   /* auctions */
+char      log_buf[2 * MaxInputLength];
+TimeInfoData time_info;
+WeatherData weather_info;
+AuctionData *auction = NULL;   /* auctions */
 FILE     *fpLOG;
 
 int       cur_qobjs;
@@ -377,18 +377,18 @@ sh_int    gsn_top_sn = 0;
 /*
  * Locals.
  */
-MOB_INDEX_DATA *mob_index_hash[MAX_KEY_HASH];
-OBJ_INDEX_DATA *obj_index_hash[MAX_KEY_HASH];
-ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
+MobIndexData *mob_index_hash[MAX_KEY_HASH];
+ObjIndexData *obj_index_hash[MAX_KEY_HASH];
+RoomIndexData *room_index_hash[MAX_KEY_HASH];
 
-AREA_DATA *first_area;
-AREA_DATA *last_area;
-AREA_DATA *first_build;
-AREA_DATA *last_build;
-AREA_DATA *first_asort;
-AREA_DATA *last_asort;
-AREA_DATA *first_bsort;
-AREA_DATA *last_bsort;
+AreaData *first_area;
+AreaData *last_area;
+AreaData *first_build;
+AreaData *last_build;
+AreaData *first_asort;
+AreaData *last_asort;
+AreaData *first_bsort;
+AreaData *last_bsort;
 SYSTEM_DATA sysdata;
 
 int       top_affect;
@@ -409,7 +409,7 @@ int       top_vroom;
  */
 bool      fBootDb;
 FILE     *fpArea;
-char      strArea[MAX_INPUT_LENGTH];
+char      strArea[MaxInputLength];
 
 
 
@@ -428,19 +428,19 @@ void initialize_new_sysdata args((void));
 void boot_log args((const char *str, ...));
 void load_area args((FILE * fp));
 void load_watchlist args((void));
-void load_author args((AREA_DATA * tarea, FILE * fp));
-void load_economy args((AREA_DATA * tarea, FILE * fp));
-void load_resetmsg args((AREA_DATA * tarea, FILE * fp));    /* Rennard */
-void load_flags args((AREA_DATA * tarea, FILE * fp));
-void load_helps args((AREA_DATA * tarea, FILE * fp));
-void load_mobiles args((AREA_DATA * tarea, FILE * fp));
-void load_objects args((AREA_DATA * tarea, FILE * fp));
-void load_resets args((AREA_DATA * tarea, FILE * fp));
-void load_rooms args((AREA_DATA * tarea, FILE * fp));
-void load_shops args((AREA_DATA * tarea, FILE * fp));
-void load_repairs args((AREA_DATA * tarea, FILE * fp));
-void load_specials args((AREA_DATA * tarea, FILE * fp));
-void load_ranges args((AREA_DATA * tarea, FILE * fp));
+void load_author args((AreaData * tarea, FILE * fp));
+void load_economy args((AreaData * tarea, FILE * fp));
+void load_resetmsg args((AreaData * tarea, FILE * fp));    /* Rennard */
+void load_flags args((AreaData * tarea, FILE * fp));
+void load_helps args((AreaData * tarea, FILE * fp));
+void load_mobiles args((AreaData * tarea, FILE * fp));
+void load_objects args((AreaData * tarea, FILE * fp));
+void load_resets args((AreaData * tarea, FILE * fp));
+void load_rooms args((AreaData * tarea, FILE * fp));
+void load_shops args((AreaData * tarea, FILE * fp));
+void load_repairs args((AreaData * tarea, FILE * fp));
+void load_specials args((AreaData * tarea, FILE * fp));
+void load_ranges args((AreaData * tarea, FILE * fp));
 void load_protoships args((void));
 void load_buildlist args((void));
 bool load_systemdata args((SYSTEM_DATA * sys));
@@ -455,25 +455,25 @@ void      build_wizinfo(bool bootup);
  * External booting function
  */
 void load_corpses args((void));
-void renumber_put_resets args((AREA_DATA * pArea));
+void renumber_put_resets args((AreaData * pArea));
 
 /*
  * MUDprogram locals
  */
 
 int mprog_name_to_type args((char *name));
-void load_mudprogs args((AREA_DATA * tarea, FILE * fp));
-void load_objprogs args((AREA_DATA * tarea, FILE * fp));
-void load_roomprogs args((AREA_DATA * tarea, FILE * fp));
-void mprog_read_programs args((FILE * fp, MOB_INDEX_DATA * pMobIndex));
-void oprog_read_programs args((FILE * fp, OBJ_INDEX_DATA * pObjIndex));
-void rprog_read_programs args((FILE * fp, ROOM_INDEX_DATA * pRoomIndex));
-MPROG_DATA *mprog_file_read
-args((char *f, MPROG_DATA * mprg, MOB_INDEX_DATA * pMobIndex));
-MPROG_DATA *oprog_file_read
-args((char *f, MPROG_DATA * mprg, OBJ_INDEX_DATA * pObjIndex));
-MPROG_DATA *rprog_file_read
-args((char *f, MPROG_DATA * mprg, ROOM_INDEX_DATA * pRoomIndex));
+void load_mudprogs args((AreaData * tarea, FILE * fp));
+void load_objprogs args((AreaData * tarea, FILE * fp));
+void load_roomprogs args((AreaData * tarea, FILE * fp));
+void mprog_read_programs args((FILE * fp, MobIndexData * pMobIndex));
+void oprog_read_programs args((FILE * fp, ObjIndexData * pObjIndex));
+void rprog_read_programs args((FILE * fp, RoomIndexData * pRoomIndex));
+MProgData *mprog_file_read
+args((char *f, MProgData * mprg, MobIndexData * pMobIndex));
+MProgData *oprog_file_read
+args((char *f, MProgData * mprg, ObjIndexData * pObjIndex));
+MProgData *rprog_file_read
+args((char *f, MProgData * mprg, RoomIndexData * pRoomIndex));
 
 
 void shutdown_mud(const char *reason)
@@ -495,24 +495,24 @@ void initialize_sysdata(void)
         sysdata.mud_url = NULL;
         sysdata.mail_path = NULL;
         sysdata.mud_email = NULL;
-        sysdata.read_all_mail = LEVEL_DEMI;
-        sysdata.read_mail_free = LEVEL_IMMORTAL;
-        sysdata.write_mail_free = LEVEL_IMMORTAL;
-        sysdata.take_others_mail = LEVEL_DEMI;
-        sysdata.muse_level = LEVEL_DEMI;
-        sysdata.think_level = LEVEL_HIGOD;
-        sysdata.build_level = LEVEL_DEMI;
-        sysdata.log_level = LEVEL_LOG;
-        sysdata.level_modify_proto = LEVEL_LESSER;
-        sysdata.level_override_private = LEVEL_GREATER;
-        sysdata.level_mset_player = LEVEL_LESSER;
+        sysdata.read_all_mail = LevelDemi;
+        sysdata.read_mail_free = LevelImmortal;
+        sysdata.write_mail_free = LevelImmortal;
+        sysdata.take_others_mail = LevelDemi;
+        sysdata.muse_level = LevelDemi;
+        sysdata.think_level = LevelHiGod;
+        sysdata.build_level = LevelDemi;
+        sysdata.log_level = LevelLog;
+        sysdata.level_modify_proto = LevelLesser;
+        sysdata.level_override_private = LevelGreater;
+        sysdata.level_mset_player = LevelLesser;
         sysdata.stun_plr_vs_plr = 15;
         sysdata.stun_regular = 15;
         sysdata.dam_plr_vs_plr = 100;
         sysdata.dam_plr_vs_mob = 100;
         sysdata.dam_mob_vs_plr = 100;
         sysdata.dam_mob_vs_mob = 100;
-        sysdata.level_getobjnotake = LEVEL_GREATER;
+        sysdata.level_getobjnotake = LevelGreater;
         sysdata.save_frequency = 20;    /* minutes */
         sysdata.channellog = 20;    /* entries into ooc log */
         sysdata.save_flags = SV_DEATH | SV_PASSCHG | SV_AUTO
@@ -535,7 +535,7 @@ void initialize_timeweather(void)
 {
         long      lhour, lday, lmonth;
 
-        lhour = (current_time - 650336715) / (PULSE_TICK / PULSE_PER_SECOND);
+        lhour = (current_time - 650336715) / (PulseTick / PulsePerSecond);
         time_info.hour = INT_TO_SHINT(lhour % 24);
         lday = lhour / 24;
         time_info.day = INT_TO_SHINT(lday % 35);
@@ -603,10 +603,10 @@ void initialize_globals(void)
         quitting_char = NULL;
         loading_char = NULL;
         saving_char = NULL;
-        CREATE(auction, AUCTION_DATA, 1);
+        CREATE(auction, AuctionData, 1);
         auction->item = NULL;
         for (wear = 0; wear < MAX_WEAR; wear++)
-                for (x = 0; x < MAX_LAYERS; x++)
+                for (x = 0; x < MaxLayers; x++)
                         save_equipment[wear][x] = NULL;
 }
 
@@ -945,7 +945,7 @@ void boot_db(bool fCopyOver)
         load_languages();
 
         boot_log("Loading races");
-        RACE_DATA::load_races();
+        RaceData::load_races();
 
         boot_log("Reading in area files...");
         initialize_areas();
@@ -1056,9 +1056,9 @@ void boot_db(bool fCopyOver)
  */
 void load_area(FILE * fp)
 {
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
-        CREATE(pArea, AREA_DATA, 1);
+        CREATE(pArea, AreaData, 1);
         pArea->first_reset = NULL;
         pArea->last_reset = NULL;
         pArea->next_on_planet = NULL;
@@ -1079,9 +1079,9 @@ void load_area(FILE * fp)
         pArea->hi_o_vnum = 0;
         pArea->hi_m_vnum = 0;
         pArea->low_soft_range = 0;
-        pArea->hi_soft_range = MAX_LEVEL;
+        pArea->hi_soft_range = MaxLevel;
         pArea->low_hard_range = 0;
-        pArea->hi_hard_range = MAX_LEVEL;
+        pArea->hi_hard_range = MaxLevel;
 
         LINK(pArea, first_area, last_area, next, prev);
         top_area++;
@@ -1092,7 +1092,7 @@ void load_area(FILE * fp)
 /*
  * Load an author section. Scryn 2/1/96
  */
-void load_author(AREA_DATA * tarea, FILE * fp)
+void load_author(AreaData * tarea, FILE * fp)
 {
         if (!tarea)
         {
@@ -1114,7 +1114,7 @@ void load_author(AREA_DATA * tarea, FILE * fp)
 /*
  * Load an economy section. Thoric
  */
-void load_economy(AREA_DATA * tarea, FILE * fp)
+void load_economy(AreaData * tarea, FILE * fp)
 {
         if (!tarea)
         {
@@ -1133,7 +1133,7 @@ void load_economy(AREA_DATA * tarea, FILE * fp)
 }
 
 /* Reset Message Load, Rennard */
-void load_resetmsg(AREA_DATA * tarea, FILE * fp)
+void load_resetmsg(AreaData * tarea, FILE * fp)
 {
         if (!tarea)
         {
@@ -1155,7 +1155,7 @@ void load_resetmsg(AREA_DATA * tarea, FILE * fp)
 /*
  * Load area flags. Narn, Mar/96 
  */
-void load_flags(AREA_DATA * tarea, FILE * fp)
+void load_flags(AreaData * tarea, FILE * fp)
 {
         char     *ln;
         int       x1, x2;
@@ -1186,7 +1186,7 @@ void load_flags(AREA_DATA * tarea, FILE * fp)
  *
  * - Gavin - 2003
  */
-void delete_help(HELP_DATA * pHelp)
+void delete_help(HelpData * pHelp)
 {
         if (pHelp == NULL)
                 return;
@@ -1207,9 +1207,9 @@ void delete_help(HELP_DATA * pHelp)
  * Page is insert-sorted by keyword.			-Thoric
  * (The reason for sorting is to keep do_hlist looking nice)
  */
-void add_help(HELP_DATA * pHelp)
+void add_help(HelpData * pHelp)
 {
-        HELP_DATA *tHelp;
+        HelpData *tHelp;
         int       match;
 
         for (tHelp = first_help; tHelp; tHelp = tHelp->next)
@@ -1255,15 +1255,15 @@ void add_help(HELP_DATA * pHelp)
 /*
  * Load a help section.
  */
-void load_helps([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
+void load_helps([[maybe_unused]] AreaData * tarea, FILE * fp)
 {
-        HELP_DATA *pHelp;
+        HelpData *pHelp;
 
         tarea = NULL;
 
         for (;;)
         {
-                CREATE(pHelp, HELP_DATA, 1);
+                CREATE(pHelp, HelpData, 1);
                 pHelp->level = INT_TO_SHINT(fread_number(fp));
                 pHelp->keyword = fread_string(fp);
                 /*
@@ -1300,7 +1300,7 @@ void load_helps([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 /*
  * Add a character to the list of all characters		-Thoric
  */
-void add_char(CHAR_DATA * ch)
+void add_char(CharData * ch)
 {
         LINK(ch, first_char, last_char, next, prev);
 }
@@ -1309,9 +1309,9 @@ void add_char(CHAR_DATA * ch)
 /*
  * Load a mob section.
  */
-void load_mobiles(AREA_DATA * tarea, FILE * fp)
+void load_mobiles(AreaData * tarea, FILE * fp)
 {
-        MOB_INDEX_DATA *pMobIndex = NULL;
+        MobIndexData *pMobIndex = NULL;
         char     *ln;
         int       x1, x2, x3, x4, x5, x6, x7, x8;
 
@@ -1328,7 +1328,7 @@ void load_mobiles(AREA_DATA * tarea, FILE * fp)
 
         for (;;)
         {
-                char      buf[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength];
                 int       vnum;
                 char      letter;
                 int       iHash;
@@ -1378,7 +1378,7 @@ void load_mobiles(AREA_DATA * tarea, FILE * fp)
                 else
                 {
                         oldmob = FALSE;
-                        CREATE(pMobIndex, MOB_INDEX_DATA, 1);
+                        CREATE(pMobIndex, MobIndexData, 1);
                 }
 
                 fBootDb = tmpBootDb;
@@ -1567,9 +1567,9 @@ void load_mobiles(AREA_DATA * tarea, FILE * fp)
 /*
  * Load an obj section.
  */
-void load_objects(AREA_DATA * tarea, FILE * fp)
+void load_objects(AreaData * tarea, FILE * fp)
 {
-        OBJ_INDEX_DATA *pObjIndex = NULL;
+        ObjIndexData *pObjIndex = NULL;
         char      letter;
         char     *ln;
         int       x1, x2, x3, x4, x5, x6;
@@ -1587,7 +1587,7 @@ void load_objects(AREA_DATA * tarea, FILE * fp)
 
         for (;;)
         {
-                char      buf[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength];
                 int       vnum;
                 int       iHash;
                 bool      tmpBootDb;
@@ -1633,7 +1633,7 @@ void load_objects(AREA_DATA * tarea, FILE * fp)
                 else
                 {
                         oldobj = FALSE;
-                        CREATE(pObjIndex, OBJ_INDEX_DATA, 1);
+                        CREATE(pObjIndex, ObjIndexData, 1);
                 }
 
                 fBootDb = tmpBootDb;
@@ -1681,9 +1681,9 @@ void load_objects(AREA_DATA * tarea, FILE * fp)
 
                         if (letter == 'A')
                         {
-                                AFFECT_DATA *paf;
+                                AffectData *paf;
 
-                                CREATE(paf, AFFECT_DATA, 1);
+                                CREATE(paf, AffectData, 1);
                                 paf->type = -1;
                                 paf->duration = -1;
                                 paf->location = INT_TO_SHINT(fread_number(fp));
@@ -1703,9 +1703,9 @@ void load_objects(AREA_DATA * tarea, FILE * fp)
 
                         else if (letter == 'E')
                         {
-                                EXTRA_DESCR_DATA *ed;
+                                ExtraDescrData *ed;
 
-                                CREATE(ed, EXTRA_DESCR_DATA, 1);
+                                CREATE(ed, ExtraDescrData, 1);
                                 ed->keyword = fread_string(fp);
                                 ed->description = fread_string(fp);
                                 LINK(ed, pObjIndex->first_extradesc,
@@ -1769,9 +1769,9 @@ void load_objects(AREA_DATA * tarea, FILE * fp)
 /*
  * Load a reset section.
  */
-void load_resets(AREA_DATA * tarea, FILE * fp)
+void load_resets(AreaData * tarea, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         bool      not01 = FALSE;
         int       count = 0;
 
@@ -1790,7 +1790,7 @@ void load_resets(AREA_DATA * tarea, FILE * fp)
         {
                 if (fBootDb)
                 {
-                        RESET_DATA *rtmp;
+                        ResetData *rtmp;
 
                         bug("load_resets: WARNING: resets already exist for this area.");
                         for (rtmp = tarea->first_reset; rtmp;
@@ -1811,8 +1811,8 @@ void load_resets(AREA_DATA * tarea, FILE * fp)
 
         for (;;)
         {
-                ROOM_INDEX_DATA *pRoomIndex;
-                EXIT_DATA *pexit;
+                RoomIndexData *pRoomIndex;
+                ExitData *pexit;
                 char      letter;
                 int       extra, arg1, arg2, arg3;
 
@@ -1951,10 +1951,10 @@ void load_resets(AREA_DATA * tarea, FILE * fp)
 /*
  * Load a room section.
  */
-void load_rooms(AREA_DATA * tarea, FILE * fp)
+void load_rooms(AreaData * tarea, FILE * fp)
 {
-        ROOM_INDEX_DATA *pRoomIndex = NULL;
-        char      buf[MAX_STRING_LENGTH];
+        RoomIndexData *pRoomIndex = NULL;
+        char      buf[MaxStringLength];
         char     *ln;
 
         if (!tarea)
@@ -2010,7 +2010,7 @@ void load_rooms(AREA_DATA * tarea, FILE * fp)
                 else
                 {
                         oldroom = FALSE;
-                        CREATE(pRoomIndex, ROOM_INDEX_DATA, 1);
+                        CREATE(pRoomIndex, RoomIndexData, 1);
                         pRoomIndex->first_person = NULL;
                         pRoomIndex->last_person = NULL;
                         pRoomIndex->first_content = NULL;
@@ -2071,7 +2071,7 @@ void load_rooms(AREA_DATA * tarea, FILE * fp)
 
                         if (letter == 'D')
                         {
-                                EXIT_DATA *pexit;
+                                ExitData *pexit;
                                 int       locks;
 
                                 door = fread_number(fp);
@@ -2117,9 +2117,9 @@ void load_rooms(AREA_DATA * tarea, FILE * fp)
 
                         else if (letter == 'E')
                         {
-                                EXTRA_DESCR_DATA *ed;
+                                ExtraDescrData *ed;
 
-                                CREATE(ed, EXTRA_DESCR_DATA, 1);
+                                CREATE(ed, ExtraDescrData, 1);
                                 ed->keyword = fread_string(fp);
                                 ed->description = fread_string(fp);
                                 LINK(ed, pRoomIndex->first_extradesc,
@@ -2155,18 +2155,18 @@ void load_rooms(AREA_DATA * tarea, FILE * fp)
 /*
  * Load a shop section.
  */
-void load_shops([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
+void load_shops([[maybe_unused]] AreaData * tarea, FILE * fp)
 {
-        SHOP_DATA *pShop;
+        ShopData *pShop;
 
         tarea = NULL;
 
         for (;;)
         {
-                MOB_INDEX_DATA *pMobIndex;
+                MobIndexData *pMobIndex;
                 int       iTrade;
 
-                CREATE(pShop, SHOP_DATA, 1);
+                CREATE(pShop, ShopData, 1);
                 pShop->keeper = fread_number(fp);
                 if (pShop->keeper == 0)
                 {
@@ -2203,18 +2203,18 @@ void load_shops([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 /*
  * Load a repair shop section.					-Thoric
  */
-void load_repairs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
+void load_repairs([[maybe_unused]] AreaData * tarea, FILE * fp)
 {
-        REPAIR_DATA *rShop;
+        RepairData *rShop;
 
         tarea = NULL;
 
         for (;;)
         {
-                MOB_INDEX_DATA *pMobIndex;
+                MobIndexData *pMobIndex;
                 int       iFix;
 
-                CREATE(rShop, REPAIR_DATA, 1);
+                CREATE(rShop, RepairData, 1);
                 rShop->keeper = fread_number(fp);
                 if (rShop->keeper == 0)
                 {
@@ -2241,12 +2241,12 @@ void load_repairs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 /*
  * Load spec proc declarations.
  */
-void load_specials([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
+void load_specials([[maybe_unused]] AreaData * tarea, FILE * fp)
 {
         tarea = NULL;
         for (;;)
         {
-                MOB_INDEX_DATA *pMobIndex;
+                MobIndexData *pMobIndex;
                 char      letter;
 
                 switch (letter = fread_letter(fp))
@@ -2319,7 +2319,7 @@ void load_specials([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 /*
  * Load soft / hard area ranges.
  */
-void load_ranges(AREA_DATA * tarea, FILE * fp)
+void load_ranges(AreaData * tarea, FILE * fp)
 {
         int       x1, x2, x3, x4;
         char     *ln;
@@ -2354,8 +2354,8 @@ void load_ranges(AREA_DATA * tarea, FILE * fp)
  */
 void initialize_economy(void)
 {
-        AREA_DATA *tarea;
-        MOB_INDEX_DATA *mob;
+        AreaData *tarea;
+        MobIndexData *mob;
         int       idx, gold, rng;
 
         for (tarea = first_area; tarea; tarea = tarea->next)
@@ -2385,8 +2385,8 @@ void initialize_economy(void)
  */
 void fix_exits(void)
 {
-        ROOM_INDEX_DATA *pRoomIndex;
-        EXIT_DATA *pexit, *pexit_next, *rev_exit;
+        RoomIndexData *pRoomIndex;
+        ExitData *pexit, *pexit_next, *rev_exit;
         int       iHash;
 
         for (iHash = 0; iHash < MAX_KEY_HASH; iHash++)
@@ -2456,9 +2456,9 @@ void fix_exits(void)
 /*
  * Get diku-compatable exit by number				-Thoric
  */
-EXIT_DATA *get_exit_number(ROOM_INDEX_DATA * room, int xit)
+ExitData *get_exit_number(RoomIndexData * room, int xit)
 {
-        EXIT_DATA *pexit;
+        ExitData *pexit;
         int       count;
 
         count = 0;
@@ -2472,7 +2472,7 @@ EXIT_DATA *get_exit_number(ROOM_INDEX_DATA * room, int xit)
  * (prelude...) This is going to be fun... NOT!
  * (conclusion) QSort is f*cked!
  */
-int exit_comp(EXIT_DATA ** xit1, EXIT_DATA ** xit2)
+int exit_comp(ExitData ** xit1, ExitData ** xit2)
 {
         int       d1, d2;
 
@@ -2486,24 +2486,24 @@ int exit_comp(EXIT_DATA ** xit1, EXIT_DATA ** xit2)
         return 0;
 }
 
-void sort_exits(ROOM_INDEX_DATA * room)
+void sort_exits(RoomIndexData * room)
 {
-        EXIT_DATA *pexit;   /* *texit *//* Unused */
-        EXIT_DATA *exits[MAX_REXITS];
+        ExitData *pexit;   /* *texit *//* Unused */
+        ExitData *exits[MaxRExits];
         int       x, nexits;
 
         nexits = 0;
         for (pexit = room->first_exit; pexit; pexit = pexit->next)
         {
                 exits[nexits++] = pexit;
-                if (nexits > MAX_REXITS)
+                if (nexits > MaxRExits)
                 {
                         bug("sort_exits: more than %d exits in room... fatal",
                             nexits);
                         return;
                 }
         }
-        qsort(&exits[0], static_cast<size_t>(nexits), sizeof(EXIT_DATA *),
+        qsort(&exits[0], static_cast<size_t>(nexits), sizeof(ExitData *),
               reinterpret_cast<int (*)(const void *, const void *)>(exit_comp));
         for (x = 0; x < nexits; x++)
         {
@@ -2525,11 +2525,11 @@ void sort_exits(ROOM_INDEX_DATA * room)
         }
 }
 
-void randomize_exits(ROOM_INDEX_DATA * room, sh_int maxdir)
+void randomize_exits(RoomIndexData * room, sh_int maxdir)
 {
-        EXIT_DATA *pexit;
+        ExitData *pexit;
         int       nexits, /* maxd, */ d0, d1, count, door;  /* Maxd unused */
-        int       vdirs[MAX_REXITS];
+        int       vdirs[MaxRExits];
 
         nexits = 0;
         for (pexit = room->first_exit; pexit; pexit = pexit->next)
@@ -2561,11 +2561,11 @@ void randomize_exits(ROOM_INDEX_DATA * room, sh_int maxdir)
  */
 void area_update(void)
 {
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
         for (pArea = first_area; pArea; pArea = pArea->next)
         {
-                CHAR_DATA *pch;
+                CharData *pch;
                 int       reset_age =
                         pArea->reset_frequency ? pArea->reset_frequency : 15;
 
@@ -2578,7 +2578,7 @@ void area_update(void)
                  */
                 if (pArea->nplayer > 0 && pArea->age == (reset_age - 1))
                 {
-                        char      buf[MAX_STRING_LENGTH];
+                        char      buf[MaxStringLength];
 
                         /*
                          * Rennard 
@@ -2607,7 +2607,7 @@ void area_update(void)
                  */
                 if (pArea->nplayer == 0 || pArea->age >= reset_age)
                 {
-                        ROOM_INDEX_DATA *pRoomIndex;
+                        RoomIndexData *pRoomIndex;
 
                         reset_area(pArea);
                         if (reset_age == -1)
@@ -2627,9 +2627,9 @@ void area_update(void)
 /*
  * Create an instance of a mobile.
  */
-CHAR_DATA *create_mobile(MOB_INDEX_DATA * pMobIndex)
+CharData *create_mobile(MobIndexData * pMobIndex)
 {
-        CHAR_DATA *mob;
+        CharData *mob;
 
         if (!pMobIndex)
         {
@@ -2637,7 +2637,7 @@ CHAR_DATA *create_mobile(MOB_INDEX_DATA * pMobIndex)
                 exit(1);
         }
 
-        CREATE(mob, CHAR_DATA, 1);
+        CREATE(mob, CharData, 1);
         clear_char(mob);
         mob->pIndexData = pMobIndex;
 
@@ -2658,7 +2658,7 @@ CHAR_DATA *create_mobile(MOB_INDEX_DATA * pMobIndex)
         {
                 int       ability;
 
-                for (ability = 0; ability < MAX_ABILITY; ability++)
+                for (ability = 0; ability < MaxAbility; ability++)
                         mob->skill_level[ability] = mob->top_level;
         }
         mob->act = pMobIndex->act;
@@ -2743,9 +2743,9 @@ CHAR_DATA *create_mobile(MOB_INDEX_DATA * pMobIndex)
 /*
  * Create an instance of an object.
  */
-OBJ_DATA *create_object(OBJ_INDEX_DATA * pObjIndex, int level)
+ObjData *create_object(ObjIndexData * pObjIndex, int level)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         if (!pObjIndex)
         {
@@ -2753,7 +2753,7 @@ OBJ_DATA *create_object(OBJ_INDEX_DATA * pObjIndex, int level)
                 exit(1);
         }
 
-        CREATE(obj, OBJ_DATA, 1);
+        CREATE(obj, ObjData, 1);
 
         obj->pIndexData = pObjIndex;
         obj->in_room = NULL;
@@ -2945,7 +2945,7 @@ OBJ_DATA *create_object(OBJ_INDEX_DATA * pObjIndex, int level)
 /*
  * Clear a new character.
  */
-void clear_char(CHAR_DATA * ch)
+void clear_char(CharData * ch)
 {
         ch->editor = NULL;
         ch->hunting = NULL;
@@ -3013,12 +3013,12 @@ void clear_char(CHAR_DATA * ch)
 /*
  * Free a character.
  */
-void free_char(CHAR_DATA * ch)
+void free_char(CharData * ch)
 {
-        OBJ_DATA *obj;
-        AFFECT_DATA *paf;
-        TIMER    *timer;
-        MPROG_ACT_LIST *mpact, *mpact_next;
+        ObjData *obj;
+        AffectData *paf;
+        Timer    *timer;
+        MProgActList *mpact, *mpact_next;
         NOTE_DATA *comments, *comments_next;
         WANTED_DATA *wanted, *wanted_next;
         int       pos;
@@ -3083,7 +3083,7 @@ void free_char(CHAR_DATA * ch)
         if (ch->pcdata)
         {
                 for (pos = 0;
-                     (pos < MAX_IGNORE && ch->pcdata->ignore[pos] != NULL);
+                     (pos < MaxIgnore && ch->pcdata->ignore[pos] != NULL);
                      pos++)
                 {
                         STRFREE(ch->pcdata->ignore[pos]);
@@ -3185,7 +3185,7 @@ void free_char(CHAR_DATA * ch)
 /*
  * Get an extra description from a list.
  */
-char     *get_extra_descr(const char *name, EXTRA_DESCR_DATA * ed)
+char     *get_extra_descr(const char *name, ExtraDescrData * ed)
 {
         for (; ed; ed = ed->next)
                 if (is_name(name, ed->keyword))
@@ -3199,9 +3199,9 @@ char     *get_extra_descr(const char *name, EXTRA_DESCR_DATA * ed)
  * Translates mob virtual number to its mob index struct.
  * Hash table lookup.
  */
-MOB_INDEX_DATA *get_mob_index(int vnum)
+MobIndexData *get_mob_index(int vnum)
 {
-        MOB_INDEX_DATA *pMobIndex;
+        MobIndexData *pMobIndex;
 
         if (vnum < 0)
                 vnum = 0;
@@ -3223,9 +3223,9 @@ MOB_INDEX_DATA *get_mob_index(int vnum)
  * Translates obj virtual number to its obj index struct.
  * Hash table lookup.
  */
-OBJ_INDEX_DATA *get_obj_index(int vnum)
+ObjIndexData *get_obj_index(int vnum)
 {
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjIndexData *pObjIndex;
 
         if (vnum < 0)
                 vnum = 0;
@@ -3247,9 +3247,9 @@ OBJ_INDEX_DATA *get_obj_index(int vnum)
  * Translates room virtual number to its room index struct.
  * Hash table lookup.
  */
-ROOM_INDEX_DATA *get_room_index(int vnum)
+RoomIndexData *get_room_index(int vnum)
 {
-        ROOM_INDEX_DATA *pRoomIndex;
+        RoomIndexData *pRoomIndex;
 
         if (vnum < 0)
                 vnum = 0;
@@ -3543,7 +3543,7 @@ char     *str_dup(char const *str)
  */
 char     *fread_string(FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         char     *plast;
         char      c;
         int       ln;
@@ -3574,7 +3574,7 @@ char     *fread_string(FILE * fp)
 
         for (;;)
         {
-                if (ln >= (MAX_STRING_LENGTH - 1))
+                if (ln >= (MaxStringLength - 1))
                 {
                         bug("fread_string: string too long");
                         *plast = '\0';
@@ -3619,7 +3619,7 @@ char     *fread_string(FILE * fp)
  */
 char     *fread_string_nohash(FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         char     *plast;
         char      c;
         int       ln;
@@ -3650,7 +3650,7 @@ char     *fread_string_nohash(FILE * fp)
 
         for (;;)
         {
-                if (ln >= (MAX_STRING_LENGTH - 1))
+                if (ln >= (MaxStringLength - 1))
                 {
                         bug("fread_string_no_hash: string too long");
                         *plast = '\0';
@@ -3693,7 +3693,7 @@ char     *fread_string_nohash(FILE * fp)
  */
 char     *fread_string_noalloc(FILE * fp)
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
         char     *plast;
         char      c;
         int       ln;
@@ -3724,7 +3724,7 @@ char     *fread_string_noalloc(FILE * fp)
 
         for (;;)
         {
-                if (ln >= (MAX_STRING_LENGTH - 1))
+                if (ln >= (MaxStringLength - 1))
                 {
                         bug("fread_string: string too long");
                         *plast = '\0';
@@ -3799,7 +3799,7 @@ void fread_to_eol(FILE * fp)
  */
 char     *fread_line(FILE * fp)
 {
-        static char line[MAX_STRING_LENGTH];
+        static char line[MaxStringLength];
         char     *pline;
         char      c;
         int       ln;
@@ -3840,7 +3840,7 @@ char     *fread_line(FILE * fp)
                 c = static_cast<char>(getc(fp));
                 *pline++ = c;
                 ln++;
-                if (ln >= (MAX_STRING_LENGTH - 1))
+                if (ln >= (MaxStringLength - 1))
                 {
                         bug("fread_line: line too long");
                         break;
@@ -3866,7 +3866,7 @@ char     *fread_line(FILE * fp)
  */
 char     *fread_word(FILE * fp)
 {
-        static char word[MAX_INPUT_LENGTH];
+        static char word[MaxInputLength];
         char     *pword;
         char      cEnd;
 
@@ -3895,7 +3895,7 @@ char     *fread_word(FILE * fp)
                 cEnd = ' ';
         }
 
-        for (; pword < word + MAX_INPUT_LENGTH; pword++)
+        for (; pword < word + MaxInputLength; pword++)
         {
                 if (feof(fp))
                 {
@@ -3921,9 +3921,9 @@ char     *fread_word(FILE * fp)
 }
 
 
-CMDF do_memory(CHAR_DATA * ch, char *argument)
+CMDF do_memory(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       hash;
 
         argument = one_argument(argument, arg);
@@ -3941,7 +3941,7 @@ CMDF do_memory(CHAR_DATA * ch, char *argument)
         ch_printf(ch, "Players %5d    Maxplrs %5d\n\r", num_descriptors,
                   sysdata.maxplayers);
         ch_printf(ch, "MaxEver %5d    Topsn   %5d (%d)\n\r",
-                  sysdata.alltimemax, top_sn, MAX_SKILL);
+                  sysdata.alltimemax, top_sn, MaxSkill);
         ch_printf(ch, "MaxEver time recorded at:   %s\n\r",
                   sysdata.time_of_max);
         if (!str_cmp(arg, "check"))
@@ -4156,20 +4156,20 @@ void hide_tilde(char *str)
 {
         for (; *str != '\0'; str++)
                 if (*str == '~')
-                        *str = HIDDEN_TILDE;
+                        *str = HiddenTilde;
 
         return;
 }
 
 char     *show_tilde(char *str)
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
         char     *bufptr;
 
         bufptr = buf;
         for (; *str != '\0'; str++, bufptr++)
         {
-                if (*str == HIDDEN_TILDE)
+                if (*str == HiddenTilde)
                         *bufptr = '~';
                 else
                         *bufptr = *str;
@@ -4300,7 +4300,7 @@ bool str_suffix(const char *astr, const char *bstr)
  */
 const char *capitalize(const char *str)
 {
-        static char strcap[MAX_STRING_LENGTH];
+        static char strcap[MaxStringLength];
         int       i;
 
         for (i = 0; str[i] != '\0'; i++)
@@ -4316,7 +4316,7 @@ const char *capitalize(const char *str)
  */
 char     *strlower(const char *str)
 {
-        static char strlow[MAX_STRING_LENGTH];
+        static char strlow[MaxStringLength];
         int       i;
 
         for (i = 0; str[i] != '\0'; i++)
@@ -4330,7 +4330,7 @@ char     *strlower(const char *str)
  */
 char     *strupper(const char *str)
 {
-        static char strup[MAX_STRING_LENGTH];
+        static char strup[MaxStringLength];
         int       i;
 
         for (i = 0; str[i] != '\0'; i++)
@@ -4358,7 +4358,7 @@ bool isavowel(char letter)
  */
 char     *aoran(const char *str)
 {
-        static char temp[MAX_STRING_LENGTH];
+        static char temp[MaxStringLength];
 
         if (!str)
         {
@@ -4381,7 +4381,7 @@ char     *aoran(const char *str)
 /*
  * Append a string to a file.
  */
-void append_file(CHAR_DATA * ch, char *file, char *str)
+void append_file(CharData * ch, char *file, char *str)
 {
         FILE     *fp;
 
@@ -4429,7 +4429,7 @@ void append_to_file(char *file, char *str)
  */
 void bug(const char *str, ...)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         FILE     *fp;
         struct stat fst;
 #if !defined(__CYGWIN__) && !defined(__FreeBSD__)
@@ -4506,7 +4506,7 @@ void bug(const char *str, ...)
  */
 void boot_log(const char *str, ...)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         FILE     *fp;
         va_list   param;
 
@@ -4531,7 +4531,7 @@ void boot_log(const char *str, ...)
  * Clear out a text file
  * - Gavin
  */
-void clear_file(CHAR_DATA * ch, char *filename)
+void clear_file(CharData * ch, char *filename)
 {
         FILE     *fp;
 
@@ -4547,10 +4547,10 @@ void clear_file(CHAR_DATA * ch, char *filename)
 /*
  * Dump a text file to a player, a line at a time		-Thoric
  */
-void show_file(CHAR_DATA * ch, char *filename)
+void show_file(CharData * ch, char *filename)
 {
         FILE     *fp;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         int       c;
         int       num = 0;
 
@@ -4561,7 +4561,7 @@ void show_file(CHAR_DATA * ch, char *filename)
                         while ((buf[num] = static_cast<char>(fgetc(fp))) != EOF
                                && buf[num] != '\n'
                                && buf[num] != '\r'
-                               && num < (MAX_STRING_LENGTH - 2))
+                               && num < (MaxStringLength - 2))
                                 num++;
                         c = fgetc(fp);
                         if ((c != '\n' && c != '\r') || c == buf[num])
@@ -4580,7 +4580,7 @@ void show_file(CHAR_DATA * ch, char *filename)
 /*
  * Show the boot log file					-Thoric
  */
-CMDF do_dmesg(CHAR_DATA * ch, [[maybe_unused]] char *argument)
+CMDF do_dmesg(CharData * ch, [[maybe_unused]] char *argument)
 {
         argument = NULL;
         set_pager_color(AT_LOG, ch);
@@ -4626,8 +4626,8 @@ void log_string_plus(const char *str, sh_int log_type, sh_int level)
 void towizfile(const char *line, bool Border)
 {
         int       filler = 0, xx, ofiller = 0;
-        char      outline[MAX_STRING_LENGTH];
-        char      outline2[MAX_STRING_LENGTH];
+        char      outline[MaxStringLength];
+        char      outline2[MaxStringLength];
         FILE     *wfp;
         bool      SNIP = FALSE;
 
@@ -4686,8 +4686,8 @@ void towizfile(const char *line, bool Border)
 void towwwwizfile(const char *line, bool Border)
 {
         int       filler = 0, xx, ofiller = 0;
-        char      outline[MAX_STRING_LENGTH];
-        char      outline2[MAX_STRING_LENGTH];
+        char      outline[MaxStringLength];
+        char      outline2[MaxStringLength];
         char      mainline[MSL];
         char      filename[256];
         FILE     *fp;
@@ -4751,13 +4751,13 @@ void towwwwizfile(const char *line, bool Border)
 
 void add_to_wizlist(char *name, int level, int flags)
 {
-        WIZENT   *wiz, *tmp;
+        WizEnt   *wiz, *tmp;
 
 #ifdef DEBUG
         log_string("Adding to wizlist...");
 #endif
 
-        CREATE(wiz, WIZENT, 1);
+        CREATE(wiz, WizEnt, 1);
         wiz->name = str_dup(name);
         wiz->level = INT_TO_SHINT(level);
         wiz->flags = flags;
@@ -4809,8 +4809,8 @@ void make_wizlist()
 #endif
         const char *word;
         int       ilevel, iflags;
-        WIZENT   *wiz, *wiznext;
-        char      buf[MAX_STRING_LENGTH], admin[MSL], coder[MSL], quest[MSL],
+        WizEnt   *wiz, *wiznext;
+        char      buf[MaxStringLength], admin[MSL], coder[MSL], quest[MSL],
                 highenforcer[MSL], enforcer[MSL], builder[MSL], highbuilder[MSL], owner[MSL];
 
         first_wiz = NULL;
@@ -4838,9 +4838,9 @@ void make_wizlist()
                                         iflags = 0;
                                 FCLOSE(gfp);
                                 if (IS_SET(iflags, PCFLAG_RETIRED))
-                                        ilevel = MAX_LEVEL - 5;
+                                        ilevel = MaxLevel - 5;
                                 if (IS_SET(iflags, PCFLAG_GUEST))
-                                        ilevel = MAX_LEVEL - 10;
+                                        ilevel = MaxLevel - 10;
                                 add_to_wizlist(dentry->d_name, ilevel,
                                                iflags);
                         }
@@ -5033,7 +5033,7 @@ void make_wizlist()
 }
 
 
-CMDF do_makewizlist([[maybe_unused]] CHAR_DATA * ch, [[maybe_unused]] char *argument)
+CMDF do_makewizlist([[maybe_unused]] CharData * ch, [[maybe_unused]] char *argument)
 {
         ch = NULL;
         argument = NULL;
@@ -5125,14 +5125,14 @@ int mprog_name_to_type(char *name)
         return (ERROR_PROG);
 }
 
-MPROG_DATA *mprog_file_read(char *f, MPROG_DATA * mprg,
-                            MOB_INDEX_DATA * pMobIndex)
+MProgData *mprog_file_read(char *f, MProgData * mprg,
+                            MobIndexData * pMobIndex)
 {
 
-        char      MUDProgfile[MAX_INPUT_LENGTH];
+        char      MUDProgfile[MaxInputLength];
         FILE     *progfile;
         char      letter;
-        MPROG_DATA *mprg_next, *mprg2;
+        MProgData *mprg_next, *mprg2;
         bool      done = FALSE;
 
         snprintf(MUDProgfile, MSL, "%s%s", PROG_DIR, f);
@@ -5180,7 +5180,7 @@ MPROG_DATA *mprog_file_read(char *f, MPROG_DATA * mprg,
                         switch (letter = fread_letter(progfile))
                         {
                         case '>':
-                                CREATE(mprg_next, MPROG_DATA, 1);
+                                CREATE(mprg_next, MProgData, 1);
                                 mprg_next->next = mprg2;
                                 mprg2 = mprg_next;
                                 break;
@@ -5201,11 +5201,11 @@ MPROG_DATA *mprog_file_read(char *f, MPROG_DATA * mprg,
 
 /* Load a MUDprogram section from the area file.
  */
-void load_mudprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
+void load_mudprogs([[maybe_unused]] AreaData * tarea, FILE * fp)
 {
-        MOB_INDEX_DATA *iMob;
-        MPROG_DATA *original;
-        MPROG_DATA *working;
+        MobIndexData *iMob;
+        MProgData *original;
+        MProgData *working;
         char      letter;
         int       value;
 
@@ -5244,7 +5244,7 @@ void load_mudprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
                                 for (; original->next;
                                      original = original->next);
 
-                        CREATE(working, MPROG_DATA, 1);
+                        CREATE(working, MProgData, 1);
                         if (original)
                                 original->next = working;
                         else
@@ -5264,9 +5264,9 @@ void load_mudprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 /* This procedure is responsible for reading any in_file MUDprograms.
  */
 
-void mprog_read_programs(FILE * fp, MOB_INDEX_DATA * pMobIndex)
+void mprog_read_programs(FILE * fp, MobIndexData * pMobIndex)
 {
-        MPROG_DATA *mprg;
+        MProgData *mprg;
         char      letter;
         bool      done = FALSE;
 
@@ -5275,7 +5275,7 @@ void mprog_read_programs(FILE * fp, MOB_INDEX_DATA * pMobIndex)
                 bug("Load_mobiles: vnum %d MUDPROG char", pMobIndex->vnum);
                 exit(1);
         }
-        CREATE(mprg, MPROG_DATA, 1);
+        CREATE(mprg, MProgData, 1);
         pMobIndex->mudprogs = mprg;
 
         while (!done)
@@ -5295,7 +5295,7 @@ void mprog_read_programs(FILE * fp, MOB_INDEX_DATA * pMobIndex)
                         switch (letter = fread_letter(fp))
                         {
                         case '>':
-                                CREATE(mprg->next, MPROG_DATA, 1);
+                                CREATE(mprg->next, MProgData, 1);
                                 mprg = mprg->next;
                                 break;
                         case '|':
@@ -5320,7 +5320,7 @@ void mprog_read_programs(FILE * fp, MOB_INDEX_DATA * pMobIndex)
                         switch (letter = fread_letter(fp))
                         {
                         case '>':
-                                CREATE(mprg->next, MPROG_DATA, 1);
+                                CREATE(mprg->next, MProgData, 1);
                                 mprg = mprg->next;
                                 break;
                         case '|':
@@ -5354,14 +5354,14 @@ void mprog_read_programs(FILE * fp, MOB_INDEX_DATA * pMobIndex)
 /* This routine reads in scripts of OBJprograms from a file */
 
 
-MPROG_DATA *oprog_file_read(char *f, MPROG_DATA * mprg,
-                            OBJ_INDEX_DATA * pObjIndex)
+MProgData *oprog_file_read(char *f, MProgData * mprg,
+                            ObjIndexData * pObjIndex)
 {
 
-        char      MUDProgfile[MAX_INPUT_LENGTH];
+        char      MUDProgfile[MaxInputLength];
         FILE     *progfile;
         char      letter;
-        MPROG_DATA *mprg_next, *mprg2;
+        MProgData *mprg_next, *mprg2;
         bool      done = FALSE;
 
         snprintf(MUDProgfile, MSL, "%s%s", PROG_DIR, f);
@@ -5409,7 +5409,7 @@ MPROG_DATA *oprog_file_read(char *f, MPROG_DATA * mprg,
                         switch (letter = fread_letter(progfile))
                         {
                         case '>':
-                                CREATE(mprg_next, MPROG_DATA, 1);
+                                CREATE(mprg_next, MProgData, 1);
                                 mprg_next->next = mprg2;
                                 mprg2 = mprg_next;
                                 break;
@@ -5430,11 +5430,11 @@ MPROG_DATA *oprog_file_read(char *f, MPROG_DATA * mprg,
 
 /* Load a MUDprogram section from the area file.
  */
-void load_objprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
+void load_objprogs([[maybe_unused]] AreaData * tarea, FILE * fp)
 {
-        OBJ_INDEX_DATA *iObj;
-        MPROG_DATA *original;
-        MPROG_DATA *working;
+        ObjIndexData *iObj;
+        MProgData *original;
+        MProgData *working;
         char      letter;
         int       value;
 
@@ -5473,7 +5473,7 @@ void load_objprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
                                 for (; original->next;
                                      original = original->next);
 
-                        CREATE(working, MPROG_DATA, 1);
+                        CREATE(working, MProgData, 1);
                         if (original)
                                 original->next = working;
                         else
@@ -5493,9 +5493,9 @@ void load_objprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 /* This procedure is responsible for reading any in_file OBJprograms.
  */
 
-void oprog_read_programs(FILE * fp, OBJ_INDEX_DATA * pObjIndex)
+void oprog_read_programs(FILE * fp, ObjIndexData * pObjIndex)
 {
-        MPROG_DATA *mprg;
+        MProgData *mprg;
         char      letter;
         bool      done = FALSE;
 
@@ -5504,7 +5504,7 @@ void oprog_read_programs(FILE * fp, OBJ_INDEX_DATA * pObjIndex)
                 bug("Load_objects: vnum %d OBJPROG char", pObjIndex->vnum);
                 exit(1);
         }
-        CREATE(mprg, MPROG_DATA, 1);
+        CREATE(mprg, MProgData, 1);
         pObjIndex->mudprogs = mprg;
 
         while (!done)
@@ -5524,7 +5524,7 @@ void oprog_read_programs(FILE * fp, OBJ_INDEX_DATA * pObjIndex)
                         switch (letter = fread_letter(fp))
                         {
                         case '>':
-                                CREATE(mprg->next, MPROG_DATA, 1);
+                                CREATE(mprg->next, MProgData, 1);
                                 mprg = mprg->next;
                                 break;
                         case '|':
@@ -5549,7 +5549,7 @@ void oprog_read_programs(FILE * fp, OBJ_INDEX_DATA * pObjIndex)
                         switch (letter = fread_letter(fp))
                         {
                         case '>':
-                                CREATE(mprg->next, MPROG_DATA, 1);
+                                CREATE(mprg->next, MProgData, 1);
                                 mprg = mprg->next;
                                 break;
                         case '|':
@@ -5580,14 +5580,14 @@ void oprog_read_programs(FILE * fp, OBJ_INDEX_DATA * pObjIndex)
  */
 
 /* This routine reads in scripts of OBJprograms from a file */
-MPROG_DATA *rprog_file_read(char *f, MPROG_DATA * mprg,
-                            ROOM_INDEX_DATA * RoomIndex)
+MProgData *rprog_file_read(char *f, MProgData * mprg,
+                            RoomIndexData * RoomIndex)
 {
 
-        char      MUDProgfile[MAX_INPUT_LENGTH];
+        char      MUDProgfile[MaxInputLength];
         FILE     *progfile;
         char      letter;
-        MPROG_DATA *mprg_next, *mprg2;
+        MProgData *mprg_next, *mprg2;
         bool      done = FALSE;
 
         snprintf(MUDProgfile, MSL, "%s%s", PROG_DIR, f);
@@ -5635,7 +5635,7 @@ MPROG_DATA *rprog_file_read(char *f, MPROG_DATA * mprg,
                         switch (letter = fread_letter(progfile))
                         {
                         case '>':
-                                CREATE(mprg_next, MPROG_DATA, 1);
+                                CREATE(mprg_next, MProgData, 1);
                                 mprg_next->next = mprg2;
                                 mprg2 = mprg_next;
                                 break;
@@ -5656,11 +5656,11 @@ MPROG_DATA *rprog_file_read(char *f, MPROG_DATA * mprg,
 
 /* Load a ROOMprogram section from the area file.
  */
-void load_roomprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
+void load_roomprogs([[maybe_unused]] AreaData * tarea, FILE * fp)
 {
-        ROOM_INDEX_DATA *iRoom;
-        MPROG_DATA *original;
-        MPROG_DATA *working;
+        RoomIndexData *iRoom;
+        MProgData *original;
+        MProgData *working;
         char      letter;
         int       value;
 
@@ -5699,7 +5699,7 @@ void load_roomprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
                                 for (; original->next;
                                      original = original->next);
 
-                        CREATE(working, MPROG_DATA, 1);
+                        CREATE(working, MProgData, 1);
                         if (original)
                                 original->next = working;
                         else
@@ -5719,9 +5719,9 @@ void load_roomprogs([[maybe_unused]] AREA_DATA * tarea, FILE * fp)
 /* This procedure is responsible for reading any in_file ROOMprograms.
  */
 
-void rprog_read_programs(FILE * fp, ROOM_INDEX_DATA * pRoomIndex)
+void rprog_read_programs(FILE * fp, RoomIndexData * pRoomIndex)
 {
-        MPROG_DATA *mprg;
+        MProgData *mprg;
         char      letter;
         bool      done = FALSE;
 
@@ -5730,7 +5730,7 @@ void rprog_read_programs(FILE * fp, ROOM_INDEX_DATA * pRoomIndex)
                 bug("Load_rooms: vnum %d ROOMPROG char", pRoomIndex->vnum);
                 exit(1);
         }
-        CREATE(mprg, MPROG_DATA, 1);
+        CREATE(mprg, MProgData, 1);
         pRoomIndex->mudprogs = mprg;
 
         while (!done)
@@ -5750,7 +5750,7 @@ void rprog_read_programs(FILE * fp, ROOM_INDEX_DATA * pRoomIndex)
                         switch (letter = fread_letter(fp))
                         {
                         case '>':
-                                CREATE(mprg->next, MPROG_DATA, 1);
+                                CREATE(mprg->next, MProgData, 1);
                                 mprg = mprg->next;
                                 break;
                         case '|':
@@ -5775,7 +5775,7 @@ void rprog_read_programs(FILE * fp, ROOM_INDEX_DATA * pRoomIndex)
                         switch (letter = fread_letter(fp))
                         {
                         case '>':
-                                CREATE(mprg->next, MPROG_DATA, 1);
+                                CREATE(mprg->next, MProgData, 1);
                                 mprg = mprg->next;
                                 break;
                         case '|':
@@ -5802,14 +5802,14 @@ void rprog_read_programs(FILE * fp, ROOM_INDEX_DATA * pRoomIndex)
 /* Function to delete a room index.  Called from do_rdelete in build.c
    Narn, May/96
 */
-bool delete_room(ROOM_INDEX_DATA * room)
+bool delete_room(RoomIndexData * room)
 {
         int       iHash;
-        ROOM_INDEX_DATA *tmp = NULL, *prev = NULL;
-        EXTRA_DESCR_DATA *ed;
-        EXIT_DATA *ex;
-        MPROG_DATA *mp;
-        MPROG_ACT_LIST *mpact;
+        RoomIndexData *tmp = NULL, *prev = NULL;
+        ExtraDescrData *ed;
+        ExitData *ex;
+        MProgData *mp;
+        MProgActList *mpact;
 
         if (!room)
                 return FALSE;
@@ -5884,14 +5884,14 @@ bool delete_room(ROOM_INDEX_DATA * room)
         return TRUE;
 }
 
-bool delete_obj(OBJ_INDEX_DATA * obj)
+bool delete_obj(ObjIndexData * obj)
 {
         int       hash;
-        OBJ_INDEX_DATA *prev;
-        OBJ_DATA *o, *o_next;
-        EXTRA_DESCR_DATA *ed;
-        AFFECT_DATA *af;
-        MPROG_DATA *mp;
+        ObjIndexData *prev;
+        ObjData *o, *o_next;
+        ExtraDescrData *ed;
+        AffectData *af;
+        MProgData *mp;
 
         /*
          * Remove references to object index 
@@ -5948,12 +5948,12 @@ bool delete_obj(OBJ_INDEX_DATA * obj)
 }
 
 /* See comment on delete_room. */
-bool delete_mob(MOB_INDEX_DATA * mob)
+bool delete_mob(MobIndexData * mob)
 {
         int       hash;
-        MOB_INDEX_DATA *prev;
-        CHAR_DATA *ch, *ch_next;
-        MPROG_DATA *mp;
+        MobIndexData *prev;
+        CharData *ch, *ch_next;
+        MProgData *mp;
 
         for (ch = first_char; ch; ch = ch_next)
         {
@@ -6018,12 +6018,12 @@ bool delete_mob(MOB_INDEX_DATA * mob)
 /*
  * Creat a new room (for online building)			-Thoric
  */
-ROOM_INDEX_DATA *make_room( int vnum, AREA_DATA *area )
+RoomIndexData *make_room( int vnum, AreaData *area )
 {
-        ROOM_INDEX_DATA *pRoomIndex;
+        RoomIndexData *pRoomIndex;
         int       iHash;
 
-        CREATE(pRoomIndex, ROOM_INDEX_DATA, 1);
+        CREATE(pRoomIndex, RoomIndexData, 1);
         pRoomIndex->first_person = NULL;
         pRoomIndex->last_person = NULL;
         pRoomIndex->first_content = NULL;
@@ -6055,17 +6055,17 @@ ROOM_INDEX_DATA *make_room( int vnum, AREA_DATA *area )
  * Create a new INDEX object (for online building)		-Thoric
  * Option to clone an existing index object.
  */
-OBJ_INDEX_DATA *make_object(int vnum, int cvnum, char *name)
+ObjIndexData *make_object(int vnum, int cvnum, char *name)
 {
-        OBJ_INDEX_DATA *pObjIndex, *cObjIndex;
-        char      buf[MAX_STRING_LENGTH];
+        ObjIndexData *pObjIndex, *cObjIndex;
+        char      buf[MaxStringLength];
         int       iHash;
 
         if (cvnum > 0)
                 cObjIndex = get_obj_index(cvnum);
         else
                 cObjIndex = NULL;
-        CREATE(pObjIndex, OBJ_INDEX_DATA, 1);
+        CREATE(pObjIndex, ObjIndexData, 1);
         pObjIndex->vnum = vnum;
         pObjIndex->name = STRALLOC(name);
         pObjIndex->first_affect = NULL;
@@ -6095,8 +6095,8 @@ OBJ_INDEX_DATA *make_object(int vnum, int cvnum, char *name)
         }
         else
         {
-                EXTRA_DESCR_DATA *ed, *ced;
-                AFFECT_DATA *paf, *cpaf;
+                ExtraDescrData *ed, *ced;
+                AffectData *paf, *cpaf;
 
                 pObjIndex->short_descr = QUICKLINK(cObjIndex->short_descr);
                 pObjIndex->description = QUICKLINK(cObjIndex->description);
@@ -6115,7 +6115,7 @@ OBJ_INDEX_DATA *make_object(int vnum, int cvnum, char *name)
                 pObjIndex->cost = cObjIndex->cost;
                 for (ced = cObjIndex->first_extradesc; ced; ced = ced->next)
                 {
-                        CREATE(ed, EXTRA_DESCR_DATA, 1);
+                        CREATE(ed, ExtraDescrData, 1);
                         ed->keyword = QUICKLINK(ced->keyword);
                         ed->description = QUICKLINK(ced->description);
                         LINK(ed, pObjIndex->first_extradesc,
@@ -6124,7 +6124,7 @@ OBJ_INDEX_DATA *make_object(int vnum, int cvnum, char *name)
                 }
                 for (cpaf = cObjIndex->first_affect; cpaf; cpaf = cpaf->next)
                 {
-                        CREATE(paf, AFFECT_DATA, 1);
+                        CREATE(paf, AffectData, 1);
                         paf->type = cpaf->type;
                         paf->duration = cpaf->duration;
                         paf->location = cpaf->location;
@@ -6148,17 +6148,17 @@ OBJ_INDEX_DATA *make_object(int vnum, int cvnum, char *name)
  * Create a new INDEX mobile (for online building)		-Thoric
  * Option to clone an existing index mobile.
  */
-MOB_INDEX_DATA *make_mobile(int vnum, int cvnum, char *name)
+MobIndexData *make_mobile(int vnum, int cvnum, char *name)
 {
-        MOB_INDEX_DATA *pMobIndex, *cMobIndex;
-        char      buf[MAX_STRING_LENGTH];
+        MobIndexData *pMobIndex, *cMobIndex;
+        char      buf[MaxStringLength];
         int       iHash;
 
         if (cvnum > 0)
                 cMobIndex = get_mob_index(cvnum);
         else
                 cMobIndex = NULL;
-        CREATE(pMobIndex, MOB_INDEX_DATA, 1);
+        CREATE(pMobIndex, MobIndexData, 1);
         pMobIndex->vnum = vnum;
         pMobIndex->count = 0;
         pMobIndex->killed = 0;
@@ -6273,13 +6273,13 @@ MOB_INDEX_DATA *make_mobile(int vnum, int cvnum, char *name)
  * to_room and vnum.						-Thoric
  * Exits are inserted into the linked list based on vdir.
  */
-EXIT_DATA *make_exit(ROOM_INDEX_DATA * pRoomIndex, ROOM_INDEX_DATA * to_room,
+ExitData *make_exit(RoomIndexData * pRoomIndex, RoomIndexData * to_room,
                      sh_int door)
 {
-        EXIT_DATA *pexit, *texit;
+        ExitData *pexit, *texit;
         bool      broke;
 
-        CREATE(pexit, EXIT_DATA, 1);
+        CREATE(pexit, ExitData, 1);
         pexit->vdir = door;
         pexit->rvnum = pRoomIndex->vnum;
         pexit->to_room = to_room;
@@ -6329,10 +6329,10 @@ EXIT_DATA *make_exit(ROOM_INDEX_DATA * pRoomIndex, ROOM_INDEX_DATA * to_room,
         return pexit;
 }
 
-void fix_area_exits(AREA_DATA * tarea)
+void fix_area_exits(AreaData * tarea)
 {
-        ROOM_INDEX_DATA *pRoomIndex;
-        EXIT_DATA *pexit, *rev_exit;
+        RoomIndexData *pRoomIndex;
+        ExitData *pexit, *rev_exit;
         int       rnum;
         bool      fexit;
 
@@ -6381,7 +6381,7 @@ void fix_area_exits(AREA_DATA * tarea)
         }
 }
 
-void load_area_file(AREA_DATA * tarea, char *filename)
+void load_area_file(AreaData * tarea, char *filename)
 {
 /*    FILE *fpin;
     what intelligent person stopped using fpArea?????
@@ -6513,8 +6513,8 @@ void load_buildlist(void)
         DIR      *dp;
         struct dirent *dentry;
         FILE     *fp;
-        char      buf[MAX_STRING_LENGTH];
-        AREA_DATA *pArea;
+        char      buf[MaxStringLength];
+        AreaData *pArea;
         char      line[81];
         char      word[81];
         int       low, hi;
@@ -6553,12 +6553,12 @@ void load_buildlist(void)
                                 sscanf(line, "%s %d %d", word, &low, &hi);
                                 if (!strcmp(word, "Level"))
                                 {
-                                        if (low < LEVEL_AVATAR)
+                                        if (low < LevelAvatar)
                                         {
                                                 snprintf(buf, MSL,
                                                          "%s: God file with level %d < %d",
                                                          dentry->d_name, low,
-                                                         LEVEL_AVATAR);
+                                                         LevelAvatar);
                                                 badfile = TRUE;
                                         }
                                 }
@@ -6594,7 +6594,7 @@ void load_buildlist(void)
                                         continue;
                                 }
 #endif
-                                CREATE(pArea, AREA_DATA, 1);
+                                CREATE(pArea, AreaData, 1);
                                 snprintf(buf, MSL, "%s.are", dentry->d_name);
                                 pArea->author = STRALLOC(dentry->d_name);
                                 pArea->filename = str_dup(buf);
@@ -6635,10 +6635,10 @@ void load_buildlist(void)
 /*
  * Sort by room vnums					-Altrag & Thoric
  */
-void sort_area(AREA_DATA * pArea, bool proto)
+void sort_area(AreaData * pArea, bool proto)
 {
-        AREA_DATA *area = NULL;
-        AREA_DATA *first_sort, *last_sort;
+        AreaData *area = NULL;
+        AreaData *first_sort, *last_sort;
         bool      found;
 
         if (!pArea)
@@ -6710,10 +6710,10 @@ void sort_area(AREA_DATA * pArea, bool proto)
  * Display vnums currently assigned to areas		-Altrag & Thoric
  * Sorted, and flagged if loaded.
  */
-void show_vnums(CHAR_DATA * ch, int low, int high, bool proto, bool shownl,
+void show_vnums(CharData * ch, int low, int high, bool proto, bool shownl,
                 const char *loadst, const char *notloadst)
 {
-        AREA_DATA *pArea, *first_sort;
+        AreaData *pArea, *first_sort;
         int       count, loaded;
 
         count = 0;
@@ -6755,16 +6755,16 @@ void show_vnums(CHAR_DATA * ch, int low, int high, bool proto, bool shownl,
  * Shows prototype vnums ranges, and if loaded
  */
 
-CMDF do_vnums(CHAR_DATA * ch, char *argument)
+CMDF do_vnums(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       low, high;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
         low = 0;
-        high = MAX_VNUMS;
+        high = MaxVnums;
         if (arg1[0] != '\0')
         {
                 low = atoi(arg1);
@@ -6777,10 +6777,10 @@ CMDF do_vnums(CHAR_DATA * ch, char *argument)
 /*
  * Shows installed areas, sorted.  Mark unloaded areas with an X
  */
-CMDF do_zones(CHAR_DATA * ch, char *argument)
+CMDF do_zones(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       low, high;
 
         do_vnums(ch, argument);
@@ -6788,7 +6788,7 @@ CMDF do_zones(CHAR_DATA * ch, char *argument)
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
         low = 0;
-        high = MAX_VNUMS;
+        high = MaxVnums;
 
         if (arg1[0] != '\0')
         {
@@ -6804,16 +6804,16 @@ CMDF do_zones(CHAR_DATA * ch, char *argument)
 /*
  * Show prototype areas, sorted.  Only show loaded areas
  */
-CMDF do_newzones(CHAR_DATA * ch, char *argument)
+CMDF do_newzones(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       low, high;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
         low = 0;
-        high = MAX_VNUMS;
+        high = MaxVnums;
         if (arg1[0] != '\0')
         {
                 low = atoi(arg1);
@@ -6829,7 +6829,7 @@ CMDF do_newzones(CHAR_DATA * ch, char *argument)
 void save_sysdata(SYSTEM_DATA sys)
 {
         FILE     *fp;
-        char      filename[MAX_INPUT_LENGTH];
+        char      filename[MaxInputLength];
 
         snprintf(filename, MSL, "%ssysdata.dat", SYSTEM_DIR);
 
@@ -7042,7 +7042,7 @@ void fread_sysdata(SYSTEM_DATA * sys, FILE * fp)
  */
 bool load_systemdata(SYSTEM_DATA * sys)
 {
-        char      filename[MAX_INPUT_LENGTH];
+        char      filename[MaxInputLength];
         FILE     *fp;
         bool      found;
 
@@ -7093,13 +7093,13 @@ bool load_systemdata(SYSTEM_DATA * sys)
 
 /* Check to make sure range of vnums is free - Scryn 2/27/96 */
 
-CMDF do_check_vnums(CHAR_DATA * ch, char *argument)
+CMDF do_check_vnums(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      buf2[MAX_STRING_LENGTH];
-        AREA_DATA *pArea;
-        char      arg1[MAX_STRING_LENGTH];
-        char      arg2[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      buf2[MaxStringLength];
+        AreaData *pArea;
+        char      arg1[MaxStringLength];
+        char      arg2[MaxStringLength];
         bool      room, mob, obj, all, area_conflict;
         int       low_range, high_range;
 
@@ -7157,13 +7157,13 @@ CMDF do_check_vnums(CHAR_DATA * ch, char *argument)
         low_range = atoi(arg2);
         high_range = atoi(argument);
 
-        if (low_range < 1 || low_range > MAX_VNUMS)
+        if (low_range < 1 || low_range > MaxVnums)
         {
                 send_to_char("Invalid argument for bottom of range.\n\r", ch);
                 return;
         }
 
-        if (high_range < 1 || high_range > MAX_VNUMS)
+        if (high_range < 1 || high_range > MaxVnums)
         {
                 send_to_char("Invalid argument for top of range.\n\r", ch);
                 return;
@@ -7478,7 +7478,7 @@ bool file_exist(char *name)
 
 void stralloc_printf(char **pointer, const char *fmt, ...)
 {
-        char      buf[MAX_STRING_LENGTH * 2];
+        char      buf[MaxStringLength * 2];
         va_list   args;
 
         va_start(args, fmt);
@@ -7492,7 +7492,7 @@ void stralloc_printf(char **pointer, const char *fmt, ...)
 }
 void strdup_printf(char **pointer, const char *fmt, ...)
 {
-        char      buf[MAX_STRING_LENGTH * 2];
+        char      buf[MaxStringLength * 2];
         va_list   args;
 
         va_start(args, fmt);
@@ -7505,9 +7505,9 @@ void strdup_printf(char **pointer, const char *fmt, ...)
         return;
 }
 
-void command_printf(CHAR_DATA * ch, char *fmt, ...)
+void command_printf(CharData * ch, char *fmt, ...)
 {
-        char      buf[MAX_STRING_LENGTH * 2];
+        char      buf[MaxStringLength * 2];
         va_list   args;
 
         va_start(args, fmt);
@@ -7619,11 +7619,11 @@ void tail_chain(void)
 
 void load_watchlist(void)
 {
-        WATCH_DATA *pwatch;
+        WatchData *pwatch;
         FILE     *fp;
         int       number;
         [[maybe_unused]] int version;
-        CMDTYPE  *cmd;
+        CMDType  *cmd;
 
         version = 0;
 
@@ -7647,7 +7647,7 @@ void load_watchlist(void)
                         return;
                 }
 
-                CREATE(pwatch, WATCH_DATA, 1);
+                CREATE(pwatch, WatchData, 1);
 
                 pwatch->imm_level = INT_TO_SHINT(number);
                 pwatch->imm_name = fread_string_nohash(fp);

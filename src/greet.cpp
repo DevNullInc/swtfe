@@ -63,14 +63,14 @@
 #include "greet.hpp"
 #include "races.hpp"
 
-GREET_INFO * get_greet(CHAR_DATA * ch, CHAR_DATA * victim);
+GREET_INFO * get_greet(CharData * ch, CharData * victim);
 bool isavowel(char letter);
 char     *aoran(const char *str);
 
-CMDF do_remember(CHAR_DATA * ch, char * argument)
+CMDF do_remember(CharData * ch, char * argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA * victim = NULL;
+        char      arg[MaxInputLength];
+        CharData * victim = NULL;
         
         argument = one_argument(argument, arg);
         if ((victim = get_char_room(ch, arg)) == NULL)
@@ -93,7 +93,7 @@ CMDF do_remember(CHAR_DATA * ch, char * argument)
  *
  * then to a str_prefix or nifty is name or something on get_char_here
  * */
-char * get_char_desc(CHAR_DATA * ch, CHAR_DATA * looker)
+char * get_char_desc(CharData * ch, CharData * looker)
 {
         static char desc[MSL];
         char temp_desc[MSL];
@@ -176,7 +176,7 @@ char * get_char_desc(CHAR_DATA * ch, CHAR_DATA * looker)
         return desc;
 }
 
-GREET_INFO * get_greet(CHAR_DATA * ch, CHAR_DATA * victim)
+GREET_INFO * get_greet(CharData * ch, CharData * victim)
 {
         if (!ch->pcdata->greet_info)
                 ch->pcdata->greet_info = new temp_greet_ptr;
@@ -188,15 +188,15 @@ GREET_INFO * get_greet(CHAR_DATA * ch, CHAR_DATA * victim)
 
         return NULL;
 }
-bool has_greet(CHAR_DATA * ch, CHAR_DATA * victim)
+bool has_greet(CharData * ch, CharData * victim)
 {
         if (get_greet(ch, victim))
                 return TRUE;
         return FALSE;
 }
 
-/* should be CHAR_DATA->add_greet */
-void add_greet_to_char(CHAR_DATA * ch, CHAR_DATA * victim, char * name) 
+/* should be CharData->add_greet */
+void add_greet_to_char(CharData * ch, CharData * victim, char * name) 
 {
         GREET_INFO * greetinfo;
         if (!ch->pcdata->greet_info)
@@ -221,7 +221,7 @@ void add_greet_to_char(CHAR_DATA * ch, CHAR_DATA * victim, char * name)
         return;
 }
 
-void fwrite_greet(CHAR_DATA * ch, FILE * fp) 
+void fwrite_greet(CharData * ch, FILE * fp) 
 {
         if (!ch->pcdata->greet_info)
                 return;
@@ -244,7 +244,7 @@ void fwrite_greet(CHAR_DATA * ch, FILE * fp)
         return;
 }
 
-void fread_greet(CHAR_DATA * ch, FILE * fp)
+void fread_greet(CharData * ch, FILE * fp)
 {
 
         char     *charname, *key, *rememberedname;

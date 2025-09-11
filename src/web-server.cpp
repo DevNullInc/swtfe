@@ -112,37 +112,37 @@
 
 /* Moved the Struct to Mud.h */
 
-void      web_header(WEB_DESCRIPTOR * wdesc, char *title);
-void      web_footer(WEB_DESCRIPTOR * wdesc);
+void      web_header(WebDescriptor * wdesc, char *title);
+void      web_footer(WebDescriptor * wdesc);
 
 /* FUNCTION DEFS */
 int       send_buf(int fd, char *buf, bool filter);
-void      handle_web_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_who_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_wwwwho_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_wizlist_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax);
-void      handle_web_skill_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_clan_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_planet_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_race_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_message_request(WEB_DESCRIPTOR * wdesc);
-void      handle_web_empty_request(WEB_DESCRIPTOR * wdesc);
-void      handle_edithelp_message_request(WEB_DESCRIPTOR * wdesc);
-void      print_ooc_history(WEB_DESCRIPTOR * wdesc);
-char     *strip_web_content(WEB_DESCRIPTOR * wdesc);
-bool check_help_net args((WEB_DESCRIPTOR * wdesc, int hmin, int hmax));
-bool check_skill_net args((WEB_DESCRIPTOR * wdesc));
-bool check_clan_net args((WEB_DESCRIPTOR * wdesc));
-bool check_planet_net args((WEB_DESCRIPTOR * wdesc));
-bool check_race_net args((WEB_DESCRIPTOR * wdesc));
+void      handle_web_request(WebDescriptor * wdesc);
+void      handle_web_who_request(WebDescriptor * wdesc);
+void      handle_web_wwwwho_request(WebDescriptor * wdesc);
+void      handle_web_wizlist_request(WebDescriptor * wdesc);
+void      handle_web_help_request(WebDescriptor * wdesc, int hmin, int hmax);
+void      handle_web_skill_request(WebDescriptor * wdesc);
+void      handle_web_clan_request(WebDescriptor * wdesc);
+void      handle_web_planet_request(WebDescriptor * wdesc);
+void      handle_web_race_request(WebDescriptor * wdesc);
+void      handle_web_message_request(WebDescriptor * wdesc);
+void      handle_web_empty_request(WebDescriptor * wdesc);
+void      handle_edithelp_message_request(WebDescriptor * wdesc);
+void      print_ooc_history(WebDescriptor * wdesc);
+char     *strip_web_content(WebDescriptor * wdesc);
+bool check_help_net args((WebDescriptor * wdesc, int hmin, int hmax));
+bool check_skill_net args((WebDescriptor * wdesc));
+bool check_clan_net args((WebDescriptor * wdesc));
+bool check_planet_net args((WebDescriptor * wdesc));
+bool check_race_net args((WebDescriptor * wdesc));
 char     *text2html(const char *ip);
 char     *parse_quotes(char *arg);
-extern char *clan_type(CLAN_DATA * clan);
-long      get_taxes(PLANET_DATA * planet);
+extern char *clan_type(ClanData * clan);
+long      get_taxes(PlanetData * planet);
 std::vector < std::string > explodestring(char *oldstring, char *delim);
 
-char conv_result[MAX_STRING_LENGTH];    /* Color Token Filtering */
+char conv_result[MaxStringLength];    /* Color Token Filtering */
 
 /* Some of these variables were scattered throughout the code with externs
    defined here, why keep all the web stuff together? -- LrdElder */
@@ -151,8 +151,8 @@ char conv_result[MAX_STRING_LENGTH];    /* Color Token Filtering */
 int sockfd;
 int portid = 4850;
 bool WEBSERVER_STATUS;
-WEB_DESCRIPTOR *first_webdesc;
-WEB_DESCRIPTOR *last_webdesc;
+WebDescriptor *first_webdesc;
+WebDescriptor *last_webdesc;
 int top_web_desc;
 
 
@@ -270,12 +270,12 @@ void web_colourconv(char *buffer, const char *txt)
 }
 
 
-HELP_DATA *get_web_help(char *argument)
+HelpData *get_web_help(char *argument)
 {
-        char argall[MAX_INPUT_LENGTH];
-        char argone[MAX_INPUT_LENGTH];
-        char argnew[MAX_INPUT_LENGTH];
-        HELP_DATA *pHelp;
+        char argall[MaxInputLength];
+        char argone[MaxInputLength];
+        char argnew[MaxInputLength];
+        HelpData *pHelp;
         int lev;
 
         if (argument[0] == '\0')
@@ -314,10 +314,10 @@ HELP_DATA *get_web_help(char *argument)
 
 void web_broadcast(char *argument)
 {
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
 
         snprintf(buf, MSL * 2, "&B[&zWeb Broadcast&B] &w%s&R&W", argument);
-        echo_to_all(AT_GOSSIP, buf, ECHOTAR_ALL);
+        echo_to_all(AT_GOSSIP, buf, EchoTarAll);
 }
 
 /*
@@ -325,7 +325,7 @@ void web_broadcast(char *argument)
  */
 char     *convert_sp(char *str)
 {
-        static char newstr[MAX_STRING_LENGTH];
+        static char newstr[MaxStringLength];
         int i, j;
 
         for (i = j = 0; str[i] != '\0'; i++)
@@ -348,7 +348,7 @@ char     *convert_sp(char *str)
  */
 char     *convert_sp_reverse(char *str)
 {
-        static char newstr[MAX_STRING_LENGTH];
+        static char newstr[MaxStringLength];
         int i, j;
 
         for (i = j = 0; str[i] != '\0'; i++)
@@ -371,7 +371,7 @@ char     *convert_sp_reverse(char *str)
  */
 char     *conv_tag(char *str)
 {
-        static char newstr[MAX_STRING_LENGTH];
+        static char newstr[MaxStringLength];
         int i, j;
         int itag = 0;
 
@@ -408,7 +408,7 @@ char     *conv_tag(char *str)
 void init_web(int port)
 {
         struct sockaddr_in my_addr;
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
 
         snprintf(buf, MSL * 2, "Web features starting on port: %d", port);
         log_string(buf);
@@ -458,7 +458,7 @@ struct timeval ZERO_TIME = { 0, 0 };
 void handle_web(void)
 {
         int max_fd;
-        WEB_DESCRIPTOR *current, *next;
+        WebDescriptor *current, *next;
         fd_set readfds;
 
         if (WEBSERVER_STATUS == FALSE)
@@ -503,7 +503,7 @@ void handle_web(void)
                  * included in the original release, a function for 1 line
                  * of code .. no. --GW 
                  */
-                CREATE(current, WEB_DESCRIPTOR, 1);
+                CREATE(current, WebDescriptor, 1);
                 current->sin_size = sizeof(struct sockaddr_in);
                 current->request[0] = '\0';
                 temp = current->sin_size;
@@ -610,7 +610,7 @@ int send_buf(int fd, char *buf, int filter)
         return send(fd, buf, strlen(buf), 0);
 }
 
-void handle_web_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_request(WebDescriptor * wdesc)
 {
         /*
          * process request 
@@ -754,7 +754,7 @@ void handle_web_request(WEB_DESCRIPTOR * wdesc)
 
 void shutdown_web(void)
 {
-        WEB_DESCRIPTOR *current, *next;
+        WebDescriptor *current, *next;
 
         /*
          * Close All Current Connections 
@@ -780,7 +780,7 @@ void shutdown_web(void)
         WEBSERVER_STATUS = FALSE;
 }
 
-void handle_web_empty_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_empty_request(WebDescriptor * wdesc)
 {
         web_header(wdesc, "Index");
         send_buf(wdesc->fd, "<a href='/wholist'>Who list</a><br>", FALSE);
@@ -794,10 +794,10 @@ void handle_web_empty_request(WEB_DESCRIPTOR * wdesc)
         return;
 }
 
-void handle_web_who_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_who_request(WebDescriptor * wdesc)
 {
         FILE     *fp;
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
         int c;
         int num = 0;
 
@@ -822,7 +822,7 @@ void handle_web_who_request(WEB_DESCRIPTOR * wdesc)
                         while ((buf[num] = fgetc(fp)) != EOF
                                && buf[num] != '\n'
                                && buf[num] != '\r'
-                               && num < (MAX_STRING_LENGTH - 2))
+                               && num < (MaxStringLength - 2))
                                 num++;
                         c = fgetc(fp);
                         if ((c != '\n' && c != '\r') || c == buf[num])
@@ -850,10 +850,10 @@ void handle_web_who_request(WEB_DESCRIPTOR * wdesc)
 
 #define WEBWIZLIST_FILE SYSTEM_DIR "WIZLIST"
 
-void handle_web_wizlist_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_wizlist_request(WebDescriptor * wdesc)
 {
         FILE     *fp;
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
         int c;
         int num = 0;
 
@@ -872,7 +872,7 @@ void handle_web_wizlist_request(WEB_DESCRIPTOR * wdesc)
                         while ((buf[num] = fgetc(fp)) != EOF
                                && buf[num] != '\n'
                                && buf[num] != '\r'
-                               && num < (MAX_STRING_LENGTH - 2))
+                               && num < (MaxStringLength - 2))
                                 num++;
                         c = fgetc(fp);
                         if ((c != '\n' && c != '\r') || c == buf[num])
@@ -921,7 +921,7 @@ char     *text2html(const char *ip)
                 {
         NULL, NULL, 0, 0}};
 
-        static char buf[MAX_STRING_LENGTH * 2]; /* Safety here .. --GW */
+        static char buf[MaxStringLength * 2]; /* Safety here .. --GW */
         char     *bp = buf;
         int i;
 
@@ -971,15 +971,15 @@ char     *parse_quotes(char *arg)
  *   Web HELP Request (Or not)
  * ####################################################
  */
-bool check_help_net(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
+bool check_help_net(WebDescriptor * wdesc, int hmin, int hmax)
 {
-        HELP_DATA *help;
-        char buf[MAX_STRING_LENGTH];
-        char buf2[MAX_STRING_LENGTH];
-        char buf3[MAX_STRING_LENGTH];
-        char buf4[MAX_STRING_LENGTH];
-        char buf5[MAX_STRING_LENGTH];
-        char color[MAX_STRING_LENGTH];
+        HelpData *help;
+        char buf[MaxStringLength];
+        char buf2[MaxStringLength];
+        char buf3[MaxStringLength];
+        char buf4[MaxStringLength];
+        char buf5[MaxStringLength];
+        char color[MaxStringLength];
 
         for (help = first_help; help; help = help->next)
         {
@@ -1136,11 +1136,11 @@ bool check_help_net(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
  *   Web HELP LISTING Request
  * ####################################################
  */
-void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
+void handle_web_help_request(WebDescriptor * wdesc, int hmin, int hmax)
 {
-        HELP_DATA *help;
-        char buf[MAX_STRING_LENGTH];
-        char buf2[MAX_STRING_LENGTH];
+        HelpData *help;
+        char buf[MaxStringLength];
+        char buf2[MaxStringLength];
         char tmp = ' ', chk = ' ';
         int cnt = 0, inqt = 0, first = 0;
 
@@ -1305,12 +1305,12 @@ void handle_web_help_request(WEB_DESCRIPTOR * wdesc, int hmin, int hmax)
         return;
 }
 
-void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_skill_request(WebDescriptor * wdesc)
 {
-        HELP_DATA *help;
-        char buf[MAX_STRING_LENGTH];
-        char buf2[MAX_STRING_LENGTH];
-        char buf3[MAX_STRING_LENGTH];
+        HelpData *help;
+        char buf[MaxStringLength];
+        char buf2[MaxStringLength];
+        char buf3[MaxStringLength];
         int ability;
         int sn, i, col = 0;
 
@@ -1347,7 +1347,7 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
         send_buf(wdesc->fd, "------------------\n\r", 2);
         send_buf(wdesc->fd, "<br><pre>", 2);
 
-        for (ability = -1; ability < MAX_ABILITY; ability++)
+        for (ability = -1; ability < MaxAbility; ability++)
         {
                 if (ability == 7)
                         ability++;
@@ -1490,10 +1490,10 @@ void handle_web_skill_request(WEB_DESCRIPTOR * wdesc)
         return;
 }
 
-void handle_web_clan_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_clan_request(WebDescriptor * wdesc)
 {
-        CLAN_DATA *clan;
-        char buf[MAX_STRING_LENGTH];
+        ClanData *clan;
+        char buf[MaxStringLength];
         int count;
 
 
@@ -1557,7 +1557,7 @@ void handle_web_clan_request(WEB_DESCRIPTOR * wdesc)
                 send_buf(wdesc->fd, "<br>", 0);
                 if (clan->first_subclan)
                 {
-                        CLAN_DATA *subclan;
+                        ClanData *subclan;
 
                         snprintf(buf, MSL * 2, "  &BS&zub clans&B:");
                         send_buf(wdesc->fd, buf, 2);
@@ -1600,10 +1600,10 @@ void handle_web_clan_request(WEB_DESCRIPTOR * wdesc)
 }
 
 
-void handle_web_race_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_race_request(WebDescriptor * wdesc)
 {
-        RACE_DATA *race = NULL;
-        char buf[MAX_STRING_LENGTH];
+        RaceData *race = NULL;
+        char buf[MaxStringLength];
 
         web_header(wdesc, "Race Listing");
         send_buf(wdesc->fd,
@@ -1629,18 +1629,18 @@ void handle_web_race_request(WEB_DESCRIPTOR * wdesc)
         return;
 }
 
-bool check_race_net(WEB_DESCRIPTOR * wdesc)
+bool check_race_net(WebDescriptor * wdesc)
 {
-        RACE_DATA *race = NULL;
-        ROOM_INDEX_DATA *room;
-        char buf[MAX_STRING_LENGTH];
-        char buf2[MAX_STRING_LENGTH];
-        char buf3[MAX_STRING_LENGTH];
-        char buf4[MAX_STRING_LENGTH];
-        char arg1[MAX_STRING_LENGTH];
+        RaceData *race = NULL;
+        RoomIndexData *room;
+        char buf[MaxStringLength];
+        char buf2[MaxStringLength];
+        char buf3[MaxStringLength];
+        char buf4[MaxStringLength];
+        char arg1[MaxStringLength];
         char     *argument = arg1;
         int iclass;
-        HELP_DATA *help;
+        HelpData *help;
 
         web_header(wdesc, "Race Listing");
         FOR_EACH_LIST(RACE_LIST, races, race)
@@ -1755,7 +1755,7 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                                 snprintf(buf, MSL * 2,
                                          "&BR&zestricted classes\n<br>");
                                 send_buf(wdesc->fd, buf, 2);
-                                for (iClass = 0; iClass < MAX_ABILITY;
+                                for (iClass = 0; iClass < MaxAbility;
                                      iClass++)
                                 {
                                         if (IS_SET
@@ -1775,7 +1775,7 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
                         snprintf(buf, MSL * 2, "&BC&zlass modifiers\n<br>");
                         send_buf(wdesc->fd, buf, 2);
 
-                        for (iclass = 0; iclass < MAX_ABILITY; iclass++)
+                        for (iclass = 0; iclass < MaxAbility; iclass++)
                         {
                                 snprintf(buf, MSL * 2,
                                          "    &B%c&z%-17s  &w%+2d\n<br>",
@@ -1819,13 +1819,13 @@ bool check_race_net(WEB_DESCRIPTOR * wdesc)
         return FALSE;
 }
 
-bool check_clan_net(WEB_DESCRIPTOR * wdesc)
+bool check_clan_net(WebDescriptor * wdesc)
 {
-        CLAN_DATA *clan;
-        char buf[MAX_STRING_LENGTH];
-        char buf2[MAX_STRING_LENGTH];
-        char buf3[MAX_STRING_LENGTH];
-        char buf4[MAX_STRING_LENGTH];
+        ClanData *clan;
+        char buf[MaxStringLength];
+        char buf2[MaxStringLength];
+        char buf3[MaxStringLength];
+        char buf4[MaxStringLength];
 
 
         web_header(wdesc, "Clan Listing");
@@ -1872,10 +1872,10 @@ bool check_clan_net(WEB_DESCRIPTOR * wdesc)
         return FALSE;
 }
 
-void handle_web_planet_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_planet_request(WebDescriptor * wdesc)
 {
-        PLANET_DATA *planet;
-        char buf[MAX_STRING_LENGTH];
+        PlanetData *planet;
+        char buf[MaxStringLength];
 
 
         send_buf(wdesc->fd, "<html>\n", FALSE);
@@ -1966,10 +1966,10 @@ void handle_web_planet_request(WEB_DESCRIPTOR * wdesc)
         return;
 }
 
-void handle_edithelp_message_request(WEB_DESCRIPTOR * wdesc)
+void handle_edithelp_message_request(WebDescriptor * wdesc)
 {
-        HELP_DATA *help;
-        char buf[MAX_STRING_LENGTH];
+        HelpData *help;
+        char buf[MaxStringLength];
         char file[MSL];
         char     *filep;
 
@@ -2017,11 +2017,11 @@ void handle_edithelp_message_request(WEB_DESCRIPTOR * wdesc)
         return;
 }
 
-void handle_web_message_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_message_request(WebDescriptor * wdesc)
 {
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
         char command[MSL];
-        char argumentbuf[MAX_STRING_LENGTH];
+        char argumentbuf[MaxStringLength];
         char     *argument = argumentbuf;
         bool incommand = FALSE;
 
@@ -2059,13 +2059,13 @@ void handle_web_message_request(WEB_DESCRIPTOR * wdesc)
         return;
 }
 
-bool check_planet_net(WEB_DESCRIPTOR * wdesc)
+bool check_planet_net(WebDescriptor * wdesc)
 {
-        PLANET_DATA *planet;
-        char buf[MAX_STRING_LENGTH];
-        char buf2[MAX_STRING_LENGTH];
-        char buf3[MAX_STRING_LENGTH];
-        char buf4[MAX_STRING_LENGTH];
+        PlanetData *planet;
+        char buf[MaxStringLength];
+        char buf2[MaxStringLength];
+        char buf3[MaxStringLength];
+        char buf4[MaxStringLength];
 
 
         send_buf(wdesc->fd, "<html>\n", FALSE);
@@ -2151,11 +2151,11 @@ bool check_planet_net(WEB_DESCRIPTOR * wdesc)
         return FALSE;
 }
 
-CMDF do_webserver(CHAR_DATA * ch, char *argument)
+CMDF do_webserver(CharData * ch, char *argument)
 {
-//        WEB_DESCRIPTOR *current;
-        char arg1[MAX_STRING_LENGTH];
-        char arg2[MAX_STRING_LENGTH];
+//        WebDescriptor *current;
+        char arg1[MaxStringLength];
+        char arg2[MaxStringLength];
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -2230,9 +2230,9 @@ CMDF do_webserver(CHAR_DATA * ch, char *argument)
                 do_webserver(ch, "");
 }
 
-void web_header(WEB_DESCRIPTOR * wdesc, char *title)
+void web_header(WebDescriptor * wdesc, char *title)
 {
-        char buf[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
 
         snprintf(buf, MSL * 2, "<title>Dark Warriors - %s</title>\n", title);
         send_buf(wdesc->fd, "<html>\n", FALSE);
@@ -2262,7 +2262,7 @@ void web_header(WEB_DESCRIPTOR * wdesc, char *title)
 }
 
 
-void web_footer(WEB_DESCRIPTOR * wdesc)
+void web_footer(WebDescriptor * wdesc)
 {
         send_buf(wdesc->fd, "<br><br>", 2);
         send_buf(wdesc->fd, "</body>\n", FALSE);
@@ -2270,11 +2270,11 @@ void web_footer(WEB_DESCRIPTOR * wdesc)
 }
 
 
-void print_ooc_history(WEB_DESCRIPTOR * wdesc)
+void print_ooc_history(WebDescriptor * wdesc)
 {
         CHANNEL_DATA *channel;
-        char buf[MAX_STRING_LENGTH];
-        char buf1[MAX_STRING_LENGTH];
+        char buf[MaxStringLength];
+        char buf1[MaxStringLength];
         int count = 0;
         int pos = 0;
 
@@ -2313,7 +2313,7 @@ void print_ooc_history(WEB_DESCRIPTOR * wdesc)
 }
 
 
-char     *strip_web_content(WEB_DESCRIPTOR * wdesc)
+char     *strip_web_content(WebDescriptor * wdesc)
 {
         static char buf[MSL];
         char     *getptr;
@@ -2365,7 +2365,7 @@ std::vector < std::string > explodestring(char *oldstring, char *delim)
         return ret;
 }
 
-CMDF do_testexplode(CHAR_DATA * ch, char *argument)
+CMDF do_testexplode(CharData * ch, char *argument)
 {
         std::vector < std::string > stringarr;
         int i;
@@ -2377,10 +2377,10 @@ CMDF do_testexplode(CHAR_DATA * ch, char *argument)
 
 }
 
-void handle_web_changes_request(WEB_DESCRIPTOR * wdesc)
+void handle_web_changes_request(WebDescriptor * wdesc)
 {
-        CLAN_DATA *clan;
-        char buf[MAX_STRING_LENGTH];
+        ClanData *clan;
+        char buf[MaxStringLength];
         int count;
 
 

@@ -67,12 +67,12 @@ public:
 using OLC_BOUNTY_LIST = std::vector<std::shared_ptr<OLC_BOUNTY_DATA>>;
 extern OLC_BOUNTY_LIST olc_bounties;
 
-std::shared_ptr<OLC_BOUNTY_DATA> has_olc_bounty(const CHAR_DATA* victim);
-void mset_bounty(CHAR_DATA* ch, CHAR_DATA* mob, std::string_view argument);
-void print_olc_bounties_mob(CHAR_DATA* ch, CHAR_DATA* mob);
+std::shared_ptr<OLC_BOUNTY_DATA> has_olc_bounty(const CharData* victim);
+void mset_bounty(CharData* ch, CharData* mob, std::string_view argument);
+void print_olc_bounties_mob(CharData* ch, CharData* mob);
 void load_olc_bounties();
-bool check_given_bounty(CHAR_DATA* ch, CHAR_DATA* hunter, const OBJ_DATA* obj);
-int print_olc_bounties(CHAR_DATA* ch);
-bool check_olc_bounties(const ROOM_INDEX_DATA* room);
+bool check_given_bounty(CharData* ch, CharData* hunter, const ObjData* obj);
+int print_olc_bounties(CharData* ch);
+bool check_olc_bounties(const RoomIndexData* room);
 
 

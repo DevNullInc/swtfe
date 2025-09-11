@@ -67,35 +67,35 @@
 #include <memory.h>
 #include "mud.hpp"
 #include "account.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include "bounty.hpp"
 #include "space2.hpp"
 #include "installations.hpp"
 #include "hotboot.hpp"
 
-#define MAX_NEST	100
-static OBJ_DATA *rgObjNest[MAX_NEST];
+#define MaxNest	100
+static ObjData *rgObjNest[MaxNest];
 
-CLAN_DATA *first_clan;
-CLAN_DATA *last_clan;
+ClanData *first_clan;
+ClanData *last_clan;
 
-PLANET_DATA *first_planet;
-PLANET_DATA *last_planet;
+PlanetData *first_planet;
+PlanetData *last_planet;
 
 /* local routines */
-void fread_clan args((CLAN_DATA * clan, FILE * fp));
+void fread_clan args((ClanData * clan, FILE * fp));
 bool load_clan_file args((char *clanfile));
 void write_clan_list args((void));
-void free_clan args((CLAN_DATA * clan));
-void free_planet args((PLANET_DATA * planet));
+void free_clan args((ClanData * clan));
+void free_planet args((PlanetData * planet));
 void free_bounty args((BOUNTY_DATA * bounty));
 
 /*
  * Get pointer to clan structure from clan name.
  */
-CLAN_DATA *get_clan(char *name)
+ClanData *get_clan(char *name)
 {
-        CLAN_DATA *clan;
+        ClanData *clan;
 
         for (clan = first_clan; clan; clan = clan->next)
                 if (!str_cmp(name, clan->name))
@@ -106,9 +106,9 @@ CLAN_DATA *get_clan(char *name)
         return NULL;
 }
 
-PLANET_DATA *get_planet(char *name)
+PlanetData *get_planet(char *name)
 {
-        PLANET_DATA *planet;
+        PlanetData *planet;
 
         for (planet = first_planet; planet; planet = planet->next)
                 if (!str_prefix(name, planet->name))
@@ -118,11 +118,11 @@ PLANET_DATA *get_planet(char *name)
 
 void write_clan_list()
 {
-        CLAN_DATA *tclan;
+        ClanData *tclan;
         FILE     *fpout;
         char      filename[256];
 
-        snprintf(filename, MSL, "%s%s", CLAN_DIR, CLAN_LIST);
+        snprintf(filename, MSL, "%s%s", CLAN_DIR, ClanList);
         fpout = fopen(filename, "w");
         if (!fpout)
         {
@@ -137,7 +137,7 @@ void write_clan_list()
 
 void write_planet_list()
 {
-        PLANET_DATA *tplanet;
+        PlanetData *tplanet;
         FILE     *fpout;
         char      filename[256];
 
@@ -157,11 +157,11 @@ void write_planet_list()
 /*
  * Save a clan's data to its data file
  */
-void save_clan(CLAN_DATA * clan)
+void save_clan(ClanData * clan)
 {
         FILE     *fp;
         char      filename[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (!clan)
         {
@@ -234,11 +234,11 @@ void save_clan(CLAN_DATA * clan)
         return;
 }
 
-void save_planet(PLANET_DATA * planet, bool copyover)
+void save_planet(PlanetData * planet, bool copyover)
 {
         FILE     *fp;
         char      filename[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         int       i;
 
         // copyover parameter controls save behavior during hotboot/copyover operations
@@ -270,7 +270,7 @@ void save_planet(PLANET_DATA * planet, bool copyover)
         }
         else
         {
-                AREA_DATA *pArea;
+                AreaData *pArea;
 
                 fprintf(fp, "#PLANET\n");
                 fprintf(fp, "Name         %s~\n", planet->name);
@@ -330,9 +330,9 @@ void save_planet(PLANET_DATA * planet, bool copyover)
  * Read in actual clan data.
  */
 
-void fread_clan(CLAN_DATA * clan, FILE * fp)
+void fread_clan(ClanData * clan, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
 
@@ -506,9 +506,9 @@ void fread_clan(CLAN_DATA * clan, FILE * fp)
         }
 }
 
-void fread_planet(PLANET_DATA * planet, FILE * fp)
+void fread_planet(PlanetData * planet, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
         char     *line;
@@ -544,7 +544,7 @@ void fread_planet(PLANET_DATA * planet, FILE * fp)
                         if (!str_cmp(word, "Area"))
                         {
                                 char     *temp = fread_string(fp);
-                                AREA_DATA *pArea;
+                                AreaData *pArea;
 
                                 for (pArea = first_area; pArea;
                                      pArea = pArea->next)
@@ -669,7 +669,7 @@ void fread_planet(PLANET_DATA * planet, FILE * fp)
                                         starsystem_from_name(temp);
                                 if (planet->starsystem)
                                 {
-                                        SPACE_DATA *starsystem =
+                                        SpaceData *starsystem =
                                                 planet->starsystem;
 
                                         LINK(planet, starsystem->first_planet,
@@ -714,11 +714,11 @@ void fread_planet(PLANET_DATA * planet, FILE * fp)
 bool load_clan_file(char *clanfile)
 {
         char      filename[256];
-        CLAN_DATA *clan;
+        ClanData *clan;
         FILE     *fp;
         bool      found;
 
-        CREATE(clan, CLAN_DATA, 1);
+        CREATE(clan, ClanData, 1);
         clan->next_subclan = NULL;
         clan->prev_subclan = NULL;
         clan->last_subclan = NULL;
@@ -760,7 +760,7 @@ bool load_clan_file(char *clanfile)
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 snprintf(buf, MSL,
                                          "Load_clan_file: bad section: %s.",
@@ -774,7 +774,7 @@ bool load_clan_file(char *clanfile)
 
         if (found)
         {
-                ROOM_INDEX_DATA *storeroom;
+                RoomIndexData *storeroom;
 
                 LINK(clan, first_clan, last_clan, next, prev);
 
@@ -790,11 +790,11 @@ bool load_clan_file(char *clanfile)
                 if ((fp = fopen(filename, "r")) != NULL)
                 {
                         int       iNest;
-                        OBJ_DATA *tobj, *tobj_next;
+                        ObjData *tobj, *tobj_next;
 
                         boot_log("Loading clan storage room");
                         rset_supermob(storeroom);
-                        for (iNest = 0; iNest < MAX_NEST; iNest++)
+                        for (iNest = 0; iNest < MaxNest; iNest++)
                                 rgObjNest[iNest] = NULL;
 
                         found = TRUE;
@@ -860,11 +860,11 @@ bool load_clan_file(char *clanfile)
 bool load_planet_file(char *planetfile)
 {
         char      filename[256];
-        PLANET_DATA *planet;
+        PlanetData *planet;
         FILE     *fp;
         bool      found;
 
-        CREATE(planet, PLANET_DATA, 1);
+        CREATE(planet, PlanetData, 1);
 
         planet->governed_by = NULL;
         planet->next_in_system = NULL;
@@ -909,7 +909,7 @@ bool load_planet_file(char *planetfile)
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 snprintf(buf, MSL,
                                          "Load_planet_file: bad section: %s.",
@@ -939,14 +939,14 @@ void load_clans()
         FILE     *fpList;
         const char *filename;
         char      clanlist[256];
-        char      buf[MAX_STRING_LENGTH];
-        CLAN_DATA *clan;
-        CLAN_DATA *bosclan;
+        char      buf[MaxStringLength];
+        ClanData *clan;
+        ClanData *bosclan;
 
         first_clan = NULL;
         last_clan = NULL;
 
-        snprintf(clanlist, MSL, "%s%s", CLAN_DIR, CLAN_LIST);
+        snprintf(clanlist, MSL, "%s%s", CLAN_DIR, ClanList);
         FCLOSE(fpReserve);
         if ((fpList = fopen(clanlist, "r")) == NULL)
         {
@@ -1008,7 +1008,7 @@ void load_planets()
         FILE     *fpList;
         const char *filename;
         char      planetlist[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         first_planet = NULL;
         last_planet = NULL;
@@ -1041,7 +1041,7 @@ void load_planets()
         return;
 }
 
-CMDF do_make(CHAR_DATA * ch, char *argument)
+CMDF do_make(CharData * ch, char *argument)
 {
         (void)argument; // Unused parameter
         send_to_char("Huh?\n\r", ch);
@@ -1049,11 +1049,11 @@ CMDF do_make(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_induct(CHAR_DATA * ch, char *argument)
+CMDF do_induct(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        CLAN_DATA *clan;
+        char      arg[MaxInputLength];
+        CharData *victim;
+        ClanData *clan;
 
         if (!IS_CLANNED(ch))
         {
@@ -1163,12 +1163,12 @@ CMDF do_induct(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_outcast(CHAR_DATA * ch, char *argument)
+CMDF do_outcast(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        CLAN_DATA *clan;
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        CharData *victim;
+        ClanData *clan;
+        char      buf[MaxStringLength];
 
         if (IS_NPC(ch) || !ch->pcdata->clan)
         {
@@ -1243,7 +1243,7 @@ CMDF do_outcast(CHAR_DATA * ch, char *argument)
             TO_VICT);
         snprintf(buf, MSL, "%s has been outcast from %s!", victim->name,
                  clan->name);
-        echo_to_all(AT_MAGIC, buf, ECHOTAR_ALL);
+        echo_to_all(AT_MAGIC, buf, EchoTarAll);
 
         STRFREE(victim->pcdata->bestowments);
         victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
@@ -1252,11 +1252,11 @@ CMDF do_outcast(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_setclan(CHAR_DATA * ch, char *argument)
+CMDF do_setclan(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        CLAN_DATA *clan;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ClanData *clan;
 
         if (IS_NPC(ch))
         {
@@ -1278,7 +1278,7 @@ CMDF do_setclan(CHAR_DATA * ch, char *argument)
                 send_to_char(" members board recall storage\n\r", ch);
                 send_to_char(" funds jail alignment enlist motto\n\r", ch);
                 send_to_char(" enemy ally delete", ch);
-                if (get_trust(ch) >= LEVEL_SUB_IMPLEM)
+                if (get_trust(ch) >= LevelSubImplem)
                 {
                         send_to_char(" name filename desc\n\r", ch);
                 }
@@ -1311,7 +1311,7 @@ CMDF do_setclan(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg2, "subclan"))
         {
-                CLAN_DATA *subclan;
+                ClanData *subclan;
 
                 subclan = get_clan(argument);
                 if (!subclan)
@@ -1423,7 +1423,7 @@ CMDF do_setclan(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (get_trust(ch) < LEVEL_SUB_IMPLEM)
+        if (get_trust(ch) < LevelSubImplem)
         {
                 do_setclan(ch, const_cast<char*>(""));
                 return;
@@ -1530,10 +1530,10 @@ CMDF do_setclan(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_clanset(CHAR_DATA * ch, char *argument)
+CMDF do_clanset(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        CLAN_DATA *clan;
+        char      arg1[MaxInputLength];
+        ClanData *clan;
 
         clan = ch->pcdata->clan;
         if (!clan)
@@ -1674,12 +1674,12 @@ CMDF do_clanset(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_setplanet(CHAR_DATA * ch, char *argument)
+CMDF do_setplanet(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        PLANET_DATA *planet;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        PlanetData *planet;
         int       i;
 
         if (IS_NPC(ch))
@@ -1725,7 +1725,7 @@ CMDF do_setplanet(CHAR_DATA * ch, char *argument)
         }
         else if (!strcmp(arg2, "governed_by"))
         {
-                CLAN_DATA *clan;
+                ClanData *clan;
 
                 clan = get_clan(argument);
                 if (clan)
@@ -1740,7 +1740,7 @@ CMDF do_setplanet(CHAR_DATA * ch, char *argument)
         }
         else if (!strcmp(arg2, "starsystem"))
         {
-                SPACE_DATA *starsystem;
+                SpaceData *starsystem;
 
                 argument = one_argument(argument, arg3);
 
@@ -1829,7 +1829,7 @@ CMDF do_setplanet(CHAR_DATA * ch, char *argument)
         }
         else if (!strcmp(arg2, "flags"))
         {
-                char      farg[MAX_INPUT_LENGTH];
+                char      farg[MaxInputLength];
 
                 if (argument[0] == '\0')
                 {
@@ -1967,9 +1967,9 @@ CMDF do_setplanet(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_showclan(CHAR_DATA * ch, char *argument)
+CMDF do_showclan(CharData * ch, char *argument)
 {
-        CLAN_DATA *clan;
+        ClanData *clan;
 
         if (IS_NPC(ch))
         {
@@ -2017,9 +2017,9 @@ CMDF do_showclan(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_showplanet(CHAR_DATA * ch, char *argument)
+CMDF do_showplanet(CharData * ch, char *argument)
 {
-        PLANET_DATA *planet = NULL;
+        PlanetData *planet = NULL;
 
         if (IS_NPC(ch))
         {
@@ -2043,7 +2043,7 @@ CMDF do_showplanet(CHAR_DATA * ch, char *argument)
         ch_printf(ch, "&W%s\n\r", planet->name);
         if (IS_IMMORTAL(ch))
         {
-                AREA_DATA *area = NULL;
+                AreaData *area = NULL;
 
                 ch_printf(ch, "&WFilename: &G%s\n\r", planet->filename);
                 send_to_char("&WAreas: &G", ch);
@@ -2079,10 +2079,10 @@ CMDF do_showplanet(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_makeclan(CHAR_DATA * ch, char *argument)
+CMDF do_makeclan(CharData * ch, char *argument)
 {
         char      filename[256];
-        CLAN_DATA *clan;
+        ClanData *clan;
         bool      found;
 	short     i;
         
@@ -2095,7 +2095,7 @@ CMDF do_makeclan(CHAR_DATA * ch, char *argument)
         found = FALSE;
         snprintf(filename, 256, "%s.clan", smash_space(argument));
 
-        CREATE(clan, CLAN_DATA, 1);
+        CREATE(clan, ClanData, 1);
         LINK(clan, first_clan, last_clan, next, prev);
         clan->next_subclan = NULL;
         clan->prev_subclan = NULL;
@@ -2117,10 +2117,10 @@ CMDF do_makeclan(CHAR_DATA * ch, char *argument)
 		clan->rank[i] = STRALLOC(const_cast<char*>("None"));
 	save_clan(clan);
 	write_clan_list();
-}CMDF do_makeplanet(CHAR_DATA * ch, char *argument)
+}CMDF do_makeplanet(CharData * ch, char *argument)
 {
         char      filename[256];
-        PLANET_DATA *planet;
+        PlanetData *planet;
         bool      found;
         
         (void)found;  // Currently unused but kept for future development
@@ -2134,7 +2134,7 @@ CMDF do_makeclan(CHAR_DATA * ch, char *argument)
         found = FALSE;
         snprintf(filename, MSL, "%s%s", PLANET_DIR, strlower(argument));
 
-        CREATE(planet, PLANET_DATA, 1);
+        CREATE(planet, PlanetData, 1);
         LINK(planet, first_planet, last_planet, next, prev);
         planet->governed_by = NULL;
         planet->next_in_system = NULL;
@@ -2146,7 +2146,7 @@ CMDF do_makeclan(CHAR_DATA * ch, char *argument)
         planet->flags = 0;
 }
 
-char     *clan_type(CLAN_DATA * clan)
+char     *clan_type(ClanData * clan)
 {
         static char type[250];
 
@@ -2171,9 +2171,9 @@ char     *clan_type(CLAN_DATA * clan)
         return type;
 }
 
-CMDF do_clans(CHAR_DATA * ch, char *argument)
+CMDF do_clans(CharData * ch, char *argument)
 {
-        CLAN_DATA *clan;
+        ClanData *clan;
         int       count = 0;
 
         if (!first_clan)
@@ -2210,7 +2210,7 @@ CMDF do_clans(CHAR_DATA * ch, char *argument)
 
                         if (clan->first_subclan)
                         {
-                                CLAN_DATA *subclan;
+                                ClanData *subclan;
 
                                 pager_printf(ch, "  &BS&zub clans&B:\n\r");
                                 for (subclan = clan->first_subclan; subclan;
@@ -2283,10 +2283,10 @@ CMDF do_clans(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_planets(CHAR_DATA * ch, char *argument)
+CMDF do_planets(CharData * ch, char *argument)
 {
-        PLANET_DATA *planet;
-        AREA_DATA *area;
+        PlanetData *planet;
+        AreaData *area;
 
         if (argument[0] == '\0')
         {
@@ -2387,15 +2387,15 @@ CMDF do_planets(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_shove(CHAR_DATA * ch, char *argument)
+CMDF do_shove(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       exit_dir;
-        EXIT_DATA *pexit;
-        CHAR_DATA *victim;
+        ExitData *pexit;
+        CharData *victim;
         bool      nogo;
-        ROOM_INDEX_DATA *to_room;
+        RoomIndexData *to_room;
         int       percent_chance;
 
         argument = one_argument(argument, arg);
@@ -2503,14 +2503,14 @@ act( AT_ACTION, buf, ch, NULL, NULL, TO_ROOM );
                 add_timer(ch, TIMER_SHOVEDRAG, 10, NULL, 0);
 }
 
-CMDF do_drag(CHAR_DATA * ch, char *argument)
+CMDF do_drag(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       exit_dir;
-        CHAR_DATA *victim;
-        EXIT_DATA *pexit;
-        ROOM_INDEX_DATA *to_room;
+        CharData *victim;
+        ExitData *pexit;
+        RoomIndexData *to_room;
         bool      nogo;
         int       percent_chance;
 
@@ -2622,11 +2622,11 @@ act( AT_ACTION, buf, ch, NULL, NULL, TO_ROOM );
         return;
 }
 
-CMDF do_enlist(CHAR_DATA * ch, char *argument)
+CMDF do_enlist(CharData * ch, char *argument)
 {
         (void)argument;  // Currently unused but kept for command interface consistency
 
-        CLAN_DATA *clan;
+        ClanData *clan;
         INSTALLATION_DATA *installation;
 
         if (IS_NPC(ch) || !ch->pcdata)
@@ -2747,13 +2747,13 @@ CMDF do_enlist(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_resign(CHAR_DATA * ch, char *argument)
+CMDF do_resign(CharData * ch, char *argument)
 {
         (void)argument;  // Currently unused but kept for command interface consistency
 
-        CLAN_DATA *clan;
+        ClanData *clan;
         long      lose_exp;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         argument = NULL;
 
@@ -2799,7 +2799,7 @@ CMDF do_resign(CHAR_DATA * ch, char *argument)
         act(AT_MAGIC, "You resign your position in $t", ch, clan->name, NULL,
             TO_CHAR);
         snprintf(buf, MSL, "%s has quit %s!", ch->name, clan->name);
-        echo_to_all(AT_MAGIC, buf, ECHOTAR_ALL);
+        echo_to_all(AT_MAGIC, buf, EchoTarAll);
 
         lose_exp =
                 UMAX(ch->experience[DIPLOMACY_ABILITY] -
@@ -2815,9 +2815,9 @@ CMDF do_resign(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_clan_withdraw(CHAR_DATA * ch, char *argument)
+CMDF do_clan_withdraw(CharData * ch, char *argument)
 {
-        CLAN_DATA *clan;
+        ClanData *clan;
         long      amount;
 
         if (IS_NPC(ch) || !ch->pcdata->clan)
@@ -2874,9 +2874,9 @@ CMDF do_clan_withdraw(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_clan_donate(CHAR_DATA * ch, char *argument)
+CMDF do_clan_donate(CharData * ch, char *argument)
 {
-        CLAN_DATA *clan;
+        ClanData *clan;
         long      amount;
 
         if (IS_NPC(ch) || !ch->pcdata->clan)
@@ -2924,7 +2924,7 @@ CMDF do_clan_donate(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_newclan(CHAR_DATA * ch, char *argument)
+CMDF do_newclan(CharData * ch, char *argument)
 {
         (void)argument;  // Currently unused but kept for command interface consistency
         send_to_char
@@ -2933,9 +2933,9 @@ CMDF do_newclan(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_appoint(CHAR_DATA * ch, char *argument)
+CMDF do_appoint(CharData * ch, char *argument)
 {
-        char      arg[MAX_STRING_LENGTH];
+        char      arg[MaxStringLength];
 
         argument = one_argument(argument, arg);
 
@@ -2995,7 +2995,7 @@ CMDF do_appoint(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_demote(CHAR_DATA * ch, char *argument)
+CMDF do_demote(CharData * ch, char *argument)
 {
 
         if (IS_NPC(ch) || !ch->pcdata)
@@ -3043,16 +3043,16 @@ CMDF do_demote(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_capture(CHAR_DATA * ch, char *argument)
+CMDF do_capture(CharData * ch, char *argument)
 {
         (void)argument;  // Currently unused but kept for command interface consistency
-        CLAN_DATA *clan;
+        ClanData *clan;
         INSTALLATION_DATA *install;
-        PLANET_DATA *planet;
+        PlanetData *planet;
 
 /*	float support = 0.0;
 	int pCount = 0; */
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         argument = NULL;
 
@@ -3142,8 +3142,8 @@ CMDF do_capture(CHAR_DATA * ch, char *argument)
 
         if (planet->starsystem)
         {
-                SHIP_DATA *ship;
-                CLAN_DATA *sClan;
+                ShipData *ship;
+                ClanData *sClan;
 
                 for (ship = planet->starsystem->first_ship; ship;
                      ship = ship->next_in_starsystem)
@@ -3186,14 +3186,14 @@ CMDF do_capture(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_empower(CHAR_DATA * ch, char *argument)
+CMDF do_empower(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        CLAN_DATA *clan;
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        CharData *victim;
+        ClanData *clan;
+        char      buf[MaxStringLength];
         int       ranknum;
 
         if (IS_NPC(ch) || !ch->pcdata->clan)
@@ -3453,7 +3453,7 @@ CMDF do_empower(CHAR_DATA * ch, char *argument)
 
 }
 
-long get_taxes(PLANET_DATA * planet)
+long get_taxes(PlanetData * planet)
 {
         long      gain;
 
@@ -3466,9 +3466,9 @@ long get_taxes(PLANET_DATA * planet)
                 return gain;
 }
 
-CMDF do_imports(CHAR_DATA * ch, char *argument)
+CMDF do_imports(CharData * ch, char *argument)
 {
-        PLANET_DATA *planet;
+        PlanetData *planet;
         int       i;
 
         if (argument[0] == '\0')
@@ -3506,12 +3506,12 @@ CMDF do_imports(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_recruit(CHAR_DATA * ch, char *argument)
+CMDF do_recruit(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        CLAN_DATA *clan;
-        PLANET_DATA *planet;
-        SHIP_DATA *ship;
+        char      arg1[MaxInputLength];
+        ClanData *clan;
+        PlanetData *planet;
+        ShipData *ship;
         int       cost, batamount, percent_chance, xp;
 
         clan = ch->pcdata->clan;
@@ -3637,15 +3637,15 @@ CMDF do_recruit(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_load_battalions(CHAR_DATA * ch, char *argument)
+CMDF do_load_battalions(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        CLAN_DATA *clan;
-        PLANET_DATA *planet;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ClanData *clan;
+        PlanetData *planet;
         int       amount;
-        SHIP_DATA *ship;
-        SHIP_DATA *target;
+        ShipData *ship;
+        ShipData *target;
 
 
         if (argument[0] == '\0')
@@ -3757,15 +3757,15 @@ CMDF do_load_battalions(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_deploy_battalions(CHAR_DATA * ch, char *argument)
+CMDF do_deploy_battalions(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        CLAN_DATA *clan;
-        PLANET_DATA *planet;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ClanData *clan;
+        PlanetData *planet;
         int       amount;
-        SHIP_DATA *ship;
-        char      buf[MAX_STRING_LENGTH];
+        ShipData *ship;
+        char      buf[MaxStringLength];
 
         if (argument[0] == '\0')
         {
@@ -3865,18 +3865,18 @@ CMDF do_deploy_battalions(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_clanstat(CHAR_DATA * ch, char *argument)
+CMDF do_clanstat(CharData * ch, char *argument)
 {
         (void)argument;  // Currently unused but kept for command interface consistency
-        CLAN_DATA *clan;
-        CLAN_DATA *wclan;
-        PLANET_DATA *planet;
+        ClanData *clan;
+        ClanData *wclan;
+        PlanetData *planet;
         int       count = 0;
         int       pCount = 0;
         int       support;
         long      revenue;
-        SHIP_DATA *ship;
-        CHAR_DATA *wch;
+        ShipData *ship;
+        CharData *wch;
 
         argument = NULL;
 
@@ -4004,10 +4004,10 @@ CMDF do_clanstat(CHAR_DATA * ch, char *argument)
         set_pager_color(AT_WHITE, ch);
 }
 
-CMDF do_overthrow(CHAR_DATA * ch, char *argument)
+CMDF do_overthrow(CharData * ch, char *argument)
 {
         (void)argument;  // Currently unused but kept for command interface consistency
-        CLAN_DATA *clan;
+        ClanData *clan;
 
         if (IS_NPC(ch))
                 return;
@@ -4060,10 +4060,10 @@ CMDF do_overthrow(CHAR_DATA * ch, char *argument)
         save_char_obj(ch);  /* clan gets saved when pfile is saved */
 }
 
-bool is_clan_enemy(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_clan_enemy(CharData * ch, CharData * victim)
 {
-        CLAN_DATA *ch_clan = NULL;
-        CLAN_DATA *vict_clan = NULL;
+        ClanData *ch_clan = NULL;
+        ClanData *vict_clan = NULL;
 
         if (IS_NPC(victim))
                 vict_clan = get_clan(victim->mob_clan);
@@ -4093,10 +4093,10 @@ bool is_clan_enemy(CHAR_DATA * ch, CHAR_DATA * victim)
         return FALSE;
 }
 
-bool is_clan_ally(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_clan_ally(CharData * ch, CharData * victim)
 {
-        CLAN_DATA *ch_clan = NULL;
-        CLAN_DATA *vict_clan = NULL;
+        ClanData *ch_clan = NULL;
+        ClanData *vict_clan = NULL;
 
         if (IS_NPC(victim))
                 vict_clan = get_clan(victim->mob_clan);
@@ -4126,10 +4126,10 @@ bool is_clan_ally(CHAR_DATA * ch, CHAR_DATA * victim)
         return FALSE;
 }
 
-bool is_same_clan(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_same_clan(CharData * ch, CharData * victim)
 {
-        CLAN_DATA *ch_clan = NULL;
-        CLAN_DATA *vict_clan = NULL;
+        ClanData *ch_clan = NULL;
+        ClanData *vict_clan = NULL;
 
         if (IS_NPC(victim))
                 vict_clan = get_clan(victim->mob_clan);
@@ -4155,13 +4155,13 @@ bool is_same_clan(CHAR_DATA * ch, CHAR_DATA * victim)
         return FALSE;
 }
 
-void free_clan(CLAN_DATA * clan)
+void free_clan(ClanData * clan)
 {
         int       x;
-        PLANET_DATA *planet;
-        CLAN_DATA *tclan;
-        SHIP_DATA *ship;
-        CHAR_DATA *ch;
+        PlanetData *planet;
+        ClanData *tclan;
+        ShipData *ship;
+        CharData *ch;
         BOUNTY_DATA *bounty, *next_bounty = NULL;
         DOCK_DATA *dock;
 
@@ -4249,7 +4249,7 @@ void free_clan(CLAN_DATA * clan)
         DISPOSE(clan);
 }
 
-void free_planet(PLANET_DATA * planet)
+void free_planet(PlanetData * planet)
 {
         if (planet->bodyname)
                 DISPOSE(planet->bodyname);
@@ -4262,10 +4262,10 @@ void free_planet(PLANET_DATA * planet)
         DISPOSE(planet);
 }
 
-CMDF do_stepdown(CHAR_DATA * ch, char *argument)
+CMDF do_stepdown(CharData * ch, char *argument)
 {
         (void)argument;  // Currently unused but kept for command interface consistency
-        CLAN_DATA *clan;
+        ClanData *clan;
 
         if (IS_NPC(ch))
                 return;

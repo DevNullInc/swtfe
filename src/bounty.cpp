@@ -126,7 +126,7 @@ namespace BountyUtils {
         return bounty;
     }
     
-    void display_bounty_info_secure(CHAR_DATA* ch, BOUNTY_DATA* bounty) {
+    void display_bounty_info_secure(CharData* ch, BOUNTY_DATA* bounty) {
         if (!ch || !bounty) return;
         
         // Use modern string safety functions
@@ -160,9 +160,9 @@ BOUNTY_DATA *last_disintigration;
 
 #define BOUNTY_VERSION 1
 
-void disintigration args((CHAR_DATA * ch, CHAR_DATA * victim, long amount));
-void nodisintigration args((CHAR_DATA * ch, CHAR_DATA * victim, long amount));
-int       xp_compute(CHAR_DATA * ch, CHAR_DATA * victim);
+void disintigration args((CharData * ch, CharData * victim, long amount));
+void nodisintigration args((CharData * ch, CharData * victim, long amount));
+int       xp_compute(CharData * ch, CharData * victim);
 
 bool char_exists(char *player)
 {
@@ -355,7 +355,7 @@ void load_bounties()
         return;
 }
 
-CMDF do_bounties(CHAR_DATA * ch, char *argument [[maybe_unused]])
+CMDF do_bounties(CharData * ch, char *argument [[maybe_unused]])
 {
         BOUNTY_DATA *bounty;
         int       count = 0;
@@ -394,11 +394,11 @@ CMDF do_bounties(CHAR_DATA * ch, char *argument [[maybe_unused]])
 
 }
 
-void disintigration(CHAR_DATA * ch, char *name, long amount)
+void disintigration(CharData * ch, char *name, long amount)
 {
         BOUNTY_DATA *bounty;
         bool      found;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         found = FALSE;
 
@@ -442,11 +442,11 @@ void disintigration(CHAR_DATA * ch, char *name, long amount)
         echo_to_all(AT_RED, buf, 0);
 }
 
-CMDF do_addbounty(CHAR_DATA * ch, char *argument)
+CMDF do_addbounty(CharData * ch, char *argument)
 {
-        char      arg[MAX_STRING_LENGTH];
+        char      arg[MaxStringLength];
         long int  amount;
-        CHAR_DATA *victim;
+        CharData *victim;
         char      name[256];
 
         if (!argument || argument[0] == '\0')
@@ -575,11 +575,11 @@ void remove_disintigration(BOUNTY_DATA * bounty)
         save_disintigrations();
 }
 
-void claim_disintigration(CHAR_DATA * ch, CHAR_DATA * victim)
+void claim_disintigration(CharData * ch, CharData * victim)
 {
         BOUNTY_DATA *bounty;
         long int  experience;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (IS_NPC(victim))
                 return;
@@ -671,7 +671,7 @@ void claim_disintigration(CHAR_DATA * ch, CHAR_DATA * victim)
         remove_bounties(bounty->target);
 }
 
-void add_wanted(CHAR_DATA * ch, PLANET_DATA * planet)
+void add_wanted(CharData * ch, PlanetData * planet)
 {
         WANTED_DATA *wanted = NULL;
 
@@ -711,9 +711,9 @@ void add_wanted(CHAR_DATA * ch, PLANET_DATA * planet)
         wanted->government = planet->governed_by;
 }
 
-CMDF do_payfee(CHAR_DATA * ch, char *argument)
+CMDF do_payfee(CharData * ch, char *argument)
 {
-        CLAN_DATA *clan;
+        ClanData *clan;
         BOUNTY_DATA *bounty;
 
         if (argument[0] == '\0')
@@ -768,7 +768,7 @@ CMDF do_payfee(CHAR_DATA * ch, char *argument)
 
 }
 
-void add_police_bounty(CHAR_DATA * ch, PLANET_DATA * planet)
+void add_police_bounty(CharData * ch, PlanetData * planet)
 {
         BOUNTY_DATA *bounty;
 
@@ -801,7 +801,7 @@ void add_police_bounty(CHAR_DATA * ch, PLANET_DATA * planet)
         return;
 }
 
-bool is_wanted(CHAR_DATA * ch, PLANET_DATA * pl)
+bool is_wanted(CharData * ch, PlanetData * pl)
 {
         WANTED_DATA *wanted;
 
@@ -820,7 +820,7 @@ bool is_wanted(CHAR_DATA * ch, PLANET_DATA * pl)
         return FALSE;
 }
 
-void fwrite_wanted(CHAR_DATA * ch, FILE * fp)
+void fwrite_wanted(CharData * ch, FILE * fp)
 {
         WANTED_DATA *wanted;
 
@@ -838,7 +838,7 @@ void fwrite_wanted(CHAR_DATA * ch, FILE * fp)
         }
 }
 
-void fread_wanted(CHAR_DATA * ch, FILE * fp)
+void fread_wanted(CharData * ch, FILE * fp)
 {
         const char *word;
         WANTED_DATA *wanted;
@@ -885,12 +885,12 @@ void fread_wanted(CHAR_DATA * ch, FILE * fp)
         }
 }
 
-void remove_wanted_planet(CHAR_DATA * ch, PLANET_DATA * planet)
+void remove_wanted_planet(CharData * ch, PlanetData * planet)
 {
         remove_wanted(ch, planet->governed_by);
 }
 
-void remove_wanted(CHAR_DATA * ch, CLAN_DATA * clan)
+void remove_wanted(CharData * ch, ClanData * clan)
 {
         WANTED_DATA *wanted;
         BOUNTY_DATA *bounty;
@@ -930,11 +930,11 @@ void remove_wanted(CHAR_DATA * ch, CLAN_DATA * clan)
         }
 }
 
-CMDF do_imprison(CHAR_DATA * ch, char *argument)
+CMDF do_imprison(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = NULL;
-        CLAN_DATA *clan = NULL;
-        ROOM_INDEX_DATA *jail = NULL;
+        CharData *victim = NULL;
+        ClanData *clan = NULL;
+        RoomIndexData *jail = NULL;
         BOUNTY_DATA *bounty = NULL;
         int       chance = 0;
 
@@ -1038,7 +1038,7 @@ CMDF do_imprison(CHAR_DATA * ch, char *argument)
                 act(AT_ACTION,
                     "$n's failed attempt to jail $N has allowed time for them to recover.",
                     ch, NULL, victim, TO_NOTVICT);
-                WAIT_STATE(ch, 10 * PULSE_VIOLENCE);
+                WAIT_STATE(ch, 10 * PulseViolence);
                 victim->hit = 75;
                 victim->position = POS_STANDING;
                 update_pos(victim);
@@ -1089,7 +1089,7 @@ CMDF do_imprison(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_rembounty(CHAR_DATA * ch, char *argument)
+CMDF do_rembounty(CharData * ch, char *argument)
 {
         BOUNTY_DATA *bounty;
 
@@ -1146,12 +1146,12 @@ void free_bounty(BOUNTY_DATA * bounty)
 Moved to bounty.c since it's much more appropriate
 */
 
-CMDF do_sharpen(CHAR_DATA * ch, char *argument)
+CMDF do_sharpen(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
-        OBJ_DATA *pobj;
-        char      arg[MAX_INPUT_LENGTH];
-        AFFECT_DATA *paf;
+        ObjData *obj;
+        ObjData *pobj;
+        char      arg[MaxInputLength];
+        AffectData *paf;
         int       percent;
         int       level;
 
@@ -1269,7 +1269,7 @@ CMDF do_sharpen(CHAR_DATA * ch, char *argument)
             obj, NULL, TO_CHAR);
         act(AT_SKILL, "With skill and precision, $n sharpens $p.", ch, obj,
             NULL, TO_ROOM);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = APPLY_DAMROLL;

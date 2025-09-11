@@ -76,8 +76,8 @@ ACCOUNT_DATA *last_account = nullptr;
 
 
 // Function prototypes
-int check_playing(DESCRIPTOR_DATA* d, const std::string& name, bool kick);
-bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn);
+int check_playing(DescriptorData* d, const std::string& name, bool kick);
+bool check_reconnect(DescriptorData * d, char *name, bool fConn);
 void fwrite_comments(ACCOUNT_DATA * account, FILE * fp);
 void fread_comment(ACCOUNT_DATA * account, FILE * fp);
 void fread_account(ACCOUNT_DATA * account, FILE * fp);
@@ -121,7 +121,7 @@ void free_account(ACCOUNT_DATA *account)
         STRFREE(account->password);
     }
 
-    for (std::size_t count = 0; count < MAX_CHARACTERS; ++count) {
+    for (std::size_t count = 0; count < MaxCharacters; ++count) {
         if (account->character[count]) {
             STRFREE(account->character[count]);
         }
@@ -164,7 +164,7 @@ void save_account(ACCOUNT_DATA *account)
     fprintf(fp, "RPcurrent %ld\n", account->rpcurrent);
     fprintf(fp, "Qpoints   %ld\n", account->qpoints);
 
-    for (std::size_t count = 0; count < MAX_CHARACTERS; ++count) {
+    for (std::size_t count = 0; count < MaxCharacters; ++count) {
         if (account->character[count]) {
             fprintf(fp, "Character %s~\n", account->character[count]);
         }
@@ -249,9 +249,9 @@ ACCOUNT_DATA *load_account(const char *name)
 // Account Commands
 // =============================================================================
 
-CMDF do_showalts(CHAR_DATA * ch, char *argument)
+CMDF do_showalts(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
         ACCOUNT_DATA *account = NULL;
         int       count;
 
@@ -293,7 +293,7 @@ CMDF do_showalts(CHAR_DATA * ch, char *argument)
         ch_printf(ch, "Quest Points: %d\n\r", account->qpoints);
         send_to_char("----------------------------------------------\n\r",ch);
 
-        for (count = 0; count < MAX_CHARACTERS; count++)
+        for (count = 0; count < MaxCharacters; count++)
         {
                 if (account->character[count] == NULL)
                         continue;
@@ -310,7 +310,7 @@ CMDF do_showalts(CHAR_DATA * ch, char *argument)
         }
 }
 
-void show_account_characters(DESCRIPTOR_DATA * d)
+void show_account_characters(DescriptorData * d)
 {
         int       count;
         char      buf[MSL];
@@ -323,7 +323,7 @@ void show_account_characters(DESCRIPTOR_DATA * d)
         send_to_desc_color
                 ("&z|-----------------------------------------------------------------------|\n\r",
                  d);
-        for (count = 0; count < MAX_CHARACTERS; count++)
+        for (count = 0; count < MaxCharacters; count++)
         {
                 if (d->account->character[count] == NULL)
                         break;
@@ -378,7 +378,7 @@ void save_account(ACCOUNT_DATA * account)
                 fprintf(fp, "RPpoints  %ld\n", account->rppoints);   // %ld for long
                 fprintf(fp, "RPcurrent %ld\n", account->rpcurrent);  // %ld for long
                 fprintf(fp, "Qpoints   %ld\n", account->qpoints);    // %ld for long
-                for (count = 0; count < MAX_CHARACTERS; count++)
+                for (count = 0; count < MaxCharacters; count++)
                 {
                         if (account->character[count] == NULL)
                                 continue;
@@ -583,7 +583,7 @@ void fread_account(ACCOUNT_DATA * account, FILE * fp)
         }
 }
 
-bool add_to_account(ACCOUNT_DATA * acct, CHAR_DATA * chdata)
+bool add_to_account(ACCOUNT_DATA * acct, CharData * chdata)
 {
         int       count;
 
@@ -592,7 +592,7 @@ bool add_to_account(ACCOUNT_DATA * acct, CHAR_DATA * chdata)
                 bug("add_to_account: null ch or account!", 0);
                 return FALSE;
         }
-        for (count = 0; count < MAX_CHARACTERS; count++)
+        for (count = 0; count < MaxCharacters; count++)
         {
                 if (acct->character[count] == NULL)
                         continue;
@@ -602,12 +602,12 @@ bool add_to_account(ACCOUNT_DATA * acct, CHAR_DATA * chdata)
                 if (!str_cmp(acct->character[count], chdata->name))
                         return TRUE;
         }
-        for (count = 0; count < MAX_CHARACTERS; count++)
+        for (count = 0; count < MaxCharacters; count++)
         {
                 if (acct->character[count] == NULL)
                         break;
         }
-        if (count >= MAX_CHARACTERS)
+        if (count >= MaxCharacters)
                 return FALSE;
 
         acct->character[count] = STRALLOC(chdata->name);
@@ -621,7 +621,7 @@ bool add_to_account(ACCOUNT_DATA * acct, CHAR_DATA * chdata)
         return TRUE;
 }
 
-bool del_from_account(ACCOUNT_DATA * account, CHAR_DATA * ch)
+bool del_from_account(ACCOUNT_DATA * account, CharData * ch)
 {
         int       count;
 
@@ -631,14 +631,14 @@ bool del_from_account(ACCOUNT_DATA * account, CHAR_DATA * ch)
                 return FALSE;
         }
 
-        for (count = 0; count < MAX_CHARACTERS; count++)
+        for (count = 0; count < MaxCharacters; count++)
         {
                 if (account->character[count] == NULL)
                         continue;
                 if (!str_cmp(account->character[count], ch->name))
                 {
                         STRFREE(account->character[count]);
-                        for (; count < MAX_CHARACTERS - 1; count++)
+                        for (; count < MaxCharacters - 1; count++)
                                 account->character[count] =
                                         account->character[count + 1];
 
@@ -657,9 +657,9 @@ bool del_from_account(ACCOUNT_DATA * account, CHAR_DATA * ch)
  *
  * Actually, currently does nothing :D
  */
-CMDF do_transaccount(CHAR_DATA * ch, char *argument)
+CMDF do_transaccount(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = get_char_world(ch, argument);
+        CharData *victim = get_char_world(ch, argument);
 
         if (victim == NULL)
         {
@@ -670,10 +670,10 @@ CMDF do_transaccount(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_showaccounts(CHAR_DATA * ch, char *argument)
+CMDF do_showaccounts(CharData * ch, char *argument)
 {
         ACCOUNT_DATA *account = NULL;
-        CHAR_DATA *victim = get_char_world(ch, argument);
+        CharData *victim = get_char_world(ch, argument);
 
         if (victim && !IS_NPC(victim))
         {
@@ -698,9 +698,9 @@ CMDF do_showaccounts(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_switchchar(CHAR_DATA * ch, char *argument)
+CMDF do_switchchar(CharData * ch, char *argument)
 {
-        DESCRIPTOR_DATA *d = ch->desc;
+        DescriptorData *d = ch->desc;
         int       count = 0;
         bool      loaded;
 
@@ -720,7 +720,7 @@ CMDF do_switchchar(CHAR_DATA * ch, char *argument)
                         ("&RSyntax: &Gswitchchar &C<&ccharacter name&C>&w\n\r\n\r",
                          ch);
                 send_to_pager("Your choices are:\n\r", ch);
-                for (count = 0; count < MAX_CHARACTERS; count++)
+                for (count = 0; count < MaxCharacters; count++)
                 {
                         if (d->account->character[count] == NULL)
                                 continue;
@@ -760,14 +760,14 @@ CMDF do_switchchar(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        for (count = 0; count < MAX_CHARACTERS; count++)
+        for (count = 0; count < MaxCharacters; count++)
         {
                 if (d->account->character[count] == NULL)
                         continue;
                 if (!str_cmp(argument, d->account->character[count]))
                         break;
         }
-        if (d->account->character[count] == NULL || count == MAX_CHARACTERS)
+        if (d->account->character[count] == NULL || count == MaxCharacters)
         {
                 send_to_char("You do not have that character linked.\n\r",
                              ch);
@@ -827,7 +827,7 @@ CMDF do_switchchar(CHAR_DATA * ch, char *argument)
                 }
                 snprintf(log_buf, MSL, "%s@%s has connected.", ch->name,
                          d->host);
-                if (ch->top_level < LEVEL_DEMI)
+                if (ch->top_level < LevelDemi)
                 {
                         log_string_plus(log_buf, LOG_COMM, sysdata.log_level);
                 }
@@ -847,7 +847,7 @@ CMDF do_switchchar(CHAR_DATA * ch, char *argument)
 				else if (ch->in_room && !IS_IMMORTAL(ch)
 						&& ch->in_room->vnum != 6)
 				{
-					ROOM_INDEX_DATA * room = ch->in_room;
+					RoomIndexData * room = ch->in_room;
 					if (ch->in_room)
 						char_from_room(ch);
 					char_to_room(ch, room);

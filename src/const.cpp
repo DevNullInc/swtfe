@@ -57,7 +57,7 @@
 /*
  * Race table.
  */
-const struct race_type race_table[MAX_RACE] = {
+const struct race_type race_table[MaxRace] = {
         /*
          * Race name      Racial Affects   str dex wis int con cha lck frc hp mn re su  RESTRICTION  LANGUAGE 
          */
@@ -161,7 +161,7 @@ const char *const illness_list[] = {
         "aids"
 };
 
-const char *const npc_race[MAX_NPC_RACE] = {
+const char *const npc_race[MaxNpcRace] = {
         "Human", "Wookiee", "Twi'lek", "Rodian", "Hutt", "Mon Calamari",
         "Noghri",
         "Gamorrean", "Jawa", "Adarian", "Ewok", "Verpine", "Defel",
@@ -180,7 +180,7 @@ const char *const npc_race[MAX_NPC_RACE] = {
 };
 
 
-const char *const ability_name[MAX_ABILITY] = {
+const char *const ability_name[MaxAbility] = {
         "combat", "piloting", "engineering", "bounty hunting", "smuggling",
         "diplomacy",
         "leadership", "force", "occupation", "piracy", "medic"
@@ -624,7 +624,7 @@ const char *const true_false[] = {
  * Slot numbers must never be changed as they appear in #OBJECTS sections.
  */
 #define SLOT(n)	n
-#define LI LEVEL_IMMORTAL
+#define LI LevelImmortal
 
 #undef AM
 #undef AC

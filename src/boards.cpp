@@ -70,7 +70,7 @@ int get_boardtypes(char *flag)
         return -1;
 }
 
-bool can_remove(CHAR_DATA * ch, BOARD_DATA * board)
+bool can_remove(CharData * ch, BOARD_DATA * board)
 {
         /*
          * If your trust is high enough, you can remove it. 
@@ -86,7 +86,7 @@ bool can_remove(CHAR_DATA * ch, BOARD_DATA * board)
         return FALSE;
 }
 
-bool can_read(CHAR_DATA * ch, BOARD_DATA * board)
+bool can_read(CharData * ch, BOARD_DATA * board)
 {
         /*
          * If your trust is high enough, you can read it. 
@@ -117,7 +117,7 @@ bool can_read(CHAR_DATA * ch, BOARD_DATA * board)
         return FALSE;
 }
 
-bool can_post(CHAR_DATA * ch, BOARD_DATA * board)
+bool can_post(CharData * ch, BOARD_DATA * board)
 {
         /*
          * If your trust is high enough, you can post. 
@@ -184,7 +184,7 @@ void write_boards_txt(void)
         FCLOSE(fpout);
 }
 
-BOARD_DATA *get_board(OBJ_DATA * obj)
+BOARD_DATA *get_board(ObjData * obj)
 {
         BOARD_DATA *board;
 
@@ -194,9 +194,9 @@ BOARD_DATA *get_board(OBJ_DATA * obj)
         return NULL;
 }
 
-BOARD_DATA *find_board(CHAR_DATA * ch)
+BOARD_DATA *find_board(CharData * ch)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         BOARD_DATA *board;
 
         for (obj = ch->in_room->first_content; obj; obj = obj->next_content)
@@ -208,7 +208,7 @@ BOARD_DATA *find_board(CHAR_DATA * ch)
         return NULL;
 }
 
-bool is_note_to(CHAR_DATA * ch, NOTE_DATA * pnote)
+bool is_note_to(CharData * ch, NOTE_DATA * pnote)
 {
         if (!ch || !pnote)
                 return FALSE;
@@ -219,7 +219,7 @@ bool is_note_to(CHAR_DATA * ch, NOTE_DATA * pnote)
         return is_note_to_def(ch, pnote);
 }
 
-bool is_note_to_def(CHAR_DATA * ch, NOTE_DATA * pnote)
+bool is_note_to_def(CharData * ch, NOTE_DATA * pnote)
 {
         if (is_name("all", pnote->to_list))
                 return TRUE;
@@ -235,7 +235,7 @@ bool is_note_to_def(CHAR_DATA * ch, NOTE_DATA * pnote)
 
 
 
-void note_attach(CHAR_DATA * ch)
+void note_attach(CharData * ch)
 {
         NOTE_DATA *pnote;
 
@@ -308,7 +308,7 @@ void free_note(NOTE_DATA * pnote)
         DISPOSE(pnote);
 }
 
-void note_remove(CHAR_DATA * ch, BOARD_DATA * board, NOTE_DATA * pnote)
+void note_remove(CharData * ch, BOARD_DATA * board, NOTE_DATA * pnote)
 {
         (void)ch; // Mark as intentionally unused for now
         if (!board)
@@ -334,7 +334,7 @@ void note_remove(CHAR_DATA * ch, BOARD_DATA * board, NOTE_DATA * pnote)
 }
 
 
-CMDF do_noteroom(CHAR_DATA * ch, char *argument)
+CMDF do_noteroom(CharData * ch, char *argument)
 {
         BOARD_DATA *board;
 
@@ -368,7 +368,7 @@ CMDF do_noteroom(CHAR_DATA * ch, char *argument)
         note(ch, argument, board);
 }
 
-CMDF do_mailroom(CHAR_DATA * ch, char *argument)
+CMDF do_mailroom(CharData * ch, char *argument)
 {
         BOARD_DATA *board;
 
@@ -413,7 +413,7 @@ CMDF do_mailroom(CHAR_DATA * ch, char *argument)
         note(ch, argument, board);
 }
 
-CMDF do_idearoom(CHAR_DATA * ch, char *argument)
+CMDF do_idearoom(CharData * ch, char *argument)
 {
         BOARD_DATA *board;
 
@@ -462,21 +462,21 @@ CMDF do_idearoom(CHAR_DATA * ch, char *argument)
 }
 
 
-void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
+void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
 {
         bool      IS_MAIL = board ? (board->type == BOARD_MAIL) : FALSE;
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH];
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength];
         NOTE_DATA *pnote;
         int       vnum;
         int       anum;
         int       first_plist;
-        OBJ_DATA *paper = NULL, *tmpobj = NULL;
-        EXTRA_DESCR_DATA *ed = NULL;
-        char      notebuf[MAX_STRING_LENGTH];
-        char      short_desc_buf[MAX_STRING_LENGTH];
-        char      long_desc_buf[MAX_STRING_LENGTH];
-        char      keyword_buf[MAX_STRING_LENGTH];
+        ObjData *paper = NULL, *tmpobj = NULL;
+        ExtraDescrData *ed = NULL;
+        char      notebuf[MaxStringLength];
+        char      short_desc_buf[MaxStringLength];
+        char      long_desc_buf[MaxStringLength];
+        char      keyword_buf[MaxStringLength];
         bool      wasfound = FALSE;
 
         if (IS_NPC(ch))
@@ -502,7 +502,7 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
                                 stop_editing(ch);
                                 return;
                         }
-                        ed = static_cast<EXTRA_DESCR_DATA *>(ch->dest_buf);
+                        ed = static_cast<ExtraDescrData *>(ch->dest_buf);
                         STRFREE(ed->description);
                         ed->description = copy_buffer(ch);
                         stop_editing(ch);
@@ -700,7 +700,7 @@ void note(CHAR_DATA * ch, char *arg_passed, BOARD_DATA * board)
          */
         else if (!str_cmp(arg, "vote"))
         {
-                char      arg2[MAX_INPUT_LENGTH];
+                char      arg2[MaxInputLength];
 
                 if (!board)
                 {
@@ -1557,10 +1557,10 @@ void load_boards(void)
         return;
 }
 
-CMDF do_makeboard(CHAR_DATA * ch, char *argument)
+CMDF do_makeboard(CharData * ch, char *argument)
 {
         BOARD_DATA *board;
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         /*
          * To prevent spaces in filenames 
@@ -1585,13 +1585,13 @@ CMDF do_makeboard(CHAR_DATA * ch, char *argument)
         board->extra_removers = str_dup("");
 }
 
-CMDF do_bset(CHAR_DATA * ch, char *argument)
+CMDF do_bset(CharData * ch, char *argument)
 {
         BOARD_DATA *board;
         bool      found;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxStringLength];
         int       value;
 
         argument = one_argument(argument, arg1);
@@ -1642,7 +1642,7 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
 
         else if (!str_cmp(arg2, "read"))
         {
-                if (value < 0 || value > MAX_LEVEL)
+                if (value < 0 || value > MaxLevel)
                 {
                         send_to_char("Value out of range.\n\r", ch);
                         return;
@@ -1731,7 +1731,7 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
 
         else if (!str_cmp(arg2, "post"))
         {
-                if (value < 0 || value > MAX_LEVEL)
+                if (value < 0 || value > MaxLevel)
                 {
                         send_to_char("Value out of range.\n\r", ch);
                         return;
@@ -1741,7 +1741,7 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
 
         else if (!str_cmp(arg2, "remove"))
         {
-                if (value < 0 || value > MAX_LEVEL)
+                if (value < 0 || value > MaxLevel)
                 {
                         send_to_char("Value out of range.\n\r", ch);
                         return;
@@ -1783,10 +1783,10 @@ CMDF do_bset(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_bstat(CHAR_DATA * ch, char *argument)
+CMDF do_bstat(CharData * ch, char *argument)
 {
         BOARD_DATA *board;
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         set_char_color(AT_NOTE, ch);
         argument = one_argument(argument, arg);
@@ -1831,7 +1831,7 @@ CMDF do_bstat(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_boards(CHAR_DATA * ch, char * /* argument */)
+CMDF do_boards(CharData * ch, char * /* argument */)
 {
         BOARD_DATA *board;
 
@@ -1853,7 +1853,7 @@ CMDF do_boards(CHAR_DATA * ch, char * /* argument */)
                           board->num_posts, board_types[board->type]);
 }
 
-void mail_count(CHAR_DATA * ch)
+void mail_count(CharData * ch)
 {
         BOARD_DATA *board;
         NOTE_DATA *note;
@@ -1870,10 +1870,10 @@ void mail_count(CHAR_DATA * ch)
         return;
 }
 
-CMDF do_global(CHAR_DATA * ch, char *argument)
+CMDF do_global(CharData * ch, char *argument)
 {
         BOARD_DATA *board;
-        char      arg1[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
 
         if (!str_cmp(argument, "write") ||
             !str_cmp(argument, "show") ||

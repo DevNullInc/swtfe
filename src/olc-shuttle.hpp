@@ -79,7 +79,7 @@ enum class ShuttleClass : int {
 class ShuttleData {
 public:
         // Room pointer types are left as-is for compatibility
-        ROOM_INDEX_DATA* in_room{nullptr};
+        RoomIndexData* in_room{nullptr};
         std::shared_ptr<StopData> current;
         int current_number{0};
         ShuttleState state{ShuttleState::Landing};
@@ -110,12 +110,12 @@ void write_shuttle_list();
 bool save_shuttle(const std::shared_ptr<ShuttleData>& shuttle);
 std::shared_ptr<ShuttleData> make_shuttle(std::string_view filename, std::string_view name);
 bool extract_shuttle(const std::shared_ptr<ShuttleData>& shuttle);
-bool insert_shuttle(const std::shared_ptr<ShuttleData>& shuttle, ROOM_INDEX_DATA* room);
+bool insert_shuttle(const std::shared_ptr<ShuttleData>& shuttle, RoomIndexData* room);
 void load_shuttles();
 bool load_shuttle_file(std::string_view shuttlefile);
 void fread_shuttle(const std::shared_ptr<ShuttleData>& shuttle, FILE* fp);
 void fread_stop(const std::shared_ptr<StopData>& stop, FILE* fp);
 void destroy_shuttle(const std::shared_ptr<ShuttleData>& shuttle);
-void show_shuttles_to_char(CHAR_DATA* ch, const std::shared_ptr<ShuttleData>& shuttle);
-std::shared_ptr<ShuttleData> shuttle_in_room(ROOM_INDEX_DATA* room, std::string_view name);
+void show_shuttles_to_char(CharData* ch, const std::shared_ptr<ShuttleData>& shuttle);
+std::shared_ptr<ShuttleData> shuttle_in_room(RoomIndexData* room, std::string_view name);
 std::shared_ptr<ShuttleData> shuttle_from_entrance(int vnum);

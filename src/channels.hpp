@@ -83,12 +83,12 @@ enum class ChannelType {
 CHANNEL_DATA *get_channel(const char *name);
 CHANNEL_DATA *get_channel(std::string_view name);
 CHANNEL_DATA *get_channel(std::shared_ptr<std::string> name);
-bool check_channel(CHAR_DATA *ch, const char *command, const char *argument);
-bool check_channel(CHAR_DATA *ch, std::string_view command, std::string_view argument);
-bool check_channel(std::shared_ptr<CHAR_DATA> ch, std::string_view command, std::string_view argument);
-void add_channel_log(CHAR_DATA *from, const char *message, CHANNEL_DATA *channel);
-void add_channel_log(CHAR_DATA *from, std::string_view message, CHANNEL_DATA *channel);
-void add_channel_log(std::shared_ptr<CHAR_DATA> from, std::string_view message, std::shared_ptr<CHANNEL_DATA> channel);
+bool check_channel(CharData *ch, const char *command, const char *argument);
+bool check_channel(CharData *ch, std::string_view command, std::string_view argument);
+bool check_channel(std::shared_ptr<CharData> ch, std::string_view command, std::string_view argument);
+void add_channel_log(CharData *from, const char *message, CHANNEL_DATA *channel);
+void add_channel_log(CharData *from, std::string_view message, CHANNEL_DATA *channel);
+void add_channel_log(std::shared_ptr<CharData> from, std::string_view message, std::shared_ptr<CHANNEL_DATA> channel);
 int hasname(const char *list, const char *name);
 int hasname(std::string_view list, std::string_view name);
 void addname(char **list, const char *name);

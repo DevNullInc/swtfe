@@ -51,7 +51,7 @@
 #include <unistd.h>
 #include "mud.hpp"
 #include "editor.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include "races.hpp"
 #include "olc_bounty.hpp"
 #include "installations.hpp"
@@ -80,10 +80,10 @@ extern int top_ed;
 extern bool fBootDb;
 
 
-PLANET_DATA *get_planet args((char *name));
-void save_planet args((PLANET_DATA * planet, bool copyover));
+PlanetData *get_planet args((char *name));
+void save_planet args((PlanetData * planet, bool copyover));
 char     *strip_cr(char *str);
-void toggle_bexit_flag args((EXIT_DATA * pexit, int flag));
+void toggle_bexit_flag args((ExitData * pexit, int flag));
 void fix_exits args((void));
 
 // ============================================================================
@@ -199,7 +199,7 @@ const char *const spice_table[] = { // must remain 10 entries (used dynamically)
 // Build a space-separated list of table entries. wordwrap requires mutable char*.
 static char *build_joined_table(size_t count, const char *const *table)
 {
-        static char outbuf[MAX_STRING_LENGTH];
+        static char outbuf[MaxStringLength];
         outbuf[0] = '\0';
         int len = 0;
         for (size_t i = 0; i < count; ++i)
@@ -220,10 +220,10 @@ static char *build_joined_table(size_t count, const char *const *table)
 }
 
 // Overloads to accept int directions without triggering -Wconversion
-inline EXIT_DATA *get_exit(ROOM_INDEX_DATA *room, int dir) { return get_exit(room, to_shint(dir)); }
-inline EXIT_DATA *get_exit_num(ROOM_INDEX_DATA *room, int dir) { return get_exit_num(room, to_shint(dir)); }
-inline EXIT_DATA *get_exit_to(ROOM_INDEX_DATA *room, int dir, int vnum) { return get_exit_to(room, to_shint(dir), vnum); }
-inline EXIT_DATA *make_exit(ROOM_INDEX_DATA *from, ROOM_INDEX_DATA *to, int dir) { return make_exit(from, to, to_shint(dir)); }
+inline ExitData *get_exit(RoomIndexData *room, int dir) { return get_exit(room, to_shint(dir)); }
+inline ExitData *get_exit_num(RoomIndexData *room, int dir) { return get_exit_num(room, to_shint(dir)); }
+inline ExitData *get_exit_to(RoomIndexData *room, int dir, int vnum) { return get_exit_to(room, to_shint(dir), vnum); }
+inline ExitData *make_exit(RoomIndexData *from, RoomIndexData *to, int dir) { return make_exit(from, to, to_shint(dir)); }
 
 const char *const cargo_names[CONTRABAND_MAX] = {
         "none", "Ore", "Produce", "Meat", "Metal", "Minerals", "Components",
@@ -471,9 +471,9 @@ const char *const mprog_flags[] = {
 
 int get_commandflag args((char *flag));
 int get_godflags args((char *flag));
-extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
-extern MOB_INDEX_DATA *mob_index_hash[MAX_KEY_HASH];
-extern OBJ_INDEX_DATA *obj_index_hash[MAX_KEY_HASH];
+extern RoomIndexData *room_index_hash[MAX_KEY_HASH];
+extern MobIndexData *mob_index_hash[MAX_KEY_HASH];
+extern ObjIndexData *obj_index_hash[MAX_KEY_HASH];
 
 // Match declaration in mud.hpp
 char *flag_string(int bitvector, const char *const flagarray[])
@@ -494,10 +494,10 @@ char *flag_string(int bitvector, const char *const flagarray[])
 }
 
 
-bool can_rmodify(CHAR_DATA * ch, ROOM_INDEX_DATA * room)
+bool can_rmodify(CharData * ch, RoomIndexData * room)
 {
         int       vnum = room->vnum;
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
         if (IS_NPC(ch))
                 return FALSE;
@@ -517,10 +517,10 @@ bool can_rmodify(CHAR_DATA * ch, ROOM_INDEX_DATA * room)
         return FALSE;
 }
 
-bool can_omodify(CHAR_DATA * ch, OBJ_DATA * obj)
+bool can_omodify(CharData * ch, ObjData * obj)
 {
         int       vnum = obj->pIndexData->vnum;
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
         if (IS_NPC(ch))
                 return FALSE;
@@ -540,14 +540,14 @@ bool can_omodify(CHAR_DATA * ch, OBJ_DATA * obj)
         return FALSE;
 }
 
-bool can_oedit(CHAR_DATA * ch, OBJ_INDEX_DATA * obj)
+bool can_oedit(CharData * ch, ObjIndexData * obj)
 {
         int       vnum = obj->vnum;
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
         if (IS_NPC(ch))
                 return FALSE;
-        if (get_trust(ch) >= LEVEL_GOD)
+        if (get_trust(ch) >= LevelGod)
                 return TRUE;
         if (!ch->pcdata || !(pArea = ch->pcdata->area))
         {
@@ -564,10 +564,10 @@ bool can_oedit(CHAR_DATA * ch, OBJ_INDEX_DATA * obj)
 }
 
 
-bool can_mmodify(CHAR_DATA * ch, CHAR_DATA * mob)
+bool can_mmodify(CharData * ch, CharData * mob)
 {
         int       vnum;
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
         if (mob == ch)
                 return TRUE;
@@ -602,14 +602,14 @@ bool can_mmodify(CHAR_DATA * ch, CHAR_DATA * mob)
         return FALSE;
 }
 
-bool can_medit(CHAR_DATA * ch, MOB_INDEX_DATA * mob)
+bool can_medit(CharData * ch, MobIndexData * mob)
 {
         int       vnum = mob->vnum;
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
         if (IS_NPC(ch))
                 return FALSE;
-        if (get_trust(ch) >= LEVEL_GOD)
+        if (get_trust(ch) >= LevelGod)
                 return TRUE;
         if (!ch->pcdata || !(pArea = ch->pcdata->area))
         {
@@ -845,18 +845,18 @@ int get_defenseflag(char *flag)
         return -1;
 }
 
-CMDF do_goto(CHAR_DATA * ch, const char *argument)
+CMDF do_goto(CharData * ch, const char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *location;
-        CHAR_DATA *fch;
-        CHAR_DATA *fch_next;
-        ROOM_INDEX_DATA *in_room;
-        AREA_DATA *pArea;
+        char      arg[MaxInputLength];
+        RoomIndexData *location;
+        CharData *fch;
+        CharData *fch_next;
+        RoomIndexData *in_room;
+        AreaData *pArea;
         int       vnum;
 
         // Prepare mutable working copy for legacy parsing helpers
-        char argument_work[MAX_STRING_LENGTH];
+        char argument_work[MaxStringLength];
         char* work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
         one_argument(work, arg);
@@ -926,7 +926,7 @@ CMDF do_goto(CHAR_DATA * ch, const char *argument)
                         send_to_char("Overriding private flag!\n\r", ch);
         }
 
-        if (get_trust(ch) < LEVEL_IMMORTAL)
+        if (get_trust(ch) < LevelImmortal)
         {
                 if (!BuildUtils::safe_atoi(arg, vnum) || !BuildUtils::is_valid_vnum(vnum))
                 {
@@ -1015,16 +1015,16 @@ CMDF do_goto(CHAR_DATA * ch, const char *argument)
         return;
 }
 
-CMDF do_mset(CHAR_DATA * ch, char *argument)
+CMDF do_mset(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-        char      outbuf[MAX_STRING_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      buf[MaxStringLength];
+        char      outbuf[MaxStringLength];
         int       num, size, plus;
         char      char1, char2;
-        CHAR_DATA *victim;
+        CharData *victim;
         int       value;
         int       minattr, maxattr;
         bool      lockvictim;
@@ -1055,7 +1055,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                victim = static_cast<CHAR_DATA*>(ch->dest_buf);
+                victim = static_cast<CharData*>(ch->dest_buf);
                 if (char_died(victim))
                 {
                         send_to_char("Your victim died!\n\r", ch);
@@ -1131,7 +1131,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (!victim && get_trust(ch) <= LEVEL_IMMORTAL)
+        if (!victim && get_trust(ch) <= LevelImmortal)
         {
                 if ((victim = get_char_room(ch, arg1)) == NULL)
                 {
@@ -1150,7 +1150,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 }
         }
 
-        if (get_trust(ch) <= LEVEL_IMMORTAL && !IS_NPC(victim))
+        if (get_trust(ch) <= LevelImmortal && !IS_NPC(victim))
         {
                 send_to_char("You can't do that!\n\r", ch);
                 ch->dest_buf = NULL;
@@ -1492,7 +1492,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         }
         if (!str_cmp(arg2, "resetheld"))
         {
-                OBJ_DATA *bind = NULL;
+                ObjData *bind = NULL;
 
                 if (!can_mmodify(ch, victim))
                         return;
@@ -1524,11 +1524,11 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                for (iclass = 0; iclass < MAX_ABILITY; iclass++)
+                for (iclass = 0; iclass < MaxAbility; iclass++)
                         if (!str_prefix(arg3, ability_name[iclass]))
                                 break;
 
-                if (iclass == MAX_ABILITY)
+                if (iclass == MaxAbility)
                 {
                         send_to_char("That is not a class", ch);
                         return;
@@ -1580,16 +1580,16 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                if (value < 0 || value > LEVEL_AVATAR + 5)
+                if (value < 0 || value > LevelAvatar + 5)
                 {
                         ch_printf(ch, "Level range is 0 to %d.\n\r",
-                                  LEVEL_AVATAR + 5);
+                                  LevelAvatar + 5);
                         return;
                 }
                 {
                         int       ability;
 
-                        for (ability = 0; ability < MAX_ABILITY; ability++)
+                        for (ability = 0; ability < MaxAbility; ability++)
                                 victim->skill_level[ability] = to_shint(value);
                 }
                 victim->top_level = to_shint(value);
@@ -1735,7 +1735,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         {
                 char     *p; // removed unused pwdnew
 
-                if (get_trust(ch) < LEVEL_SUB_IMPLEM)
+                if (get_trust(ch) < LevelSubImplem)
                 {
                         send_to_char("You can't do that.\n\r", ch);
                         return;
@@ -1917,7 +1917,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_SUPREME)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelSupreme)
                 {
                         send_to_char("Not on PC's.\n\r", ch);
                         return;
@@ -1946,7 +1946,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "minsnoop"))
         {
-                if (get_trust(ch) < LEVEL_SUB_IMPLEM)
+                if (get_trust(ch) < LevelSubImplem)
                 {
                         send_to_char("You can't do that.\n\r", ch);
                         return;
@@ -1965,9 +1965,9 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "clan"))
         {
-                CLAN_DATA *clan;
+                ClanData *clan;
 
-                if (get_trust(ch) < LEVEL_GREATER)
+                if (get_trust(ch) < LevelGreater)
                 {
                         send_to_char("You can't do that.\n\r", ch);
                         return;
@@ -2145,7 +2145,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "spec") || !str_cmp(arg2, "spec_fun"))
         {
-                SPEC_FUN *specfun;
+                SpecFun *specfun;
 
                 if (!can_mmodify(ch, victim))
                         return;
@@ -2158,7 +2158,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
                 if (arg3[0] == '\0')
                 {
-                        SPEC_LIST *specfun_list;
+                        SpecList *specfun_list;
                         sh_int    count = 0;
 
                         send_to_char
@@ -2223,7 +2223,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "spec2") || !str_cmp(arg2, "spec2_fun"))
         {
-                SPEC_FUN *specfun;
+                SpecFun *specfun;
 
                 if (!can_mmodify(ch, victim))
                         return;
@@ -2236,7 +2236,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
                 if (arg3[0] == '\0')
                 {
-                        SPEC_LIST *specfun_list;
+                        SpecList *specfun_list;
                         sh_int    count = 0;
 
                         send_to_char
@@ -2305,7 +2305,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
                 if (!IS_NPC(victim)
                     && (!IS_SET(ch->pcdata->flags, IMM_ADMIN)
-                        && ch->top_level != MAX_LEVEL))
+                        && ch->top_level != MaxLevel))
                 {
                         send_to_char
                                 ("You can only modify a mobile's flags.\n\r",
@@ -2441,7 +2441,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                         return;
                 }
 
-                if (get_trust(ch) < LEVEL_GREATER)
+                if (get_trust(ch) < LevelGreater)
                 {
                         send_to_char
                                 ("You are not a high enough level to do that.\n\r",
@@ -2468,7 +2468,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "affected"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's flags.\n\r",
@@ -2508,7 +2508,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
          */
         if (!str_cmp(arg2, "r"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2524,7 +2524,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         }
         if (!str_cmp(arg2, "i"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2541,7 +2541,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         }
         if (!str_cmp(arg2, "s"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2557,7 +2557,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         }
         if (!str_cmp(arg2, "ri"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2576,7 +2576,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "rs"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2594,7 +2594,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         }
         if (!str_cmp(arg2, "is"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2612,7 +2612,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
         }
         if (!str_cmp(arg2, "ris"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's ris.\n\r",
@@ -2633,7 +2633,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "resistant"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's resistancies.\n\r",
@@ -2669,7 +2669,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "immune"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's immunities.\n\r",
@@ -2706,7 +2706,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "susceptible"))
         {
-                if (!IS_NPC(victim) && get_trust(ch) < LEVEL_LESSER)
+                if (!IS_NPC(victim) && get_trust(ch) < LevelLesser)
                 {
                         send_to_char
                                 ("You can only modify a mobile's susceptibilities.\n\r",
@@ -2761,7 +2761,7 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
                 {
                         argument = one_argument(argument, arg3);
                         value = get_partflag(arg3);
-                        if (value < 0 || value > MAX_BITS)
+                        if (value < 0 || value > MaxBits)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg3);
                         else
                                 xTOGGLE_BIT(victim->xflags, value);
@@ -3204,15 +3204,15 @@ CMDF do_mset(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_oset(CHAR_DATA * ch, char *argument)
+CMDF do_oset(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-        char      outbuf[MAX_STRING_LENGTH];
-        OBJ_DATA *obj, *tmpobj;
-        EXTRA_DESCR_DATA *ed;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      buf[MaxStringLength];
+        char      outbuf[MaxStringLength];
+        ObjData *obj, *tmpobj;
+        ExtraDescrData *ed;
         bool      lockobj;
 
         int       value, tmp;
@@ -3249,10 +3249,10 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                  * the object and index-object lists, searching through the
                  * extra_descr lists for a matching pointer...
                  */
-                ed = static_cast<EXTRA_DESCR_DATA*>(ch->dest_buf);
+                ed = static_cast<ExtraDescrData*>(ch->dest_buf);
                 STRFREE(ed->description);
                 ed->description = copy_buffer(ch);
-                tmpobj = static_cast<OBJ_DATA*>(ch->spare_ptr);
+                tmpobj = static_cast<ObjData*>(ch->spare_ptr);
                 stop_editing(ch);
                 ch->dest_buf = tmpobj;
                 ch->substate = to_shint(ch->tempnum);
@@ -3267,7 +3267,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                obj = static_cast<OBJ_DATA*>(ch->dest_buf);
+                obj = static_cast<ObjData*>(ch->dest_buf);
                 if (obj && obj_extracted(obj))
                 {
                         send_to_char("Your object was extracted!\n\r", ch);
@@ -3282,7 +3282,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                         obj->pIndexData->description =
                                 QUICKLINK(obj->description);
                 }
-                tmpobj = static_cast<OBJ_DATA*>(ch->spare_ptr);
+                tmpobj = static_cast<ObjData*>(ch->spare_ptr);
                 stop_editing(ch);
                 ch->substate = to_shint(ch->tempnum);
                 ch->dest_buf = tmpobj;
@@ -3351,7 +3351,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (!obj && get_trust(ch) <= LEVEL_IMMORTAL)
+        if (!obj && get_trust(ch) <= LevelImmortal)
         {
                 if ((obj = get_obj_here(ch, arg1)) == NULL)
                 {
@@ -3690,7 +3690,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "affect"))
         {
-                AFFECT_DATA *paf;
+                AffectData *paf;
                 sh_int    loc;
                 int       bitv;
 
@@ -3743,7 +3743,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
                                 return;
                         }
                 }
-                CREATE(paf, AFFECT_DATA, 1);
+                CREATE(paf, AffectData, 1);
                 paf->type = -1;
                 paf->duration = -1;
                 paf->location = loc;
@@ -3763,7 +3763,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "rmaffect"))
         {
-                AFFECT_DATA *paf;
+                AffectData *paf;
                 sh_int    loc, count;
 
                 if (!argument || argument[0] == '\0')
@@ -3785,7 +3785,7 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
 
                 if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
                 {
-                        OBJ_INDEX_DATA *pObjIndex;
+                        ObjIndexData *pObjIndex;
 
                         pObjIndex = obj->pIndexData;
                         for (paf = pObjIndex->first_affect; paf;
@@ -4166,12 +4166,12 @@ CMDF do_oset(CHAR_DATA * ch, char *argument)
 /*
  * Obsolete Merc room editing routine
  */
-CMDF do_rset(CHAR_DATA * ch, char *argument)
+CMDF do_rset(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *location;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        RoomIndexData *location;
         int       value;
         bool      proto;
 
@@ -4331,15 +4331,15 @@ int get_dir(char *txt)
         return edir;
 }
 
-char *sprint_reset(CHAR_DATA *ch, RESET_DATA *pReset, sh_int num, bool rlist)
+char *sprint_reset(CharData *ch, ResetData *pReset, sh_int num, bool rlist)
 {
-        static char buf[MAX_STRING_LENGTH];
-        char mobname[MAX_STRING_LENGTH];
-        char roomname[MAX_STRING_LENGTH];
-        char objname[MAX_STRING_LENGTH];
-        static ROOM_INDEX_DATA *room;
-        static OBJ_INDEX_DATA *obj, *obj2;
-        static MOB_INDEX_DATA *mob;
+        static char buf[MaxStringLength];
+        char mobname[MaxStringLength];
+        char roomname[MaxStringLength];
+        char objname[MaxStringLength];
+        static RoomIndexData *room;
+        static ObjIndexData *obj, *obj2;
+        static MobIndexData *mob;
         int rvnum = 0;
         if (ch->in_room) rvnum = ch->in_room->vnum;
         if (num == 1) { room = NULL; obj = NULL; obj2 = NULL; mob = NULL; }
@@ -4401,16 +4401,16 @@ char *sprint_reset(CHAR_DATA *ch, RESET_DATA *pReset, sh_int num, bool rlist)
         return buf;
 }
 
-CMDF do_redit(CHAR_DATA * ch, const char *argument)
+CMDF do_redit(CharData * ch, const char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-        ROOM_INDEX_DATA *location, *tmp;
-        EXTRA_DESCR_DATA *ed;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      buf[MaxStringLength];
+        RoomIndexData *location, *tmp;
+        ExtraDescrData *ed;
         char      dir;
-        EXIT_DATA *xit, *texit;
+        ExitData *xit, *texit;
         int       value;
         int       edir, ekey, evnum;
 
@@ -4425,7 +4425,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
         default:
                 break;
         case SUB_ROOM_DESC:
-                location = static_cast<ROOM_INDEX_DATA*>(ch->dest_buf);
+                location = static_cast<RoomIndexData*>(ch->dest_buf);
                 if (!location)
                 {
                         bug("redit: sub_room_desc: NULL ch->dest_buf", 0);
@@ -4437,7 +4437,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 ch->substate = to_shint(ch->tempnum);
                 return;
         case SUB_ROOM_EXTRA:
-                ed = static_cast<EXTRA_DESCR_DATA*>(ch->dest_buf);
+                ed = static_cast<ExtraDescrData*>(ch->dest_buf);
                 if (!ed)
                 {
                         bug("redit: sub_room_extra: NULL ch->dest_buf", 0);
@@ -4454,7 +4454,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
         location = ch->in_room;
 
         // Make mutable working argument copy
-        char argument_work[MAX_STRING_LENGTH];
+        char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
         smash_tilde(work);
         work = one_argument(work, arg);
@@ -4555,9 +4555,9 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
 
         if (!str_cmp(arg, "rlist"))
         {
-                RESET_DATA *pReset;
+                ResetData *pReset;
                 char     *bptr;
-                AREA_DATA *tarea;
+                AreaData *tarea;
                 sh_int    num;
 
                 tarea = location->area;
@@ -4599,10 +4599,10 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 {
                         work = one_argument(work, arg2);
                         value = get_rflag(arg2);
-                        if (value < 0 || value > MAX_BITS)
+                        if (value < 0 || value > MaxBits)
                                 ch_printf(ch, "Unknown flag: %s\n\r", arg2);
                         else if (1 << value == ROOM_PLR_HOME
-                                 && get_trust(ch) < LEVEL_SUPREME)
+                                 && get_trust(ch) < LevelSupreme)
                                 send_to_char
                                         ("If you want to build a player home use the 'empty_home' flag instead.\n\r",
                                          ch);
@@ -4878,7 +4878,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                 dir = 'n';
                 edir = 0;
                 evnum = atoi(arg2);
-                if (evnum < 1 || evnum > (MAX_VNUMS - 1))
+                if (evnum < 1 || evnum > (MaxVnums - 1))
                 {
                         send_to_char("Invalid room number.\n\r", ch);
                         return;
@@ -4958,7 +4958,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                         send_to_char("No exit in that direction.\n\r", ch);
                         return;
                 }
-                if (evnum < 1 || evnum > (MAX_VNUMS - 1))
+                if (evnum < 1 || evnum > (MaxVnums - 1))
                 {
                         send_to_char("Invalid room number.\n\r", ch);
                         return;
@@ -4968,7 +4968,7 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
                         send_to_char("Non-existant room.\n\r", ch);
                         return;
                 }
-                if (get_trust(ch) <= LEVEL_IMMORTAL
+                if (get_trust(ch) <= LevelImmortal
                     && tmp->area != location->area)
                 {
                         send_to_char
@@ -5044,9 +5044,9 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
          */
         if (!str_cmp(arg, "bexit"))
         {
-                EXIT_DATA *rxit;
+                ExitData *rxit;
                 std::string tmpcmd;
-                ROOM_INDEX_DATA *tmploc;
+                RoomIndexData *tmploc;
                 int vnum, exnum;
                 std::string rvnum;
                 bool numnotdir;
@@ -5179,15 +5179,15 @@ CMDF do_redit(CHAR_DATA * ch, const char *argument)
         return;
 }
 
-CMDF do_ocreate(CHAR_DATA * ch, char *argument)
+CMDF do_ocreate(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_INDEX_DATA *pObjIndex;
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjIndexData *pObjIndex;
+        ObjData *obj;
         int       vnum, cvnum;
         // Mutable working copy of the incoming argument string
-        char argument_work[MAX_STRING_LENGTH];
+        char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
         if (IS_NPC(ch))
@@ -5207,7 +5207,7 @@ CMDF do_ocreate(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (vnum < 1 || vnum > MAX_VNUMS)
+        if (vnum < 1 || vnum > MaxVnums)
         {
                 send_to_char("Bad number.\n\r", ch);
                 return;
@@ -5234,9 +5234,9 @@ CMDF do_ocreate(CHAR_DATA * ch, char *argument)
 
         if (IS_NPC(ch))
                 return;
-        if (get_trust(ch) <= LEVEL_IMMORTAL)
+        if (get_trust(ch) <= LevelImmortal)
         {
-                AREA_DATA *pArea;
+                AreaData *pArea;
 
                 if (!ch->pcdata || !(pArea = ch->pcdata->area))
                 {
@@ -5271,15 +5271,15 @@ CMDF do_ocreate(CHAR_DATA * ch, char *argument)
             ch, obj, NULL, TO_CHAR);
 }
 
-CMDF do_mcreate(CHAR_DATA * ch, char *argument)
+CMDF do_mcreate(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        MOB_INDEX_DATA *pMobIndex;
-        CHAR_DATA *mob;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        MobIndexData *pMobIndex;
+        CharData *mob;
         int       vnum, cvnum;
         // Mutable working copy
-        char argument_work[MAX_STRING_LENGTH];
+        char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
         if (IS_NPC(ch))
@@ -5300,7 +5300,7 @@ CMDF do_mcreate(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (vnum < 1 || vnum > MAX_VNUMS)
+        if (vnum < 1 || vnum > MaxVnums)
         {
                 send_to_char("Bad number.\n\r", ch);
                 return;
@@ -5326,9 +5326,9 @@ CMDF do_mcreate(CHAR_DATA * ch, char *argument)
 
         if (IS_NPC(ch))
                 return;
-        if (get_trust(ch) <= LEVEL_IMMORTAL)
+        if (get_trust(ch) <= LevelImmortal)
         {
-                AREA_DATA *pArea;
+                AreaData *pArea;
 
                 if (!ch->pcdata || !(pArea = ch->pcdata->area))
                 {
@@ -5364,17 +5364,17 @@ CMDF do_mcreate(CHAR_DATA * ch, char *argument)
 }
 
 
-void free_reset(AREA_DATA * are, RESET_DATA * res)
+void free_reset(AreaData * are, ResetData * res)
 {
         UNLINK(res, are->first_reset, are->last_reset, next, prev);
         DISPOSE(res);
 }
 
-void free_area(AREA_DATA * are)
+void free_area(AreaData * are)
 {
-        ROOM_INDEX_DATA *rid, *rid_next;
-        OBJ_INDEX_DATA *oid, *oid_next;
-        MOB_INDEX_DATA *mid, *mid_next;
+        RoomIndexData *rid, *rid_next;
+        ObjIndexData *oid, *oid_next;
+        MobIndexData *mid, *mid_next;
         int       icnt;
 
         for (icnt = 0; icnt < MAX_KEY_HASH; icnt++)
@@ -5420,17 +5420,17 @@ void free_area(AREA_DATA * are)
         DISPOSE(are);
 }
 
-void assign_area(CHAR_DATA * ch)
+void assign_area(CharData * ch)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      buf2[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      buf2[MaxStringLength];
         char      taf[1024];
-        AREA_DATA *tarea, *tmp;
+        AreaData *tarea, *tmp;
         bool      created = FALSE;
 
         if (IS_NPC(ch))
                 return;
-        if (get_trust(ch) >= LEVEL_AVATAR
+        if (get_trust(ch) >= LevelAvatar
             && ch->pcdata->r_range_lo && ch->pcdata->r_range_hi)
         {
                 tarea = ch->pcdata->area;
@@ -5449,7 +5449,7 @@ void assign_area(CHAR_DATA * ch)
                         snprintf(buf, sizeof(buf), "Creating area entry for %s",
                                  ch->name);
                         log_string_plus(buf, LOG_NORMAL, ch->top_level);
-                        CREATE(tarea, AREA_DATA, 1);
+                        CREATE(tarea, AreaData, 1);
                         LINK(tarea, first_build, last_build, next, prev);
                         tarea->first_reset = NULL;
                         tarea->last_reset = NULL;
@@ -5482,10 +5482,10 @@ void assign_area(CHAR_DATA * ch)
         }
 }
 
-CMDF do_aassign(CHAR_DATA * ch, char *argument)
+CMDF do_aassign(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        AREA_DATA *tarea, *tmp;
+        char      buf[MaxStringLength];
+        AreaData *tarea, *tmp;
 
         if (IS_NPC(ch))
                 return;
@@ -5511,7 +5511,7 @@ CMDF do_aassign(CHAR_DATA * ch, char *argument)
 
         tarea = NULL;
 
-        if (get_trust(ch) >= LEVEL_GREATER
+        if (get_trust(ch) >= LevelGreater
             || (is_name(buf, ch->pcdata->bestowments)
                 && get_trust(ch) >= sysdata.level_modify_proto))
                 for (tmp = first_area; tmp; tmp = tmp->next)
@@ -5525,7 +5525,7 @@ CMDF do_aassign(CHAR_DATA * ch, char *argument)
                 for (tmp = first_build; tmp; tmp = tmp->next)
                         if (!str_cmp(buf, tmp->filename))
                         {
-                                if (get_trust(ch) >= LEVEL_GREATER
+                                if (get_trust(ch) >= LevelGreater
                                     || is_name(tmp->filename,
                                                ch->pcdata->bestowments))
                                 {
@@ -5556,9 +5556,9 @@ CMDF do_aassign(CHAR_DATA * ch, char *argument)
 }
 
 
-EXTRA_DESCR_DATA *SetRExtra(ROOM_INDEX_DATA * room, char *keywords)
+ExtraDescrData *SetRExtra(RoomIndexData * room, char *keywords)
 {
-        EXTRA_DESCR_DATA *ed;
+        ExtraDescrData *ed;
 
         for (ed = room->first_extradesc; ed; ed = ed->next)
         {
@@ -5567,7 +5567,7 @@ EXTRA_DESCR_DATA *SetRExtra(ROOM_INDEX_DATA * room, char *keywords)
         }
         if (!ed)
         {
-                CREATE(ed, EXTRA_DESCR_DATA, 1);
+                CREATE(ed, ExtraDescrData, 1);
                 LINK(ed, room->first_extradesc, room->last_extradesc, next,
                      prev);
                 ed->keyword = STRALLOC(keywords);
@@ -5577,9 +5577,9 @@ EXTRA_DESCR_DATA *SetRExtra(ROOM_INDEX_DATA * room, char *keywords)
         return ed;
 }
 
-bool DelRExtra(ROOM_INDEX_DATA * room, char *keywords)
+bool DelRExtra(RoomIndexData * room, char *keywords)
 {
-        EXTRA_DESCR_DATA *rmed;
+        ExtraDescrData *rmed;
 
         for (rmed = room->first_extradesc; rmed; rmed = rmed->next)
         {
@@ -5596,9 +5596,9 @@ bool DelRExtra(ROOM_INDEX_DATA * room, char *keywords)
         return TRUE;
 }
 
-EXTRA_DESCR_DATA *SetOExtra(OBJ_DATA * obj, char *keywords)
+ExtraDescrData *SetOExtra(ObjData * obj, char *keywords)
 {
-        EXTRA_DESCR_DATA *ed;
+        ExtraDescrData *ed;
 
         for (ed = obj->first_extradesc; ed; ed = ed->next)
         {
@@ -5607,7 +5607,7 @@ EXTRA_DESCR_DATA *SetOExtra(OBJ_DATA * obj, char *keywords)
         }
         if (!ed)
         {
-                CREATE(ed, EXTRA_DESCR_DATA, 1);
+                CREATE(ed, ExtraDescrData, 1);
                 LINK(ed, obj->first_extradesc, obj->last_extradesc, next,
                      prev);
                 ed->keyword = STRALLOC(keywords);
@@ -5617,9 +5617,9 @@ EXTRA_DESCR_DATA *SetOExtra(OBJ_DATA * obj, char *keywords)
         return ed;
 }
 
-bool DelOExtra(OBJ_DATA * obj, char *keywords)
+bool DelOExtra(ObjData * obj, char *keywords)
 {
-        EXTRA_DESCR_DATA *rmed;
+        ExtraDescrData *rmed;
 
         for (rmed = obj->first_extradesc; rmed; rmed = rmed->next)
         {
@@ -5636,9 +5636,9 @@ bool DelOExtra(OBJ_DATA * obj, char *keywords)
         return TRUE;
 }
 
-EXTRA_DESCR_DATA *SetOExtraProto(OBJ_INDEX_DATA * obj, char *keywords)
+ExtraDescrData *SetOExtraProto(ObjIndexData * obj, char *keywords)
 {
-        EXTRA_DESCR_DATA *ed;
+        ExtraDescrData *ed;
 
         for (ed = obj->first_extradesc; ed; ed = ed->next)
         {
@@ -5647,7 +5647,7 @@ EXTRA_DESCR_DATA *SetOExtraProto(OBJ_INDEX_DATA * obj, char *keywords)
         }
         if (!ed)
         {
-                CREATE(ed, EXTRA_DESCR_DATA, 1);
+                CREATE(ed, ExtraDescrData, 1);
                 LINK(ed, obj->first_extradesc, obj->last_extradesc, next,
                      prev);
                 ed->keyword = STRALLOC(keywords);
@@ -5657,9 +5657,9 @@ EXTRA_DESCR_DATA *SetOExtraProto(OBJ_INDEX_DATA * obj, char *keywords)
         return ed;
 }
 
-bool DelOExtraProto(OBJ_INDEX_DATA * obj, char *keywords)
+bool DelOExtraProto(ObjIndexData * obj, char *keywords)
 {
-        EXTRA_DESCR_DATA *rmed;
+        ExtraDescrData *rmed;
 
         for (rmed = obj->first_extradesc; rmed; rmed = rmed->next)
         {
@@ -5676,19 +5676,19 @@ bool DelOExtraProto(OBJ_INDEX_DATA * obj, char *keywords)
         return TRUE;
 }
 
-void fold_area(AREA_DATA * tarea, char *filename, bool install, bool dolog)
+void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
 {
-        RESET_DATA *treset;
-        ROOM_INDEX_DATA *room;
-        MOB_INDEX_DATA *pMobIndex;
-        OBJ_INDEX_DATA *pObjIndex;
-        MPROG_DATA *mprog;
-        EXIT_DATA *xit;
-        EXTRA_DESCR_DATA *ed;
-        AFFECT_DATA *paf;
-        SHOP_DATA *pShop;
-        REPAIR_DATA *pRepair;
-        char      buf[MAX_STRING_LENGTH];
+        ResetData *treset;
+        RoomIndexData *room;
+        MobIndexData *pMobIndex;
+        ObjIndexData *pObjIndex;
+        MProgData *mprog;
+        ExitData *xit;
+        ExtraDescrData *ed;
+        AffectData *paf;
+        ShopData *pShop;
+        RepairData *pRepair;
+        char      buf[MaxStringLength];
         FILE     *fpout;
         int       vnum;
         int       val0, val1, val2, val3, val4, val5;
@@ -5697,7 +5697,7 @@ void fold_area(AREA_DATA * tarea, char *filename, bool install, bool dolog)
         if (dolog)
         {
                 snprintf(buf, MSL, "Saving %s...", tarea->filename);
-                log_string_plus(buf, LOG_NORMAL, LEVEL_GREATER);
+                log_string_plus(buf, LOG_NORMAL, LevelGreater);
         }
 
         snprintf(buf, MSL, "%s.bak", filename);
@@ -5944,8 +5944,8 @@ void fold_area(AREA_DATA * tarea, char *filename, bool install, bool dolog)
                         continue;
                 if (install)
                 {
-                        CHAR_DATA *victim, *vnext;
-                        OBJ_DATA *obj, *obj_next;
+                        CharData *victim, *vnext;
+                        ObjData *obj, *obj_next;
 
                         /*
                          * remove prototype flag from room 
@@ -6134,12 +6134,12 @@ void fold_area(AREA_DATA * tarea, char *filename, bool install, bool dolog)
         return;
 }
 
-CMDF do_savearea(CHAR_DATA * ch, const char *argument)
+CMDF do_savearea(CharData * ch, const char *argument)
 {
-        AREA_DATA *tarea;
+        AreaData *tarea;
         char      filename[256];
 
-        if (IS_NPC(ch) || get_trust(ch) < LEVEL_AVATAR || !ch->pcdata
+        if (IS_NPC(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
             || (argument[0] == '\0' && !ch->pcdata->area))
         {
                 send_to_char("You don't have an assigned area to save.\n\r",
@@ -6153,7 +6153,7 @@ CMDF do_savearea(CHAR_DATA * ch, const char *argument)
         {
                 bool      found;
 
-                if (get_trust(ch) < LEVEL_GOD)
+                if (get_trust(ch) < LevelGod)
                 {
                         send_to_char("You can only save your own area.\n\r",
                                      ch);
@@ -6191,13 +6191,13 @@ CMDF do_savearea(CHAR_DATA * ch, const char *argument)
         send_to_char("Done.\n\r", ch);
 }
 
-CMDF do_loadarea(CHAR_DATA * ch, const char *argument)
+CMDF do_loadarea(CharData * ch, const char *argument)
 {
-        AREA_DATA *tarea;
+        AreaData *tarea;
         char      filename[256];
         int       tmp;
 
-        if (IS_NPC(ch) || get_trust(ch) < LEVEL_AVATAR || !ch->pcdata
+        if (IS_NPC(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
             || (argument[0] == '\0' && !ch->pcdata->area))
         {
                 send_to_char("You don't have an assigned area to load.\n\r",
@@ -6211,7 +6211,7 @@ CMDF do_loadarea(CHAR_DATA * ch, const char *argument)
         {
                 bool      found;
 
-                if (get_trust(ch) < LEVEL_GOD)
+                if (get_trust(ch) < LevelGod)
                 {
                         send_to_char("You can only load your own area.\n\r",
                                      ch);
@@ -6270,7 +6270,7 @@ CMDF do_loadarea(CHAR_DATA * ch, const char *argument)
  *
  * NOTE: Use of this command is not recommended.		-Thoric
  */
-CMDF do_unfoldarea(CHAR_DATA * ch, char *argument)
+CMDF do_unfoldarea(CharData * ch, char *argument)
 {
 
         if (!argument || argument[0] == '\0')
@@ -6286,10 +6286,10 @@ CMDF do_unfoldarea(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_foldarea(CHAR_DATA * ch, char *argument)
+CMDF do_foldarea(CharData * ch, char *argument)
 {
-        AREA_DATA *tarea;
-        char      arg[MAX_INPUT_LENGTH];
+        AreaData *tarea;
+        char      arg[MaxInputLength];
 
         argument = one_argument(argument, arg);
         if (arg[0] == '\0')
@@ -6317,7 +6317,7 @@ extern int top_area;
 
 void write_area_list(void)
 {
-        AREA_DATA *tarea;
+        AreaData *tarea;
         FILE     *fpout;
 
         fpout = fopen(FILE_AREA_LIST, "w");
@@ -6337,13 +6337,13 @@ void write_area_list(void)
  * A complicated to use command as it currently exists.		-Thoric
  * Once area->author and area->name are cleaned up... it will be easier
  */
-CMDF do_installarea(CHAR_DATA * ch, char *argument)
+CMDF do_installarea(CharData * ch, char *argument)
 {
-        AREA_DATA *tarea;
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        AreaData *tarea;
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       num;
-        DESCRIPTOR_DATA *d;
+        DescriptorData *d;
 
         argument = one_argument(argument, arg);
         if (arg[0] == '\0')
@@ -6428,7 +6428,7 @@ CMDF do_installarea(CHAR_DATA * ch, char *argument)
         return;
 }
 
-void add_reset_nested(AREA_DATA * tarea, OBJ_DATA * obj)
+void add_reset_nested(AreaData * tarea, ObjData * obj)
 {
         int       limit;
 
@@ -6448,22 +6448,22 @@ void add_reset_nested(AREA_DATA * tarea, OBJ_DATA * obj)
 /*
  * Parse a reset command string into a reset_data structure
  */
-RESET_DATA *parse_reset(AREA_DATA * tarea, char *argument, CHAR_DATA * ch)
+ResetData *parse_reset(AreaData * tarea, char *argument, CharData * ch)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      arg4[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      arg4[MaxInputLength];
         char      letter;
         int       extra, val1, val2, val3;
         int       value;
-        ROOM_INDEX_DATA *room;
-        EXIT_DATA *pexit;
+        RoomIndexData *room;
+        ExitData *pexit;
 
         // tarea not currently needed inside this function; keep signature for callers
         (void)tarea;
 
-        char argument_work[MAX_STRING_LENGTH];
+        char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
         work = one_argument(work, arg1);
         work = one_argument(work, arg2);
@@ -6501,7 +6501,7 @@ RESET_DATA *parse_reset(AREA_DATA * tarea, char *argument, CHAR_DATA * ch)
                 send_to_char("Reset: not enough arguments.\n\r", ch);
                 return NULL;
         }
-        else if (val1 < 1 || val1 > MAX_VNUMS)
+        else if (val1 < 1 || val1 > MaxVnums)
         {
                 send_to_char("Reset: value out of range.\n\r", ch);
                 return NULL;
@@ -6703,10 +6703,10 @@ RESET_DATA *parse_reset(AREA_DATA * tarea, char *argument, CHAR_DATA * ch)
                 return make_reset(letter, extra, val1, val3, val2);
 }
 
-CMDF do_astat(CHAR_DATA * ch, char *argument)
+CMDF do_astat(CharData * ch, char *argument)
 {
-        AREA_DATA *tarea;
-        CHAR_DATA *vch;
+        AreaData *tarea;
+        CharData *vch;
         bool      proto, found;
 
         set_char_color(AT_PLAIN, ch);
@@ -6797,16 +6797,16 @@ CMDF do_astat(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_aset(CHAR_DATA * ch, char *argument)
+CMDF do_aset(CharData * ch, char *argument)
 {
-        AREA_DATA *tarea;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
+        AreaData *tarea;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
         bool      found; // removed unused 'proto'
         int       vnum, value;
         // Mutable working copy
-        char argument_work[MAX_STRING_LENGTH];
+        char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
         work = one_argument(work, arg1);
         work = one_argument(work, arg2);
@@ -6861,14 +6861,14 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "planet"))
         {
-                PLANET_DATA *planet;
+                PlanetData *planet;
 
                 planet = get_planet(argument);
                 if (planet)
                 {
                         if (tarea->planet)
                         {
-                                PLANET_DATA *old_planet;
+                                PlanetData *old_planet;
 
                                 old_planet = tarea->planet;
                                 UNLINK(tarea, old_planet->first_area,
@@ -6898,7 +6898,7 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "body"))
         {
-                BODY_DATA *body;
+                BodyData *body;
 
                 body = get_body(argument);
                 if (body)
@@ -6981,7 +6981,7 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "low_soft"))
         {
-                if (vnum < 0 || vnum > MAX_LEVEL)
+                if (vnum < 0 || vnum > MaxLevel)
                 {
                         send_to_char("That is not an acceptable value.\n\r",
                                      ch);
@@ -6995,7 +6995,7 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "hi_soft"))
         {
-                if (vnum < 0 || vnum > MAX_LEVEL)
+                if (vnum < 0 || vnum > MaxLevel)
                 {
                         send_to_char("That is not an acceptable value.\n\r",
                                      ch);
@@ -7009,7 +7009,7 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "low_hard"))
         {
-                if (vnum < 0 || vnum > MAX_LEVEL)
+                if (vnum < 0 || vnum > MaxLevel)
                 {
                         send_to_char("That is not an acceptable value.\n\r",
                                      ch);
@@ -7023,7 +7023,7 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "hi_hard"))
         {
-                if (vnum < 0 || vnum > MAX_LEVEL)
+                if (vnum < 0 || vnum > MaxLevel)
                 {
                         send_to_char("That is not an acceptable value.\n\r",
                                      ch);
@@ -7092,21 +7092,21 @@ CMDF do_aset(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_rlist(CHAR_DATA * ch, char *argument)
+CMDF do_rlist(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
         int       vnum;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        AREA_DATA *tarea;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        AreaData *tarea;
         int       lrange;
         int       trange;
         // Mutable working copy
-        char argument_work[MAX_STRING_LENGTH];
+        char argument_work[MaxStringLength];
         char *work = make_mutable_argument(argument, argument_work, sizeof(argument_work));
 
-        if (IS_NPC(ch) || get_trust(ch) < LEVEL_AVATAR || !ch->pcdata
-            || (!ch->pcdata->area && get_trust(ch) < LEVEL_GREATER))
+        if (IS_NPC(ch) || get_trust(ch) < LevelAvatar || !ch->pcdata
+            || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
                 return;
@@ -7130,7 +7130,7 @@ CMDF do_rlist(CHAR_DATA * ch, char *argument)
                         trange = atoi(arg2);
 
                 if ((lrange < tarea->low_r_vnum || trange > tarea->hi_r_vnum)
-                    && get_trust(ch) < LEVEL_GREATER)
+                    && get_trust(ch) < LevelGreater)
                 {
                         send_to_char("That is out of your vnum range.\n\r",
                                      ch);
@@ -7156,21 +7156,21 @@ CMDF do_rlist(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_olist(CHAR_DATA * ch, char *argument)
+CMDF do_olist(CharData * ch, char *argument)
 {
-        OBJ_INDEX_DATA *obj;
+        ObjIndexData *obj;
         int       vnum;
-        AREA_DATA *tarea;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        AreaData *tarea;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       lrange;
         int       trange;
 
         /*
          * Greater+ can list out of assigned range - Tri (mlist/rlist as well)
          */
-        if (IS_NPC(ch) || get_trust(ch) < LEVEL_CREATOR || !ch->pcdata
-            || (!ch->pcdata->area && get_trust(ch) < LEVEL_GREATER))
+        if (IS_NPC(ch) || get_trust(ch) < LevelCreator || !ch->pcdata
+            || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
                 return;
@@ -7193,7 +7193,7 @@ CMDF do_olist(CHAR_DATA * ch, char *argument)
                         trange = atoi(arg2);
 
                 if ((lrange < tarea->low_o_vnum || trange > tarea->hi_o_vnum)
-                    && get_trust(ch) < LEVEL_GREATER)
+                    && get_trust(ch) < LevelGreater)
                 {
                         send_to_char("That is out of your vnum range.\n\r",
                                      ch);
@@ -7220,18 +7220,18 @@ CMDF do_olist(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_mlist(CHAR_DATA * ch, char *argument)
+CMDF do_mlist(CharData * ch, char *argument)
 {
-        MOB_INDEX_DATA *mob;
+        MobIndexData *mob;
         int       vnum;
-        AREA_DATA *tarea;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        AreaData *tarea;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       lrange;
         int       trange;
 
-        if (IS_NPC(ch) || get_trust(ch) < LEVEL_CREATOR || !ch->pcdata
-            || (!ch->pcdata->area && get_trust(ch) < LEVEL_GREATER))
+        if (IS_NPC(ch) || get_trust(ch) < LevelCreator || !ch->pcdata
+            || (!ch->pcdata->area && get_trust(ch) < LevelGreater))
         {
                 send_to_char("You don't have an assigned area.\n\r", ch);
                 return;
@@ -7255,7 +7255,7 @@ CMDF do_mlist(CHAR_DATA * ch, char *argument)
                         trange = atoi(arg2);
 
                 if ((lrange < tarea->low_m_vnum || trange > tarea->hi_m_vnum)
-                    && get_trust(ch) < LEVEL_GREATER)
+                    && get_trust(ch) < LevelGreater)
                 {
                         send_to_char("That is out of your vnum range.\n\r",
                                      ch);
@@ -7283,7 +7283,7 @@ CMDF do_mlist(CHAR_DATA * ch, char *argument)
         }
 }
 
-void mpedit(CHAR_DATA * ch, MPROG_DATA * mprg, int mptype, char *argument)
+void mpedit(CharData * ch, MProgData * mprg, int mptype, char *argument)
 {
         if (mptype != -1)
         {
@@ -7303,14 +7303,14 @@ void mpedit(CHAR_DATA * ch, MPROG_DATA * mprg, int mptype, char *argument)
 /*
  * Mobprogram editing - cumbersome				-Thoric
  */
-CMDF do_mpedit(CHAR_DATA * ch, char *argument)
+CMDF do_mpedit(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      arg4[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        MPROG_DATA *mprog, *mprg, *mprg_next = NULL;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      arg4[MaxInputLength];
+        CharData *victim;
+        MProgData *mprog, *mprg, *mprg_next = NULL;
         int       value, mptype = 0, cnt;
 
         if (IS_NPC(ch))
@@ -7339,7 +7339,7 @@ CMDF do_mpedit(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                mprog = static_cast<MPROG_DATA*>(ch->dest_buf);
+                mprog = static_cast<MProgData*>(ch->dest_buf);
                 if (mprog->comlist)
                         STRFREE(mprog->comlist);
                 mprog->comlist = copy_buffer(ch);
@@ -7370,7 +7370,7 @@ CMDF do_mpedit(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (get_trust(ch) < LEVEL_GOD)
+        if (get_trust(ch) < LevelGod)
         {
                 if ((victim = get_char_room(ch, arg1)) == NULL)
                 {
@@ -7552,7 +7552,7 @@ CMDF do_mpedit(CHAR_DATA * ch, char *argument)
                 }
                 if (value == 1)
                 {
-                        CREATE(mprg, MPROG_DATA, 1);
+                        CREATE(mprg, MProgData, 1);
                         victim->pIndexData->progtypes |= (1 << mptype);
                         mpedit(ch, mprg, mptype, argument);
                         mprg->next = mprog;
@@ -7564,7 +7564,7 @@ CMDF do_mpedit(CHAR_DATA * ch, char *argument)
                 {
                         if (++cnt == value && mprg->next)
                         {
-                                CREATE(mprg_next, MPROG_DATA, 1);
+                                CREATE(mprg_next, MProgData, 1);
                                 victim->pIndexData->progtypes |=
                                         (1 << mptype);
                                 mpedit(ch, mprg_next, mptype, argument);
@@ -7587,7 +7587,7 @@ CMDF do_mpedit(CHAR_DATA * ch, char *argument)
                 }
                 if (mprog != NULL)
                         for (; mprog->next; mprog = mprog->next);
-                CREATE(mprg, MPROG_DATA, 1);
+                CREATE(mprg, MProgData, 1);
                 if (mprog)
                         mprog->next = mprg;
                 else
@@ -7604,14 +7604,14 @@ CMDF do_mpedit(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_opedit(CHAR_DATA * ch, char *argument)
+CMDF do_opedit(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      arg4[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        MPROG_DATA *mprog, *mprg, *mprg_next = NULL;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      arg4[MaxInputLength];
+        ObjData *obj;
+        MProgData *mprog, *mprg, *mprg_next = NULL;
         int       value, mptype = 0, cnt;
 
         if (IS_NPC(ch))
@@ -7640,7 +7640,7 @@ CMDF do_opedit(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                mprog = static_cast<MPROG_DATA*>(ch->dest_buf);
+                mprog = static_cast<MProgData*>(ch->dest_buf);
                 if (mprog->comlist)
                         STRFREE(mprog->comlist);
                 mprog->comlist = copy_buffer(ch);
@@ -7676,7 +7676,7 @@ CMDF do_opedit(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        if (get_trust(ch) < LEVEL_GOD)
+        if (get_trust(ch) < LevelGod)
         {
                 if ((obj = get_obj_carry(ch, arg1)) == NULL)
                 {
@@ -7852,7 +7852,7 @@ CMDF do_opedit(CHAR_DATA * ch, char *argument)
                 }
                 if (value == 1)
                 {
-                        CREATE(mprg, MPROG_DATA, 1);
+                        CREATE(mprg, MProgData, 1);
                         obj->pIndexData->progtypes |= (1 << mptype);
                         mpedit(ch, mprg, mptype, argument);
                         mprg->next = mprog;
@@ -7864,7 +7864,7 @@ CMDF do_opedit(CHAR_DATA * ch, char *argument)
                 {
                         if (++cnt == value && mprg->next)
                         {
-                                CREATE(mprg_next, MPROG_DATA, 1);
+                                CREATE(mprg_next, MProgData, 1);
                                 obj->pIndexData->progtypes |= (1 << mptype);
                                 mpedit(ch, mprg_next, mptype, argument);
                                 mprg_next->next = mprg->next;
@@ -7886,7 +7886,7 @@ CMDF do_opedit(CHAR_DATA * ch, char *argument)
                 }
                 if (mprog != NULL)
                         for (; mprog->next; mprog = mprog->next);
-                CREATE(mprg, MPROG_DATA, 1);
+                CREATE(mprg, MProgData, 1);
                 if (mprog)
                         mprog->next = mprg;
                 else
@@ -7905,7 +7905,7 @@ CMDF do_opedit(CHAR_DATA * ch, char *argument)
 /*
  * RoomProg Support
  */
-void rpedit(CHAR_DATA * ch, MPROG_DATA * mprg, int mptype, char *argument)
+void rpedit(CharData * ch, MProgData * mprg, int mptype, char *argument)
 {
         if (mptype != -1)
         {
@@ -7922,12 +7922,12 @@ void rpedit(CHAR_DATA * ch, MPROG_DATA * mprg, int mptype, char *argument)
         return;
 }
 
-CMDF do_rpedit(CHAR_DATA * ch, char *argument)
+CMDF do_rpedit(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        MPROG_DATA *mprog, *mprg, *mprg_next = NULL;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        MProgData *mprog, *mprg, *mprg_next = NULL;
         int       value, mptype = 0, cnt;
 
         if (IS_NPC(ch))
@@ -7956,7 +7956,7 @@ CMDF do_rpedit(CHAR_DATA * ch, char *argument)
                         ch->substate = SUB_NONE;
                         return;
                 }
-                mprog = static_cast<MPROG_DATA*>(ch->dest_buf);
+                mprog = static_cast<MProgData*>(ch->dest_buf);
                 if (mprog->comlist)
                         STRFREE(mprog->comlist);
                 mprog->comlist = copy_buffer(ch);
@@ -8139,7 +8139,7 @@ CMDF do_rpedit(CHAR_DATA * ch, char *argument)
                 }
                 if (value == 1)
                 {
-                        CREATE(mprg, MPROG_DATA, 1);
+                        CREATE(mprg, MProgData, 1);
                         ch->in_room->progtypes |= (1 << mptype);
                         mpedit(ch, mprg, mptype, argument);
                         mprg->next = mprog;
@@ -8151,7 +8151,7 @@ CMDF do_rpedit(CHAR_DATA * ch, char *argument)
                 {
                         if (++cnt == value && mprg->next)
                         {
-                                CREATE(mprg_next, MPROG_DATA, 1);
+                                CREATE(mprg_next, MProgData, 1);
                                 ch->in_room->progtypes |= (1 << mptype);
                                 mpedit(ch, mprg_next, mptype, argument);
                                 mprg_next->next = mprg->next;
@@ -8173,7 +8173,7 @@ CMDF do_rpedit(CHAR_DATA * ch, char *argument)
                 }
                 if (mprog)
                         for (; mprog->next; mprog = mprog->next);
-                CREATE(mprg, MPROG_DATA, 1);
+                CREATE(mprg, MProgData, 1);
                 if (mprog)
                         mprog->next = mprg;
                 else
@@ -8187,12 +8187,12 @@ CMDF do_rpedit(CHAR_DATA * ch, char *argument)
         send_to_char("Type 'rpedit ?' for syntax.\n\r", ch);
 }
 
-CMDF do_rdelete(CHAR_DATA * ch, char *argument)
+CMDF do_rdelete(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *roomnum;
-        CHAR_DATA *victim, *vnext;
-        OBJ_DATA *obj, *obj_next;
+        char      arg[MaxInputLength];
+        RoomIndexData *roomnum;
+        CharData *victim, *vnext;
+        ObjData *obj, *obj_next;
         int       room;
 
         argument = one_argument(argument, arg);
@@ -8261,11 +8261,11 @@ CMDF do_rdelete(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_odelete(CHAR_DATA * ch, char *argument)
+CMDF do_odelete(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_INDEX_DATA *obj;
-        OBJ_DATA *temp;
+        char      arg[MaxInputLength];
+        ObjIndexData *obj;
+        ObjData *temp;
 
         argument = one_argument(argument, arg);
 
@@ -8312,11 +8312,11 @@ CMDF do_odelete(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_mdelete(CHAR_DATA * ch, char *argument)
+CMDF do_mdelete(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        MOB_INDEX_DATA *mob;
-        CHAR_DATA *temp;
+        char      arg[MaxInputLength];
+        MobIndexData *mob;
+        CharData *temp;
 
         argument = one_argument(argument, arg);
 
@@ -8365,13 +8365,13 @@ CMDF do_mdelete(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_ropen(CHAR_DATA * ch, char *argument)
+CMDF do_ropen(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *location;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        RoomIndexData *location;
         int       Start, End, vnum;
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -8386,7 +8386,7 @@ CMDF do_ropen(CHAR_DATA * ch, char *argument)
         End = atoi(arg2);
 
         if (Start < 1 || End < Start || Start > End || Start == End
-            || End > MAX_VNUMS)
+            || End > MaxVnums)
         {
                 send_to_char("Invalid range.\n\r", ch);
                 return;
@@ -8454,7 +8454,7 @@ int strlen_color(const char *argument)
 }
 
 
-CMDF do_testtest(CHAR_DATA * ch, char *argument)
+CMDF do_testtest(CharData * ch, char *argument)
 {
         char      arg[MSL];
         char      workbuf[MSL];

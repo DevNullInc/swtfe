@@ -60,7 +60,7 @@ struct temp_greet_ptr {
         GREET_MAP greet_info;
 };
 
-std::string get_char_desc(CHAR_DATA *ch, CHAR_DATA *looker);
-void add_greet_to_char(CHAR_DATA *ch, CHAR_DATA *victim, const std::string& name);
-void fwrite_greet(CHAR_DATA *ch, FILE *fp);
-void fread_greet(CHAR_DATA *ch, FILE *fp);
+std::string get_char_desc(CharData *ch, CharData *looker);
+void add_greet_to_char(CharData *ch, CharData *victim, const std::string& name);
+void fwrite_greet(CharData *ch, FILE *fp);
+void fread_greet(CharData *ch, FILE *fp);

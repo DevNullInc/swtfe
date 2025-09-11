@@ -74,5 +74,5 @@ constexpr std::string_view OOCHISTORY_FILE = "../system/oochistory.dat"; // For 
 
 // warmboot code
 void hotboot_recover();
-void load_world(CHAR_DATA* ch);
+void load_world(CharData* ch);
 void crash_hotboot();

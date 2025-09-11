@@ -54,37 +54,37 @@
 
 /* Externals */
 extern int top_reset;
-char     *sprint_reset args((CHAR_DATA * ch, RESET_DATA * pReset,
+char     *sprint_reset args((CharData * ch, ResetData * pReset,
                              sh_int num, bool rlist));
-RESET_DATA *parse_reset args((AREA_DATA * tarea, char *argument,
-                              CHAR_DATA * ch));
+ResetData *parse_reset args((AreaData * tarea, char *argument,
+                              CharData * ch));
 int get_wearloc args((char *type));
 int get_trapflag args((char *flag));
 int get_exflag args((char *flag));
 int get_rflag args((char *flag));
 
-bool is_room_reset args((RESET_DATA * pReset, ROOM_INDEX_DATA * aRoom,
-                         AREA_DATA * pArea));
-void delete_reset args((AREA_DATA * pArea, RESET_DATA * pReset));
+bool is_room_reset args((ResetData * pReset, RoomIndexData * aRoom,
+                         AreaData * pArea));
+void delete_reset args((AreaData * pArea, ResetData * pReset));
 
-#define RID ROOM_INDEX_DATA
-RID      *find_room args((CHAR_DATA * ch, char *argument,
-                          ROOM_INDEX_DATA * pRoom));
+#define RID RoomIndexData
+RID      *find_room args((CharData * ch, char *argument,
+                          RoomIndexData * pRoom));
 #undef RID
-void edit_reset args((CHAR_DATA * ch, char *argument, AREA_DATA * pArea,
-                      ROOM_INDEX_DATA * aRoom));
-#define RD RESET_DATA
-RD       *find_reset args((AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom,
+void edit_reset args((CharData * ch, char *argument, AreaData * pArea,
+                      RoomIndexData * aRoom));
+#define RD ResetData
+RD       *find_reset args((AreaData * pArea, RoomIndexData * pRoom,
                            int num));
 #undef RD
-void list_resets args((CHAR_DATA * ch, AREA_DATA * pArea,
-                       ROOM_INDEX_DATA * pRoom, int start, int end));
+void list_resets args((CharData * ch, AreaData * pArea,
+                       RoomIndexData * pRoom, int start, int end));
 
 
 
-RESET_DATA *find_reset(AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom, int numb)
+ResetData *find_reset(AreaData * pArea, RoomIndexData * pRoom, int numb)
 {
-        RESET_DATA *pReset;
+        ResetData *pReset;
         int       num = 0;
 
         for (pReset = pArea->first_reset; pReset; pReset = pReset->next)
@@ -94,11 +94,11 @@ RESET_DATA *find_reset(AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom, int numb)
 }
 
 /* This is one loopy function.  Ugh. -- Altrag */
-bool is_room_reset(RESET_DATA * pReset, ROOM_INDEX_DATA * aRoom,
-                   AREA_DATA * pArea)
+bool is_room_reset(ResetData * pReset, RoomIndexData * aRoom,
+                   AreaData * pArea)
 {
-        ROOM_INDEX_DATA *pRoom;
-        RESET_DATA *reset;
+        RoomIndexData *pRoom;
+        ResetData *reset;
         int       pr;
 
         if (!aRoom)
@@ -178,10 +178,10 @@ bool is_room_reset(RESET_DATA * pReset, ROOM_INDEX_DATA * aRoom,
         return FALSE;
 }
 
-ROOM_INDEX_DATA *find_room(CHAR_DATA * ch, char *argument,
-                           ROOM_INDEX_DATA * pRoom)
+RoomIndexData *find_room(CharData * ch, char *argument,
+                           RoomIndexData * pRoom)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         if (pRoom)
                 return pRoom;
@@ -211,10 +211,10 @@ do { \
   reset = rprev; \
   continue; \
 } while(0)
-void delete_reset(AREA_DATA * pArea, RESET_DATA * pReset)
+void delete_reset(AreaData * pArea, ResetData * pReset)
 {
-        RESET_DATA *reset;
-        RESET_DATA *reset_prev;
+        ResetData *reset;
+        ResetData *reset_prev;
 
         if (pReset->command == 'M')
         {
@@ -285,10 +285,10 @@ void delete_reset(AREA_DATA * pArea, RESET_DATA * pReset)
 
 #undef DEL_RESET
 
-RESET_DATA *find_oreset(CHAR_DATA * ch, AREA_DATA * pArea,
-                        ROOM_INDEX_DATA * pRoom, char *name)
+ResetData *find_oreset(CharData * ch, AreaData * pArea,
+                        RoomIndexData * pRoom, char *name)
 {
-        RESET_DATA *reset;
+        ResetData *reset;
 
         if (!*name)
         {
@@ -314,9 +314,9 @@ RESET_DATA *find_oreset(CHAR_DATA * ch, AREA_DATA * pArea,
         }
         else
         {
-                char      arg[MAX_INPUT_LENGTH];
+                char      arg[MaxInputLength];
                 int       cnt = 0, num = number_argument(name, arg);
-                OBJ_INDEX_DATA *pObjTo = NULL;
+                ObjIndexData *pObjTo = NULL;
 
                 for (reset = pArea->first_reset; reset; reset = reset->next)
                 {
@@ -345,10 +345,10 @@ RESET_DATA *find_oreset(CHAR_DATA * ch, AREA_DATA * pArea,
         return reset;
 }
 
-RESET_DATA *find_mreset(CHAR_DATA * ch, AREA_DATA * pArea,
-                        ROOM_INDEX_DATA * pRoom, char *name)
+ResetData *find_mreset(CharData * ch, AreaData * pArea,
+                        RoomIndexData * pRoom, char *name)
 {
-        RESET_DATA *reset;
+        ResetData *reset;
 
         if (!*name)
         {
@@ -371,9 +371,9 @@ RESET_DATA *find_mreset(CHAR_DATA * ch, AREA_DATA * pArea,
         }
         else
         {
-                char      arg[MAX_INPUT_LENGTH];
+                char      arg[MaxInputLength];
                 int       cnt = 0, num = number_argument(name, arg);
-                MOB_INDEX_DATA *pMob = NULL;
+                MobIndexData *pMob = NULL;
 
                 for (reset = pArea->first_reset; reset; reset = reset->next)
                 {
@@ -399,15 +399,15 @@ RESET_DATA *find_mreset(CHAR_DATA * ch, AREA_DATA * pArea,
         return reset;
 }
 
-void edit_reset(CHAR_DATA * ch, char *argument, AREA_DATA * pArea,
-                ROOM_INDEX_DATA * aRoom)
+void edit_reset(CharData * ch, char *argument, AreaData * pArea,
+                RoomIndexData * aRoom)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        RESET_DATA *pReset = NULL;
-        RESET_DATA *reset = NULL;
-        MOB_INDEX_DATA *pMob = NULL;
-        ROOM_INDEX_DATA *pRoom;
-        OBJ_INDEX_DATA *pObj;
+        char      arg[MaxInputLength];
+        ResetData *pReset = NULL;
+        ResetData *reset = NULL;
+        MobIndexData *pMob = NULL;
+        RoomIndexData *pRoom;
+        ObjIndexData *pObj;
         int       num = 0;
         int       vnum;
         char     *origarg = argument;
@@ -850,7 +850,7 @@ void edit_reset(CHAR_DATA * ch, char *argument, AREA_DATA * pArea,
         }
         if (!str_cmp(arg, "trap"))
         {
-                char      oname[MAX_INPUT_LENGTH];
+                char      oname[MaxInputLength];
                 int       chrg, value, extra = 0;
                 bool      isobj;
 
@@ -934,7 +934,7 @@ void edit_reset(CHAR_DATA * ch, char *argument, AREA_DATA * pArea,
         {
                 int       (*flfunc) (char *type);
                 int       flags = 0;
-                char      option[MAX_INPUT_LENGTH];
+                char      option[MaxInputLength];
                 char     *parg;
 
                 argument = one_argument(argument, option);
@@ -1087,20 +1087,20 @@ void edit_reset(CHAR_DATA * ch, char *argument, AREA_DATA * pArea,
         return;
 }
 
-CMDF do_reset(CHAR_DATA * ch, char *argument)
+CMDF do_reset(CharData * ch, char *argument)
 {
-        AREA_DATA *pArea = NULL;
-        char      arg[MAX_INPUT_LENGTH];
+        AreaData *pArea = NULL;
+        char      arg[MaxInputLength];
         char     *parg;
 
         parg = one_argument(argument, arg);
         if (ch->substate == SUB_REPEATCMD)
         {
-                pArea = (AREA_DATA *) ch->dest_buf;
+                pArea = (AreaData *) ch->dest_buf;
                 if (pArea && pArea != ch->pcdata->area
                     && pArea != ch->in_room->area)
                 {
-                        AREA_DATA *tmp;
+                        AreaData *tmp;
 
                         for (tmp = first_build; tmp; tmp = tmp->next)
                                 if (tmp == pArea)
@@ -1134,7 +1134,7 @@ CMDF do_reset(CHAR_DATA * ch, char *argument)
                         return;
                 }
         }
-        if (!pArea && get_trust(ch) > LEVEL_GOD)
+        if (!pArea && get_trust(ch) > LevelGod)
         {
                 char      fname[80];
 
@@ -1165,13 +1165,13 @@ CMDF do_reset(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_rreset(CHAR_DATA * ch, char *argument)
+CMDF do_rreset(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *pRoom;
+        RoomIndexData *pRoom;
 
         if (ch->substate == SUB_REPEATCMD)
         {
-                pRoom = (ROOM_INDEX_DATA *) ch->dest_buf;
+                pRoom = (RoomIndexData *) ch->dest_buf;
                 if (!pRoom)
                 {
                         send_to_char
@@ -1192,9 +1192,9 @@ CMDF do_rreset(CHAR_DATA * ch, char *argument)
         return;
 }
 
-void add_obj_reset(AREA_DATA * pArea, char cm, OBJ_DATA * obj, int v2, int v3)
+void add_obj_reset(AreaData * pArea, char cm, ObjData * obj, int v2, int v3)
 {
-        OBJ_DATA *inobj;
+        ObjData *inobj;
         static int iNest;
 
         if ((cm == 'O' || cm == 'P')
@@ -1226,10 +1226,10 @@ void add_obj_reset(AREA_DATA * pArea, char cm, OBJ_DATA * obj, int v2, int v3)
         return;
 }
 
-void instaroom(AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom, bool dodoors)
+void instaroom(AreaData * pArea, RoomIndexData * pRoom, bool dodoors)
 {
-        CHAR_DATA *rch;
-        OBJ_DATA *obj;
+        CharData *rch;
+        ObjData *obj;
 
         for (rch = pRoom->first_person; rch; rch = rch->next_in_room)
         {
@@ -1254,7 +1254,7 @@ void instaroom(AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom, bool dodoors)
         }
         if (dodoors)
         {
-                EXIT_DATA *pexit;
+                ExitData *pexit;
 
                 for (pexit = pRoom->first_exit; pexit; pexit = pexit->next)
                 {
@@ -1276,9 +1276,9 @@ void instaroom(AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom, bool dodoors)
         return;
 }
 
-void wipe_resets(AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom)
+void wipe_resets(AreaData * pArea, RoomIndexData * pRoom)
 {
-        RESET_DATA *pReset;
+        ResetData *pReset;
 
         for (pReset = pArea->first_reset; pReset;)
         {
@@ -1289,7 +1289,7 @@ void wipe_resets(AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom)
                          * Resets always go forward, so we can safely use the previous reset,
                          * providing it exists, or first_reset if it doesnt.  -- Altrag 
                          */
-                        RESET_DATA *prev = pReset->prev;
+                        ResetData *prev = pReset->prev;
 
                         delete_reset(pArea, pReset);
                         pReset = (prev ? prev->next : pArea->first_reset);
@@ -1300,14 +1300,14 @@ void wipe_resets(AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom)
         return;
 }
 
-CMDF do_instaroom(CHAR_DATA * ch, char *argument)
+CMDF do_instaroom(CharData * ch, char *argument)
 {
-        AREA_DATA *pArea;
-        ROOM_INDEX_DATA *pRoom;
+        AreaData *pArea;
+        RoomIndexData *pRoom;
         bool      dodoors;
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
-        if (IS_NPC(ch) || get_trust(ch) < LEVEL_SAVIOR || !ch->pcdata ||
+        if (IS_NPC(ch) || get_trust(ch) < LevelSavior || !ch->pcdata ||
             !ch->pcdata->area)
         {
                 send_to_char
@@ -1328,7 +1328,7 @@ CMDF do_instaroom(CHAR_DATA * ch, char *argument)
         }
         if (!can_rmodify(ch, pRoom))
                 return;
-        if (pRoom->area != pArea && get_trust(ch) < LEVEL_GREATER)
+        if (pRoom->area != pArea && get_trust(ch) < LevelGreater)
         {
                 send_to_char("You cannot reset that room.\n\r", ch);
                 return;
@@ -1339,14 +1339,14 @@ CMDF do_instaroom(CHAR_DATA * ch, char *argument)
         send_to_char("Room resets installed.\n\r", ch);
 }
 
-CMDF do_instazone(CHAR_DATA * ch, char *argument)
+CMDF do_instazone(CharData * ch, char *argument)
 {
-        AREA_DATA *pArea;
+        AreaData *pArea;
         int       vnum;
-        ROOM_INDEX_DATA *pRoom;
+        RoomIndexData *pRoom;
         bool      dodoors;
 
-        if (IS_NPC(ch) || get_trust(ch) < LEVEL_SAVIOR || !ch->pcdata ||
+        if (IS_NPC(ch) || get_trust(ch) < LevelSavior || !ch->pcdata ||
             !ch->pcdata->area)
         {
                 send_to_char
@@ -1371,14 +1371,14 @@ CMDF do_instazone(CHAR_DATA * ch, char *argument)
         return;
 }
 
-int generate_itemlevel(AREA_DATA * pArea, OBJ_INDEX_DATA * pObjIndex)
+int generate_itemlevel(AreaData * pArea, ObjIndexData * pObjIndex)
 {
         int       olevel;
         int       min = UMAX(pArea->low_soft_range, 1);
         int       max = UMIN(pArea->hi_soft_range, min + 15);
 
         if (pObjIndex->level > 0)
-                olevel = UMIN(pObjIndex->level, MAX_LEVEL);
+                olevel = UMIN(pObjIndex->level, MaxLevel);
         else
                 switch (pObjIndex->item_type)
                 {
@@ -1407,21 +1407,21 @@ int generate_itemlevel(AREA_DATA * pArea, OBJ_INDEX_DATA * pObjIndex)
 /*
  * Reset one area.
  */
-void reset_area(AREA_DATA * pArea)
+void reset_area(AreaData * pArea)
 {
-        RESET_DATA *pReset;
-        CHAR_DATA *mob;
-        OBJ_DATA *obj;
-        OBJ_DATA *lastobj;
-        ROOM_INDEX_DATA *pRoomIndex;
-        MOB_INDEX_DATA *pMobIndex;
-        OBJ_INDEX_DATA *pObjIndex;
-        OBJ_INDEX_DATA *pObjToIndex;
-        EXIT_DATA *pexit;
-        OBJ_DATA *to_obj;
+        ResetData *pReset;
+        CharData *mob;
+        ObjData *obj;
+        ObjData *lastobj;
+        RoomIndexData *pRoomIndex;
+        MobIndexData *pMobIndex;
+        ObjIndexData *pObjIndex;
+        ObjIndexData *pObjToIndex;
+        ExitData *pexit;
+        ObjData *to_obj;
         int       level = 0;
         int      *plc = NULL;
-        EXT_BV   *xplc;
+        ExtBV   *xplc;
         INSTALLATION_DATA *installation;
 
         if (!pArea)
@@ -1467,7 +1467,7 @@ void reset_area(AREA_DATA * pArea)
                         }
                         mob = create_mobile(pMobIndex);
                         {
-                                ROOM_INDEX_DATA *pRoomPrev =
+                                RoomIndexData *pRoomPrev =
                                         get_room_index(pReset->arg3 - 1);
 
                                 if (pRoomPrev
@@ -1479,7 +1479,7 @@ void reset_area(AREA_DATA * pArea)
                                 SET_BIT(mob->affected_by, AFF_INFRARED);
                         char_to_room(mob, pRoomIndex);
                         economize_mobgold(mob);
-                        level = URANGE(0, mob->top_level - 2, LEVEL_AVATAR);
+                        level = URANGE(0, mob->top_level - 2, LevelAvatar);
                         if (IS_SET(mob->act, ACT_CITIZEN) && pArea->planet)
                                 pArea->planet->population++;
                         if ((installation =
@@ -1510,7 +1510,7 @@ void reset_area(AREA_DATA * pArea)
                         else
                                 obj = create_object(pObjIndex,
                                                     number_fuzzy(level));
-                        obj->level = URANGE(0, obj->level, LEVEL_AVATAR);
+                        obj->level = URANGE(0, obj->level, LevelAvatar);
                         obj = obj_to_char(obj, mob);
                         if (pReset->command == 'E')
                         {
@@ -1547,7 +1547,7 @@ void reset_area(AREA_DATA * pArea)
                         obj = create_object(pObjIndex,
                                             number_fuzzy(generate_itemlevel
                                                          (pArea, pObjIndex)));
-                        obj->level = UMIN(obj->level, LEVEL_AVATAR);
+                        obj->level = UMIN(obj->level, LevelAvatar);
                         obj->cost = 0;
                         obj_to_room(obj, pRoomIndex);
                         lastobj = obj;
@@ -1603,7 +1603,7 @@ void reset_area(AREA_DATA * pArea)
                                                          (generate_itemlevel
                                                           (pArea, pObjIndex),
                                                           to_obj->level)));
-                        obj->level = UMIN(obj->level, LEVEL_AVATAR);
+                        obj->level = UMIN(obj->level, LevelAvatar);
                         obj_to_obj(obj, to_obj);
                         break;
 
@@ -1613,7 +1613,7 @@ void reset_area(AREA_DATA * pArea)
                                 /*
                                  * We need to preserve obj for future 'T' and 'H' checks 
                                  */
-                                OBJ_DATA *pobj;
+                                ObjData *pobj;
 
                                 if (pReset->arg3 > 0)
                                 {
@@ -1814,15 +1814,15 @@ void reset_area(AREA_DATA * pArea)
         return;
 }
 
-void list_resets(CHAR_DATA * ch, AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom,
+void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                  int start, int end)
 {
-        RESET_DATA *pReset;
-        ROOM_INDEX_DATA *room;
-        MOB_INDEX_DATA *mob;
-        OBJ_INDEX_DATA *obj, *obj2;
-        OBJ_INDEX_DATA *lastobj;
-        RESET_DATA *lo_reset;
+        ResetData *pReset;
+        RoomIndexData *room;
+        MobIndexData *mob;
+        ObjIndexData *obj, *obj2;
+        ObjIndexData *lastobj;
+        ResetData *lo_reset;
         bool      found;
         int       num = 0;
         const char *rname, *mname = NULL, *oname = NULL;
@@ -1934,7 +1934,7 @@ void list_resets(CHAR_DATA * ch, AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom,
                         else
                         {
                                 int       iNest;
-                                RESET_DATA *reset;
+                                ResetData *reset;
 
                                 reset = lo_reset->next;
                                 for (iNest = 0; iNest < pReset->extra;
@@ -2077,7 +2077,7 @@ void list_resets(CHAR_DATA * ch, AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom,
                                 case BIT_RESET_MOBILE:
                                         if (pReset->arg1 > 0)
                                         {
-                                                MOB_INDEX_DATA *mob2;
+                                                MobIndexData *mob2;
 
                                                 if (!
                                                     (mob2 =
@@ -2180,9 +2180,9 @@ void list_resets(CHAR_DATA * ch, AREA_DATA * pArea, ROOM_INDEX_DATA * pRoom,
 
 /* Setup put nesting levels, regardless of whether or not the resets will
    actually reset, or if they're bugged. */
-void renumber_put_resets(AREA_DATA * pArea)
+void renumber_put_resets(AreaData * pArea)
 {
-        RESET_DATA *pReset, *lastobj = NULL;
+        ResetData *pReset, *lastobj = NULL;
 
         for (pReset = pArea->first_reset; pReset; pReset = pReset->next)
         {
@@ -2215,11 +2215,11 @@ void renumber_put_resets(AREA_DATA * pArea)
 /*
  * Create a new reset (for online building)			-Thoric
  */
-RESET_DATA *make_reset(char letter, int extra, int arg1, int arg2, int arg3)
+ResetData *make_reset(char letter, int extra, int arg1, int arg2, int arg3)
 {
-        RESET_DATA *pReset;
+        ResetData *pReset;
 
-        CREATE(pReset, RESET_DATA, 1);
+        CREATE(pReset, ResetData, 1);
         pReset->command = letter;
         pReset->extra = extra;
         pReset->arg1 = arg1;
@@ -2232,10 +2232,10 @@ RESET_DATA *make_reset(char letter, int extra, int arg1, int arg2, int arg3)
 /*
  * Add a reset to an area				-Thoric
  */
-RESET_DATA *add_reset(AREA_DATA * tarea, char letter, int extra, int arg1,
+ResetData *add_reset(AreaData * tarea, char letter, int extra, int arg1,
                       int arg2, int arg3)
 {
-        RESET_DATA *pReset;
+        ResetData *pReset;
 
         if (!tarea)
         {
@@ -2272,10 +2272,10 @@ RESET_DATA *add_reset(AREA_DATA * tarea, char letter, int extra, int arg1,
 /*
  * Place a reset into an area, insert sorting it		-Thoric
  */
-RESET_DATA *place_reset(AREA_DATA * tarea, char letter, int extra, int arg1,
+ResetData *place_reset(AreaData * tarea, char letter, int extra, int arg1,
                         int arg2, int arg3)
 {
-        RESET_DATA *pReset, *tmp, *tmp2;
+        ResetData *pReset, *tmp, *tmp2;
 
         if (!tarea)
         {

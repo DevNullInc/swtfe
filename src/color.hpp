@@ -69,21 +69,21 @@
 
 #define SAMSONCOLOR /* To interact with other snippets */
 #ifndef MSL
-#define MSL MAX_STRING_LENGTH
+#define MSL MaxStringLength
 #endif
 #ifndef MIL
-#define MIL MAX_INPUT_LENGTH
+#define MIL MaxInputLength
 #endif
 
 
-void reset_colors(CHAR_DATA *ch);
-void reset_colors(std::shared_ptr<CHAR_DATA> ch);
-const char *color_str(sh_int AType, CHAR_DATA *ch);
-std::string color_str(sh_int AType, std::shared_ptr<CHAR_DATA> ch);
+void reset_colors(CharData *ch);
+void reset_colors(std::shared_ptr<CharData> ch);
+const char *color_str(sh_int AType, CharData *ch);
+std::string color_str(sh_int AType, std::shared_ptr<CharData> ch);
 const char *const_color_align(const char *argument, int size, int align);
 std::string const_color_align(std::string_view argument, int size, int align);
-void send_to_desc_color(const char *txt, DESCRIPTOR_DATA *d);
-void send_to_desc_color(std::string_view txt, std::shared_ptr<DESCRIPTOR_DATA> d);
+void send_to_desc_color(const char *txt, DescriptorData *d);
+void send_to_desc_color(std::string_view txt, std::shared_ptr<DescriptorData> d);
 
 
 /*

@@ -111,7 +111,7 @@ SHUTTLE_DATA *make_shuttle(char *filename, char *name)
         return shuttle;
 }
 
-CMDF do_showshuttle(CHAR_DATA * ch, char *argument)
+CMDF do_showshuttle(CharData * ch, char *argument)
 {
         STOP_DATA *stop = NULL;
         int       count = 0;
@@ -165,10 +165,10 @@ CMDF do_showshuttle(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_makeshuttle(CHAR_DATA * ch, char *argument)
+CMDF do_makeshuttle(CharData * ch, char *argument)
 {
         SHUTTLE_DATA *shuttle;
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         argument = one_argument(argument, arg);
 
@@ -186,7 +186,7 @@ CMDF do_makeshuttle(CHAR_DATA * ch, char *argument)
                 send_to_char("Shuttle Failed to create", ch);
 }
 
-CMDF do_setshuttle(CHAR_DATA * ch, char *argument)
+CMDF do_setshuttle(CharData * ch, char *argument)
 {
         SHUTTLE_DATA *shuttle;
         char      arg1[MIL];
@@ -586,7 +586,7 @@ void update_shuttle()
                                 for (room = shuttle->start_room;
                                      room <= shuttle->end_room; ++room)
                                 {
-                                        ROOM_INDEX_DATA *iRoom =
+                                        RoomIndexData *iRoom =
                                                 get_room_index(room);
                                         echo_to_room(AT_CYAN, iRoom, buf);
                                         if (shuttle->type != SHUTTLE_TURBOCAR)
@@ -675,7 +675,7 @@ void update_shuttle()
                                 for (room = shuttle->start_room;
                                      room <= shuttle->end_room; ++room)
                                 {
-                                        ROOM_INDEX_DATA *iRoom =
+                                        RoomIndexData *iRoom =
                                                 get_room_index(room);
                                         echo_to_room(AT_CYAN, iRoom, buf);
                                         if (shuttle->type != SHUTTLE_TURBOCAR)
@@ -729,7 +729,7 @@ void update_shuttle()
         return;
 }
 
-void show_shuttles_to_char(CHAR_DATA * ch, SHUTTLE_DATA * shuttle)
+void show_shuttles_to_char(CharData * ch, SHUTTLE_DATA * shuttle)
 {
         while (shuttle)
         {
@@ -761,7 +761,7 @@ void show_shuttles_to_char(CHAR_DATA * ch, SHUTTLE_DATA * shuttle)
 
 bool extract_shuttle(SHUTTLE_DATA * shuttle)
 {
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
 
         if ((room = shuttle->in_room) != NULL)
         {
@@ -772,7 +772,7 @@ bool extract_shuttle(SHUTTLE_DATA * shuttle)
         return TRUE;
 }
 
-bool insert_shuttle(SHUTTLE_DATA * shuttle, ROOM_INDEX_DATA * room)
+bool insert_shuttle(SHUTTLE_DATA * shuttle, RoomIndexData * room)
 {
         if (shuttle == NULL)
         {
@@ -1134,7 +1134,7 @@ void free_shuttle(SHUTTLE_DATA * shuttle)
         return;
 }
 
-SHUTTLE_DATA *shuttle_in_room(ROOM_INDEX_DATA * room, char *name)
+SHUTTLE_DATA *shuttle_in_room(RoomIndexData * room, char *name)
 {
         SHUTTLE_DATA *shuttle;
 

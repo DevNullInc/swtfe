@@ -259,7 +259,7 @@ void save_dns(void)
  */
 bool read_from_dns(int fd, char *buffer)
 {
-        static char inbuf[MAX_STRING_LENGTH * 2];
+        static char inbuf[MaxStringLength * 2];
         int       iStart, i, j, k;
 
         /*
@@ -344,9 +344,9 @@ bool read_from_dns(int fd, char *buffer)
 /*
  * Process input that we got from resolve_dns.
  */
-void process_dns(DESCRIPTOR_DATA * d)
+void process_dns(DescriptorData * d)
 {
-        char      address[MAX_INPUT_LENGTH];
+        char      address[MaxInputLength];
         int       status;
 
         address[0] = '\0';
@@ -387,7 +387,7 @@ void process_dns(DESCRIPTOR_DATA * d)
 }
 
 /* DNS Resolver hook. Code written by Trax of Forever's End */
-void resolve_dns(DESCRIPTOR_DATA * d, long ip)
+void resolve_dns(DescriptorData * d, long ip)
 {
         int       fds[2];
         pid_t     pid;
@@ -452,7 +452,7 @@ void resolve_dns(DESCRIPTOR_DATA * d, long ip)
 }
 
 
-void do_cache(CHAR_DATA *ch, char *argument)
+void do_cache(CharData *ch, char *argument)
 {
         // Only allow access for authorized users (immortal/admin)
         if (!IS_IMMORTAL(ch)) {

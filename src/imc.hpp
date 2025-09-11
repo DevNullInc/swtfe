@@ -145,7 +145,7 @@ using IMC_HELP_DATA = imc_help_table;
 using IMC_ALIAS = imc_cmd_alias;
 using IMC_PHANDLER = imc_packet_handler;
 
-using IMC_FUN = void(CHAR_DATA*, const std::string&);
+using IMC_FUN = void(CharData*, const std::string&);
 using PACKET_FUN = void(IMC_PACKET*, const std::string&);
 
 extern REMOTEINFO *first_rinfo;
@@ -331,14 +331,14 @@ struct imc_packet_handler
    std::string name;
 };
 
-bool imc_command_hook(CHAR_DATA* ch, const std::string& command, const std::string& argument);
+bool imc_command_hook(CharData* ch, const std::string& command, const std::string& argument);
 void imc_hotboot();
 void imc_startup(bool force, int desc, bool connected);
 void imc_shutdown(bool reconnect);
-void imc_initchar(CHAR_DATA* ch);
-bool imc_loadchar(CHAR_DATA* ch, FILE* fp, const std::string& word);
-void imc_savechar(CHAR_DATA* ch, FILE* fp);
-void imc_freechardata(CHAR_DATA* ch);
+void imc_initchar(CharData* ch);
+bool imc_loadchar(CharData* ch, FILE* fp, const std::string& word);
+void imc_savechar(CharData* ch, FILE* fp);
+void imc_freechardata(CharData* ch);
 void imc_loop();
 IMC_CHANNEL* imc_findchannel(const std::string& name); // Externalized for comm.c spamguard checks
 void imc_register_packet_handler(const std::string& name, PACKET_FUN* func);
@@ -346,8 +346,8 @@ std::string imc_funcname(IMC_FUN* func);
 IMC_FUN* imc_function(const std::string& func);
 
 #if defined(_DISKIO_H_)
-void imc_load_pfile(CHAR_DATA* ch, const std::string& tag, int num, const std::string& line);
-void imc_save_pfile(CHAR_DATA* ch, FBFILE* fp);
+void imc_load_pfile(CharData* ch, const std::string& tag, int num, const std::string& line);
+void imc_save_pfile(CharData* ch, FBFILE* fp);
 #endif
 
 #endif

@@ -64,8 +64,8 @@
 
 /* Globals */
 time_t    pfile_time;
-HOUR_MIN_SEC set_pfile_time_struct;
-HOUR_MIN_SEC *set_pfile_time;
+HourMinSec set_pfile_time_struct;
+HourMinSec *set_pfile_time;
 struct tm *new_pfile_time;
 struct tm new_pfile_struct;
 time_t    new_pfile_time_t;
@@ -73,7 +73,7 @@ sh_int    num_pfiles;   /* Count up number of pfiles */
 char     *smash_extension args((char *filename));
 bool notify_deletion args((char *email));
 void      send_email
-args((char *subject, char *email, char *message, CHAR_DATA * ch));
+args((char *subject, char *email, char *message, CharData * ch));
 
 
 void save_timedata(void)
@@ -309,7 +309,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
          */
         if (clan)
         {
-                CLAN_DATA *guild;
+                ClanData *guild;
 
                 if ((guild = get_clan(clan)) != NULL)
                 {
@@ -327,7 +327,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
         if (count == FALSE && !IS_SET(pact, PCFLAG_EXEMPT))
         {
                 if ((level < 10 && tdiff > sysdata.newbie_purge)
-                    || (level < LEVEL_IMMORTAL
+                    || (level < LevelImmortal
                         && tdiff > sysdata.regular_purge))
                 {
                         if (unlink(fname) == -1)
@@ -383,9 +383,9 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
                                  */
                                 if (account)
                                 {
-                                        CHAR_DATA *ch;
+                                        CharData *ch;
 
-                                        CREATE(ch, CHAR_DATA, 1);
+                                        CREATE(ch, CharData, 1);
                                         ch->name = name;
                                         if (!del_from_account(account, ch))
                                         {
@@ -416,7 +416,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
 #endif
                                 if (clan != NULL)
                                 {
-                                        CLAN_DATA *guild = get_clan(clan);
+                                        ClanData *guild = get_clan(clan);
 
                                         if (guild != NULL)
                                         {
@@ -476,7 +476,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
 #endif
         if (clan != NULL)
         {
-                CLAN_DATA *guild = get_clan(clan);
+                ClanData *guild = get_clan(clan);
 
                 if (guild != NULL)
                 {
@@ -542,7 +542,7 @@ void pfile_scan(bool count)
 {
         DIR      *dp;
         struct dirent *dentry;
-        CLAN_DATA *clan;
+        ClanData *clan;
         char      directory_name[100];
         char      player_name[MIL];
         char      buf[MSL];
@@ -676,7 +676,7 @@ void pfile_scan(bool count)
         return;
 }
 
-CMDF do_pfiles(CHAR_DATA * ch, char *argument)
+CMDF do_pfiles(CharData * ch, char *argument)
 {
         char      buf[MSL];
 
@@ -791,7 +791,7 @@ void check_pfiles(time_t reset)
 
 char     *smash_extension(char *str)
 {
-        static char ret[MAX_STRING_LENGTH];
+        static char ret[MaxStringLength];
         char     *retptr;
 
         retptr = ret;

@@ -70,25 +70,25 @@
 #include "space2.hpp"
 
 // Constants
-#define MAX_NEST          100
+#define MaxNest          100
 #define FILENAME_SIZE     256
 #define DIRNAME_SIZE      100
 #define BUFFER_SIZE       100
 
 // Global variables
-static OBJ_DATA *rgObjNest[MAX_NEST];
+static ObjData *rgObjNest[MaxNest];
 
 // External references
 extern int port;    /* Port number to be used       */
 extern int control, control2, conclient, conjava;
-extern ROOM_INDEX_DATA *room_index_hash[MAX_KEY_HASH];
+extern RoomIndexData *room_index_hash[MAX_KEY_HASH];
 
 // Function prototypes
-bool flush_buffer args((DESCRIPTOR_DATA * d, bool fPrompt));
+bool flush_buffer args((DescriptorData * d, bool fPrompt));
 void save_sysdata args((SYSTEM_DATA sys));
 void hotboot(bool debug, bool save);
 bool is_area_inprogress args((void));
-void init_descriptor args((DESCRIPTOR_DATA * dnew, int desc));
+void init_descriptor args((DescriptorData * dnew, int desc));
 bool write_to_descriptor(int desc, char *txt, int length);
 
 #ifdef MCCP
@@ -102,7 +102,7 @@ bool write_to_descriptor_old(int desc, char *txt, int length);
 /*
  * Save the world's ship files
  */
-void write_ship(FILE * fp, SHIP_DATA * ship)
+void write_ship(FILE * fp, ShipData * ship)
 {
 #ifndef HOTBOOT_SHIPS
         return;
@@ -264,9 +264,9 @@ void save_oochistory(void)
         return;
 }
 
-SHIP_DATA *load_ship(FILE * fp)
+ShipData *load_ship(FILE * fp)
 {
-        SHIP_DATA *ship = NULL;
+        ShipData *ship = NULL;
         const char *word;
         bool      fMatch;
 
@@ -280,7 +280,7 @@ SHIP_DATA *load_ship(FILE * fp)
         if (!str_cmp(word, "SHIPFNAME"))
         {
                 char     *name = fread_string_nohash(fp);   /* is this right? - Gavin */
-                SHIP_DATA *temp_ship = NULL;
+                ShipData *temp_ship = NULL;
 
                 for (temp_ship = first_ship; temp_ship;
                      temp_ship = temp_ship->next)
@@ -423,7 +423,7 @@ SHIP_DATA *load_ship(FILE * fp)
                         if (!str_cmp(word, "Starsystem"))
                         {
                                 char     *star_name = fread_string_nohash(fp);
-                                SPACE_DATA *starsystem =
+                                SpaceData *starsystem =
                                         starsystem_from_name(star_name);
                                 DISPOSE(star_name);
                                 fMatch = TRUE;
@@ -464,10 +464,10 @@ SHIP_DATA *load_ship(FILE * fp)
 // Mobile Save/Load Functions
 // =============================================================================
 
-void save_mobile(FILE * fp, CHAR_DATA * mob)
+void save_mobile(FILE * fp, CharData * mob)
 {
-        AFFECT_DATA *paf;
-        SKILLTYPE *skill = NULL;
+        AffectData *paf;
+        SkillType *skill = NULL;
 
         if (!IS_NPC(mob) || !fp)
                 return;
@@ -547,7 +547,7 @@ void save_mobile(FILE * fp, CHAR_DATA * mob)
 // World State Save/Load Functions
 // =============================================================================
 
-void save_world(CHAR_DATA * ch)
+void save_world(CharData * ch)
 {
         FILE     *mobfp;
         FILE     *shipfp;
@@ -555,8 +555,8 @@ void save_world(CHAR_DATA * ch)
         int       mobfile = 0;
         int       shipfile = 0;
         char      filename[FILENAME_SIZE];
-        CHAR_DATA *rch;
-        ROOM_INDEX_DATA *pRoomIndex;
+        CharData *rch;
+        RoomIndexData *pRoomIndex;
         int       iHash;
 
         ch = NULL;
@@ -636,7 +636,7 @@ void save_world(CHAR_DATA * ch)
 #ifdef HOTBOOT_SHIPS
         if (shipfile)
         {
-                SHIP_DATA *ship = NULL;
+                ShipData *ship = NULL;
 
                 for (ship = first_ship; ship; ship = ship->next)
                 {
@@ -657,13 +657,13 @@ void save_world(CHAR_DATA * ch)
         return;
 }
 
-CHAR_DATA *load_mobile(FILE * fp)
+CharData *load_mobile(FILE * fp)
 {
-        CHAR_DATA *mob = NULL;
+        CharData *mob = NULL;
         const char *word;
         bool      fMatch;
         int       inroom = 0;
-        ROOM_INDEX_DATA *pRoomIndex = NULL;
+        RoomIndexData *pRoomIndex = NULL;
 
         word = feof(fp) ? "EndMobile" : fread_word(fp);
         if (!str_cmp(word, "Vnum"))
@@ -730,9 +730,9 @@ CHAR_DATA *load_mobile(FILE * fp)
                         if (!str_cmp(word, "Affect")
                             || !str_cmp(word, "AffectData"))
                         {
-                                AFFECT_DATA *paf;
+                                AffectData *paf;
 
-                                CREATE(paf, AFFECT_DATA, 1);
+                                CREATE(paf, AffectData, 1);
                                 if (!str_cmp(word, "Affect"))
                                 {
                                         paf->type = fread_number(fp);
@@ -854,7 +854,7 @@ CHAR_DATA *load_mobile(FILE * fp)
 
 void read_obj_file(char *dirname, char *filename)
 {
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
         FILE     *fp;
         char      fname[FILENAME_SIZE];
         int       vnum;
@@ -873,10 +873,10 @@ void read_obj_file(char *dirname, char *filename)
         {
                 sh_int    iNest;
                 bool      found;
-                OBJ_DATA *tobj, *tobj_next;
+                ObjData *tobj, *tobj_next;
 
                 rset_supermob(room);
-                for (iNest = 0; iNest < MAX_NEST; iNest++)
+                for (iNest = 0; iNest < MaxNest; iNest++)
                         rgObjNest[iNest] = NULL;
 
                 found = TRUE;
@@ -970,7 +970,7 @@ void load_obj_files(void)
         return;
 }
 
-void load_world(CHAR_DATA * ch)
+void load_world(CharData * ch)
 {
         FILE     *mobfp;
         FILE     *shipfp;
@@ -1062,10 +1062,10 @@ void load_world(CHAR_DATA * ch)
 // =============================================================================
 
 /*  Warm reboot stuff, gotta make sure to thank Erwin for this :) */
-CMDF do_hotboot(CHAR_DATA * ch, char *argument)
+CMDF do_hotboot(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim = NULL;
-        DESCRIPTOR_DATA *d;
+        CharData *victim = NULL;
+        DescriptorData *d;
         int       count = 0;
         bool      found = FALSE;
 
@@ -1102,7 +1102,7 @@ CMDF do_hotboot(CHAR_DATA * ch, char *argument)
                     && (victim = d->character) != NULL && !IS_NPC(victim)
                     && victim->in_room && victim->fighting
                     && victim->top_level >= 1
-                    && victim->top_level <= MAX_LEVEL)
+                    && victim->top_level <= MaxLevel)
                 {
                         found = TRUE;
                         count++;
@@ -1146,7 +1146,7 @@ CMDF do_hotboot(CHAR_DATA * ch, char *argument)
         if (!str_cmp(argument, "warn"))
         {
                 echo_to_all(AT_WHITE, "Hotboot Warning, commencing soon.",
-                            ECHOTAR_ALL);
+                            EchoTarAll);
                 return;
         }
 
@@ -1154,7 +1154,7 @@ CMDF do_hotboot(CHAR_DATA * ch, char *argument)
         {
                 echo_to_all(AT_WHITE,
                             "Possible Crash. Please prepare accordingly.",
-                            ECHOTAR_ALL);
+                            EchoTarAll);
                 return;
         }
 
@@ -1180,12 +1180,12 @@ void crash_hotboot(void)
 void hotboot(bool debug, bool save)
 {
         FILE     *fp;
-        DESCRIPTOR_DATA *d, *de_next;
+        DescriptorData *d, *de_next;
         char      buf[BUFFER_SIZE], buf2[BUFFER_SIZE], buf3[BUFFER_SIZE];
-        AREA_DATA *tarea;
-        SHIP_DATA *ship;
-        PLANET_DATA *planet;
-        TIMER    *timer, *timer_next;
+        AreaData *tarea;
+        ShipData *ship;
+        PlanetData *planet;
+        Timer    *timer, *timer_next;
 
 #ifdef OLC_SHUTTLE
         SHUTTLE_DATA *tshuttle;
@@ -1244,7 +1244,7 @@ void hotboot(bool debug, bool save)
         }
 
         CHECK_LINKS(first_descriptor, last_descriptor, next, prev,
-                    DESCRIPTOR_DATA);
+                    DescriptorData);
         /*
          * Write out all the pulses and times and such. To make sure the copyover is seamless
          * * pulse_area
@@ -1271,7 +1271,7 @@ void hotboot(bool debug, bool save)
          */
         for (d = first_descriptor; d; d = de_next)
         {
-                CHAR_DATA *och = CH(d);
+                CharData *och = CH(d);
 
                 de_next = d->next;  /* We delete from the list , so need to save this */
                 if (!d->character || d->connected < CON_PLAYING)    /* drop those logging on */
@@ -1411,11 +1411,11 @@ void hotboot(bool debug, bool save)
 /* Recover from a hotboot - load players*/
 void hotboot_recover()
 {
-        DESCRIPTOR_DATA *d;
+        DescriptorData *d;
         FILE     *fp;
         char      name[100];
         char      client[100];
-        char      host[MAX_STRING_LENGTH];
+        char      host[MaxStringLength];
         int       desc, room;
         bool      fOld;
         int       bCompress;
@@ -1463,7 +1463,7 @@ void hotboot_recover()
                  */
                 if (++num_descriptors > sysdata.maxplayers)
                         sysdata.maxplayers = num_descriptors;
-                CREATE(d, DESCRIPTOR_DATA, 1);
+                CREATE(d, DescriptorData, 1);
                 init_descriptor(d, desc);   /* set up various stuff */
                 if (d->host)
                         STRFREE(d->host);
@@ -1531,7 +1531,7 @@ void hotboot_recover()
 
         FCLOSE(fp);
         {
-                CHAR_DATA *ch;
+                CharData *ch;
 
                 for (ch = first_char; ch; ch = ch->next)
                 {

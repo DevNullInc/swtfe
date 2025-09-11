@@ -54,7 +54,7 @@ const unsigned char start_mxp_str[] = { IAC, SB, TELOPT_MXP, IAC, SE, '\0' };
 const unsigned char do_mxp_str[] = { IAC, DO, TELOPT_MXP, '\0' };
 const unsigned char dont_mxp_str[] = { IAC, DONT, TELOPT_MXP, '\0' };
 
-CMDF do_mxp(CHAR_DATA * ch, char *argument)
+CMDF do_mxp(CharData * ch, char *argument)
 {
         if (IS_NPC(ch) || !ch->desc)
         {
@@ -65,7 +65,7 @@ CMDF do_mxp(CHAR_DATA * ch, char *argument)
         if (!str_cmp(argument, "all") && IS_IMMORTAL(ch))
         {
                 char      buf[MSL];
-                CHAR_DATA *vch;
+                CharData *vch;
 
                 send_to_pager("MXP Info:\n", ch);
                 for (vch = first_char; vch; vch = vch->next)
@@ -132,7 +132,7 @@ CMDF do_mxp(CHAR_DATA * ch, char *argument)
  *        & becomes &amp;
  */
 
-int count_mxp_tags(DESCRIPTOR_DATA * d, const char *txt, int length)
+int count_mxp_tags(DescriptorData * d, const char *txt, int length)
 {
         char      c;
         const char *p;
@@ -209,7 +209,7 @@ int count_mxp_tags(DESCRIPTOR_DATA * d, const char *txt, int length)
         return count;
 }   /* end of count_mxp_tags */
 
-void convert_mxp_tags(DESCRIPTOR_DATA * d, char *dest, const char *src,
+void convert_mxp_tags(DescriptorData * d, char *dest, const char *src,
                       int length)
 {
         char      c;
@@ -303,7 +303,7 @@ void convert_mxp_tags(DESCRIPTOR_DATA * d, char *dest, const char *src,
         }   /* end of converting special characters */
 }   /* end of convert_mxp_tags */
 
-void send_mxp_stylesheet(DESCRIPTOR_DATA * d)
+void send_mxp_stylesheet(DescriptorData * d)
 {
 #if 0
         FILE     *stylesheet_file;

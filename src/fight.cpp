@@ -61,27 +61,27 @@
 #include "bounty.hpp"
 #include "races.hpp"
 
-extern char lastplayercmd[MAX_INPUT_LENGTH];
-extern CHAR_DATA *gch_prev;
+extern char lastplayercmd[MaxInputLength];
+extern CharData *gch_prev;
 
 /* From Skills.c */
-int       ris_save(CHAR_DATA * ch, int percent_chance, int ris);
+int       ris_save(CharData * ch, int percent_chance, int ris);
 
 /* From arena.c */
-bool arena_can_fight args((CHAR_DATA * ch, CHAR_DATA * victim));
-void win_fight args((CHAR_DATA * winner, CHAR_DATA * looser));
-bool in_arena args((CHAR_DATA * ch));
+bool arena_can_fight args((CharData * ch, CharData * victim));
+void win_fight args((CharData * winner, CharData * looser));
+bool in_arena args((CharData * ch));
 
 /*
  * Local functions.
  */
-void dam_message args((CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt));
-void group_gain args((CHAR_DATA * ch, CHAR_DATA * victim));
-int xp_compute args((CHAR_DATA * gch, CHAR_DATA * victim));
-int align_compute args((CHAR_DATA * gch, CHAR_DATA * victim));
-ch_ret one_hit args((CHAR_DATA * ch, CHAR_DATA * victim, int dt));
-int obj_hitroll args((OBJ_DATA * obj));
-bool      get_cover(CHAR_DATA * ch);
+void dam_message args((CharData * ch, CharData * victim, int dam, int dt));
+void group_gain args((CharData * ch, CharData * victim));
+int xp_compute args((CharData * gch, CharData * victim));
+int align_compute args((CharData * gch, CharData * victim));
+ch_ret one_hit args((CharData * ch, CharData * victim, int dt));
+int obj_hitroll args((ObjData * obj));
+bool      get_cover(CharData * ch);
 bool      dual_flip = FALSE;
 
 DECLARE_DO_FUN(do_draw);
@@ -92,9 +92,9 @@ DECLARE_DO_FUN(do_holster);
                 
 #define IS_WEAPON(obj) ((obj)->pIndexData->item_type == ITEM_WEAPON || (obj)->pIndexData->item_type == ITEM_GRENADE)
 
-bool is_wielding_weapon(CHAR_DATA * ch)
+bool is_wielding_weapon(CharData * ch)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         if ((obj = get_eq_char(ch, WEAR_DUAL_WIELD)) != NULL)
                 if (IS_WEAPON(obj))
                         return TRUE;
@@ -115,9 +115,9 @@ bool is_wielding_weapon(CHAR_DATA * ch)
 /*
  * Check to see if weapon is poisoned.
  */
-bool is_wielding_poisoned(CHAR_DATA * ch)
+bool is_wielding_poisoned(CharData * ch)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
 
         if ((obj = get_eq_char(ch, WEAR_WIELD))
             && (IS_SET(obj->extra_flags, ITEM_POISONED)))
@@ -133,7 +133,7 @@ bool is_wielding_poisoned(CHAR_DATA * ch)
 /*
  * hunting, hating and fearing code				-Thoric
  */
-bool is_hunting(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_hunting(CharData * ch, CharData * victim)
 {
         if (!ch->hunting || ch->hunting->who != victim)
                 return FALSE;
@@ -141,7 +141,7 @@ bool is_hunting(CHAR_DATA * ch, CHAR_DATA * victim)
         return TRUE;
 }
 
-bool is_hating(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_hating(CharData * ch, CharData * victim)
 {
         if (!ch->hating || ch->hating->who != victim)
                 return FALSE;
@@ -149,7 +149,7 @@ bool is_hating(CHAR_DATA * ch, CHAR_DATA * victim)
         return TRUE;
 }
 
-bool is_fearing(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_fearing(CharData * ch, CharData * victim)
 {
         if (!ch->fearing || ch->fearing->who != victim)
                 return FALSE;
@@ -157,7 +157,7 @@ bool is_fearing(CHAR_DATA * ch, CHAR_DATA * victim)
         return TRUE;
 }
 
-void stop_hunting(CHAR_DATA * ch)
+void stop_hunting(CharData * ch)
 {
         if (ch->hunting)
         {
@@ -168,7 +168,7 @@ void stop_hunting(CHAR_DATA * ch)
         return;
 }
 
-void stop_hating(CHAR_DATA * ch)
+void stop_hating(CharData * ch)
 {
         if (ch->hating)
         {
@@ -179,7 +179,7 @@ void stop_hating(CHAR_DATA * ch)
         return;
 }
 
-void stop_fearing(CHAR_DATA * ch)
+void stop_fearing(CharData * ch)
 {
         if (ch->fearing)
         {
@@ -190,41 +190,41 @@ void stop_fearing(CHAR_DATA * ch)
         return;
 }
 
-void start_hunting(CHAR_DATA * ch, CHAR_DATA * victim)
+void start_hunting(CharData * ch, CharData * victim)
 {
         if (ch->hunting)
                 stop_hunting(ch);
 
-        CREATE(ch->hunting, HHF_DATA, 1);
+        CREATE(ch->hunting, HHFData, 1);
         ch->hunting->name = QUICKLINK(victim->name);
         ch->hunting->who = victim;
         return;
 }
 
-void start_hating(CHAR_DATA * ch, CHAR_DATA * victim)
+void start_hating(CharData * ch, CharData * victim)
 {
         if (ch->hating)
                 stop_hating(ch);
 
-        CREATE(ch->hating, HHF_DATA, 1);
+        CREATE(ch->hating, HHFData, 1);
         ch->hating->name = QUICKLINK(victim->name);
         ch->hating->who = victim;
         return;
 }
 
-void start_fearing(CHAR_DATA * ch, CHAR_DATA * victim)
+void start_fearing(CharData * ch, CharData * victim)
 {
         if (ch->fearing)
                 stop_fearing(ch);
 
-        CREATE(ch->fearing, HHF_DATA, 1);
+        CREATE(ch->fearing, HHFData, 1);
         ch->fearing->name = QUICKLINK(victim->name);
         ch->fearing->who = victim;
         return;
 }
 
 
-int max_fight(CHAR_DATA * ch)
+int max_fight(CharData * ch)
 {
         ch = NULL;
         return 8;
@@ -240,15 +240,15 @@ int max_fight(CHAR_DATA * ch)
  */
 void violence_update(void)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *ch;
-        CHAR_DATA *lst_ch;
-        CHAR_DATA *victim;
-        CHAR_DATA *rch, *rch_next;
-        AFFECT_DATA *paf, *paf_next;
-        TIMER    *timer, *timer_next;
+        char      buf[MaxStringLength];
+        CharData *ch;
+        CharData *lst_ch;
+        CharData *victim;
+        CharData *rch, *rch_next;
+        AffectData *paf, *paf_next;
+        Timer    *timer, *timer_next;
         ch_ret    retcode;
-        SKILLTYPE *skill;
+        SkillType *skill;
         int       sn;
 
         lst_ch = NULL;
@@ -473,8 +473,8 @@ void violence_update(void)
                                         if (rch->pIndexData == ch->pIndexData
                                             || number_bits(3) == 0)
                                         {
-                                                CHAR_DATA *vch;
-                                                CHAR_DATA *target;
+                                                CharData *vch;
+                                                CharData *target;
                                                 int       number;
 
                                                 target = NULL;
@@ -514,7 +514,7 @@ void violence_update(void)
 /*
  * Do one group of attacks.
  */
-ch_ret multi_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
+ch_ret multi_hit(CharData * ch, CharData * victim, int dt)
 {
         int       percent_chance;
         int       dual_bonus;
@@ -551,7 +551,7 @@ ch_ret multi_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
                                                                            80);
                 if (number_percent() < chance)
                 {
-                        CHAR_DATA *holding = NULL;
+                        CharData *holding = NULL;
 
                         if ((holding = ch->holding) == NULL)
                         {
@@ -574,7 +574,7 @@ ch_ret multi_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
                                                                            80);
                 if (number_percent() < chance)
                 {
-                        CHAR_DATA *holding = NULL;
+                        CharData *holding = NULL;
 
                         if ((holding = victim->holding) == NULL)
                         {
@@ -593,7 +593,7 @@ ch_ret multi_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
         }
         if (!IS_NPC(ch) && IS_SET(ch->pcdata->flags, PCFLAG_AUTODRAW))
         {
-                OBJ_DATA *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
+                ObjData *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
                          *holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
                 if ((holster1 && holster1->item_type == ITEM_HOLSTER && holster1->first_content) ||
                                 (holster2 && holster2->item_type == ITEM_HOLSTER && holster2->first_content))
@@ -719,7 +719,7 @@ ch_ret multi_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
 /*
  * Weapon types, haus
  */
-int weapon_prof_bonus_check(CHAR_DATA * ch, OBJ_DATA * wield, int *gsn_ptr)
+int weapon_prof_bonus_check(CharData * ch, ObjData * wield, int *gsn_ptr)
 {
         int       bonus;
 
@@ -771,10 +771,10 @@ int weapon_prof_bonus_check(CHAR_DATA * ch, OBJ_DATA * wield, int *gsn_ptr)
  * Calculate the tohit bonus on the object and return RIS values.
  * -- Altrag
  */
-int obj_hitroll(OBJ_DATA * obj)
+int obj_hitroll(ObjData * obj)
 {
         int       tohit = 0;
-        AFFECT_DATA *paf;
+        AffectData *paf;
 
         for (paf = obj->pIndexData->first_affect; paf; paf = paf->next)
                 if (paf->location == APPLY_HITROLL)
@@ -788,7 +788,7 @@ int obj_hitroll(OBJ_DATA * obj)
 /*
  * Offensive shield level modifier
  */
-sh_int off_shld_lvl(CHAR_DATA * ch, CHAR_DATA * victim)
+sh_int off_shld_lvl(CharData * ch, CharData * victim)
 {
         sh_int    lvl;
 
@@ -815,9 +815,9 @@ sh_int off_shld_lvl(CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * Hit one guy once.
  */
-ch_ret one_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
+ch_ret one_hit(CharData * ch, CharData * victim, int dt)
 {
-        OBJ_DATA *wield;
+        ObjData *wield;
         int       victim_ac;
         int       thac0;
         int       thac0_00;
@@ -831,7 +831,7 @@ ch_ret one_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
         ch_ret    retcode = 0;
         int       percent_chance;
         bool      fail;
-        AFFECT_DATA af;
+        AffectData af;
 
 
         /*
@@ -1169,7 +1169,7 @@ ch_ret one_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
                         percent_chance = URANGE(5, percent_chance, 95);
                         if (!fail && number_percent() < percent_chance)
                         {
-                                WAIT_STATE(victim, PULSE_VIOLENCE);
+                                WAIT_STATE(victim, PulseViolence);
                                 act(AT_BLUE,
                                     "Blue rings of energy from &R$N's &Bblaster knock you down leaving you stunned!",
                                     victim, NULL, ch, TO_CHAR);
@@ -1304,7 +1304,7 @@ ch_ret one_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
         {
                 if (dt >= 0 && dt < top_sn)
                 {
-                        SKILLTYPE *skill = skill_table[dt];
+                        SkillType *skill = skill_table[dt];
                         bool      found = FALSE;
 
                         if (skill->imm_char && skill->imm_char[0] != '\0')
@@ -1346,7 +1346,7 @@ ch_ret one_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
             && !IS_SET(victim->immune, RIS_MAGIC)
             && !xIS_SET(victim->in_room->room_flags, ROOM_NO_MAGIC))
         {
-                AFFECT_DATA *aff;
+                AffectData *aff;
 
                 for (aff = wield->pIndexData->first_affect; aff;
                      aff = aff->next)
@@ -1401,7 +1401,7 @@ ch_ret one_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
          */
         if (IS_NPC(victim) && !IS_SET(victim->act, ACT_NORUNSNIPE))
         {
-                OBJ_DATA *blaster_wield;
+                ObjData *blaster_wield;
 
                 blaster_wield = get_eq_char(victim, WEAR_WIELD);
                 if (blaster_wield != NULL
@@ -1421,7 +1421,7 @@ ch_ret one_hit(CHAR_DATA * ch, CHAR_DATA * victim, int dt)
  * Calculate damage based on resistances, immunities and suceptibilities
  *					-Thoric
  */
-sh_int ris_damage(CHAR_DATA * ch, sh_int dam, int ris)
+sh_int ris_damage(CharData * ch, sh_int dam, int ris)
 {
         sh_int    modifier;
 
@@ -1443,17 +1443,17 @@ sh_int ris_damage(CHAR_DATA * ch, sh_int dam, int ris)
 /*
  * Inflict damage from a hit.
  */
-ch_ret damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
+ch_ret damage(CharData * ch, CharData * victim, int dam, int dt)
 {
-        char      buf1[MAX_STRING_LENGTH];
+        char      buf1[MaxStringLength];
         sh_int    dameq;
         bool      npcvict;
         bool      loot;
         int       xp_gain;
-        OBJ_DATA *damobj;
+        ObjData *damobj;
         ch_ret    retcode;
         sh_int    dampmod;
-        CHAR_DATA *gch;
+        CharData *gch;
 
         int       init_gold, new_gold, gold_diff;
 
@@ -1508,7 +1508,7 @@ ch_ret damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
                         if (dt >= 0 && dt < top_sn)
                         {
                                 bool      found = FALSE;
-                                SKILLTYPE *skill = skill_table[dt];
+                                SkillType *skill = skill_table[dt];
 
                                 if (skill->imm_char
                                     && skill->imm_char[0] != '\0')
@@ -1760,7 +1760,7 @@ ch_ret damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
         }
 
         if (!IS_NPC(victim)
-            && victim->top_level >= LEVEL_IMMORTAL && victim->hit < 1)
+            && victim->top_level >= LevelImmortal && victim->hit < 1)
                 victim->hit = 1;
 
         /*
@@ -1776,7 +1776,7 @@ ch_ret damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
             && !IS_SET(victim->immune, RIS_POISON)
             && !saves_poison_death(ch->skill_level[COMBAT_ABILITY], victim))
         {
-                AFFECT_DATA af;
+                AffectData af;
 
                 af.type = gsn_poison;
                 af.duration = 20;
@@ -1789,8 +1789,8 @@ ch_ret damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
         }
 
         if (!npcvict
-            && get_trust(victim) >= LEVEL_IMMORTAL
-            && get_trust(ch) >= LEVEL_IMMORTAL && victim->hit < 1)
+            && get_trust(victim) >= LevelImmortal
+            && get_trust(ch) >= LevelImmortal && victim->hit < 1)
                 victim->hit = 1;
         update_pos(victim);
 
@@ -1829,7 +1829,7 @@ ch_ret damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
         case POS_DEAD:
                 if (dt >= 0 && dt < top_sn)
                 {
-                        SKILLTYPE *skill = skill_table[dt];
+                        SkillType *skill = skill_table[dt];
 
                         if (skill->die_char && skill->die_char[0] != '\0')
                                 act(AT_DEAD, skill->die_char, ch, NULL,
@@ -1895,8 +1895,8 @@ ch_ret damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
 
         if (victim->hit <= 0 && !IS_NPC(victim))
         {
-                OBJ_DATA *obj;
-                OBJ_DATA *obj_next;
+                ObjData *obj;
+                ObjData *obj_next;
                 int       cnt = 0;
 
                 REMOVE_BIT(victim->act, PLR_ATTACKER);
@@ -2082,7 +2082,7 @@ ch_ret damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
         return rNONE;
 }
 
-bool is_safe(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_safe(CharData * ch, CharData * victim)
 {
         if (!victim)
                 return FALSE;
@@ -2100,7 +2100,7 @@ bool is_safe(CHAR_DATA * ch, CHAR_DATA * victim)
                 return TRUE;
         }
 
-        if (get_trust(ch) > LEVEL_HERO)
+        if (get_trust(ch) > LevelHero)
                 return FALSE;
 
         if (IS_NPC(ch) || IS_NPC(victim))
@@ -2115,7 +2115,7 @@ bool is_safe(CHAR_DATA * ch, CHAR_DATA * victim)
    cuts out imms and safe rooms as well 
    for info only */
 
-bool is_safe_nm(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_safe_nm(CharData * ch, CharData * victim)
 {
         ch = NULL;
         victim = NULL;
@@ -2126,7 +2126,7 @@ bool is_safe_nm(CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * just verify that a corpse looting is legal
  */
-bool legal_loot(CHAR_DATA * ch, CHAR_DATA * victim)
+bool legal_loot(CharData * ch, CharData * victim)
 {
         victim = NULL;
         /*
@@ -2148,7 +2148,7 @@ see if an attack justifies a KILLER flag --- edited so that none do but can't
 murder a no pk person. --- edited again for planetary wanted flags -- well will be soon :p
  */
 
-void check_killer(CHAR_DATA * ch, CHAR_DATA * victim)
+void check_killer(CharData * ch, CharData * victim)
 {
 
         /*
@@ -2158,7 +2158,7 @@ void check_killer(CHAR_DATA * ch, CHAR_DATA * victim)
         {
                 if (!ch->master)
                 {
-                        char      buf[MAX_STRING_LENGTH];
+                        char      buf[MaxStringLength];
 
                         snprintf(buf, MSL, "Check_killer: %s bad AFF_CHARM",
                                  IS_NPC(ch) ? ch->short_descr : ch->name);
@@ -2184,7 +2184,7 @@ void check_killer(CHAR_DATA * ch, CHAR_DATA * victim)
                                 if (victim->in_room && victim->in_room->area
                                     && victim->in_room->area->planet)
                                 {
-                                        PLANET_DATA *planet =
+                                        PlanetData *planet =
                                                 victim->in_room->area->planet;
                                         add_wanted(ch, planet);
                                 }
@@ -2220,7 +2220,7 @@ void check_killer(CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * Set position of a victim.
  */
-void update_pos(CHAR_DATA * victim)
+void update_pos(CharData * victim)
 {
         if (!victim)
         {
@@ -2280,13 +2280,13 @@ void update_pos(CHAR_DATA * victim)
 /*
  * Start fights.
  */
-void set_fighting(CHAR_DATA * ch, CHAR_DATA * victim)
+void set_fighting(CharData * ch, CharData * victim)
 {
-        FIGHT_DATA *fight;
+        FightData *fight;
 
         if (ch->fighting)
         {
-                char      buf[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength];
 
                 snprintf(buf, MSL,
                          "Set_fighting: %s -> %s (already fighting %s)",
@@ -2309,7 +2309,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * victim)
                 return;
         }
 
-        CREATE(fight, FIGHT_DATA, 1);
+        CREATE(fight, FightData, 1);
         fight->who = victim;
         fight->xp = (int) xp_compute(ch, victim);
         fight->align = align_compute(ch, victim);
@@ -2328,7 +2328,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 
-CHAR_DATA *who_fighting(CHAR_DATA * ch)
+CharData *who_fighting(CharData * ch)
 {
         if (!ch)
         {
@@ -2340,7 +2340,7 @@ CHAR_DATA *who_fighting(CHAR_DATA * ch)
         return ch->fighting->who;
 }
 
-void free_fight(CHAR_DATA * ch)
+void free_fight(CharData * ch)
 {
         if (!ch)
         {
@@ -2375,16 +2375,16 @@ void free_fight(CHAR_DATA * ch)
 /*
  * Stop fights.
  */
-void stop_fighting(CHAR_DATA * ch, bool fBoth)
+void stop_fighting(CharData * ch, bool fBoth)
 {
-        CHAR_DATA *fch;
+        CharData *fch;
 
         free_fight(ch);
         update_pos(ch);
 
         if (!IS_NPC(ch) && IS_SET(ch->pcdata->flags, PCFLAG_AUTODRAW))
         {
-                OBJ_DATA *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
+                ObjData *holster1 = get_eq_char(ch, WEAR_HOLSTER_L),
                          *holster2 = get_eq_char(ch, WEAR_HOLSTER_R);
                 if ((holster1 && holster1->item_type == ITEM_HOLSTER && !holster1->first_content) ||
                                 (holster2 && holster2->item_type == ITEM_HOLSTER && !holster2->first_content))
@@ -2409,7 +2409,7 @@ void stop_fighting(CHAR_DATA * ch, bool fBoth)
 
 
 
-void death_cry(CHAR_DATA * ch)
+void death_cry(CharData * ch)
 {
         ch = NULL;
         return;
@@ -2417,16 +2417,16 @@ void death_cry(CHAR_DATA * ch)
 
 
 
-void raw_kill(CHAR_DATA * ch, CHAR_DATA * victim)
+void raw_kill(CharData * ch, CharData * victim)
 {
 
-        CHAR_DATA *victmp;
+        CharData *victmp;
 
-        char      buf[MAX_STRING_LENGTH];
-        char      buf2[MAX_STRING_LENGTH];
-        char      arg[MAX_STRING_LENGTH];
-        OBJ_DATA *obj, *obj_next;
-        SHIP_DATA *ship;
+        char      buf[MaxStringLength];
+        char      buf2[MaxStringLength];
+        char      arg[MaxStringLength];
+        ObjData *obj, *obj_next;
+        ShipData *ship;
 
         if (!victim)
         {
@@ -2559,7 +2559,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * victim)
 
         if (victim->plr_home)
         {
-                ROOM_INDEX_DATA *room = victim->plr_home;
+                RoomIndexData *room = victim->plr_home;
 
                 STRFREE(room->name);
                 room->name = STRALLOC("An Empty Apartment");
@@ -2644,7 +2644,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * victim)
 #endif
         if (!victim)
         {
-                DESCRIPTOR_DATA *d;
+                DescriptorData *d;
 
                 /*
                  * Make sure they aren't halfway logged in. 
@@ -2666,7 +2666,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * victim)
                 saving_char = NULL;
                 extract_char(victim, TRUE);
                 for (x = 0; x < MAX_WEAR; x++)
-                        for (y = 0; y < MAX_LAYERS; y++)
+                        for (y = 0; y < MaxLayers; y++)
                                 save_equipment[x][y] = NULL;
         }
         return;
@@ -2718,11 +2718,11 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * victim)
 
 
 
-void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
+void group_gain(CharData * ch, CharData * victim)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *gch;
-        CHAR_DATA *lch;
+        char      buf[MaxStringLength];
+        CharData *gch;
+        CharData *lch;
         int       xp;
         int       members;
 
@@ -2766,8 +2766,8 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 
         for (gch = ch->in_room->first_person; gch; gch = gch->next_in_room)
         {
-                OBJ_DATA *obj;
-                OBJ_DATA *obj_next;
+                ObjData *obj;
+                ObjData *obj_next;
 
                 if (!is_same_group(gch, ch))
                         continue;
@@ -2841,7 +2841,7 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 
-int align_compute(CHAR_DATA * gch, CHAR_DATA * victim)
+int align_compute(CharData * gch, CharData * victim)
 {
 
 /* never cared much for this system
@@ -2872,7 +2872,7 @@ make it simple instead */
  * Calculate how much XP gch should gain for killing victim
  * Lots of redesigning for new exp system by Thoric
  */
-int xp_compute(CHAR_DATA * gch, CHAR_DATA * victim)
+int xp_compute(CharData * gch, CharData * victim)
 {
         int       align;
         int       xp;
@@ -2923,7 +2923,7 @@ int xp_compute(CHAR_DATA * gch, CHAR_DATA * victim)
 /*
  * Revamped by Thoric to be more realistic
  */
-void dam_message(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
+void dam_message(CharData * ch, CharData * victim, int dam, int dt)
 {
         char      buf1[256], buf2[256], buf3[256];
         const char *vs;
@@ -3064,7 +3064,7 @@ void dam_message(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
 
         if (dt == (TYPE_HIT + WEAPON_BLASTER))
         {
-                char      sound[MAX_STRING_LENGTH];
+                char      sound[MaxStringLength];
                 int       vol = number_range(20, 80);
 
                 /*
@@ -3193,10 +3193,10 @@ void dam_message(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
 }
 
 
-CMDF do_kill(CHAR_DATA * ch, char *argument)
+CMDF do_kill(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
 
         one_argument(argument, arg);
 
@@ -3257,14 +3257,14 @@ CMDF do_kill(CHAR_DATA * ch, char *argument)
         if (IS_SET(victim->act, ACT_CITIZEN))
                 ch->alignment -= 10;
 
-        WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+        WAIT_STATE(ch, 1 * PulseViolence);
         multi_hit(ch, victim, TYPE_UNDEFINED);
         return;
 }
 
 
 
-CMDF do_murde(CHAR_DATA * ch, char *argument)
+CMDF do_murde(CharData * ch, char *argument)
 {
         argument = NULL;
         send_to_char("If you want to MURDER, spell it out.\n\r", ch);
@@ -3273,10 +3273,10 @@ CMDF do_murde(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_murder(CHAR_DATA * ch, char *argument)
+CMDF do_murder(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
 
         one_argument(argument, arg);
 
@@ -3325,20 +3325,20 @@ CMDF do_murder(CHAR_DATA * ch, char *argument)
 
         ch->alignment -= 10;
 
-        WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+        WAIT_STATE(ch, 1 * PulseViolence);
         multi_hit(ch, victim, TYPE_UNDEFINED);
         return;
 }
 
 
-CMDF do_flee(CHAR_DATA * ch, char *argument)
+CMDF do_flee(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *was_in;
-        ROOM_INDEX_DATA *now_in;
-        char      buf[MAX_STRING_LENGTH];
+        RoomIndexData *was_in;
+        RoomIndexData *now_in;
+        char      buf[MaxStringLength];
         int       attempt;
         sh_int    door;
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         argument = NULL;
 
@@ -3406,13 +3406,13 @@ CMDF do_flee(CHAR_DATA * ch, char *argument)
         return;
 }
 
-bool get_cover(CHAR_DATA * ch)
+bool get_cover(CharData * ch)
 {
-        ROOM_INDEX_DATA *was_in;
-        ROOM_INDEX_DATA *now_in;
+        RoomIndexData *was_in;
+        RoomIndexData *now_in;
         int       attempt;
         sh_int    door;
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         if (!who_fighting(ch))
                 return FALSE;
@@ -3458,7 +3458,7 @@ bool get_cover(CHAR_DATA * ch)
 
 
 
-CMDF do_sla(CHAR_DATA * ch, char *argument)
+CMDF do_sla(CharData * ch, char *argument)
 {
         argument = NULL;
         send_to_char("If you want to SLAY, spell it out.\n\r", ch);
@@ -3467,11 +3467,11 @@ CMDF do_sla(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_slay(CHAR_DATA * ch, char *argument)
+CMDF do_slay(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        CharData *victim;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
 
         argument = one_argument(argument, arg);
         one_argument(argument, arg2);
@@ -3547,7 +3547,7 @@ CMDF do_slay(CHAR_DATA * ch, char *argument)
                     ch, NULL, victim, TO_NOTVICT);
         }
 
-        else if (!str_cmp(arg2, "pounce") && get_trust(ch) >= LEVEL_ASCENDANT)
+        else if (!str_cmp(arg2, "pounce") && get_trust(ch) >= LevelAscendant)
         {
                 act(AT_BLOOD,
                     "Leaping upon $N with bared fangs, you tear open $S throat and toss the corpse to the ground...",
@@ -3560,7 +3560,7 @@ CMDF do_slay(CHAR_DATA * ch, char *argument)
                     ch, NULL, victim, TO_NOTVICT);
         }
 
-        else if (!str_cmp(arg2, "slit") && get_trust(ch) >= LEVEL_ASCENDANT)
+        else if (!str_cmp(arg2, "slit") && get_trust(ch) >= LevelAscendant)
         {
                 act(AT_BLOOD, "You calmly slit $N's throat.", ch, NULL,
                     victim, TO_CHAR);
@@ -3586,9 +3586,9 @@ CMDF do_slay(CHAR_DATA * ch, char *argument)
 }
 
 /* In fight.c */
-CMDF do_trip(CHAR_DATA * ch, char *argument)
+CMDF do_trip(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         argument = NULL;
         if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))

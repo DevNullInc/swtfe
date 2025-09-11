@@ -50,9 +50,9 @@ constexpr int TELOPT_MSP = 90;
 extern const std::array<unsigned char, 3> will_msp_str;
 extern const std::array<unsigned char, 3> start_msp_str;
 
-void sound_to_char(CHAR_DATA* ch, const std::string& sound);
-void sound_to_room(ROOM_INDEX_DATA* room, const std::string& sound);
-void sound_to_ship(SHIP_DATA* ship, const std::string& sound);
-void start_msp(DESCRIPTOR_DATA* d);
-void reset_sound(CHAR_DATA* ch);
-void reset_music(CHAR_DATA* ch);
+void sound_to_char(CharData* ch, const std::string& sound);
+void sound_to_room(RoomIndexData* room, const std::string& sound);
+void sound_to_ship(ShipData* ship, const std::string& sound);
+void start_msp(DescriptorData* d);
+void reset_sound(CharData* ch);
+void reset_music(CharData* ch);

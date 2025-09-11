@@ -97,7 +97,7 @@ void zlib_free(void *opaque, void *address)
 }
 
 
-bool process_compressed(DESCRIPTOR_DATA * d)
+bool process_compressed(DescriptorData * d)
 {
         int       iStart = 0, nBlock, nWrite, len;
 
@@ -142,11 +142,11 @@ bool process_compressed(DESCRIPTOR_DATA * d)
 
 /* equiv to start_mxp */
 unsigned char enable_compress[] =
-        { IAC, SB, TELOPT_COMPRESS, WILL, SE, '\0' };
+        { IAC, SB, TeloptCompress, WILL, SE, '\0' };
 unsigned char enable_compress2[] =
-        { IAC, SB, TELOPT_COMPRESS2, IAC, SE, '\0' };
+        { IAC, SB, TeloptCompress2, IAC, SE, '\0' };
 
-bool compressStart(DESCRIPTOR_DATA * d, unsigned char telopt)
+bool compressStart(DescriptorData * d, unsigned char telopt)
 {
         z_stream *s;
 
@@ -156,13 +156,13 @@ bool compressStart(DESCRIPTOR_DATA * d, unsigned char telopt)
 /*    bug("Starting compression for descriptor %d", d->descriptor); */
 
         CREATE(s, z_stream, 1);
-        CREATE(d->out_compress_buf, unsigned char, COMPRESS_BUF_SIZE);
+        CREATE(d->out_compress_buf, unsigned char, CompressBufSize);
 
         s->next_in = NULL;
         s->avail_in = 0;
 
         s->next_out = d->out_compress_buf;
-        s->avail_out = COMPRESS_BUF_SIZE;
+        s->avail_out = CompressBufSize;
 
         s->zalloc = Z_NULL;
         s->zfree = Z_NULL;
@@ -175,10 +175,10 @@ bool compressStart(DESCRIPTOR_DATA * d, unsigned char telopt)
                 return FALSE;
         }
 
-        if (telopt == TELOPT_COMPRESS)
+        if (telopt == TeloptCompress)
                 write_to_descriptor(d->descriptor, (char *) enable_compress,
                                     0);
-        else if (telopt == TELOPT_COMPRESS2)
+        else if (telopt == TeloptCompress2)
                 write_to_descriptor(d->descriptor, (char *) enable_compress2,
                                     0);
         else
@@ -191,7 +191,7 @@ bool compressStart(DESCRIPTOR_DATA * d, unsigned char telopt)
         return TRUE;
 }
 
-bool compressEnd(DESCRIPTOR_DATA * d)
+bool compressEnd(DescriptorData * d)
 {
         unsigned char dummy[1];
 
@@ -218,7 +218,7 @@ bool compressEnd(DESCRIPTOR_DATA * d)
         return TRUE;
 }
 
-CMDF do_compress(CHAR_DATA * ch, char *argument)
+CMDF do_compress(CharData * ch, char *argument)
 {
         if (IS_NPC(ch) || !ch->desc)
         {
@@ -229,7 +229,7 @@ CMDF do_compress(CHAR_DATA * ch, char *argument)
         if (!str_cmp(argument, "all") && IS_IMMORTAL(ch))
         {
                 char      buf[MSL];
-                CHAR_DATA *vch;
+                CharData *vch;
 
                 send_to_pager("Compression Info:\n", ch);
                 for (vch = first_char; vch; vch = vch->next)
@@ -313,9 +313,9 @@ CMDF do_compress(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_mccpstats(CHAR_DATA * ch, char *argument)
+CMDF do_mccpstats(CharData * ch, char *argument)
 {
-        DESCRIPTOR_DATA *d;
+        DescriptorData *d;
         int       count = 0, total = 0;
         float     in = 0, out = 0;
 

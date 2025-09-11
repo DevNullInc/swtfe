@@ -52,12 +52,12 @@
 #include "mud.hpp"
 
 
-void fwrite_delivery(CHAR_DATA * ch, OBJ_DATA * obj)
+void fwrite_delivery(CharData * ch, ObjData * obj)
 {
         FILE     *fp = NULL;
-        char      strsave[MAX_INPUT_LENGTH];
-        EXTRA_DESCR_DATA *ed;
-        AFFECT_DATA *paf;
+        char      strsave[MaxInputLength];
+        ExtraDescrData *ed;
+        AffectData *paf;
         sh_int    wear, wear_loc, x;
 
         if (!obj)
@@ -94,7 +94,7 @@ void fwrite_delivery(CHAR_DATA * ch, OBJ_DATA * obj)
                         fprintf(fp, "WearFlags    %d\n", obj->wear_flags);
                 wear_loc = -1;
                 for (wear = 0; wear < MAX_WEAR; wear++)
-                        for (x = 0; x < MAX_LAYERS; x++)
+                        for (x = 0; x < MaxLayers; x++)
                                 if (obj == save_equipment[wear][x])
                                 {
                                         wear_loc = wear;
@@ -210,16 +210,16 @@ void fwrite_delivery(CHAR_DATA * ch, OBJ_DATA * obj)
 
 
 
-CMDF do_deliver(CHAR_DATA * ch, char *argument)
+CMDF do_deliver(CharData * ch, char *argument)
 {
-        OBJ_DATA *obj;
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      strsave[MAX_INPUT_LENGTH];
-        char      mobbuf[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        CHAR_DATA *mob;
+        ObjData *obj;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      strsave[MaxInputLength];
+        char      mobbuf[MaxInputLength];
+        CharData *victim;
+        CharData *mob;
         FILE     *fp = NULL;
         int       cost;
 
@@ -347,8 +347,8 @@ CMDF do_deliver(CHAR_DATA * ch, char *argument)
                         ch->gold -= cost;
                         if ((fp = fopen(strsave, "w")) != NULL)
                         {
-                                EXTRA_DESCR_DATA *ed;
-                                AFFECT_DATA *paf;
+                                ExtraDescrData *ed;
+                                AffectData *paf;
                                 sh_int    wear, wear_loc, x;
 
                                 /*
@@ -390,7 +390,7 @@ CMDF do_deliver(CHAR_DATA * ch, char *argument)
                                                 obj->wear_flags);
                                 wear_loc = -1;
                                 for (wear = 0; wear < MAX_WEAR; wear++)
-                                        for (x = 0; x < MAX_LAYERS; x++)
+                                        for (x = 0; x < MaxLayers; x++)
                                                 if (obj ==
                                                     save_equipment[wear][x])
                                                 {

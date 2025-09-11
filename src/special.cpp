@@ -54,17 +54,17 @@
 
 #define ROOM_JAIL_CORUSCANT        0
 
-SPEC_LIST *first_specfun;
-SPEC_LIST *last_specfun;
+SpecList *first_specfun;
+SpecList *last_specfun;
 
-bool is_wielding_weapon args((CHAR_DATA * ch));
+bool is_wielding_weapon args((CharData * ch));
 
 /* Simple load function - no OLC support for now.
  * This is probably something you DONT want builders playing with.
  */
 void load_specfuns(void)
 {
-        SPEC_LIST *specfun;
+        SpecList *specfun;
         FILE     *fp;
         char      filename[256];
 
@@ -90,7 +90,7 @@ void load_specfuns(void)
                                 FCLOSE(fp);
                                 return;
                         }
-                        CREATE(specfun, SPEC_LIST, 1);
+                        CREATE(specfun, SpecList, 1);
                         specfun->name = fread_string_nohash(fp);
                         if (!str_cmp(specfun->name, "$"))
                                 break;
@@ -107,7 +107,7 @@ void load_specfuns(void)
 /* Simple validation function to be sure a function can be used on mobs */
 bool validate_spec_fun(char *name)
 {
-        SPEC_LIST *specfun;
+        SpecList *specfun;
 
         for (specfun = first_specfun; specfun; specfun = specfun->next)
         {
@@ -117,12 +117,12 @@ bool validate_spec_fun(char *name)
         return FALSE;
 }
 
-bool remove_obj args((CHAR_DATA * ch, int iWear, bool fReplace));
+bool remove_obj args((CharData * ch, int iWear, bool fReplace));
 
 /*
  * Given a name, return the appropriate spec_fun.
  */
-SPEC_FUN *spec_lookup(char *name)
+SpecFun *spec_lookup(char *name)
 {
         void     *funHandle;
         const char *error;
@@ -133,18 +133,18 @@ SPEC_FUN *spec_lookup(char *name)
                 bug("spec_lookup: Error locating function %s in symbol table.", name);
                 return NULL;
         }
-        return (SPEC_FUN *) funHandle;
+        return (SpecFun *) funHandle;
 }
 
 
 
-SPECF spec_newbie_pilot(CHAR_DATA * ch)
+SPECF spec_newbie_pilot(CharData * ch)
 {
         int       home = 32149;
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
-        OBJ_DATA *obj;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *victim;
+        CharData *v_next;
+        ObjData *obj;
+        char      buf[MaxStringLength];
         bool      diploma = FALSE;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
@@ -164,7 +164,7 @@ SPECF spec_newbie_pilot(CHAR_DATA * ch)
 
                 if (victim->race && victim->race->home() != -1)
                 {
-                        ROOM_INDEX_DATA *room =
+                        RoomIndexData *room =
                                 get_room_index(victim->race->home());
                         home = victim->race->home();
                         if (room && room->area && room->area->planet)
@@ -207,10 +207,10 @@ SPECF spec_newbie_pilot(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_player_elite_guard(CHAR_DATA * ch)
+SPECF spec_player_elite_guard(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -234,10 +234,10 @@ SPECF spec_player_elite_guard(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_installation_guard(CHAR_DATA * ch)
+SPECF spec_installation_guard(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -266,12 +266,12 @@ SPECF spec_installation_guard(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_installation_entrance_guard(CHAR_DATA * ch)
+SPECF spec_installation_entrance_guard(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
         INSTALLATION_DATA *installation;
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
 
         if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
@@ -313,10 +313,10 @@ SPECF spec_installation_entrance_guard(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_installation_doctor(CHAR_DATA * ch)
+SPECF spec_installation_doctor(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
         INSTALLATION_DATA *installation;
 
 
@@ -354,7 +354,7 @@ SPECF spec_installation_doctor(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_jedi(CHAR_DATA * ch)
+SPECF spec_jedi(CharData * ch)
 {
         ch = NULL;
         return FALSE;
@@ -362,10 +362,10 @@ SPECF spec_jedi(CHAR_DATA * ch)
 
 
 
-SPECF spec_clan_guard(CHAR_DATA * ch)
+SPECF spec_clan_guard(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -392,10 +392,10 @@ SPECF spec_clan_guard(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_player_guard(CHAR_DATA * ch)
+SPECF spec_player_guard(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -419,10 +419,10 @@ SPECF spec_player_guard(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_clan_patrol(CHAR_DATA * ch)
+SPECF spec_clan_patrol(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -480,10 +480,10 @@ SPECF spec_clan_patrol(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_player_patrol(CHAR_DATA * ch)
+SPECF spec_player_patrol(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -510,12 +510,12 @@ SPECF spec_player_patrol(CHAR_DATA * ch)
 
 
 
-SPECF spec_customs_smut(CHAR_DATA * ch)
+SPECF spec_customs_smut(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
-        OBJ_DATA *obj;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *victim;
+        CharData *v_next;
+        ObjData *obj;
+        char      buf[MaxStringLength];
         long      ch_exp;
 
         if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
@@ -626,7 +626,7 @@ SPECF spec_customs_smut(CHAR_DATA * ch)
                         }
                         else if (obj->item_type == ITEM_CONTAINER)
                         {
-                                OBJ_DATA *content;
+                                ObjData *content;
 
                                 for (content = obj->first_content; content;
                                      content = content->next_content)
@@ -667,13 +667,13 @@ SPECF spec_customs_smut(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_customs_weapons(CHAR_DATA * ch)
+SPECF spec_customs_weapons(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 		char *mob_clan;
-        OBJ_DATA *obj,*obj_prev;
-        char      buf[MAX_STRING_LENGTH];
+        ObjData *obj,*obj_prev;
+        char      buf[MaxStringLength];
         long      ch_exp;
 
         if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
@@ -803,7 +803,7 @@ SPECF spec_customs_weapons(CHAR_DATA * ch)
                         }
                         else if (obj->item_type == ITEM_CONTAINER)
                         {
-                                OBJ_DATA *content;
+                                ObjData *content;
 
                                 for (content = obj->first_content; content;
                                      content = content->next_content)
@@ -848,12 +848,12 @@ SPECF spec_customs_weapons(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_customs_alcohol(CHAR_DATA * ch)
+SPECF spec_customs_alcohol(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
-        OBJ_DATA *obj;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *victim;
+        CharData *v_next;
+        ObjData *obj;
+        char      buf[MaxStringLength];
         int       liquid;
         long      ch_exp;
 
@@ -983,7 +983,7 @@ SPECF spec_customs_alcohol(CHAR_DATA * ch)
                         }
                         else if (obj->item_type == ITEM_CONTAINER)
                         {
-                                OBJ_DATA *content;
+                                ObjData *content;
 
                                 for (content = obj->first_content; content;
                                      content = content->next_content)
@@ -1033,12 +1033,12 @@ SPECF spec_customs_alcohol(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_customs_spice(CHAR_DATA * ch)
+SPECF spec_customs_spice(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
-        OBJ_DATA *obj;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *victim;
+        CharData *v_next;
+        ObjData *obj;
+        char      buf[MaxStringLength];
         long      ch_exp;
 
         if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
@@ -1149,7 +1149,7 @@ SPECF spec_customs_spice(CHAR_DATA * ch)
                         }
                         else if (obj->item_type == ITEM_CONTAINER)
                         {
-                                OBJ_DATA *content;
+                                ObjData *content;
 
                                 for (content = obj->first_content; content;
                                      content = content->next_content)
@@ -1190,12 +1190,12 @@ SPECF spec_customs_spice(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_police(CHAR_DATA * ch)
+SPECF spec_police(CharData * ch)
 {
-        ROOM_INDEX_DATA *jail = NULL;
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
-        char      buf[MAX_STRING_LENGTH];
+        RoomIndexData *jail = NULL;
+        CharData *victim;
+        CharData *v_next;
+        char      buf[MaxStringLength];
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -1205,7 +1205,7 @@ SPECF spec_police(CHAR_DATA * ch)
 
         if (ch->in_room->area->planet->governed_by)
         {
-                CLAN_DATA *clan = ch->in_room->area->planet->governed_by;
+                ClanData *clan = ch->in_room->area->planet->governed_by;
 
                 jail = get_room_index(clan->jail);
         }
@@ -1283,10 +1283,10 @@ SPECF spec_police(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_jedi_healer(CHAR_DATA * ch)
+SPECF spec_jedi_healer(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch))
                 return FALSE;
@@ -1352,10 +1352,10 @@ SPECF spec_jedi_healer(CHAR_DATA * ch)
 
 
 
-SPECF spec_dark_jedi(CHAR_DATA * ch)
+SPECF spec_dark_jedi(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
         char     *spell;
         int       sn;
 
@@ -1435,12 +1435,12 @@ SPECF spec_dark_jedi(CHAR_DATA * ch)
 
 
 
-SPECF spec_fido(CHAR_DATA * ch)
+SPECF spec_fido(CharData * ch)
 {
-        OBJ_DATA *corpse;
-        OBJ_DATA *c_next;
-        OBJ_DATA *obj;
-        OBJ_DATA *obj_next;
+        ObjData *corpse;
+        ObjData *c_next;
+        ObjData *obj;
+        ObjData *obj_next;
 
         if (!IS_AWAKE(ch))
                 return FALSE;
@@ -1466,10 +1466,10 @@ SPECF spec_fido(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_stormtrooper(CHAR_DATA * ch)
+SPECF spec_stormtrooper(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -1499,10 +1499,10 @@ SPECF spec_stormtrooper(CHAR_DATA * ch)
 
 }
 
-SPECF spec_new_republic_trooper(CHAR_DATA * ch)
+SPECF spec_new_republic_trooper(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 
         if (!IS_AWAKE(ch) || ch->fighting)
                 return FALSE;
@@ -1532,12 +1532,12 @@ SPECF spec_new_republic_trooper(CHAR_DATA * ch)
 }
 
 
-SPECF spec_guardian(CHAR_DATA * ch)
+SPECF spec_guardian(CharData * ch)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
-        CHAR_DATA *ech;
+        char      buf[MaxStringLength];
+        CharData *victim;
+        CharData *v_next;
+        CharData *ech;
         char     *crime;
         int       max_evil;
 
@@ -1590,10 +1590,10 @@ SPECF spec_guardian(CHAR_DATA * ch)
 
 
 
-SPECF spec_janitor(CHAR_DATA * ch)
+SPECF spec_janitor(CharData * ch)
 {
-        OBJ_DATA *trash;
-        OBJ_DATA *trash_next;
+        ObjData *trash;
+        ObjData *trash_next;
 
         if (!IS_AWAKE(ch))
                 return FALSE;
@@ -1623,9 +1623,9 @@ SPECF spec_janitor(CHAR_DATA * ch)
 
 
 
-SPECF spec_poison(CHAR_DATA * ch)
+SPECF spec_poison(CharData * ch)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         if (ch->position != POS_FIGHTING
             || (victim = who_fighting(ch)) == NULL
@@ -1641,10 +1641,10 @@ SPECF spec_poison(CHAR_DATA * ch)
 
 
 
-SPECF spec_thief(CHAR_DATA * ch)
+SPECF spec_thief(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
         int       gold, maxgold;
 
         if (ch->position != POS_STANDING)
@@ -1654,7 +1654,7 @@ SPECF spec_thief(CHAR_DATA * ch)
         {
                 v_next = victim->next_in_room;
 
-                if (IS_NPC(victim) || get_trust(victim) >= LEVEL_IMMORTAL || number_bits(2) != 0 || !can_see(ch, victim))   /* Thx Glop */
+                if (IS_NPC(victim) || get_trust(victim) >= LevelImmortal || number_bits(2) != 0 || !can_see(ch, victim))   /* Thx Glop */
                         continue;
 
                 if (IS_AWAKE(victim) && number_range(0, ch->top_level) == 0)
@@ -1689,13 +1689,13 @@ SPECF spec_thief(CHAR_DATA * ch)
         return FALSE;
 }
 
-SPECF spec_auth(CHAR_DATA * ch)
+SPECF spec_auth(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
-        char      buf[MAX_STRING_LENGTH];
-        OBJ_INDEX_DATA *pObjIndex;
-        OBJ_DATA *obj;
+        CharData *victim;
+        CharData *v_next;
+        char      buf[MaxStringLength];
+        ObjIndexData *pObjIndex;
+        ObjData *obj;
         bool      hasdiploma;
 
         for (victim = ch->in_room->first_person; victim; victim = v_next)
@@ -1749,7 +1749,7 @@ SPECF spec_auth(CHAR_DATA * ch)
 
 }
 
-SPECF spec_questmaster(CHAR_DATA * ch)
+SPECF spec_questmaster(CharData * ch)
 {
         if (!IS_NPC(ch))
                 return FALSE;
@@ -1777,12 +1777,12 @@ SPECF spec_questmaster(CHAR_DATA * ch)
  *
  * @param npc -> char_data pointer to the npc with the spec flagged turned on
  */
-SPECF spec_bountyhunter(CHAR_DATA * npc)
+SPECF spec_bountyhunter(CharData * npc)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next = NULL;
+        CharData *victim;
+        CharData *v_next = NULL;
         OLC_BOUNTY_DATA *bounty;
-        CHAR_DATA *imob;
+        CharData *imob;
         char      buf[MSL];
 
         /*
@@ -1829,7 +1829,7 @@ SPECF spec_bountyhunter(CHAR_DATA * npc)
         return TRUE;
 }
 
-bool obj_is_contraband(OBJ_DATA * obj) 
+bool obj_is_contraband(ObjData * obj) 
 {
         if (obj->pIndexData->item_type == ITEM_SMUT) {
                 return TRUE;
@@ -1860,13 +1860,13 @@ bool obj_is_contraband(OBJ_DATA * obj)
         return FALSE;
 }
 
-SPECF spec_customs(CHAR_DATA * ch)
+SPECF spec_customs(CharData * ch)
 {
-        CHAR_DATA *victim;
-        CHAR_DATA *v_next;
+        CharData *victim;
+        CharData *v_next;
 		char *mob_clan;
-        OBJ_DATA *obj,*obj_prev;
-        char      buf[MAX_STRING_LENGTH];
+        ObjData *obj,*obj_prev;
+        char      buf[MaxStringLength];
         long      ch_exp;
 
         if (!IS_AWAKE(ch) || ch->position == POS_FIGHTING)
@@ -1951,7 +1951,7 @@ SPECF spec_customs(CHAR_DATA * ch)
                         }
                         else if (obj->item_type == ITEM_CONTAINER)
                         {
-                                OBJ_DATA *content;
+                                ObjData *content;
 
                                 for (content = obj->first_content; content; content = content->next_content)
                                 {

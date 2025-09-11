@@ -73,7 +73,7 @@ RESTORE_DATA *get_restore(char *name)
 /* Read in an individual restoretype */
 void fread_restore(RESTORE_DATA * restore, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
 
@@ -197,7 +197,7 @@ void load_restores()
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 snprintf(buf, MSL,
                                          "Load_restore_file: bad section: %s.",
@@ -258,14 +258,14 @@ void save_restores(void)
   * Author  : Gavin <haleye@halkeye.net>
   */
 
-CMDF do_restore(CHAR_DATA * ch, char *argument)
+CMDF do_restore(CharData * ch, char *argument)
 {
         RESTORE_DATA *restore;
-        char      type[MAX_INPUT_LENGTH];
-        char      who[MAX_INPUT_LENGTH];
+        char      type[MaxInputLength];
+        char      who[MaxInputLength];
         int       color = AT_IMMORT;
         bool      found = FALSE;
-        CHAR_DATA *victim;
+        CharData *victim;
 
         if (IS_NPC(ch))
         {
@@ -302,13 +302,13 @@ CMDF do_restore(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(who, "all"))
         {
-                CHAR_DATA *vch;
-                CHAR_DATA *vch_next;
+                CharData *vch;
+                CharData *vch_next;
 
                 if (!ch->pcdata)
                         return;
 
-                if (get_trust(ch) < LEVEL_NEOPHYTE)
+                if (get_trust(ch) < LevelNeophyte)
                 {
                         if (IS_NPC(ch))
                         {
@@ -368,7 +368,7 @@ CMDF do_restore(CHAR_DATA * ch, char *argument)
                                                                  restore->
                                                                  type))
                                                     || (get_trust(ch) ==
-                                                        MAX_LEVEL
+                                                        MaxLevel
                                                         && !str_cmp(type,
                                                                     restore->
                                                                     type)))
@@ -442,7 +442,7 @@ CMDF do_restore(CHAR_DATA * ch, char *argument)
                                      && !str_cmp("Any", restore->owner))
                                     || (!str_cmp(restore->owner, ch->name)
                                         && !str_cmp(type, restore->type))
-                                    || (get_trust(ch) == MAX_LEVEL
+                                    || (get_trust(ch) == MaxLevel
                                         && !str_cmp(type, restore->type)))
                                 {
                                         found = TRUE;
@@ -478,7 +478,7 @@ CMDF do_restore(CHAR_DATA * ch, char *argument)
 }
 
 /* Create a restoretype online - Gavin 5-26-2000 */
-CMDF do_makerestore(CHAR_DATA * ch, char *argument)
+CMDF do_makerestore(CharData * ch, char *argument)
 {
         RESTORE_DATA *restore;
 
@@ -515,10 +515,10 @@ CMDF do_makerestore(CHAR_DATA * ch, char *argument)
 }
 
 /* Set restore values online - Gavin 5-26-2000 */
-CMDF do_setrestore(CHAR_DATA * ch, char *argument)
+CMDF do_setrestore(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         RESTORE_DATA *restore;
 
         if (IS_NPC(ch))
@@ -672,7 +672,7 @@ CMDF do_setrestore(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(arg2, "boost"))
         {
-                if (get_trust(ch) <= (MAX_LEVEL - 2))
+                if (get_trust(ch) <= (MaxLevel - 2))
                 {
                         send_to_char
                                 ("Your not able to set this, ask a higher imm\n\r",
@@ -696,7 +696,7 @@ CMDF do_setrestore(CHAR_DATA * ch, char *argument)
 }
 
 /* Online restore editor, show details of a restoretype - Gavin 5-26-2000 */
-CMDF do_showrestore(CHAR_DATA * ch, char *argument)
+CMDF do_showrestore(CharData * ch, char *argument)
 {
         RESTORE_DATA *restore;
 
@@ -743,9 +743,9 @@ CMDF do_showrestore(CHAR_DATA * ch, char *argument)
 }
 
 /* Of course, to create means you need to be able to destroy as well :P - Gavin 5-26-2000 */
-CMDF do_destroyrestore(CHAR_DATA * ch, char *argument)
+CMDF do_destroyrestore(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         RESTORE_DATA *prestore;
 
         if (IS_NPC(ch))

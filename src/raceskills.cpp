@@ -46,17 +46,17 @@
 
 extern int top_affect;
 
-CMDF do_craftpike(CHAR_DATA * ch, char *argument)
+CMDF do_craftpike(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage;
         bool      checktool, checksteel, checkplast, checkoven, checkbatt;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum, bonus = 0;
-        AFFECT_DATA *paf;
-        AFFECT_DATA *paf2;
+        AffectData *paf;
+        AffectData *paf2;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -249,7 +249,7 @@ CMDF do_craftpike(CHAR_DATA * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was left here.", MSL);
         obj->description = STRALLOC(buf);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("grip");
@@ -258,7 +258,7 @@ CMDF do_craftpike(CHAR_DATA * ch, char *argument)
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        CREATE(paf2, AFFECT_DATA, 1);
+        CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("hitroll");
@@ -295,17 +295,17 @@ CMDF do_craftpike(CHAR_DATA * ch, char *argument)
 
         learn_from_success(ch, gsn_craftpike);
 }
-CMDF do_craftknife(CHAR_DATA * ch, char *argument)
+CMDF do_craftknife(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage;
         bool      checktool, checksteel, checkplast, checkoven;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
         int       vnum;
-        AFFECT_DATA *paf;
-        AFFECT_DATA *paf2;
+        AffectData *paf;
+        AffectData *paf2;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -487,7 +487,7 @@ CMDF do_craftknife(CHAR_DATA * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was left here.", MSL);
         obj->description = STRALLOC(buf);
-        CREATE(paf, AFFECT_DATA, 1);
+        CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("backstab");
@@ -496,7 +496,7 @@ CMDF do_craftknife(CHAR_DATA * ch, char *argument)
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
-        CREATE(paf2, AFFECT_DATA, 1);
+        CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("hitroll");
@@ -535,11 +535,11 @@ CMDF do_craftknife(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_fixship(CHAR_DATA * ch, char *argument)
+CMDF do_fixship(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percentage, change;
-        SHIP_DATA *ship;
+        ShipData *ship;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -672,11 +672,11 @@ CMDF do_fixship(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_jab(CHAR_DATA * ch, char *argument)
+CMDF do_jab(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        CharData *victim;
+        ObjData *obj;
         int       percent;
 
         if (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))
@@ -762,7 +762,7 @@ CMDF do_jab(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_gowithout(CHAR_DATA * ch, char *argument)
+CMDF do_gowithout(CharData * ch, char *argument)
 {
         int       amount, condition, percentage;
 
@@ -811,13 +811,13 @@ CMDF do_gowithout(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_cajole(CHAR_DATA * ch, char *argument)
+CMDF do_cajole(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg1[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        PLANET_DATA *planet;
-        CLAN_DATA *clan;
+        char      buf[MaxStringLength];
+        char      arg1[MaxInputLength];
+        CharData *victim;
+        PlanetData *planet;
+        ClanData *clan;
         int       percent = 0;
 
         if (IS_NPC(ch) || !ch->pcdata || !ch->pcdata->clan
@@ -952,7 +952,7 @@ CMDF do_cajole(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_pretend(CHAR_DATA * ch, char *argument)
+CMDF do_pretend(CharData * ch, char *argument)
 {
         int       percentage;
 
@@ -988,7 +988,7 @@ CMDF do_pretend(CHAR_DATA * ch, char *argument)
         send_to_char("Ok.\n\r", ch);
 }
 
-CMDF do_jimmyshiplock(CHAR_DATA * ch, char *argument)
+CMDF do_jimmyshiplock(CharData * ch, char *argument)
 {
         do_pick(ch, argument);
 }

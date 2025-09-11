@@ -45,12 +45,12 @@
 /* global variables */
 int       top_sn;
 
-SKILLTYPE *skill_table[MAX_SKILL];
+SkillType *skill_table[MaxSkill];
 
 char     *const skill_tname[] =
         { "unknown", "Spell", "Skill", "Weapon", "Tongue" };
 
-SPELL_FUN *spell_function(char *name)
+SpellFun *spell_function(char *name)
 {
         void     *funHandle;
         const char *error;
@@ -59,12 +59,12 @@ SPELL_FUN *spell_function(char *name)
         if ((error = dlerror()) != NULL)
         {
                 bug("Error locating %s in symbol table. %s", name, error);
-                return (SPELL_FUN *) spell_notfound;
+                return (SpellFun *) spell_notfound;
         }
-        return (SPELL_FUN *) funHandle;
+        return (SpellFun *) funHandle;
 }
 
-DO_FUN   *skill_function(char *name)
+DoFun   *skill_function(char *name)
 {
         void     *funHandle;
         const char *error;
@@ -73,9 +73,9 @@ DO_FUN   *skill_function(char *name)
         if ((error = dlerror()) != NULL)
         {
                 bug("Error locating %s in symbol table. %s", name, error);
-                return (DO_FUN *) skill_notfound;
+                return (DoFun *) skill_notfound;
         }
-        return (DO_FUN *) funHandle;
+        return (DoFun *) funHandle;
 }
 
 
@@ -83,10 +83,10 @@ DO_FUN   *skill_function(char *name)
 /*
  * Function used by qsort to sort skills
  */
-int skill_comp(SKILLTYPE ** sk1, SKILLTYPE ** sk2)
+int skill_comp(SkillType ** sk1, SkillType ** sk2)
 {
-        SKILLTYPE *skill1 = (*sk1);
-        SKILLTYPE *skill2 = (*sk2);
+        SkillType *skill1 = (*sk1);
+        SkillType *skill2 = (*sk2);
 
         if (!skill1 && skill2)
                 return 1;
@@ -107,7 +107,7 @@ int skill_comp(SKILLTYPE ** sk1, SKILLTYPE ** sk2)
 void sort_skill_table()
 {
         boot_log("Sorting skill table...");
-        qsort(&skill_table[1], top_sn - 1, sizeof(SKILLTYPE *),
+        qsort(&skill_table[1], top_sn - 1, sizeof(SkillType *),
               (int (*)(const void *, const void *)) skill_comp);
 }
 
@@ -115,9 +115,9 @@ void sort_skill_table()
 /*
  * Write skill data to a file
  */
-void fwrite_skill(FILE * fpout, SKILLTYPE * skill)
+void fwrite_skill(FILE * fpout, SkillType * skill)
 {
-        SMAUG_AFF *aff;
+        SmaugAff *aff;
 
         fprintf(fpout, "Name         %s~\n", skill->name);
         fprintf(fpout, "Type         %s\n", skill_tname[skill->type]);
@@ -234,7 +234,7 @@ void save_skill_table()
 void save_socials()
 {
         FILE     *fpout;
-        SOCIALTYPE *social;
+        SocialType *social;
         int       x;
 
         if ((fpout = fopen(SOCIAL_FILE, "w")) == NULL)
@@ -312,7 +312,7 @@ int get_skill(char *skilltype)
 void save_commands()
 {
         FILE     *fpout;
-        CMDTYPE  *command;
+        CMDType  *command;
         int       x;
 
         if ((fpout = fopen(COMMAND_FILE, "w")) == NULL)
@@ -348,14 +348,14 @@ void save_commands()
         FCLOSE(fpout);
 }
 
-SKILLTYPE *fread_skill(FILE * fp)
+SkillType *fread_skill(FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
-        SKILLTYPE *skill;
+        SkillType *skill;
 
-        CREATE(skill, SKILLTYPE, 1);
+        CREATE(skill, SkillType, 1);
 
         skill->guild = -1;
 
@@ -375,9 +375,9 @@ SKILLTYPE *fread_skill(FILE * fp)
                         KEY("Alignment", skill->alignment, fread_number(fp));
                         if (!str_cmp(word, "Affect"))
                         {
-                                SMAUG_AFF *aff;
+                                SmaugAff *aff;
 
-                                CREATE(aff, SMAUG_AFF, 1);
+                                CREATE(aff, SmaugAff, 1);
                                 aff->duration = str_dup(fread_word(fp));
                                 aff->location = fread_number(fp);
                                 aff->modifier = str_dup(fread_word(fp));
@@ -396,8 +396,8 @@ SKILLTYPE *fread_skill(FILE * fp)
                 case 'C':
                         if (!str_cmp(word, "Code"))
                         {
-                                SPELL_FUN *spellfun;
-                                DO_FUN   *dofun;
+                                SpellFun *spellfun;
+                                DoFun   *dofun;
                                 char     *w = fread_word(fp);
 
                                 fMatch = TRUE;
@@ -562,9 +562,9 @@ void load_skill_table()
                         word = fread_word(fp);
                         if (!str_cmp(word, "SKILL"))
                         {
-                                if (top_sn >= MAX_SKILL)
+                                if (top_sn >= MaxSkill)
                                 {
-                                        bug("load_skill_table: more skills than MAX_SKILL %d", MAX_SKILL);
+                                        bug("load_skill_table: more skills than MaxSkill %d", MaxSkill);
                                         FCLOSE(fp);
                                         return;
                                 }
@@ -590,12 +590,12 @@ void load_skill_table()
 
 void fread_social(FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
-        SOCIALTYPE *social;
+        SocialType *social;
 
-        CREATE(social, SOCIALTYPE, 1);
+        CREATE(social, SocialType, 1);
 
         for (;;)
         {
@@ -730,12 +730,12 @@ void load_socials()
 
 void fread_command(FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
-        CMDTYPE  *command;
+        CMDType  *command;
 
-        CREATE(command, CMDTYPE, 1);
+        CREATE(command, CMDType, 1);
 
         for (;;)
         {
@@ -884,9 +884,9 @@ void load_commands()
 
 }
 
-void free_skill(SKILLTYPE * skill)
+void free_skill(SkillType * skill)
 {
-        SMAUG_AFF *aff, *aff_next;
+        SmaugAff *aff, *aff_next;
 
         if (!skill)
                 return;

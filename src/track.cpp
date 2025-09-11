@@ -54,9 +54,9 @@
 
 extern int top_room;
 
-bool      mob_snipe(CHAR_DATA * ch, CHAR_DATA * victim);
-ch_ret one_hit args((CHAR_DATA * ch, CHAR_DATA * victim, int dt));
-ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit);
+bool      mob_snipe(CharData * ch, CharData * victim);
+ch_ret one_hit args((CharData * ch, CharData * victim, int dt));
+RoomIndexData *generate_exit(RoomIndexData * in_room, ExitData ** pexit);
 
 /* You can define or not define TRACK_THOUGH_DOORS, above, depending on
    whether or not you want track to find paths which lead through closed
@@ -65,7 +65,7 @@ ROOM_INDEX_DATA *generate_exit(ROOM_INDEX_DATA * in_room, EXIT_DATA ** pexit);
 
 struct bfs_queue_struct
 {
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
         char      dir;
         struct bfs_queue_struct *next;
 };
@@ -78,15 +78,15 @@ static struct bfs_queue_struct *queue_head = NULL,
 #define UNMARK(room)	(xREMOVE_BIT(	(room)->room_flags, BFS_MARK) )
 #define IS_MARKED(room)	(xIS_SET(	(room)->room_flags, BFS_MARK) )
 
-ROOM_INDEX_DATA *toroom(ROOM_INDEX_DATA * room, sh_int door)
+RoomIndexData *toroom(RoomIndexData * room, sh_int door)
 {
         return (get_exit(room, door)->to_room);
 }
 
-bool valid_edge(ROOM_INDEX_DATA * room, sh_int door)
+bool valid_edge(RoomIndexData * room, sh_int door)
 {
-        EXIT_DATA *pexit;
-        ROOM_INDEX_DATA *to_room;
+        ExitData *pexit;
+        RoomIndexData *to_room;
 
         pexit = get_exit(room, door);
         if (pexit && (to_room = pexit->to_room) != NULL
@@ -99,7 +99,7 @@ bool valid_edge(ROOM_INDEX_DATA * room, sh_int door)
                 return FALSE;
 }
 
-void bfs_enqueue(ROOM_INDEX_DATA * room, char dir)
+void bfs_enqueue(RoomIndexData * room, char dir)
 {
         struct bfs_queue_struct *curr;
 
@@ -137,7 +137,7 @@ void bfs_clear_queue(void)
                 bfs_dequeue();
 }
 
-void room_enqueue(ROOM_INDEX_DATA * room)
+void room_enqueue(RoomIndexData * room)
 {
         struct bfs_queue_struct *curr;
 
@@ -163,7 +163,7 @@ void clean_room_queue(void)
 }
 
 
-int find_first_step(ROOM_INDEX_DATA * src, ROOM_INDEX_DATA * target,
+int find_first_step(RoomIndexData * src, RoomIndexData * target,
                     int maxdist)
 {
         int       curr_dir, count;
@@ -234,11 +234,11 @@ int find_first_step(ROOM_INDEX_DATA * src, ROOM_INDEX_DATA * target,
 }
 
 
-CMDF do_track(CHAR_DATA * ch, char *argument)
+CMDF do_track(CharData * ch, char *argument)
 {
-        CHAR_DATA *vict;
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        CharData *vict;
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       dir, maxdist;
 
         if (!IS_NPC(ch) && !ch->pcdata->learned[gsn_track])
@@ -292,10 +292,10 @@ CMDF do_track(CHAR_DATA * ch, char *argument)
 }
 
 
-void found_prey(CHAR_DATA * ch, CHAR_DATA * victim)
+void found_prey(CharData * ch, CharData * victim)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      victname[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      victname[MaxStringLength];
 
 
 
@@ -438,10 +438,10 @@ void found_prey(CHAR_DATA * ch, CHAR_DATA * victim)
         return;
 }
 
-void hunt_victim(CHAR_DATA * ch)
+void hunt_victim(CharData * ch)
 {
         bool      found;
-        CHAR_DATA *tmp;
+        CharData *tmp;
         sh_int    ret;
 
         if (!ch || !ch->hunting || !ch->hunting->who)
@@ -471,7 +471,7 @@ void hunt_victim(CHAR_DATA * ch)
 
 /* hunting with snipe */
         {
-                OBJ_DATA *wield;
+                ObjData *wield;
 
                 wield = get_eq_char(ch, WEAR_WIELD);
                 if (wield != NULL && wield->value[3] == WEAPON_BLASTER)
@@ -486,7 +486,7 @@ void hunt_victim(CHAR_DATA * ch)
         ret = find_first_step(ch->in_room, ch->hunting->who->in_room, 5000);
         if (ret == BFS_NO_PATH)
         {
-                EXIT_DATA *pexit;
+                ExitData *pexit;
                 int       attempt;
 
                 for (attempt = 0; attempt < 25; attempt++)
@@ -515,7 +515,7 @@ void hunt_victim(CHAR_DATA * ch)
                 {
                         if (!ch->in_room)
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 snprintf(buf, MSL,
                                          "Hunt_victim: no ch->in_room!  Mob #%d, name: %s.  Placing mob in limbo.",
@@ -535,14 +535,14 @@ void hunt_victim(CHAR_DATA * ch)
         }
 }
 
-bool mob_snipe(CHAR_DATA * ch, CHAR_DATA * victim)
+bool mob_snipe(CharData * ch, CharData * victim)
 {
         sh_int    dir, dist;
         sh_int    max_dist = 3;
-        EXIT_DATA *pexit;
-        ROOM_INDEX_DATA *was_in_room;
-        ROOM_INDEX_DATA *to_room;
-        char      buf[MAX_STRING_LENGTH];
+        ExitData *pexit;
+        RoomIndexData *was_in_room;
+        RoomIndexData *to_room;
+        char      buf[MaxStringLength];
         bool      pfound = FALSE;
 
         if (!ch->in_room || !victim->in_room)

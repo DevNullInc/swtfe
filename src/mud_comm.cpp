@@ -43,8 +43,8 @@
 #include "mud.hpp"
 #include "races.hpp"
 
-ch_ret    simple_damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt);
-CHAR_DATA *get_char_room_mp args((CHAR_DATA * ch, char *argument));
+ch_ret    simple_damage(CharData * ch, CharData * victim, int dam, int dt);
+CharData *get_char_room_mp args((CharData * ch, char *argument));
 
 bool      MOBtrigger;
 
@@ -123,11 +123,11 @@ char     *mprog_type_to_name(int type)
  * enough to identify the mob and give its basic condition.  It does however,
  * show the MUDprograms which are set.
  */
-CMDF do_mpstat(CHAR_DATA * ch, char *argument)
+CMDF do_mpstat(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        MPROG_DATA *mprg;
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        MProgData *mprg;
+        CharData *victim;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -188,11 +188,11 @@ CMDF do_mpstat(CHAR_DATA * ch, char *argument)
 }
 
 /* Opstat - Scryn 8/12*/
-CMDF do_opstat(CHAR_DATA * ch, char *argument)
+CMDF do_opstat(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        MPROG_DATA *mprg;
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        MProgData *mprg;
+        ObjData *obj;
 
         one_argument(argument, arg);
 
@@ -232,10 +232,10 @@ CMDF do_opstat(CHAR_DATA * ch, char *argument)
 }
 
 /* Rpstat - Scryn 8/12 */
-CMDF do_rpstat(CHAR_DATA * ch, char *argument)
+CMDF do_rpstat(CharData * ch, char *argument)
 {
 		int count = 0;
-        MPROG_DATA *mprg;
+        MProgData *mprg;
 
         argument = NULL;
 
@@ -259,10 +259,10 @@ CMDF do_rpstat(CHAR_DATA * ch, char *argument)
 }
 
 /* Prints the argument to all the rooms around the mobile */
-CMDF do_mpasound(CHAR_DATA * ch, char *argument)
+CMDF do_mpasound(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *was_in_room;
-        EXIT_DATA *pexit;
+        RoomIndexData *was_in_room;
+        ExitData *pexit;
         int       actflags;
 
 
@@ -306,10 +306,10 @@ CMDF do_mpasound(CHAR_DATA * ch, char *argument)
 
 /* lets the mobile kill any player or mobile without murder*/
 
-CMDF do_mpkill(CHAR_DATA * ch, char *argument)
+CMDF do_mpkill(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
 
         if (!ch)
         {
@@ -367,11 +367,11 @@ CMDF do_mpkill(CHAR_DATA * ch, char *argument)
    it can also destroy a worn object and it can destroy
    items using all.xxxxx or just plain all of them */
 
-CMDF do_mpjunk(CHAR_DATA * ch, char *argument)
+CMDF do_mpjunk(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
-        OBJ_DATA *obj_next;
+        char      arg[MaxInputLength];
+        ObjData *obj;
+        ObjData *obj_next;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -424,7 +424,7 @@ CMDF do_mpjunk(CHAR_DATA * ch, char *argument)
  */
 int get_color(char *argument)   /* get color code from command string */
 {
-        char      color[MAX_INPUT_LENGTH];
+        char      color[MaxInputLength];
         char     *cptr;
         static char const *color_list =
                 "_bla_red_dgr_bro_dbl_pur_cya_cha_dch_ora_gre_yel_blu_pin_lbl_whi";
@@ -444,10 +444,10 @@ int get_color(char *argument)   /* get color code from command string */
 
 /* prints the message to everyone in the room other than the mob and victim */
 
-CMDF do_mpechoaround(CHAR_DATA * ch, char *argument)
+CMDF do_mpechoaround(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
         int       actflags;
         sh_int    color;
 
@@ -491,10 +491,10 @@ CMDF do_mpechoaround(CHAR_DATA * ch, char *argument)
 
 /* prints message only to victim */
 
-CMDF do_mpechoat(CHAR_DATA * ch, char *argument)
+CMDF do_mpechoat(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
         int       actflags;
         sh_int    color;
 
@@ -538,9 +538,9 @@ CMDF do_mpechoat(CHAR_DATA * ch, char *argument)
 
 /* prints message to room at large. */
 
-CMDF do_mpecho(CHAR_DATA * ch, char *argument)
+CMDF do_mpecho(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
         sh_int    color;
         int       actflags;
 
@@ -578,11 +578,11 @@ CMDF do_mpecho(CHAR_DATA * ch, char *argument)
 are loaded into inventory.  you can specify a level with
 the load object portion as well. */
 
-CMDF do_mpmload(CHAR_DATA * ch, char *argument)
+CMDF do_mpmload(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        MOB_INDEX_DATA *pMobIndex;
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        MobIndexData *pMobIndex;
+        CharData *victim;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -612,12 +612,12 @@ CMDF do_mpmload(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_mpoload(CHAR_DATA * ch, char *argument)
+CMDF do_mpoload(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_INDEX_DATA *pObjIndex;
-        OBJ_DATA *obj;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjIndexData *pObjIndex;
+        ObjData *obj;
         int       level;
         int       timer = 0;
 
@@ -690,11 +690,11 @@ CMDF do_mpoload(CHAR_DATA * ch, char *argument)
    itself, but this had best be the last command in the MUDprogram
    otherwise ugly stuff will happen */
 
-CMDF do_mppurge(CHAR_DATA * ch, char *argument)
+CMDF do_mppurge(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        OBJ_DATA *obj;
+        char      arg[MaxInputLength];
+        CharData *victim;
+        ObjData *obj;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -712,7 +712,7 @@ CMDF do_mppurge(CHAR_DATA * ch, char *argument)
                 /*
                  * 'purge' 
                  */
-                CHAR_DATA *vnext;
+                CharData *vnext;
 
                 for (victim = ch->in_room->first_person; victim;
                      victim = vnext)
@@ -755,9 +755,9 @@ CMDF do_mppurge(CHAR_DATA * ch, char *argument)
 
 /* Allow mobiles to go wizinvis with programs -- SB */
 
-CMDF do_mpinvis(CHAR_DATA * ch, char *argument)
+CMDF do_mpinvis(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         sh_int    level;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
@@ -811,10 +811,10 @@ CMDF do_mpinvis(CHAR_DATA * ch, char *argument)
 
 /* lets the mobile goto any location it wishes that is not private */
 
-CMDF do_mpgoto(CHAR_DATA * ch, char *argument)
+CMDF do_mpgoto(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *location;
+        char      arg[MaxInputLength];
+        RoomIndexData *location;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -849,12 +849,12 @@ CMDF do_mpgoto(CHAR_DATA * ch, char *argument)
 
 /* lets the mobile do a command at another location. Very useful */
 
-CMDF do_mpat(CHAR_DATA * ch, char *argument)
+CMDF do_mpat(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *location;
-        ROOM_INDEX_DATA *original;
-        CHAR_DATA *wch;
+        char      arg[MaxInputLength];
+        RoomIndexData *location;
+        RoomIndexData *original;
+        CharData *wch;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -900,7 +900,7 @@ CMDF do_mpat(CHAR_DATA * ch, char *argument)
 }
 
 /* allow a mobile to advance a player's level... very dangerous */
-CMDF do_mpadvance(CHAR_DATA * ch, char *argument)
+CMDF do_mpadvance(CharData * ch, char *argument)
 {
         argument = NULL;
         if (IS_AFFECTED(ch, AFF_CHARM))
@@ -914,14 +914,14 @@ CMDF do_mpadvance(CHAR_DATA * ch, char *argument)
 /* lets the mobile transfer people.  the all argument transfers
    everyone in the current room to the specified location */
 
-CMDF do_mptransfer(CHAR_DATA * ch, char *argument)
+CMDF do_mptransfer(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-        ROOM_INDEX_DATA *location;
-        CHAR_DATA *victim;
-        CHAR_DATA *nextinroom;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      buf[MaxStringLength];
+        RoomIndexData *location;
+        CharData *victim;
+        CharData *nextinroom;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -1018,10 +1018,10 @@ CMDF do_mptransfer(CHAR_DATA * ch, char *argument)
 /* lets the mobile force someone to do something.  must be mortal level
    and the all argument only affects those in the room with the mobile */
 
-CMDF do_mpforce(CHAR_DATA * ch, char *argument)
+CMDF do_mpforce(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CMDTYPE  *command;
+        char      arg[MaxInputLength];
+        CMDType  *command;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -1043,7 +1043,7 @@ CMDF do_mpforce(CHAR_DATA * ch, char *argument)
 
         if( !str_cmp( arg, "all" ) )
         {
-            CHAR_DATA *vch, *vch_next;
+            CharData *vch, *vch_next;
 
             for( vch = ch->in_room->first_person; vch; vch = vch_next )
             {
@@ -1054,7 +1054,7 @@ CMDF do_mpforce(CHAR_DATA * ch, char *argument)
         }
         else
         {
-                CHAR_DATA *victim;
+                CharData *victim;
 
                 if ((victim = get_char_room_mp(ch, arg)) == NULL)
                 {
@@ -1092,7 +1092,7 @@ CMDF do_mpforce(CHAR_DATA * ch, char *argument)
  * syntax:  mppractice victim spell_name max%
  *
  */
-CMDF do_mp_practice(CHAR_DATA * ch, char *argument)
+CMDF do_mp_practice(CharData * ch, char *argument)
 {
         argument = NULL;
         if (IS_AFFECTED(ch, AFF_CHARM))
@@ -1102,7 +1102,7 @@ CMDF do_mp_practice(CHAR_DATA * ch, char *argument)
 /*
  * syntax: mpslay (character)
  */
-CMDF do_mp_slay(CHAR_DATA * ch, char *argument)
+CMDF do_mp_slay(CharData * ch, char *argument)
 {
         argument = NULL;
         if (IS_AFFECTED(ch, AFF_CHARM))
@@ -1114,17 +1114,17 @@ CMDF do_mp_slay(CHAR_DATA * ch, char *argument)
 /*
  * syntax: mpdamage (character) (#hps)
  */
-CMDF do_mp_damage(CHAR_DATA * ch, char *argument)
+CMDF do_mp_damage(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        CharData *victim;
         int       dam;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LEVEL_IMMORTAL))
+        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1185,17 +1185,17 @@ CMDF do_mp_damage(CHAR_DATA * ch, char *argument)
 /*
  * syntax: mprestore (character) (#hps)                Gorog
  */
-CMDF do_mp_restore(CHAR_DATA * ch, char *argument)
+CMDF do_mp_restore(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        CharData *victim;
         int       hp;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LEVEL_IMMORTAL))
+        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1237,12 +1237,12 @@ CMDF do_mp_restore(CHAR_DATA * ch, char *argument)
                 victim->max_hit : hp;
 }
 
-CMDF do_mpgain(CHAR_DATA * ch, char *argument)
+CMDF do_mpgain(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        CharData *victim;
         long      experience;
         int       ability;
 
@@ -1296,7 +1296,7 @@ CMDF do_mpgain(CHAR_DATA * ch, char *argument)
                 int       i = 0;
 
                 ability = 0;
-                for (i = 0; i < MAX_ABILITY; i++)
+                for (i = 0; i < MaxAbility; i++)
                 {
                         if (!str_cmp(arg2, ability_name[i]))
                         {
@@ -1307,7 +1307,7 @@ CMDF do_mpgain(CHAR_DATA * ch, char *argument)
         }
         experience = atoi(arg3);
 
-        if (ability < 0 || ability >= MAX_ABILITY)
+        if (ability < 0 || ability >= MaxAbility)
         {
                 send_to_char("Mpgain which ability?\n\r", ch);
                 progbug("Mpgain: ability out of range", ch);
@@ -1339,19 +1339,19 @@ CMDF do_mpgain(CHAR_DATA * ch, char *argument)
  *
  *  won't mess with existing exits
  */
-CMDF do_mp_open_passage(CHAR_DATA * ch, char *argument)
+CMDF do_mp_open_passage(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *targetRoom, *fromRoom;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        RoomIndexData *targetRoom, *fromRoom;
         int       targetRoomVnum, fromRoomVnum, exit_num;
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LEVEL_IMMORTAL))
+        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1433,19 +1433,19 @@ CMDF do_mp_open_passage(CHAR_DATA * ch, char *argument)
  *
  * the exit must have EX_PASSAGE set
  */
-CMDF do_mp_close_passage(CHAR_DATA * ch, char *argument)
+CMDF do_mp_close_passage(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *fromRoom;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        RoomIndexData *fromRoom;
         int       fromRoomVnum, exit_num;
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LEVEL_IMMORTAL))
+        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1518,13 +1518,13 @@ CMDF do_mp_close_passage(CHAR_DATA * ch, char *argument)
 /*
  * Does nothing.  Used for scripts.
  */
-CMDF do_mpnothing(CHAR_DATA * ch, char *argument)
+CMDF do_mpnothing(CharData * ch, char *argument)
 {
         argument = NULL;
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LEVEL_IMMORTAL))
+        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1532,16 +1532,16 @@ CMDF do_mpnothing(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_mpsector(CHAR_DATA * ch, char *argument)
+CMDF do_mpsector(CharData * ch, char *argument)
 {
-        ROOM_INDEX_DATA *wroom;
-        char      arg1[MAX_INPUT_LENGTH];
+        RoomIndexData *wroom;
+        char      arg1[MaxInputLength];
 
         argument = one_argument(argument, arg1);
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LEVEL_IMMORTAL))
+        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1580,15 +1580,15 @@ CMDF do_mpsector(CHAR_DATA * ch, char *argument)
  *    with room sleep_progs
  *
  */
-CMDF do_mpdream(CHAR_DATA * ch, char *argument)
+CMDF do_mpdream(CharData * ch, char *argument)
 {
-        char      arg1[MAX_STRING_LENGTH];
-        CHAR_DATA *vict;
+        char      arg1[MaxStringLength];
+        CharData *vict;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
 
-        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LEVEL_IMMORTAL))
+        if (!IS_NPC(ch) || (ch->desc && get_trust(ch) < LevelImmortal))
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1610,9 +1610,9 @@ CMDF do_mpdream(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_mpapply(CHAR_DATA * ch, char *argument)
+CMDF do_mpapply(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -1654,9 +1654,9 @@ CMDF do_mpapply(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_mpapplyb(CHAR_DATA * ch, char *argument)
+CMDF do_mpapplyb(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
+        CharData *victim;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
                 return;
@@ -1735,9 +1735,9 @@ CMDF do_mpapplyb(CHAR_DATA * ch, char *argument)
 /*
  * Deposit some gold into the current area's economy		-Thoric
  */
-CMDF do_mp_deposit(CHAR_DATA * ch, char *argument)
+CMDF do_mp_deposit(CharData * ch, char *argument)
 {
-        char      arg[MAX_STRING_LENGTH];
+        char      arg[MaxStringLength];
         int       gold;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
@@ -1768,9 +1768,9 @@ CMDF do_mp_deposit(CHAR_DATA * ch, char *argument)
 /*
  * Withdraw some gold from the current area's economy		-Thoric
  */
-CMDF do_mp_withdraw(CHAR_DATA * ch, char *argument)
+CMDF do_mp_withdraw(CharData * ch, char *argument)
 {
-        char      arg[MAX_STRING_LENGTH];
+        char      arg[MaxStringLength];
         int       gold;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
@@ -1799,7 +1799,7 @@ CMDF do_mp_withdraw(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_mppkset(CHAR_DATA * ch, char *argument)
+CMDF do_mppkset(CharData * ch, char *argument)
 {
         argument = NULL;
         if (IS_AFFECTED(ch, AFF_CHARM))
@@ -1812,12 +1812,12 @@ CMDF do_mppkset(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_mprat(CHAR_DATA * ch, char *argument)
+CMDF do_mprat(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *location;
-        ROOM_INDEX_DATA *original;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        RoomIndexData *location;
+        RoomIndexData *original;
         int       Start, End, vnum;
 
         if (IS_AFFECTED(ch, AFF_CHARM))
@@ -1843,7 +1843,7 @@ CMDF do_mprat(CHAR_DATA * ch, char *argument)
         End = atoi(arg2);
 
         if (Start < 1 || End < Start || Start > End || Start == End
-            || End > MAX_VNUMS)
+            || End > MaxVnums)
         {
                 progbug("mprat: Invalid range.\n\r", ch);
                 return;
@@ -1874,11 +1874,11 @@ CMDF do_mprat(CHAR_DATA * ch, char *argument)
  *
  *  note: should be careful about using victim afterwards
  */
-ch_ret simple_damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
+ch_ret simple_damage(CharData * ch, CharData * victim, int dam, int dt)
 {
         sh_int    dameq;
         bool      npcvict;
-        OBJ_DATA *damobj;
+        ObjData *damobj;
         ch_ret    retcode;
 
 
@@ -1972,12 +1972,12 @@ ch_ret simple_damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
          */
         victim->hit -= dam;
         if (!IS_NPC(victim)
-            && get_trust(victim) >= LEVEL_IMMORTAL && victim->hit < 1)
+            && get_trust(victim) >= LevelImmortal && victim->hit < 1)
                 victim->hit = 1;
 
         if (!npcvict
-            && get_trust(victim) >= LEVEL_IMMORTAL
-            && get_trust(ch) >= LEVEL_IMMORTAL && victim->hit < 1)
+            && get_trust(victim) >= LevelImmortal
+            && get_trust(ch) >= LevelImmortal && victim->hit < 1)
                 victim->hit = 1;
         update_pos(victim);
 
@@ -2093,17 +2093,17 @@ ch_ret simple_damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int dt)
         return rNONE;
 }
 
-CHAR_DATA *get_char_room_mp(CHAR_DATA * ch, char *argument)
+CharData *get_char_room_mp(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *rch;
+        char      arg[MaxInputLength];
+        CharData *rch;
         int       number, count, vnum;
 
         number = number_argument(argument, arg);
         if (!str_cmp(arg, "self"))
                 return ch;
 
-        if (get_trust(ch) >= LEVEL_SAVIOR && is_number(arg))
+        if (get_trust(ch) >= LevelSavior && is_number(arg))
                 vnum = atoi(arg);
         else
                 vnum = -1;

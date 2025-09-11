@@ -64,10 +64,10 @@
 namespace {
     constexpr int    DEFAULT_COMCHAN = 0;
     constexpr int    NPC_COMFREQ = -1;
-    constexpr size_t LOG_BUFFER_SIZE = MAX_STRING_LENGTH;
+    constexpr size_t LOG_BUFFER_SIZE = MaxStringLength;
     constexpr size_t SOCIAL_NAME_SIZE = 256;
     constexpr size_t SOCIAL_DESC_SIZE = 512;
-    constexpr size_t COMMUNICATION_BUFFER = MAX_INPUT_LENGTH;
+    constexpr size_t COMMUNICATION_BUFFER = MaxInputLength;
     constexpr int    MIN_SPLIT_MEMBERS = 2;
     constexpr int    MAX_FOLLOW_DISTANCE = 3;
     constexpr int    MIN_LANGUAGE_SKILL = 60;
@@ -80,18 +80,18 @@ namespace {
 // =============================================================================
 // EXTERNAL FUNCTION DECLARATIONS
 // =============================================================================
-void send_obj_page_to_char(CHAR_DATA* ch, OBJ_INDEX_DATA* idx, char page);
-void send_room_page_to_char(CHAR_DATA* ch, ROOM_INDEX_DATA* idx, char page);
-void send_page_to_char(CHAR_DATA* ch, MOB_INDEX_DATA* idx, char page);
-void send_control_page_to_char(CHAR_DATA* ch, char page);
-extern bool is_ignoring(CHAR_DATA* ch, CHAR_DATA* victim);
+void send_obj_page_to_char(CharData* ch, ObjIndexData* idx, char page);
+void send_room_page_to_char(CharData* ch, RoomIndexData* idx, char page);
+void send_page_to_char(CharData* ch, MobIndexData* idx, char page);
+void send_control_page_to_char(CharData* ch, char page);
+extern bool is_ignoring(CharData* ch, CharData* victim);
 
 // =============================================================================
 // LOCAL FUNCTION PROTOTYPES
 // =============================================================================
-void talk_channel(CHAR_DATA* ch, char* argument, int channel, const char* verb);
+void talk_channel(CharData* ch, char* argument, int channel, const char* verb);
 char* scramble(const char* argument, LANGUAGE_DATA* language);
-char* drunk_speech(const char* argument, CHAR_DATA* ch);
+char* drunk_speech(const char* argument, CharData* ch);
 
 // =============================================================================
 // COMMUNICATION HELPER FUNCTIONS
@@ -100,9 +100,9 @@ char* drunk_speech(const char* argument, CHAR_DATA* ch);
 /*
  * Check if character has a communication device
  */
-bool has_comlink(CHAR_DATA* ch)
+bool has_comlink(CharData* ch)
 {
-    OBJ_DATA* obj;
+    ObjData* obj;
 
     if (IS_IMMORTAL(ch) || IS_NPC(ch))
         return TRUE;
@@ -125,7 +125,7 @@ bool has_comlink(CHAR_DATA* ch)
 /*
  * Get the communication frequency for a player
  */
-int get_comfreq(CHAR_DATA* ch)
+int get_comfreq(CharData* ch)
 {
     if (IS_NPC(ch))
         return NPC_COMFREQ;
@@ -139,9 +139,9 @@ int get_comfreq(CHAR_DATA* ch)
 /*
  * Get the comlink object from character's inventory
  */
-OBJ_DATA* get_comlink(CHAR_DATA* ch)
+ObjData* get_comlink(CharData* ch)
 {
-    for (OBJ_DATA* obj = ch->last_carrying; obj; obj = obj->prev_content) {
+    for (ObjData* obj = ch->last_carrying; obj; obj = obj->prev_content) {
         if (obj->item_type == ITEM_COMLINK)
             return obj;
     }
@@ -155,12 +155,12 @@ OBJ_DATA* get_comlink(CHAR_DATA* ch)
 /*
  * Extended social command added by Atrox
  */
-CMDF do_xsocial(CHAR_DATA* ch, char* argument)
+CMDF do_xsocial(CharData* ch, char* argument)
 {
-        char      arg[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        SOCIALTYPE *social;
-        char      command[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength], buf[MaxInputLength];
+        CharData *victim;
+        SocialType *social;
+        char      command[MaxInputLength];
         int       iHash;
         int       col = 0;
 
@@ -267,9 +267,9 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
 
         if (arg[0] == '\0')
         {
-                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->others_no_arg);
+                snprintf(buf, MaxInputLength, "%s", social->others_no_arg);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
-                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->char_no_arg);
+                snprintf(buf, MaxInputLength, "%s", social->char_no_arg);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
                 ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
                 return;
@@ -314,9 +314,9 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
 
         if (victim == ch)
         {
-                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->others_auto);
+                snprintf(buf, MaxInputLength, "%s", social->others_auto);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_ROOM);
-                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->char_auto);
+                snprintf(buf, MaxInputLength, "%s", social->char_auto);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
                 ch->pcdata->arousal += static_cast<sh_int>(social->arousal * AROUSAL_MULTIPLIER);
                 /*
@@ -350,11 +350,11 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
         }
         else
         {
-                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->others_found);
+                snprintf(buf, MaxInputLength, "%s", social->others_found);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_NOTVICT);
-                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->char_found);
+                snprintf(buf, MaxInputLength, "%s", social->char_found);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_CHAR);
-                snprintf(buf, MAX_INPUT_LENGTH, "%s", social->vict_found);
+                snprintf(buf, MaxInputLength, "%s", social->vict_found);
                 act(AT_SOCIAL, buf, ch, NULL, victim, TO_VICT);
                 victim->pcdata->arousal += social->arousal;
                 ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
@@ -396,10 +396,10 @@ CMDF do_xsocial(CHAR_DATA* ch, char* argument)
 /*
  * Beep command - send a communication signal to another player
  */
-CMDF do_beep(CHAR_DATA* ch, char* argument)
+CMDF do_beep(CharData* ch, char* argument)
 {
-        CHAR_DATA *victim;
-        char      arg[MAX_STRING_LENGTH];
+        CharData *victim;
+        char      arg[MaxStringLength];
 
         argument = one_argument(argument, arg);
 
@@ -440,7 +440,7 @@ CMDF do_beep(CHAR_DATA* ch, char* argument)
         }
 
         if (!IS_NPC(victim) && (victim->switched)
-            && (get_trust(ch) > LEVEL_AVATAR))
+            && (get_trust(ch) > LevelAvatar))
         {
                 send_to_char("&BT&zhat player is switched.\n\r", ch);
                 return;
@@ -485,7 +485,7 @@ CMDF do_beep(CHAR_DATA* ch, char* argument)
 
         if (victim->desc    /* make sure desc exists first  -Thoric */
             && victim->desc->connected == CON_EDITING
-            && get_trust(ch) < LEVEL_GOD)
+            && get_trust(ch) < LevelGod)
         {
                 act(AT_PLAIN,
                     "$E is currently in a writing buffer.  Please try again in a few minutes.",
@@ -512,14 +512,14 @@ CMDF do_beep(CHAR_DATA* ch, char* argument)
 /* Text scrambler -- Altrag */
 char     *scramble(const char *argument, [[maybe_unused]] LANGUAGE_DATA * language)
 {
-        static char arg[MAX_INPUT_LENGTH];
+        static char arg[MaxInputLength];
         sh_int    position, modifier;
         sh_int    conversion = 0;
 
         language = NULL;
 
         modifier = static_cast<sh_int>(number_range(80, 300));   /* Bitvectors get way too large #s */
-        for (position = 0; position < MAX_INPUT_LENGTH; position++)
+        for (position = 0; position < MaxInputLength; position++)
         {
                 if (argument[position] == '\0')
                 {
@@ -576,17 +576,17 @@ char     *scramble(const char *argument, [[maybe_unused]] LANGUAGE_DATA * langua
 }
 
 /* I'll rewrite this later if its still needed.. -- Altrag */
-char     *translate([[maybe_unused]] CHAR_DATA * ch, [[maybe_unused]] CHAR_DATA * victim, [[maybe_unused]] const char *argument)
+char     *translate([[maybe_unused]] CharData * ch, [[maybe_unused]] CharData * victim, [[maybe_unused]] const char *argument)
 {
         static char empty_string[] = "";
         return empty_string;
 }
 
-char     *drunk_speech(const char *argument, CHAR_DATA * ch)
+char     *drunk_speech(const char *argument, CharData * ch)
 {
         const char *arg = argument;
-        static char buf[MAX_INPUT_LENGTH * 2];
-        char      buf1[MAX_INPUT_LENGTH * 2];
+        static char buf[MaxInputLength * 2];
+        char      buf1[MaxInputLength * 2];
         sh_int    drunk;
         char     *txt;
         char     *txt1;
@@ -739,17 +739,17 @@ char     *drunk_speech(const char *argument, CHAR_DATA * ch)
 
 void info_chan(char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         snprintf(buf, MSL, "&B[&zINFO&B] &w%s&R&W", argument);
-        echo_to_all(AT_GOSSIP, buf, ECHOTAR_ALL);
+        echo_to_all(AT_GOSSIP, buf, EchoTarAll);
 }
 
 void to_channel(const char *argument, int channel, const char *verb,
                 sh_int level)
 {
-        char      buf[MAX_STRING_LENGTH];
-        DESCRIPTOR_DATA *d;
+        char      buf[MaxStringLength];
+        DescriptorData *d;
 
         if (!first_descriptor || argument[0] == '\0')
                 return;
@@ -758,8 +758,8 @@ void to_channel(const char *argument, int channel, const char *verb,
 
         for (d = first_descriptor; d; d = d->next)
         {
-                CHAR_DATA *och;
-                CHAR_DATA *vch;
+                CharData *och;
+                CharData *vch;
 
                 och = d->original ? d->original : d->character;
                 vch = d->character;
@@ -786,10 +786,10 @@ void to_channel(const char *argument, int channel, const char *verb,
         return;
 }
 
-CMDF do_shout(CHAR_DATA * ch, const char *argument)
+CMDF do_shout(CharData * ch, const char *argument)
 {
-        ROOM_INDEX_DATA *room;
-        EXIT_DATA *pexit = NULL;
+        RoomIndexData *room;
+        ExitData *pexit = NULL;
 
         if (!ch->in_room)
         {
@@ -833,7 +833,7 @@ CMDF do_shout(CHAR_DATA * ch, const char *argument)
 }
 
 
-CMDF do_osay(CHAR_DATA * ch, char *argument)
+CMDF do_osay(CharData * ch, char *argument)
 {
         if (argument[0] == '\0')
         {
@@ -851,7 +851,7 @@ CMDF do_osay(CHAR_DATA * ch, char *argument)
         act(AT_SAY, "You osay &R[&Y$t&R]", ch, argument, ch, TO_CHAR_OOC);
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
-                char      buf[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength];
 
                 snprintf(buf, MSL, "%s: %s",
                          IS_NPC(ch) ? ch->short_descr : ch->name, argument);
@@ -861,10 +861,10 @@ CMDF do_osay(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_whisper(CHAR_DATA * ch, char *argument)
+CMDF do_whisper(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH], _last_char;
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength], _last_char;
+        CharData *victim;
         int       arglen;
         int       actflags;
         char     *sbuf = NULL;
@@ -933,7 +933,7 @@ CMDF do_whisper(CHAR_DATA * ch, char *argument)
 
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
-                char      buf[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength];
 
                 snprintf(buf, MSL, "%s: %s",
                          IS_NPC(ch) ? ch->short_descr : ch->name, argument);
@@ -956,10 +956,10 @@ CMDF do_whisper(CHAR_DATA * ch, char *argument)
 /*
  * Tell command - send a private message to another player
  */
-CMDF do_tell(CHAR_DATA* ch, char* argument)
+CMDF do_tell(CharData* ch, char* argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
         int       position;
         char     *sbuf = argument;
 
@@ -1018,7 +1018,7 @@ CMDF do_tell(CHAR_DATA* ch, char* argument)
         }
 
         if (!IS_NPC(victim) && (victim->switched) &&
-            (get_trust(ch) > LEVEL_AVATAR) &&
+            (get_trust(ch) > LevelAvatar) &&
             !IS_SET(victim->switched->act, ACT_POLYMORPHED) &&
             !IS_AFFECTED(victim->switched, AFF_POSSESS))
         {
@@ -1089,7 +1089,7 @@ CMDF do_tell(CHAR_DATA* ch, char* argument)
 
         if (victim->desc    /* make sure desc exists first  -Thoric */
             && victim->desc->connected == CON_EDITING
-            && get_trust(ch) < LEVEL_GOD)
+            && get_trust(ch) < LevelGod)
         {
                 act(AT_PLAIN,
                     "$E is currently in a writing buffer.  Please try again in a few minutes.",
@@ -1125,9 +1125,9 @@ CMDF do_tell(CHAR_DATA* ch, char* argument)
         victim->reply = ch;
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
-                char      buf[MAX_INPUT_LENGTH];
+                char      buf[MaxInputLength];
 
-                snprintf(buf, MAX_INPUT_LENGTH, "%s: %s (tell to) %s.",
+                snprintf(buf, MaxInputLength, "%s: %s (tell to) %s.",
                          IS_NPC(ch) ? ch->short_descr : ch->name,
                          argument,
                          IS_NPC(victim) ? victim->short_descr : victim->name);
@@ -1139,10 +1139,10 @@ CMDF do_tell(CHAR_DATA* ch, char* argument)
 
 
 
-CMDF do_reply(CHAR_DATA * ch, char *argument)
+CMDF do_reply(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *victim;
+        char      buf[MaxStringLength];
+        CharData *victim;
         int       position;
         char     *sbuf = argument;
 
@@ -1168,7 +1168,7 @@ CMDF do_reply(CHAR_DATA * ch, char *argument)
         }
 
         if (!IS_NPC(victim) && (victim->switched)
-            && can_see(ch, victim) && (get_trust(ch) > LEVEL_AVATAR))
+            && can_see(ch, victim) && (get_trust(ch) > LevelAvatar))
         {
                 send_to_char("That player is switched.\n\r", ch);
                 return;
@@ -1245,13 +1245,13 @@ CMDF do_reply(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_otell(CHAR_DATA * ch, char *argument)
+CMDF do_otell(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        char      buf[MaxInputLength];
+        CharData *victim;
         int       position;
-        CHAR_DATA *switched_victim;
+        CharData *switched_victim;
 
         switched_victim = NULL;
 
@@ -1308,7 +1308,7 @@ CMDF do_otell(CHAR_DATA * ch, char *argument)
         }
 
         if (!IS_NPC(victim) && (victim->switched)
-            && (get_trust(ch) > LEVEL_AVATAR)
+            && (get_trust(ch) > LevelAvatar)
             && !IS_SET(victim->switched->act, ACT_POLYMORPHED)
             && !IS_AFFECTED(victim->switched, AFF_POSSESS))
         {
@@ -1366,7 +1366,7 @@ CMDF do_otell(CHAR_DATA * ch, char *argument)
 
         if (victim->desc    /* make sure desc exists first  -Thoric */
             && victim->desc->connected == CON_EDITING
-            && get_trust(ch) < LEVEL_GOD)
+            && get_trust(ch) < LevelGod)
         {
                 act(AT_PLAIN,
                     "$E is currently in a writing buffer.  Please try again in a few minutes.",
@@ -1376,7 +1376,7 @@ CMDF do_otell(CHAR_DATA * ch, char *argument)
 
         if (is_ignoring(victim, ch))
         {
-                snprintf(buf, MAX_INPUT_LENGTH, "%s is ignoring you.\n\r", victim->name);
+                snprintf(buf, MaxInputLength, "%s is ignoring you.\n\r", victim->name);
                 send_to_char(buf, ch);
                 return;
         }
@@ -1405,7 +1405,7 @@ CMDF do_otell(CHAR_DATA * ch, char *argument)
         victim->oreply = ch;
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
-                snprintf(buf, MAX_INPUT_LENGTH, "%s: %s (otell to) %s.",
+                snprintf(buf, MaxInputLength, "%s: %s (otell to) %s.",
                          IS_NPC(ch) ? ch->short_descr : ch->name,
                          argument,
                          IS_NPC(victim) ? victim->short_descr : victim->name);
@@ -1414,10 +1414,10 @@ CMDF do_otell(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_oreply(CHAR_DATA * ch, char *argument)
+CMDF do_oreply(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *victim;
+        char      buf[MaxStringLength];
+        CharData *victim;
         int       position;
 
         xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
@@ -1440,7 +1440,7 @@ CMDF do_oreply(CHAR_DATA * ch, char *argument)
         }
 
         if (!IS_NPC(victim) && (victim->switched)
-            && can_see(ch, victim) && (get_trust(ch) > LEVEL_AVATAR))
+            && can_see(ch, victim) && (get_trust(ch) > LevelAvatar))
         {
                 send_to_char("That player is switched.\n\r", ch);
                 return;
@@ -1526,9 +1526,9 @@ CMDF do_oreply(CHAR_DATA * ch, char *argument)
 /*
  * Emote command - express character actions and emotions
  */
-CMDF do_emote(CHAR_DATA* ch, const char* argument)
+CMDF do_emote(CharData* ch, const char* argument)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         int       actflags;
         char     *plast;
 
@@ -1581,20 +1581,20 @@ CMDF do_emote(CHAR_DATA* ch, const char* argument)
 /*
  * Bug report command
  */
-CMDF do_bug(CHAR_DATA* ch, char* argument)
+CMDF do_bug(CharData* ch, char* argument)
 {
         set_char_color(AT_PLAIN, ch);
         if (argument[0] == '\0')
         {
                 send_to_char("\n\rUsage:  'bug <message>'\n\r", ch);
-                if (get_trust(ch) >= LEVEL_ASCENDANT)
+                if (get_trust(ch) >= LevelAscendant)
                         send_to_char
                                 ("Usage:  'bug list' or 'bug clear now'\n\r",
                                  ch);
                 return;
         }
         if (!str_cmp(argument, "clear now")
-            && get_trust(ch) >= LEVEL_ASCENDANT)
+            && get_trust(ch) >= LevelAscendant)
         {
                 FILE     *fp = fopen(BUGS_FILE, "w");
 
@@ -1607,7 +1607,7 @@ CMDF do_bug(CHAR_DATA* ch, char* argument)
         }
         if (!str_cmp(argument, "list"))
         {
-                if (get_trust(ch) >= LEVEL_ASCENDANT)
+                if (get_trust(ch) >= LevelAscendant)
                 {
                         send_to_char("\n\r VNUM \n\r.......\n\r", ch);
                         show_file(ch, BUGS_FILE);
@@ -1626,20 +1626,20 @@ CMDF do_bug(CHAR_DATA* ch, char* argument)
         return;
 }
 
-CMDF do_idea(CHAR_DATA * ch, char *argument)
+CMDF do_idea(CharData * ch, char *argument)
 {
         set_char_color(AT_PLAIN, ch);
         if (argument[0] == '\0')
         {
                 send_to_char("\n\rUsage:  'idea <message>'\n\r", ch);
-                if (get_trust(ch) >= LEVEL_ASCENDANT)
+                if (get_trust(ch) >= LevelAscendant)
                         send_to_char
                                 ("Usage:  'idea list' or 'idea clear now'\n\r",
                                  ch);
                 return;
         }
         if (!str_cmp(argument, "clear now")
-            && get_trust(ch) >= LEVEL_ASCENDANT)
+            && get_trust(ch) >= LevelAscendant)
         {
                 FILE     *fp = fopen(IDEA_FILE, "w");
 
@@ -1652,7 +1652,7 @@ CMDF do_idea(CHAR_DATA * ch, char *argument)
         }
         if (!str_cmp(argument, "list"))
         {
-                if (get_trust(ch) >= LEVEL_ASCENDANT)
+                if (get_trust(ch) >= LevelAscendant)
                 {
                         send_to_char("\n\r VNUM \n\r.......\n\r", ch);
                         show_file(ch, IDEA_FILE);
@@ -1674,7 +1674,7 @@ CMDF do_idea(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_typo(CHAR_DATA * ch, char *argument)
+CMDF do_typo(CharData * ch, char *argument)
 {
         set_char_color(AT_PLAIN, ch);
         if (argument[0] == '\0')
@@ -1682,13 +1682,13 @@ CMDF do_typo(CHAR_DATA * ch, char *argument)
                 send_to_char
                         ("\n\rUsage:  'typo <message>'  (your location is automatically recorded)\n\r",
                          ch);
-                if (get_trust(ch) >= LEVEL_ASCENDANT)
+                if (get_trust(ch) >= LevelAscendant)
                         send_to_char
                                 ("Usage:  'typo list' or 'typo clear now'\n\r",
                                  ch);
                 return;
         }
-        if (!str_cmp(argument, "clear now") && get_trust(ch) >= LEVEL_SUPREME)
+        if (!str_cmp(argument, "clear now") && get_trust(ch) >= LevelSupreme)
         {
                 FILE     *fp = fopen(TYPO_FILE, "w");
 
@@ -1699,7 +1699,7 @@ CMDF do_typo(CHAR_DATA * ch, char *argument)
                 send_to_char("Typo file cleared.\n\r", ch);
                 return;
         }
-        if (!str_cmp(argument, "list") && get_trust(ch) >= LEVEL_ASCENDANT)
+        if (!str_cmp(argument, "list") && get_trust(ch) >= LevelAscendant)
         {
                 send_to_char("VNUM \n\r.......\n\r", ch);
                 show_file(ch, TYPO_FILE);
@@ -1712,7 +1712,7 @@ CMDF do_typo(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_qui(CHAR_DATA * ch, [[maybe_unused]] char *argument)
+CMDF do_qui(CharData * ch, [[maybe_unused]] char *argument)
 {
         argument = NULL;
         set_char_color(AT_RED, ch);
@@ -1728,10 +1728,10 @@ CMDF do_qui(CHAR_DATA * ch, [[maybe_unused]] char *argument)
 /*
  * Quit command - leave the game
  */
-CMDF do_quit(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
+CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
 {
 
-        char      buf[MAX_INPUT_LENGTH];
+        char      buf[MaxInputLength];
 
 /*   int x, y; */
         int       level;
@@ -1793,7 +1793,7 @@ CMDF do_quit(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
         set_char_color(AT_GREY, ch);
         if (!IS_SET(ch->act, PLR_WIZINVIS) && ch->desc)
         {
-                snprintf(buf, MAX_INPUT_LENGTH, "%s has left %s", ch->name,
+                snprintf(buf, MaxInputLength, "%s has left %s", ch->name,
                          sysdata.mud_name);
                 info_chan(buf);
         }
@@ -1818,7 +1818,7 @@ CMDF do_quit(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
 #endif
         extract_char(ch, TRUE);
 /*    for ( x = 0; x < MAX_WEAR; x++ )
-	for ( y = 0; y < MAX_LAYERS; y++ )
+	for ( y = 0; y < MaxLayers; y++ )
 	    save_equipment[x][y] = NULL; - WTF */
 
         /*
@@ -1828,9 +1828,9 @@ CMDF do_quit(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
         return;
 }
 
-CMDF do_ansi(CHAR_DATA * ch, char *argument)
+CMDF do_ansi(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         one_argument(argument, arg);
 
@@ -1855,7 +1855,7 @@ CMDF do_ansi(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_save(CHAR_DATA * ch, const char *argument)
+CMDF do_save(CharData * ch, const char *argument)
 {
         bool      silent = FALSE;
 
@@ -1899,7 +1899,7 @@ CMDF do_save(CHAR_DATA * ch, const char *argument)
         return;
 }
 
-void auto_save(CHAR_DATA * ch)
+void auto_save(CharData * ch)
 {
         if (IS_NPC(ch) && IS_SET(ch->act, ACT_POLYMORPHED))
         {
@@ -1935,9 +1935,9 @@ void auto_save(CHAR_DATA * ch)
  * follow in a loop through an exit leading back into the same room
  * (Which exists in many maze areas)			-Thoric
  */
-bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
+bool circle_follow(CharData * ch, CharData * victim)
 {
-        CHAR_DATA *tmp;
+        CharData *tmp;
 
         for (tmp = victim; tmp; tmp = tmp->master)
                 if (tmp == ch)
@@ -1953,10 +1953,10 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 /*
  * Follow command - follow another character
  */
-CMDF do_follow(CHAR_DATA* ch, char* argument)
+CMDF do_follow(CharData* ch, char* argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
 
         one_argument(argument, arg);
 
@@ -2007,7 +2007,7 @@ CMDF do_follow(CHAR_DATA* ch, char* argument)
 
 
 
-void add_follower(CHAR_DATA * ch, CHAR_DATA * master)
+void add_follower(CharData * ch, CharData * master)
 {
         if (ch->master)
         {
@@ -2029,7 +2029,7 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * master)
 
 
 
-void stop_follower(CHAR_DATA * ch)
+void stop_follower(CharData * ch)
 {
         if (!ch->master)
         {
@@ -2062,16 +2062,16 @@ void stop_follower(CHAR_DATA * ch)
 
 
 
-void die_follower(CHAR_DATA * ch)
+void die_follower(CharData * ch)
 {
-        CHAR_DATA *fch;
+        CharData *fch;
 
         if (ch->master)
                 stop_follower(ch);
 
         ch->leader = NULL;
 
-        CHECK_LINKS(first_char, last_char, next, prev, CHAR_DATA);
+        CHECK_LINKS(first_char, last_char, next, prev, CharData);
         for (fch = first_char; fch; fch = fch->next)
         {
                 if (fch->master == ch)
@@ -2090,13 +2090,13 @@ void die_follower(CHAR_DATA * ch)
 
 
 
-CMDF do_order(CHAR_DATA * ch, char *argument)
+CMDF do_order(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      argbuf[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        CHAR_DATA *och;
-        CHAR_DATA *och_next;
+        char      arg[MaxInputLength];
+        char      argbuf[MaxInputLength];
+        CharData *victim;
+        CharData *och;
+        CharData *och_next;
         bool      found;
         bool      fAll;
 
@@ -2170,17 +2170,17 @@ CMDF do_order(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_group(CHAR_DATA * ch, char *argument)
+CMDF do_group(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim = NULL;
+        char      arg[MaxInputLength];
+        CharData *victim = NULL;
 
         one_argument(argument, arg);
 
         if (arg[0] == '\0')
         {
-                CHAR_DATA *gch;
-                CHAR_DATA *leader;
+                CharData *gch;
+                CharData *leader;
 
                 leader = ch->leader ? ch->leader : ch;
                 set_char_color(AT_GREEN, ch);
@@ -2219,7 +2219,7 @@ CMDF do_group(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg, "disband"))
         {
-                CHAR_DATA *gch;
+                CharData *gch;
                 int       count = 0;
 
                 if (ch->leader || ch->master)
@@ -2254,7 +2254,7 @@ CMDF do_group(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg, "all"))
         {
-                CHAR_DATA *rch;
+                CharData *rch;
                 int       count = 0;
 
                 for (rch = ch->in_room->first_person; rch;
@@ -2333,11 +2333,11 @@ CMDF do_group(CHAR_DATA * ch, char *argument)
 /*
  * 'Split' originally by Gnort, God of Chaos.
  */
-CMDF do_split(CHAR_DATA * ch, const char *argument)
+CMDF do_split(CharData * ch, const char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *gch;
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength];
+        CharData *gch;
         int       members;
         int       amount;
         int       share;
@@ -2426,9 +2426,9 @@ CMDF do_split(CHAR_DATA * ch, const char *argument)
 /*
  * Group tell command - send message to all group members
  */
-CMDF do_gtell(CHAR_DATA* ch, char* argument)
+CMDF do_gtell(CharData* ch, char* argument)
 {
-        CHAR_DATA *gch;
+        CharData *gch;
 
         if (argument[0] == '\0')
         {
@@ -2476,7 +2476,7 @@ CMDF do_gtell(CHAR_DATA* ch, char* argument)
  * (2) if A ~ B then B ~ A
  * (3) if A ~ B  and B ~ C, then A ~ C
  */
-bool is_same_group(CHAR_DATA * ach, CHAR_DATA * bch)
+bool is_same_group(CharData * ach, CharData * bch)
 {
         if (ach->leader)
                 ach = ach->leader;
@@ -2492,9 +2492,9 @@ bool is_same_group(CHAR_DATA * ach, CHAR_DATA * bch)
 
 void talk_auction(char *argument)
 {
-        DESCRIPTOR_DATA *d;
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *original;
+        DescriptorData *d;
+        char      buf[MaxStringLength];
+        CharData *original;
 
         snprintf(buf, MSL, "Auction: %s", argument);    /* last %s to reset color */
 
@@ -2516,7 +2516,7 @@ void talk_auction(char *argument)
  * Language support functions. -- Altrag
  * 07/01/96
  */
-bool knows_language(CHAR_DATA* ch, LANGUAGE_DATA* lang, CHAR_DATA* cch)
+bool knows_language(CharData* ch, LANGUAGE_DATA* lang, CharData* cch)
 {
         sh_int    sn;
 
@@ -2565,7 +2565,7 @@ bool knows_language(CHAR_DATA* ch, LANGUAGE_DATA* lang, CHAR_DATA* cch)
         return FALSE;
 }
 
-bool can_learn_lang(CHAR_DATA * ch, LANGUAGE_DATA * lang)
+bool can_learn_lang(CharData * ch, LANGUAGE_DATA * lang)
 {
         if (!str_cmp(lang->name, "clan"))
                 return FALSE;
@@ -2600,10 +2600,10 @@ const char* const lang_names[] =
 /*
  * Speak command - change the language being spoken
  */
-CMDF do_speak(CHAR_DATA* ch, char* argument)
+CMDF do_speak(CharData* ch, char* argument)
 {
         LANGUAGE_DATA *language;
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         argument = one_argument(argument, arg);
 
@@ -2660,13 +2660,13 @@ CMDF do_speak(CHAR_DATA* ch, char* argument)
         send_to_char("You do not know that language.\n\r", ch);
 }
 
-CMDF do_languages(CHAR_DATA * ch, char *argument)
+CMDF do_languages(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         LANGUAGE_DATA *language = NULL, *lang2 = NULL;
         int       sn2, sn;
         int       numlang = 0;
-        CHAR_DATA *victim = NULL;
+        CharData *victim = NULL;
 
         if (IS_NPC(ch))
                 return;
@@ -2674,8 +2674,8 @@ CMDF do_languages(CHAR_DATA * ch, char *argument)
         if (arg[0] != '\0' && !str_prefix(arg, "learn") &&
             !IS_IMMORTAL(ch) && !IS_NPC(ch))
         {
-                CHAR_DATA *sch;
-                char      arg2[MAX_INPUT_LENGTH];
+                CharData *sch;
+                char      arg2[MaxInputLength];
                 int       prct;
 
                 argument = one_argument(argument, arg2);
@@ -2802,10 +2802,10 @@ CMDF do_languages(CHAR_DATA * ch, char *argument)
         return;
 }
 
-bool is_ignoring(CHAR_DATA * ch, CHAR_DATA * victim)
+bool is_ignoring(CharData * ch, CharData * victim)
 {
         int       pos;
-        CHAR_DATA *rch;
+        CharData *rch;
 
         if (ch->desc == NULL)
                 rch = ch;
@@ -2815,7 +2815,7 @@ bool is_ignoring(CHAR_DATA * ch, CHAR_DATA * victim)
         if (IS_NPC(rch) || IS_NPC(victim))
                 return FALSE;
 
-        for (pos = 0; pos < MAX_IGNORE; pos++)
+        for (pos = 0; pos < MaxIgnore; pos++)
         {
                 if (!IS_NPC(rch))
                         if (rch->pcdata->ignore[pos] == NULL)
@@ -2828,9 +2828,9 @@ bool is_ignoring(CHAR_DATA * ch, CHAR_DATA * victim)
         return FALSE;
 }
 
-CMDF do_ignore(CHAR_DATA * ch, char *argument)
+CMDF do_ignore(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim, *rch;
+        CharData *victim, *rch;
         int       pos;
 
         if (ch->desc == NULL)
@@ -2849,7 +2849,7 @@ CMDF do_ignore(CHAR_DATA * ch, char *argument)
 
         if (!str_cmp(argument, "list"))
         {
-                for (pos = 0; pos < MAX_IGNORE; pos++)
+                for (pos = 0; pos < MaxIgnore; pos++)
                 {
                         if (rch->pcdata->ignore[pos] == NULL)
                                 break;
@@ -2880,7 +2880,7 @@ CMDF do_ignore(CHAR_DATA * ch, char *argument)
                 return;
         }
 
-        for (pos = 0; pos < MAX_IGNORE; pos++)
+        for (pos = 0; pos < MaxIgnore; pos++)
         {
                 if (rch->pcdata->ignore[pos] == NULL)
                         break;
@@ -2895,7 +2895,7 @@ CMDF do_ignore(CHAR_DATA * ch, char *argument)
                 }
         }
 
-        if (pos >= MAX_IGNORE)
+        if (pos >= MaxIgnore)
         {
                 send_to_char("You can't ignore anymore people\n\r", ch);
                 return;
@@ -2908,10 +2908,10 @@ CMDF do_ignore(CHAR_DATA * ch, char *argument)
 }
 
 /* tunes a characters comlink to a certain channel */
-CMDF do_tune(CHAR_DATA * ch, char *argument)
+CMDF do_tune(CharData * ch, char *argument)
 {
 
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       station;
 
         if (IS_NPC(ch))
@@ -2957,11 +2957,11 @@ CMDF do_tune(CHAR_DATA * ch, char *argument)
 }
 
 /* sends a message to the station your tuned too */
-CMDF do_talk(CHAR_DATA * ch, char *argument)
+CMDF do_talk(CharData * ch, char *argument)
 {
-        DESCRIPTOR_DATA *d;
+        DescriptorData *d;
         int       station;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (IS_NPC(ch))
                 return;
@@ -3007,8 +3007,8 @@ CMDF do_talk(CHAR_DATA * ch, char *argument)
                  station);
         for (d = first_descriptor; d; d = d->next)
         {
-                [[maybe_unused]] CHAR_DATA *och;
-                CHAR_DATA *vch;
+                [[maybe_unused]] CharData *och;
+                CharData *vch;
 
                 och = d->original ? d->original : d->character;
                 vch = d->character;
@@ -3039,28 +3039,28 @@ CMDF do_talk(CHAR_DATA * ch, char *argument)
         return;
 }
 
-char     *append_lang(const char *argument, CHAR_DATA * ch,
-                      CHAR_DATA * victim)
+char     *append_lang(const char *argument, CharData * ch,
+                      CharData * victim)
 {
-        static char buf[MAX_INPUT_LENGTH * 2];
+        static char buf[MaxInputLength * 2];
 
         buf[0] = '\0';
         if (!IS_NPC(victim) && !IS_SET(victim->act, PLR_BRIEF)
             && knows_language(victim, ch->speaking, ch))
         {
-                snprintf(buf, MAX_INPUT_LENGTH * 2, "(%s) ", ch->speaking->name);
+                snprintf(buf, MaxInputLength * 2, "(%s) ", ch->speaking->name);
         }
         mudstrlcat(buf, argument, MIL * 2);
         return buf;
 }
 
 
-CMDF do_say_to_char(CHAR_DATA * ch, char *argument)
+CMDF do_say_to_char(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH], _last_char;
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *vch;
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength], _last_char;
+        char      buf[MaxStringLength];
+        CharData *vch;
+        CharData *victim;
         int       actflags;
         int       arglen;
 
@@ -3196,9 +3196,9 @@ CMDF do_say_to_char(CHAR_DATA * ch, char *argument)
 /*
  * Say command - speak to everyone in the room
  */
-CMDF do_say(CHAR_DATA* ch, const char* argument)
+CMDF do_say(CharData* ch, const char* argument)
 {
-        CHAR_DATA *vch;
+        CharData *vch;
         char      _last_char;
         int       actflags;
         int       arglen;
@@ -3287,7 +3287,7 @@ CMDF do_say(CHAR_DATA* ch, const char* argument)
         MOBtrigger = FALSE;
         if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
         {
-                char      buf[MAX_STRING_LENGTH];
+                char      buf[MaxStringLength];
 
                 snprintf(buf, MSL, "%s: %s",
                          IS_NPC(ch) ? ch->short_descr : ch->name, argument);

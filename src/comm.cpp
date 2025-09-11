@@ -141,7 +141,7 @@ static void copy_and_escape_to_buf(unsigned char *gmcp_buf, int *len, size_t buf
     }
 }
 
-void send_gmcp_event(DESCRIPTOR_DATA *d, const char *event, const char *data) {
+void send_gmcp_event(DescriptorData *d, const char *event, const char *data) {
         /*
          * Build a GMCP subnegotiation payload according to the common GMCP
          * convention: "Event.Name <json>". We must frame with IAC SB TELOPT_GMCP
@@ -201,13 +201,13 @@ const unsigned char will_gmcp_str[]     = { IAC, WILL, TELOPT_GMCP, '\0' };
 
 #ifdef MCCP
 // MCCP (Mud Client Compression Protocol)
-const unsigned char will_compress_str[]  = { IAC, WILL, TELOPT_COMPRESS, '\0' };
-const unsigned char will_compress2_str[] = { IAC, WILL, TELOPT_COMPRESS2, '\0' };
-const unsigned char do_compress1_str[]   = { IAC, DO, TELOPT_COMPRESS, '\0' };
-const unsigned char dont_compress1_str[] = { IAC, DONT, TELOPT_COMPRESS, '\0' };
-const unsigned char do_compress2_str[]   = { IAC, DO, TELOPT_COMPRESS2, '\0' };
-const unsigned char dont_compress2_str[] = { IAC, DONT, TELOPT_COMPRESS2, '\0' };
-const unsigned char send_compress2_str[] = { IAC, SB, TELOPT_COMPRESS2, IAC, SE, '\0' };
+const unsigned char will_compress_str[]  = { IAC, WILL, TeloptCompress, '\0' };
+const unsigned char will_compress2_str[] = { IAC, WILL, TeloptCompress2, '\0' };
+const unsigned char do_compress1_str[]   = { IAC, DO, TeloptCompress, '\0' };
+const unsigned char dont_compress1_str[] = { IAC, DONT, TeloptCompress, '\0' };
+const unsigned char do_compress2_str[]   = { IAC, DO, TeloptCompress2, '\0' };
+const unsigned char dont_compress2_str[] = { IAC, DONT, TeloptCompress2, '\0' };
+const unsigned char send_compress2_str[] = { IAC, SB, TeloptCompress2, IAC, SE, '\0' };
 #endif
 
 // =============================================================================
@@ -227,17 +227,17 @@ void memory_cleanup args((void));
 int main args((int argc, char **argv));
 
 // Character and help functions
-extern bool is_ignoring(CHAR_DATA * ch, CHAR_DATA * victim);
-HELP_DATA *get_help(CHAR_DATA * ch, char *argument);
+extern bool is_ignoring(CharData * ch, CharData * victim);
+HelpData *get_help(CharData * ch, char *argument);
 bool char_exists(char *player);
-void show_condition(CHAR_DATA * ch, CHAR_DATA * victim);
-void mail_count args((CHAR_DATA * ch));
+void show_condition(CharData * ch, CharData * victim);
+void mail_count args((CharData * ch));
 
 // Network and descriptor functions
 void game_loop args((void));
 int init_socket args((int init_port));
 void new_descriptor args((int new_desc));
-bool read_from_descriptor args((DESCRIPTOR_DATA * d));
+bool read_from_descriptor args((DescriptorData * d));
 bool write_to_descriptor args((int desc, char *txt, int length));
 #if MCCP
 bool write_to_descriptor_old args((int desc, char *txt, int length));
@@ -245,21 +245,21 @@ bool write_to_descriptor_old args((int desc, char *txt, int length));
 
 // Connection and parsing functions
 bool check_parse_name args((char *name));
-bool check_reconnect args((DESCRIPTOR_DATA * d, char *name, bool fConn));
-sh_int check_playing args((DESCRIPTOR_DATA * d, char *name, bool kick));
-bool check_multi args((DESCRIPTOR_DATA * d, char *name));
-void nanny args((DESCRIPTOR_DATA * d, char *argument));
+bool check_reconnect args((DescriptorData * d, char *name, bool fConn));
+sh_int check_playing args((DescriptorData * d, char *name, bool kick));
+bool check_multi args((DescriptorData * d, char *name));
+void nanny args((DescriptorData * d, char *argument));
 
 // Buffer and I/O functions
-bool flush_buffer args((DESCRIPTOR_DATA * d, bool fPrompt));
-void read_from_buffer args((DESCRIPTOR_DATA * d));
-void stop_idling args((CHAR_DATA * ch));
-void free_desc args((DESCRIPTOR_DATA * d));
-void display_prompt args((DESCRIPTOR_DATA * d));
-int make_color_sequence args((const char *col, char *buf, DESCRIPTOR_DATA * d));
-void set_pager_input args((DESCRIPTOR_DATA * d, char *argument));
-bool pager_output args((DESCRIPTOR_DATA * d));
-void show_stat_options args((DESCRIPTOR_DATA * d, CHAR_DATA * ch));
+bool flush_buffer args((DescriptorData * d, bool fPrompt));
+void read_from_buffer args((DescriptorData * d));
+void stop_idling args((CharData * ch));
+void free_desc args((DescriptorData * d));
+void display_prompt args((DescriptorData * d));
+int make_color_sequence args((const char *col, char *buf, DescriptorData * d));
+void set_pager_input args((DescriptorData * d, char *argument));
+bool pager_output args((DescriptorData * d));
+void show_stat_options args((DescriptorData * d, CharData * ch));
 
 // Utility functions
 char *current_date args((void));
@@ -277,20 +277,20 @@ extern CHANGE_DATA *changes_table;
 // =============================================================================
 // Global Variables
 // =============================================================================
-DESCRIPTOR_DATA *first_descriptor = NULL;   /* First descriptor     */
-DESCRIPTOR_DATA *last_descriptor = NULL;    /* Last descriptor      */
-DESCRIPTOR_DATA *d_next = NULL; /* Next descriptor in loop  */
+DescriptorData *first_descriptor = NULL;   /* First descriptor     */
+DescriptorData *last_descriptor = NULL;    /* Last descriptor      */
+DescriptorData *d_next = NULL; /* Next descriptor in loop  */
 int       num_descriptors;
 FILE     *fpReserve = NULL; /* Reserved file handle     */
 bool      mud_down; /* Shutdown         */
 bool      wizlock;  /* Game is wizlocked        */
 time_t    boot_time;
-HOUR_MIN_SEC set_boot_time_struct;
-HOUR_MIN_SEC *set_boot_time = NULL;
+HourMinSec set_boot_time_struct;
+HourMinSec *set_boot_time = NULL;
 struct tm *new_boot_time;
 struct tm new_boot_struct;
-char      str_boot_time[MAX_INPUT_LENGTH];
-char      lastplayercmd[MAX_INPUT_LENGTH * 2];
+char      str_boot_time[MaxInputLength];
+char      lastplayercmd[MaxInputLength * 2];
 time_t    current_time; /* Time of this pulse       */
 int       port; /* Port number to be used       */
 int       control;  /* Controlling descriptor   */
@@ -565,7 +565,7 @@ int init_socket(int init_port)
 static void SegVio(int signum)
 {
         pid_t     p;
-        DESCRIPTOR_DATA *d;
+        DescriptorData *d;
         char      buf[MSL];
 
         (void)signum;    /* Unused parameter */
@@ -610,7 +610,7 @@ static void SegVio(int signum)
                         crashover = FALSE;
                         echo_to_all(AT_RED,
                                     const_cast<char *>("&RATTENTION!! Crash, Hold on while we try and recover.\a"),
-                                    ECHOTAR_ALL);
+                                    EchoTarAll);
                         for (d = first_descriptor; d; d = d->next)
                                 flush_buffer(d, TRUE);
                         log_string("Crashover ready. Starting crashover.");
@@ -637,17 +637,17 @@ void init_crashover(void)
 
 static void SigTerm(int signum)
 {
-        CHAR_DATA *vch;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *vch;
+        char      buf[MaxStringLength];
 
         (void)signum;    /* Unused parameter */
 
         snprintf(log_buf, MSL, "%s",
                  "&RATTENTION!! Message from game server: &YEmergency shutdown called.\a");
-        echo_to_all(AT_RED, log_buf, ECHOTAR_ALL);
+        echo_to_all(AT_RED, log_buf, EchoTarAll);
         snprintf(log_buf, MSL, "%s",
                  "Executing emergency shutdown proceedure.");
-        echo_to_all(AT_YELLOW, log_buf, ECHOTAR_ALL);
+        echo_to_all(AT_YELLOW, log_buf, EchoTarAll);
         log_string
                 ("Message from server: Executing emergency shutdown proceedure.");
         mudstrlcat(buf, "\n\r", MSL);
@@ -706,10 +706,10 @@ static void SigTerm(int signum)
  *
 static void caught_alarm( void )
 {
-    char buf[MAX_STRING_LENGTH];
+    char buf[MaxStringLength];
     bug( "ALARM CLOCK!" );
     mudstrlcpy( buf, "Alas, the hideous malevalent entity known only as 'Lag' rises once more!\n\r",MSL);
-    echo_to_all( AT_IMMORT, buf, ECHOTAR_ALL );
+    echo_to_all( AT_IMMORT, buf, EchoTarAll );
     if ( newdesc )
     {
 	FD_CLR( newdesc, &in_set );
@@ -748,10 +748,10 @@ bool chk_watch(sh_int player_level, char *player_name, char *player_site,
 bool chk_watch(sh_int player_level, char *player_name, char *player_site)
 #endif
 {
-        WATCH_DATA *pw;
+        WatchData *pw;
 
 /*
-    char buf[MAX_INPUT_LENGTH];
+    char buf[MaxInputLength];
     snprintf( buf, MSL, "che_watch entry: plev=%d pname=%s psite=%s",
                   player_level, player_name, player_site);
     log_string(buf);
@@ -791,7 +791,7 @@ bool chk_watch(sh_int player_level, char *player_name, char *player_site)
 void accept_new(int ctrl)
 {
         static struct timeval null_time;
-        DESCRIPTOR_DATA *d;
+        DescriptorData *d;
 
         /*
          * int maxdesc; Moved up for use with id.c as extern 
@@ -848,8 +848,8 @@ void accept_new(int ctrl)
 void game_loop()
 {
         struct timeval last_time;
-        char      cmdline[MAX_INPUT_LENGTH];
-        DESCRIPTOR_DATA *d;
+        char      cmdline[MaxInputLength];
+        DescriptorData *d;
 
 /*  time_t	last_check = 0;  */
 
@@ -1039,7 +1039,7 @@ void game_loop()
 
                 /*
                  * Synchronize to a clock.
-                 * Sleep( last_time + 1/PULSE_PER_SECOND - now ).
+                 * Sleep( last_time + 1/PulsePerSecond - now ).
                  * Careful here of signed versus unsigned arithmetic.
                  */
                 {
@@ -1051,7 +1051,7 @@ void game_loop()
                         usecDelta =
                                 static_cast<int>(last_time.tv_usec) -
                                 static_cast<int>(now_time.tv_usec) +
-                                1000000 / PULSE_PER_SECOND;
+                                1000000 / PulsePerSecond;
                         secDelta =
                                 static_cast<int>(last_time.tv_sec) -
                                 static_cast<int>(now_time.tv_sec);
@@ -1090,7 +1090,7 @@ void game_loop()
                  * if ( last_check+5 < current_time )
                  * {
                  * CHECK_LINKS(first_descriptor, last_descriptor, next, prev,
-                 * DESCRIPTOR_DATA);
+                 * DescriptorData);
                  * last_check = current_time;
                  * }
                  */
@@ -1098,7 +1098,7 @@ void game_loop()
         return;
 }
 
-void init_descriptor(DESCRIPTOR_DATA * dnew, int desc)
+void init_descriptor(DescriptorData * dnew, int desc)
 {
         dnew->next = NULL;
         dnew->process = 0;  /* Samson 4-16-98 - For new command shell */
@@ -1140,8 +1140,8 @@ void init_descriptor(DESCRIPTOR_DATA * dnew, int desc)
 
 void new_descriptor(int new_desc)
 {
-        char      buf[MAX_STRING_LENGTH];
-        DESCRIPTOR_DATA *dnew;
+        char      buf[MaxStringLength];
+        DescriptorData *dnew;
         // Removing unused variable: struct hostent *from;
         struct sockaddr_in sock;
         size_t       size; /* GCC4 doesn't like these as ints */
@@ -1184,7 +1184,7 @@ void new_descriptor(int new_desc)
         if (check_bad_desc(new_desc))
                 return;
 
-        CREATE(dnew, DESCRIPTOR_DATA, 1);
+        CREATE(dnew, DescriptorData, 1);
         init_descriptor(dnew, desc);
         // No need to store the result in a variable since we're not using it
         gethostbyaddr(reinterpret_cast<char *>(&sock.sin_addr), sizeof(sock.sin_addr),
@@ -1230,7 +1230,7 @@ void new_descriptor(int new_desc)
 
         if (!last_descriptor && first_descriptor)
         {
-                DESCRIPTOR_DATA *d;
+                DescriptorData *d;
 
                 bug("New_descriptor: last_desc is NULL, but first_desc is not! ...fixing");
                 for (d = first_descriptor; d; d = d->next)
@@ -1309,7 +1309,7 @@ void new_descriptor(int new_desc)
         return;
 }
 
-void free_desc(DESCRIPTOR_DATA * d)
+void free_desc(DescriptorData * d)
 {
         close(d->descriptor);
         STRFREE(d->host);
@@ -1326,10 +1326,10 @@ void free_desc(DESCRIPTOR_DATA * d)
         return;
 }
 
-void close_socket(DESCRIPTOR_DATA * dclose, bool force)
+void close_socket(DescriptorData * dclose, bool force)
 {
-        CHAR_DATA *ch;
-        DESCRIPTOR_DATA *d;
+        CharData *ch;
+        DescriptorData *d;
         bool      DoNotUnlink = FALSE;
 
         if (dclose->ipid != -1)
@@ -1384,7 +1384,7 @@ void close_socket(DESCRIPTOR_DATA * dclose, bool force)
          */
         if (!dclose->prev && dclose != first_descriptor)
         {
-                DESCRIPTOR_DATA *dp, *dn;
+                DescriptorData *dp, *dn;
 
                 bug("Close_socket: %s desc:%p != first_desc:%p and desc->prev = NULL!", ch ? ch->name : d->host, dclose, first_descriptor);
                 dp = NULL;
@@ -1408,7 +1408,7 @@ void close_socket(DESCRIPTOR_DATA * dclose, bool force)
         }
         if (!dclose->next && dclose != last_descriptor)
         {
-                DESCRIPTOR_DATA *dp, *dn;
+                DescriptorData *dp, *dn;
 
                 bug("Close_socket: %s desc:%p != last_desc:%p and desc->next = NULL!", ch ? ch->name : d->host, dclose, last_descriptor);
                 dn = NULL;
@@ -1483,7 +1483,7 @@ void close_socket(DESCRIPTOR_DATA * dclose, bool force)
 }
 
 
-bool read_from_descriptor(DESCRIPTOR_DATA * d)
+bool read_from_descriptor(DescriptorData * d)
 {
         int       iStart;
 
@@ -1544,7 +1544,7 @@ bool read_from_descriptor(DESCRIPTOR_DATA * d)
 /*
  * Transfer one line from input buffer to input line.
  */
-void read_from_buffer(DESCRIPTOR_DATA * d)
+void read_from_buffer(DescriptorData * d)
 {
         int       i, j, k, iac = 0;
         unsigned char *p;
@@ -1602,7 +1602,7 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
          * Look for at least one new line.
          */
         for (i = 0;
-             d->inbuf[i] != '\n' && d->inbuf[i] != '\r' && i < MAX_INBUF_SIZE;
+             d->inbuf[i] != '\n' && d->inbuf[i] != '\r' && i < MaxInbufSize;
              i++)
         {
 #ifdef DEBUG
@@ -1648,7 +1648,7 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
          */
         for (i = 0, k = 0; d->inbuf[i] != '\n' && d->inbuf[i] != '\r'; i++)
         {
-                if (k >= (MAX_INBUF_SIZE-20))
+                if (k >= (MaxInbufSize-20))
                 {
                         write_to_descriptor(d->descriptor,
                                             const_cast<char*>("Line too long.\n\r"), 0);
@@ -1675,23 +1675,23 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
                         }
 #ifdef MCCP
                         else if (d->inbuf[i] ==
-                                 static_cast<signed char>(TELOPT_COMPRESS2))
+                                 static_cast<signed char>(TeloptCompress2))
                         {
                                 if (d->inbuf[i - 1] == static_cast<signed char>(DO)
                                     && !d->compressing)
-                                        compressStart(d, TELOPT_COMPRESS2);
-                                else if (d->compressing == TELOPT_COMPRESS2
+                                        compressStart(d, TeloptCompress2);
+                                else if (d->compressing == TeloptCompress2
                                          && d->inbuf[i - 1] ==
                                          static_cast<signed char>(DONT))
                                         compressEnd(d);
                         }
                         else if (d->inbuf[i] ==
-                                 static_cast<signed char>(TELOPT_COMPRESS2))
+                                 static_cast<signed char>(TeloptCompress2))
                         {
                                 if (d->inbuf[i - 1] == static_cast<signed char>(DO)
                                     && !d->compressing)
-                                        compressStart(d, TELOPT_COMPRESS);
-                                else if (d->compressing == TELOPT_COMPRESS
+                                        compressStart(d, TeloptCompress);
+                                else if (d->compressing == TeloptCompress
                                          && d->inbuf[i - 1] ==
                                          static_cast<signed char>(DONT))
                                         compressEnd(d);
@@ -1799,10 +1799,10 @@ void read_from_buffer(DESCRIPTOR_DATA * d)
 /*
  * Low level output function.
  */
-bool flush_buffer(DESCRIPTOR_DATA * d, bool fPrompt)
+bool flush_buffer(DescriptorData * d, bool fPrompt)
 {
         char      buf[MIL * 5];
-        CHAR_DATA *ch;
+        CharData *ch;
 
         ch = d->original ? d->original : d->character;
         if (ch && ch->fighting && ch->fighting->who)
@@ -1916,7 +1916,7 @@ bool flush_buffer(DESCRIPTOR_DATA * d, bool fPrompt)
 /*
  * Append onto an output buffer.
  */
-bool write_to_buffer(DESCRIPTOR_DATA * d, const char *txt, int length)
+bool write_to_buffer(DescriptorData * d, const char *txt, int length)
 {
         int       origlength = 0;
 
@@ -2006,7 +2006,7 @@ bool write_to_buffer(DESCRIPTOR_DATA * d, const char *txt, int length)
 
 bool write_to_descriptor(int desc, char *txt, int length)
 {
-        DESCRIPTOR_DATA *d = NULL;
+        DescriptorData *d = NULL;
         int       iStart = 0;
         int       nWrite = 0;
         int       nBlock;
@@ -2038,7 +2038,7 @@ bool write_to_descriptor(int desc, char *txt, int length)
                 while (d->out_compress->avail_in)
                 {
                         d->out_compress->avail_out = static_cast<uInt>(
-                                COMPRESS_BUF_SIZE -
+                                CompressBufSize -
                                 static_cast<int>(d->out_compress->next_out -
                                  d->out_compress_buf));
 
@@ -2153,7 +2153,7 @@ bool write_to_descriptor(int desc, char *txt, int length)
         return TRUE;
 }
 
-void show_title(DESCRIPTOR_DATA * d)
+void show_title(DescriptorData * d)
 {
         write_to_buffer(d, "Press enter...\n\r", 0);
         d->connected = static_cast<sh_int>(CON_PRESS_ENTER);
@@ -2163,11 +2163,11 @@ void show_title(DESCRIPTOR_DATA * d)
 /*
  * Deal with sockets that haven't logged in yet.
  */
-void nanny(DESCRIPTOR_DATA * d, char *argument)
+void nanny(DescriptorData * d, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_STRING_LENGTH];
-        CHAR_DATA *ch;
+        char      buf[MaxStringLength];
+        char      arg[MaxStringLength];
+        CharData *ch;
         // Removed unused variable: char *pwdnew;
         char     *p;
         int       iClass;
@@ -2175,7 +2175,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
         sh_int    chk;
         int       i, immchanges = 0;
         int       col = 0;
-        RACE_DATA *race = NULL;
+        RaceData *race = NULL;
 
 #ifdef ACCOUNT
         int       count;
@@ -2577,7 +2577,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 if (is_number(argument))
                 {
                         count = atoi(argument);
-                        if (count < 0 || count >= MAX_CHARACTERS
+                        if (count < 0 || count >= MaxCharacters
                             || d->account->character[count] == NULL)
                         {
                                 send_to_desc_color
@@ -2649,7 +2649,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                 }
                 else
                 {
-                        for (count = 0; count < MAX_CHARACTERS; count++)
+                        for (count = 0; count < MaxCharacters; count++)
                         {
                                 /*
                                  * Cleaner to use a linked list for this 
@@ -2664,7 +2664,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                                         break;
                         }
                         if (d->account->character[count] == NULL
-                            || count == MAX_CHARACTERS)
+                            || count == MaxCharacters)
                         {
                                 send_to_desc_color("\n\rInvalid Choice: ", d);
                                 return;
@@ -2853,7 +2853,7 @@ void nanny(DESCRIPTOR_DATA * d, char *argument)
                         return;
                 }
 
-                for (count = 0; count < MAX_CHARACTERS; count++)
+                for (count = 0; count < MaxCharacters; count++)
                 {
                         if (d->account->character[count] == NULL)
                                 continue;
@@ -3419,7 +3419,7 @@ case CON_GET_NAME:
                         ("&z|-----------------------------------------------------------------------|\n\r",
                          d);
                 col = 0;
-                for (iClass = 0; iClass < MAX_ABILITY; iClass++)
+                for (iClass = 0; iClass < MaxAbility; iClass++)
                 {
                         if (ch->race
                             && IS_SET(ch->race->class_restriction(),
@@ -3469,7 +3469,7 @@ case CON_GET_NAME:
                                            d);
                         return;
                 }
-                for (iClass = 0; iClass < MAX_ABILITY; iClass++)
+                for (iClass = 0; iClass < MaxAbility; iClass++)
                 {
                         if (ch->race
                             && IS_SET(ch->race->class_restriction(),
@@ -3484,7 +3484,7 @@ case CON_GET_NAME:
                                 break;
                         }
                 }
-                if (iClass == MAX_ABILITY || !ability_name[iClass]
+                if (iClass == MaxAbility || !ability_name[iClass]
                     || ability_name[iClass][0] == '\0' || (iClass == 7
                                                            && d->account->
                                                            rppoints < 20)
@@ -3910,7 +3910,7 @@ case CON_GET_NAME:
                 {
                         int       ability;
 
-                        for (ability = 0; ability < MAX_ABILITY; ability++)
+                        for (ability = 0; ability < MaxAbility; ability++)
                                 ch->skill_level[ability] = 0;
                 }
                 ch->top_level = static_cast<sh_int>(0);
@@ -3941,7 +3941,7 @@ case CON_GET_NAME:
 #endif
                 if (IS_IMMORTAL(ch))
                 {
-                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("imotd"));
+                        HelpData *pHelp = get_help(ch, const_cast<char *>("imotd"));
 
                         send_to_pager("&WImmortal Message of the Day&w\n\r",
                                       ch);
@@ -3955,7 +3955,7 @@ case CON_GET_NAME:
                 }
                 if (ch->top_level > 0)
                 {
-                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("motd"));
+                        HelpData *pHelp = get_help(ch, const_cast<char *>("motd"));
 
                         send_to_pager("\n\r&WMessage of the Day&w\n\r", ch);
                         if (pHelp)
@@ -3966,9 +3966,9 @@ case CON_GET_NAME:
                                         send_to_pager(pHelp->text, ch);
                         }
                 }
-                if (ch->top_level >= LEVEL_AVATAR)
+                if (ch->top_level >= LevelAvatar)
                 {
-                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("amotd"));
+                        HelpData *pHelp = get_help(ch, const_cast<char *>("amotd"));
 
                         send_to_pager("\n\r&WAvatar Message of the Day&w\n\r",
                                       ch);
@@ -3982,7 +3982,7 @@ case CON_GET_NAME:
                 }
                 if (ch->top_level == 0)
                 {
-                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("nmotd"));
+                        HelpData *pHelp = get_help(ch, const_cast<char *>("nmotd"));
 
                         if (pHelp)
                         {
@@ -3994,7 +3994,7 @@ case CON_GET_NAME:
                 }
 				if (!IS_CLANNED(ch))
 				{
-                        HELP_DATA *pHelp = get_help(ch, const_cast<char *>("citmotd"));
+                        HelpData *pHelp = get_help(ch, const_cast<char *>("citmotd"));
 
                         send_to_pager("\n\r&BA&zttention Galactic Citizens:&W\n\r",ch);
 
@@ -4078,7 +4078,7 @@ case CON_GET_NAME:
                                         /*
                                          * Forgot to initilize, tsk tsk grev 
                                          */
-                                        for (p_index = 0; p_index < MAX_BITS; p_index++)
+                                        for (p_index = 0; p_index < MaxBits; p_index++)
                                                 if (xIS_SET(ch->xflags, p_index)
                                                     &&
                                                     xIS_SET(skill_table[sn]->
@@ -4091,7 +4091,7 @@ case CON_GET_NAME:
 
                 if (ch->top_level == 0)
                 {
-                        OBJ_DATA *obj;
+                        ObjData *obj;
                         int       iLang;
                         int       chance = number_percent();
 
@@ -4150,7 +4150,7 @@ case CON_GET_NAME:
                         {
                                 int       ability;
 
-                                for (ability = 0; ability < MAX_ABILITY;
+                                for (ability = 0; ability < MaxAbility;
                                      ability++)
                                 {
                                         ch->skill_level[ability] = 1;
@@ -4234,7 +4234,7 @@ case CON_GET_NAME:
                          */
 
                         {
-                                OBJ_INDEX_DATA *obj_ind =
+                                ObjIndexData *obj_ind =
                                         get_obj_index(10424);
                                 if (obj_ind != NULL)
                                 {
@@ -4306,9 +4306,9 @@ case CON_GET_NAME:
                         load_home(ch);
 /*                        char      filename[256];
                         FILE     *fph;
-                        ROOM_INDEX_DATA *storeroom = ch->plr_home;
-                        OBJ_DATA *obj;
-                        OBJ_DATA *obj_next;
+                        RoomIndexData *storeroom = ch->plr_home;
+                        ObjData *obj;
+                        ObjData *obj_next;
                         for (obj = storeroom->first_content; obj;
                              obj = obj_next)
                         {
@@ -4322,10 +4322,10 @@ case CON_GET_NAME:
                         {
                                 int       iNest;
                                 bool      found;
-                                OBJ_DATA *tobj, *tobj_next;
+                                ObjData *tobj, *tobj_next;
 
                                 rset_supermob(storeroom);
-                                for (iNest = 0; iNest < MAX_NEST; iNest++)
+                                for (iNest = 0; iNest < MaxNest; iNest++)
                                         rgObjNest[iNest] = NULL;
 
                                 found = TRUE;
@@ -4387,7 +4387,7 @@ case CON_GET_NAME:
                 mail_count(ch);
                 if (ch->top_level > 1)
                 {
-                        char      motdbuf[MAX_STRING_LENGTH];
+                        char      motdbuf[MaxStringLength];
                         FILE     *fp;
 
                         snprintf(motdbuf, MSL, "%s%s", MAIL_DIR,
@@ -4471,9 +4471,9 @@ bool check_parse_name(char *name)
 /*
  * Look for link-dead player to reconnect.
  */
-bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn)
+bool check_reconnect(DescriptorData * d, char *name, bool fConn)
 {
-        CHAR_DATA *ch;
+        CharData *ch;
 
         for (ch = first_char; ch; ch = ch->next)
         {
@@ -4549,9 +4549,9 @@ bool check_reconnect(DESCRIPTOR_DATA * d, char *name, bool fConn)
  * Check if already playing.
  */
 
-bool check_multi(DESCRIPTOR_DATA * d, char *name)
+bool check_multi(DescriptorData * d, char *name)
 {
-        DESCRIPTOR_DATA *dold;
+        DescriptorData *dold;
 
         for (dold = first_descriptor; dold; dold = dold->next)
         {
@@ -4565,10 +4565,10 @@ bool check_multi(DESCRIPTOR_DATA * d, char *name)
                         const char *ok2 = "209.183.133.229";
                         int       iloop;
 
-                        if (get_trust(d->character) >= LEVEL_GREATER
+                        if (get_trust(d->character) >= LevelGreater
                             || get_trust(dold->original ? dold->
                                          original : dold->character) >=
-                            LEVEL_GREATER)
+                            LevelGreater)
                                 return FALSE;
                         for (iloop = 0; iloop < 11; iloop++)
                         {
@@ -4603,11 +4603,11 @@ bool check_multi(DESCRIPTOR_DATA * d, char *name)
 
 }
 
-sh_int check_playing(DESCRIPTOR_DATA * d, char *name, bool kick)
+sh_int check_playing(DescriptorData * d, char *name, bool kick)
 {
-        CHAR_DATA *ch;
+        CharData *ch;
 
-        DESCRIPTOR_DATA *dold;
+        DescriptorData *dold;
         int       cstate;
 
         for (dold = first_descriptor; dold; dold = dold->next)
@@ -4675,7 +4675,7 @@ sh_int check_playing(DESCRIPTOR_DATA * d, char *name, bool kick)
 
 
 
-void stop_idling(CHAR_DATA * ch)
+void stop_idling(CharData * ch)
 {
         if (!ch
             || !ch->desc
@@ -4695,9 +4695,9 @@ void stop_idling(CHAR_DATA * ch)
 
 
 
-void center_to_char(char *argument, CHAR_DATA * ch, int columns)
+void center_to_char(char *argument, CharData * ch, int columns)
 {
-        char      centered[MAX_INPUT_LENGTH];
+        char      centered[MaxInputLength];
         int       spaces;
 
         columns = (columns < 2) ? 80 : columns;
@@ -4712,7 +4712,7 @@ void center_to_char(char *argument, CHAR_DATA * ch, int columns)
 
 char     *center_str(char *argument, int columns)
 {
-        static char centered[MAX_INPUT_LENGTH];
+        static char centered[MaxInputLength];
         int       spaces;
 
         size_t arg_len = strlen(argument);
@@ -4726,7 +4726,7 @@ char     *center_str(char *argument, int columns)
 
 void log_printf(const char *fmt, ...)
 {
-        char      buf[MAX_STRING_LENGTH * 2];
+        char      buf[MaxStringLength * 2];
         va_list   args;
 
         va_start(args, fmt);
@@ -4737,9 +4737,9 @@ void log_printf(const char *fmt, ...)
 }
 
 
-char     *obj_short(OBJ_DATA * obj)
+char     *obj_short(ObjData * obj)
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
 
         if (obj->count > 1)
         {
@@ -4756,22 +4756,22 @@ char     *obj_short(OBJ_DATA * obj)
 #define NAME(ch)	(IS_NPC((ch)) ? (ch)->short_descr : (ch)->name)
 #define NAME2(ch)	(IS_NPC((ch)) ? (ch)->short_descr : (ch)->pcdata->full_name )
 #define CAN_SEE(ch, vict) ( (OOC && can_see_ooc((vict), (ch))) || (!OOC && can_see((vict), (ch))))
-char     *act_string(const char *format, CHAR_DATA * to, CHAR_DATA * ch,
+char     *act_string(const char *format, CharData * to, CharData * ch,
                      void *arg1, void *arg2, bool OOC)
 {
         static const char * const he_she[] = { "it", "he", "she" };
         static const char * const him_her[] = { "it", "him", "her" };
         static const char * const his_her[] = { "its", "his", "her" };
-        static char buf[MAX_STRING_LENGTH];
-        char      fname[MAX_INPUT_LENGTH];
+        static char buf[MaxStringLength];
+        char      fname[MaxInputLength];
         char     *point = buf;
         const char *str = format;
         const char *i;
         int       room = 0;
-        CHAR_DATA *vch = static_cast<CHAR_DATA *>(arg2);
-        OBJ_DATA *obj1 = static_cast<OBJ_DATA *>(arg1);
-        OBJ_DATA *obj2 = static_cast<OBJ_DATA *>(arg2);
-        SHIP_DATA *ship = NULL;
+        CharData *vch = static_cast<CharData *>(arg2);
+        ObjData *obj1 = static_cast<ObjData *>(arg1);
+        ObjData *obj2 = static_cast<ObjData *>(arg2);
+        ShipData *ship = NULL;
 
         if (str == NULL || *str == '\0')
                 return const_cast<char*>("");
@@ -4944,12 +4944,12 @@ char     *act_string(const char *format, CHAR_DATA * to, CHAR_DATA * ch,
 #undef NAME
 #undef NAME2
 
-void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
+void act(int AType, const char *format, CharData * ch, void *arg1,
          void *arg2, int type)
 {
         char     *txt;
-        CHAR_DATA *to;
-        CHAR_DATA *vch = static_cast<CHAR_DATA *>(arg2);
+        CharData *to;
+        CharData *vch = static_cast<CharData *>(arg2);
         bool      OOC = IS_OOC_ACT(type);
 
         if (OOC)
@@ -5008,19 +5008,19 @@ void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
         if (MOBtrigger && type != TO_CHAR && type != TO_VICT && to
             && !IS_OOC_ACT(type))
         {
-                OBJ_DATA *to_obj;
+                ObjData *to_obj;
 
                 txt = act_string(format, NULL, ch, arg1, arg2, OOC);
                 if (!to->in_room)
                         return;
                 if (IS_SET(to->in_room->progtypes, ACT_PROG))
                         rprog_act_trigger(txt, to->in_room, ch,
-                                          static_cast<OBJ_DATA *>(arg1), static_cast<void *>(arg2));
+                                          static_cast<ObjData *>(arg1), static_cast<void *>(arg2));
                 for (to_obj = to->in_room->first_content; to_obj;
                      to_obj = to_obj->next_content)
                         if (IS_SET(to_obj->pIndexData->progtypes, ACT_PROG))
                                 oprog_act_trigger(txt, to_obj, ch,
-                                                  static_cast<OBJ_DATA *>(arg1),
+                                                  static_cast<ObjData *>(arg1),
                                                   static_cast<void *>(arg2));
         }
 
@@ -5069,7 +5069,7 @@ void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
                         /*
                          * Note: use original string, not string with ANSI. -- Alty 
                          */
-                        mprog_act_trigger(txt, to, ch, static_cast<OBJ_DATA *>(arg1),
+                        mprog_act_trigger(txt, to, ch, static_cast<ObjData *>(arg1),
                                           static_cast<void *>(arg2));
                 }
         }
@@ -5077,11 +5077,11 @@ void act(int AType, const char *format, CHAR_DATA * ch, void *arg1,
         return;
 }
 
-CMDF do_name(CHAR_DATA * ch, char *argument)
+CMDF do_name(CharData * ch, char *argument)
 {
         char fname[1024];
         struct stat fst;
-        CHAR_DATA *tmp;
+        CharData *tmp;
 
         if (!NOT_AUTHED(ch) || ch->pcdata->auth_state != 2)
         {
@@ -5138,22 +5138,22 @@ CMDF do_name(CHAR_DATA * ch, char *argument)
         return;
 }
 
-char     *default_prompt(CHAR_DATA * ch)
+char     *default_prompt(CharData * ch)
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
 
         mudstrlcpy(buf, "", MSL);
         if (ch->skill_level[FORCE_ABILITY] > 1
-            || get_trust(ch) >= LEVEL_IMMORTAL)
+            || get_trust(ch) >= LevelImmortal)
                 mudstrlcat(buf, "&pAlign:&P%a ", MSL);
         mudstrlcat(buf, "&BHealth:&C%h&B/%H  &pEndurance:&P%m/&p%M", MSL);
         mudstrlcat(buf, "&C > &w", MSL);
         return buf;
 }
 
-char     *gav_prompt(CHAR_DATA * ch)
+char     *gav_prompt(CharData * ch)
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
         
         // Suppress unused parameter warning
         (void)ch;
@@ -5165,7 +5165,7 @@ char     *gav_prompt(CHAR_DATA * ch)
         mudstrlcat(buf, "&C> &w", MSL);
         /*
          * mudstrlcpy( buf,"",MSL);
-         * if (ch->skill_level[FORCE_ABILITY] > 1 || get_trust(ch) >= LEVEL_IMMORTAL )
+         * if (ch->skill_level[FORCE_ABILITY] > 1 || get_trust(ch) >= LevelImmortal )
          * mudstrlcat(buf, "&pForce:&P%m/&p%M  &pAlign:&P%a\n\r", MSL);      
          * mudstrlcat(buf, "&B<Health>&C%h&B/%H  &B<Movement>&C%v&B/%V", MSL);
          * mudstrlcat(buf, " &YGold:&O%g", MSL);
@@ -5185,14 +5185,14 @@ int getcolor(char clr)
         return -1;
 }
 
-void display_prompt(DESCRIPTOR_DATA * d)
+void display_prompt(DescriptorData * d)
 {
-        CHAR_DATA *ch = d->character;
-        CHAR_DATA *och = (d->original ? d->original : d->character);
-        CHAR_DATA *victim;
+        CharData *ch = d->character;
+        CharData *och = (d->original ? d->original : d->character);
+        CharData *victim;
         bool      ansi = (!IS_NPC(och) && IS_SET(och->act, PLR_ANSI));
         const char *prompt;
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         char     *pbuf = buf;
         int       pstat, percent;
                 static const char * no_email_prompt = "Please set your email using setself realemail <your email address>";
@@ -5548,7 +5548,7 @@ const char* position_name(int position)
 }
 
 
-void set_pager_input(DESCRIPTOR_DATA * d, char *argument)
+void set_pager_input(DescriptorData * d, char *argument)
 {
         while (isspace(*argument))
                 argument++;
@@ -5556,10 +5556,10 @@ void set_pager_input(DESCRIPTOR_DATA * d, char *argument)
         return;
 }
 
-bool pager_output(DESCRIPTOR_DATA * d)
+bool pager_output(DescriptorData * d)
 {
         char *last;
-        CHAR_DATA *ch;
+        CharData *ch;
         int       pclines;
         int lines;
         bool      ret;
@@ -5584,7 +5584,7 @@ bool pager_output(DESCRIPTOR_DATA * d)
                 d->pagepoint = NULL;
                 flush_buffer(d, TRUE);
                 DISPOSE(d->pagebuf);
-                d->pagesize = MAX_STRING_LENGTH;
+                d->pagesize = MaxStringLength;
                 return TRUE;
         }
         while (lines < 0 && d->pagepoint >= d->pagebuf)
@@ -5616,7 +5616,7 @@ bool pager_output(DESCRIPTOR_DATA * d)
                 d->pagepoint = NULL;
                 flush_buffer(d, TRUE);
                 DISPOSE(d->pagebuf);
-                d->pagesize = MAX_STRING_LENGTH;
+                d->pagesize = MaxStringLength;
                 return TRUE;
         }
         d->pagecmd = -1;
@@ -5640,7 +5640,7 @@ bool pager_output(DESCRIPTOR_DATA * d)
 }
 
 
-CMDF do_speed(CHAR_DATA * ch, char *argument)
+CMDF do_speed(CharData * ch, char *argument)
 {
         sh_int    speed = static_cast<sh_int>(atoi(argument));
 
@@ -5693,7 +5693,7 @@ sh_int client_speed(sh_int speed)
         return 512;
 }
 
-void show_stat_options(DESCRIPTOR_DATA * d, CHAR_DATA * ch)
+void show_stat_options(DescriptorData * d, CharData * ch)
 {
         char      buf[MSL];
 

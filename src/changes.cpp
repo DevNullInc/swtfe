@@ -138,8 +138,8 @@ char     *current_date()
 #ifdef WEB
 void write_webchanges(void)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      buf2[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      buf2[MaxStringLength];
         FILE     *fp;
         int       i, count = 1;
 
@@ -279,9 +279,9 @@ void delete_change(int iChange)
 }
 
 
-CMDF do_addchange(CHAR_DATA * ch, char *argument)
+CMDF do_addchange(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (IS_NPC(ch))
                 return;
@@ -323,7 +323,7 @@ CMDF do_addchange(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_addimmchange(CHAR_DATA * ch, char *argument)
+CMDF do_addimmchange(CharData * ch, char *argument)
 {
 
         if (IS_NPC(ch))
@@ -361,10 +361,10 @@ CMDF do_addimmchange(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_chedit(CHAR_DATA * ch, char *argument)
+CMDF do_chedit(CharData * ch, char *argument)
 {
         int       change;
-        char      arg1[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
 
         if (IS_NPC(ch))
                 return;
@@ -457,7 +457,7 @@ CMDF do_chedit(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_news(CHAR_DATA * ch, char *argument)
+CMDF do_news(CharData * ch, char *argument)
 {
         char     *test;
         int       today;

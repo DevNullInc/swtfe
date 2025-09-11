@@ -63,29 +63,29 @@ namespace BankSecurity {
 // ============================================================================
 // Forward Declarations  
 // ============================================================================
-OBJ_DATA *get_comlink args((CHAR_DATA * ch));
-CMDF save_baccount args((BANK_ACCOUNT * account));
+ObjData *get_comlink args((CharData * ch));
+CMDF save_baccount args((BankAccount * account));
 CMDF load_baccount args((char *filename));
-BANK_ACCOUNT *create_baccount args((CHAR_DATA * ch));
-CMDF delete_baccount args((BANK_ACCOUNT * account));
+BankAccount *create_baccount args((CharData * ch));
+CMDF delete_baccount args((BankAccount * account));
 char     *generate_code args(());
-char     *account_sum args((BANK_ACCOUNT * account));
-bool     account_add args((BANK_ACCOUNT * account, long amount));
-bool     account_sub args((BANK_ACCOUNT * account, long amount));
-bool     account_has_funds args((BANK_ACCOUNT * account, long amount));
-int      baccounts args((CHAR_DATA * ch));
+char     *account_sum args((BankAccount * account));
+bool     account_add args((BankAccount * account, long amount));
+bool     account_sub args((BankAccount * account, long amount));
+bool     account_has_funds args((BankAccount * account, long amount));
+int      baccounts args((CharData * ch));
 
 // ============================================================================
 // Global Variables
 // ============================================================================
-BANK_ACCOUNT *first_baccount = nullptr;
-BANK_ACCOUNT *last_baccount = nullptr;
+BankAccount *first_baccount = nullptr;
+BankAccount *last_baccount = nullptr;
 
 // ============================================================================
 // Account Management Functions
 // ============================================================================
 
-void save_baccount(BANK_ACCOUNT * account)
+void save_baccount(BankAccount * account)
 {
         // ============================================================================
         // ACCOUNT PERSISTENCE - Enhanced with error checking and validation
@@ -100,7 +100,7 @@ void save_baccount(BANK_ACCOUNT * account)
         char      filename[256];
 
         // Use secure path construction
-        snprintf(filename, sizeof(filename), "%s%s.acct", BACCOUNT_DIR, account->code);
+        snprintf(filename, sizeof(filename), "%s%s.acct", BAccountDir, account->code);
         
         if ((fp = fopen(filename, "w")) == nullptr) {
                 bug("save_baccount: unable to open %s.acct for writing!", account->code);
@@ -130,11 +130,11 @@ void save_baccount(BANK_ACCOUNT * account)
 
 void write_baccount_list()
 {
-        BANK_ACCOUNT *account;
+        BankAccount *account;
         FILE     *fp;
         char      filename[256];
 
-        sprintf(filename, "%s%s", BACCOUNT_DIR, BACCOUNT_LIST);
+        sprintf(filename, "%s%s", BAccountDir, BAccountList);
 
         if ((fp = fopen(filename, "w")) == NULL)
         {
@@ -157,7 +157,7 @@ void load_baccount_list()
         char      filename[256];
         char     *account;
 
-        sprintf(filename, "%s%s", BACCOUNT_DIR, BACCOUNT_LIST);
+        sprintf(filename, "%s%s", BAccountDir, BAccountList);
 
         FCLOSE(fpReserve);
         if ((fpList = fopen(filename, "r")) == NULL)
@@ -188,10 +188,10 @@ void load_baccount(char *name)
         char      filename[256];
         char      letter, *word;
         FILE     *fp;
-        BANK_ACCOUNT *account;
+        BankAccount *account;
         bool      fMatch;
 
-        sprintf(filename, "%s%s", BACCOUNT_DIR, name);
+        sprintf(filename, "%s%s", BAccountDir, name);
 
         if ((fp = fopen(filename, "r")) == NULL)
         {
@@ -200,7 +200,7 @@ void load_baccount(char *name)
                 return;
         }
 
-        CREATE(account, BANK_ACCOUNT, 1);
+        CREATE(account, BankAccount, 1);
         LINK(account, first_baccount, last_baccount, next, prev);
 
         letter = fread_letter(fp);
@@ -269,7 +269,7 @@ void load_baccount(char *name)
         return;
 }
 
-BANK_ACCOUNT *create_baccount(CHAR_DATA * ch)
+BankAccount *create_baccount(CharData * ch)
 {
         // ============================================================================
         // BANK ACCOUNT CREATION - Enhanced with security validation
@@ -283,7 +283,7 @@ BANK_ACCOUNT *create_baccount(CHAR_DATA * ch)
         
         // Check if player already has too many accounts (security measure)
         int player_account_count = 0;
-        for (BANK_ACCOUNT* existing = first_baccount; existing; existing = existing->next) {
+        for (BankAccount* existing = first_baccount; existing; existing = existing->next) {
                 if (existing->owner && !str_cmp(existing->owner, ch->name)) {
                         player_account_count++;
                 }
@@ -294,8 +294,8 @@ BANK_ACCOUNT *create_baccount(CHAR_DATA * ch)
                 return nullptr;
         }
         
-        BANK_ACCOUNT *account;
-        CREATE(account, BANK_ACCOUNT, 1);
+        BankAccount *account;
+        CREATE(account, BankAccount, 1);
         LINK(account, first_baccount, last_baccount, next, prev);
         
         // Initialize with security-validated values
@@ -313,7 +313,7 @@ BANK_ACCOUNT *create_baccount(CHAR_DATA * ch)
         return account;
 }
 
-void delete_account(BANK_ACCOUNT * account)
+void delete_account(BankAccount * account)
 {
         // ============================================================================
         // ACCOUNT DELETION - Enhanced with security validation and cleanup
@@ -335,7 +335,7 @@ void delete_account(BANK_ACCOUNT * account)
         UNLINK(account, first_baccount, last_baccount, next, prev);
         
         // Construct filename for deletion
-        snprintf(filename, sizeof(filename), "%s%s.acct", BACCOUNT_DIR, account->code);
+        snprintf(filename, sizeof(filename), "%s%s.acct", BAccountDir, account->code);
         
         // Free all allocated strings safely
         STRFREE(account->code);
@@ -354,7 +354,7 @@ void delete_account(BANK_ACCOUNT * account)
         return;
 }
 
-void free_baccount(BANK_ACCOUNT * account)
+void free_baccount(BankAccount * account)
 {
         if (!account || account == NULL)
                 return;
@@ -368,8 +368,8 @@ void free_baccount(BANK_ACCOUNT * account)
 
 char     *generate_code()
 {
-        BANK_ACCOUNT *account;
-        static char buf1[MAX_STRING_LENGTH];
+        BankAccount *account;
+        static char buf1[MaxStringLength];
         int       count = 0;
         bool      match;
 
@@ -407,7 +407,7 @@ char     *generate_code()
  * Enhanced account_add with overflow protection and validation
  * SECURITY: Prevents integer overflow exploits and validates all operations
  */
-bool account_add(BANK_ACCOUNT* account, long amount)
+bool account_add(BankAccount* account, long amount)
 {
     if (!account || amount < 0) {
         bug("account_add: Invalid parameters - account=%p, amount=%ld", account, amount);
@@ -458,7 +458,7 @@ bool account_add(BANK_ACCOUNT* account, long amount)
  * Enhanced account_sub with underflow protection and proper validation
  * SECURITY: Fixes the catastrophic underflow bug that created infinite money
  */
-bool account_sub(BANK_ACCOUNT* account, long amount)
+bool account_sub(BankAccount* account, long amount)
 {
     if (!account || amount < 0) {
         bug("account_sub: Invalid parameters - account=%p, amount=%ld", account, amount);
@@ -504,7 +504,7 @@ bool account_sub(BANK_ACCOUNT* account, long amount)
  * Helper function to safely check if account has sufficient funds
  * SECURITY: Prevents underflow by validating before operations
  */
-bool account_has_funds(BANK_ACCOUNT* account, long amount)
+bool account_has_funds(BankAccount* account, long amount)
 {
     if (!account || amount < 0) {
         return false;
@@ -524,9 +524,9 @@ bool account_has_funds(BANK_ACCOUNT* account, long amount)
  * Get total account balance as a string (safe for display)
  * SECURITY: Prevents overflow in string formatting
  */
-char* account_sum(BANK_ACCOUNT* account)
+char* account_sum(BankAccount* account)
 {
-    static char buf[MAX_STRING_LENGTH];
+    static char buf[MaxStringLength];
 
     if (!account) {
         return nullptr;
@@ -543,9 +543,9 @@ char* account_sum(BANK_ACCOUNT* account)
     return buf;
 }
 
-int baccounts(CHAR_DATA * ch)
+int baccounts(CharData * ch)
 {
-        BANK_ACCOUNT *account;
+        BankAccount *account;
         int       count = 0;
 
         if (!ch || ch == NULL)
@@ -566,9 +566,9 @@ int baccounts(CHAR_DATA * ch)
         return 0;
 }
 
-BANK_ACCOUNT *account_by_code(char *code)
+BankAccount *account_by_code(char *code)
 {
-        BANK_ACCOUNT *account;
+        BankAccount *account;
 
         if (!code || code == NULL || code[0] == '\0')
                 return NULL;
@@ -579,10 +579,10 @@ BANK_ACCOUNT *account_by_code(char *code)
         return NULL;
 }
 
-void notify_trustees_dep(BANK_ACCOUNT * account, char *name, long amount,
+void notify_trustees_dep(BankAccount * account, char *name, long amount,
                          bool anon)
 {
-        CHAR_DATA *trustee;
+        CharData *trustee;
 
         for (trustee = first_char; trustee; trustee = trustee->next)
                 if ((!strcmp(trustee->name, account->owner) ||
@@ -595,10 +595,10 @@ void notify_trustees_dep(BANK_ACCOUNT * account, char *name, long amount,
         return;
 }
 
-void notify_trustees_wit(BANK_ACCOUNT * account, char *name, long amount,
+void notify_trustees_wit(BankAccount * account, char *name, long amount,
                          bool anon)
 {
-        CHAR_DATA *trustee;
+        CharData *trustee;
 
         for (trustee = first_char; trustee; trustee = trustee->next)
                 if ((!strcmp(trustee->name, account->owner) ||
@@ -615,7 +615,7 @@ void notify_trustees_wit(BANK_ACCOUNT * account, char *name, long amount,
  * Enhanced interest application with secure mathematical operations
  * SECURITY: Prevents floating-point precision exploits and overflow attacks
  */
-void apply_interest(BANK_ACCOUNT* account)
+void apply_interest(BankAccount* account)
 {
     if (!account) {
         bug("apply_interest: null account pointer");
@@ -627,7 +627,7 @@ void apply_interest(BANK_ACCOUNT* account)
         account->interest > BankSecurity::MAX_INTEREST_RATE) {
         bug("apply_interest: Invalid interest rate %f for account %s", 
             account->interest, account->code ? account->code : "UNKNOWN");
-        account->interest = static_cast<float>(BANK_INTEREST); // Reset to default safe value
+        account->interest = static_cast<float>(BankInterest); // Reset to default safe value
         return;
     }
 
@@ -679,7 +679,7 @@ void apply_interest(BANK_ACCOUNT* account)
         }
 
         // Notify owner of interest gained
-        for (CHAR_DATA* owner = first_char; owner; owner = owner->next) {
+        for (CharData* owner = first_char; owner; owner = owner->next) {
             if (!strcmp(owner->name, account->owner) && total_interest > 0) {
                 ch_printf(owner, "&R[&BInterest&R] &wAccount %s has gained %ld credits.\n\r",
                          account->code, total_interest);
@@ -690,7 +690,7 @@ void apply_interest(BANK_ACCOUNT* account)
 
 void update_baccounts()
 {
-        BANK_ACCOUNT *account;
+        BankAccount *account;
 
         for (account = first_baccount; account; account = account->next)
         {
@@ -700,10 +700,10 @@ void update_baccounts()
         return;
 }
 
-void notify_trustees_tra(BANK_ACCOUNT * source, BANK_ACCOUNT * destin,
+void notify_trustees_tra(BankAccount * source, BankAccount * destin,
                          char *name, long amount, bool anon)
 {
-        CHAR_DATA *trustee;
+        CharData *trustee;
 
         for (trustee = first_char; trustee; trustee = trustee->next)
         {
@@ -725,21 +725,21 @@ void notify_trustees_tra(BANK_ACCOUNT * source, BANK_ACCOUNT * destin,
         return;
 }
 
-CMDF do_bank_new(CHAR_DATA * ch, char *argument)
+CMDF do_bank_new(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        char      arg4[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        char      arg4[MaxInputLength];
 
         if (IS_NPC(ch) || !ch->pcdata)
                 return;
 
-        if (get_trust(ch) < LEVEL_IMPLEMENTOR && IS_IMMORTAL(ch))
+        if (get_trust(ch) < LevelImplementor && IS_IMMORTAL(ch))
         {
                 ch_printf(ch,
                           "Only level %d immortals can access the banking system.\n\r",
-                          LEVEL_IMPLEMENTOR);
+                          LevelImplementor);
                 return;
         }
 
@@ -778,7 +778,7 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
 
         if (!strcmp(arg1, "open"))
         {
-                BANK_ACCOUNT *account;
+                BankAccount *account;
 
                 if (baccounts(ch) >= 10)
                 {
@@ -801,7 +801,7 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
         }
         else if (!strcmp(arg1, "close"))
         {
-                BANK_ACCOUNT *account;
+                BankAccount *account;
 
                 if (arg2[0] == '\0')
                 {
@@ -849,9 +849,9 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
         }
         else if (!strcmp(arg1, "list"))
         {
-                BANK_ACCOUNT *account;
+                BankAccount *account;
                 int       count = 0;
-                // char      buf[MAX_STRING_LENGTH]; // Unused variable removed
+                // char      buf[MaxStringLength]; // Unused variable removed
 
                 ch_printf(ch,
                           "&wAccount Number            Your Status           Balance\n\r");
@@ -892,7 +892,7 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
         else if (!strcmp(arg1, "deposit"))
         {
                 int       num = atoi(arg3);
-                BANK_ACCOUNT *account = account_by_code(arg2);
+                BankAccount *account = account_by_code(arg2);
                 bool      anon = FALSE;
 
                 if (arg2[0] == '\0')
@@ -952,7 +952,7 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
         else if (!strcmp(arg1, "withdraw"))
         {
                 int       num = atoi(arg3);
-                BANK_ACCOUNT *account = account_by_code(arg2);
+                BankAccount *account = account_by_code(arg2);
 
                 if (arg2[0] == '\0')
                 {
@@ -1024,8 +1024,8 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
         else if (!strcmp(arg1, "transfer"))
         {
                 int       num = atoi(arg3);
-                BANK_ACCOUNT *source = account_by_code(arg2);
-                BANK_ACCOUNT *destin = account_by_code(arg4);
+                BankAccount *source = account_by_code(arg2);
+                BankAccount *destin = account_by_code(arg4);
 
                 if (arg2[0] == '\0')
                 {
@@ -1112,7 +1112,7 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
         }
         else if (!strcmp(arg1, "status"))
         {
-                BANK_ACCOUNT *account = account_by_code(arg2);
+                BankAccount *account = account_by_code(arg2);
 
                 if (arg2[0] == '\0')
                 {
@@ -1158,12 +1158,12 @@ CMDF do_bank_new(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_entrust(CHAR_DATA * ch, char *argument)
+CMDF do_entrust(CharData * ch, char *argument)
 {
-        BANK_ACCOUNT *account;
-        CHAR_DATA *vict;
-        char      arg1[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        BankAccount *account;
+        CharData *vict;
+        char      arg1[MaxInputLength];
+        char      buf[MaxStringLength];
 
         argument = one_argument(argument, arg1);
         account = account_by_code(argument);

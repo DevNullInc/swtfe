@@ -61,7 +61,7 @@ char     *const implant_affect_names[] = {
         "Major"
 };
 
-int get_implant_affect(CHAR_DATA * ch, int implant)
+int get_implant_affect(CharData * ch, int implant)
 {
         if (IS_NPC(ch) || !ch->pcdata)
                 return 0;
@@ -82,15 +82,15 @@ int get_type_number(char *name)
         return -1;
 }
 
-CMDF do_makeimplant(CHAR_DATA * ch, char *argument)
+CMDF do_makeimplant(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       level, percentage, charge, type, count;
         bool      checktool, checkdura, checkbatt, checkoven, checkchem,
                 checkcirc;
-        OBJ_DATA *obj;
-        OBJ_INDEX_DATA *pObjIndex;
+        ObjData *obj;
+        ObjIndexData *pObjIndex;
 
         mudstrlcpy(arg, argument, MIL);
 
@@ -371,15 +371,15 @@ CMDF do_makeimplant(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makeimplant);
 }
 
-CMDF do_implant(CHAR_DATA * ch, char *argument)
+CMDF do_implant(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       percentage;
         bool      checktool, checkneed, checkimpl;
         int       type = 0, quality = 0;
-        OBJ_DATA *obj;
-        CHAR_DATA *victim = NULL;
+        ObjData *obj;
+        CharData *victim = NULL;
         bool      npc = false;
 
         argument = one_argument(argument, arg);

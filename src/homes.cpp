@@ -64,7 +64,7 @@ struct HOME_ROOM_TYPES {
 	int cost;
 	char * description;
 
-	EXT_BV flags;
+	ExtBV flags;
 
 	char * room_desc[5];
 };
@@ -200,7 +200,7 @@ DECLARE_DO_FUN(do_addroom);
 
 GRID_WRAPPER * home_grid_fread args((FILE * fp));
 void home_grid_fwrite args((GRID_WRAPPER * grid, FILE * fp));
-void generate_description(ROOM_INDEX_DATA *room, int type);
+void generate_description(RoomIndexData *room, int type);
 
 HOME_DATA *first_home;
 HOME_DATA *last_home;
@@ -232,7 +232,7 @@ ROOMMATE_DATA::~ROOMMATE_DATA() {
 HOME_DATA::~HOME_DATA()
 {
         ROOMMATE_DATA *roomie;
-		ROOM_INDEX_DATA * room;
+		RoomIndexData * room;
 
         if (this->filename)
                 STRFREE(this->filename);
@@ -270,7 +270,7 @@ HOME_DATA *get_home(char *name)
 
 void fread_roommate(ROOMMATE_DATA * roomie, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
 
@@ -315,7 +315,7 @@ void fread_roommate(ROOMMATE_DATA * roomie, FILE * fp)
 
 void fread_home(HOME_DATA * home, FILE * fp)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         const char *word;
         bool      fMatch;
 
@@ -350,7 +350,7 @@ void fread_home(HOME_DATA * home, FILE * fp)
 						/* Temporary */
                         if (!str_cmp(word, "Entrace"))
 						{
-							ROOM_INDEX_DATA * room;
+							RoomIndexData * room;
 							int vnum = fread_number(fp);
 							room = get_room_index(vnum);
 							if (room) 
@@ -364,7 +364,7 @@ void fread_home(HOME_DATA * home, FILE * fp)
 						/* Temporary */
                         if (!str_cmp(word, "Firstroom"))
 						{
-							ROOM_INDEX_DATA * room;
+							RoomIndexData * room;
 							int vnum = fread_number(fp);
 							room = get_room_index(vnum);
 							if (room) 
@@ -376,7 +376,7 @@ void fread_home(HOME_DATA * home, FILE * fp)
                 case 'R':
                         if (!str_cmp(word, "Room"))
 						{
-							ROOM_INDEX_DATA * room;
+							RoomIndexData * room;
 							int vnum = fread_number(fp);
 							room = get_room_index(vnum);
 							if (room) 
@@ -389,7 +389,7 @@ void fread_home(HOME_DATA * home, FILE * fp)
 						/* Temporary */
                         if (!str_cmp(word, "Lastroom"))
 						{
-							ROOM_INDEX_DATA * room;
+							RoomIndexData * room;
 							int vnum = fread_number(fp);
 							room = get_room_index(vnum);
 							if (room)
@@ -429,7 +429,7 @@ void load_homes()
         FILE     *fpList;
         const char *filename;
         char      homelist[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         first_home = NULL;
         last_home = NULL;
@@ -524,9 +524,9 @@ bool load_home_file(char *homefile)
                         }
                         else if (!str_cmp(word, "OBJECT"))
                         {
-                                OBJ_DATA *tobj;
-                                OBJ_DATA *tobj_next;
-                                ROOM_INDEX_DATA *room;
+                                ObjData *tobj;
+                                ObjData *tobj_next;
+                                RoomIndexData *room;
 
                                 fread_obj(supermob, fp, OS_CARRY);
                                 for (tobj = supermob->first_carrying; tobj;
@@ -541,9 +541,9 @@ bool load_home_file(char *homefile)
                         }
                         else if (!str_cmp(word, "CORPSE"))
                         {
-                                OBJ_DATA *tobj;
-                                OBJ_DATA *tobj_next;
-                                ROOM_INDEX_DATA *room;
+                                ObjData *tobj;
+                                ObjData *tobj_next;
+                                RoomIndexData *room;
 
                                 fread_obj(supermob, fp, OS_CORPSE);
                                 for (tobj = supermob->first_carrying; tobj;
@@ -565,7 +565,7 @@ bool load_home_file(char *homefile)
                                 break;
                         else
                         {
-                                char      buf[MAX_STRING_LENGTH];
+                                char      buf[MaxStringLength];
 
                                 snprintf(buf, MSL,
                                          "Load_home_file: bad section: %s.",
@@ -605,8 +605,8 @@ void HOME_DATA::save(void)
 {
         FILE     *fp;
         char      filename[256];
-        char      buf[MAX_STRING_LENGTH];
-        OBJ_DATA *contents;
+        char      buf[MaxStringLength];
+        ObjData *contents;
 
         if (!this->filename || this->filename[0] == '\0')
         {
@@ -626,7 +626,7 @@ void HOME_DATA::save(void)
         }
         else
         {
-				ROOM_INDEX_DATA * room;
+				RoomIndexData * room;
                 fprintf(fp, "#HOME\n");
                 fprintf(fp, "Name         %s~\n", this->name);
                 fprintf(fp, "Filename     %s~\n", this->filename);
@@ -671,14 +671,14 @@ void HOME_DATA::save(void)
 }
 
 
-CMDF do_sethome(CHAR_DATA * ch, char *argument)
+CMDF do_sethome(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
         HOME_DATA *home;
         int       tempnum, value;
-        ROOM_INDEX_DATA *roomindex;
+        RoomIndexData *roomindex;
 
         if (IS_NPC(ch))
         {
@@ -761,10 +761,10 @@ CMDF do_sethome(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_homes(CHAR_DATA * ch, char *argument)
+CMDF do_homes(CharData * ch, char *argument)
 {
         HOME_DATA *home;
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
         int       count;
 
         argument = NULL;
@@ -887,7 +887,7 @@ long int get_home_value(HOME_DATA * home)
         return price;
 }
 
-bool HOME_DATA::check_member(CHAR_DATA * ch)
+bool HOME_DATA::check_member(CharData * ch)
 {
         ROOMMATE_DATA *roomie = NULL;
 
@@ -912,7 +912,7 @@ bool HOME_DATA::check_member(CHAR_DATA * ch)
 
 void HOME_DATA::echo(int color, char *argument)
 {
-        ROOM_INDEX_DATA * room;
+        RoomIndexData * room;
 		FOR_EACH_LIST(ROOM_LIST, this->rooms, room)
 		{
 			if (room)
@@ -941,7 +941,7 @@ void HOME_DATA::reset()
 		this->save();
 }
 
-CMDF do_resethome(CHAR_DATA * ch, char *argument)
+CMDF do_resethome(CharData * ch, char *argument)
 {
         HOME_DATA *home;
 
@@ -959,11 +959,11 @@ CMDF do_resethome(CHAR_DATA * ch, char *argument)
 **      This involves things like buyhome and sell home                   **
 ****************************************************************************/
 
-CMDF do_sellhome2(CHAR_DATA * ch, char *argument)
+CMDF do_sellhome2(CharData * ch, char *argument)
 {
         long      price;
         HOME_DATA *home;
-        ROOM_INDEX_DATA *room;
+        RoomIndexData *room;
 
         if (IS_NPC(ch) || !ch->pcdata)
         {
@@ -1000,12 +1000,12 @@ CMDF do_sellhome2(CHAR_DATA * ch, char *argument)
 		home->reset();
 }
 
-CMDF do_buyhome2(CHAR_DATA * ch, char *argument)
+CMDF do_buyhome2(CharData * ch, char *argument)
 {
         long      price;
         HOME_DATA *home;
-        ROOM_INDEX_DATA *room;
-        AREA_DATA *pArea;
+        RoomIndexData *room;
+        AreaData *pArea;
 
         argument[0] = '\0';
         if (IS_NPC(ch) || !ch->pcdata)
@@ -1061,12 +1061,12 @@ CMDF do_buyhome2(CHAR_DATA * ch, char *argument)
 		home->save();
 }
 
-CMDF do_roommate(CHAR_DATA * ch, char *argument)
+CMDF do_roommate(CharData * ch, char *argument)
 {
         HOME_DATA *home;
-        char      arg1[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *location;
-        AREA_DATA *pArea;
+        char      arg1[MaxInputLength];
+        RoomIndexData *location;
+        AreaData *pArea;
 
         argument = one_argument(argument, arg1);
         if (!ch->desc)
@@ -1079,7 +1079,7 @@ CMDF do_roommate(CHAR_DATA * ch, char *argument)
         default:
                 break;
         case SUB_ROOM_DESC:
-                location = (ROOM_INDEX_DATA *) ch->dest_buf;
+                location = (RoomIndexData *) ch->dest_buf;
                 if (!location)
                 {
                         bug("redit: sub_room_desc: NULL ch->dest_buf", 0);
@@ -1227,10 +1227,10 @@ CMDF do_roommate(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_freehomes(CHAR_DATA * ch, char *argument)
+CMDF do_freehomes(CharData * ch, char *argument)
 {
 	HOME_DATA *home;
-	ROOM_INDEX_DATA *room;
+	RoomIndexData *room;
 	int       count = 0;
 	int       category;
 
@@ -1294,11 +1294,11 @@ void save_homes_check()
 
 #if 0
 /* FIXME - Later */
-CMDF do_rap(CHAR_DATA * ch, char *argument)
+CMDF do_rap(CharData * ch, char *argument)
 {
-        EXIT_DATA *pexit;
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_INPUT_LENGTH];
+        ExitData *pexit;
+        char      arg[MaxInputLength];
+        char      buf[MaxInputLength];
 
         one_argument(argument, arg);
 
@@ -1316,8 +1316,8 @@ CMDF do_rap(CHAR_DATA * ch, char *argument)
         }
         if ((pexit = get_exit(ch->in_room, get_dir(arg))) != NULL)
         {
-                ROOM_INDEX_DATA *to_room;
-                EXIT_DATA *pexit_rev;
+                RoomIndexData *to_room;
+                ExitData *pexit_rev;
                 char     *keyword;
 
                 if ((to_room = pexit->to_room) != NULL
@@ -1362,12 +1362,12 @@ CMDF do_rap(CHAR_DATA * ch, char *argument)
 #endif
 
 #if 0
-needs buzzed field into mud.h CMDF do_invite(CHAR_DATA * ch, char *argument)
+needs buzzed field into mud.h CMDF do_invite(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *room;
+        char      arg[MaxInputLength];
+        RoomIndexData *room;
         HOME_DATA *home;
-        CHAR_DATA *rch;
+        CharData *rch;
 
         one_argument(argument, arg);
 
@@ -1486,7 +1486,7 @@ void home_grid_fwrite(GRID_WRAPPER * grid, FILE * fp)
 	for (int height = 0; height < grid_get_height(grid); height++) {
 		for (int row = 0; row < grid_get_width(grid); row++) {
 			for (int column = 0; column < grid_get_length(grid); column++) {
-				ROOM_INDEX_DATA * room = (ROOM_INDEX_DATA *) grid_get(grid, column, row, height);
+				RoomIndexData * room = (RoomIndexData *) grid_get(grid, column, row, height);
 				if (!room) continue;
 				fprintf(fp, "Coord %d %d %d - %d\n", column,row,height,room->vnum);
 			}
@@ -1496,9 +1496,9 @@ void home_grid_fwrite(GRID_WRAPPER * grid, FILE * fp)
 	return;
 }
 
-CMDF do_transferhouse(CHAR_DATA * ch, char * argument)
+CMDF do_transferhouse(CharData * ch, char * argument)
 {
-	CHAR_DATA *victim;
+	CharData *victim;
 	HOME_DATA *home;
 	if (argument[0] == '\0' || (victim = get_char_room(ch, argument)) == NULL)
 	{
@@ -1530,12 +1530,12 @@ CMDF do_transferhouse(CHAR_DATA * ch, char * argument)
 }	
 
 
-CMDF do_realitor(CHAR_DATA * ch, char * argument) 
+CMDF do_realitor(CharData * ch, char * argument) 
 {
-	OBJ_DATA *obj;
+	ObjData *obj;
 	HOME_DATA * home;
-	char      buf[MAX_STRING_LENGTH];
-	char      arg[MAX_INPUT_LENGTH];
+	char      buf[MaxStringLength];
+	char      arg[MaxInputLength];
 	int       percent, xp, amount, percentage;
 	int 	  plot_type;
 
@@ -1744,9 +1744,9 @@ CMDF do_realitor(CHAR_DATA * ch, char * argument)
 	return;
 }
 
-void HOME_DATA::decorate_room(CHAR_DATA * ch, char * argument)
+void HOME_DATA::decorate_room(CharData * ch, char * argument)
 {
-	char      arg[MAX_INPUT_LENGTH];
+	char      arg[MaxInputLength];
 	
 	if (!ch->in_room->home || !ch->in_room->home->check_member(ch)) {
 		send_to_char("I don't think you have permission.\n\r", ch);
@@ -1758,8 +1758,8 @@ void HOME_DATA::decorate_room(CHAR_DATA * ch, char * argument)
 		default:
 			break;
 		case SUB_ROOM_DESC:
-			ROOM_INDEX_DATA * location;
-			location = (ROOM_INDEX_DATA *) ch->dest_buf;
+			RoomIndexData * location;
+			location = (RoomIndexData *) ch->dest_buf;
 			if (!location)
 			{
 				bug("redit: sub_room_desc: NULL ch->dest_buf", 0);
@@ -1859,18 +1859,18 @@ int home_grid_dir(char * direction, int * col, int * row, int * height)
 	}
 	return dir;
 }
-void HOME_DATA::add_room(CHAR_DATA * ch, char * argument)
+void HOME_DATA::add_room(CharData * ch, char * argument)
 {
-	char      arg[MAX_INPUT_LENGTH];
-	char      arg2[MAX_INPUT_LENGTH];
+	char      arg[MaxInputLength];
+	char      arg2[MaxInputLength];
 	HOME_DATA*home;
 	int        dir;
 	int 	  col,row,height,pos;
 	int       percent, xp, amount, percentage;
 	int 	  room_type;
 	int	      vnum;
-	EXIT_DATA *pexit;
-	ROOM_INDEX_DATA * newroom;
+	ExitData *pexit;
+	RoomIndexData * newroom;
 
 	home = ch->in_room->home;
 	/* Is this too lax? - Gavin */
@@ -2030,7 +2030,7 @@ void HOME_DATA::add_room(CHAR_DATA * ch, char * argument)
 	}
 
 	/* Find the room if it exists */
-	newroom = (ROOM_INDEX_DATA *) grid_get(home->grid, col, row, height);
+	newroom = (RoomIndexData *) grid_get(home->grid, col, row, height);
 	if (!newroom) {
 		vnum = find_pvnum_block(1,ch->in_room->area->filename);
 		if (vnum == -1)
@@ -2124,7 +2124,7 @@ void HOME_DATA::add_room(CHAR_DATA * ch, char * argument)
 	return;
 }
 
-CMDF do_homestat (CHAR_DATA * ch, char * argument)
+CMDF do_homestat (CharData * ch, char * argument)
 {
 	ROOMMATE_DATA * roomie;
 	if (!ch->in_room->home) {
@@ -2146,10 +2146,10 @@ CMDF do_homestat (CHAR_DATA * ch, char * argument)
 		ch_printf(ch, "\t\t%s\n\r", roomie->name);
 }
 
-void generate_description(ROOM_INDEX_DATA *room, int type)
+void generate_description(RoomIndexData *room, int type)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      buf2[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      buf2[MaxStringLength];
         int       nRand;
         int       iRand, len;
         int       previous[8];
@@ -2212,7 +2212,7 @@ void generate_description(ROOM_INDEX_DATA *room, int type)
 }
 
 /* can we enter that room? check privacy and stuff */
-bool HOME_DATA::can_enter(CHAR_DATA * ch)
+bool HOME_DATA::can_enter(CharData * ch)
 {
         /* If they are already inside, let them wander */
         if (ch->in_room->home == this)

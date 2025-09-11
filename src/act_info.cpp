@@ -67,7 +67,7 @@
 #include "editor.hpp"
 #include "boards.hpp"
 #include "account.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include "races.hpp"
 #include "greet.hpp"
 #include "password.hpp"
@@ -97,7 +97,7 @@ namespace {
 // =============================================================================
 // EXTERNAL FUNCTION DECLARATIONS
 // =============================================================================
-void send_gmcp_event(DESCRIPTOR_DATA* desc, const char* event, const char* json);
+void send_gmcp_event(DescriptorData* desc, const char* event, const char* json);
 extern int top_help;
 extern int top_area;
 
@@ -105,21 +105,21 @@ extern int top_area;
 // LOCAL FUNCTION PROTOTYPES
 // =============================================================================
 char* trim(const char* str);
-void show_visible_affects_to_char(CHAR_DATA* victim, CHAR_DATA* ch);
+void show_visible_affects_to_char(CharData* victim, CharData* ch);
 const char* halucinated_object(int ms, bool fShort);
-ROOM_INDEX_DATA* generate_exit(ROOM_INDEX_DATA* in_room, EXIT_DATA** pexit);
-HELP_DATA* get_help(CHAR_DATA* ch, char* argument);
+RoomIndexData* generate_exit(RoomIndexData* in_room, ExitData** pexit);
+HelpData* get_help(CharData* ch, char* argument);
 char* help_fix(char* text);
-int get_comfreq(CHAR_DATA* ch);
-void show_char_to_char_0(CHAR_DATA* victim, CHAR_DATA* ch);
-void show_char_to_char_1(CHAR_DATA* victim, CHAR_DATA* ch);
-void show_char_to_char(CHAR_DATA* list, CHAR_DATA* ch);
-void show_ships_to_char(SHIP_DATA* ship, CHAR_DATA* ch);
-bool check_blind(CHAR_DATA* ch);
-void show_condition(CHAR_DATA* ch, CHAR_DATA* victim);
+int get_comfreq(CharData* ch);
+void show_char_to_char_0(CharData* victim, CharData* ch);
+void show_char_to_char_1(CharData* victim, CharData* ch);
+void show_char_to_char(CharData* list, CharData* ch);
+void show_ships_to_char(ShipData* ship, CharData* ch);
+bool check_blind(CharData* ch);
+void show_condition(CharData* ch, CharData* victim);
 sh_int str_similarity(const char* astr, const char* bstr);
 sh_int str_prefix_level(const char* astr, const char* bstr);
-void similar_help_files(CHAR_DATA* ch, char* argument);
+void similar_help_files(CharData* ch, char* argument);
 
 // =============================================================================
 // GLOBAL DATA
@@ -160,9 +160,9 @@ const char* const where_name[] = {
 /*
  * Format an object for display to a character
  */
-char* format_obj_to_char(OBJ_DATA* obj, CHAR_DATA* ch, bool fShort)
+char* format_obj_to_char(ObjData* obj, CharData* ch, bool fShort)
 {
-        static char buf[MAX_STRING_LENGTH];
+        static char buf[MaxStringLength];
 
         buf[0] = '\0';
         if (IS_OBJ_STAT(obj, ITEM_INVIS))
@@ -308,13 +308,13 @@ const char* halucinated_object(int ms, bool fShort)
  * Show a list to a character.
  * Can coalesce duplicated items.
  */
-void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort, bool fShowNothing)
+void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothing)
 {
         char    **prgpstrShow;
         int      *prgnShow;
         int      *pitShow;
         char     *pstrShow;
-        OBJ_DATA *obj;
+        ObjData *obj;
         int       nShow;
         int       iShow;
         int       count, offcount, tmp, ms, cnt;
@@ -520,9 +520,9 @@ void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort, bool fShowNot
 /*
  * Show fancy descriptions for certain spell affects - Thoric
  */
-void show_visible_affects_to_char(CHAR_DATA* victim, CHAR_DATA* ch)
+void show_visible_affects_to_char(CharData* victim, CharData* ch)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (IS_AFFECTED(victim, AFF_SANCTUARY))
         {
@@ -603,10 +603,10 @@ void show_visible_affects_to_char(CHAR_DATA* victim, CHAR_DATA* ch)
 /*
  * Display a character to another character (brief view)
  */
-void show_char_to_char_0(CHAR_DATA* victim, CHAR_DATA* ch)
+void show_char_to_char_0(CharData* victim, CharData* ch)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      buf1[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      buf1[MaxStringLength];
 
 
         buf[0] = '\0';
@@ -863,9 +863,9 @@ void show_char_to_char_0(CHAR_DATA* victim, CHAR_DATA* ch)
 
 
 
-void show_char_to_char_1(CHAR_DATA * victim, CHAR_DATA * ch)
+void show_char_to_char_1(CharData * victim, CharData * ch)
 {
-        OBJ_DATA *obj;
+        ObjData *obj;
         int       iWear;
         bool      found;
 
@@ -935,9 +935,9 @@ void show_char_to_char_1(CHAR_DATA * victim, CHAR_DATA * ch)
 }
 
 
-void show_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
+void show_char_to_char(CharData * list, CharData * ch)
 {
-        CHAR_DATA *rch;
+        CharData *rch;
 
         for (rch = list; rch; rch = rch->next_in_room)
         {
@@ -970,7 +970,7 @@ void show_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
 
 
 
-bool check_blind(CHAR_DATA * ch)
+bool check_blind(CharData * ch)
 {
         if (!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT))
                 return TRUE;
@@ -1026,16 +1026,16 @@ int get_door(char *arg)
 /*
  * Look command - examine the environment and objects
  */
-CMDF do_look(CHAR_DATA* ch, const char* argument)
+CMDF do_look(CharData* ch, const char* argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        char      arg3[MAX_INPUT_LENGTH];
-        EXIT_DATA *pexit;
-        CHAR_DATA *victim;
-        OBJ_DATA *obj;
-        ROOM_INDEX_DATA *original;
+        char      arg[MaxInputLength];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        char      arg3[MaxInputLength];
+        ExitData *pexit;
+        CharData *victim;
+        ObjData *obj;
+        RoomIndexData *original;
         char     *pdesc;
         bool      doexaprog;
         sh_int    door;
@@ -1078,7 +1078,7 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
 
         if (arg1[0] == '\0' || !str_cmp(arg1, "auto"))
         {
-                SHIP_DATA *ship;
+                ShipData *ship;
 
                 /*
                  * 'look' or 'look auto' 
@@ -1097,7 +1097,7 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
                 if (!ch->desc->original)
                 {
 
-                        if (get_trust(ch) >= LEVEL_IMMORTAL)
+                        if (get_trust(ch) >= LevelImmortal)
                         {
                                 if (IS_SET(ch->act, PLR_ROOMVNUM))
                                 {
@@ -1186,15 +1186,15 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
                                           "\n\rThrough the transparisteel windows you see:\n\r");
                                 if (ship->starsystem)
                                 {
-                                        MISSILE_DATA *missile = NULL;
-                                        SHIP_DATA *target = NULL;
-                                        BODY_DATA *body = NULL;
+                                        MissileData *missile = NULL;
+                                        ShipData *target = NULL;
+                                        BodyData *body = NULL;
 
                                         set_char_color(AT_GREEN, ch);
                                         /*
                                          * I really hate doing 3 for loops for sorting, we should time it 
                                          */
-                                        FOR_EACH_LIST(BODY_LIST,
+                                        FOR_EACH_LIST(BodyList,
                                                       ship->starsystem->
                                                       bodies, body)
                                         {
@@ -1204,7 +1204,7 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
                                                                   body->
                                                                   name());
                                         }
-                                        FOR_EACH_LIST(BODY_LIST,
+                                        FOR_EACH_LIST(BodyList,
                                                       ship->starsystem->
                                                       bodies, body)
                                         {
@@ -1215,7 +1215,7 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
                                                                   body->
                                                                   name());
                                         }
-                                        FOR_EACH_LIST(BODY_LIST,
+                                        FOR_EACH_LIST(BodyList,
                                                       ship->starsystem->
                                                       bodies, body)
                                         {
@@ -1265,7 +1265,7 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
                                 }
                                 else if (ship->location == ship->lastdoc)
                                 {
-                                        ROOM_INDEX_DATA *to_room;
+                                        RoomIndexData *to_room;
 
                                         if ((to_room =
                                              get_room_index(ship->
@@ -1468,10 +1468,10 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
                 if (pexit->to_room
                     && (IS_AFFECTED(ch, AFF_SCRYING)
                         || IS_SET(pexit->exit_info, EX_xLOOK)
-                        || get_trust(ch) >= LEVEL_IMMORTAL))
+                        || get_trust(ch) >= LevelImmortal))
                 {
                         if (!IS_SET(pexit->exit_info, EX_xLOOK)
-                            && get_trust(ch) < LEVEL_IMMORTAL)
+                            && get_trust(ch) < LevelImmortal)
                         {
                                 set_char_color(AT_MAGIC, ch);
                                 send_to_char("You attempt to scry...\n\r",
@@ -1508,7 +1508,7 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
                         original = ch->in_room;
                         if (pexit->distance > 1)
                         {
-                                ROOM_INDEX_DATA *to_room;
+                                RoomIndexData *to_room;
 
                                 if ((to_room =
                                      generate_exit(ch->in_room,
@@ -1660,9 +1660,9 @@ CMDF do_look(CHAR_DATA* ch, const char* argument)
         return;
 }
 
-void show_condition(CHAR_DATA * ch, CHAR_DATA * victim)
+void show_condition(CharData * ch, CharData * victim)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         int       percent;
 
         if (!victim || !victim->name)
@@ -1746,10 +1746,10 @@ the condition of a mob or pc, or if used without an argument, the
 same you would see if you enter the room and have config +brief.
 -- Narn, winter '96
 */
-CMDF do_glance(CHAR_DATA * ch, const char *argument)
+CMDF do_glance(CharData * ch, const char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg1[MaxInputLength];
+        CharData *victim;
         int       save_act;
 
         if (!ch->desc)
@@ -1806,11 +1806,11 @@ CMDF do_glance(CHAR_DATA * ch, const char *argument)
 
 
 /* New command to view a player's skills - Samson 4-13-98 */
-CMDF do_viewskills(CHAR_DATA * ch, char *argument)
+CMDF do_viewskills(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
+        CharData *victim;
         int       sn;
         int       col;
 
@@ -1843,7 +1843,7 @@ CMDF do_viewskills(CHAR_DATA * ch, char *argument)
                                 break;
 
                         if (skill_table[sn]->guild < 0
-                            || skill_table[sn]->guild >= MAX_ABILITY)
+                            || skill_table[sn]->guild >= MaxAbility)
                                 continue;
 
                         if (strcmp(skill_table[sn]->name, "reserved") == 0
@@ -1886,7 +1886,7 @@ CMDF do_viewskills(CHAR_DATA * ch, char *argument)
 
 
                         if (skill_table[sn]->guild < 0
-                            || skill_table[sn]->guild >= MAX_ABILITY)
+                            || skill_table[sn]->guild >= MaxAbility)
                                 continue;
 
                         if (victim->pcdata->learned[sn] <= 0
@@ -1914,11 +1914,11 @@ CMDF do_viewskills(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_examine(CHAR_DATA * ch, char *argument)
+CMDF do_examine(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj;
+        char      buf[MaxStringLength];
+        char      arg[MaxInputLength];
+        ObjData *obj;
         BOARD_DATA *board;
         sh_int    dam;
 
@@ -2255,10 +2255,10 @@ CMDF do_examine(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_exits(CHAR_DATA * ch, const char *argument)
+CMDF do_exits(CharData * ch, const char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        EXIT_DATA *pexit;
+        char      buf[MaxStringLength];
+        ExitData *pexit;
         bool      found;
         bool      fAuto;
 
@@ -2419,7 +2419,7 @@ const char* const month_name[] = {
 
 extern char str_boot_time[];
 extern char reboot_time[];
-CMDF do_time(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_time(CharData * ch, [[maybe_unused]] const char *argument)
 {
         const char *suf;
         int       day;
@@ -2467,7 +2467,7 @@ CMDF do_time(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 
 
 
-CMDF do_weather(CHAR_DATA * ch, const char *argument)
+CMDF do_weather(CharData * ch, const char *argument)
 {
         static const char* const sky_look[4] = {
                 "cloudless",
@@ -2497,17 +2497,17 @@ CMDF do_weather(CHAR_DATA * ch, const char *argument)
  * Moved into a separate function so it can be used for other things
  * ie: online help editing				-Thoric
  */
-HELP_DATA *get_help(CHAR_DATA * ch, char *argument)
+HelpData *get_help(CharData * ch, char *argument)
 {
-        char      argall[MAX_INPUT_LENGTH];
-        char      argone[MAX_INPUT_LENGTH];
-        char      argnew[MAX_INPUT_LENGTH];
-        HELP_DATA *pHelp;
+        char      argall[MaxInputLength];
+        char      argone[MaxInputLength];
+        char      argnew[MaxInputLength];
+        HelpData *pHelp;
         int       lev;
 
         if (argument[0] == '\0')
         {
-                mudstrlcpy(argnew, "summary", MAX_INPUT_LENGTH);
+                mudstrlcpy(argnew, "summary", MaxInputLength);
                 argument = argnew;
         }
 
@@ -2601,10 +2601,10 @@ sh_int str_prefix_level(const char *astr, const char *bstr)
 /* helpfiles to the argument. It then checks for singles. Then, if matching helpfiles*/
 /* are found at all, it loops through and prints out the closest matching helpfiles.*/
 /* If its a single(there's only one), it opens the helpfile.*/
-void similar_help_files(CHAR_DATA * ch, char *argument)
+void similar_help_files(CharData * ch, char *argument)
 {
-        HELP_DATA *pHelp = NULL;
-        char      buf[MAX_STRING_LENGTH];
+        HelpData *pHelp = NULL;
+        char      buf[MaxStringLength];
         char     *extension;
         sh_int    lvl = 0;
         bool      single = FALSE;
@@ -2681,11 +2681,11 @@ void similar_help_files(CHAR_DATA * ch, char *argument)
 /*
  * Now this is cleaner
  *
-CMDF do_help(CHAR_DATA * ch, char *argument)
+CMDF do_help(CharData * ch, char *argument)
 {
-        HELP_DATA *pHelp;
+        HelpData *pHelp;
         int       skill_number;
-        CMDTYPE  *command;
+        CMDType  *command;
 
         if ((pHelp = get_help(ch, argument)) == NULL)
         {
@@ -2738,9 +2738,9 @@ CMDF do_help(CHAR_DATA * ch, char *argument)
 /*
  * Help command - Updated version provided by Remcon of The Lands of Pabulum 03/20/2004
  */
-void do_help(CHAR_DATA* ch, char* argument)
+void do_help(CharData* ch, char* argument)
 {
-        HELP_DATA *pHelp;
+        HelpData *pHelp;
         char     *keyword;
         char      oneword[MSL], lastmatch[MSL];
         sh_int    matched = 0, checked = 0, totalmatched = 0, found = 0;
@@ -2840,9 +2840,9 @@ void do_help(CHAR_DATA* ch, char* argument)
 /*
  * Help editor							-Thoric
  */
-CMDF do_hedit(CHAR_DATA * ch, char *argument)
+CMDF do_hedit(CharData * ch, char *argument)
 {
-        HELP_DATA *pHelp;
+        HelpData *pHelp;
 
         if (!ch->desc)
         {
@@ -2855,7 +2855,7 @@ CMDF do_hedit(CHAR_DATA * ch, char *argument)
         default:
                 break;
         case SUB_HELP_EDIT:
-                if ((pHelp = static_cast<HELP_DATA *>(ch->dest_buf)) == NULL)
+                if ((pHelp = static_cast<HelpData *>(ch->dest_buf)) == NULL)
                 {
                         bug("hedit: sub_help_edit: NULL ch->dest_buf", 0);
                         stop_editing(ch);
@@ -2874,7 +2874,7 @@ CMDF do_hedit(CHAR_DATA * ch, char *argument)
         }
         if ((pHelp = get_help(ch, argument)) == NULL)   /* new help */
         {
-                char      argnew[MAX_INPUT_LENGTH];
+                char      argnew[MaxInputLength];
                 int       lev;
 
                 if (isdigit(argument[0]))
@@ -2884,7 +2884,7 @@ CMDF do_hedit(CHAR_DATA * ch, char *argument)
                 }
                 else
                         lev = get_trust(ch);
-                CREATE(pHelp, HELP_DATA, 1);
+                CREATE(pHelp, HelpData, 1);
                 pHelp->keyword = STRALLOC(strupper(argument));
                 pHelp->text = STRALLOC(const_cast<char*>(""));
                 pHelp->level = static_cast<sh_int>(lev);
@@ -2918,7 +2918,7 @@ char     *help_fix(char *text)
 void save_help(void)
 {
         FILE     *fpout;
-        HELP_DATA *pHelp;
+        HelpData *pHelp;
         char      date[25];
 
         rename("help.are", "help.are.bak");
@@ -2947,10 +2947,10 @@ void save_help(void)
         fpReserve = fopen(NULL_FILE, "r");
 
 }
-CMDF do_hset(CHAR_DATA * ch, char *argument)
+CMDF do_hset(CharData * ch, char *argument)
 {
-        HELP_DATA *pHelp;
-        char      arg1[MAX_INPUT_LENGTH];
+        HelpData *pHelp;
+        char      arg1[MaxInputLength];
 
         smash_tilde(argument);
         argument = one_argument(argument, arg1);
@@ -2969,7 +2969,7 @@ CMDF do_hset(CHAR_DATA * ch, char *argument)
         if (!str_cmp(arg1, "save"))
         {
                 log_string_plus("Saving help.are...", LOG_NORMAL,
-                                LEVEL_GREATER);
+                                LevelGreater);
                 save_help();
                 send_to_char("Saved.\n\r", ch);
                 return;
@@ -3036,14 +3036,14 @@ CMDF do_hset(CHAR_DATA * ch, char *argument)
  * Show help topics in a level range				-Thoric
  * Idea suggested by Gorog
  */
-CMDF do_hlist(CHAR_DATA * ch, char *argument)
+CMDF do_hlist(CharData * ch, char *argument)
 {
         int       min, max, minlimit, maxlimit, cnt;
-        char      arg[MAX_INPUT_LENGTH];
-        HELP_DATA *help;
+        char      arg[MaxInputLength];
+        HelpData *help;
 
         maxlimit = get_trust(ch);
-        minlimit = maxlimit >= LEVEL_GREATER ? -1 : 0;
+        minlimit = maxlimit >= LevelGreater ? -1 : 0;
         argument = one_argument(argument, arg);
         if (arg[0] != '\0')
         {
@@ -3090,14 +3090,14 @@ CMDF do_hlist(CHAR_DATA * ch, char *argument)
  * Latest version eliminates redundant code by using linked lists.
  * Shows imms separately, indicates guest and retired immortals. -Narn, Oct/96
  */
-CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
+CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      invis_str[MAX_INPUT_LENGTH];
-        char      extra_title[MAX_STRING_LENGTH];
-        char      race_text[MAX_INPUT_LENGTH];
-        char      clan_name[MAX_INPUT_LENGTH];
-        DESCRIPTOR_DATA *d;
+        char      buf[MaxStringLength];
+        char      invis_str[MaxInputLength];
+        char      extra_title[MaxStringLength];
+        char      race_text[MaxInputLength];
+        char      clan_name[MaxInputLength];
+        DescriptorData *d;
         int       iLevelLower;
         int       iLevelUpper;
         int       nMatch;
@@ -3105,22 +3105,22 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
         FILE     *whoout = NULL;
 
         /*
-         * #define WT_IMM    0;
-         * #define WT_MORTAL 1;
+         * #define WtImm    0;
+         * #define WtMortal 1;
          */
 
-        WHO_DATA *cur_who = NULL;
-        WHO_DATA *next_who = NULL;
-        WHO_DATA *first_mortal = NULL;
-        WHO_DATA *first_newbie = NULL;
-        WHO_DATA *first_imm = NULL;
+        WhoData *cur_who = NULL;
+        WhoData *next_who = NULL;
+        WhoData *first_mortal = NULL;
+        WhoData *first_newbie = NULL;
+        WhoData *first_imm = NULL;
 
         (void)argument;
         /*
          * Set default arguments.
          */
         iLevelLower = 0;
-        iLevelUpper = MAX_LEVEL;
+        iLevelUpper = MaxLevel;
         fImmortalOnly = FALSE;
 
 
@@ -3156,7 +3156,7 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
 /* start from last to first to get it in the proper order */
         for (d = last_descriptor; d; d = d->prev)
         {
-                CHAR_DATA *wch;
+                CharData *wch;
                 char const *race;
 
                 wch = CH(d);
@@ -3166,7 +3166,7 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
                         continue;
                 if (wch->top_level < iLevelLower
                     || wch->top_level > iLevelUpper
-                    || (fImmortalOnly && wch->top_level < LEVEL_IMMORTAL))
+                    || (fImmortalOnly && wch->top_level < LevelImmortal))
                         continue;
                 if (IS_NPC(wch))
                         continue;
@@ -3179,8 +3179,8 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
                 clan_name[0] = '\0'; /* Reset this so it won't print on others */
                 if ( ch && !IS_NPC(ch) && wch->pcdata->clan && (ch->pcdata->clan || IS_IMMORTAL(ch)))
                 {
-                        CLAN_DATA *pclan;
-                        CLAN_DATA *zclan;
+                        ClanData *pclan;
+                        ClanData *zclan;
 
                         if ( wch->pcdata->clan ) 
                         {
@@ -3226,19 +3226,19 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
                 case 200:
                         race = "The Ghost in the Machine";
                         break;
-                case MAX_LEVEL - 0:
+                case MaxLevel - 0:
                         race = "Owner";
                         break;
-                case MAX_LEVEL - 1:
+                case MaxLevel - 1:
                         race = "Admin";
                         break;
-                case MAX_LEVEL - 2:
+                case MaxLevel - 2:
                         race = "Head Builder";
                         break;
-                case MAX_LEVEL - 3:
+                case MaxLevel - 3:
                         race = "Builder";
                         break;
-                case MAX_LEVEL - 4:
+                case MaxLevel - 4:
                         race = "Enforcer";
                         break;
                 }
@@ -3293,22 +3293,22 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
                 /* 
                  * Build the string safely in multiple steps to avoid buffer overflow 
                  */
-                char safe_buf[MAX_STRING_LENGTH];
+                char safe_buf[MaxStringLength];
                 int len = 0;
                 
                 /* Start with race and basic status info (limited to 100 chars) */
-                len += snprintf(safe_buf + len, static_cast<size_t>(MAX_STRING_LENGTH - len), "%.100s &W%.10s%.20s%.20s&W", 
+                len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.100s &W%.10s%.20s%.20s&W", 
                          race, 
                          invis_str,
                          NOT_AUTHED(wch) ? "&BN&W " : "",
                          IS_SET(wch->act, PLR_AFK) ? "[AFK] " : "");
                 
                 /* Add titles and clan info (limited to 200 chars) */
-                len += snprintf(safe_buf + len, static_cast<size_t>(MAX_STRING_LENGTH - len), "%.200s%.200s", 
+                len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.200s%.200s", 
                          extra_title, clan_name);
                 
                 /* Add status flags (limited space) */
-                len += snprintf(safe_buf + len, static_cast<size_t>(MAX_STRING_LENGTH - len), "%.50s%.50s%.50s&w",
+                len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.50s%.50s%.50s&w",
                          IS_SET(wch->pcdata->flags, PCFLAG_WORKING) ? "&Y [&RWORKING&Y]&W" : "&W",
                          IS_SET(wch->act, PLR_SILENCE) ? "&Y [&BS&zilenced&Y]&W" : "&W",
                          wch->desc->connected == CON_EDITING ? "&Y [&cWRITING&Y]" : 
@@ -3326,29 +3326,29 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
                 /*
                  * First make the structure. 
                  */
-                CREATE(cur_who, WHO_DATA, 1);
+                CREATE(cur_who, WhoData, 1);
                 cur_who->text = str_dup(buf);
                 if (IS_IMMORTAL(wch))
-                        cur_who->type = WT_IMM;
+                        cur_who->type = WtImm;
                 else if (get_trust(wch) <= 10)
-                        cur_who->type = WT_NEWBIE;
+                        cur_who->type = WtNewbie;
                 else
-                        cur_who->type = WT_MORTAL;
+                        cur_who->type = WtMortal;
 
                 /*
                  * Then put it into the appropriate list. 
                  */
                 switch (cur_who->type)
                 {
-                case WT_MORTAL:
+                case WtMortal:
                         cur_who->next = first_mortal;
                         first_mortal = cur_who;
                         break;
-                case WT_IMM:
+                case WtImm:
                         cur_who->next = first_imm;
                         first_imm = cur_who;
                         break;
-                case WT_NEWBIE:
+                case WtNewbie:
                         cur_who->next = first_newbie;
                         first_newbie = cur_who;
                         break;
@@ -3515,12 +3515,12 @@ CMDF do_who(CHAR_DATA* ch, [[maybe_unused]] const char* argument)
 }
 
 
-CMDF do_compare(CHAR_DATA * ch, char *argument)
+CMDF do_compare(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        OBJ_DATA *obj1;
-        OBJ_DATA *obj2;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        ObjData *obj1;
+        ObjData *obj2;
         int       value1;
         int       value2;
         const char *msg;
@@ -3617,14 +3617,14 @@ CMDF do_compare(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_where(CHAR_DATA * ch, char *argument)
+CMDF do_where(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
-        DESCRIPTOR_DATA *d;
+        char      arg[MaxInputLength];
+        CharData *victim;
+        DescriptorData *d;
         bool      found;
 
-        if (get_trust(ch) < LEVEL_IMMORTAL)
+        if (get_trust(ch) < LevelImmortal)
         {
                 send_to_char("If only life were really that simple...\n\r",
                              ch);
@@ -3636,7 +3636,7 @@ CMDF do_where(CHAR_DATA * ch, char *argument)
         set_pager_color(AT_PERSON, ch);
         if (arg[0] == '\0')
         {
-                if (get_trust(ch) >= LEVEL_IMMORTAL)
+                if (get_trust(ch) >= LevelImmortal)
                         send_to_pager("Players logged in:\n\r", ch);
                 else
                         pager_printf(ch, "Players near you in %s:\n\r",
@@ -3648,7 +3648,7 @@ CMDF do_where(CHAR_DATA * ch, char *argument)
                             && !IS_NPC(victim)
                             && victim->in_room
                             && (victim->in_room->area == ch->in_room->area
-                                || get_trust(ch) >= LEVEL_IMMORTAL)
+                                || get_trust(ch) >= LevelImmortal)
                             && can_see(ch, victim))
                         {
                                 found = TRUE;
@@ -3687,10 +3687,10 @@ CMDF do_where(CHAR_DATA * ch, char *argument)
 
 
 
-CMDF do_consider(CHAR_DATA * ch, char *argument)
+CMDF do_consider(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        CHAR_DATA *victim;
+        char      arg[MaxInputLength];
+        CharData *victim;
         const char *msg;
         int       diff;
 
@@ -3744,10 +3744,10 @@ CMDF do_consider(CHAR_DATA * ch, char *argument)
 /*
  * Practice command - practice skills
  */
-CMDF do_practice(CHAR_DATA* ch, char* argument)
+CMDF do_practice(CharData* ch, char* argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        char      arg[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
+        char      arg[MaxStringLength];
         int       sn, classtype = -1, iClass;
         bool      parts = FALSE;
 
@@ -3766,7 +3766,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
                         argument = one_argument(argument, arg); /* Fill arg with class name, what we want */
                         if (arg[0] != '\0')
                         {
-                                for (iClass = 0; iClass < MAX_ABILITY;
+                                for (iClass = 0; iClass < MaxAbility;
                                      iClass++)
                                 {
                                         if (!str_prefix
@@ -3788,7 +3788,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
                                 break;
 
                         if (skill_table[sn]->guild < 0
-                            || skill_table[sn]->guild >= MAX_ABILITY)
+                            || skill_table[sn]->guild >= MaxAbility)
                                 continue;
 
                         if (strcmp(skill_table[sn]->name, "reserved") == 0
@@ -3830,7 +3830,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
                         {
                                 sh_int    i = 0;
 
-                                for (i = 0; i < MAX_BITS; i++)
+                                for (i = 0; i < MaxBits; i++)
                                         if (xIS_SET
                                             (skill_table[sn]->body_parts, i)
                                             && xIS_SET(ch->xflags, i))
@@ -3841,7 +3841,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
                                 continue;
 
                         if (skill_table[sn]->guild < 0
-                            || skill_table[sn]->guild >= MAX_ABILITY)
+                            || skill_table[sn]->guild >= MaxAbility)
                                 continue;
 
                         if (classtype != -1
@@ -3912,7 +3912,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
         }
         else
         {
-                CHAR_DATA *mob;
+                CharData *mob;
                 int       adept;
                 bool      can_prac = TRUE;
 
@@ -3945,7 +3945,7 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
                 }
 
                 if (skill_table[sn]->guild < 0
-                    || skill_table[sn]->guild >= MAX_ABILITY)
+                    || skill_table[sn]->guild >= MaxAbility)
                 {
                         act(AT_TELL,
                             "$n tells you 'I cannot teach you that...'", mob,
@@ -4052,11 +4052,11 @@ CMDF do_practice(CHAR_DATA* ch, char* argument)
         return;
 }
 
-CMDF do_teach(CHAR_DATA * ch, char *argument)
+CMDF do_teach(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
         int       sn;
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         if (IS_NPC(ch))
                 return;
@@ -4073,7 +4073,7 @@ CMDF do_teach(CHAR_DATA * ch, char *argument)
                 }
                 else
                 {
-                        CHAR_DATA *victim;
+                        CharData *victim;
                         int       adept;
 
                         if (!IS_AWAKE(ch))
@@ -4109,7 +4109,7 @@ CMDF do_teach(CHAR_DATA * ch, char *argument)
                         }
 
                         if (skill_table[sn]->guild < 0
-                            || skill_table[sn]->guild >= MAX_ABILITY)
+                            || skill_table[sn]->guild >= MaxAbility)
                         {
                                 act(AT_TELL,
                                     "Thats just not going to happen.", victim,
@@ -4152,7 +4152,7 @@ CMDF do_teach(CHAR_DATA * ch, char *argument)
                         return;
 
         case TRUE: // Can't be reached without consent.
-                        victim = static_cast<CHAR_DATA *>(ch->dest_buf);    // Should exist, this is a triggered response caused by victim.
+                        victim = static_cast<CharData *>(ch->dest_buf);    // Should exist, this is a triggered response caused by victim.
                         sn = skill_lookup(argument);    // argument has already been parsed, should be fine.
 
                         if (victim->skill_level[skill_table[sn]->guild] <
@@ -4204,9 +4204,9 @@ CMDF do_teach(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_wimpy(CHAR_DATA * ch, char *argument)
+CMDF do_wimpy(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       wimpy;
 
         one_argument(argument, arg);
@@ -4240,10 +4240,10 @@ CMDF do_wimpy(CHAR_DATA * ch, char *argument)
 /*
  * Password command - change player password
  */
-CMDF do_password(CHAR_DATA* ch, char* argument)
+CMDF do_password(CharData* ch, char* argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         char     *pArg;
         char     *p;
         char      cEnd;
@@ -4345,7 +4345,7 @@ CMDF do_password(CHAR_DATA* ch, char* argument)
         return;
 }
 
-CMDF do_ls(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
+CMDF do_ls(CharData * ch, [[maybe_unused]] const char *argument)
 {
         send_to_char("This isn't your terminal dumbass.\n\r", ch);
         return;
@@ -4358,11 +4358,11 @@ CMDF do_ls(CHAR_DATA * ch, [[maybe_unused]] const char *argument)
 /*
  * Socials command - list available social commands
  */
-CMDF do_socials(CHAR_DATA* ch, char* argument)
+CMDF do_socials(CharData* ch, char* argument)
 {
         int       iHash;
         int       col = 0;
-        SOCIALTYPE *social;
+        SocialType *social;
 
         (void)argument;
 
@@ -4386,11 +4386,11 @@ CMDF do_socials(CHAR_DATA* ch, char* argument)
 
 
 
-CMDF do_commands(CHAR_DATA * ch, char *argument)
+CMDF do_commands(CharData * ch, char *argument)
 {
         int       col;
         int       hash;
-        CMDTYPE  *command;
+        CMDType  *command;
 
         (void)argument;
 
@@ -4399,7 +4399,7 @@ CMDF do_commands(CHAR_DATA * ch, char *argument)
         for (hash = 0; hash < 126; hash++)
                 for (command = command_hash[hash]; command;
                      command = command->next)
-                        if (command->level < LEVEL_HERO
+                        if (command->level < LevelHero
                             && command->level <= get_trust(ch)
                             && (command->name[0] != 'm'
                                 || command->name[1] != 'p'))
@@ -4422,24 +4422,24 @@ CMDF do_commands(CHAR_DATA * ch, char *argument)
 /*
  * display WIZLIST file						-Thoric
  */
-CMDF do_wizlist(CHAR_DATA * ch, char *argument)
+CMDF do_wizlist(CharData * ch, char *argument)
 {
         (void)argument;
         set_pager_color(AT_IMMORT, ch);
         show_file(ch, WIZLIST_FILE);
 }
 
-CMDF do_showhelp(CHAR_DATA * ch, char *argument)
+CMDF do_showhelp(CharData * ch, char *argument)
 {
         (void)argument;
         set_pager_color(AT_IMMORT, ch);
         show_file(ch, HELP_FILE);
 }
 
-CMDF do_showlog(CHAR_DATA * ch, char *argument)
+CMDF do_showlog(CharData * ch, char *argument)
 {
         bool      clear = FALSE;
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         argument = one_argument(argument, arg);
         set_pager_color(AT_IMMORT, ch);
@@ -4516,9 +4516,9 @@ CMDF do_showlog(CHAR_DATA * ch, char *argument)
 /*
  * Contributed by Grodyn.
  */
-CMDF do_config(CHAR_DATA * ch, char *argument)
+CMDF do_config(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         if (IS_NPC(ch))
                 return;
@@ -4801,7 +4801,7 @@ CMDF do_config(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_credits(CHAR_DATA * ch, char *argument)
+CMDF do_credits(CharData * ch, char *argument)
 {
         (void)argument;
         do_help(ch, "credits");
@@ -4814,9 +4814,9 @@ CMDF do_credits(CHAR_DATA * ch, char *argument)
 /*
  * Areas command - list game areas
  */
-CMDF do_areas(CHAR_DATA* ch, char* argument)
+CMDF do_areas(CharData* ch, char* argument)
 {
-        AREA_DATA *pArea;
+        AreaData *pArea;
 
         (void)argument;
 
@@ -4837,7 +4837,7 @@ CMDF do_areas(CHAR_DATA* ch, char* argument)
         return;
 }
 
-CMDF do_afk(CHAR_DATA * ch, char *argument)
+CMDF do_afk(CharData * ch, char *argument)
 {
         (void)argument;
         if (IS_NPC(ch))
@@ -4860,14 +4860,14 @@ CMDF do_afk(CHAR_DATA * ch, char *argument)
 
 }
 
-CMDF do_slist(CHAR_DATA * ch, char *argument)
+CMDF do_slist(CharData * ch, char *argument)
 {
         int       sn, i;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
         int lFound = 0;
 #pragma GCC diagnostic pop
-        char      skn[MAX_INPUT_LENGTH];
+        char      skn[MaxInputLength];
         int       col = 0;
 
 /* C++ conversion - Greven 31/12/03 
@@ -4879,7 +4879,7 @@ CMDF do_slist(CHAR_DATA * ch, char *argument)
 
 
         classtype = -1;
-        for (iClass = 0; iClass < MAX_ABILITY; iClass++)
+        for (iClass = 0; iClass < MaxAbility; iClass++)
         {
                 if (!str_prefix(argument, ability_name[iClass]))
                         classtype = iClass;
@@ -4888,7 +4888,7 @@ CMDF do_slist(CHAR_DATA * ch, char *argument)
         send_to_pager("&BS&zPELL &w& &BS&zKILL &BL&zIST\n\r", ch);
         send_to_pager("------------------\n\r", ch);
 
-        for (ability = -1; ability < MAX_ABILITY; ability++)
+        for (ability = -1; ability < MaxAbility; ability++)
         {
 
                 if (argument[0] && (ability != classtype))
@@ -4967,10 +4967,10 @@ CMDF do_slist(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_whois(CHAR_DATA * ch, char *argument)
+CMDF do_whois(CharData * ch, char *argument)
 {
-        CHAR_DATA *victim;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *victim;
+        char      buf[MaxStringLength];
 
         buf[0] = '\0';
 
@@ -5117,7 +5117,7 @@ CMDF do_whois(CHAR_DATA * ch, char *argument)
                                           victim->name, victim->desc->client);
                         }
                 }
-                if (get_trust(ch) >= LEVEL_GOD
+                if (get_trust(ch) >= LevelGod
                     && get_trust(ch) >= get_trust(victim) && victim->pcdata)
                 {
                         ch_printf(ch, "&zEmail: &w%s\n\r",
@@ -5141,9 +5141,9 @@ CMDF do_whois(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_pager(CHAR_DATA * ch, char *argument)
+CMDF do_pager(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
 
         if (IS_NPC(ch))
                 return;
@@ -5169,20 +5169,20 @@ CMDF do_pager(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_steacher(CHAR_DATA * ch, char *argument)
+CMDF do_steacher(CharData * ch, char *argument)
 {
 
-        CHAR_DATA *victim;
-        char      buf[MAX_STRING_LENGTH];
+        CharData *victim;
+        char      buf[MaxStringLength];
         char     *buf1;
-        char      arg[MAX_STRING_LENGTH];
+        char      arg[MaxStringLength];
         int       sn, vnum;
         bool      fMob = FALSE, fSet = FALSE;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
         bool fMI = FALSE;
 #pragma GCC diagnostic pop
-        SKILLTYPE *skill = NULL;
+        SkillType *skill = NULL;
 
 
         if (IS_NPC(ch))
@@ -5201,7 +5201,7 @@ CMDF do_steacher(CHAR_DATA * ch, char *argument)
                                 break;
 
                         if (skill_table[sn]->guild < 0
-                            || skill_table[sn]->guild >= MAX_ABILITY)
+                            || skill_table[sn]->guild >= MaxAbility)
                                 continue;
 
                         fMob = FALSE;
@@ -5263,7 +5263,7 @@ CMDF do_steacher(CHAR_DATA * ch, char *argument)
                                 break;
 
                         if (skill_table[sn]->guild < 0
-                            || skill_table[sn]->guild >= MAX_ABILITY)
+                            || skill_table[sn]->guild >= MaxAbility)
                                 continue;
 
                         skill = skill_table[sn];
@@ -5314,7 +5314,7 @@ char     *revision(void)
 
 }
 
-CMDF do_mudinfo(CHAR_DATA * ch, char *argument)
+CMDF do_mudinfo(CharData * ch, char *argument)
 {
         (void)argument;
         ch_printf(ch, "&BM&zud name:             &w%-20s&D\n\r",

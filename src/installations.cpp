@@ -42,7 +42,7 @@
 #include <string.h>
 #include <time.h>
 #include "mud.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 #include "installations.hpp"
 #include "space2.hpp"
 
@@ -98,7 +98,7 @@ void save_installations(INSTALLATION_DATA * installation)
 {
         FILE     *fp;
         char      filename[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         if (!installation)
         {
@@ -212,7 +212,7 @@ void fread_installations(INSTALLATION_DATA * installation, FILE * fp)
                 case 'P':
                         if (!str_cmp(word, "Planet"))
                         {
-                                PLANET_DATA *planet =
+                                PlanetData *planet =
                                         get_planet(fread_string_noalloc(fp));
                                 if (planet)
                                 {
@@ -321,7 +321,7 @@ void load_installations()
         FILE     *fpList;
         const char *filename;
         char      installationlist[256];
-        char      buf[MAX_STRING_LENGTH];
+        char      buf[MaxStringLength];
 
         first_installation = NULL;
         last_installation = NULL;
@@ -357,8 +357,8 @@ void load_installations()
 
 int reserve_rooms_installation(int firstroom, int numrooms)
 {
-        AREA_DATA *tarea;
-        ROOM_INDEX_DATA *room;
+        AreaData *tarea;
+        RoomIndexData *room;
         int       i;
 
         /*
@@ -398,7 +398,7 @@ INSTALLATION_DATA *installation_from_room(int vnum)
         return NULL;
 }
 
-int planetary_installations(PLANET_DATA * planet, int type)
+int planetary_installations(PlanetData * planet, int type)
 {
         INSTALLATION_DATA *installation;
         int       count = 0;
@@ -414,15 +414,15 @@ int planetary_installations(PLANET_DATA * planet, int type)
 
 void destroy_installation(INSTALLATION_DATA * installation)
 {
-        ROOM_INDEX_DATA *room;
-        AREA_DATA *area;
-        AREA_DATA *parea;
+        RoomIndexData *room;
+        AreaData *area;
+        AreaData *parea;
         int       roomnum;
-        char      file[MAX_STRING_LENGTH];
-        EXIT_DATA *xit;
-        EXIT_DATA *pexit;
-        CHAR_DATA *rch;
-        OBJ_DATA *robj;
+        char      file[MaxStringLength];
+        ExitData *xit;
+        ExitData *pexit;
+        CharData *rch;
+        ObjData *robj;
 
         if (!installation)
                 return;
@@ -520,7 +520,7 @@ void destroy_installation(INSTALLATION_DATA * installation)
 void echo_to_installation(sh_int AT_COLOR, char *argument,
                           INSTALLATION_DATA * installation)
 {
-        DESCRIPTOR_DATA *d;
+        DescriptorData *d;
 
         if (!argument || argument[0] == '\0')
                 return;
@@ -546,10 +546,10 @@ void echo_to_installation(sh_int AT_COLOR, char *argument,
 }
 
 
-bool mob_reset(CHAR_DATA * ch, char *type, bool check)
+bool mob_reset(CharData * ch, char *type, bool check)
 {
-        ROOM_INDEX_DATA *room;
-        OBJ_DATA *obj;
+        RoomIndexData *room;
+        ObjData *obj;
 
         if (!IS_NPC(ch) && !check)
         {
@@ -587,21 +587,21 @@ bool mob_reset(CHAR_DATA * ch, char *type, bool check)
 
 }
 
-CMDF do_makeinstallation(CHAR_DATA * ch, char *argument)
+CMDF do_makeinstallation(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
         char      buf[MSL];
         int       percentage;
         bool      checktool, checkcir, checksuper, checkbatt;
-        ROOM_INDEX_DATA *room;
-        OBJ_DATA *obj;
-        PLANET_DATA *planet;
+        RoomIndexData *room;
+        ObjData *obj;
+        PlanetData *planet;
         int       vnum, duracrete, electronics, cost, iInstall, type =
                 0, count;
-        CLAN_DATA *clan;
+        ClanData *clan;
         INSTALLATION_DATA *installation;
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
@@ -1142,10 +1142,10 @@ CMDF do_makeinstallation(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_istat(CHAR_DATA * ch, char *argument)
+CMDF do_istat(CharData * ch, char *argument)
 {
         INSTALLATION_DATA *installation;
-        PLANET_DATA *planet = NULL;
+        PlanetData *planet = NULL;
         int       count = 0;
 
         if (IS_NPC(ch))
@@ -1234,9 +1234,9 @@ CMDF do_istat(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_addpersonel(CHAR_DATA * ch, char *argument)
+CMDF do_addpersonel(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
+        char      arg[MaxInputLength];
         int       percentage, credits;
         INSTALLATION_DATA *installation;
 
@@ -1395,18 +1395,18 @@ CMDF do_addpersonel(CHAR_DATA * ch, char *argument)
         }
 }
 
-CMDF do_lockdoor(CHAR_DATA * ch, char *argument)
+CMDF do_lockdoor(CharData * ch, char *argument)
 {
-        EXIT_DATA *xit;
-        EXIT_DATA *pexit;
-        char      arg[MAX_INPUT_LENGTH];
+        ExitData *xit;
+        ExitData *pexit;
+        char      arg[MaxInputLength];
         int       level, percentage, lock;
         bool      checktool, checkdura;
-        OBJ_INDEX_DATA *pObjIndex;
-        OBJ_DATA *obj;
+        ObjIndexData *pObjIndex;
+        ObjData *obj;
         int       vnum;
         INSTALLATION_DATA *installation;
-        SHIP_DATA *ship;
+        ShipData *ship;
 
         argument = one_argument(argument, arg);
 
@@ -1656,16 +1656,16 @@ CMDF do_lockdoor(CHAR_DATA * ch, char *argument)
                           FALSE, FALSE);
 }
 
-CMDF do_makekey(CHAR_DATA * ch, char *argument)
+CMDF do_makekey(CharData * ch, char *argument)
 {
-        EXIT_DATA *xit;
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
+        ExitData *xit;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
         int       level, percentage;
         bool      checktool, checkdura;
-        OBJ_INDEX_DATA *pObjIndex;
-        OBJ_DATA *obj;
-        OBJ_DATA *key;
+        ObjIndexData *pObjIndex;
+        ObjData *obj;
+        ObjData *key;
         int       vnum;
 
         argument = one_argument(argument, arg);
@@ -1987,15 +1987,15 @@ CMDF do_makekey(CHAR_DATA * ch, char *argument)
         learn_from_success(ch, gsn_makekey);
 }
 
-CMDF do_purgeinstallation(CHAR_DATA * ch, char *argument)
+CMDF do_purgeinstallation(CharData * ch, char *argument)
 {
         INSTALLATION_DATA *installation;
-        CHAR_DATA *victim;
-        char      arg[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *room;
+        CharData *victim;
+        char      arg[MaxInputLength];
+        char      arg2[MaxInputLength];
+        RoomIndexData *room;
         int       roomnum;
-        OBJ_DATA *robj;
+        ObjData *robj;
 
         argument = one_argument(argument, arg);
         argument = one_argument(argument, arg2);
@@ -2065,14 +2065,14 @@ CMDF do_purgeinstallation(CHAR_DATA * ch, char *argument)
 }
 
 
-CMDF do_sabotage(CHAR_DATA * ch, char *argument)
+CMDF do_sabotage(CharData * ch, char *argument)
 {
-        char      arg[MAX_INPUT_LENGTH];
-        char      buf[MAX_STRING_LENGTH];
+        char      arg[MaxInputLength];
+        char      buf[MaxStringLength];
         int       percentage;
         bool      checktool, checksteel, checkchem, checksuper, checkdrink,
                 checkcircuit, checkbatt;
-        OBJ_DATA *obj;
+        ObjData *obj;
         INSTALLATION_DATA *installation;
 
         mudstrlcpy(arg, argument, MIL);
@@ -2357,14 +2357,14 @@ CMDF do_sabotage(CHAR_DATA * ch, char *argument)
 }
 
 
-void addroominstallation(CHAR_DATA * ch, char *argument)
+void addroominstallation(CharData * ch, char *argument)
 {
-        char      arg1[MAX_INPUT_LENGTH];
-        char      arg2[MAX_INPUT_LENGTH];
-        ROOM_INDEX_DATA *room;
+        char      arg1[MaxInputLength];
+        char      arg2[MaxInputLength];
+        RoomIndexData *room;
         INSTALLATION_DATA *installation;
         bool      match;
-        EXIT_DATA *pexit;
+        ExitData *pexit;
 
         match = FALSE;
         argument = one_argument(argument, arg1);
@@ -2855,7 +2855,7 @@ void addroominstallation(CHAR_DATA * ch, char *argument)
 void fireplanet_update()
 {
         INSTALLATION_DATA *installation;
-        SHIP_DATA *ship;
+        ShipData *ship;
         int       wepnum, hit, percentage;
         char      buf[MSL];
         bool      fired;

@@ -44,31 +44,31 @@
 
 #include <string.h>
 #include "mud.hpp"
-#include "body.hpp"
+#include "astral.hpp"
 
-BODY_DATA *get_body_here(SPACE_DATA * star, char *name)
+BodyData *get_body_here(SpaceData * star, char *name)
 {
-        BODY_DATA *body = NULL;
+        BodyData *body = NULL;
 
         if (!star)
                 return NULL;
 
-        FOR_EACH_LIST(BODY_LIST, star->bodies, body)
+        FOR_EACH_LIST(BodyList, star->bodies, body)
                 if (!str_cmp(name, body->name()))
                 return body;
 
-        FOR_EACH_LIST(BODY_LIST, star->bodies, body)
+        FOR_EACH_LIST(BodyList, star->bodies, body)
                 if (nifty_is_name_prefix(name, const_cast<char*>(body->name())))
                 return body;
         return NULL;
 }
 
-CMDF do_bomb(CHAR_DATA * ch, char *argument)
+CMDF do_bomb(CharData * ch, char *argument)
 {
-        char      buf[MAX_STRING_LENGTH];
-        BODY_DATA *body = NULL;
-        SHIP_DATA *ship = NULL;
-        DESCRIPTOR_DATA *d = NULL;
+        char      buf[MaxStringLength];
+        BodyData *body = NULL;
+        ShipData *ship = NULL;
+        DescriptorData *d = NULL;
         int       chance, number, number2;
 
         if (argument[0] == '\0')
@@ -173,7 +173,7 @@ CMDF do_bomb(CHAR_DATA * ch, char *argument)
 
         if (body->planet() && !IS_SET(body->planet()->flags, PLANET_SHIELD))
         {
-                CHAR_DATA *vch;
+                CharData *vch;
 
                 number = number_range(0, 4);
                 number2 = number_range(0, 2);
@@ -276,7 +276,7 @@ CMDF do_bomb(CHAR_DATA * ch, char *argument)
          */
         else
         {
-                CHAR_DATA *vch;
+                CharData *vch;
 
 /*		if ( number_percent() <= 50 && planet->controls > 0)
 		{
@@ -323,12 +323,12 @@ CMDF do_bomb(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_dock(CHAR_DATA * ch, char *argument)
+CMDF do_dock(CharData * ch, char *argument)
 {
         int       percent_chance;
-        SHIP_DATA *ship;
-        SHIP_DATA *target;
-        char      buf[MAX_STRING_LENGTH];
+        ShipData *ship;
+        ShipData *target;
+        char      buf[MaxStringLength];
 
         if (argument[0] == '\0')
         {
@@ -504,11 +504,11 @@ CMDF do_dock(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_undock(CHAR_DATA * ch, char *argument)
+CMDF do_undock(CharData * ch, char *argument)
 {
         int       percent_chance;
-        SHIP_DATA *ship;
-        char      buf[MAX_STRING_LENGTH];
+        ShipData *ship;
+        char      buf[MaxStringLength];
 
         argument = NULL;
 
@@ -635,11 +635,11 @@ CMDF do_undock(CHAR_DATA * ch, char *argument)
         return;
 }
 
-CMDF do_extrapolate(CHAR_DATA * ch, char *argument)
+CMDF do_extrapolate(CharData * ch, char *argument)
 {
-        BODY_DATA *body;
+        BodyData *body;
         int       percent_chance, xp;
-        SHIP_DATA *ship;
+        ShipData *ship;
 
         if (argument[0] == '\0')
         {
