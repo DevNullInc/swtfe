@@ -455,7 +455,7 @@ struct extended_bitvector
 /*
  * do_who output structure -- Narn
  */
-struct who_data
+struct WhoData
 {
         WhoData *prev;
         WhoData *next;
@@ -466,7 +466,7 @@ struct who_data
 /*
  * Player watch data structure  --Gorog
  */
-struct watch_data
+struct WatchData
 {
         WatchData *next;
         WatchData *prev;
