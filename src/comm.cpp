@@ -1123,7 +1123,7 @@ void init_descriptor(DescriptorData * dnew, int desc)
         dnew->MxpDetected = FALSE; /* turn off MXP initaly */
         dnew->MspDetected = FALSE; /* turn off MSP initaly */
         /*
-         * force ansi - Dude, as samson said, it is the 2003s - Gavin
+         * Force ansi - Dude, as samson said, it is the 2003s - Gavin
          */
         /*
          * FIXME dnew->ansi     = TRUE; 
@@ -1326,7 +1326,7 @@ void free_desc(DescriptorData * d)
         return;
 }
 
-void close_socket(DescriptorData * dclose, bool force)
+void close_socket(DescriptorData * dclose, bool Force)
 {
         CharData *ch;
         DescriptorData *d;
@@ -1345,7 +1345,7 @@ void close_socket(DescriptorData * dclose, bool force)
         /*
          * flush OutBuf 
          */
-        if (!force && dclose->OutTop > 0)
+        if (!Force && dclose->OutTop > 0)
                 flush_buffer(dclose, FALSE);
 
         /*
@@ -1876,7 +1876,7 @@ bool flush_buffer(DescriptorData * d, bool fPrompt)
         if (d->snoop_by)
         {
                 /*
-                 * without check, 'force mortal quit' while snooped caused crash, -h 
+                 * without check, 'Force mortal quit' while snooped caused crash, -h 
                  */
                 if (d->character && d->character->name)
                 {
@@ -3570,17 +3570,17 @@ case ConGetName:
                         d->connected = static_cast<sh_int>(ConEditStats);
                         return;
                 }
-                if (!str_prefix(argument, "strength"))
+                if (!str_prefix(argument, "Strength"))
                         ch->pcdata->statedit = 1;
-                else if (!str_prefix(argument, "wisdom"))
+                else if (!str_prefix(argument, "Wisdom"))
                         ch->pcdata->statedit = 2;
-                else if (!str_prefix(argument, "intelligence"))
+                else if (!str_prefix(argument, "Intelligence"))
                         ch->pcdata->statedit = 3;
-                else if (!str_prefix(argument, "dexterity"))
+                else if (!str_prefix(argument, "Dexterity"))
                         ch->pcdata->statedit = 4;
-                else if (!str_prefix(argument, "constitution"))
+                else if (!str_prefix(argument, "Constitution"))
                         ch->pcdata->statedit = 5;
-                else if (!str_prefix(argument, "charisma"))
+                else if (!str_prefix(argument, "Charisma"))
                         ch->pcdata->statedit = 6;
                 else
                 {
@@ -4126,7 +4126,7 @@ case ConGetName:
                              ch->race->attr_modifier(ATTR_FORCE)) > 0
                             && str_cmp(ch->race->name(), "droid"))
 					    {
-                                snprintf(buf, MSL, "%s is starting with natural force of %d.", ch->name,  ch->perm_frc);
+                                snprintf(buf, MSL, "%s is starting with natural Force of %d.", ch->name,  ch->perm_frc);
 								log_string_plus(buf, LOG_COMM, sysdata.log_level);
                         }
                         if ((iLang =
@@ -4212,7 +4212,7 @@ case ConGetName:
                         equip_char(ch, obj, WEAR_LIGHT);
 
                         /*
-                         * armor they do though
+                         * Armor they do though
                          * * obj = create_object( get_obj_index(OBJ_VNUM_SCHOOL_VEST), 0 );
                          * * obj_to_char( obj, ch );
                          * * equip_char( ch, obj, WEAR_BODY );

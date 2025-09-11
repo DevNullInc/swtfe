@@ -388,7 +388,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_dex = 1;
                         if (outtext)
                                 send_to_char
-                                        ("Your dexterity has increased by one point!\n\r",
+                                        ("Your Dexterity has increased by one point!\n\r",
                                          ch);
                 }
 
@@ -397,7 +397,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_dex = 4;
                         if (outtext)
                                 send_to_char
-                                        ("Your dexterity has increased by three point!\n\r",
+                                        ("Your Dexterity has increased by three point!\n\r",
                                          ch);
                 }
 
@@ -405,7 +405,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                 {
                         ch->bonus_lck = 1;
                         if (outtext)
-                                send_to_char("Your luck has increased!\n\r",
+                                send_to_char("Your Luck has increased!\n\r",
                                              ch);
                 }
 
@@ -413,7 +413,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                 {
                         ch->bonus_lck = 2;
                         if (outtext)
-                                send_to_char("Your luck has increased!\n\r",
+                                send_to_char("Your Luck has increased!\n\r",
                                              ch);
                 }
 
@@ -421,7 +421,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                 {
                         ch->bonus_lck = 3;
                         if (outtext)
-                                send_to_char("Your luck has increased!\n\r",
+                                send_to_char("Your Luck has increased!\n\r",
                                              ch);
                 }
 
@@ -430,7 +430,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_int = 1;
                         if (outtext)
                                 send_to_char
-                                        ("Your intelligence has increased by one point!\n\r",
+                                        ("Your Intelligence has increased by one point!\n\r",
                                          ch);
                 }
 
@@ -439,7 +439,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_int = 4;
                         if (outtext)
                                 send_to_char
-                                        ("Your intelligence has increased by three point!\n\r",
+                                        ("Your Intelligence has increased by three point!\n\r",
                                          ch);
                 }
 
@@ -448,7 +448,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_cha = 1;
                         if (outtext)
                                 send_to_char
-                                        ("Your charisma has increased by one point!\n\r",
+                                        ("Your Charisma has increased by one point!\n\r",
                                          ch);
                 }
 
@@ -457,7 +457,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_cha = 4;
                         if (outtext)
                                 send_to_char
-                                        ("Your charisma has increased by three point!\n\r",
+                                        ("Your Charisma has increased by three point!\n\r",
                                          ch);
                 }
 
@@ -466,7 +466,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_con = 1;
                         if (outtext)
                                 send_to_char
-                                        ("Your constitution has increased by one point!\n\r",
+                                        ("Your Constitution has increased by one point!\n\r",
                                          ch);
                 }
 
@@ -475,7 +475,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_con = 3;
                         if (outtext)
                                 send_to_char
-                                        ("Your constitution has increased by three point!\n\r",
+                                        ("Your Constitution has increased by three point!\n\r",
                                          ch);
                 }
 
@@ -484,7 +484,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_wis = 1;
                         if (outtext)
                                 send_to_char
-                                        ("Your wisdom has increased by one point!\n\r",
+                                        ("Your Wisdom has increased by one point!\n\r",
                                          ch);
                 }
 
@@ -493,7 +493,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                         ch->bonus_wis = 3;
                         if (outtext)
                                 send_to_char
-                                        ("Your wisdom has increased by one point!\n\r",
+                                        ("Your Wisdom has increased by one point!\n\r",
                                          ch);
                 }
         }
@@ -2041,7 +2041,7 @@ void char_update(void)
                                 ch->hit += hit_gain(ch);
 
                         /*
-                         * Psst, wtf is this checking for force ability to be.. 1? that makes no sense... should ignore that - gavin 
+                         * Psst, wtf is this checking for Force ability to be.. 1? that makes no sense... should ignore that - gavin 
                          */
                         if (ch->endurance < ch->max_endurance
                             /*

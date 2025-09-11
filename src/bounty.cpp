@@ -1216,7 +1216,7 @@ CMDF do_sharpen(CharData * ch, char *argument)
 
         WAIT_STATE(ch, skill_table[gsn_sharpen]->beats);
         /*
-         * Character must have the dexterity to sharpen the weapon nicely, 
+         * Character must have the Dexterity to sharpen the weapon nicely, 
          * * if not, damage weapon 
          */
         if (!IS_NPC(ch) && get_curr_dex(ch) < 17)

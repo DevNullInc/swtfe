@@ -4417,7 +4417,7 @@ bool escape_pod(CharData * ch, ShipData * ship)
         /*
          * Loop through rooms in bodies instead of starsystems.
          * *
-         * * number_percentage should deal with luck thing too
+         * * number_percentage should deal with Luck thing too
          * * then to check if we use this room, do another check?
          */
         FOR_EACH_LIST(BodyList, ship->starsystem->bodies, body)
@@ -6846,7 +6846,7 @@ CMDF do_autorecharge(CharData * ch, char *argument)
                 ship->autorecharge = FALSE;
                 send_to_char("&GYou shutdown the shields.\n\r", ch);
                 echo_to_cockpit(AT_YELLOW, ship,
-                                "Shields OFF. Shield strength set to 0. Autorecharge OFF.");
+                                "Shields OFF. Shield Strength set to 0. Autorecharge OFF.");
                 ship->shield = 0;
         }
         else if (!str_cmp(argument, "idle"))
@@ -8972,7 +8972,7 @@ CMDF do_repairship(CharData * ch, char *argument)
                                 (ship->maxhull - ship->hull));
                 ship->hull += change;
                 ch_printf(ch,
-                          "&GRepair complete.. Hull strength inreased by %d points.\n\r",
+                          "&GRepair complete.. Hull Strength inreased by %d points.\n\r",
                           change);
         }
 

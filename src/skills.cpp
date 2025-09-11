@@ -1508,7 +1508,7 @@ void learn_from_success(CharData * ch, int sn)
                         gain = 50 * sklvl;
                         set_char_color(AT_WHITE, ch);
                         ch_printf(ch,
-                                  "You are now an adept of %s!  You gain %d bonus experience!\n\r",
+                                  "You are now an adept of %s!  You gain %d Bonus experience!\n\r",
                                   skill_table[sn]->name, gain);
                 }
                 else
@@ -3980,7 +3980,7 @@ bool check_grip(CharData * ch, CharData * victim)
                         (int) (victim->pcdata->learned[gsn_grip] / 2);
 
         /*
-         * Consider luck as a factor 
+         * Consider Luck as a factor 
          */
         percent_chance += (2 * (get_curr_lck(victim) - 13));
 

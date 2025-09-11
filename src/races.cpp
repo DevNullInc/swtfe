@@ -499,19 +499,19 @@ CMDF do_setrace(CharData * ch, char *argument)
         {
                 race->thirst_mod(atoi(argument));
         }
-        else if (!str_cmp(arg2, "constitution"))
+        else if (!str_cmp(arg2, "Constitution"))
         {
                 race->attr_modifier(ATTR_CONSTITUTION, atoi(argument));
         }
-        else if (!str_cmp(arg2, "strength"))
+        else if (!str_cmp(arg2, "Strength"))
         {
                 race->attr_modifier(ATTR_STRENGTH, atoi(argument));
         }
-        else if (!str_cmp(arg2, "wisdom"))
+        else if (!str_cmp(arg2, "Wisdom"))
         {
                 race->attr_modifier(ATTR_WISDOM, atoi(argument));
         }
-        else if (!str_cmp(arg2, "intelligence"))
+        else if (!str_cmp(arg2, "Intelligence"))
         {
                 race->attr_modifier(ATTR_INTELLIGENCE, atoi(argument));
         }
@@ -519,11 +519,11 @@ CMDF do_setrace(CharData * ch, char *argument)
         {
                 race->lang_bonus(atoi(argument));
         }
-        else if (!str_cmp(arg2, "dexterity"))
+        else if (!str_cmp(arg2, "Dexterity"))
         {
                 race->attr_modifier(ATTR_DEXTERITY, atoi(argument));
         }
-        else if (!str_cmp(arg2, "charisma"))
+        else if (!str_cmp(arg2, "Charisma"))
         {
                 race->attr_modifier(ATTR_CHARISMA, atoi(argument));
         }
@@ -562,11 +562,11 @@ CMDF do_setrace(CharData * ch, char *argument)
                         return;
                 }
         }
-        else if (!str_cmp(arg2, "luck"))
+        else if (!str_cmp(arg2, "Luck"))
         {
                 race->attr_modifier(ATTR_LUCK, atoi(argument));
         }
-        else if (!str_cmp(arg2, "force"))
+        else if (!str_cmp(arg2, "Force"))
         {
                 race->attr_modifier(ATTR_FORCE, atoi(argument));
         }

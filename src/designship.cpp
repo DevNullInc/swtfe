@@ -4459,7 +4459,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->maxhull < 101)
                         {
                                 send_to_char
-                                        ("There is not enough hull armor to replace with shield generators.\r\n",
+                                        ("There is not enough hull Armor to replace with shield generators.\r\n",
                                          ch);
                                 return;
                         }
@@ -4596,7 +4596,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->maxhull < 101)
                         {
                                 send_to_char
-                                        ("There is not enough hull armor to replace with fuel cells.\r\n",
+                                        ("There is not enough hull Armor to replace with fuel cells.\r\n",
                                          ch);
                                 return;
                         }
@@ -4764,7 +4764,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->maxhull < 101)
                         {
                                 send_to_char
-                                        ("There is not enough hull armor to replace with a stealth drive.\r\n",
+                                        ("There is not enough hull Armor to replace with a stealth drive.\r\n",
                                          ch);
                                 return;
                         }
@@ -5030,7 +5030,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->maxhull < 101)
                         {
                                 send_to_char
-                                        ("There is not enough hull armor to replace with a stealth drive.\r\n",
+                                        ("There is not enough hull Armor to replace with a stealth drive.\r\n",
                                          ch);
                                 return;
                         }
@@ -5288,7 +5288,7 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                         if (ship->maxhull < 501)
                         {
                                 send_to_char
-                                        ("There is not enough hull armor to replace with a gravity cone.\r\n",
+                                        ("There is not enough hull Armor to replace with a gravity cone.\r\n",
                                          ch);
                                 return;
                         }

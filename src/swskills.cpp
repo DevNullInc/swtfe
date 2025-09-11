@@ -259,7 +259,7 @@ CMDF do_makeblade(CharData * ch, char *argument)
         CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
-        paf2->location = get_atype("hitroll");
+        paf2->location = get_atype("Hitroll");
         paf2->modifier = -2;
         paf2->bitvector = 0;
         paf2->next = NULL;
@@ -791,7 +791,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
         CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
-        paf->location = get_atype("damroll");
+        paf->location = get_atype("Damroll");
         paf->modifier = +3;
         paf->bitvector = 0;
         paf->next = NULL;
@@ -800,7 +800,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
         CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
-        paf2->location = get_atype("hitroll");
+        paf2->location = get_atype("Hitroll");
         paf2->modifier = +1;
         paf2->bitvector = 0;
         paf2->next = NULL;
@@ -1101,7 +1101,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
         CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
-        paf->location = get_atype("hitroll");
+        paf->location = get_atype("Hitroll");
         paf->modifier = URANGE(0, 1 + scope, level / 30);
         paf->bitvector = 0;
         paf->next = NULL;
@@ -1110,7 +1110,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
         CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
-        paf2->location = get_atype("damroll");
+        paf2->location = get_atype("Damroll");
         paf2->modifier = URANGE(0, power, level / 30);
         paf2->bitvector = 0;
         paf2->next = NULL;
@@ -1472,7 +1472,7 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
         CREATE(paf, AffectData, 1);
         paf->type = -1;
         paf->duration = -1;
-        paf->location = get_atype("hitroll");
+        paf->location = get_atype("Hitroll");
         paf->modifier = URANGE(0, gems, level / 30);
         paf->bitvector = 0;
         paf->next = NULL;
@@ -1514,7 +1514,7 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
                  */
                 xpgain = URANGE(0, xpgain, 19800500);
                 gain_exp(ch, xpgain, FORCE_ABILITY);
-                ch_printf(ch, "You gain %d force experience.", xpgain);
+                ch_printf(ch, "You gain %d Force experience.", xpgain);
         }
         learn_from_success(ch, gsn_lightsaber_crafting);
 }
@@ -1657,7 +1657,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
         char      buf[MaxStringLength];
-        int       level, percentage, strength = 0, weight = 0;
+        int       level, percentage, Strength = 0, weight = 0;
         bool      checktool, checkdrink, checkbatt, checkchem, checkcirc;
         ObjData *obj;
         ObjIndexData *pObjIndex;
@@ -1820,7 +1820,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ITEM_CHEMICAL)
                 {
-                        strength = URANGE(10, obj->value[0], level * 5);
+                        Strength = URANGE(10, obj->value[0], level * 5);
                         weight = obj->weight;
                         separate_obj(obj);
                         obj_from_char(obj);
@@ -1866,8 +1866,8 @@ CMDF do_makegrenade(CharData * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was carelessly misplaced here.", MSL);
         obj->description = STRALLOC(buf);
-        obj->value[0] = strength / 2;
-        obj->value[1] = strength;
+        obj->value[0] = Strength / 2;
+        obj->value[1] = Strength;
         obj->cost = obj->value[1] * 5;
 
         obj = obj_to_char(obj, ch);
@@ -1896,7 +1896,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
         char      buf[MaxStringLength];
-        int       level, percentage, strength = 0, weight = 0;
+        int       level, percentage, Strength = 0, weight = 0;
         bool      checktool, checkdrink, checkbatt, checkchem, checkcirc;
         ObjData *obj;
         ObjIndexData *pObjIndex;
@@ -2061,7 +2061,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ITEM_CHEMICAL)
                 {
-                        strength = URANGE(10, obj->value[0], level * 5);
+                        Strength = URANGE(10, obj->value[0], level * 5);
                         weight = obj->weight;
                         separate_obj(obj);
                         obj_from_char(obj);
@@ -2107,8 +2107,8 @@ CMDF do_makelandmine(CharData * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was carelessly misplaced here.", MSL);
         obj->description = STRALLOC(buf);
-        obj->value[0] = strength / 2;
-        obj->value[1] = strength;
+        obj->value[0] = Strength / 2;
+        obj->value[1] = Strength;
         obj->cost = obj->value[1] * 5;
 
         obj = obj_to_char(obj, ch);
@@ -2136,7 +2136,7 @@ CMDF do_makelight(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
         char      buf[MaxStringLength];
-        int       level, percentage, strength = 0;
+        int       level, percentage, Strength = 0;
         bool      checktool, checkbatt, checkchem, checkcirc, checklens;
         ObjData *obj;
         ObjIndexData *pObjIndex;
@@ -2281,7 +2281,7 @@ CMDF do_makelight(CharData * ch, char *argument)
                         checktool = TRUE;
                 if (obj->item_type == ITEM_BATTERY && checkbatt == FALSE)
                 {
-                        strength = obj->value[0];
+                        Strength = obj->value[0];
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
@@ -2339,7 +2339,7 @@ CMDF do_makelight(CharData * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was carelessly misplaced here.", MSL);
         obj->description = STRALLOC(buf);
-        obj->value[2] = strength;
+        obj->value[2] = Strength;
         obj->cost = obj->value[2];
 
         obj = obj_to_char(obj, ch);
@@ -2722,7 +2722,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
                 if (number_percent() < percentage)
                 {
                         send_to_char
-                                ("&GYou begin the long Process of creating some armor.\n\r",
+                                ("&GYou begin the long Process of creating some Armor.\n\r",
                                  ch);
                         act(AT_PLAIN,
                             "$n takes $s sewing kit and some material and begins to work.",
@@ -2783,7 +2783,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
 
         if (number_percent() > percentage * 2 || (!checkfab) || (!checksew))
         {
-                send_to_char("&RYou hold up your newly created armor.\n\r",
+                send_to_char("&RYou hold up your newly created Armor.\n\r",
                              ch);
                 send_to_char
                         ("&RIt suddenly dawns upon you that you have created the most useless\n\r",
@@ -2824,7 +2824,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
         send_to_char
                 ("&GYou finish your work and hold up your newly created garment.&w\n\r",
                  ch);
-        act(AT_PLAIN, "$n finishes sewing some new armor.", ch, NULL,
+        act(AT_PLAIN, "$n finishes sewing some new Armor.", ch, NULL,
             argument, TO_ROOM);
 
         {
@@ -3300,7 +3300,7 @@ CMDF do_makeshield(CharData * ch, char *argument)
         mudstrlcat(buf, " was carelessly misplaced here.", MSL);
         obj->description = STRALLOC(buf);
         obj->value[0] = (int) (level / 10 + gemtype * 2);   /* condition */
-        obj->value[1] = (int) (level / 10 + gemtype * 2);   /* armor */
+        obj->value[1] = (int) (level / 10 + gemtype * 2);   /* Armor */
         obj->value[4] = charge;
         obj->value[5] = charge;
         obj->cost = obj->level * 100;
@@ -3754,12 +3754,12 @@ CMDF do_gemcutting(CharData * ch, char *argument)
                 paf->duration = -1;
                 if (gemtype == 0)
                 {
-                        paf->location = get_atype("hitroll");
+                        paf->location = get_atype("Hitroll");
                         paf->modifier = 1;
                 }
                 else if (gemtype == 1)
                 {
-                        paf->location = get_atype("damroll");
+                        paf->location = get_atype("Damroll");
                         paf->modifier = 1;
                 }
                 else if (gemtype == 2)
@@ -4178,10 +4178,10 @@ void add_reinforcements(CharData * ch)
                                         mob[mob_cnt]->top_level;
                         mob[mob_cnt]->hit = mob[mob_cnt]->top_level * 15;
                         mob[mob_cnt]->max_hit = mob[mob_cnt]->hit;
-                        mob[mob_cnt]->armor =
+                        mob[mob_cnt]->Armor =
                                 (int) (100 - mob[mob_cnt]->top_level * 2.5);
-                        mob[mob_cnt]->damroll = mob[mob_cnt]->top_level / 5;
-                        mob[mob_cnt]->hitroll = mob[mob_cnt]->top_level / 5;
+                        mob[mob_cnt]->Damroll = mob[mob_cnt]->top_level / 5;
+                        mob[mob_cnt]->Hitroll = mob[mob_cnt]->top_level / 5;
                         if ((pObjIndex =
                              get_obj_index(OBJ_VNUM_BLASTECH_E11)) != NULL)
                         {
@@ -4221,10 +4221,10 @@ void add_reinforcements(CharData * ch)
                                         mob[mob_cnt]->top_level;
                         mob[mob_cnt]->hit = mob[mob_cnt]->top_level * 15;
                         mob[mob_cnt]->max_hit = mob[mob_cnt]->hit;
-                        mob[mob_cnt]->armor =
+                        mob[mob_cnt]->Armor =
                                 (int) (100 - mob[mob_cnt]->top_level * 2.5);
-                        mob[mob_cnt]->damroll = mob[mob_cnt]->top_level / 5;
-                        mob[mob_cnt]->hitroll = mob[mob_cnt]->top_level / 5;
+                        mob[mob_cnt]->Damroll = mob[mob_cnt]->top_level / 5;
+                        mob[mob_cnt]->Hitroll = mob[mob_cnt]->top_level / 5;
                         if ((pObjIndex =
                              get_obj_index(OBJ_VNUM_BLASTECH_E11)) != NULL)
                         {
@@ -4293,9 +4293,9 @@ void add_reinforcements(CharData * ch)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
-                mob->armor = (int) (100 - mob->top_level * 4.5);
-                mob->damroll = mob->top_level / 5;
-                mob->hitroll = mob->top_level / 5;
+                mob->Armor = (int) (100 - mob->top_level * 4.5);
+                mob->Damroll = mob->top_level / 5;
+                mob->Hitroll = mob->top_level / 5;
                 if ((pObjIndex =
                      get_obj_index(OBJ_VNUM_BLASTECH_E11)) != NULL)
                 {
@@ -4335,9 +4335,9 @@ void add_reinforcements(CharData * ch)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
-                mob->armor = (int) (100 - mob->top_level * 4.5);
-                mob->damroll = mob->top_level / 5;
-                mob->hitroll = mob->top_level / 5;
+                mob->Armor = (int) (100 - mob->top_level * 4.5);
+                mob->Damroll = mob->top_level / 5;
+                mob->Hitroll = mob->top_level / 5;
                 if ((pObjIndex =
                      get_obj_index(OBJ_VNUM_BLASTECH_E11)) != NULL)
                 {
@@ -4386,9 +4386,9 @@ void add_reinforcements(CharData * ch)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
-                mob->armor = (int) (100 - mob->top_level * 4.5);
-                mob->damroll = mob->top_level / 5;
-                mob->hitroll = mob->top_level / 5;
+                mob->Armor = (int) (100 - mob->top_level * 4.5);
+                mob->Damroll = mob->top_level / 5;
+                mob->Hitroll = mob->top_level / 5;
                 if ((pObjIndex =
                      get_obj_index(OBJ_VNUM_BLASTECH_E11)) != NULL)
                 {
@@ -4435,9 +4435,9 @@ void add_reinforcements(CharData * ch)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
-                mob->armor = (int) (100 - mob->top_level * 4.5);
-                mob->damroll = mob->top_level / 5;
-                mob->hitroll = mob->top_level / 5;
+                mob->Armor = (int) (100 - mob->top_level * 4.5);
+                mob->Damroll = mob->top_level / 5;
+                mob->Hitroll = mob->top_level / 5;
                 if ((pObjIndex =
                      get_obj_index(OBJ_VNUM_BLASTECH_E11)) != NULL)
                 {
@@ -4485,9 +4485,9 @@ void add_reinforcements(CharData * ch)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 25;
                 mob->max_hit = mob->hit;
-                mob->armor = (int) (100 - mob->top_level * 4.5);
-                mob->damroll = mob->top_level / 5;
-                mob->hitroll = mob->top_level / 5;
+                mob->Armor = (int) (100 - mob->top_level * 4.5);
+                mob->Damroll = mob->top_level / 5;
+                mob->Hitroll = mob->top_level / 5;
                 if ((pObjIndex =
                      get_obj_index(OBJ_VNUM_INSTALL_BACTA_SPRAY)) != NULL)
                 {
@@ -4558,9 +4558,9 @@ void add_reinforcements(CharData * ch)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 15;
                 mob->max_hit = mob->hit;
-                mob->armor = (int) (100 - mob->top_level * 2.5);
-                mob->damroll = mob->top_level / 5;
-                mob->hitroll = mob->top_level / 5;
+                mob->Armor = (int) (100 - mob->top_level * 2.5);
+                mob->Damroll = mob->top_level / 5;
+                mob->Hitroll = mob->top_level / 5;
                 if ((pObjIndex =
                      get_obj_index(OBJ_VNUM_BLASTECH_E11)) != NULL)
                 {
@@ -4620,9 +4620,9 @@ void add_reinforcements(CharData * ch)
                         mob->skill_level[ability] = mob->top_level;
                 mob->hit = mob->top_level * 10;
                 mob->max_hit = mob->hit;
-                mob->armor = (int) (100 - mob->top_level * 1.5);
-                mob->damroll = mob->top_level / 3;
-                mob->hitroll = mob->top_level / 3;
+                mob->Armor = (int) (100 - mob->top_level * 1.5);
+                mob->Damroll = mob->top_level / 3;
+                mob->Hitroll = mob->top_level / 3;
                 if ((pObjIndex =
                      get_obj_index(OBJ_VNUM_BLASTECH_E11)) != NULL)
                 {
@@ -7010,7 +7010,7 @@ CMDF do_makeknife(CharData * ch, char *argument)
         CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
-        paf2->location = get_atype("hitroll");
+        paf2->location = get_atype("Hitroll");
         paf2->modifier = +2;
         paf2->bitvector = 0;
         paf2->next = NULL;
@@ -7054,7 +7054,7 @@ CMDF do_makepike(CharData * ch, char *argument)
         bool      checktool, checksteel, checkplast, checkoven, checkbatt;
         ObjData *obj;
         ObjIndexData *pObjIndex;
-        int       vnum, bonus = 0;
+        int       vnum, Bonus = 0;
         AffectData *paf;
         AffectData *paf2;
 
@@ -7075,7 +7075,7 @@ CMDF do_makepike(CharData * ch, char *argument)
                 checkplast = FALSE;
                 checkoven = FALSE;
                 checkbatt = FALSE;
-                bonus = 0;
+                Bonus = 0;
 
                 if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
                 {
@@ -7210,7 +7210,7 @@ CMDF do_makepike(CharData * ch, char *argument)
                         obj_from_char(obj);
                         extract_obj(obj);
                         checkplast = TRUE;
-                        bonus = level / 5;
+                        Bonus = level / 5;
                 }
 
         }
@@ -7241,7 +7241,7 @@ CMDF do_makepike(CharData * ch, char *argument)
         obj->weight = 15;
         STRFREE(obj->name);
         mudstrlcpy(buf, arg, MIL);
-        mudstrlcat(buf, " force pike", MSL);
+        mudstrlcat(buf, " Force pike", MSL);
         obj->name = STRALLOC(smash_color(buf));
         mudstrlcpy(buf, arg, MIL);
         STRFREE(obj->short_descr);
@@ -7261,15 +7261,15 @@ CMDF do_makepike(CharData * ch, char *argument)
         CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
-        paf2->location = get_atype("hitroll");
+        paf2->location = get_atype("Hitroll");
         paf2->modifier = +2;
         paf2->bitvector = 0;
         paf2->next = NULL;
         LINK(paf2, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
         obj->value[0] = INIT_WEAPON_CONDITION;
-        obj->value[1] = (int) (level / 10 + 10 + bonus);    /* min dmg  */
-        obj->value[2] = (int) (level / 5 + 20 + bonus); /* max dmg */
+        obj->value[1] = (int) (level / 10 + 10 + Bonus);    /* min dmg  */
+        obj->value[2] = (int) (level / 5 + 20 + Bonus); /* max dmg */
         obj->value[3] = 11;
         obj->cost = obj->value[2] * 10;
 
@@ -7337,7 +7337,7 @@ CMDF do_itemrepair(CharData * ch, char *argument)
                     && obj->item_type != ITEM_ARMOR)
                 {
                         send_to_char
-                                ("&RYou can only repair weapons and armor.&w\n\r",
+                                ("&RYou can only repair weapons and Armor.&w\n\r",
                                  ch);
                         return;
                 }
@@ -7379,7 +7379,7 @@ CMDF do_itemrepair(CharData * ch, char *argument)
                 if (!checksew && obj->item_type == ITEM_ARMOR)
                 {
                         send_to_char
-                                ("&w&RYou need a needle and thread to repair armor.\n\r",
+                                ("&w&RYou need a needle and thread to repair Armor.\n\r",
                                  ch);
                         return;
                 }

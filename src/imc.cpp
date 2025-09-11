@@ -5512,7 +5512,7 @@ bool imc_startup_network(bool connected)
         return TRUE;
 }
 
-void imc_startup(bool force, int desc, bool connected)
+void imc_startup(bool Force, int desc, bool connected)
 {
         imcwait = 0;
 
@@ -5562,7 +5562,7 @@ void imc_startup(bool force, int desc, bool connected)
         if (first_imc_color == NULL)
                 imc_load_color_table();
 
-        if ((!this_imcmud->autoconnect && !force && !connected)
+        if ((!this_imcmud->autoconnect && !Force && !connected)
             || (connected && this_imcmud->desc < 1))
         {
                 imclog("%s",
@@ -5572,7 +5572,7 @@ void imc_startup(bool force, int desc, bool connected)
         else
                 imclog("%s", "IMC2 network data loaded.");
 
-        if (this_imcmud->autoconnect || force || connected)
+        if (this_imcmud->autoconnect || Force || connected)
         {
                 if (imc_startup_network(connected))
                 {

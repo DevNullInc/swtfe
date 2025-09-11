@@ -721,9 +721,9 @@ ch_ret multi_hit(CharData * ch, CharData * victim, int dt)
  */
 int weapon_prof_bonus_check(CharData * ch, ObjData * wield, int *gsn_ptr)
 {
-        int       bonus;
+        int       Bonus;
 
-        bonus = 0;
+        Bonus = 0;
         *gsn_ptr = -1;
         if (!IS_NPC(ch) && wield)
         {
@@ -759,16 +759,16 @@ int weapon_prof_bonus_check(CharData * ch, ObjData * wield, int *gsn_ptr)
 
                 }
                 if (*gsn_ptr != -1)
-                        bonus = (int) (ch->pcdata->learned[*gsn_ptr]);
+                        Bonus = (int) (ch->pcdata->learned[*gsn_ptr]);
 
         }
         if (IS_NPC(ch) && wield)
-                bonus = get_trust(ch);
-        return bonus;
+                Bonus = get_trust(ch);
+        return Bonus;
 }
 
 /*
- * Calculate the tohit bonus on the object and return RIS values.
+ * Calculate the tohit Bonus on the object and return RIS values.
  * -- Altrag
  */
 int obj_hitroll(ObjData * obj)
@@ -928,7 +928,7 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
         }
 
         /*
-         * Calculate to-hit-armor-class-0 versus armor.
+         * Calculate to-hit-Armor-class-0 versus Armor.
          */
         thac0_00 = 20;
         thac0_32 = 10;
@@ -951,7 +951,7 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
                 victim_ac += 5;
 
         /*
-         * Weapon proficiency bonus 
+         * Weapon proficiency Bonus 
          */
         victim_ac += prof_bonus / 20;
 
@@ -1039,7 +1039,7 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
                         dam = ris_damage(victim, dam, RIS_NONMAGIC);
 
                 /*
-                 * Handle PLUS1 - PLUS6 ris bits vs. weapon hitroll   -Thoric
+                 * Handle PLUS1 - PLUS6 ris bits vs. weapon Hitroll   -Thoric
                  */
                 plusris = obj_hitroll(wield);
         }
@@ -1051,7 +1051,7 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
          */
         if (dam)
         {
-                int       res, imm, sus, mod;
+                int       res, imm, sus, Mod;
 
                 if (plusris)
                         plusris = RIS_PLUS1 << UMIN(plusris, 7);
@@ -1074,21 +1074,21 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
                         if (IS_SET(victim->susceptible, x))
                                 sus = x;
                 }
-                mod = 10;
+                Mod = 10;
                 if (imm >= plusris)
-                        mod -= 10;
+                        Mod -= 10;
                 if (res >= plusris)
-                        mod -= 2;
+                        Mod -= 2;
                 if (sus <= plusris)
-                        mod += 2;
+                        Mod += 2;
 
                 /*
                  * check if immune 
                  */
-                if (mod <= 0)
+                if (Mod <= 0)
                         dam = -1;
-                if (mod != 10)
-                        dam = (dam * mod) / 10;
+                if (Mod != 10)
+                        dam = (dam * Mod) / 10;
         }
 
         /*
@@ -1240,7 +1240,7 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
         {
                 if (wield->value[4] < 1)
                 {
-                        act(AT_YELLOW, "Your force-pike needs recharging ...",
+                        act(AT_YELLOW, "Your Force-pike needs recharging ...",
                             ch, NULL, victim, TO_CHAR);
                         dam /= 2;
                 }
@@ -1725,7 +1725,7 @@ ch_ret damage(CharData * ch, CharData * victim, int dam, int dt)
                                 set_cur_obj(damobj);
                                 damage_obj(damobj);
                         }
-                        dam -= 5;   /* add a bonus for having something to block the blow */
+                        dam -= 5;   /* add a Bonus for having something to block the blow */
                 }
                 else
                         dam += 5;   /* add penalty for bare skin! */
@@ -2687,7 +2687,7 @@ void raw_kill(CharData * ch, CharData * victim)
     victim->susceptible = 0;
     victim->immune      = 0;
     victim->carry_weight= 0;
-    victim->armor	= 100;
+    victim->Armor	= 100;
     victim->mod_str	= 0;
     victim->mod_dex	= 0;
     victim->mod_wis	= 0;
@@ -2695,11 +2695,11 @@ void raw_kill(CharData * ch, CharData * victim)
     victim->mod_con	= 0;
     victim->mod_cha	= 0;
     victim->mod_lck   	= 0;
-    victim->damroll	= 0;
-    victim->hitroll	= 0;
+    victim->Damroll	= 0;
+    victim->Hitroll	= 0;
     victim->mental_state = -10;
     victim->alignment	= URANGE( -1000, victim->alignment, 1000 );
-    victim->saving_spell_staff = 0;
+    victim->SavingSpellStaff = 0;
     victim->position	= POS_RESTING;
     victim->hit		= UMAX( 1, victim->hit  );
     victim->endurance	= UMAX( 1, victim->endurance );
@@ -2884,7 +2884,7 @@ int xp_compute(CharData * gch, CharData * victim)
         align = gch->alignment - victim->alignment;
 
         /*
-         * bonus for attacking opposite alignment 
+         * Bonus for attacking opposite alignment 
          */
         if (align > 990 || align < -990)
                 xp = (xp * 5) >> 2;

@@ -183,12 +183,12 @@ const char *const npc_race[MaxNpcRace] = {
 const char *const ability_name[MaxAbility] = {
         "combat", "piloting", "engineering", "bounty hunting", "smuggling",
         "diplomacy",
-        "leadership", "force", "occupation", "piracy", "medic"
+        "leadership", "Force", "occupation", "piracy", "medic"
 };
 
 
 /*
- * Attribute bonus tables.
+ * Attribute Bonus tables.
  */
 const struct StrAppType str_app[41] = {
         {-5, -4, 0, 0}, /* 0  */

@@ -59,7 +59,7 @@
  * 5. Migration support: Legacy crypt() hashes are automatically verified and can be
  *    upgraded to Argon2 during password changes for backward compatibility.
  *
- * Unlike basic crypt() which uses simple hashing algorithms vulnerable to brute-force
+ * Unlike basic crypt() which uses simple hashing algorithms vulnerable to brute-Force
  * and dictionary attacks, Argon2 provides robust protection against modern attack vectors.
  */
 

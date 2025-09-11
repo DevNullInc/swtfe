@@ -1015,7 +1015,7 @@ CMDF do_mptransfer(CharData * ch, char *argument)
         return;
 }
 
-/* lets the mobile force someone to do something.  must be mortal level
+/* lets the mobile Force someone to do something.  must be mortal level
    and the all argument only affects those in the room with the mobile */
 
 CMDF do_mpforce(CharData * ch, char *argument)
@@ -1070,7 +1070,7 @@ CMDF do_mpforce(CharData * ch, char *argument)
 
                 if (!IS_NPC(victim) && IS_IMMORTAL(victim))
                 {
-                        progbug("Mpforce - Attempting to force immortal", ch);
+                        progbug("Mpforce - Attempting to Force immortal", ch);
                         return;
                 }
 

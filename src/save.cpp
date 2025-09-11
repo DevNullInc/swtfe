@@ -526,16 +526,16 @@ void fwrite_char(CharData * ch, FILE * fp)
                 (int) POS_FIGHTING ? (int) POS_STANDING : ch->position);
 
         fprintf(fp, "SavingThrows %d %d %d %d %d\n",
-                ch->saving_poison_death,
-                ch->saving_wand,
-                ch->saving_para_petri,
-                ch->saving_breath, ch->saving_spell_staff);
+                ch->SavingPoisonDeath,
+                ch->SavingWand,
+                ch->SavingParaPetri,
+                ch->SavingBreath, ch->SavingSpellStaff);
         fprintf(fp, "Alignment    %d\n", ch->alignment);
         fprintf(fp, "Glory        %d\n", ch->pcdata->quest_curr);
         fprintf(fp, "MGlory       %d\n", ch->pcdata->quest_accum);
-        fprintf(fp, "Hitroll      %d\n", ch->hitroll);
-        fprintf(fp, "Damroll      %d\n", ch->damroll);
-        fprintf(fp, "Armor        %d\n", ch->armor);
+        fprintf(fp, "Hitroll      %d\n", ch->Hitroll);
+        fprintf(fp, "Damroll      %d\n", ch->Damroll);
+        fprintf(fp, "Armor        %d\n", ch->Armor);
         if (ch->wimpy)
                 fprintf(fp, "Wimpy        %d\n", ch->wimpy);
         if (!xIS_EMPTY(ch->deaf) && IS_IMMORTAL(ch))
@@ -1037,12 +1037,12 @@ bool load_char_obj(DescriptorData * d, char *name, bool preload,
         ch->pcdata->release_date = 0;
         ch->pcdata->helled_by = NULL;
         ch->pcdata->recall = 0;
-        ch->saving_poison_death = 0;
-        ch->saving_wand = 0;
+        ch->SavingPoisonDeath = 0;
+        ch->SavingWand = 0;
         ch->questhp = 0;
-        ch->saving_para_petri = 0;
-        ch->saving_breath = 0;
-        ch->saving_spell_staff = 0;
+        ch->SavingParaPetri = 0;
+        ch->SavingBreath = 0;
+        ch->SavingSpellStaff = 0;
         ch->pcdata->pagerlen = 24;
         ch->mob_clan = STRALLOC("");
         ch->was_sentinel = NULL;
@@ -1283,7 +1283,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         KEY("Act", ch->act, fread_number(fp));
                         KEY("AffectedBy", ch->affected_by, fread_number(fp));
                         KEY("Alignment", ch->alignment, fread_number(fp));
-                        KEY("Armor", ch->armor, fread_number(fp));
+                        KEY("Armor", ch->Armor, fread_number(fp));
                         KEY("Age", ch->pcdata->age, fread_number(fp));
                         KEY("Aim", ch->pcdata->aolim, fread_string(fp));
 #ifdef ACCOUNT
@@ -1535,7 +1535,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         break;
 
                 case 'D':
-                        KEY("Damroll", ch->damroll, fread_number(fp));
+                        KEY("Damroll", ch->Damroll, fread_number(fp));
                         KEY("Deaf", ch->deaf, fread_bitvector(fp));
                         KEY("Description", ch->description, fread_string(fp));
                         if (!str_cmp(word, "Druglevel"))
@@ -1607,7 +1607,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                 break;
                         }
 
-                        KEY("Hitroll", ch->hitroll, fread_number(fp));
+                        KEY("Hitroll", ch->Hitroll, fread_number(fp));
                         KEY("Homepage", ch->pcdata->homepage,
                             fread_string(fp));
                         KEY("Hair", ch->pcdata->hair, fread_number(fp));
@@ -1892,11 +1892,11 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         KEY("Susceptible", ch->susceptible, fread_number(fp));
                         if (!str_cmp(word, "SavingThrow"))
                         {
-                                ch->saving_wand = fread_number(fp);
-                                ch->saving_poison_death = ch->saving_wand;
-                                ch->saving_para_petri = ch->saving_wand;
-                                ch->saving_breath = ch->saving_wand;
-                                ch->saving_spell_staff = ch->saving_wand;
+                                ch->SavingWand = fread_number(fp);
+                                ch->SavingPoisonDeath = ch->SavingWand;
+                                ch->SavingParaPetri = ch->SavingWand;
+                                ch->SavingBreath = ch->SavingWand;
+                                ch->SavingSpellStaff = ch->SavingWand;
                                 fMatch = TRUE;
                                 break;
                         }
@@ -1915,11 +1915,11 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
 
                         if (!str_cmp(word, "SavingThrows"))
                         {
-                                ch->saving_poison_death = fread_number(fp);
-                                ch->saving_wand = fread_number(fp);
-                                ch->saving_para_petri = fread_number(fp);
-                                ch->saving_breath = fread_number(fp);
-                                ch->saving_spell_staff = fread_number(fp);
+                                ch->SavingPoisonDeath = fread_number(fp);
+                                ch->SavingWand = fread_number(fp);
+                                ch->SavingParaPetri = fread_number(fp);
+                                ch->SavingBreath = fread_number(fp);
+                                ch->SavingSpellStaff = fread_number(fp);
                                 fMatch = TRUE;
                                 break;
                         }

@@ -333,7 +333,7 @@ struct imc_packet_handler
 
 bool imc_command_hook(CharData* ch, const std::string& command, const std::string& argument);
 void imc_hotboot();
-void imc_startup(bool force, int desc, bool connected);
+void imc_startup(bool Force, int desc, bool connected);
 void imc_shutdown(bool reconnect);
 void imc_initchar(CharData* ch);
 bool imc_loadchar(CharData* ch, FILE* fp, const std::string& word);

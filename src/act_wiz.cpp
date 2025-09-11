@@ -1090,7 +1090,7 @@ CMDF do_fquit(CharData * ch, char *argument)
 		return; 
 	} */
 
-        send_to_char("The MUD administrators force you to quit\n\r", victim);
+        send_to_char("The MUD administrators Force you to quit\n\r", victim);
         if (!xIS_SET(victim->in_room->room_flags, ROOM_SAFE))
         {
                 xSET_BIT(victim->in_room->room_flags, ROOM_SAFE);
@@ -2001,9 +2001,9 @@ CMDF do_oldmstat(CharData * ch, char *argument)
         ch_printf(ch, "MentalState: %d   EmotionalState: %d\n\r",
                   victim->mental_state, victim->emotional_state);
         ch_printf(ch, "Saving throws: %d %d %d %d %d.\n\r",
-                  victim->saving_poison_death, victim->saving_wand,
-                  victim->saving_para_petri, victim->saving_breath,
-                  victim->saving_spell_staff);
+                  victim->SavingPoisonDeath, victim->SavingWand,
+                  victim->SavingParaPetri, victim->SavingBreath,
+                  victim->SavingSpellStaff);
         ch_printf(ch,
                   "Carry figures: items (%d/%d)  weight (%d/%d)   Numattacks: %d\n\r",
                   victim->carry_number, can_carry_n(victim),
@@ -4015,7 +4015,7 @@ CMDF do_litterbug(CharData * ch, char *argument)
         {
                 SET_BIT(victim->act, PLR_LITTERBUG);
                 send_to_char
-                        ("You a strange force prevents you from dropping any more items!\n\r",
+                        ("You a strange Force prevents you from dropping any more items!\n\r",
                          victim);
                 send_to_char("LITTERBUG set.\n\r", ch);
         }
@@ -4938,7 +4938,7 @@ CMDF do_fixchar(CharData * ch, char *argument)
                 return;
         }
         fix_char(victim);
-/*  victim->armor	= 100;
+/*  victim->Armor	= 100;
     victim->mod_str	= 0;
     victim->mod_dex	= 0;
     victim->mod_wis	= 0;
@@ -4946,10 +4946,10 @@ CMDF do_fixchar(CharData * ch, char *argument)
     victim->mod_con	= 0;
     victim->mod_cha	= 0;
     victim->mod_lck	= 0;
-    victim->damroll	= 0;
-    victim->hitroll	= 0;
+    victim->Damroll	= 0;
+    victim->Hitroll	= 0;
     victim->alignment	= URANGE( -1000, victim->alignment, 1000 );
-    victim->saving_spell_staff = 0; */
+    victim->SavingSpellStaff = 0; */
 
 
 
@@ -8513,7 +8513,7 @@ CMDF do_pcrename(CharData * ch, char *argument)
         victim->pcdata->full_name = STRALLOC_CAPITALIZE(arg2);
         remove(backname);
         /*
-         * Time to save to force the affects to take place 
+         * Time to save to Force the affects to take place 
          */
         save_char_obj(victim);
         save_finger(victim);

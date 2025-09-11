@@ -653,7 +653,7 @@ void initialize_gsns(void)
         ASSIGN_GSN(gsn_bribe, "bribe");
         ASSIGN_GSN(gsn_seduce, "seduce");
         ASSIGN_GSN(gsn_sharpen, "sharpen");
-        ASSIGN_GSN(gsn_force_healing, "force healing");
+        ASSIGN_GSN(gsn_force_healing, "Force healing");
         ASSIGN_GSN(gsn_masspropeganda, "mass_propeganda");
         ASSIGN_GSN(gsn_beg, "beg");
         ASSIGN_GSN(gsn_hijack, "hijack");
@@ -728,7 +728,7 @@ void initialize_gsns(void)
         ASSIGN_GSN(gsn_blasters, "blasters");
         ASSIGN_GSN(gsn_modifyship, "modifyship");
         ASSIGN_GSN(gsn_bowcasters, "bowcasters");
-        ASSIGN_GSN(gsn_force_pikes, "force pikes");
+        ASSIGN_GSN(gsn_force_pikes, "Force pikes");
         ASSIGN_GSN(gsn_lightsabers, "lightsabers");
         ASSIGN_GSN(gsn_vibro_blades, "vibro-blades");
         ASSIGN_GSN(gsn_meditate, "meditate");
@@ -782,7 +782,7 @@ void initialize_gsns(void)
         ASSIGN_GSN(gsn_dismantle_ship, "dismantle ship");
         ASSIGN_GSN(gsn_scan, "scan");
         ASSIGN_GSN(gsn_fireball, "fireball");
-        ASSIGN_GSN(gsn_lightning_bolt, "force bolt");
+        ASSIGN_GSN(gsn_lightning_bolt, "Force bolt");
         ASSIGN_GSN(gsn_aqua_breath, "aqua breath");
         ASSIGN_GSN(gsn_blindness, "blindness");
         ASSIGN_GSN(gsn_charm_person, "affect mind");
@@ -1463,11 +1463,11 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                         pMobIndex->perm_con = INT_TO_SHINT(fread_number(fp));
                         pMobIndex->perm_cha = INT_TO_SHINT(fread_number(fp));
                         pMobIndex->perm_lck = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->saving_poison_death = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->saving_wand = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->saving_para_petri = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->saving_breath = INT_TO_SHINT(fread_number(fp));
-                        pMobIndex->saving_spell_staff = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->SavingPoisonDeath = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->SavingWand = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->SavingParaPetri = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->SavingBreath = INT_TO_SHINT(fread_number(fp));
+                        pMobIndex->SavingSpellStaff = INT_TO_SHINT(fread_number(fp));
                         ln = fread_line(fp);
                         x1 = x2 = x3 = x4 = x5 = x6 = x7 = 0;
                         sscanf(ln, "%d %d %d %d %d %d %d", &x1, &x2, &x3, &x4,
@@ -1491,8 +1491,8 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                                 x1 = x2 = x3 = x4 = x5 = x6 = x7 = x8 = 0;
                                 sscanf(ln, "%d %d %d %d %d %d %d %d", &x1,
                                        &x2, &x3, &x4, &x5, &x6, &x7, &x8);
-                                pMobIndex->hitroll = INT_TO_SHINT(x1);
-                                pMobIndex->damroll = INT_TO_SHINT(x2);
+                                pMobIndex->Hitroll = INT_TO_SHINT(x1);
+                                pMobIndex->Damroll = INT_TO_SHINT(x2);
                                 for (i = 0; i < 32; i++)
                                         if (IS_SET(x1, 1 << i))
                                                 xSET_BIT(pMobIndex->xflags,
@@ -1505,8 +1505,8 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                         }
                         else
                         {
-                                pMobIndex->hitroll = INT_TO_SHINT(fread_number(fp));
-                                pMobIndex->damroll = INT_TO_SHINT(fread_number(fp));
+                                pMobIndex->Hitroll = INT_TO_SHINT(fread_number(fp));
+                                pMobIndex->Damroll = INT_TO_SHINT(fread_number(fp));
                                 pMobIndex->xflags = fread_bitvector(fp);
                                 pMobIndex->resistant = fread_number(fp);
                                 pMobIndex->immune = fread_number(fp);
@@ -2678,9 +2678,9 @@ CharData *create_mobile(MobIndexData * pMobIndex)
         mob->plr_home = NULL;
 
         if (pMobIndex->ac)
-                mob->armor = pMobIndex->ac;
+                mob->Armor = pMobIndex->ac;
         else
-                mob->armor = static_cast<sh_int>(100 - mob->top_level * 2.5);
+                mob->Armor = static_cast<sh_int>(100 - mob->top_level * 2.5);
 
         if (!pMobIndex->max_hit)
                 mob->max_hit =
@@ -2709,14 +2709,14 @@ CharData *create_mobile(MobIndexData * pMobIndex)
         mob->perm_con = pMobIndex->perm_con;
         mob->perm_cha = pMobIndex->perm_cha;
         mob->perm_lck = pMobIndex->perm_lck;
-        mob->hitroll = pMobIndex->hitroll;
-        mob->damroll = pMobIndex->damroll;
+        mob->Hitroll = pMobIndex->Hitroll;
+        mob->Damroll = pMobIndex->Damroll;
         mob->xflags = pMobIndex->xflags;
-        mob->saving_poison_death = pMobIndex->saving_poison_death;
-        mob->saving_wand = pMobIndex->saving_wand;
-        mob->saving_para_petri = pMobIndex->saving_para_petri;
-        mob->saving_breath = pMobIndex->saving_breath;
-        mob->saving_spell_staff = pMobIndex->saving_spell_staff;
+        mob->SavingPoisonDeath = pMobIndex->SavingPoisonDeath;
+        mob->SavingWand = pMobIndex->SavingWand;
+        mob->SavingParaPetri = pMobIndex->SavingParaPetri;
+        mob->SavingBreath = pMobIndex->SavingBreath;
+        mob->SavingSpellStaff = pMobIndex->SavingSpellStaff;
         mob->height = pMobIndex->height;
         mob->weight = pMobIndex->weight;
         mob->resistant = pMobIndex->resistant;
@@ -2975,7 +2975,7 @@ void clear_char(CharData * ch)
         ch->mount = NULL;
         ch->affected_by = 0;
         ch->logon = current_time;
-        ch->armor = 100;
+        ch->Armor = 100;
         ch->position = POS_STANDING;
         ch->hit = 500;
         ch->max_hit = 500;

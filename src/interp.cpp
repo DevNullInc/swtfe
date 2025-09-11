@@ -130,7 +130,7 @@ extern char lastplayercmd[MaxInputLength * 2];
 
 /*
  * The main entry point for executing commands.
- * Can be recursively called from 'at', 'order', 'force'.
+ * Can be recursively called from 'at', 'order', 'Force'.
  */
 void interpret(CharData * ch, char *argument)
 {
@@ -312,7 +312,7 @@ void interpret(CharData * ch, char *argument)
         {
                 /*
                  * Added by Narn to show who is switched into a mob that executes
-                 * a logged command.  Check for descriptor in case force is used. 
+                 * a logged command.  Check for descriptor in case Force is used. 
                  */
                 if (ch->desc && ch->desc->original)
                         snprintf(log_buf, MSL, "Log %s (%s): %s", ch->name,

@@ -187,7 +187,7 @@ const char *const planet_flags[] = {
 // weapon and spice tables (single authoritative definition matching externs in mud.hpp)
 const char *const weapon_table[13] = { // must remain 13 entries
         "none", "vibro-axe", "vibro-blade", "lightsaber", "blaster", "bludgeon",
-        "bowcaster", "force pike", "hand to hand", "shield", "heavy blaster",
+        "bowcaster", "Force pike", "hand to hand", "shield", "heavy blaster",
         "rifle", "dual saber"
 };
 
@@ -303,7 +303,7 @@ const char *const area_flags[] = {
 
 const char *const o_types[] = {
         "none", "light", "_scroll", "_wand", "staff", "weapon", "_fireweapon",
-        "missile", "treasure", "armor", "potion", "_worn", "furniture", "trash",
+        "missile", "treasure", "Armor", "potion", "_worn", "furniture", "trash",
         "_oldtrap", "container", "_note", "drinkcon", "key", "food", "money", "pen",
         "_boat", "corpse", "corpse_pc", "fountain", "pill", "_blood", "_bloodstain",
         "scraps", "_pipe", "_herbcon", "_herb", "_incense", "fire", "book", "switch",
@@ -319,15 +319,15 @@ const char *const o_types[] = {
 };
 
 const char *const a_types[] = {
-        "none", "strength", "dexterity", "intelligence", "wisdom",
-        "constitution",
+        "none", "Strength", "Dexterity", "Intelligence", "Wisdom",
+        "Constitution",
         "sex", "null", "level", "age", "height", "weight", "endurance", "hit",
         "endurance",
-        "credits", "experience", "armor", "hitroll", "damroll", "save_poison",
+        "credits", "experience", "Armor", "Hitroll", "Damroll", "save_poison",
         "save_rod",
-        "save_para", "save_breath", "save_spell", "charisma", "affected",
+        "save_para", "save_breath", "save_spell", "Charisma", "affected",
         "resistant",
-        "immune", "susceptible", "weaponspell", "luck", "backstab", "pick",
+        "immune", "susceptible", "weaponspell", "Luck", "backstab", "pick",
         "track",
         "steal", "sneak", "hide", "palm", "detrap", "dodge", "peek", "scan",
         "gouge",
@@ -972,7 +972,7 @@ CMDF do_goto(CharData * ch, const char *argument)
                         act(AT_IMMORT, "$T", ch, NULL, ch->pcdata->bamfout,
                             TO_ROOM);
                 else {
-                        static const char bamfout_msg[] = "leaves in a swirl of the force.";
+                        static const char bamfout_msg[] = "leaves in a swirl of the Force.";
                         act(AT_IMMORT, "$n $T", ch, NULL, const_cast<char*>(bamfout_msg), TO_ROOM);
                 }
         }
@@ -1104,7 +1104,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 send_to_char("Field being one of:\n\r", ch);
                 send_to_char("  str int wis dex con cha lck frc sex\n\r", ch);
                 send_to_char("  credits hp endurance align race\n\r", ch);
-                send_to_char("  hitroll damroll armor affected level\n\r",
+                send_to_char("  Hitroll Damroll Armor affected level\n\r",
                              ch);
                 send_to_char("  thirst drunk full blood flags\n\r", ch);
                 send_to_char("  pos defpos part (see BODYPARTS)\n\r", ch);
@@ -1354,9 +1354,9 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_poison_death = to_shint(value);
+                victim->SavingPoisonDeath = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_poison_death = to_shint(value);
+                        victim->pIndexData->SavingPoisonDeath = to_shint(value);
                 return;
         }
 
@@ -1371,9 +1371,9 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_wand = to_shint(value);
+                victim->SavingWand = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_wand = to_shint(value);
+                        victim->pIndexData->SavingWand = to_shint(value);
                 return;
         }
 
@@ -1388,9 +1388,9 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_para_petri = to_shint(value);
+                victim->SavingParaPetri = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_para_petri = to_shint(value);
+                        victim->pIndexData->SavingParaPetri = to_shint(value);
                 return;
         }
 
@@ -1405,9 +1405,9 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                victim->saving_breath = to_shint(value);
+                victim->SavingBreath = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_breath = to_shint(value);
+                        victim->pIndexData->SavingBreath = to_shint(value);
                 return;
         }
 
@@ -1418,13 +1418,13 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (value < -30 || value > 30)
                 {
                         send_to_char
-                                ("Saving throw range vs force powers is -30 to 30.\n\r",
+                                ("Saving throw range vs Force powers is -30 to 30.\n\r",
                                  ch);
                         return;
                 }
-                victim->saving_spell_staff = to_shint(value);
+                victim->SavingSpellStaff = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->saving_spell_staff = to_shint(value);
+                        victim->pIndexData->SavingSpellStaff = to_shint(value);
                 return;
         }
 
@@ -1555,7 +1555,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg2, "armor"))
+        if (!str_cmp(arg2, "Armor"))
         {
                 if (!can_mmodify(ch, victim))
                         return;
@@ -1564,7 +1564,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         send_to_char("AC range is -30000 to 300.\n\r", ch);
                         return;
                 }
-                victim->armor = to_shint(value);
+                victim->Armor = to_shint(value);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
                         victim->pIndexData->ac = to_shint(value);
                 return;
@@ -1593,15 +1593,15 @@ CMDF do_mset(CharData * ch, char *argument)
                                 victim->skill_level[ability] = to_shint(value);
                 }
                 victim->top_level = to_shint(value);
-                victim->armor = to_shint(static_cast<int>(100 - value * 2.5));
-                victim->hitroll = to_shint(value / 5);
-                victim->damroll = to_shint(value / 5);
+                victim->Armor = to_shint(static_cast<int>(100 - value * 2.5));
+                victim->Hitroll = to_shint(value / 5);
+                victim->Damroll = to_shint(value / 5);
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
                 {
                         victim->pIndexData->level = to_shint(value);
                         victim->pIndexData->ac = to_shint(static_cast<int>(100 - value * 2.5));
-                        victim->pIndexData->hitroll = victim->hitroll;
-                        victim->pIndexData->damroll = victim->damroll;
+                        victim->pIndexData->Hitroll = victim->Hitroll;
+                        victim->pIndexData->Damroll = victim->Damroll;
                 }
                 snprintf(OutBuf, MSL, "%s damnumdie %d", arg1, value / 10);
                 do_mset(ch, OutBuf);
@@ -1663,23 +1663,23 @@ CMDF do_mset(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg2, "hitroll"))
+        if (!str_cmp(arg2, "Hitroll"))
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                victim->hitroll = to_shint(URANGE(0, value, 85));
+                victim->Hitroll = to_shint(URANGE(0, value, 85));
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->hitroll = victim->hitroll;
+                        victim->pIndexData->Hitroll = victim->Hitroll;
                 return;
         }
 
-        if (!str_cmp(arg2, "damroll"))
+        if (!str_cmp(arg2, "Damroll"))
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                victim->damroll = to_shint(URANGE(0, value, 65));
+                victim->Damroll = to_shint(URANGE(0, value, 65));
                 if (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE))
-                        victim->pIndexData->damroll = victim->damroll;
+                        victim->pIndexData->Damroll = victim->Damroll;
                 return;
         }
 
@@ -1707,7 +1707,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (value < 0 || value > 30000)
                 {
                         send_to_char
-                                ("Endurance range is 0 to 30,000 force points.\n\r",
+                                ("Endurance range is 0 to 30,000 Force points.\n\r",
                                  ch);
                         return;
                 }
@@ -2990,7 +2990,7 @@ CMDF do_mset(CharData * ch, char *argument)
                 if (value < 0 || value > 32767)
                 {
                         send_to_char
-                                ("Hitpoint bonus range is 0 to 30000.\n\r",
+                                ("Hitpoint Bonus range is 0 to 30000.\n\r",
                                  ch);
                         return;
                 }
@@ -3055,7 +3055,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         return;
                 if (value < 0 || value > 1000)
                 {
-                        send_to_char("Damage bonus range is 0 to 1000.\n\r",
+                        send_to_char("Damage Bonus range is 0 to 1000.\n\r",
                                      ch);
                         return;
                 }
@@ -3321,7 +3321,7 @@ CMDF do_oset(CharData * ch, char *argument)
                         ("  type value0 value1 value2 value3 value4 value5\n\r",
                          ch);
                 send_to_char("  affect rmaffect layers\n\r", ch);
-                send_to_char("For weapons:             For armor:\n\r", ch);
+                send_to_char("For weapons:             For Armor:\n\r", ch);
                 send_to_char("  weapontype condition     ac condition\n\r",
                              ch);
                 send_to_char("  numdamdie sizedamdie                  \n\r",
@@ -5746,7 +5746,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                     || pMobIndex->perm_wis != 13 || pMobIndex->perm_dex != 13
                     || pMobIndex->perm_con != 13 || pMobIndex->perm_cha != 13
                     || pMobIndex->perm_lck != 13
-                    || pMobIndex->hitroll != 0 || pMobIndex->damroll != 0
+                    || pMobIndex->Hitroll != 0 || pMobIndex->Damroll != 0
                     || pMobIndex->attacks != 0 || pMobIndex->defenses != 0
                     || pMobIndex->height != 0 || pMobIndex->weight != 0
                     || pMobIndex->speaking != NULL
@@ -5807,17 +5807,17 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                                 pMobIndex->perm_con,
                                 pMobIndex->perm_cha, pMobIndex->perm_lck);
                         fprintf(fpout, "%d %d %d %d %d\n",
-                                pMobIndex->saving_poison_death,
-                                pMobIndex->saving_wand,
-                                pMobIndex->saving_para_petri,
-                                pMobIndex->saving_breath,
-                                pMobIndex->saving_spell_staff);
+                                pMobIndex->SavingPoisonDeath,
+                                pMobIndex->SavingWand,
+                                pMobIndex->SavingParaPetri,
+                                pMobIndex->SavingBreath,
+                                pMobIndex->SavingSpellStaff);
                         fprintf(fpout, "0 -1 %d %d 0 0 %d\n",
                                 pMobIndex->height,
                                 pMobIndex->weight, pMobIndex->numattacks);
                         fprintf(fpout, "%d %d %s %d %d %d %d %d\n",
-                                pMobIndex->hitroll,
-                                pMobIndex->damroll,
+                                pMobIndex->Hitroll,
+                                pMobIndex->Damroll,
                                 print_bitvector(&pMobIndex->xflags),
                                 pMobIndex->resistant,
                                 pMobIndex->immune,

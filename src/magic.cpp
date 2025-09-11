@@ -511,9 +511,9 @@ int ris_save(CharData * ch, int percent_chance, int ris)
 /*								    -Thoric
  * Fancy dice expression parsing complete with order of operations,
  * simple exponent support, dice support as well as a few extra
- * New force bits using endurance except mana/move
+ * New Force bits using endurance except mana/move
  * variables: L = level, H = hp, M = endurance, V = endurance, S = str, X = dex
- *            I = int, W = wis, C = con, A = cha, U = luck, A = age
+ *            I = int, W = wis, C = con, A = cha, U = Luck, A = age
  *
  * Used for spell dice parsing, ie: 3d8+L-6
  *
@@ -687,7 +687,7 @@ bool saves_poison_death(int level, CharData * victim)
         int       save;
 
         save = 50 + (victim->top_level - level -
-                     victim->saving_poison_death) * 2;
+                     victim->SavingPoisonDeath) * 2;
         save = URANGE(5, save, 95);
         return chance(victim, save);
 }
@@ -699,7 +699,7 @@ bool saves_wands(int level, CharData * victim)
         if (IS_SET(victim->immune, RIS_MAGIC))
                 return TRUE;
 
-        save = 50 + (victim->top_level - level - victim->saving_wand) * 2;
+        save = 50 + (victim->top_level - level - victim->SavingWand) * 2;
         save = URANGE(5, save, 95);
         return chance(victim, save);
 }
@@ -709,7 +709,7 @@ bool saves_para_petri(int level, CharData * victim)
         int       save;
 
         save = 50 + (victim->top_level - level -
-                     victim->saving_para_petri) * 2;
+                     victim->SavingParaPetri) * 2;
         save = URANGE(5, save, 95);
         return chance(victim, save);
 }
@@ -718,7 +718,7 @@ bool saves_breath(int level, CharData * victim)
 {
         int       save;
 
-        save = 50 + (victim->top_level - level - victim->saving_breath) * 2;
+        save = 50 + (victim->top_level - level - victim->SavingBreath) * 2;
         save = URANGE(5, save, 95);
         return chance(victim, save);
 }
@@ -733,7 +733,7 @@ bool saves_spell_staff(int level, CharData * victim)
         if (IS_NPC(victim) && level > 10)
                 level -= 5;
         save = 50 + (victim->top_level - level -
-                     victim->saving_spell_staff) * 2;
+                     victim->SavingSpellStaff) * 2;
         save = URANGE(5, save, 95);
         return chance(victim, save);
 }
@@ -1231,7 +1231,7 @@ CMDF do_cast(CharData * ch, char *argument)
                         }
                         if (skill->type != SKILL_SPELL)
                         {
-                                send_to_char("That isn't a force power.\n\r",
+                                send_to_char("That isn't a Force power.\n\r",
                                              ch);
                                 return;
                         }
@@ -1323,7 +1323,7 @@ CMDF do_cast(CharData * ch, char *argument)
                 if (!IS_NPC(ch) && ch->endurance < endurance)
                 {
                         send_to_char
-                                ("The force is not strong enough within you.\n\r",
+                                ("The Force is not strong enough within you.\n\r",
                                  ch);
                         return;
                 }
@@ -1335,10 +1335,10 @@ CMDF do_cast(CharData * ch, char *argument)
                 add_timer(ch, TIMER_DO_FUN, UMIN(skill->beats / 10, 3),
                           do_cast, 1);
                 act(AT_MAGIC,
-                    "You begin to feel the force in yourself and those around you...",
+                    "You begin to feel the Force in yourself and those around you...",
                     ch, NULL, NULL, TO_CHAR);
                 act(AT_MAGIC,
-                    "$n reaches out with the force to those around...", ch,
+                    "$n reaches out with the Force to those around...", ch,
                     NULL, NULL, TO_ROOM);
                 snprintf(staticbuf, MSL, "%s %s", arg2, target_name);
                 ch->dest_buf = str_dup(staticbuf);
@@ -1389,7 +1389,7 @@ CMDF do_cast(CharData * ch, char *argument)
                     || skill->type != SKILL_SPELL)
                 {
                         send_to_char
-                                ("Something negates the powers of the force.\n\r",
+                                ("Something negates the powers of the Force.\n\r",
                                  ch);
                         bug("do_cast: ch->dest_buf NULL or bad sn (%d)", sn);
                         return;
@@ -1441,7 +1441,7 @@ CMDF do_cast(CharData * ch, char *argument)
                                         {
                                                 extract_timer(tmp, t);
                                                 act(AT_MAGIC,
-                                                    "Channeling your energy into $n, you help direct the force",
+                                                    "Channeling your energy into $n, you help direct the Force",
                                                     ch, NULL, tmp, TO_VICT);
                                                 act(AT_MAGIC,
                                                     "$N channels $S energy into you!",
@@ -1459,7 +1459,7 @@ CMDF do_cast(CharData * ch, char *argument)
                                         }
                                 dont_wait = TRUE;
                                 send_to_char
-                                        ("You concentrate all the energy into a burst of force!\n\r",
+                                        ("You concentrate all the energy into a burst of Force!\n\r",
                                          ch);
                                 vo = locate_targets(ch, arg2, sn, &victim,
                                                     &obj);
@@ -1550,12 +1550,12 @@ CMDF do_cast(CharData * ch, char *argument)
                                         break;
                                 case 1:
                                         send_to_char
-                                                ("An itch on your leg keeps you from properly using the force.\n\r",
+                                                ("An itch on your leg keeps you from properly using the Force.\n\r",
                                                  ch);
                                         break;
                                 case 2:
                                         send_to_char
-                                                ("A nagging though prevents you from focusing on the force.\n\r",
+                                                ("A nagging though prevents you from focusing on the Force.\n\r",
                                                  ch);
                                         break;
                                 case 3:
@@ -1582,7 +1582,7 @@ CMDF do_cast(CharData * ch, char *argument)
                         break;
                 case 3:
                         send_to_char
-                                ("A disturbance in the force muddles your concentration.\n\r",
+                                ("A disturbance in the Force muddles your concentration.\n\r",
                                  ch);
                         break;
                 }
@@ -1636,7 +1636,7 @@ CMDF do_cast(CharData * ch, char *argument)
                                 exp_level(ch->skill_level[FORCE_ABILITY])) /
                                35);
                 if (!ch->fighting)
-                        ch_printf(ch, "You gain %d force experience.\n\r",
+                        ch_printf(ch, "You gain %d Force experience.\n\r",
                                   force_exp);
                 gain_exp(ch, force_exp, FORCE_ABILITY);
                 learn_from_success(ch, sn);
@@ -2655,13 +2655,13 @@ SPELLF spell_identify(int sn, int level, CharData * ch, void *vo)
 
                 case ITEM_ARMOR:
                         ch_printf(ch,
-                                  "Current armor class is %d. ( based on current condition )\n\r",
+                                  "Current Armor class is %d. ( based on current condition )\n\r",
                                   obj->value[0]);
                         ch_printf(ch,
-                                  "Maximum armor class is %d. ( based on top condition )\n\r",
+                                  "Maximum Armor class is %d. ( based on top condition )\n\r",
                                   obj->value[1]);
                         ch_printf(ch,
-                                  "Applied armor class is %d. ( based condition and location worn )\n\r",
+                                  "Applied Armor class is %d. ( based condition and location worn )\n\r",
                                   apply_ac(obj, obj->wear_loc));
                         break;
                 }
@@ -3349,13 +3349,13 @@ SPELLF spell_acid_breath(int sn, int level, CharData * ch, void *vo)
                                             victim, obj_lose, NULL, TO_CHAR);
                                         if ((iWear =
                                              obj_lose->wear_loc) != WEAR_NONE)
-                                                victim->armor -=
+                                                victim->Armor -=
                                                         apply_ac(obj_lose,
                                                                  iWear);
                                         obj_lose->value[0] -= 1;
                                         obj_lose->cost = 0;
                                         if (iWear != WEAR_NONE)
-                                                victim->armor +=
+                                                victim->Armor +=
                                                         apply_ac(obj_lose,
                                                                  iWear);
                                 }
@@ -4018,13 +4018,13 @@ SPELLF spell_potential(int sn, int level, CharData * ch, void *vo)
         toop = victim->perm_frc;
 
         if (toop < 1)
-                msg = "You cannot sense the force in $N.";
+                msg = "You cannot sense the Force in $N.";
         else if (toop < 6)
-                msg = "You sense the force faintly in $N.";
+                msg = "You sense the Force faintly in $N.";
         else if (toop < 11)
-                msg = "The force is moderately strong in $N.";
+                msg = "The Force is moderately strong in $N.";
         else if (toop < 16)
-                msg = "The force is very stong in $N.";
+                msg = "The Force is very stong in $N.";
         else if (toop < 20)
                 msg = "$N may become a very stong Jedi Knight.";
         else if (toop >= 20)
@@ -4048,7 +4048,7 @@ SPELLF spell_sense_force(int sn, int level, CharData * ch, void *vo)
         if (str_cmp(ch->race->name(), "duinuogwuin"))
         {
                 send_to_char
-                        ("Only Duinuogwuin can sense the force in others.\n\r",
+                        ("Only Duinuogwuin can sense the Force in others.\n\r",
                          ch);
                 failed_casting(skill, ch, victim, NULL);
                 return rSPELL_FAILED;
@@ -4069,13 +4069,13 @@ SPELLF spell_sense_force(int sn, int level, CharData * ch, void *vo)
         toop = victim->perm_frc;
 
         if (toop < 1)
-                msg = "You cannot sense the force in $N.";
+                msg = "You cannot sense the Force in $N.";
         else if (toop < 6)
-                msg = "You sense the force faintly in $N.";
+                msg = "You sense the Force faintly in $N.";
         else if (toop < 11)
-                msg = "The force is moderately strong in $N.";
+                msg = "The Force is moderately strong in $N.";
         else if (toop < 16)
-                msg = "The force is very stong in $N.";
+                msg = "The Force is very stong in $N.";
         else if (toop < 20)
                 msg = "$N may become a very stong Jedi Knight.";
         else if (toop >= 20)
@@ -5050,7 +5050,7 @@ SPELLF spell_create_mob(int sn, int level, CharData * ch, void *vo)
                 UMIN(lvl,
                      skill->dice ? dice_parse(ch, level,
                                               skill->dice) : mob->top_level);
-        mob->armor = interpolate(mob->top_level, 100, -100);
+        mob->Armor = interpolate(mob->top_level, 100, -100);
 
         mob->max_hit =
                 mob->top_level * 8 +
@@ -5562,7 +5562,7 @@ SPELLF spell_black_fist(int sn, int level, CharData * ch, void *vo)
         if (saves_poison_death(level, victim))
                 dam /= 4;
         act(AT_MAGIC,
-            "$n forms a fist with the force, which swoops menacingly at $N.",
+            "$n forms a fist with the Force, which swoops menacingly at $N.",
             ch, NULL, victim, TO_NOTVICT);
         return damage(ch, victim, dam, sn);
 }
@@ -5623,13 +5623,13 @@ SPELLF spell_force_healing(int sn, int level, CharData * ch, void *vo)
         act(AT_GREEN, "Glowing green light emanates from $n.", ch, NULL, NULL,
             TO_ROOM);
         if (victim == ch)
-                send_to_char("Using the force, you mend your wounds.\n\r",
+                send_to_char("Using the Force, you mend your wounds.\n\r",
                              ch);
         if (victim != ch)
         {
-                ch_printf(ch, "Using the force, you mend %s's wounds.\n\r",
+                ch_printf(ch, "Using the Force, you mend %s's wounds.\n\r",
                           victim->name);
-                act(AT_PLAIN, "$n uses the force to mend your wounds.", ch,
+                act(AT_PLAIN, "$n uses the Force to mend your wounds.", ch,
                     NULL, victim, TO_VICT);
         }
         if (victim != ch)
@@ -5712,7 +5712,7 @@ CMDF do_meditate(CharData * ch, char *argument)
         if (number_percent() > chance)
         {
                 send_to_char
-                        ("&bYou spend much time in a deep mediation, but fail to atune yourself to the force.\n\r",
+                        ("&bYou spend much time in a deep mediation, but fail to atune yourself to the Force.\n\r",
                          ch);
                 learn_from_failure(ch, gsn_meditate);
                 return;
@@ -5737,7 +5737,7 @@ CMDF do_meditate(CharData * ch, char *argument)
                 xp = URANGE(0, xp,
                             (exp_level(ch->skill_level[FORCE_ABILITY] + 1) -
                              exp_level(ch->skill_level[FORCE_ABILITY])) / 35);
-                ch_printf(ch, "You gain %d force experience.\n\r", xp);
+                ch_printf(ch, "You gain %d Force experience.\n\r", xp);
                 gain_exp(ch, xp, FORCE_ABILITY);
         }
 

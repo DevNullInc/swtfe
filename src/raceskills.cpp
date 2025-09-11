@@ -54,7 +54,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
         bool      checktool, checksteel, checkplast, checkoven, checkbatt;
         ObjData *obj;
         ObjIndexData *pObjIndex;
-        int       vnum, bonus = 0;
+        int       vnum, Bonus = 0;
         AffectData *paf;
         AffectData *paf2;
 
@@ -75,7 +75,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
                 checkplast = FALSE;
                 checkoven = FALSE;
                 checkbatt = FALSE;
-                bonus = 0;
+                Bonus = 0;
 
                 if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
                 {
@@ -210,7 +210,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
                         obj_from_char(obj);
                         extract_obj(obj);
                         checkplast = TRUE;
-                        bonus = level / 5;
+                        Bonus = level / 5;
                 }
 
         }
@@ -241,7 +241,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
         obj->weight = 15;
         STRFREE(obj->name);
         mudstrlcpy(buf, arg, MSL);
-        mudstrlcat(buf, " force pike", MSL);
+        mudstrlcat(buf, " Force pike", MSL);
         obj->name = STRALLOC(smash_color(buf));
         mudstrlcpy(buf, arg, MSL);
         STRFREE(obj->short_descr);
@@ -261,15 +261,15 @@ CMDF do_craftpike(CharData * ch, char *argument)
         CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
-        paf2->location = get_atype("hitroll");
+        paf2->location = get_atype("Hitroll");
         paf2->modifier = +2;
         paf2->bitvector = 0;
         paf2->next = NULL;
         LINK(paf2, obj->first_affect, obj->last_affect, next, prev);
         ++top_affect;
         obj->value[0] = INIT_WEAPON_CONDITION;
-        obj->value[1] = (int) (level / 10 + 10 + bonus);    /* min dmg  */
-        obj->value[2] = (int) (level / 5 + 20 + bonus); /* max dmg */
+        obj->value[1] = (int) (level / 10 + 10 + Bonus);    /* min dmg  */
+        obj->value[2] = (int) (level / 5 + 20 + Bonus); /* max dmg */
         obj->value[3] = 11;
         obj->cost = obj->value[2] * 10;
 
@@ -499,7 +499,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
         CREATE(paf2, AffectData, 1);
         paf2->type = -1;
         paf2->duration = -1;
-        paf2->location = get_atype("hitroll");
+        paf2->location = get_atype("Hitroll");
         paf2->modifier = +2;
         paf2->bitvector = 0;
         paf2->next = NULL;
@@ -628,7 +628,7 @@ CMDF do_fixship(CharData * ch, char *argument)
                                 (ship->maxhull - ship->hull));
                 ship->hull += change;
                 ch_printf(ch,
-                          "&GFix complete.. Hull strength inreased by %d points.\n\r",
+                          "&GFix complete.. Hull Strength inreased by %d points.\n\r",
                           change);
         }
 

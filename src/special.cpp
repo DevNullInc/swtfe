@@ -1307,7 +1307,7 @@ SPECF spec_jedi_healer(CharData * ch)
         case 0:
                 act(AT_MAGIC, "$n pauses and concentrates for a moment.", ch,
                     NULL, NULL, TO_ROOM);
-                spell_smaug(skill_lookup("armor"), ch->top_level, ch, victim);
+                spell_smaug(skill_lookup("Armor"), ch->top_level, ch, victim);
                 return TRUE;
 
         case 1:
@@ -1385,7 +1385,7 @@ SPECF spec_dark_jedi(CharData * ch)
                         break;
                 case 1:
                         min_level = 5;
-                        spell = "fingers of the force";
+                        spell = "fingers of the Force";
                         break;
                 case 2:
                         min_level = 9;
@@ -1397,7 +1397,7 @@ SPECF spec_dark_jedi(CharData * ch)
                         break;
                 case 4:
                         min_level = 11;
-                        spell = "force projectile";
+                        spell = "Force projectile";
                         break;
                 case 6:
                         min_level = 13;
@@ -1405,7 +1405,7 @@ SPECF spec_dark_jedi(CharData * ch)
                         break;
                 case 7:
                         min_level = 4;
-                        spell = "force whip";
+                        spell = "Force whip";
                         break;
                 case 8:
                         min_level = 13;
@@ -1413,11 +1413,11 @@ SPECF spec_dark_jedi(CharData * ch)
                         break;
                 case 9:
                         min_level = 9;
-                        spell = "force bolt";
+                        spell = "Force bolt";
                         break;
                 case 10:
                         min_level = 1;
-                        spell = "force spray";
+                        spell = "Force spray";
                         break;
                 default:
                         return FALSE;

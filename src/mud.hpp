@@ -647,7 +647,7 @@ struct WebDescriptor
 };
 
 /*
- * Attribute bonus structures.
+ * Attribute Bonus structures.
  */
 struct StrAppType
 {
@@ -685,12 +685,12 @@ struct cha_app_type
 
 struct lck_app_type
 {
-        sh_int luck;
+        sh_int Luck;
 };
 
 struct frc_app_type
 {
-        sh_int force;
+        sh_int Force;
 };
 
 /* ability classes */
@@ -2277,8 +2277,8 @@ struct mob_index_data
         sh_int defposition;
         sh_int height;
         sh_int weight;
-        sh_int hitroll;
-        sh_int damroll;
+        sh_int Hitroll;
+        sh_int Damroll;
         sh_int perm_str;
         sh_int perm_int;
         sh_int perm_wis;
@@ -2287,11 +2287,11 @@ struct mob_index_data
         sh_int perm_cha;
         sh_int perm_lck;
         sh_int perm_frc;
-        sh_int saving_poison_death;
-        sh_int saving_wand;
-        sh_int saving_para_petri;
-        sh_int saving_breath;
-        sh_int saving_spell_staff;
+        sh_int SavingPoisonDeath;
+        sh_int SavingWand;
+        sh_int SavingParaPetri;
+        sh_int SavingBreath;
+        sh_int SavingSpellStaff;
 };
 
 
@@ -2445,24 +2445,24 @@ struct chardata
         int attacks;
         int defenses;
         LanguageData *speaking;
-        sh_int saving_poison_death;
-        sh_int saving_wand;
-        sh_int saving_para_petri;
-        sh_int saving_breath;
-        sh_int saving_spell_staff;
+        sh_int SavingPoisonDeath;
+        sh_int SavingWand;
+        sh_int SavingParaPetri;
+        sh_int SavingBreath;
+        sh_int SavingSpellStaff;
         sh_int alignment;
         sh_int barenumdie;
         sh_int baresizedie;
         sh_int mobthac0;
-        sh_int hitroll;
-        sh_int damroll;
+        sh_int Hitroll;
+        sh_int Damroll;
         sh_int hitplus;
         sh_int damplus;
         sh_int position;
         sh_int defposition;
         sh_int height;
         sh_int weight;
-        sh_int armor;
+        sh_int Armor;
         sh_int wimpy;
         ExtBV deaf;
         sh_int perm_str;
@@ -2885,14 +2885,14 @@ struct system_data
         sh_int level_modify_proto;  /* Level to modify prototype stuff LevelLesser */
         sh_int level_override_private;  /* override private flag */
         sh_int level_mset_player;   /* Level to mset a player */
-        sh_int stun_plr_vs_plr; /* Stun mod player vs. player */
+        sh_int stun_plr_vs_plr; /* Stun Mod player vs. player */
         sh_int stun_regular;    /* Stun difficult */
-        sh_int dam_plr_vs_plr;  /* Damage mod player vs. player */
-        sh_int dam_plr_vs_mob;  /* Damage mod player vs. mobile */
-        sh_int dam_mob_vs_plr;  /* Damage mod mobile vs. player */
-        sh_int dam_mob_vs_mob;  /* Damage mod mobile vs. mobile */
+        sh_int dam_plr_vs_plr;  /* Damage Mod player vs. player */
+        sh_int dam_plr_vs_mob;  /* Damage Mod player vs. mobile */
+        sh_int dam_mob_vs_plr;  /* Damage Mod mobile vs. player */
+        sh_int dam_mob_vs_mob;  /* Damage Mod mobile vs. mobile */
         sh_int level_getobjnotake;  /* Get objects without take flag */
-        sh_int level_forcepc;   /* The level at which you can use force on players. */
+        sh_int level_forcepc;   /* The level at which you can use Force on players. */
         sh_int max_sn;  /* Max skills */
         int save_flags; /* Toggles for saving conditions */
         sh_int save_frequency;  /* How old to autosave someone */
@@ -3399,12 +3399,12 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define IS_NEUTRAL(ch)		(!IS_GOOD(ch) && !IS_EVIL(ch))
 
 #define IS_AWAKE(ch)		((ch)->position > POS_SLEEPING || IS_AFFECTED( (ch), AFF_CHARM ))
-#define GET_AC(ch)		( (ch)->armor + ( IS_AWAKE(ch) ? dex_app[get_curr_dex(ch)].defensive : 0 ) \
+#define GET_AC(ch)		( (ch)->Armor + ( IS_AWAKE(ch) ? dex_app[get_curr_dex(ch)].defensive : 0 ) \
 				- ( !str_cmp((ch)->race->name(), "defel") ? (ch)->skill_level[COMBAT_ABILITY]*2+5 : (ch)->skill_level[COMBAT_ABILITY]/2 ) )
-#define GET_HITROLL(ch)		((ch)->hitroll				    \
+#define GET_HITROLL(ch)		((ch)->Hitroll				    \
 				    +str_app[get_curr_str(ch)].tohit	    \
 				    +(2-(abs((ch)->mental_state)/10)))
-#define GET_DAMROLL(ch)		((ch)->damroll                              \
+#define GET_DAMROLL(ch)		((ch)->Damroll                              \
 				    +str_app[get_curr_str(ch)].todam	    \
 				    +(((ch)->mental_state > 5		    \
 				    &&(ch)->mental_state < 15) ? 1 : 0) )
@@ -4083,7 +4083,7 @@ int	fread		args( ( void *ptr, int size, int n, FILE *stream ) );
                    bool autofly args((ShipData * ship));
 /* comm.cpp */
                    void close_socket
-                   args((DescriptorData * dclose, bool force));
+                   args((DescriptorData * dclose, bool Force));
                    bool write_to_buffer
                    args((DescriptorData * d, const char *txt, int length));
                    void write_to_pager
@@ -4509,8 +4509,8 @@ void	room_sort	args( ( RoomIndexData *pRoom ) );*/
                    find_obj
                    args((CharData * ch, char *argument, bool carryonly));
                    bool ms_find_obj args((CharData * ch));
-                   void worsen_mental_state args((CharData * ch, int mod));
-                   void better_mental_state args((CharData * ch, int mod));
+                   void worsen_mental_state args((CharData * ch, int Mod));
+                   void better_mental_state args((CharData * ch, int Mod));
                    void boost_economy args((AreaData * tarea, int gold));
                    void lower_economy args((AreaData * tarea, int gold));
                    void economize_mobgold args((CharData * mob));

@@ -2173,7 +2173,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
                          ch);
                 send_to_char("  &G 2 RPP)&W Able to join a clan.\n\r", ch);
                 send_to_char
-                        ("  &G20 RPP)&W Able to create full force class characters.\n\r",
+                        ("  &G20 RPP)&W Able to create full Force class characters.\n\r",
                          ch);
 
                 send_to_char

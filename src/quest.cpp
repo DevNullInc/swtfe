@@ -855,7 +855,7 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
                          questitem->short_descr);
                 do_say(questman, buf);
                 do_say(questman,
-                       "I have used the force to find the location of the item.");
+                       "I have used the Force to find the location of the item.");
 
                 /*
                  * I changed my area names so that they have just the name of the area

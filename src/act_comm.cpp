@@ -2528,7 +2528,7 @@ bool knows_language(CharData* ch, LANGUAGE_DATA* lang, CharData* cch)
         if (IS_IMMORTAL(ch) || IS_IMMORTAL(cch))
                 return TRUE;
 
-/* Hack for OLC Languages, force mobs to understand everything */
+/* Hack for OLC Languages, Force mobs to understand everything */
 /* Allows certain mobs to speak EVERYTHING, like in the academy for newbies. */
         if (IS_NPC(ch) || (IS_NPC(cch) && IS_SET(cch->act, ACT_SPEAKSALL)))
         {

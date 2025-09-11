@@ -253,7 +253,7 @@ void edit_buffer(CharData * ch, char *argument)
                         send_to_char("/i <line>       insert line\n\r", ch);
                         send_to_char("/r <old> <new>  global replace\n\r",
                                      ch);
-                        send_to_char("/n              force a new line\n\r",
+                        send_to_char("/n              Force a new line\n\r",
                                      ch);
                         send_to_char("/a              abort editing\n\r", ch);
                         send_to_char

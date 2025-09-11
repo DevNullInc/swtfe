@@ -3725,9 +3725,9 @@ CMDF do_consider(CharData * ch, char *argument)
         else if (diff <= 50)
                 msg = "$N looks about as strong as you.";
         else if (diff <= 100)
-                msg = "It would take a bit of luck...";
+                msg = "It would take a bit of Luck...";
         else if (diff <= 150)
-                msg = "It would take a lot of luck, and a really big blaster!";
+                msg = "It would take a lot of Luck, and a really big blaster!";
         else if (diff <= 200)
                 msg = "Why don't you just attack a star destoyer with a vibroblade?";
         else
@@ -4218,7 +4218,7 @@ CMDF do_wimpy(CharData * ch, char *argument)
 
         if (wimpy < 0)
         {
-                send_to_char("Your courage exceeds your wisdom.\n\r", ch);
+                send_to_char("Your courage exceeds your Wisdom.\n\r", ch);
                 return;
         }
 

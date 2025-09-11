@@ -318,7 +318,7 @@ CMDF do_bomb(CharData * ch, char *argument)
 
         gain_exp(ch, (10 /*Shield Mod */ ) * 100, PILOTING_ABILITY);
         ch_printf(ch, "You gain %d piloting experience.\n\r",
-                  (10 /*shield mod */ ) * 100);
+                  (10 /*shield Mod */ ) * 100);
         learn_from_success(ch, gsn_bomb);
         return;
 }

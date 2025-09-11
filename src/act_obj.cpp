@@ -116,7 +116,7 @@ sh_int get_obj_resistance(ObjData * obj)
         if (IS_OBJ_STAT(obj, ITEM_MAGIC))
                 resist = static_cast<sh_int>(resist + number_fuzzy(MAGIC_ITEM_RESISTANCE_BONUS));
         /*
-         * blessed objects should have a little bonus 
+         * blessed objects should have a little Bonus 
          */
         if (IS_OBJ_STAT(obj, ITEM_BLESS))
                 resist = static_cast<sh_int>(resist + number_fuzzy(BLESSED_ITEM_RESISTANCE_BONUS));
@@ -127,12 +127,12 @@ sh_int get_obj_resistance(ObjData * obj)
                 resist = static_cast<sh_int>(resist + INVENTORY_ITEM_RESISTANCE_BONUS);
 
         /*
-         * okay... let's add some bonus/penalty for item level... 
+         * okay... let's add some Bonus/penalty for item level... 
          */
         resist = static_cast<sh_int>(resist + (obj->level / LEVEL_RESISTANCE_DIVISOR));
 
         /*
-         * and lasty... take armor or weapon's condition into consideration 
+         * and lasty... take Armor or weapon's condition into consideration 
          */
         if (obj->item_type == ITEM_ARMOR || obj->item_type == ITEM_WEAPON)
                 resist = static_cast<sh_int>(resist + obj->value[0]);
@@ -167,7 +167,7 @@ void get_obj(CharData * ch, ObjData * obj, ObjData * container)
         if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE) && !can_take_proto(ch))
         {
                 send_to_char
-                        ("A godly force prevents you from getting close to it.\n\r",
+                        ("A godly Force prevents you from getting close to it.\n\r",
                          ch);
                 return;
         }
@@ -823,7 +823,7 @@ CMDF do_drop(CharData * ch, char *argument)
             || (!IS_NPC(ch) && IS_SET(ch->act, PLR_LITTERBUG)))
         {
                 set_char_color(AT_MAGIC, ch);
-                send_to_char("A magical force stops you!\n\r", ch);
+                send_to_char("A magical Force stops you!\n\r", ch);
                 set_char_color(AT_TELL, ch);
                 send_to_char("Someone tells you, 'No littering here!'\n\r",
                              ch);
@@ -1201,7 +1201,7 @@ obj_ret damage_obj(ObjData * obj)
                 break;
         case ITEM_ARMOR:
                 if (ch && obj->value[0] >= 1)
-                        ch->armor = static_cast<sh_int>(ch->armor + apply_ac(obj, obj->wear_loc));
+                        ch->Armor = static_cast<sh_int>(ch->Armor + apply_ac(obj, obj->wear_loc));
                 obj->value[0] = static_cast<sh_int>(obj->value[0] - 1);
                 if (obj->value[0] <= 0)
                 {
@@ -1209,7 +1209,7 @@ obj_ret damage_obj(ObjData * obj)
                         objcode = rOBJ_SCRAPPED;
                 }
                 else if (ch && obj->value[0] >= 1)
-                        ch->armor = static_cast<sh_int>(ch->armor - apply_ac(obj, obj->wear_loc));
+                        ch->Armor = static_cast<sh_int>(ch->Armor - apply_ac(obj, obj->wear_loc));
                 break;
         case ITEM_WEAPON:
                 obj->value[0] = static_cast<sh_int>(obj->value[0] - 1);
@@ -2578,10 +2578,10 @@ CMDF do_auction(CharData * ch, const char *argument)
                         if (obj->item_type == ITEM_ARMOR)
                         {
                                 ch_printf(ch,
-                                          "Current armor class is %d. ( based on current condition )\n\r",
+                                          "Current Armor class is %d. ( based on current condition )\n\r",
                                           obj->value[0]);
                                 ch_printf(ch,
-                                          "Maximum armor class is %d. ( based on top condition )\n\r",
+                                          "Maximum Armor class is %d. ( based on top condition )\n\r",
                                           obj->value[1]);
                         }
 

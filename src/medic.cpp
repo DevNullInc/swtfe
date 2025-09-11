@@ -610,7 +610,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
 {
         char      arg[MaxInputLength];
         char      buf[MaxStringLength];
-        int       level, chance, strength = 0, weight = 0;
+        int       level, chance, Strength = 0, weight = 0;
         bool      checktool, checkdrink, checkchem;
         ObjData *obj;
         ObjIndexData *pObjIndex;
@@ -739,7 +739,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ITEM_CHEMICAL)
                 {
-                        strength = URANGE(10, obj->value[0], level * 5);
+                        Strength = URANGE(10, obj->value[0], level * 5);
                         weight = obj->weight;
                         separate_obj(obj);
                         obj_from_char(obj);
@@ -779,8 +779,8 @@ CMDF do_makemedkit(CharData * ch, char *argument)
         STRFREE(obj->description);
         mudstrlcat(buf, " was carelessly left here.", MSL);
         obj->description = STRALLOC(buf);
-        obj->value[0] = strength / 2;
-        obj->value[1] = strength;
+        obj->value[0] = Strength / 2;
+        obj->value[1] = Strength;
         obj->cost = obj->value[1] * 5;
         if (IS_OBJ_STAT(obj, ITEM_PROTOTYPE))
                 REMOVE_BIT(obj->extra_flags, ITEM_PROTOTYPE);

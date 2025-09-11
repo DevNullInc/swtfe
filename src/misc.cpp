@@ -594,7 +594,7 @@ CMDF do_ammo(CharData * ch, char *argument)
                 else if (wield->value[3] == WEAPON_FORCE_PIKE)
                 {
                         ch_printf(ch,
-                                  "You replace your power cell.\n\rYour force-pike is charged to %d/%d units.\n\r",
+                                  "You replace your power cell.\n\rYour Force-pike is charged to %d/%d units.\n\r",
                                   charge, charge);
                         act(AT_PLAIN, "$n replaces the power cell in $p.", ch,
                             wield, NULL, TO_ROOM);
@@ -1120,10 +1120,10 @@ void jedi_bonus(CharData * ch)
         if (number_range(1, 100) == 1)
         {
                 ch->max_endurance++;
-                send_to_char("&YYou are wise in your use of the force.\n\r",
+                send_to_char("&YYou are wise in your use of the Force.\n\r",
                              ch);
                 send_to_char
-                        ("You feel a little stronger in your wisdom.&w\n\r",
+                        ("You feel a little stronger in your Wisdom.&w\n\r",
                          ch);
         }
 }
@@ -1137,7 +1137,7 @@ void sith_penalty(CharData * ch)
                         ch->max_hit--;
                 ch->hit--;
                 send_to_char
-                        ("&zYour body grows weaker as your strength in the dark side grows.&w\n\r",
+                        ("&zYour body grows weaker as your Strength in the dark side grows.&w\n\r",
                          ch);
         }
 }
@@ -2613,7 +2613,7 @@ CMDF do_empty(CharData * ch, char *argument)
                                 && IS_SET(ch->act, PLR_LITTERBUG)))
                         {
                                 set_char_color(AT_MAGIC, ch);
-                                send_to_char("A magical force stops you!\n\r",
+                                send_to_char("A magical Force stops you!\n\r",
                                              ch);
                                 set_char_color(AT_TELL, ch);
                                 send_to_char
@@ -3098,7 +3098,7 @@ CMDF do_train(CharData * ch, char *argument)
                 {
                         send_to_char("Train what?\n\r", ch);
                         send_to_char
-                                ("\n\rChoices: strength, intelligence, wisdom, dexterity, constitution or charisma\n\r",
+                                ("\n\rChoices: Strength, Intelligence, Wisdom, Dexterity, Constitution or Charisma\n\r",
                                  ch);
                         return;
                 }
@@ -3109,39 +3109,39 @@ CMDF do_train(CharData * ch, char *argument)
                         return;
                 }
 
-                if (str_cmp(arg, "str") && str_cmp(arg, "strength")
-                    && str_cmp(arg, "dex") && str_cmp(arg, "dexterity")
-                    && str_cmp(arg, "con") && str_cmp(arg, "constitution")
-                    && str_cmp(arg, "cha") && str_cmp(arg, "charisma")
-                    && str_cmp(arg, "wis") && str_cmp(arg, "wisdom")
-                    && str_cmp(arg, "int") && str_cmp(arg, "intelligence"))
+                if (str_cmp(arg, "str") && str_cmp(arg, "Strength")
+                    && str_cmp(arg, "dex") && str_cmp(arg, "Dexterity")
+                    && str_cmp(arg, "con") && str_cmp(arg, "Constitution")
+                    && str_cmp(arg, "cha") && str_cmp(arg, "Charisma")
+                    && str_cmp(arg, "wis") && str_cmp(arg, "Wisdom")
+                    && str_cmp(arg, "int") && str_cmp(arg, "Intelligence"))
                 {
                         do_train(ch, "");
                         return;
                 }
 
-                if (!str_cmp(arg, "str") || !str_cmp(arg, "strength"))
+                if (!str_cmp(arg, "str") || !str_cmp(arg, "Strength"))
                 {
                         if (ch->perm_str >=
                             20 + ch->race->attr_modifier(ATTR_STRENGTH)
                             || ch->perm_str >= 30)
                         {
                                 send_to_char
-                                        ("&BYou cannot gain more strength than you already have!\n\r",
+                                        ("&BYou cannot gain more Strength than you already have!\n\r",
                                          ch);
                                 return;
                         }
                         send_to_char("&GYou begin your weight training.\n\r",
                                      ch);
                 }
-                if (!str_cmp(arg, "dex") || !str_cmp(arg, "dexterity"))
+                if (!str_cmp(arg, "dex") || !str_cmp(arg, "Dexterity"))
                 {
                         if (ch->perm_dex >=
                             20 + ch->race->attr_modifier(ATTR_DEXTERITY)
                             || ch->perm_dex >= 30)
                         {
                                 send_to_char
-                                        ("&BYou cannot gain more dexterity than you already have!\n\r",
+                                        ("&BYou cannot gain more Dexterity than you already have!\n\r",
                                          ch);
                                 return;
                         }
@@ -3149,42 +3149,42 @@ CMDF do_train(CharData * ch, char *argument)
                                 ("&GYou begin to work at some challenging tests of coordination.\n\r",
                                  ch);
                 }
-                if (!str_cmp(arg, "int") || !str_cmp(arg, "intelligence"))
+                if (!str_cmp(arg, "int") || !str_cmp(arg, "Intelligence"))
                 {
                         if (ch->perm_int >=
                             20 + ch->race->attr_modifier(ATTR_INTELLIGENCE)
                             || ch->perm_int >= 30)
                         {
                                 send_to_char
-                                        ("&BYou cannot gain more intelligence than you already have!\n\r",
+                                        ("&BYou cannot gain more Intelligence than you already have!\n\r",
                                          ch);
                                 return;
                         }
                         send_to_char("&GYou begin your studies.\n\r", ch);
                 }
-                if (!str_cmp(arg, "wis") || !str_cmp(arg, "wisdom"))
+                if (!str_cmp(arg, "wis") || !str_cmp(arg, "Wisdom"))
                 {
                         if (ch->perm_wis >=
                             20 + ch->race->attr_modifier(ATTR_WISDOM)
                             || ch->perm_wis >= 30)
                         {
                                 send_to_char
-                                        ("&BYou cannot gain more wisdom than you already have!\n\r",
+                                        ("&BYou cannot gain more Wisdom than you already have!\n\r",
                                          ch);
                                 return;
                         }
                         send_to_char
-                                ("&GYou begin contemplating several ancient texts in an effort to gain wisdom.\n\r",
+                                ("&GYou begin contemplating several ancient texts in an effort to gain Wisdom.\n\r",
                                  ch);
                 }
-                if (!str_cmp(arg, "con") || !str_cmp(arg, "constitution"))
+                if (!str_cmp(arg, "con") || !str_cmp(arg, "Constitution"))
                 {
                         if (ch->perm_con >=
                             20 + ch->race->attr_modifier(ATTR_CONSTITUTION)
                             || ch->perm_con >= 30)
                         {
                                 send_to_char
-                                        ("&BYou cannot gain more constitution than you already have!\n\r",
+                                        ("&BYou cannot gain more Constitution than you already have!\n\r",
                                          ch);
                                 return;
                         }
@@ -3192,14 +3192,14 @@ CMDF do_train(CharData * ch, char *argument)
                                 ("&GYou begin your endurance training.\n\r",
                                  ch);
                 }
-                if (!str_cmp(arg, "cha") || !str_cmp(arg, "charisma"))
+                if (!str_cmp(arg, "cha") || !str_cmp(arg, "Charisma"))
                 {
                         if (ch->perm_cha >=
                             20 + ch->race->attr_modifier(ATTR_CHARISMA)
                             || ch->perm_cha >= 30)
                         {
                                 send_to_char
-                                        ("&BYou cannot gain more charisma than you already have!\n\r",
+                                        ("&BYou cannot gain more Charisma than you already have!\n\r",
                                          ch);
                                 return;
                         }
@@ -3230,7 +3230,7 @@ CMDF do_train(CharData * ch, char *argument)
         ch->pcdata->Account->rpcurrent -= 3;
         save_account(ch->pcdata->Account);
 
-        if (!str_cmp(arg, "str") || !str_cmp(arg, "strength"))
+        if (!str_cmp(arg, "str") || !str_cmp(arg, "Strength"))
         {
                 send_to_char
                         ("&GAfter much excercise you feel a little stronger.\n\r",
@@ -3239,7 +3239,7 @@ CMDF do_train(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg, "dex") || !str_cmp(arg, "dexterity"))
+        if (!str_cmp(arg, "dex") || !str_cmp(arg, "Dexterity"))
         {
                 send_to_char
                         ("&GAfter working hard at many challenging tasks you feel a bit more coordinated.\n\r",
@@ -3248,7 +3248,7 @@ CMDF do_train(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg, "int") || !str_cmp(arg, "intelligence"))
+        if (!str_cmp(arg, "int") || !str_cmp(arg, "Intelligence"))
         {
                 send_to_char
                         ("&GAfter much study you feel alot more knowledgeable.\n\r",
@@ -3257,7 +3257,7 @@ CMDF do_train(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg, "wis") || !str_cmp(arg, "wisdom"))
+        if (!str_cmp(arg, "wis") || !str_cmp(arg, "Wisdom"))
         {
                 send_to_char
                         ("&GAfter contemplating several seemingly meaningless events you suddenly \n\rreceive a flash of insight into the workings of the universe.\n\r",
@@ -3266,7 +3266,7 @@ CMDF do_train(CharData * ch, char *argument)
                 return;
         }
 
-        if (!str_cmp(arg, "con") || !str_cmp(arg, "constitution"))
+        if (!str_cmp(arg, "con") || !str_cmp(arg, "Constitution"))
         {
                 send_to_char
                         ("&GAfter a long tiring excersise session you feel much healthier than before.\n\r",
@@ -3276,7 +3276,7 @@ CMDF do_train(CharData * ch, char *argument)
         }
 
 
-        if (!str_cmp(arg, "cha") || !str_cmp(arg, "charisma"))
+        if (!str_cmp(arg, "cha") || !str_cmp(arg, "Charisma"))
         {
                 send_to_char
                         ("&GYou spend some time focusing on how to improve your personality and feel \n\rmuch better about yourself and the ways others see you.\n\r",
