@@ -751,7 +751,7 @@ CMDF do_bank_new(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->room_flags, ROOM_BANK)
+        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_BANK)
             && get_comlink(ch) == NULL && !IS_IMMORTAL(ch))
         {
                 send_to_char

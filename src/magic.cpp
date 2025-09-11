@@ -1175,7 +1175,7 @@ CMDF do_cast(CharData * ch, char *argument)
                         return;
                 }
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_NO_MAGIC))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_NO_MAGIC))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char("You failed.\n\r", ch);
@@ -1691,7 +1691,7 @@ ch_ret obj_cast_spell(int sn, int level, CharData * ch, CharData * victim,
                 return rERROR;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_NO_MAGIC))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NO_MAGIC))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("Nothing seems to happen...\n\r", ch);
@@ -2277,7 +2277,7 @@ SPELLF spell_earthquake(int sn, int level, CharData * ch, void *vo)
         ch_died = FALSE;
         retcode = rNONE;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 failed_casting(skill, ch, NULL, NULL);
                 return rSPELL_FAILED;
@@ -3212,7 +3212,7 @@ SPELLF spell_sleep(int sn, int level, CharData * ch, void *vo)
             || (percent_chance = ris_save(victim, tmp, RIS_SLEEP)) == 1000
             || level < victim->top_level
             || (victim != ch
-                && xIS_SET(victim->in_room->room_flags, ROOM_SAFE))
+                && xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE))
             || saves_spell_staff(percent_chance, victim))
         {
                 failed_casting(skill, ch, victim, NULL);
@@ -3571,8 +3571,8 @@ SPELLF spell_farsight(int sn, int level, CharData * ch, void *vo)
         if ((victim = get_char_world(ch, target_name)) == NULL
             || victim == ch
             || !victim->in_room
-            || xIS_SET(victim->in_room->room_flags, ROOM_PRIVATE)
-            || xIS_SET(victim->in_room->room_flags, ROOM_PROTOTYPE)
+            || xIS_SET(victim->in_room->RoomFlags, ROOM_PRIVATE)
+            || xIS_SET(victim->in_room->RoomFlags, ROOM_PROTOTYPE)
             || (IS_NPC(victim) && IS_SET(victim->act, ACT_PROTOTYPE)))
         {
                 failed_casting(skill, ch, victim, NULL);
@@ -4150,7 +4150,7 @@ SPELLF spell_spiral_blast(int sn, int level, CharData * ch, void *vo)
 
         ch_died = FALSE;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("You fail to breathe.\n\r", ch);
@@ -4318,7 +4318,7 @@ SPELLF spell_area_attack(int sn, int level, CharData * ch, void *vo)
         ch->alignment = URANGE(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 failed_casting(skill, ch, NULL, NULL);
                 return rSPELL_FAILED;

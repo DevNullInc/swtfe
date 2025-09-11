@@ -184,7 +184,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 return TRUE;
 
         if (ch->in_room && IC_CHANNEL(channel)
-            && xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+            && xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return TRUE;
@@ -321,7 +321,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
         }
 
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 snprintf(buf2, MSL, "%s: %s (%s)",
                          IS_NPC(ch) ? ch->short_descr : ch->name, argument,
@@ -406,7 +406,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                         if (channel->level > ch->top_level)
                                 continue;
                         if (channel->type != CHANNEL_OOC
-                            && xIS_SET(vch->in_room->room_flags,
+                            && xIS_SET(vch->in_room->RoomFlags,
                                        ROOM_SILENCE))
                                 continue;
                         if (channel->range == CHANNEL_PLANET)
@@ -414,7 +414,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                                 if (!vch->in_room || !vch->in_room->area
                                     || !vch->in_room->area->planet
                                     || (vch->in_room->area->planet != planet)
-                                    || xIS_SET(vch->in_room->room_flags,
+                                    || xIS_SET(vch->in_room->RoomFlags,
                                                ROOM_INDOORS))
                                         continue;
                         }

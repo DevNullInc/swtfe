@@ -96,7 +96,7 @@ RoomIndexData *BodyData::get_rand_room(int bit, bool include)
                                 roomcount = number_range(area->low_r_vnum, area->hi_r_vnum);
                                 room = get_room_index(roomcount);
                                 if (room) {
-                                        if ((include && xIS_SET(room->room_flags, bit)) || (!include && !xIS_SET(room->room_flags, bit)))
+                                        if ((include && xIS_SET(room->RoomFlags, bit)) || (!include && !xIS_SET(room->RoomFlags, bit)))
                                                 return room;
                                 }
                         }

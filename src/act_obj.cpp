@@ -211,7 +211,7 @@ void get_obj(CharData * ch, ObjData * obj, ObjData * container)
         /*
          * Clan storeroom checks 
          */
-        if (xIS_SET(ch->in_room->room_flags, ROOM_CLANSTOREROOM)
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_CLANSTOREROOM)
             && (!container || container->carried_by == NULL))
                 for (clan = first_clan; clan; clan = clan->next)
                         if (clan->storeroom == ch->in_room->vnum)
@@ -327,7 +327,7 @@ CMDF do_get(CharData * ch, const char *argument)
                         bool      fAll;
                         char     *chk;
 
-                        if (xIS_SET(ch->in_room->room_flags, ROOM_DONATION))
+                        if (xIS_SET(ch->in_room->RoomFlags, ROOM_DONATION))
                         {
                                 send_to_char
                                         ("The gods frown upon such a display of greed!\n\r",
@@ -696,7 +696,7 @@ CMDF do_put(CharData * ch, char *argument)
                 /*
                  * Clan storeroom check 
                  */
-                if (xIS_SET(ch->in_room->room_flags, ROOM_CLANSTOREROOM)
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_CLANSTOREROOM)
                     && container->carried_by == NULL)
                         for (clan = first_clan; clan; clan = clan->next)
                                 if (clan->storeroom == ch->in_room->vnum)
@@ -773,7 +773,7 @@ CMDF do_put(CharData * ch, char *argument)
                 /*
                  * Clan storeroom check 
                  */
-                if (xIS_SET(ch->in_room->room_flags, ROOM_CLANSTOREROOM)
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_CLANSTOREROOM)
                     && container->carried_by == NULL)
                         for (clan = first_clan; clan; clan = clan->next)
                                 if (clan->storeroom == ch->in_room->vnum)
@@ -819,7 +819,7 @@ CMDF do_drop(CharData * ch, char *argument)
         if (ms_find_obj(ch))
                 return;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_NODROP)
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NODROP)
             || (!IS_NPC(ch) && IS_SET(ch->act, PLR_LITTERBUG)))
         {
                 set_char_color(AT_MAGIC, ch);
@@ -911,7 +911,7 @@ CMDF do_drop(CharData * ch, char *argument)
                 /*
                  * Clan storeroom saving 
                  */
-                if (xIS_SET(ch->in_room->room_flags, ROOM_CLANSTOREROOM))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_CLANSTOREROOM))
                         for (clan = first_clan; clan; clan = clan->next)
                                 if (clan->storeroom == ch->in_room->vnum)
                                         save_clan_storeroom(ch, clan);
@@ -933,7 +933,7 @@ CMDF do_drop(CharData * ch, char *argument)
                 /*
                  * 'drop all' or 'drop all.obj' 
                  */
-                if (xIS_SET(ch->in_room->room_flags, ROOM_NODROPALL))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_NODROPALL))
                 {
                         send_to_char("You can't seem to do that here...\n\r",
                                      ch);
@@ -980,7 +980,7 @@ CMDF do_drop(CharData * ch, char *argument)
                         }
                 }
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_CLANSTOREROOM))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_CLANSTOREROOM))
                         for (clan = first_clan; clan; clan = clan->next)
                                 if (clan->storeroom == ch->in_room->vnum)
                                         save_clan_storeroom(ch, clan);
@@ -2523,9 +2523,9 @@ CMDF do_auction(CharData * ch, const char *argument)
         if (IS_NPC(ch)) /* NPC can be extracted at any time and thus can't auction! */
                 return;
 
-        if (!xIS_SET(ch->in_room->room_flags, ROOM_AUCTION) &&
-            !xIS_SET(ch->in_room->room_flags, ROOM_HOTEL) &&
-            !xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_AUCTION) &&
+            !xIS_SET(ch->in_room->RoomFlags, ROOM_HOTEL) &&
+            !xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_LBLUE, ch);
                 send_to_char
@@ -2874,7 +2874,7 @@ void obj_fall(ObjData * obj, bool through)
                 return;
         }
 
-        if (xIS_SET(obj->in_room->room_flags, ROOM_NOFLOOR)
+        if (xIS_SET(obj->in_room->RoomFlags, ROOM_NOFLOOR)
             && CAN_GO(obj, DIR_DOWN) && !IS_OBJ_STAT(obj, ITEM_MAGIC))
         {
 
@@ -2916,7 +2916,7 @@ void obj_fall(ObjData * obj, bool through)
                             obj->in_room->first_person, obj, NULL, TO_CHAR);
                 }
 
-                if (!xIS_SET(obj->in_room->room_flags, ROOM_NOFLOOR)
+                if (!xIS_SET(obj->in_room->RoomFlags, ROOM_NOFLOOR)
                     && through)
                 {
 /*		int dam = (int)9.81*sqrt(fall_count*2/9.81)*obj->weight/2;

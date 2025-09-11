@@ -69,7 +69,7 @@ CMDF do_cook(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_CAFE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_CAFE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char("You must be in a cafe to cook.\n\r",
@@ -210,7 +210,7 @@ CMDF do_beg(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -344,7 +344,7 @@ CMDF do_dishwasher(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -461,7 +461,7 @@ CMDF do_busser(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -578,7 +578,7 @@ CMDF do_waiter(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -695,7 +695,7 @@ CMDF do_chef(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_KITCHEN))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_KITCHEN))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -818,7 +818,7 @@ CMDF do_streetcleaner(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_INDOORS))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_INDOORS))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -935,7 +935,7 @@ CMDF do_bartender(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -1057,7 +1057,7 @@ CMDF do_interiorcleaner(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_INDOORS))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_INDOORS))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char("You must be inside to clean rooms.\n\r",
@@ -1174,7 +1174,7 @@ CMDF do_hotelcleaner(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_INN))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_INN))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char("You must be in an inn to do this.\n\r",
@@ -1291,7 +1291,7 @@ CMDF do_secretary(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_OFFICE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_OFFICE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -1407,7 +1407,7 @@ CMDF do_clerk(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_OFFICE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_OFFICE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -1520,7 +1520,7 @@ CMDF do_commmarketer(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -1637,7 +1637,7 @@ CMDF do_marketer(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_OFFICE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_OFFICE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -1860,7 +1860,7 @@ CMDF do_advertiser(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_EXECUTIVE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_EXECUTIVE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -1978,7 +1978,7 @@ CMDF do_banker(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_BANK))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_BANK))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -2092,7 +2092,7 @@ CMDF do_accountant(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_OFFICE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_OFFICE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -2209,7 +2209,7 @@ CMDF do_investor(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_EXECUTIVE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_EXECUTIVE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -2325,7 +2325,7 @@ CMDF do_broker(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_EXECUTIVE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_EXECUTIVE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -2440,7 +2440,7 @@ CMDF do_boardmember(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_BOARDROOM))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_BOARDROOM))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -2557,7 +2557,7 @@ CMDF do_ceo(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_BOARDROOM))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_BOARDROOM))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char
@@ -2673,7 +2673,7 @@ CMDF do_yourmom(CharData * ch, char *argument)
                 if (ms_find_obj(ch))
                         return;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_OFFICE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_OFFICE))
                 {
                         set_char_color(AT_MAGIC, ch);
                         send_to_char

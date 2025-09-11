@@ -90,7 +90,7 @@ int reserve_rooms_ship(int firstroom, int numrooms)
                         bug("reserve_rooms: make_room failed");
                         return -1;
                 }
-                xSET_BIT(room->room_flags, ROOM_SPACECRAFT);
+                xSET_BIT(room->RoomFlags, ROOM_SPACECRAFT);
         }
         fold_area(tarea, tarea->filename, true, false);
         return i;
@@ -210,7 +210,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                  * and comment the second one out to use the shipyard flag instead
                  */
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_IMPORT))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT))
                 {
                         send_to_char
                                 ("You can't build that here!! Try a spaceport\r\n",
@@ -250,7 +250,7 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 durasteel = ship_class * 150 + 100;
                 transparisteel = ship_class * 20 + 10;
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_INSTALLATION))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_INSTALLATION))
                 {
                         INSTALLATION_DATA *installation = installation_from_room(ch->in_room->vnum).get();
                         if (installation
@@ -912,8 +912,8 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 }
                 ch->gold -= 10000;
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_FACTORY);
-                xSET_BIT(room->room_flags, ROOM_REFINERY);
+                xSET_BIT(room->RoomFlags, ROOM_FACTORY);
+                xSET_BIT(room->RoomFlags, ROOM_REFINERY);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("A Workshop");
@@ -937,7 +937,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 }
                 ch->gold -= 25000;
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_BACTA);
+                xSET_BIT(room->RoomFlags, ROOM_BACTA);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("Bacta Tank");
@@ -954,8 +954,8 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 100000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_SILENCE);
-                xSET_BIT(room->room_flags, ROOM_SAFE);
+                xSET_BIT(room->RoomFlags, ROOM_SILENCE);
+                xSET_BIT(room->RoomFlags, ROOM_SAFE);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("A Quiet Meditation Chamber");
@@ -972,7 +972,7 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_HOTEL);
+                xSET_BIT(room->RoomFlags, ROOM_HOTEL);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("The Passenger's Lounge");
@@ -989,8 +989,8 @@ CMDF do_addroom(CharData* ch, const std::string& argument)
                 ch->gold -= 10000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_EMPTY_HOME);
-                xSET_BIT(room->room_flags, ROOM_HOTEL);
+                xSET_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
+                xSET_BIT(room->RoomFlags, ROOM_HOTEL);
                 if (room->name)
                         STRFREE(room->name);
                 room->name = STRALLOC("An Empty Apartment");
@@ -1448,7 +1448,7 @@ void fleet_make(CharData* ch, const std::string& argument)
                  * and comment the second one out to use the shipyard flag instead
                  */
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_IMPORT))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT))
                 {
                         send_to_char
                                 ("You can't do that here!! Try a spaceport\r\n",
@@ -1469,7 +1469,7 @@ void fleet_make(CharData* ch, const std::string& argument)
                 }
                 durasteel = ship_class * 15 + 10;
                 transparisteel = ship_class * 2 + 1;
-                if (xIS_SET(ch->in_room->room_flags, ROOM_INSTALLATION))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_INSTALLATION))
                 {
                         INSTALLATION_DATA *installation =
                                 installation_from_room(ch->in_room->vnum);
@@ -5783,7 +5783,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
         ShipData *ship = NULL;
         PlanetData *planet;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_INSTALLATION))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_INSTALLATION))
         {
                 INSTALLATION_DATA *installation =
                         installation_from_room(ch->in_room->vnum);
@@ -5805,7 +5805,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->room_flags, ROOM_IMPORT))
+        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT))
         {
                 send_to_char
                         ("You can't build that here!! Try a spaceport\r\n",

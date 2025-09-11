@@ -378,9 +378,9 @@ int reserve_rooms_installation(int firstroom, int numrooms)
                         return -1;
                 }
                 room->area = tarea;
-                xSET_BIT(room->room_flags, ROOM_INSTALLATION);
-                xSET_BIT(room->room_flags, ROOM_NO_MOB);
-                xSET_BIT(room->room_flags, ROOM_INDOORS);
+                xSET_BIT(room->RoomFlags, ROOM_INSTALLATION);
+                xSET_BIT(room->RoomFlags, ROOM_NO_MOB);
+                xSET_BIT(room->RoomFlags, ROOM_INDOORS);
         }
         fold_area(tarea, tarea->filename, TRUE, FALSE);
         return i;
@@ -634,8 +634,8 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_INDOORS) ||
-            xIS_SET(ch->in_room->room_flags, ROOM_SPACECRAFT))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_INDOORS) ||
+            xIS_SET(ch->in_room->RoomFlags, ROOM_SPACECRAFT))
         {
                 send_to_char("You can't build that here!! Try elsewhere.\r\n",
                              ch);
@@ -2479,8 +2479,8 @@ void addroominstallation(CharData * ch, char *argument)
                 }
                 installation->clan->funds -= 10000;
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_FACTORY);
-                xSET_BIT(room->room_flags, ROOM_REFINERY);
+                xSET_BIT(room->RoomFlags, ROOM_FACTORY);
+                xSET_BIT(room->RoomFlags, ROOM_REFINERY);
                 stralloc_printf(&room->name, "%s", "A Workshop");
         }
         else if (!str_cmp(arg2, "bacta"))
@@ -2504,7 +2504,7 @@ void addroominstallation(CharData * ch, char *argument)
                 }
                 installation->clan->funds -= 25000;
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_BACTA);
+                xSET_BIT(room->RoomFlags, ROOM_BACTA);
                 STRFREE(room->name);
                 room->name = STRALLOC("Bacta Tank");
         }
@@ -2530,8 +2530,8 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 100000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_SILENCE);
-                xSET_BIT(room->room_flags, ROOM_SAFE);
+                xSET_BIT(room->RoomFlags, ROOM_SILENCE);
+                xSET_BIT(room->RoomFlags, ROOM_SAFE);
                 stralloc_printf(&room->name, "%s",
                                 "A Quiet Meditation Chamber");
         }
@@ -2555,8 +2555,8 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_HOTEL);
-                xSET_BIT(room->room_flags, ROOM_INN);
+                xSET_BIT(room->RoomFlags, ROOM_HOTEL);
+                xSET_BIT(room->RoomFlags, ROOM_INN);
                 stralloc_printf(&room->name, "%s", "The Passenger's Lounge");
         }
         else if (!str_cmp(arg2, "bank"))
@@ -2579,7 +2579,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_BANK);
+                xSET_BIT(room->RoomFlags, ROOM_BANK);
                 stralloc_printf(&room->name, "%s",
                                 "Local Office of the Galactic Banking Guild");
         }
@@ -2615,7 +2615,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->mainroom = room->vnum;
                 if (installation->type == SHIPYARD_INSTALLATION)
                 {
-                        xSET_BIT(room->room_flags, ROOM_IMPORT);
+                        xSET_BIT(room->RoomFlags, ROOM_IMPORT);
                         /*
                          * makedock ( installation); 
                          */
@@ -2641,7 +2641,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 5000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_AUCTION);
+                xSET_BIT(room->RoomFlags, ROOM_AUCTION);
                 stralloc_printf(&room->name, "%s", "Local Auction Hall");
         }
         else if (!str_cmp(arg2, "arena"))
@@ -2664,7 +2664,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 75000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_ARENA);
+                xSET_BIT(room->RoomFlags, ROOM_ARENA);
                 stralloc_printf(&room->name, "%s", "Training Arena");
         }
         else if (!str_cmp(arg2, "recruitment"))
@@ -2687,7 +2687,7 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 500000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_RECRUIT);
+                xSET_BIT(room->RoomFlags, ROOM_RECRUIT);
                 stralloc_printf(&room->name, "%s", "A Recruitment Office");
         }
         else if (!str_cmp(arg2, "home"))
@@ -2711,8 +2711,8 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 10000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_EMPTY_HOME);
-                xSET_BIT(room->room_flags, ROOM_HOTEL);
+                xSET_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
+                xSET_BIT(room->RoomFlags, ROOM_HOTEL);
                 stralloc_printf(&room->name, "%s", "An Empty Apartment");
         }
         else if (!str_cmp(arg2, "restaurant"))
@@ -2737,9 +2737,9 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 1000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_BAR);
-                xSET_BIT(room->room_flags, ROOM_KITCHEN);
-                xSET_BIT(room->room_flags, ROOM_CAFE);
+                xSET_BIT(room->RoomFlags, ROOM_BAR);
+                xSET_BIT(room->RoomFlags, ROOM_KITCHEN);
+                xSET_BIT(room->RoomFlags, ROOM_CAFE);
                 stralloc_printf(&room->name, "%s", "A Restaurant");
         }
         else if (!str_cmp(arg2, "office"))
@@ -2763,9 +2763,9 @@ void addroominstallation(CharData * ch, char *argument)
                 installation->clan->funds -= 1000;
 
                 match = TRUE;
-                xSET_BIT(room->room_flags, ROOM_OFFICE);
-                xSET_BIT(room->room_flags, ROOM_EXECUTIVE);
-                xSET_BIT(room->room_flags, ROOM_BOARDROOM);
+                xSET_BIT(room->RoomFlags, ROOM_OFFICE);
+                xSET_BIT(room->RoomFlags, ROOM_EXECUTIVE);
+                xSET_BIT(room->RoomFlags, ROOM_BOARDROOM);
                 stralloc_printf(&room->name, "%s", "An Office");
         }
         else if (!str_cmp(arg2, "turbolift"))

@@ -591,8 +591,8 @@ void save_world(CharData * ch)
 #ifdef OLC_HOMES
                                     || pRoomIndex->home
 #endif
-                                    || xIS_SET(pRoomIndex->room_flags, ROOM_CLANSTOREROOM)  /* These rooms save on their own */
-                                    || xIS_SET(pRoomIndex->room_flags, ROOM_PLR_HOME))
+                                    || xIS_SET(pRoomIndex->RoomFlags, ROOM_CLANSTOREROOM)  /* These rooms save on their own */
+                                    || xIS_SET(pRoomIndex->RoomFlags, ROOM_PLR_HOME))
                                         continue;
 
                                 snprintf(filename, FILENAME_SIZE, "%s%d", HOTBOOT_DIR,

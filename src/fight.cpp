@@ -406,7 +406,7 @@ void violence_update(void)
 
                 retcode = rNONE;
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         snprintf(buf, MSL,
                                  "violence_update: %s fighting %s in a SAFE room.",
@@ -1344,7 +1344,7 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
 /* weapon spells	-Thoric */
         if (wield
             && !IS_SET(victim->immune, RIS_MAGIC)
-            && !xIS_SET(victim->in_room->room_flags, ROOM_NO_MAGIC))
+            && !xIS_SET(victim->in_room->RoomFlags, ROOM_NO_MAGIC))
         {
                 AffectData *aff;
 
@@ -1711,7 +1711,7 @@ ch_ret damage(CharData * ch, CharData * victim, int dam, int dt)
          * bonuses/penalties for having or not having equipment where hit
          */
         if (dam > 10 && dt != TYPE_UNDEFINED &&
-            !xIS_SET(victim->in_room->room_flags, ROOM_ARENA))
+            !xIS_SET(victim->in_room->RoomFlags, ROOM_ARENA))
         {
                 /*
                  * get a random body eq part 
@@ -1750,7 +1750,7 @@ ch_ret damage(CharData * ch, CharData * victim, int dam, int dt)
                 gain_exp(ch, xp_gain, COMBAT_ABILITY);
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_ARENA) && victim->hit < 1
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_ARENA) && victim->hit < 1
             && !IS_NPC(victim))
         {
                 stop_fighting(ch, TRUE);
@@ -1849,7 +1849,7 @@ ch_ret damage(CharData * ch, CharData * victim, int dam, int dt)
                         act(AT_DEAD, "$n EXPLODES into many small pieces!",
                             victim, 0, 0, TO_ROOM);
                 else if (str_cmp(victim->in_room->area->filename, "arena.are")
-                         || !xIS_SET(victim->in_room->room_flags, ROOM_ARENA))
+                         || !xIS_SET(victim->in_room->RoomFlags, ROOM_ARENA))
                         act(AT_DEAD, "$n is DEAD!", victim, 0, 0, TO_ROOM);
                 send_to_char("&WYou have been KILLED!\n\r", victim);
                 break;
@@ -1971,7 +1971,7 @@ ch_ret damage(CharData * ch, CharData * victim, int dam, int dt)
 
                 if (!npcvict)
                 {
-                        if (!xIS_SET(victim->in_room->room_flags, ROOM_ARENA))
+                        if (!xIS_SET(victim->in_room->RoomFlags, ROOM_ARENA))
                         {
                                 snprintf(log_buf, MSL,
                                          "%s killed by %s at %d",
@@ -2093,7 +2093,7 @@ bool is_safe(CharData * ch, CharData * victim)
         if (who_fighting(ch) == ch)
                 return FALSE;
 
-        if (xIS_SET(victim->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("You'll have to do that elswhere.\n\r", ch);
@@ -2439,7 +2439,7 @@ void raw_kill(CharData * ch, CharData * victim)
         stop_fighting(victim, TRUE);
 
         if (!str_cmp(victim->in_room->area->filename, "arena.are")
-            || xIS_SET(victim->in_room->room_flags, ROOM_ARENA))
+            || xIS_SET(victim->in_room->RoomFlags, ROOM_ARENA))
         {
                 victim->hit = 1;
                 update_pos(victim);
@@ -2564,8 +2564,8 @@ void raw_kill(CharData * ch, CharData * victim)
                 STRFREE(room->name);
                 room->name = STRALLOC("An Empty Apartment");
 
-                xREMOVE_BIT(room->room_flags, ROOM_PLR_HOME);
-                xSET_BIT(room->room_flags, ROOM_EMPTY_HOME);
+                xREMOVE_BIT(room->RoomFlags, ROOM_PLR_HOME);
+                xSET_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
 
                 fold_area(room->area, room->area->filename, FALSE, TRUE);
         }
@@ -3378,7 +3378,7 @@ CMDF do_flee(CharData * ch, char *argument)
                     || (IS_SET(pexit->exit_info, EX_CLOSED)
                         && !IS_AFFECTED(ch, AFF_PASS_DOOR))
                     || (IS_NPC(ch)
-                        && xIS_SET(pexit->to_room->room_flags, ROOM_NO_MOB)))
+                        && xIS_SET(pexit->to_room->RoomFlags, ROOM_NO_MOB)))
                         continue;
 
                 affect_strip(ch, gsn_sneak);
@@ -3430,7 +3430,7 @@ bool get_cover(CharData * ch)
                     || (IS_SET(pexit->exit_info, EX_CLOSED)
                         && !IS_AFFECTED(ch, AFF_PASS_DOOR))
                     || (IS_NPC(ch)
-                        && xIS_SET(pexit->to_room->room_flags, ROOM_NO_MOB)))
+                        && xIS_SET(pexit->to_room->RoomFlags, ROOM_NO_MOB)))
                         continue;
 
                 affect_strip(ch, gsn_sneak);

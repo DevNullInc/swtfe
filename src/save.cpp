@@ -872,7 +872,7 @@ void fwrite_obj(CharData * ch, ObjData * obj, FILE * fp, int iNest,
         if ((os_type == OS_CORPSE || hotboot) && obj->in_room)
         {
                 fprintf(fp, "Room         %d\n", obj->in_room->vnum);
-                fprintf(fp, "Rvnum	   %d\n", obj->room_vnum);
+                fprintf(fp, "Rvnum	   %d\n", obj->RoomVnum);
         }
         if (obj->extra_flags != obj->pIndexData->extra_flags)
                 fprintf(fp, "ExtraFlags   %d\n", obj->extra_flags);
@@ -2611,7 +2611,7 @@ void fread_obj(CharData * ch, FILE * fp, sh_int os_type)
 
                 case 'R':
                         KEY("Room", room, get_room_index(fread_number(fp)));
-                        KEY("Rvnum", obj->room_vnum, fread_number(fp));
+                        KEY("Rvnum", obj->RoomVnum, fread_number(fp));
 
                 case 'S':
                         KEY("ShortDescr", obj->short_descr, fread_string(fp));

@@ -1120,7 +1120,7 @@ void mobile_update(void)
                         continue;
                 }
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE)
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE)
                     && IS_SET(ch->act, ACT_AGGRESSIVE))
                         do_emote(ch, "glares around and snarls.");  /* MOBprogram random trigger */
                 if (ch->in_room->area->nplayer > 0)
@@ -1193,7 +1193,7 @@ void mobile_update(void)
                         && (pexit = get_exit(ch->in_room, door)) != NULL
                         && pexit->to_room
                         && !IS_SET(pexit->exit_info, EX_CLOSED)
-                        && !xIS_SET(pexit->to_room->room_flags, ROOM_NO_MOB)
+                        && !xIS_SET(pexit->to_room->RoomFlags, ROOM_NO_MOB)
                         && (!IS_SET(ch->act, ACT_STAY_AREA)
                             || pexit->to_room->area == ch->in_room->area))
                 {
@@ -1220,7 +1220,7 @@ void mobile_update(void)
                     && (pexit = get_exit(ch->in_room, door)) != NULL
                     && pexit->to_room
                     && !IS_SET(pexit->exit_info, EX_CLOSED)
-                    && !xIS_SET(pexit->to_room->room_flags, ROOM_NO_MOB))
+                    && !xIS_SET(pexit->to_room->RoomFlags, ROOM_NO_MOB))
                 {
                         CharData *rch;
                         bool      found;
@@ -2353,7 +2353,7 @@ void char_update(void)
                         {
                                 if (++ch->timer > 15 && !ch->desc)
                                 {
-                                        ExtBV    room_flags;
+                                        ExtBV    RoomFlags;
                                         RoomIndexData *room = ch->in_room;
 
                                         if (NOT_AUTHED(ch)
@@ -2366,7 +2366,7 @@ void char_update(void)
                                         }
                                         if (room)
                                         {
-                                                room_flags = room->room_flags;
+                                                RoomFlags = room->RoomFlags;
                                                 /*
                                                  * char_from_room(ch); 
                                                  */
@@ -2382,11 +2382,11 @@ void char_update(void)
                                         ch->hit = UMAX(1, ch->hit);
                                         save_char_obj(ch);
                                         if (room)
-                                                xSET_BIT(room->room_flags,
+                                                xSET_BIT(room->RoomFlags,
                                                          ROOM_HOTEL);
                                         do_quit(ch, "");
                                         if (room)
-                                                room->room_flags = room_flags;
+                                                room->RoomFlags = RoomFlags;
                                 }
                                 else if (ch == ch_save && IS_SET(sysdata.save_flags, SV_AUTO) && ++save_count < 10) /* save max of 10 per tick */
                                         save_char_obj(ch);
@@ -2696,7 +2696,7 @@ void char_check(void)
                             && (pexit = get_exit(ch->in_room, door)) != NULL
                             && pexit->to_room
                             && !IS_SET(pexit->exit_info, EX_CLOSED)
-                            && !xIS_SET(pexit->to_room->room_flags,
+                            && !xIS_SET(pexit->to_room->RoomFlags,
                                         ROOM_NO_MOB)
                             && (!IS_SET(ch->act, ACT_STAY_AREA)
                                 || pexit->to_room->area == ch->in_room->area))
@@ -2917,7 +2917,7 @@ void aggr_update(void)
 
                         if (!IS_SET(ch->act, ACT_AGGRESSIVE)
                             || IS_SET(ch->act, ACT_MOUNTED)
-                            || xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                            || xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                                 continue;
 
                         victim = wch;
@@ -3583,7 +3583,7 @@ void bacta_update(void)
                 if (IS_NPC(ch))
                         continue;
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_BACTA))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_BACTA))
                 {
                         send_to_char
                                 ("You feel the soothing bubbles of the bacta!\n\rYou are healed.\n\r",
@@ -3596,7 +3596,7 @@ void bacta_update(void)
                         }
                 }
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_BACTA_CHARGE))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_BACTA_CHARGE))
                 {
 
                         if (ch->gold < 25)

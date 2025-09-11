@@ -471,7 +471,7 @@ CMDF do_addbounty(CharData * ch, char *argument)
                 return;
         }*/
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->room_flags, ROOM_BOUNTY))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BOUNTY))
         {
                 send_to_char
                         ("You will have to go to your local Hunters Guild office to add a new bounty.",
@@ -722,7 +722,7 @@ CMDF do_payfee(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->room_flags, ROOM_BOUNTY))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BOUNTY))
         {
                 send_to_char
                         ("You will have to go to your local Hunters Guild office to pay the fee for a bounty.\n\r",
@@ -1021,7 +1021,7 @@ CMDF do_imprison(CharData * ch, char *argument)
         }
 
         chance = static_cast<int>(ch->pcdata->learned[gsn_imprison]);
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE) && chance < 80)
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE) && chance < 80)
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);

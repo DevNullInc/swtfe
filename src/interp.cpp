@@ -649,7 +649,7 @@ bool check_social(CharData * ch, char *command, char *argument)
                         {
                         case 0:
                                 if (!xIS_SET
-                                    (ch->in_room->room_flags, ROOM_SAFE)
+                                    (ch->in_room->RoomFlags, ROOM_SAFE)
                                     || IS_EVIL(ch))
                                         multi_hit(victim, ch, TYPE_UNDEFINED);
                                 else if (IS_NEUTRAL(ch))

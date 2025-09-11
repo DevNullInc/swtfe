@@ -86,7 +86,7 @@ CMDF do_buyhome(CharData * ch, char *argument)
                 }
         }
 
-        if (!xIS_SET(room->room_flags, ROOM_EMPTY_HOME))
+        if (!xIS_SET(room->RoomFlags, ROOM_EMPTY_HOME))
         {
                 send_to_char("&RThis room isn't for sale!\n\r&w", ch);
                 return;
@@ -128,8 +128,8 @@ CMDF do_buyhome(CharData * ch, char *argument)
 
         send_to_char("You have just bought your home.\n\r", ch);
 
-        xREMOVE_BIT(room->room_flags, ROOM_EMPTY_HOME);
-        xSET_BIT(room->room_flags, ROOM_PLR_HOME);
+        xREMOVE_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
+        xSET_BIT(room->RoomFlags, ROOM_PLR_HOME);
 
         fold_area(room->area, room->area->filename, FALSE, TRUE);
 
@@ -169,7 +169,7 @@ CMDF do_sellhome(CharData * ch, char *argument)
                         return;
                 }
         }
-        if (xIS_SET(room->room_flags, ROOM_PLR_HOME))
+        if (xIS_SET(room->RoomFlags, ROOM_PLR_HOME))
         {
                 send_to_char("&RYou sell your apartment!\n\r&w", ch);
                 STRFREE(room->name);
@@ -178,8 +178,8 @@ CMDF do_sellhome(CharData * ch, char *argument)
                 send_to_char
                         ("&RYou receive 50000 credits for your apartment.\n\r&w",
                          ch);
-                xREMOVE_BIT(room->room_flags, ROOM_PLR_HOME);
-                xSET_BIT(room->room_flags, ROOM_EMPTY_HOME);
+                xREMOVE_BIT(room->RoomFlags, ROOM_PLR_HOME);
+                xSET_BIT(room->RoomFlags, ROOM_EMPTY_HOME);
                 fold_area(room->area, room->area->filename, FALSE, TRUE);
                 ch->plr_home = NULL;
                 do_save(ch, "");
@@ -2608,7 +2608,7 @@ CMDF do_empty(CharData * ch, char *argument)
                 }
                 if (arg2[0] == '\0')
                 {
-                        if (xIS_SET(ch->in_room->room_flags, ROOM_NODROP)
+                        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NODROP)
                             || (!IS_NPC(ch)
                                 && IS_SET(ch->act, PLR_LITTERBUG)))
                         {
@@ -2621,7 +2621,7 @@ CMDF do_empty(CharData * ch, char *argument)
                                          ch);
                                 return;
                         }
-                        if (xIS_SET(ch->in_room->room_flags, ROOM_NODROPALL))
+                        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NODROPALL))
                         {
                                 send_to_char
                                         ("You can't seem to do that here...\n\r",
@@ -2906,13 +2906,13 @@ CMDF do_hail(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_INDOORS))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_INDOORS))
         {
                 send_to_char("You'll have to go outside to do that!\n\r", ch);
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SPACECRAFT))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SPACECRAFT))
         {
                 send_to_char("You can't do that on spacecraft!\n\r", ch);
                 return;
@@ -3023,13 +3023,13 @@ CMDF do_hail(CharData * ch, char *argument)
 
                 if (room != NULL)
                 {
-                        if (xIS_SET(room->room_flags, ROOM_PLR_HOME))
+                        if (xIS_SET(room->RoomFlags, ROOM_PLR_HOME))
                                 continue;
-                        else if (xIS_SET(room->room_flags, ROOM_EMPTY_HOME))
+                        else if (xIS_SET(room->RoomFlags, ROOM_EMPTY_HOME))
                                 continue;
-                        else if (xIS_SET(room->room_flags, ROOM_NO_HAIL_TO))
+                        else if (xIS_SET(room->RoomFlags, ROOM_NO_HAIL_TO))
                                 continue;
-                        else if (xIS_SET(room->room_flags, type))
+                        else if (xIS_SET(room->RoomFlags, type))
                                 break;
                 }
                 /*
@@ -3352,7 +3352,7 @@ CMDF do_bank(CharData * ch, char *argument)
         if (IS_NPC(ch) || !ch->pcdata)
                 return;
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->room_flags, ROOM_BANK))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BANK))
         {
                 send_to_char("You must be in a bank to do that!\n\r", ch);
                 return;
@@ -3462,7 +3462,7 @@ CMDF do_invest( CharData *ch, char *argument )
     if ( IS_NPC(ch) || !ch->pcdata )
        return;
     
-    if (!ch->in_room || !xIS_SET(ch->in_room->room_flags, ROOM_BANK) )
+    if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BANK) )
     {
        send_to_char( "You must be in a bank to do that!\n\r", ch );
        return;

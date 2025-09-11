@@ -2035,7 +2035,7 @@ void finish_ship(CharData * ch, ShipData * ship)
                 dock = g_r_i(ROOM_LIMBO_SHIPYARD);
         else if (!ch->in_room)
                 dock = g_r_i(ROOM_LIMBO_SHIPYARD);
-        else if (!xIS_SET(ch->in_room->room_flags, ROOM_CAN_FLY))
+        else if (!xIS_SET(ch->in_room->RoomFlags, ROOM_CAN_FLY))
                 dock = g_r_i(ROOM_LIMBO_SHIPYARD);
         else
                 dock = ch->in_room;
@@ -2124,11 +2124,11 @@ RoomIndexData *make_ship_room(ShipData * ship, int svnum)
                         rFound = TRUE;
                         pRoom = make_room(vnum);
                         pRoom->area = sArea;
-                        xSET_BIT(pRoom->room_flags, ROOM_SPACECRAFT);
+                        xSET_BIT(pRoom->RoomFlags, ROOM_SPACECRAFT);
                         /*
-                         * xSET_BIT( pRoom->room_flags, ROOM_INDOORS ); 
+                         * xSET_BIT( pRoom->RoomFlags, ROOM_INDOORS ); 
                          */
-                        xREMOVE_BIT(pRoom->room_flags, ROOM_PROTOTYPE);
+                        xREMOVE_BIT(pRoom->RoomFlags, ROOM_PROTOTYPE);
                 }
         }
 
@@ -2606,7 +2606,7 @@ bool save_shipimage(ShipData * ship, char *fname)
                                 fprintf(fp, "RSector      %d\n",
                                         room->sector_type);
                                 fprintf(fp, "RFlags       %s\n",
-                                        print_bitvector(&room->room_flags));
+                                        print_bitvector(&room->RoomFlags));
                                 fprintf(fp, "RName        %s~\n", room->name);
                                 fprintf(fp, "RDesc        %s~\n",
                                         strip_cr(room->description));
@@ -3039,7 +3039,7 @@ void fread_shipimage(ShipData * ship, FILE * fp)
                         }
                         KEY("RName", room->name, fread_string(fp));
                         KEY("RDesc", room->description, fread_string(fp));
-                        KEY("RFlags", room->room_flags, fread_bitvector(fp));
+                        KEY("RFlags", room->RoomFlags, fread_bitvector(fp));
                         KEY("RSector", room->sector_type, fread_number(fp));
                         KEY("RTunnel", room->tunnel, fread_number(fp));
                         KEY("Realspeed", ship->realspeed, fread_number(fp));

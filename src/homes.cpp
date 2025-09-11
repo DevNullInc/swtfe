@@ -533,7 +533,7 @@ bool load_home_file(char *homefile)
                                      tobj = tobj_next)
                                 {
                                         room = get_room_index(tobj->
-                                                              room_vnum);
+                                                              RoomVnum);
                                         tobj_next = tobj->next_content;
                                         obj_from_char(tobj);
                                         obj_to_room(tobj, room);
@@ -550,7 +550,7 @@ bool load_home_file(char *homefile)
                                      tobj = tobj_next)
                                 {
                                         room = get_room_index(tobj->
-                                                              room_vnum);
+                                                              RoomVnum);
                                         tobj_next = tobj->next_content;
                                         obj_from_char(tobj);
                                         obj_to_room(tobj, room);
@@ -1321,7 +1321,7 @@ CMDF do_rap(CharData * ch, char *argument)
                 char     *keyword;
 
                 if ((to_room = pexit->to_room) != NULL
-                    && xIS_SET(to_room->room_flags, ROOM_EMPTY_HOME))
+                    && xIS_SET(to_room->RoomFlags, ROOM_EMPTY_HOME))
                 {
                         send_to_char
                                 ("No Need to use the intercom, nobody lives there!\n\r",
@@ -1329,8 +1329,8 @@ CMDF do_rap(CharData * ch, char *argument)
                         return;
                 }
                 else if ((to_room = pexit->to_room) != NULL
-                         && !xIS_SET(to_room->room_flags, ROOM_PLR_HOME)
-                         && !xIS_SET(to_room->room_flags, ROOM_HOUSE))
+                         && !xIS_SET(to_room->RoomFlags, ROOM_PLR_HOME)
+                         && !xIS_SET(to_room->RoomFlags, ROOM_HOUSE))
                 {
                         send_to_char("Nobody Owns That Home!\n\r", ch);
                         return;
@@ -1566,7 +1566,7 @@ CMDF do_realitor(CharData * ch, char * argument)
 		return;
 	}
 
-	if (!xIS_SET(ch->in_room->room_flags,ROOM_EMPTYPLOT) || ch->in_room->home) {
+	if (!xIS_SET(ch->in_room->RoomFlags,ROOM_EMPTYPLOT) || ch->in_room->home) {
 		send_to_char("This isn't an empty land plot.\n\r",ch);
 		return;
 	}
@@ -1725,9 +1725,9 @@ CMDF do_realitor(CharData * ch, char * argument)
 	home->save();
 	write_home_list();
 
-	xREMOVE_BIT(ch->in_room->room_flags, ROOM_EMPTYPLOT);
+	xREMOVE_BIT(ch->in_room->RoomFlags, ROOM_EMPTYPLOT);
 	ch->in_room->sector_type = SECT_INSIDE;
-	xSET_BIT(ch->in_room->room_flags, ROOM_INDOORS);
+	xSET_BIT(ch->in_room->RoomFlags, ROOM_INDOORS);
 	if (!ch->in_room->name)
 		STRFREE(ch->in_room->name);
 	ch->in_room->name = STRALLOC("Entrance Way");
@@ -1867,7 +1867,7 @@ void HOME_DATA::add_room(CharData * ch, char * argument)
 	int        dir;
 	int 	  col,row,height,pos;
 	int       percent, xp, amount, percentage;
-	int 	  room_type;
+	int 	  RoomType;
 	int	      vnum;
 	ExitData *pexit;
 	RoomIndexData * newroom;
@@ -1908,11 +1908,11 @@ void HOME_DATA::add_room(CharData * ch, char * argument)
 				 * this should be in a const array(?)
 				 * maybe olc'd so we can add autodescs
 				 */
-				for (room_type = 0; room_type < MAX_HOME_ROOM_TYPES; room_type++) {
+				for (RoomType = 0; RoomType < MAX_HOME_ROOM_TYPES; RoomType++) {
 					ch_printf(ch, "&W\t%-15s\t%-6d\t%s\n\r", 
-							home_types[room_type].type,
-							home_types[room_type].cost,
-							home_types[room_type].description
+							home_types[RoomType].type,
+							home_types[RoomType].cost,
+							home_types[RoomType].description
 							);
 				}
 				return;
@@ -1934,28 +1934,28 @@ void HOME_DATA::add_room(CharData * ch, char * argument)
 				return;
 			}
 
-			for (room_type = 0; room_type < MAX_HOME_ROOM_TYPES; room_type++) {
-				if (!str_cmp(argument, home_types[room_type].type))
+			for (RoomType = 0; RoomType < MAX_HOME_ROOM_TYPES; RoomType++) {
+				if (!str_cmp(argument, home_types[RoomType].type))
 					break;
 			}
 
-			if (room_type == MAX_HOME_ROOM_TYPES) 
+			if (RoomType == MAX_HOME_ROOM_TYPES) 
 			{
 				send_to_char("&RNo such room type.\n\rOptions are:\n\r", ch);
 				/*
 				 * this should be in a const array(?)
 				 * maybe olc'd so we can add autodescs
 				 */
-				for (room_type = 0; room_type < MAX_HOME_ROOM_TYPES; room_type++) {
+				for (RoomType = 0; RoomType < MAX_HOME_ROOM_TYPES; RoomType++) {
 					ch_printf(ch, "&W\t%-15s\t%-6d\t%s\n\r", 
-							home_types[room_type].type,
-							home_types[room_type].cost,
-							home_types[room_type].description
+							home_types[RoomType].type,
+							home_types[RoomType].cost,
+							home_types[RoomType].description
 							);
 				}
 				return;
 			}
-			if (ch->gold < home_types[room_type].cost )
+			if (ch->gold < home_types[RoomType].cost )
 			{
 				send_to_char("You haven't got the money for a that!\r\n",ch);
 				return;
@@ -2012,18 +2012,18 @@ void HOME_DATA::add_room(CharData * ch, char * argument)
 		return;
 	}
 
-	for (room_type = 0; room_type < MAX_HOME_ROOM_TYPES; room_type++) {
-		if (!str_cmp(arg2, home_types[room_type].type))
+	for (RoomType = 0; RoomType < MAX_HOME_ROOM_TYPES; RoomType++) {
+		if (!str_cmp(arg2, home_types[RoomType].type))
 			break;
 	}
 
-	if (room_type == MAX_HOME_ROOM_TYPES) 
+	if (RoomType == MAX_HOME_ROOM_TYPES) 
 	{
 		send_to_char("&RNo such room type.\n\r How'd you get this far?\n\r",ch);
 		bug("%s got to second room check using args (%s %s)", ch->name, arg, arg2);
 		return;
 	}
-	if (ch->gold < home_types[room_type].cost )
+	if (ch->gold < home_types[RoomType].cost )
 	{
 		send_to_char("You haven't got the money for a that!\r\n",ch);
 		return;
@@ -2040,24 +2040,24 @@ void HOME_DATA::add_room(CharData * ch, char * argument)
 		}
 
 		/* Only special case */
-		if (!str_cmp(home_types[room_type].type, "connect")) {
+		if (!str_cmp(home_types[RoomType].type, "connect")) {
 			send_to_char("Can't do that, need to make a room there first.\n\r", ch);
 			return;
 		}
 	}
 	else {
-		if (str_cmp(home_types[room_type].type, "connect")) {
+		if (str_cmp(home_types[RoomType].type, "connect")) {
 			send_to_char("A room already exists in that direction. How about trying to connnect it instead.\n\r", ch);
 			return;
 		}
 
-		if (ch->gold < home_types[room_type].cost )
+		if (ch->gold < home_types[RoomType].cost )
 		{
 			send_to_char("You haven't got the money for a that!\r\n",ch);
 			return;
 		}
 	}
-	ch->gold -= home_types[room_type].cost;
+	ch->gold -= home_types[RoomType].cost;
 
 	percent = number_percent() - ch->skill_level[ENGINEERING_ABILITY];
 
@@ -2073,15 +2073,15 @@ void HOME_DATA::add_room(CharData * ch, char * argument)
 		newroom = make_room(vnum, ch->in_room->area);
 		newroom->area = ch->in_room->area;
 		newroom->sector_type = SECT_INSIDE;
-		xSET_BIT(newroom->room_flags, ROOM_INDOORS);
-		xSET_BITS(newroom->room_flags, home_types[room_type].flags);
+		xSET_BIT(newroom->RoomFlags, ROOM_INDOORS);
+		xSET_BITS(newroom->RoomFlags, home_types[RoomType].flags);
 		grid_set(home->grid, col, row, height, newroom);
 		home->add(newroom);
 
 		if (!newroom->name)
 			STRFREE(newroom->name);
-		newroom->name = STRALLOC(home_types[room_type].name);
-		generate_description(newroom, room_type);
+		newroom->name = STRALLOC(home_types[RoomType].name);
+		generate_description(newroom, RoomType);
 
 	}
 	else {

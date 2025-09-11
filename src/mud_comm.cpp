@@ -1003,7 +1003,7 @@ CMDF do_mptransfer(CharData * ch, char *argument)
 
 /* If victim not in area's level range, do not transfer */
         if (!in_hard_range(victim, location->area)
-            && !xIS_SET(location->room_flags, ROOM_PROTOTYPE))
+            && !xIS_SET(location->RoomFlags, ROOM_PROTOTYPE))
                 return;
 
         if (victim->fighting)

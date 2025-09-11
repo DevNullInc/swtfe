@@ -130,7 +130,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                                           implant_names[count]);
                         return;
                 }
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -449,8 +449,8 @@ CMDF do_implant(CharData * ch, char *argument)
                 }
 
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_SAFE)
-                    || !xIS_SET(ch->in_room->room_flags, ROOM_INDOORS))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE)
+                    || !xIS_SET(ch->in_room->RoomFlags, ROOM_INDOORS))
                 {
                         send_to_char
                                 ("&RYou must be indoors somewhere, where it is safe to operate.\n\r",

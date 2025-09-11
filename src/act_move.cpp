@@ -615,7 +615,7 @@ bool will_fall(CharData * ch, int fall)
         if (!ch)
                 return FALSE;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_NOFLOOR)
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NOFLOOR)
             && CAN_GO(ch, DIR_DOWN)
             && (!IS_AFFECTED(ch, AFF_FLYING)
                 || (ch->mount && !IS_AFFECTED(ch->mount, AFF_FLYING))))
@@ -686,7 +686,7 @@ RoomIndexData *generate_exit(RoomIndexData * in_room, ExitData ** pexit)
                         room->area = in_room->area;
                         room->vnum = serial;
                         room->sector_type = in_room->sector_type;
-                        room->room_flags = in_room->room_flags;
+                        room->RoomFlags = in_room->RoomFlags;
                         decorate_room(room);
                         room->next = vroom_hash[hash];
                         vroom_hash[hash] = room;

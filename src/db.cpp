@@ -2035,7 +2035,7 @@ void load_rooms(AreaData * tarea, FILE * fp)
 
                 x1 = x2 = x3 = x4 = x5 = x6 = x7 = 0;
                 fread_number(fp);
-                pRoomIndex->room_flags = fread_bitvector(fp);
+                pRoomIndex->RoomFlags = fread_bitvector(fp);
                 ln = fread_line(fp);
                 sscanf(ln, "%d %d %d %d %d %d", &x3, &x4, &x5, &x6, &x7, &x8);
                 pRoomIndex->sector_type = INT_TO_SHINT(x5);
@@ -2047,7 +2047,7 @@ void load_rooms(AreaData * tarea, FILE * fp)
 
                         for (i = 0; i < 32; i++)
                                 if (IS_SET(x3, 1 << i))
-                                        xSET_BIT(pRoomIndex->room_flags,
+                                        xSET_BIT(pRoomIndex->RoomFlags,
                                                  i + 32);
                 }
                 if (pRoomIndex->sector_type < 0
@@ -2418,7 +2418,7 @@ void fix_exits(void)
                                         fexit = TRUE;
                         }
                         if (!fexit)
-                                xSET_BIT(pRoomIndex->room_flags, ROOM_NO_MOB);
+                                xSET_BIT(pRoomIndex->RoomFlags, ROOM_NO_MOB);
                 }
         }
 
@@ -6036,7 +6036,7 @@ RoomIndexData *make_room( int vnum, AreaData *area )
         pRoomIndex->vnum = vnum;
         pRoomIndex->name = STRALLOC("Floating in a void");
         pRoomIndex->description = STRALLOC("");
-        pRoomIndex->room_flags = meb(ROOM_PROTOTYPE);
+        pRoomIndex->RoomFlags = meb(ROOM_PROTOTYPE);
         pRoomIndex->sector_type = 1;
         pRoomIndex->light = 0;
         pRoomIndex->first_exit = NULL;
@@ -6353,7 +6353,7 @@ void fix_area_exits(AreaData * tarea)
                                 pexit->to_room = get_room_index(pexit->vnum);
                 }
                 if (!fexit)
-                        xSET_BIT(pRoomIndex->room_flags, ROOM_NO_MOB);
+                        xSET_BIT(pRoomIndex->RoomFlags, ROOM_NO_MOB);
         }
 
 

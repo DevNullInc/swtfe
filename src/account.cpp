@@ -749,7 +749,7 @@ CMDF do_switchchar(CharData * ch, char *argument)
         }
 
         if (!IS_IMMORTAL(ch) && ch->in_room
-            && !xIS_SET(ch->in_room->room_flags, ROOM_HOTEL)
+            && !xIS_SET(ch->in_room->RoomFlags, ROOM_HOTEL)
             && !NOT_AUTHED(ch))
         {
                 send_to_char("You may not quit here.\n\r", ch);

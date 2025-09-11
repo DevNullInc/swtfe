@@ -2117,7 +2117,7 @@ CMDF do_steal(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -4159,7 +4159,7 @@ CMDF do_hitall(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 send_to_char("You cannot do that here.\n\r", ch);
                 return;

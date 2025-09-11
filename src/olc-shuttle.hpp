@@ -56,7 +56,7 @@ public:
         std::string stop_name;
         int room{0};
 
-        StopData(std::string name, int room_vnum) : stop_name(std::move(name)), room(room_vnum) {}
+        StopData(std::string name, int RoomVnum) : stop_name(std::move(name)), room(RoomVnum) {}
         StopData() = default;
         ~StopData() = default;
 };

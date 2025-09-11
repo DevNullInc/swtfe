@@ -217,7 +217,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
 
                 checkmedpac = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         send_to_char
                                 ("&RYou need to be somewhere that you don't have to worry about danger.\n\r",
@@ -631,7 +631,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                 checkdrink = FALSE;
                 checkchem = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",

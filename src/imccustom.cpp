@@ -76,7 +76,7 @@ CMDF do_gpoint(CharData *ch, char *argument)
     }
 
     if (!is_number(argument)) {
-        send_to_char("Usage: gpoint <room_vnum>\n\r", ch);
+        send_to_char("Usage: gpoint <RoomVnum>\n\r", ch);
         return;
     }
     int v = atoi(argument);

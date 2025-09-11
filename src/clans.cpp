@@ -2435,7 +2435,7 @@ CMDF do_shove(CharData * ch, char *argument)
         }
 
         exit_dir = get_dir(arg2);
-        if (xIS_SET(victim->in_room->room_flags, ROOM_SAFE)
+        if (xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE)
             && get_timer(victim, TIMER_SHOVEDRAG) <= 0)
         {
                 send_to_char("That character cannot be shoved right now.\n\r",
@@ -2498,7 +2498,7 @@ act( AT_ACTION, buf, ch, NULL, NULL, TO_ROOM );
         /*
          * Remove protection from shove/drag if char shoves -- Blodkai 
          */
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE)
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE)
             && get_timer(ch, TIMER_SHOVEDRAG) <= 0)
                 add_timer(ch, TIMER_SHOVEDRAG, 10, NULL, 0);
 }
@@ -2553,7 +2553,7 @@ CMDF do_drag(CharData * ch, char *argument)
 
         exit_dir = get_dir(arg2);
 
-        if (xIS_SET(victim->in_room->room_flags, ROOM_SAFE)
+        if (xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE)
             && get_timer(victim, TIMER_SHOVEDRAG) <= 0)
         {
                 send_to_char
@@ -2654,7 +2654,7 @@ CMDF do_enlist(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->room_flags, ROOM_RECRUIT))
+        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_RECRUIT))
         {
                 send_to_char
                         ("You don't seem to be in a recruitment office.\n\r",
@@ -2828,7 +2828,7 @@ CMDF do_clan_withdraw(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->room_flags, ROOM_BANK))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BANK))
         {
                 send_to_char("You must be in a bank to do that!\n\r", ch);
                 return;
@@ -2887,7 +2887,7 @@ CMDF do_clan_donate(CharData * ch, char *argument)
                 return;
         }
 
-        if (!ch->in_room || !xIS_SET(ch->in_room->room_flags, ROOM_BANK))
+        if (!ch->in_room || !xIS_SET(ch->in_room->RoomFlags, ROOM_BANK))
         {
                 send_to_char("You must be in a bank to do that!\n\r", ch);
                 return;

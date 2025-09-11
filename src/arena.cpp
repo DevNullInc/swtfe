@@ -210,7 +210,7 @@ void create_arena(void)
 bool arena_can_fight(CharData * ch, CharData * victim)
 {
         (void)victim;  // Silence unused parameter warning
-        if (xIS_SET(ch->in_room->room_flags, ROOM_ARENA))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_ARENA))
         {
                 if (arena && arena->fighting)
                         return TRUE;
@@ -895,7 +895,7 @@ bool in_arena(CharData * ch)
 {
 
         if (!str_cmp(ch->in_room->area->filename, "arena.are")
-            || xIS_SET(ch->in_room->room_flags, ROOM_ARENA))
+            || xIS_SET(ch->in_room->RoomFlags, ROOM_ARENA))
                 return TRUE;
 
         if (ch->in_room->vnum < 29 || ch->in_room->vnum > 43)

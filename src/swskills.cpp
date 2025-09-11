@@ -92,7 +92,7 @@ CMDF do_makeblade(CharData * ch, char *argument)
                 checkbatt = FALSE;
                 checkoven = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -328,7 +328,7 @@ CMDF do_makefurniture(CharData * ch, char *argument)
                 checktool = FALSE;
                 checkdura = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -585,7 +585,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
                 checkcond = FALSE;
                 checkcirc = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -869,7 +869,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
                 checkcond = FALSE;
                 checkcirc = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -1188,8 +1188,8 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
                 checkgems = FALSE;
                 checkmirr = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_SAFE)
-                    || !xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE)
+                    || !xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
                 {
                         send_to_char
                                 ("&RYou need to be in a quiet peaceful place to craft a lightsaber.\n\r",
@@ -1538,7 +1538,7 @@ CMDF do_makespice(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_REFINERY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_REFINERY))
                 {
                         send_to_char
                                 ("&RYou need to be in a refinery to create drugs from spice.\n\r",
@@ -1680,7 +1680,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
                 checkchem = FALSE;
                 checkcirc = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -1920,7 +1920,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
                 checkchem = FALSE;
                 checkcirc = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -2160,7 +2160,7 @@ CMDF do_makelight(CharData * ch, char *argument)
                 checkcirc = FALSE;
                 checklens = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -2452,7 +2452,7 @@ CMDF do_makejewelry(CharData * ch, char *argument)
                 checkoven = FALSE;
                 checkmetal = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -2685,7 +2685,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
                 checksew = FALSE;
                 checkfab = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -2886,7 +2886,7 @@ CMDF do_makecomlink(CharData * ch, char *argument)
                 checkbatt = FALSE;
                 checkcirc = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -3109,7 +3109,7 @@ CMDF do_makeshield(CharData * ch, char *argument)
                 checkcirc = FALSE;
                 checkgems = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char("&RYou need to be in a workshop.\n\r",
                                      ch);
@@ -3399,7 +3399,7 @@ CMDF do_makecontainer(CharData * ch, char *argument)
                 checksew = FALSE;
                 checkfab = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -3601,7 +3601,7 @@ CMDF do_gemcutting(CharData * ch, char *argument)
                 checktool = FALSE;
                 checkgems = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -4919,7 +4919,7 @@ CMDF do_snipe(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         bool      pfound = FALSE;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("You'll have to do that elswhere.\n\r", ch);
@@ -5022,7 +5022,7 @@ CMDF do_snipe(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(victim->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("You can't shoot them there.\n\r", ch);
@@ -5308,7 +5308,7 @@ CMDF do_throw(CharData * ch, char *argument)
                         char_to_room(ch, was_in_room);
 
 
-                        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                         {
                                 set_char_color(AT_MAGIC, ch);
                                 send_to_char
@@ -5889,7 +5889,7 @@ CMDF do_jail(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -5989,7 +5989,7 @@ CMDF do_smalltalk(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -6129,7 +6129,7 @@ CMDF do_propeganda(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -6270,7 +6270,7 @@ CMDF do_bribe(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -6511,7 +6511,7 @@ CMDF do_mass_propeganda(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -6835,7 +6835,7 @@ CMDF do_makeknife(CharData * ch, char *argument)
                 checkplast = FALSE;
                 checkoven = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -7077,7 +7077,7 @@ CMDF do_makepike(CharData * ch, char *argument)
                 checkbatt = FALSE;
                 Bonus = 0;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -7325,7 +7325,7 @@ CMDF do_itemrepair(CharData * ch, char *argument)
                 checktool = FALSE;
                 checksew = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -7512,7 +7512,7 @@ CMDF do_causedissension(CharData * ch, char *argument)
                         return;
                 }
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         send_to_char
                                 ("This isn't a good place to do that.\n\r",
@@ -7649,7 +7649,7 @@ CMDF do_causedessertion(CharData * ch, char *argument)
                         return;
                 }
 
-                if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+                if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 {
                         send_to_char
                                 ("This isn't a good place to do that.\n\r",
@@ -7810,7 +7810,7 @@ CMDF do_boostmorale(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);
@@ -7909,7 +7909,7 @@ CMDF do_throwsaber(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         bool      pfound = FALSE;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("You'll have to do that elswhere.\n\r", ch);
@@ -8016,7 +8016,7 @@ CMDF do_throwsaber(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(victim->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char
@@ -8169,7 +8169,7 @@ CMDF do_makebinding(CharData * ch, char *argument)
                 checktool = FALSE;
                 checkdura = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",

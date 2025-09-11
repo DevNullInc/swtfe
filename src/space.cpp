@@ -1663,7 +1663,7 @@ void echo_to_system(int color, ShipData * ship, char *argument,
                         {
                                 if ((pRoom = get_room_index(rnum)) == NULL)
                                         continue;
-                                if (xIS_SET(pRoom->room_flags, ROOM_MONITOR))
+                                if (xIS_SET(pRoom->RoomFlags, ROOM_MONITOR))
                                         echo_to_room(color, pRoom, argument);
                         }
                 }
@@ -10165,8 +10165,8 @@ CMDF do_unload_cargo(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->room_flags, ROOM_IMPORT)
-            && !xIS_SET(ch->in_room->room_flags, ROOM_SPACECRAFT))
+        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT)
+            && !xIS_SET(ch->in_room->RoomFlags, ROOM_SPACECRAFT))
         {
                 send_to_char("You can't do that here!", ch);
                 return;
@@ -10289,8 +10289,8 @@ CMDF do_load_cargo(CharData * ch, char *argument)
                 return;
         }
 
-        if (!xIS_SET(ch->in_room->room_flags, ROOM_IMPORT)
-            && !xIS_SET(ch->in_room->room_flags, ROOM_SPACECRAFT))
+        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT)
+            && !xIS_SET(ch->in_room->RoomFlags, ROOM_SPACECRAFT))
         {
                 send_to_char("You can't do that here!", ch);
                 return;
@@ -11523,7 +11523,7 @@ CMDF do_taxi(CharData * ch, char *argument)
                          ch);
                 return;
         }
-        if (!xIS_SET(ch->in_room->room_flags, ROOM_IMPORT) && !xIS_SET(ch->in_room->room_flags, ROOM_CAN_LAND))
+        if (!xIS_SET(ch->in_room->RoomFlags, ROOM_IMPORT) && !xIS_SET(ch->in_room->RoomFlags, ROOM_CAN_LAND))
         {
                 send_to_char("You must be at a spaceport to call a taxi.\n\r",
                              ch);
@@ -11859,7 +11859,7 @@ CMDF do_shipemote(CharData * ch, char *argument)
         MOBtrigger = FALSE;
         snprintf(buf, MaxStringLength, "%s %s", ship->name, argument);
         echo_to_cockpit(AT_BLOOD + AT_BLINK, ship, buf);
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 snprintf(buf, MSL, "%s %s (emote)",
                          IS_NPC(ch) ? ch->short_descr : ch->name, argument);

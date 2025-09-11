@@ -952,7 +952,7 @@ CMDF do_goto(CharData * ch, const char *argument)
 
                 if ((ch->in_room->vnum < pArea->low_r_vnum
                      || ch->in_room->vnum > pArea->hi_r_vnum)
-                    && !xIS_SET(ch->in_room->room_flags, ROOM_HOTEL))
+                    && !xIS_SET(ch->in_room->RoomFlags, ROOM_HOTEL))
                 {
                         send_to_char
                                 ("Builders can only use goto from a hotel or in their zone.\n\r",
@@ -4212,13 +4212,13 @@ CMDF do_rset(CharData * ch, char *argument)
                 /*
                  * Protect from messing up prototype flag
                  */
-                if (xIS_SET(location->room_flags, ROOM_PROTOTYPE))
+                if (xIS_SET(location->RoomFlags, ROOM_PROTOTYPE))
                         proto = TRUE;
                 else
                         proto = FALSE;
-                location->room_flags = meb(value);
+                location->RoomFlags = meb(value);
                 if (proto)
-                        xSET_BIT(location->room_flags, ROOM_PROTOTYPE);
+                        xSET_BIT(location->RoomFlags, ROOM_PROTOTYPE);
                 return;
         }
 
@@ -4608,7 +4608,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                                          ch);
                         else
                         {
-                                xTOGGLE_BIT(location->room_flags, value);
+                                xTOGGLE_BIT(location->RoomFlags, value);
                         }
                 }
                 return;
@@ -5950,7 +5950,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                         /*
                          * remove prototype flag from room 
                          */
-                        xREMOVE_BIT(room->room_flags, ROOM_PROTOTYPE);
+                        xREMOVE_BIT(room->RoomFlags, ROOM_PROTOTYPE);
                         /*
                          * purge room of (prototyped) mobiles 
                          */
@@ -5975,11 +5975,11 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                 fprintf(fpout, "%s~\n", strip_cr(room->description));
                 if (room->tunnel > 0)
                         fprintf(fpout, "0 %s 0 0 %d 0 0 %d\n",
-                                print_bitvector(&room->room_flags),
+                                print_bitvector(&room->RoomFlags),
                                 room->sector_type, room->tunnel);
                 else
                         fprintf(fpout, "0 %s 0 0 %d\n",
-                                print_bitvector(&room->room_flags),
+                                print_bitvector(&room->RoomFlags),
                                 room->sector_type);
                 for (xit = room->first_exit; xit; xit = xit->next)
                 {
@@ -7147,7 +7147,7 @@ CMDF do_rlist(CharData * ch, char *argument)
         {
                 if ((room = get_room_index(vnum)) == NULL)
                         continue;
-                if (xIS_SET(room->room_flags, ROOM_PROTOTYPE))
+                if (xIS_SET(room->RoomFlags, ROOM_PROTOTYPE))
                         pager_printf(ch, "%5d) %s   &R(Proto)&R&W\n\r", vnum,
                                      room->name);
                 else

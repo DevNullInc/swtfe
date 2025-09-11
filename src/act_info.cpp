@@ -1120,7 +1120,7 @@ CMDF do_look(CharData* ch, const char* argument)
                                         send_to_char("[&z", ch);
                                         send_to_char(ext_flag_string
                                                      (&ch->in_room->
-                                                      room_flags, r_flags),
+                                                      RoomFlags, r_flags),
                                                      ch);
                                         send_to_char("&B]", ch);
                                 }

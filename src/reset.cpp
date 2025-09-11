@@ -1471,7 +1471,7 @@ void reset_area(AreaData * pArea)
                                         get_room_index(pReset->arg3 - 1);
 
                                 if (pRoomPrev
-                                    && xIS_SET(pRoomPrev->room_flags,
+                                    && xIS_SET(pRoomPrev->RoomFlags,
                                                ROOM_PET_SHOP))
                                         SET_BIT(mob->act, ACT_PET);
                         }
@@ -1725,7 +1725,7 @@ void reset_area(AreaData * pArea)
                                         bug("Reset_area: 'B': room: bad room vnum %d.", pReset->arg1);
                                         continue;
                                 }
-                                xplc = &pRoomIndex->room_flags;
+                                xplc = &pRoomIndex->RoomFlags;
                                 break;
                         case BIT_RESET_OBJECT:
                                 if (pReset->arg1 > 0)
@@ -1868,7 +1868,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                         if (!room)
                                 mob = NULL;
                         if ((room = get_room_index(pReset->arg3 - 1)) &&
-                            xIS_SET(room->room_flags, ROOM_PET_SHOP))
+                            xIS_SET(room->RoomFlags, ROOM_PET_SHOP))
                                 mudstrlcat(buf, " (pet)\n\r", 256);
                         else
                                 mudstrlcat(buf, "\n\r", 256);

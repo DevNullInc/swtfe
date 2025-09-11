@@ -219,7 +219,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
         }
 
         xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("&BY&zou can't do that here.\n\r", ch);
                 return;
@@ -404,7 +404,7 @@ CMDF do_beep(CharData* ch, char* argument)
         argument = one_argument(argument, arg);
 
         xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -477,7 +477,7 @@ CMDF do_beep(CharData* ch, char* argument)
 
         if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
             || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->room_flags, ROOM_SILENCE)))
+                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
         {
                 act(AT_PLAIN, "$E can't hear you.", ch, 0, victim, TO_CHAR);
                 return;
@@ -841,7 +841,7 @@ CMDF do_osay(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -849,7 +849,7 @@ CMDF do_osay(CharData * ch, char *argument)
 
         act(AT_FLEE, "$n osays &R[&Y$t&R]", ch, argument, ch, TO_ROOM_OOC);
         act(AT_SAY, "You osay &R[&Y$t&R]", ch, argument, ch, TO_CHAR_OOC);
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 char      buf[MaxStringLength];
 
@@ -884,7 +884,7 @@ CMDF do_whisper(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -931,7 +931,7 @@ CMDF do_whisper(CharData * ch, char *argument)
         ch->act = actflags;
         MOBtrigger = TRUE;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 char      buf[MaxStringLength];
 
@@ -971,7 +971,7 @@ CMDF do_tell(CharData* ch, char* argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -1081,7 +1081,7 @@ CMDF do_tell(CharData* ch, char* argument)
 
         if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
             || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->room_flags, ROOM_SILENCE)))
+                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
         {
                 act(AT_PLAIN, "$E can't hear you.", ch, 0, victim, TO_CHAR);
                 return;
@@ -1123,7 +1123,7 @@ CMDF do_tell(CharData* ch, char* argument)
 
         victim->position = static_cast<sh_int>(position);
         victim->reply = ch;
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 char      buf[MaxInputLength];
 
@@ -1148,7 +1148,7 @@ CMDF do_reply(CharData * ch, char *argument)
 
 
         xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -1204,7 +1204,7 @@ CMDF do_reply(CharData * ch, char *argument)
 
         if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
             || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->room_flags, ROOM_SILENCE)))
+                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
         {
                 act(AT_PLAIN, "$E can't hear you.", ch, 0, victim, TO_CHAR);
                 return;
@@ -1233,7 +1233,7 @@ CMDF do_reply(CharData * ch, char *argument)
                     drunk_speech(sbuf, ch), victim, TO_VICT);
         victim->position = static_cast<sh_int>(position);
         victim->reply = ch;
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 snprintf(buf, MSL, "%s: %s (reply to) %s.",
                          IS_NPC(ch) ? ch->short_descr : ch->name,
@@ -1263,7 +1263,7 @@ CMDF do_otell(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -1357,7 +1357,7 @@ CMDF do_otell(CharData * ch, char *argument)
 
         if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
             || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->room_flags, ROOM_SILENCE)))
+                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
         {
                 act(AT_PLAIN, "$E can't hear you.", ch, 0, victim,
                     TO_CHAR_OOC);
@@ -1403,7 +1403,7 @@ CMDF do_otell(CharData * ch, char *argument)
                     victim, TO_VICT_OOC);
         victim->position = static_cast<sh_int>(position);
         victim->oreply = ch;
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 snprintf(buf, MaxInputLength, "%s: %s (otell to) %s.",
                          IS_NPC(ch) ? ch->short_descr : ch->name,
@@ -1421,7 +1421,7 @@ CMDF do_oreply(CharData * ch, char *argument)
         int       position;
 
         xREMOVE_BIT(ch->deaf, CHANNEL_TELLS);
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -1475,7 +1475,7 @@ CMDF do_oreply(CharData * ch, char *argument)
 
         if ((!IS_IMMORTAL(ch) && !IS_AWAKE(victim))
             || (!IS_NPC(victim)
-                && xIS_SET(victim->in_room->room_flags, ROOM_SILENCE)))
+                && xIS_SET(victim->in_room->RoomFlags, ROOM_SILENCE)))
         {
                 act(AT_PLAIN, "$E can't hear you.", ch, 0, victim,
                     TO_CHAR_OOC);
@@ -1507,7 +1507,7 @@ CMDF do_oreply(CharData * ch, char *argument)
                     victim, TO_VICT_OOC);
         victim->position = static_cast<sh_int>(position);
         victim->oreply = ch;
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 snprintf(buf, MSL, "%s: %s (oreply to) %s.",
                          IS_NPC(ch) ? ch->short_descr : ch->name,
@@ -1564,7 +1564,7 @@ CMDF do_emote(CharData* ch, const char* argument)
                 act(AT_SOCIAL, "$n $T", ch, NULL, buf, TO_CHAR);
         }
         ch->act = actflags;
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 snprintf(buf, MSL, "%s %s (emote)",
                          IS_NPC(ch) ? ch->short_descr : ch->name, argument);
@@ -1771,7 +1771,7 @@ CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
         }
 
         if (!IS_IMMORTAL(ch) && ch->in_room
-            && !xIS_SET(ch->in_room->room_flags, ROOM_HOTEL)
+            && !xIS_SET(ch->in_room->RoomFlags, ROOM_HOTEL)
             && !NOT_AUTHED(ch))
         {
                 send_to_char("You may not quit here.\n\r", ch);
@@ -2502,7 +2502,7 @@ void talk_auction(char *argument)
         {
                 original = d->original ? d->original : d->character;    /* if switched */
                 if (IS_PLAYING(d) && !xIS_SET(original->deaf, CHANNEL_AUCTION)
-                    && !xIS_SET(original->in_room->room_flags, ROOM_SILENCE)
+                    && !xIS_SET(original->in_room->RoomFlags, ROOM_SILENCE)
                     && !NOT_AUTHED(original))
                         act(AT_GOSSIP, buf, original, NULL, NULL, TO_CHAR);
         }
@@ -2984,7 +2984,7 @@ CMDF do_talk(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -3020,7 +3020,7 @@ CMDF do_talk(CharData * ch, char *argument)
                         if (!has_comlink(vch))
                                 continue;
 
-                        if (xIS_SET(vch->in_room->room_flags, ROOM_SILENCE))
+                        if (xIS_SET(vch->in_room->RoomFlags, ROOM_SILENCE))
                                 continue;
 
                         if (vch->pcdata && vch->pcdata->comchan != station
@@ -3079,7 +3079,7 @@ CMDF do_say_to_char(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -3173,7 +3173,7 @@ CMDF do_say_to_char(CharData * ch, char *argument)
 
         ch->act = actflags;
         MOBtrigger = TRUE;
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 snprintf(buf, MSL, "%s: %s",
                          IS_NPC(ch) ? ch->short_descr : ch->name, argument);
@@ -3209,7 +3209,7 @@ CMDF do_say(CharData* ch, const char* argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SILENCE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SILENCE))
         {
                 send_to_char("You can't do that here.\n\r", ch);
                 return;
@@ -3285,7 +3285,7 @@ CMDF do_say(CharData* ch, const char* argument)
 
         ch->act = actflags;
         MOBtrigger = FALSE;
-        if (xIS_SET(ch->in_room->room_flags, ROOM_LOGSPEECH))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_LOGSPEECH))
         {
                 char      buf[MaxStringLength];
 

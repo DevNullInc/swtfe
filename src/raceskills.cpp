@@ -77,7 +77,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
                 checkbatt = FALSE;
                 Bonus = 0;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -324,7 +324,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
                 checkplast = FALSE;
                 checkoven = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",
@@ -853,7 +853,7 @@ CMDF do_cajole(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 set_char_color(AT_MAGIC, ch);
                 send_to_char("This isn't a good place to do that.\n\r", ch);

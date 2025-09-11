@@ -163,10 +163,10 @@ void room_explode_1(ObjData * obj, CharData * xch, RoomIndexData * room,
         ObjData *robj_next;
         int       dam;
 
-        if (xIS_SET(room->room_flags, BFS_MARK))
+        if (xIS_SET(room->RoomFlags, BFS_MARK))
                 return;
 
-        xSET_BIT(room->room_flags, BFS_MARK);
+        xSET_BIT(room->RoomFlags, BFS_MARK);
 
         for (rch = room->first_person; rch; rch = rnext)
         {
@@ -233,10 +233,10 @@ void room_explode_1(ObjData * obj, CharData * xch, RoomIndexData * room,
 void room_explode_2(RoomIndexData * room, int blast)
 {
 
-        if (!xIS_SET(room->room_flags, BFS_MARK))
+        if (!xIS_SET(room->RoomFlags, BFS_MARK))
                 return;
 
-        xREMOVE_BIT(room->room_flags, BFS_MARK);
+        xREMOVE_BIT(room->RoomFlags, BFS_MARK);
 
         if (blast > 0)
         {
@@ -908,7 +908,7 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
                         /* spell cast upon wear/removal of an object	-Thoric */
                 case APPLY_WEARSPELL:
                 case APPLY_REMOVESPELL:
-                        if (xIS_SET(ch->in_room->room_flags, ROOM_NO_MAGIC) || IS_SET(ch->immune, RIS_MAGIC) || saving_char == ch   /* so save/quit doesn't trigger */
+                        if (xIS_SET(ch->in_room->RoomFlags, ROOM_NO_MAGIC) || IS_SET(ch->immune, RIS_MAGIC) || saving_char == ch   /* so save/quit doesn't trigger */
                                         || loading_char == ch)  /* so loading doesn't trigger */
                                 return;
 
@@ -1301,7 +1301,7 @@ void char_to_room(CharData * ch, RoomIndexData * pRoomIndex)
                         && obj->item_type == ITEM_LIGHT && obj->value[2] != 0)
                 ++ch->in_room->light;
 
-        if (!IS_NPC(ch) && xIS_SET(ch->in_room->room_flags, ROOM_SAFE)
+        if (!IS_NPC(ch) && xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE)
                         && get_timer(ch, TIMER_SHOVEDRAG) <= 0)
                 add_timer(ch, TIMER_SHOVEDRAG, 10, NULL, 0);
         /*-30 Seconds-*/
@@ -1693,7 +1693,7 @@ ObjData *obj_to_room(ObjData * obj, RoomIndexData * pRoomIndex)
         obj->in_room = pRoomIndex;
         obj->carried_by = NULL;
         obj->in_obj = NULL;
-        obj->room_vnum = pRoomIndex->vnum;  /* hotboot tracker */
+        obj->RoomVnum = pRoomIndex->vnum;  /* hotboot tracker */
         if (item_type == ITEM_FIRE)
                 pRoomIndex->light += count;
         falling++;
@@ -2795,7 +2795,7 @@ bool room_is_dark(RoomIndexData * pRoomIndex)
         if (pRoomIndex->light > 0)
                 return FALSE;
 
-        if (xIS_SET(pRoomIndex->room_flags, ROOM_DARK))
+        if (xIS_SET(pRoomIndex->RoomFlags, ROOM_DARK))
                 return TRUE;
 
         if (pRoomIndex->sector_type == SECT_INSIDE
@@ -2837,7 +2837,7 @@ bool room_is_private(CharData * ch, RoomIndexData * pRoomIndex)
         if (ch->in_room->home && !ch->in_room->home->can_enter(ch))
                 return TRUE;
 #endif
-        if (xIS_SET(pRoomIndex->room_flags, ROOM_PLR_HOME)
+        if (xIS_SET(pRoomIndex->RoomFlags, ROOM_PLR_HOME)
                         && ch->plr_home != pRoomIndex)
                 return TRUE;
 
@@ -2846,7 +2846,7 @@ bool room_is_private(CharData * ch, RoomIndexData * pRoomIndex)
         for (rch = pRoomIndex->first_person; rch; rch = rch->next_in_room)
                 count++;
 
-        if (xIS_SET(pRoomIndex->room_flags, ROOM_PRIVATE) && count >= 2)
+        if (xIS_SET(pRoomIndex->RoomFlags, ROOM_PRIVATE) && count >= 2)
                 return TRUE;
 
 
@@ -3632,7 +3632,7 @@ void clean_room(RoomIndexData * room)
         }
         room->first_exit = NULL;
         room->last_exit = NULL;
-        room->room_flags = meb(0);
+        room->RoomFlags = meb(0);
         room->sector_type = 0;
         room->light = 0;
 }

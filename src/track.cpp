@@ -74,9 +74,9 @@ static struct bfs_queue_struct *queue_head = NULL,
         *queue_tail = NULL, *room_queue = NULL;
 
 /* Utility macros */
-#define MARK(room)	(xSET_BIT(	(room)->room_flags, BFS_MARK) )
-#define UNMARK(room)	(xREMOVE_BIT(	(room)->room_flags, BFS_MARK) )
-#define IS_MARKED(room)	(xIS_SET(	(room)->room_flags, BFS_MARK) )
+#define MARK(room)	(xSET_BIT(	(room)->RoomFlags, BFS_MARK) )
+#define UNMARK(room)	(xREMOVE_BIT(	(room)->RoomFlags, BFS_MARK) )
+#define IS_MARKED(room)	(xIS_SET(	(room)->RoomFlags, BFS_MARK) )
 
 RoomIndexData *toroom(RoomIndexData * room, sh_int door)
 {
@@ -358,7 +358,7 @@ void found_prey(CharData * ch, CharData * victim)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 if (number_percent() < 90)
                         return;
@@ -495,7 +495,7 @@ void hunt_victim(CharData * ch)
                         if ((pexit = get_exit(ch->in_room, ret)) == NULL
                             || !pexit->to_room
                             || IS_SET(pexit->exit_info, EX_CLOSED)
-                            || xIS_SET(pexit->to_room->room_flags,
+                            || xIS_SET(pexit->to_room->RoomFlags,
                                        ROOM_NO_MOB))
                                 continue;
                 }
@@ -548,7 +548,7 @@ bool mob_snipe(CharData * ch, CharData * victim)
         if (!ch->in_room || !victim->in_room)
                 return FALSE;
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
                 return FALSE;
 
         for (dir = 0; dir <= 10; dir++)
@@ -601,7 +601,7 @@ bool mob_snipe(CharData * ch, CharData * victim)
                         continue;
                 }
 
-                if (xIS_SET(victim->in_room->room_flags, ROOM_SAFE))
+                if (xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE))
                         return FALSE;
 
                 if (is_safe(ch, victim))

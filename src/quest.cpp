@@ -763,7 +763,7 @@ void generate_quest(CharData * ch, CharData * questman, char *argument)
                                               vsearch->player_name)) == NULL)
                             && IS_NPC(victim)
                             && victim->in_room
-                            && !xIS_SET(victim->in_room->room_flags,
+                            && !xIS_SET(victim->in_room->RoomFlags,
                                         ROOM_SAFE) && victim->in_room->area
                             && !IS_SET(victim->in_room->area->flags,
                                        AFLAG_NOQUEST)

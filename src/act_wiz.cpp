@@ -799,7 +799,7 @@ CMDF do_mudstat(CharData * ch, char *argument)
                                 if ((room = get_room_index(vnum)) != NULL)
                                 {
                                         if (xIS_SET
-                                            (room->room_flags, ROOM_PLR_HOME))
+                                            (room->RoomFlags, ROOM_PLR_HOME))
                                         {
                                                 ch_printf(ch, "&R%-8d ",
                                                           room->vnum);
@@ -808,7 +808,7 @@ CMDF do_mudstat(CharData * ch, char *argument)
                                                                      ch);
                                         }
                                         else if (xIS_SET
-                                                 (room->room_flags,
+                                                 (room->RoomFlags,
                                                   ROOM_EMPTY_HOME))
                                         {
                                                 ch_printf(ch, "&B%-8d ",
@@ -1091,15 +1091,15 @@ CMDF do_fquit(CharData * ch, char *argument)
 	} */
 
         send_to_char("The MUD administrators Force you to quit\n\r", victim);
-        if (!xIS_SET(victim->in_room->room_flags, ROOM_SAFE))
+        if (!xIS_SET(victim->in_room->RoomFlags, ROOM_SAFE))
         {
-                xSET_BIT(victim->in_room->room_flags, ROOM_SAFE);
+                xSET_BIT(victim->in_room->RoomFlags, ROOM_SAFE);
                 room = victim->in_room;
         }
         do_quit(victim, "");
         if (room)
         {
-                xREMOVE_BIT(room->room_flags, ROOM_SAFE);
+                xREMOVE_BIT(room->RoomFlags, ROOM_SAFE);
         }
         send_to_char("Ok.\n\r", ch);
         return;
@@ -1709,7 +1709,7 @@ CMDF do_rstat(CharData * ch, char *argument)
                   location->sector_type, location->light, location->tunnel);
 
         ch_printf(ch, "Room flags: %s\n\r",
-                  ext_flag_string(&location->room_flags, r_flags));
+                  ext_flag_string(&location->RoomFlags, r_flags));
         ch_printf(ch, "Description:\n\r%s", location->description);
 
         if (location->first_extradesc)

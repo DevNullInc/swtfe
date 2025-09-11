@@ -2683,7 +2683,7 @@ struct obj_index_data
 /*
  * One object.
  */
-struct obj_data
+struct ObjData
 {
         ObjData *next;
         ObjData *prev;
@@ -2719,7 +2719,7 @@ struct obj_data
         sh_int timer;
         int value[6];
         sh_int count;   /* support for object grouping */
-        int room_vnum;  /* hotboot tracker */
+        int RoomVnum;  /* hotboot tracker */
 };
 
 
@@ -2956,7 +2956,7 @@ public:
         char     *name;
         char     *description;
         int vnum;
-        ExtBV room_flags;
+        ExtBV RoomFlags;
         MProgActList *mpact;  /* mudprogs */
         int mpactnum;   /* mudprogs */
         MProgData *mudprogs;   /* mudprogs */
@@ -3412,15 +3412,15 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define IS_OUTSIDE(ch)		(IS_OUTSIDE_ROOM((ch)->in_room))
     /*
      * (!xIS_SET(                   \
-     * (ch)->in_room->room_flags,           \
+     * (ch)->in_room->RoomFlags,           \
      * ROOM_INDOORS) && !xIS_SET(               \
-     * (ch)->in_room->room_flags,              \
+     * (ch)->in_room->RoomFlags,              \
      * ROOM_SPACECRAFT) )
      */
 
-#define IS_OUTSIDE_ROOM(room)	(!xIS_SET((room)->room_flags,		    \
+#define IS_OUTSIDE_ROOM(room)	(!xIS_SET((room)->RoomFlags,		    \
 				    ROOM_INDOORS) && !xIS_SET(               \
-				    (room)->room_flags,              \
+				    (room)->RoomFlags,              \
 				    ROOM_SPACECRAFT) )
 #define IS_DRUNK(ch, drunk)     (number_percent() < \
 			        ( (ch)->pcdata->condition[COND_DRUNK] \

@@ -1246,7 +1246,7 @@ SPECF spec_police(CharData * ch)
                                                      planet);
                         }
                         else if (ch->top_level >= victim->top_level
-                                 && !xIS_SET(ch->in_room->room_flags,
+                                 && !xIS_SET(ch->in_room->RoomFlags,
                                              ROOM_SAFE))
                         {
                                 command_printf(ch,
@@ -1560,7 +1560,7 @@ SPECF spec_guardian(CharData * ch)
                 }
         }
 
-        if (victim && xIS_SET(ch->in_room->room_flags, ROOM_SAFE))
+        if (victim && xIS_SET(ch->in_room->RoomFlags, ROOM_SAFE))
         {
                 snprintf(buf, MSL, "%s is a %s!  As well as a COWARD!",
                          victim->name, crime);

@@ -158,7 +158,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                 checkbattery = FALSE;
                 checkcirc = FALSE;
 
-                if (!xIS_SET(ch->in_room->room_flags, ROOM_FACTORY))
+                if (!xIS_SET(ch->in_room->RoomFlags, ROOM_FACTORY))
                 {
                         send_to_char
                                 ("&RYou need to be in a factory or workshop to do that.\n\r",

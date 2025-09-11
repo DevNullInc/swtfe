@@ -334,7 +334,7 @@ CMDF do_buy(CharData * ch, char *argument)
                 return;
         }
 
-        if (xIS_SET(ch->in_room->room_flags, ROOM_PET_SHOP))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_PET_SHOP))
         {
                 char      buf[MaxStringLength];
                 CharData *pet;
@@ -628,7 +628,7 @@ CMDF do_buy(CharData * ch, char *argument)
 
 CMDF do_list(CharData * ch, char *argument)
 {
-        if (xIS_SET(ch->in_room->room_flags, ROOM_PET_SHOP))
+        if (xIS_SET(ch->in_room->RoomFlags, ROOM_PET_SHOP))
         {
                 RoomIndexData *pRoomIndexNext;
                 CharData *pet;
