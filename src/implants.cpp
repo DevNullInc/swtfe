@@ -229,16 +229,16 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou stop to do something else, and when you come back, your implant fell apart!.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         if (is_number(arg))
                 type = atoi(arg);
@@ -525,10 +525,10 @@ CMDF do_implant(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 victim = get_char_world(ch, (char *) ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 if (victim != NULL)
                 {
                         if (victim->in_room == ch->in_room)
@@ -562,7 +562,7 @@ CMDF do_implant(CharData * ch, char *argument)
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         if ((victim = get_char_room(ch, arg)) == NULL)
         {

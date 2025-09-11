@@ -192,7 +192,7 @@ CMDF do_mudexec(CharData* ch, const char* argument)
         else
         {
                 ch->desc->process = pid;
-                ch->desc->connected = iafork ? CON_IAFORKED : CON_FORKED;
+                ch->desc->connected = iafork ? ConIaForked : ConForked;
         }
 }
 

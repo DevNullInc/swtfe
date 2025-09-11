@@ -531,7 +531,7 @@ void echo_to_installation(sh_int AT_COLOR, char *argument,
                  * Added showing echoes to players who are editing, so they won't
                  * * miss out on important info like upcoming reboots. --Narn 
                  */
-                if ((IS_PLAYING(d) || d->connected == CON_EDITING)
+                if ((IS_PLAYING(d) || d->connected == ConEditing)
                     &&
                     ((d->character->in_room->vnum >= installation->first_room)
                      && (d->character->in_room->vnum <=
@@ -881,17 +881,17 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
 
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         checktool = FALSE;
         checkcir = FALSE;
@@ -1345,16 +1345,16 @@ CMDF do_addpersonel(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted before you can finish your arrangements.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         send_to_char
                 ("&GThe arrangement have been made. They will be here shortly.\n\r",
@@ -1515,16 +1515,16 @@ CMDF do_lockdoor(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_lockdoor]);
@@ -1827,10 +1827,10 @@ CMDF do_makekey(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
@@ -1838,7 +1838,7 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makekey]);
@@ -2206,9 +2206,9 @@ CMDF do_sabotage(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
@@ -2230,7 +2230,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         checktool = FALSE;
         checksteel = FALSE;

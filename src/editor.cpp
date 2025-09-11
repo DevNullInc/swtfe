@@ -85,8 +85,8 @@ void start_editing(CharData * ch, char *data)
                 bug("Fatal: start_editing: no desc", 0);
                 return;
         }
-        if (ch->substate == SUB_RESTRICTED)
-                bug("NOT GOOD: start_editing: ch->substate == SUB_RESTRICTED",
+        if (ch->substate == SubRestricted)
+                bug("NOT GOOD: start_editing: ch->substate == SubRestricted",
                     0);
 
         set_char_color(AT_GREEN, ch);
@@ -136,7 +136,7 @@ void start_editing(CharData * ch, char *data)
         edit->size = size;
         edit->on_line = lines;
         ch->editor = edit;
-        ch->desc->connected = CON_EDITING;
+        ch->desc->connected = ConEditing;
 }
 
 char     *copy_buffer(CharData * ch)
@@ -180,13 +180,13 @@ void stop_editing(CharData * ch)
         send_to_char("Done.\n\r", ch);
         ch->dest_buf = NULL;
         ch->spare_ptr = NULL;
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
         if (!ch->desc)
         {
                 bug("Fatal: stop_editing: no desc", 0);
                 return;
         }
-        ch->desc->connected = CON_PLAYING;
+        ch->desc->connected = ConPlaying;
 }
 
 /*
@@ -208,18 +208,18 @@ void edit_buffer(CharData * ch, char *argument)
                 return;
         }
 
-        if (d->connected != CON_EDITING)
+        if (d->connected != ConEditing)
         {
                 send_to_char("You can't do that!\n\r", ch);
-                bug("Edit_buffer: d->connected != CON_EDITING", 0);
+                bug("Edit_buffer: d->connected != ConEditing", 0);
                 return;
         }
 
-        if (ch->substate <= SUB_PAUSE)
+        if (ch->substate <= SubPause)
         {
                 send_to_char("You can't do that!\n\r", ch);
                 bug("Edit_buffer: illegal ch->substate (%d)", ch->substate);
-                d->connected = CON_PLAYING;
+                d->connected = ConPlaying;
                 return;
         }
 
@@ -227,7 +227,7 @@ void edit_buffer(CharData * ch, char *argument)
         {
                 send_to_char("You can't do that!\n\r", ch);
                 bug("Edit_buffer: null editor", 0);
-                d->connected = CON_PLAYING;
+                d->connected = ConPlaying;
                 return;
         }
 
@@ -540,7 +540,7 @@ void edit_buffer(CharData * ch, char *argument)
                         int       substate = ch->substate;
 
                         last_cmd = ch->last_cmd;
-                        ch->substate = SUB_RESTRICTED;
+                        ch->substate = SubRestricted;
                         interpret(ch, argument + 3);
                         ch->substate = substate;
                         ch->last_cmd = last_cmd;
@@ -550,7 +550,7 @@ void edit_buffer(CharData * ch, char *argument)
                 }
                 if (!str_cmp(cmd + 1, "s"))
                 {
-                        d->connected = CON_PLAYING;
+                        d->connected = ConPlaying;
                         if (!ch->last_cmd)
                                 return;
                         (*ch->last_cmd) (ch, "");
@@ -603,7 +603,7 @@ void edit_buffer(CharData * ch, char *argument)
                                 }
                                 else
                                 {
-                                        if (ch->substate == SUB_MPROG_EDIT)
+                                        if (ch->substate == SubMprogEdit)
                                                 mudstrlcat(buf, "+", MIL);
                                         mudstrlcpy(edit->
                                                    line[edit->on_line++], buf,
@@ -652,7 +652,7 @@ void edit_buffer(CharData * ch, char *argument)
 
         if (save)
         {
-                d->connected = CON_PLAYING;
+                d->connected = ConPlaying;
                 if (!ch->last_cmd)
                         return;
                 (*ch->last_cmd) (ch, "");

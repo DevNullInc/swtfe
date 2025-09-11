@@ -484,7 +484,7 @@ CMDF do_beep(CharData* ch, char* argument)
         }
 
         if (victim->desc    /* make sure desc exists first  -Thoric */
-            && victim->desc->connected == CON_EDITING
+            && victim->desc->connected == ConEditing
             && get_trust(ch) < LevelGod)
         {
                 act(AT_PLAIN,
@@ -1088,7 +1088,7 @@ CMDF do_tell(CharData* ch, char* argument)
         }
 
         if (victim->desc    /* make sure desc exists first  -Thoric */
-            && victim->desc->connected == CON_EDITING
+            && victim->desc->connected == ConEditing
             && get_trust(ch) < LevelGod)
         {
                 act(AT_PLAIN,
@@ -1365,7 +1365,7 @@ CMDF do_otell(CharData * ch, char *argument)
         }
 
         if (victim->desc    /* make sure desc exists first  -Thoric */
-            && victim->desc->connected == CON_EDITING
+            && victim->desc->connected == ConEditing
             && get_trust(ch) < LevelGod)
         {
                 act(AT_PLAIN,

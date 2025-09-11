@@ -1197,7 +1197,7 @@ void echo_to_all(sh_int AT_COLOR, char *argument, sh_int tar)
                  * Added showing echoes to players who are editing, so they won't
                  * miss out on important info like upcoming reboots. --Narn 
                  */
-                if (IS_PLAYING(d) || d->connected == CON_EDITING)
+                if (IS_PLAYING(d) || d->connected == ConEditing)
                 {
                         /*
                          * This one is kinda useless except for switched.. 
@@ -1230,7 +1230,7 @@ void echo_to_clan(sh_int AT_COLOR, char *argument, ClanData * clan)
                  * Added showing echoes to players who are editing, so they won't
                  * miss out on important info like upcoming reboots. --Narn 
                  */
-                if ((IS_PLAYING(d) || d->connected == CON_EDITING)
+                if ((IS_PLAYING(d) || d->connected == ConEditing)
                     && (d->character->pcdata->clan
                         && d->character->pcdata->clan == clan))
                 {
@@ -4881,7 +4881,7 @@ CMDF do_loadup(CharData * ch, char *argument)
                 CREATE(d, DescriptorData, 1);
                 d->next = NULL;
                 d->prev = NULL;
-                d->connected = CON_GET_NAME;
+                d->connected = ConGetName;
                 d->outsize = 2000;
                 CREATE(d->outbuf, char, d->outsize);
 
@@ -8552,7 +8552,7 @@ CMDF do_sexes(CharData * ch, char *argument)
 
         for (d = first_descriptor; d; d = d->next)
         {
-                if (IS_PLAYING(d) || d->connected == CON_EDITING)
+                if (IS_PLAYING(d) || d->connected == ConEditing)
                 {
                         if (count == 0)
                                 ch_printf(ch,
@@ -8774,7 +8774,7 @@ CMDF do_gfighting(CharData * ch, char *argument)
                 /*
                  * How can someone be fighting and editing? 
                  */
-                if ((IS_PLAYING(d) || d->connected == CON_EDITING)
+                if ((IS_PLAYING(d) || d->connected == ConEditing)
                     && (victim = d->character) != NULL && !IS_NPC(victim)
                     && victim->in_room && can_see(ch, victim)
                     && victim->fighting && victim->top_level >= low

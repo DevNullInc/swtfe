@@ -417,7 +417,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
         {
                 char     *nm =
                         (ch->substate ==
-                         SUB_REPEATCMD ? (char *) "" : (aRoom ? (char *)
+                         SubRepeatCmd ? (char *) "" : (aRoom ? (char *)
                                                         "rreset " : (char *)
                                                         "reset "));
                 char     *rn = (aRoom ? (char *) "" : (char *) " [room#]");
@@ -469,7 +469,7 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
         }
         if (!str_cmp(arg, "on"))
         {
-                ch->substate = SUB_REPEATCMD;
+                ch->substate = SubRepeatCmd;
                 ch->dest_buf = (aRoom ? (void *) aRoom : (void *) pArea);
                 send_to_char("Reset mode on.\n\r", ch);
                 return;
@@ -1075,11 +1075,11 @@ void edit_reset(CharData * ch, char *argument, AreaData * pArea,
                 send_to_char("Object hide reset created.\n\r", ch);
                 return;
         }
-        if (ch->substate == SUB_REPEATCMD)
+        if (ch->substate == SubRepeatCmd)
         {
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 interpret(ch, origarg);
-                ch->substate = SUB_REPEATCMD;
+                ch->substate = SubRepeatCmd;
                 ch->last_cmd = (aRoom ? do_rreset : do_reset);
         }
         else
@@ -1094,7 +1094,7 @@ CMDF do_reset(CharData * ch, char *argument)
         char     *parg;
 
         parg = one_argument(argument, arg);
-        if (ch->substate == SUB_REPEATCMD)
+        if (ch->substate == SubRepeatCmd)
         {
                 pArea = (AreaData *) ch->dest_buf;
                 if (pArea && pArea != ch->pcdata->area
@@ -1115,7 +1115,7 @@ CMDF do_reset(CharData * ch, char *argument)
                                         ("Your area pointer got lost.  Reset mode off.\n\r",
                                          ch);
                                 bug("do_reset: %s's dest_buf points to invalid area", ch->name);
-                                ch->substate = SUB_NONE;
+                                ch->substate = SubNone;
                                 ch->dest_buf = NULL;
                                 return;
                         }
@@ -1129,7 +1129,7 @@ CMDF do_reset(CharData * ch, char *argument)
                 if (!str_cmp(arg, "done") || !str_cmp(arg, "off"))
                 {
                         send_to_char("Reset mode off.\n\r", ch);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
                         ch->dest_buf = NULL;
                         return;
                 }
@@ -1169,7 +1169,7 @@ CMDF do_rreset(CharData * ch, char *argument)
 {
         RoomIndexData *pRoom;
 
-        if (ch->substate == SUB_REPEATCMD)
+        if (ch->substate == SubRepeatCmd)
         {
                 pRoom = (RoomIndexData *) ch->dest_buf;
                 if (!pRoom)
@@ -1180,7 +1180,7 @@ CMDF do_rreset(CharData * ch, char *argument)
                         bug("do_rreset: %s's dest_buf points to invalid room",
                             ch->name);
                 }
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 ch->dest_buf = NULL;
                 return;
         }

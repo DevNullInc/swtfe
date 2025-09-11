@@ -7760,9 +7760,9 @@ CMDF do_target(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 if ((ship = ship_from_cockpit(ch->in_room->vnum)) == NULL)
                         return;
                 send_to_char
@@ -7771,7 +7771,7 @@ CMDF do_target(CharData * ch, char *argument)
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         if ((ship = ship_from_turret(ch->in_room->vnum)) == NULL)
         {
@@ -8941,9 +8941,9 @@ CMDF do_repairship(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 if ((ship = ship_from_cockpit(ch->in_room->vnum)) == NULL)
                         return;
                 send_to_char
@@ -8952,7 +8952,7 @@ CMDF do_repairship(CharData * ch, char *argument)
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         if ((ship = ship_from_engine(ch->in_room->vnum)) == NULL)
         {
@@ -10555,11 +10555,11 @@ CMDF do_cloak(CharData * ch, char *argument)
         case 1:
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 /*
                  * DISPOSE(ch->dest_buf); this is not nessecary as we are not passing arguments 
                  */
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 if ((ship = ship_from_coseat(ch->in_room->vnum)) == NULL)
                 {
                         send_to_char("&Raborted.\n\r", ch);
@@ -10573,7 +10573,7 @@ CMDF do_cloak(CharData * ch, char *argument)
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         if ((ship = ship_from_coseat(ch->in_room->vnum)) == NULL)
         {
@@ -10704,9 +10704,9 @@ CMDF do_stealth(CharData * ch, char *argument)
                         DISPOSE(ch->dest_buf);
                         break;
 
-                case SUB_TIMER_DO_ABORT:
+                case SubTimerDoAbort:
                         DISPOSE(ch->dest_buf);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
                         if ((ship =
                              ship_from_coseat(ch->in_room->vnum)) == NULL)
                         {
@@ -10722,7 +10722,7 @@ CMDF do_stealth(CharData * ch, char *argument)
                         return;
                 }
 
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
 
                 if ((ship = ship_from_coseat(ch->in_room->vnum)) == NULL)
                 {
@@ -10843,9 +10843,9 @@ CMDF do_juke(CharData * ch, char *argument)
                         DISPOSE(ch->dest_buf);
                         break;
 
-                case SUB_TIMER_DO_ABORT:
+                case SubTimerDoAbort:
                         DISPOSE(ch->dest_buf);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
 
                         send_to_char("&RAborted.\n\r", ch);
                         ship = ship_from_cockpit(ch->in_room->vnum);
@@ -10856,7 +10856,7 @@ CMDF do_juke(CharData * ch, char *argument)
                         return;
                 }
 
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
 
                 if ((ship = ship_from_cockpit(ch->in_room->vnum)) == NULL)
                 {
@@ -10956,9 +10956,9 @@ CMDF do_roll(CharData * ch, char *argument)
                         DISPOSE(ch->dest_buf);
                         break;
 
-                case SUB_TIMER_DO_ABORT:
+                case SubTimerDoAbort:
                         DISPOSE(ch->dest_buf);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
 
                         send_to_char("&RAborted.\n\r", ch);
                         ship = ship_from_cockpit(ch->in_room->vnum);
@@ -10969,7 +10969,7 @@ CMDF do_roll(CharData * ch, char *argument)
                         return;
                 }
 
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
 
 
                 if ((ship = ship_from_cockpit(ch->in_room->vnum)) == NULL)
@@ -11070,9 +11070,9 @@ CMDF do_evade(CharData * ch, char *argument)
                         DISPOSE(ch->dest_buf);
                         break;
 
-                case SUB_TIMER_DO_ABORT:
+                case SubTimerDoAbort:
                         DISPOSE(ch->dest_buf);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
 
                         send_to_char("&RAborted.\n\r", ch);
                         ship = ship_from_cockpit(ch->in_room->vnum);
@@ -11083,7 +11083,7 @@ CMDF do_evade(CharData * ch, char *argument)
                         return;
                 }
 
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
 
                 if ((ship = ship_from_cockpit(ch->in_room->vnum)) == NULL)
                 {
@@ -11200,9 +11200,9 @@ CMDF do_interdictor(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 if ((ship = ship_from_coseat(ch->in_room->vnum)) == NULL)
                         return;
                 send_to_char("&Raborted.\n\r", ch);
@@ -11212,7 +11212,7 @@ CMDF do_interdictor(CharData * ch, char *argument)
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         if ((ship = ship_from_coseat(ch->in_room->vnum)) == NULL)
         {
@@ -11684,9 +11684,9 @@ CMDF do_hmm( CharData *ch, char *argument )
     		DISPOSE( ch->dest_buf);
     		break;
     		
-    	case SUB_TIMER_DO_ABORT:
+    	case SubTimerDoAbort:
     		DISPOSE( ch->dest_buf );
-    		ch->substate = SUB_NONE;
+    		ch->substate = SubNone;
     		if ( (ship = ship_from_cockpit(ch->in_room->vnum)) == NULL )
     		      return;    		                                   
     	        send_to_char("&Raborted.\n\r", ch);
@@ -11696,7 +11696,7 @@ CMDF do_hmm( CharData *ch, char *argument )
     		return;
     }
     
-    ch->substate = SUB_NONE;
+    ch->substate = SubNone;
     
     if ( (ship = ship_from_cockpit(ch->in_room->vnum)) == NULL )
     {  

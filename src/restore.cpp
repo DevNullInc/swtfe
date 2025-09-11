@@ -532,13 +532,13 @@ CMDF do_setrestore(CharData * ch, char *argument)
         default:
                 break;
 
-        case SUB_RESTRICTED:
+        case SubRestricted:
                 send_to_char
                         ("You cannot do this while in another command.\n\r",
                          ch);
                 return;
 
-        case SUB_RESTORECMSG:
+        case SubRestoreCMsg:
                 restore = (RESTORE_DATA *) ch->dest_buf;
                 STRFREE(restore->cmsg);
                 restore->cmsg = copy_buffer(ch);
@@ -546,7 +546,7 @@ CMDF do_setrestore(CharData * ch, char *argument)
                 ch->substate = ch->tempnum;
                 return;
 
-        case SUB_RESTOREVMSG:
+        case SubRestoreVMsg:
                 restore = (RESTORE_DATA *) ch->dest_buf;
                 STRFREE(restore->vmsg);
                 restore->vmsg = copy_buffer(ch);
@@ -554,7 +554,7 @@ CMDF do_setrestore(CharData * ch, char *argument)
                 ch->substate = ch->tempnum;
                 return;
 
-        case SUB_RESTORERMSG:
+        case SubRestorerMsg:
                 restore = (RESTORE_DATA *) ch->dest_buf;
                 STRFREE(restore->rmsg);
                 restore->rmsg = copy_buffer(ch);
@@ -613,11 +613,11 @@ CMDF do_setrestore(CharData * ch, char *argument)
         }
         if (!str_cmp(arg2, "cmsg"))
         {
-                if (ch->substate == SUB_REPEATCMD)
-                        ch->tempnum = SUB_REPEATCMD;
+                if (ch->substate == SubRepeatCmd)
+                        ch->tempnum = SubRepeatCmd;
                 else
-                        ch->tempnum = SUB_NONE;
-                ch->substate = SUB_RESTORECMSG;
+                        ch->tempnum = SubNone;
+                ch->substate = SubRestoreCMsg;
                 ch->dest_buf = restore;
                 start_editing(ch, restore->cmsg);
 #ifdef SOLANCODE
@@ -628,11 +628,11 @@ CMDF do_setrestore(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "vmsg"))
         {
-                if (ch->substate == SUB_REPEATCMD)
-                        ch->tempnum = SUB_REPEATCMD;
+                if (ch->substate == SubRepeatCmd)
+                        ch->tempnum = SubRepeatCmd;
                 else
-                        ch->tempnum = SUB_NONE;
-                ch->substate = SUB_RESTOREVMSG;
+                        ch->tempnum = SubNone;
+                ch->substate = SubRestoreVMsg;
                 ch->dest_buf = restore;
                 start_editing(ch, restore->vmsg);
 #ifdef SOLANCODE
@@ -643,11 +643,11 @@ CMDF do_setrestore(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "rmsg"))
         {
-                if (ch->substate == SUB_REPEATCMD)
-                        ch->tempnum = SUB_REPEATCMD;
+                if (ch->substate == SubRepeatCmd)
+                        ch->tempnum = SubRepeatCmd;
                 else
-                        ch->tempnum = SUB_NONE;
-                ch->substate = SUB_RESTORERMSG;
+                        ch->tempnum = SubNone;
+                ch->substate = SubRestorerMsg;
                 ch->dest_buf = restore;
                 start_editing(ch, restore->rmsg);
 #ifdef SOLANCODE

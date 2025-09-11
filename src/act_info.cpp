@@ -656,7 +656,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
         if (IS_NPC(victim) && IS_IMMORTAL(ch)
             && IS_SET(victim->act, ACT_PROTOTYPE))
                 mudstrlcat(buf, "(PROTO) ", MSL);
-        if (victim->desc && victim->desc->connected == CON_EDITING)
+        if (victim->desc && victim->desc->connected == ConEditing)
                 mudstrlcat(buf, "(Writing) ", MSL);
 
         set_char_color(AT_PERSON, ch);
@@ -2854,7 +2854,7 @@ CMDF do_hedit(CharData * ch, char *argument)
         {
         default:
                 break;
-        case SUB_HELP_EDIT:
+        case SubHelpEdit:
                 if ((pHelp = static_cast<HelpData *>(ch->dest_buf)) == NULL)
                 {
                         bug("hedit: sub_help_edit: NULL ch->dest_buf", 0);
@@ -2894,7 +2894,7 @@ CMDF do_hedit(CharData * ch, char *argument)
 	pHelp->date    = ctime( &current_time );*/
                 add_help(pHelp);
         }
-        ch->substate = SUB_HELP_EDIT;
+        ch->substate = SubHelpEdit;
         ch->dest_buf = pHelp;
         start_editing(ch, pHelp->text);
 }
@@ -3160,7 +3160,7 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                 char const *race;
 
                 wch = CH(d);
-                if ((!IS_PLAYING(d) && d->connected != CON_EDITING)
+                if ((!IS_PLAYING(d) && d->connected != ConEditing)
                     || (!can_see_ooc(ch, wch)
                         && IS_IMMORTAL(wch)) || d->original)
                         continue;
@@ -3311,9 +3311,9 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                 len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.50s%.50s%.50s&w",
                          IS_SET(wch->pcdata->flags, PCFLAG_WORKING) ? "&Y [&RWORKING&Y]&W" : "&W",
                          IS_SET(wch->act, PLR_SILENCE) ? "&Y [&BS&zilenced&Y]&W" : "&W",
-                         wch->desc->connected == CON_EDITING ? "&Y [&cWRITING&Y]" : 
-                         (wch->desc->connected == CON_IAFORKED || 
-                          wch->desc->connected == CON_FORKED) ? "&Y [&cCOMPILING&Y]" : "");
+                         wch->desc->connected == ConEditing ? "&Y [&cWRITING&Y]" : 
+                         (wch->desc->connected == ConIaForked || 
+                          wch->desc->connected == ConForked) ? "&Y [&cCOMPILING&Y]" : "");
                 
                 /* Copy the safely built string to the main buffer */
                 snprintf(buf, MSL, "%s", safe_buf);
@@ -3643,7 +3643,7 @@ CMDF do_where(CharData * ch, char *argument)
                                      ch->in_room->area->name);
                 found = FALSE;
                 for (d = first_descriptor; d; d = d->next)
-                        if ((IS_PLAYING(d) || d->connected == CON_EDITING)
+                        if ((IS_PLAYING(d) || d->connected == ConEditing)
                             && (victim = d->character) != NULL
                             && !IS_NPC(victim)
                             && victim->in_room

@@ -781,7 +781,7 @@ CharData *imc_find_user(char *name)
         {
                 if ((vch = d->character ? d->character : d->original) != NULL
                     && !strcasecmp(CH_IMCNAME(vch), name)
-                    && d->connected == CON_PLAYING)
+                    && d->connected == ConPlaying)
                         return vch;
         }
         return NULL;
@@ -1863,7 +1863,7 @@ PFUN(imc_recv_emote)
 
         for (d = first_descriptor; d; d = d->next)
         {
-                if (d->connected == CON_PLAYING
+                if (d->connected == ConPlaying
                     && (ch = d->original ? d->original : d->character) != NULL
                     && IMCPERM(ch) >= level)
                         imc_printf(ch, "~p[~GIMC~p] %s %s\n\r",
@@ -2021,7 +2021,7 @@ void imc_display_channel(IMC_CHANNEL * c, const char *from, char *txt,
         {
                 ch = d->original ? d->original : d->character;
 
-                if (!ch || d->connected != CON_PLAYING)
+                if (!ch || d->connected != ConPlaying)
                         continue;
 
                 /*
@@ -2274,7 +2274,7 @@ PFUN(imc_recv_channelnotify)
         {
                 ch = d->original ? d->original : d->character;
 
-                if (!ch || d->connected != CON_PLAYING)
+                if (!ch || d->connected != ConPlaying)
                         continue;
 
                 /*
@@ -2394,7 +2394,7 @@ void imc_process_who(char *from)
         for (d = first_descriptor; d; d = d->next)
         {
                 person = d->original ? d->original : d->character;
-                if (person && d->connected == CON_PLAYING)
+                if (person && d->connected == ConPlaying)
                 {
                         if (IMCPERM(person) <= IMCPERM_NONE
                             || IMCPERM(person) >= IMCPERM_IMM)
@@ -2447,7 +2447,7 @@ void imc_process_who(char *from)
         for (d = first_descriptor; d; d = d->next)
         {
                 person = d->original ? d->original : d->character;
-                if (person && d->connected == CON_PLAYING)
+                if (person && d->connected == ConPlaying)
                 {
                         if (IMCPERM(person) <= IMCPERM_NONE
                             || IMCPERM(person) < IMCPERM_IMM)

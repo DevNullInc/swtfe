@@ -341,7 +341,7 @@ CMDF do_noteroom(CharData * ch, char *argument)
         if (!str_cmp(argument, "write") ||
             !str_cmp(argument, "show") ||
             !str_cmp(argument, "to") ||
-            !str_cmp(argument, "subject") || ch->substate == SUB_WRITING_NOTE)
+            !str_cmp(argument, "subject") || ch->substate == SubWritingNote)
         {
                 note(ch, argument, NULL);
                 return;
@@ -372,7 +372,7 @@ CMDF do_mailroom(CharData * ch, char *argument)
 {
         BOARD_DATA *board;
 
-        if (argument[0] == '\0' && ch->substate != SUB_WRITING_NOTE)
+        if (argument[0] == '\0' && ch->substate != SubWritingNote)
         {
                 mudstrlcpy(argument, "list", MIL);
         }
@@ -380,7 +380,7 @@ CMDF do_mailroom(CharData * ch, char *argument)
         if (!str_cmp(argument, "write") ||
             !str_cmp(argument, "show") ||
             !str_cmp(argument, "to") ||
-            !str_cmp(argument, "subject") || ch->substate == SUB_WRITING_NOTE)
+            !str_cmp(argument, "subject") || ch->substate == SubWritingNote)
         {
                 note(ch, argument, NULL);
                 return;
@@ -420,7 +420,7 @@ CMDF do_idearoom(CharData * ch, char *argument)
         if (IS_NPC(ch))
                 return;
 
-        if (argument[0] == '\0' && ch->substate != SUB_WRITING_NOTE)
+        if (argument[0] == '\0' && ch->substate != SubWritingNote)
         {
                 mudstrlcpy(argument, "list", MIL);
         }
@@ -428,7 +428,7 @@ CMDF do_idearoom(CharData * ch, char *argument)
         if (!str_cmp(argument, "write") ||
             !str_cmp(argument, "show") ||
             !str_cmp(argument, "to") ||
-            !str_cmp(argument, "subject") || ch->substate == SUB_WRITING_NOTE)
+            !str_cmp(argument, "subject") || ch->substate == SubWritingNote)
         {
                 note(ch, argument, NULL);
                 return;
@@ -493,7 +493,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
         {
         default:
                 break;
-        case SUB_WRITING_NOTE:
+        case SubWritingNote:
                 {
                         if ((paper = get_eq_char(ch, WEAR_HOLD)) == NULL
                             || paper->item_type != ITEM_PAPER)
@@ -842,7 +842,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
         }
         else if (!str_cmp(arg, "write"))
         {
-                if (ch->substate == SUB_RESTRICTED)
+                if (ch->substate == SubRestricted)
                 {
                         send_to_char
                                 ("You cannot write a note from within another command.\n\r",
@@ -877,7 +877,7 @@ void note(CharData * ch, char *arg_passed, BOARD_DATA * board)
                 {
                         paper->value[0] = 1;
                         ed = SetOExtra(paper, const_cast<char*>("_text_"));
-                        ch->substate = SUB_WRITING_NOTE;
+                        ch->substate = SubWritingNote;
                         ch->dest_buf = ed;
                         start_editing(ch, ed->description);
                         return;
@@ -1878,7 +1878,7 @@ CMDF do_global(CharData * ch, char *argument)
         if (!str_cmp(argument, "write") ||
             !str_cmp(argument, "show") ||
             !str_cmp(argument, "to") ||
-            !str_cmp(argument, "subject") || ch->substate == SUB_WRITING_NOTE)
+            !str_cmp(argument, "subject") || ch->substate == SubWritingNote)
         {
                 note(ch, argument, NULL);
                 return;
@@ -1891,7 +1891,7 @@ CMDF do_global(CharData * ch, char *argument)
                 return;
         }
 
-        if (ch->substate == SUB_WRITING_NOTE)
+        if (ch->substate == SubWritingNote)
         {
                 note(ch, const_cast<char*>(""), first_board);
                 return;

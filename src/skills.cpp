@@ -1699,11 +1699,11 @@ CMDF do_detrap(CharData * ch, char *argument)
                 mudstrlcpy(arg, (char *) ch->dest_buf, MIL);
                 DISPOSE(ch->dest_buf);
                 ch->dest_buf = NULL;
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 break;
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char("You carefully stop what you were doing.\n\r",
                              ch);
                 return;
@@ -1840,15 +1840,15 @@ CMDF do_dig(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char("You stop digging...\n\r", ch);
                 act(AT_PLAIN, "$n stops digging...", ch, NULL, NULL, TO_ROOM);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         /*
          * not having a shovel makes it harder to succeed 
@@ -1993,13 +1993,13 @@ CMDF do_search(CharData * ch, char *argument)
                 mudstrlcpy(arg, (char *) ch->dest_buf, MIL);
                 DISPOSE(ch->dest_buf);
                 break;
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char("You stop your search...\n\r", ch);
                 return;
         }
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
         if (arg[0] == '\0')
         {
                 room = TRUE;

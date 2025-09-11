@@ -252,16 +252,16 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makebeacon]);

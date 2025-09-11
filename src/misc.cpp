@@ -3218,14 +3218,14 @@ CMDF do_train(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char("&RYou fail to complete your training.\n\r", ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         ch->pcdata->account->rpcurrent -= 3;
         save_account(ch->pcdata->account);
@@ -3738,22 +3738,22 @@ CMDF do_sendmail(CharData * ch, char *argument)
         default:
                 bug("do_sendmail: illegal substate", 0);
                 return;
-        case SUB_RESTRICTED:
+        case SubRestricted:
                 send_to_char
                         ("You cannot use this command from within another command.\n\r",
                          ch);
                 return;
 
-        case SUB_NONE:
+        case SubNone:
                 if (ch->pcdata->sendmail)
                         STRFREE(ch->pcdata->sendmail);
                 ch->pcdata->sendmail = STRALLOC("");
-                ch->substate = SUB_WRITING_EMAIL;
+                ch->substate = SubWritingEmail;
                 ch->dest_buf = str_dup(passargument);
                 start_editing(ch, ch->pcdata->sendmail);
                 return;
 
-        case SUB_WRITING_EMAIL:
+        case SubWritingEmail:
                 STRFREE(ch->pcdata->sendmail);
                 if (ch->dest_buf)
                         DISPOSE(ch->dest_buf);

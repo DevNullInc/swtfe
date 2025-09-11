@@ -1276,7 +1276,7 @@ void update_salaries(void)
 
         for (d = first_descriptor; d; d = d->next)
         {
-                if (d->connected != CON_PLAYING)
+                if (d->connected != ConPlaying)
                         continue;
                 ch = d->character;
                 /*
@@ -1529,7 +1529,7 @@ void weather_update(void)
         {
                 for (d = first_descriptor; d; d = d->next)
                 {
-                        if (d->connected == CON_PLAYING
+                        if (d->connected == ConPlaying
                             && IS_OUTSIDE(d->character)
                             && IS_AWAKE(d->character)
                             && d->character->in_room
@@ -1628,7 +1628,7 @@ void weather_update(void)
         {
                 for (d = first_descriptor; d; d = d->next)
                 {
-                        if (d->connected == CON_PLAYING
+                        if (d->connected == ConPlaying
                             && IS_OUTSIDE(d->character)
                             && IS_AWAKE(d->character))
                                 act(AT_TEMP, buf, d->character, 0, 0,
@@ -2886,7 +2886,7 @@ void aggr_update(void)
         for (d = first_descriptor; d; d = dnext)
         {
                 dnext = d->next;
-                if (d->connected != CON_PLAYING
+                if (d->connected != ConPlaying
                     || (wch = d->character) == NULL)
                         continue;
 

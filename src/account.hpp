@@ -67,8 +67,8 @@ struct account_data;
 using ACCOUNT_DATA = account_data;
 struct char_data;
 using CharData = char_data;
-struct descriptor_data;
-using DescriptorData = descriptor_data;
+struct DescriptorData;
+using DescriptorData = DescriptorData;
 
 // =============================================================================
 // Global Variables

@@ -172,16 +172,16 @@ CMDF do_makeblade(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeblade]);
@@ -409,17 +409,17 @@ CMDF do_makefurniture(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
@@ -684,16 +684,16 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
@@ -968,16 +968,16 @@ CMDF do_makeblaster(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeblaster]);
@@ -1319,16 +1319,16 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
@@ -1590,16 +1590,16 @@ CMDF do_makespice(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are distracted and are unable to finish your work.\n\r&w",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         if ((obj = get_obj_carry(ch, arg)) == NULL)
         {
@@ -1770,16 +1770,16 @@ CMDF do_makegrenade(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makegrenade]);
@@ -2010,16 +2010,16 @@ CMDF do_makelandmine(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
@@ -2246,16 +2246,16 @@ CMDF do_makelight(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makelight]);
@@ -2519,17 +2519,17 @@ CMDF do_makejewelry(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makejewelry]);
@@ -2747,17 +2747,17 @@ CMDF do_makearmor(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makearmor]);
@@ -2966,16 +2966,16 @@ CMDF do_makecomlink(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         /*
          * Magic Numners are bad - Gavin 
@@ -3194,16 +3194,16 @@ CMDF do_makeshield(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeshield]);
@@ -3461,17 +3461,17 @@ CMDF do_makecontainer(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
@@ -3663,16 +3663,16 @@ CMDF do_gemcutting(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_gemcutting]);
@@ -3891,16 +3891,16 @@ CMDF do_reinforcements(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted before you can finish your call.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         send_to_char("&GYour reinforcements are on the way.\n\r", ch);
         credits = ch->skill_level[LEADERSHIP_ABILITY] * 50;
@@ -3996,16 +3996,16 @@ CMDF do_postguard(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted before you can finish your call.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         send_to_char("&GYour guard is on the way.\n\r", ch);
 
@@ -4105,16 +4105,16 @@ CMDF do_add_patrol(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted before you can finish your call.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         send_to_char("&GYour patrol is on the way.\n\r", ch);
 
@@ -5684,16 +5684,16 @@ CMDF do_special_forces(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted before you can finish your call.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         send_to_char("&GYour forces are on the way.\n\r", ch);
         credits = ch->skill_level[LEADERSHIP_ABILITY] * 50;
@@ -5789,16 +5789,16 @@ CMDF do_elite_guard(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted before you can finish your call.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         send_to_char("&GYour guard is on the way.\n\r", ch);
 
@@ -6914,16 +6914,16 @@ CMDF do_makeknife(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeknife]);
@@ -7155,16 +7155,16 @@ CMDF do_makepike(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makepike]);
@@ -7401,9 +7401,9 @@ CMDF do_itemrepair(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interrupted and fail to finish your work.\n\r",
                          ch);
@@ -7411,7 +7411,7 @@ CMDF do_itemrepair(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         percentage =
                 IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
@@ -7579,13 +7579,13 @@ CMDF do_causedissension(CharData * ch, char *argument)
         case 1:
                 break;
 
-        case SUB_TIMER_DO_ABORT:
-                ch->substate = SUB_NONE;
+        case SubTimerDoAbort:
+                ch->substate = SubNone;
                 send_to_char("&RYou stop and leave your task.\n\r", ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         ch_printf(ch,
                   "You speak to the troops about %s's tyranical reign.\n\r",
@@ -7709,15 +7709,15 @@ CMDF do_causedessertion(CharData * ch, char *argument)
         case 1:
                 break;
 
-        case SUB_TIMER_DO_ABORT:
-                ch->substate = SUB_NONE;
+        case SubTimerDoAbort:
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou stop and leave your task, fuming with anger.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         if ((clan = ch->pcdata->clan->mainclan) == NULL)
                 clan = ch->pcdata->clan;
@@ -8233,16 +8233,16 @@ CMDF do_makebinding(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makebinding]);

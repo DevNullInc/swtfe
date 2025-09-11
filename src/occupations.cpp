@@ -120,15 +120,15 @@ CMDF do_cook(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char("&RYou fail to cook your meal.\n\r", ch);
                 return;
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -395,9 +395,9 @@ CMDF do_dishwasher(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to wash the dishes.\n\r",
                          ch);
@@ -405,7 +405,7 @@ CMDF do_dishwasher(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -512,9 +512,9 @@ CMDF do_busser(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to bus your tables.\n\r",
                          ch);
@@ -522,7 +522,7 @@ CMDF do_busser(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -629,9 +629,9 @@ CMDF do_waiter(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to take your orders.\n\r",
                          ch);
@@ -639,7 +639,7 @@ CMDF do_waiter(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -747,9 +747,9 @@ CMDF do_chef(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to prepare your meal.\n\r",
                          ch);
@@ -757,7 +757,7 @@ CMDF do_chef(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -870,9 +870,9 @@ CMDF do_streetcleaner(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to clean the street.\n\r",
                          ch);
@@ -880,7 +880,7 @@ CMDF do_streetcleaner(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -986,9 +986,9 @@ CMDF do_bartender(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to mix drinks.\n\r",
                          ch);
@@ -996,7 +996,7 @@ CMDF do_bartender(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -1109,9 +1109,9 @@ CMDF do_interiorcleaner(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to clean the room.\n\r",
                          ch);
@@ -1119,7 +1119,7 @@ CMDF do_interiorcleaner(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -1225,9 +1225,9 @@ CMDF do_hotelcleaner(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to clean the hotel room.\n\r",
                          ch);
@@ -1235,7 +1235,7 @@ CMDF do_hotelcleaner(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -1343,9 +1343,9 @@ CMDF do_secretary(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to file your nails.\n\r",
                          ch);
@@ -1353,7 +1353,7 @@ CMDF do_secretary(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -1458,9 +1458,9 @@ CMDF do_clerk(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to go over the books.\n\r",
                          ch);
@@ -1468,7 +1468,7 @@ CMDF do_clerk(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -1572,9 +1572,9 @@ CMDF do_commmarketer(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to sell anything.\n\r",
                          ch);
@@ -1582,7 +1582,7 @@ CMDF do_commmarketer(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -1688,9 +1688,9 @@ CMDF do_marketer(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to market the product.\n\r",
                          ch);
@@ -1698,7 +1698,7 @@ CMDF do_marketer(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -1796,9 +1796,9 @@ CMDF do_solicitor(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to sell your product.\n\r",
                          ch);
@@ -1806,7 +1806,7 @@ CMDF do_solicitor(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -1912,9 +1912,9 @@ CMDF do_advertiser(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to think clearly.\n\r",
                          ch);
@@ -1922,7 +1922,7 @@ CMDF do_advertiser(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -2029,9 +2029,9 @@ CMDF do_banker(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to make your transactions.\n\r",
                          ch);
@@ -2039,7 +2039,7 @@ CMDF do_banker(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -2144,9 +2144,9 @@ CMDF do_accountant(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to find a tax loophole.\n\r",
                          ch);
@@ -2154,7 +2154,7 @@ CMDF do_accountant(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -2260,9 +2260,9 @@ CMDF do_investor(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to play the market.\n\r",
                          ch);
@@ -2270,7 +2270,7 @@ CMDF do_investor(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -2375,9 +2375,9 @@ CMDF do_broker(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to sell stocks.\n\r",
                          ch);
@@ -2385,7 +2385,7 @@ CMDF do_broker(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -2492,9 +2492,9 @@ CMDF do_boardmember(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to participate in the meeting.\n\r",
                          ch);
@@ -2502,7 +2502,7 @@ CMDF do_boardmember(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -2608,9 +2608,9 @@ CMDF do_ceo(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to conduct the meeting.\n\r",
                          ch);
@@ -2618,7 +2618,7 @@ CMDF do_ceo(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];
@@ -2725,9 +2725,9 @@ CMDF do_yourmom(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to file your nails.\n\r",
                          ch);
@@ -2735,7 +2735,7 @@ CMDF do_yourmom(CharData * ch, char *argument)
 
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
 
         percent = number_percent() - ch->skill_level[OCCUPATION_ABILITY];

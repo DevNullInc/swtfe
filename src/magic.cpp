@@ -1344,7 +1344,7 @@ CMDF do_cast(CharData * ch, char *argument)
                 ch->dest_buf = str_dup(staticbuf);
                 ch->tempnum = sn;
                 return;
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 if (IS_VALID_SN((sn = ch->tempnum)))
                 {
@@ -1352,7 +1352,7 @@ CMDF do_cast(CharData * ch, char *argument)
                         {
                                 send_to_char("Something went wrong...\n\r",
                                              ch);
-                                bug("do_cast: SUB_TIMER_DO_ABORT: bad sn %d",
+                                bug("do_cast: SubTimerDoAbort: bad sn %d",
                                     sn);
                                 return;
                         }
@@ -1406,7 +1406,7 @@ CMDF do_cast(CharData * ch, char *argument)
                 mudstrlcpy(staticbuf, (const char *) ch->dest_buf, MIL);
                 target_name = one_argument(staticbuf, arg2);
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 if (skill->participants > 1)
                 {
                         int       cnt = 1;
@@ -1453,7 +1453,7 @@ CMDF do_cast(CharData * ch, char *argument)
                                                 learn_from_success(tmp, sn);
 
                                                 tmp->endurance -= endurance;
-                                                tmp->substate = SUB_NONE;
+                                                tmp->substate = SubNone;
                                                 tmp->tempnum = -1;
                                                 DISPOSE(tmp->dest_buf);
                                         }
@@ -5692,16 +5692,16 @@ CMDF do_meditate(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&bYou rise from your trance, pushing the thoughts aside.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         chance = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                      learned[gsn_meditate]);

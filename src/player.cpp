@@ -1872,19 +1872,19 @@ CMDF do_description(CharData * ch, char *argument)
                 bug("do_description: illegal substate", 0);
                 return;
 
-        case SUB_RESTRICTED:
+        case SubRestricted:
                 send_to_char
                         ("You cannot use this command from within another command.\n\r",
                          ch);
                 return;
 
-        case SUB_NONE:
-                ch->substate = SUB_PERSONAL_DESC;
+        case SubNone:
+                ch->substate = SubPersonalDesc;
                 ch->dest_buf = ch;
                 start_editing(ch, ch->description);
                 return;
 
-        case SUB_PERSONAL_DESC:
+        case SubPersonalDesc:
                 STRFREE(ch->description);
                 ch->description = copy_buffer(ch);
                 stop_editing(ch);
@@ -1914,19 +1914,19 @@ CMDF do_bio(CharData * ch, char *argument)
                 bug("do_bio: illegal substate", 0);
                 return;
 
-        case SUB_RESTRICTED:
+        case SubRestricted:
                 send_to_char
                         ("You cannot use this command from within another command.\n\r",
                          ch);
                 return;
 
-        case SUB_NONE:
-                ch->substate = SUB_PERSONAL_BIO;
+        case SubNone:
+                ch->substate = SubPersonalBio;
                 ch->dest_buf = ch;
                 start_editing(ch, ch->pcdata->bio);
                 return;
 
-        case SUB_PERSONAL_BIO:
+        case SubPersonalBio:
                 STRFREE(ch->pcdata->bio);
                 ch->pcdata->bio = copy_buffer(ch);
                 stop_editing(ch);

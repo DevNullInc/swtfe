@@ -160,14 +160,14 @@ void interpret(CharData * ch, char *argument)
         ooc = FALSE;
         held = FALSE;
         chan = FALSE;
-        if (ch->substate == SUB_REPEATCMD)
+        if (ch->substate == SubRepeatCmd)
         {
                 DoFun   *fun;
 
                 if ((fun = ch->last_cmd) == NULL)
                 {
-                        ch->substate = SUB_NONE;
-                        bug("interpret: SUB_REPEATCMD with NULL last_cmd", 0);
+                        ch->substate = SubNone;
+                        bug("interpret: SubRepeatCmd with NULL last_cmd", 0);
                         return;
                 }
                 else
@@ -193,7 +193,7 @@ void interpret(CharData * ch, char *argument)
                         if (!found)
                         {
                                 cmd = NULL;
-                                bug("interpret: SUB_REPEATCMD: last_cmd invalid", 0);
+                                bug("interpret: SubRepeatCmd: last_cmd invalid", 0);
                                 return;
                         }
                         snprintf(logline, MSL, "(%s) %s", cmd->name,
@@ -394,11 +394,11 @@ void interpret(CharData * ch, char *argument)
                 int       tempsub;
 
                 tempsub = ch->substate;
-                ch->substate = SUB_TIMER_DO_ABORT;
+                ch->substate = SubTimerDoAbort;
                 (timer->do_fun) (ch, "");
                 if (char_died(ch))
                         return;
-                if (ch->substate != SUB_TIMER_CANT_ABORT)
+                if (ch->substate != SubTimerCantAbort)
                 {
                         ch->substate = tempsub;
                         extract_timer(ch, timer);

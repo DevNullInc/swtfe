@@ -500,18 +500,18 @@ CMDF do_ban(CharData * ch, char *argument)
         default:
                 bug("do_ban: illegal substate", 0);
                 return;
-        case SUB_RESTRICTED:
+        case SubRestricted:
                 send_to_char
                         ("You cannot use this command from within another command.\n\r",
                          ch);
                 return;
-        case SUB_NONE:
-                ch->tempnum = SUB_NONE;
+        case SubNone:
+                ch->tempnum = SubNone;
                 break;
                 /*
                  * Returning to end the editing of the note 
                  */
-        case SUB_BAN_DESC:
+        case SubBanDesc:
                 add_ban(ch, const_cast<char*>(""), const_cast<char*>(""), 0, 0);
                 return;
         }
@@ -974,12 +974,12 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
         default:
                 bug("add_ban: illegal substate", 0);
                 return 0;
-        case SUB_RESTRICTED:
+        case SubRestricted:
                 send_to_char
                         ("You cannot use this command from within another command.\n\r",
                          ch);
                 return 0;
-        case SUB_NONE:
+        case SubNone:
                 {
                         one_argument(arg1, arg);
                         smash_tilde(arg);   /* Make sure the immortals don't put a ~ in it. */
@@ -1282,21 +1282,21 @@ int add_ban(CharData * ch, char *arg1, char *arg2, int time, int type)
                         }
                         if (pban->level == BAN_WARN)
                                 pban->warn = TRUE;
-                        ch->substate = SUB_BAN_DESC;
+                        ch->substate = SubBanDesc;
                         ch->dest_buf = pban;
                         if (!pban->note)
                                 pban->note = STRALLOC(const_cast<char*>(""));
                         start_editing(ch, pban->note);
                         return 1;
                 }
-        case SUB_BAN_DESC:
+        case SubBanDesc:
                 {
                         pban = static_cast<BAN_DATA *>(ch->dest_buf);
                         if (!pban)
                         {
                                 bug("do_ban: sub_ban_desc: NULL ch->dest_buf",
                                     0);
-                                ch->substate = SUB_NONE;
+                                ch->substate = SubNone;
                                 return 0;
                         }
                         if (pban->note)

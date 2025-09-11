@@ -1097,8 +1097,8 @@ CMDF do_hotboot(CharData * ch, char *argument)
 
         for (d = first_descriptor; d; d = d->next)
         {
-                if ((d->connected == CON_PLAYING
-                     || d->connected == CON_EDITING)
+                if ((d->connected == ConPlaying
+                     || d->connected == ConEditing)
                     && (victim = d->character) != NULL && !IS_NPC(victim)
                     && victim->in_room && victim->fighting
                     && victim->top_level >= 1
@@ -1120,7 +1120,7 @@ CMDF do_hotboot(CharData * ch, char *argument)
         found = FALSE;
         for (d = first_descriptor; d; d = d->next)
         {
-                if (d->connected == CON_EDITING && d->character)
+                if (d->connected == ConEditing && d->character)
                 {
                         found = TRUE;
                         break;
@@ -1274,7 +1274,7 @@ void hotboot(bool debug, bool save)
                 CharData *och = CH(d);
 
                 de_next = d->next;  /* We delete from the list , so need to save this */
-                if (!d->character || d->connected < CON_PLAYING)    /* drop those logging on */
+                if (!d->character || d->connected < ConPlaying)    /* drop those logging on */
                 {
                         write_to_descriptor(d->descriptor,
                                             "\n\rSorry, we are rebooting. Come back in a few minutes.\n\r",
@@ -1478,7 +1478,7 @@ void hotboot_recover()
                 d->ipid = -1;
 
                 LINK(d, first_descriptor, last_descriptor, next, prev);
-                d->connected = CON_COPYOVER_RECOVER;    /* negative so close_socket
+                d->connected = ConCopyoverRecover;    /* negative so close_socket
                                                          * will cut them off */
                 /*
                  * telet negotiation asking what thier client is 
@@ -1519,7 +1519,7 @@ void hotboot_recover()
 
                         char_to_room(d->character, d->character->in_room);
                         load_home(d->character);
-                        d->connected = CON_PLAYING;
+                        d->connected = ConPlaying;
 #ifdef ACCOUNT
                         d->account = d->character->pcdata->account;
 #endif

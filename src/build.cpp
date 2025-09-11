@@ -1046,13 +1046,13 @@ CMDF do_mset(CharData * ch, char *argument)
         {
         default:
                 break;
-        case SUB_MOB_DESC:
+        case SubMobDesc:
                 if (!ch->dest_buf)
                 {
                         send_to_char("Fatal error: report to Thoric.\n\r",
                                      ch);
                         bug("do_mset: sub_mob_desc: NULL ch->dest_buf", 0);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
                         return;
                 }
                 victim = static_cast<CharData*>(ch->dest_buf);
@@ -2080,7 +2080,7 @@ CMDF do_mset(CharData * ch, char *argument)
                         }
                         return;
                 }
-                ch->substate = SUB_MOB_DESC;
+                ch->substate = SubMobDesc;
                 ch->dest_buf = victim;
                 start_editing(ch, victim->description);
                 return;
@@ -3234,13 +3234,13 @@ CMDF do_oset(CharData * ch, char *argument)
         default:
                 break;
 
-        case SUB_OBJ_EXTRA:
+        case SubObjExtra:
                 if (!ch->dest_buf)
                 {
                         send_to_char("Fatal error: report to Thoric.\n\r",
                                      ch);
                         bug("do_oset: sub_obj_extra: NULL ch->dest_buf", 0);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
                         return;
                 }
                 /*
@@ -3258,13 +3258,13 @@ CMDF do_oset(CharData * ch, char *argument)
                 ch->substate = to_shint(ch->tempnum);
                 return;
 
-        case SUB_OBJ_LONG:
+        case SubObjLong:
                 if (!ch->dest_buf)
                 {
                         send_to_char("Fatal error: report to Thoric.\n\r",
                                      ch);
                         bug("do_oset: sub_obj_long: NULL ch->dest_buf", 0);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
                         return;
                 }
                 obj = static_cast<ObjData*>(ch->dest_buf);
@@ -3682,7 +3682,7 @@ CMDF do_oset(CharData * ch, char *argument)
                         ch->spare_ptr = obj;
                 else
                         ch->spare_ptr = NULL;
-                ch->substate = SUB_OBJ_LONG;
+                ch->substate = SubObjLong;
                 ch->dest_buf = obj;
                 start_editing(ch, obj->description);
                 return;
@@ -3852,12 +3852,12 @@ CMDF do_oset(CharData * ch, char *argument)
                         ed = SetOExtraProto(obj->pIndexData, arg3);
                 else
                         ed = SetOExtra(obj, arg3);
-                ch->tempnum = SUB_NONE;
+                ch->tempnum = SubNone;
                 if (lockobj)
                         ch->spare_ptr = obj;
                 else
                         ch->spare_ptr = NULL;
-                ch->substate = SUB_OBJ_EXTRA;
+                ch->substate = SubObjExtra;
                 ch->dest_buf = ed;
                 start_editing(ch, ed->description);
                 return;
@@ -3884,12 +3884,12 @@ CMDF do_oset(CharData * ch, char *argument)
                         ed = SetOExtraProto(obj->pIndexData, obj->name);
                 else
                         ed = SetOExtra(obj, obj->name);
-                ch->tempnum = SUB_NONE;
+                ch->tempnum = SubNone;
                 if (lockobj)
                         ch->spare_ptr = obj;
                 else
                         ch->spare_ptr = NULL;
-                ch->substate = SUB_OBJ_EXTRA;
+                ch->substate = SubObjExtra;
                 ch->dest_buf = ed;
                 start_editing(ch, ed->description);
                 return;
@@ -4424,7 +4424,7 @@ CMDF do_redit(CharData * ch, const char *argument)
         {
         default:
                 break;
-        case SUB_ROOM_DESC:
+        case SubRoomDesc:
                 location = static_cast<RoomIndexData*>(ch->dest_buf);
                 if (!location)
                 {
@@ -4436,7 +4436,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                 stop_editing(ch);
                 ch->substate = to_shint(ch->tempnum);
                 return;
-        case SUB_ROOM_EXTRA:
+        case SubRoomExtra:
                 ed = static_cast<ExtraDescrData*>(ch->dest_buf);
                 if (!ed)
                 {
@@ -4493,8 +4493,8 @@ CMDF do_redit(CharData * ch, const char *argument)
 
         if (!str_cmp(arg, "desc"))
         {
-                ch->tempnum = SUB_NONE;
-                ch->substate = SUB_ROOM_DESC;
+                ch->tempnum = SubNone;
+                ch->substate = SubRoomDesc;
                 ch->dest_buf = location;
                 start_editing(ch, location->description);
                 return;
@@ -4531,8 +4531,8 @@ CMDF do_redit(CharData * ch, const char *argument)
                 }
                 CHECK_SUBRESTRICTED(ch);
                 ed = SetRExtra(location, work);
-                ch->tempnum = SUB_NONE;
-                ch->substate = SUB_ROOM_EXTRA;
+                ch->tempnum = SubNone;
+                ch->substate = SubRoomExtra;
                 ch->dest_buf = ed;
                 start_editing(ch, ed->description);
                 return;
@@ -7292,7 +7292,7 @@ void mpedit(CharData * ch, MProgData * mprg, int mptype, char *argument)
                         STRFREE(mprg->arglist);
                 mprg->arglist = STRALLOC(argument);
         }
-        ch->substate = SUB_MPROG_EDIT;
+        ch->substate = SubMprogEdit;
         ch->dest_buf = mprg;
         if (!mprg->comlist)
                 mprg->comlist = STRALLOC(empty_string);
@@ -7329,14 +7329,14 @@ CMDF do_mpedit(CharData * ch, char *argument)
         {
         default:
                 break;
-        case SUB_MPROG_EDIT:
+        case SubMprogEdit:
                 if (!ch->dest_buf)
                 {
                         send_to_char("Fatal error: report to Thoric.\n\r",
                                      ch);
                         bug("do_mpedit: sub_mprog_edit: NULL ch->dest_buf",
                             0);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
                         return;
                 }
                 mprog = static_cast<MProgData*>(ch->dest_buf);
@@ -7630,14 +7630,14 @@ CMDF do_opedit(CharData * ch, char *argument)
         {
         default:
                 break;
-        case SUB_MPROG_EDIT:
+        case SubMprogEdit:
                 if (!ch->dest_buf)
                 {
                         send_to_char("Fatal error: report to Kator.\n\r",
                                      ch);
                         bug("do_opedit: sub_oprog_edit: NULL ch->dest_buf",
                             0);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
                         return;
                 }
                 mprog = static_cast<MProgData*>(ch->dest_buf);
@@ -7914,7 +7914,7 @@ void rpedit(CharData * ch, MProgData * mprg, int mptype, char *argument)
                         STRFREE(mprg->arglist);
                 mprg->arglist = STRALLOC(argument);
         }
-        ch->substate = SUB_MPROG_EDIT;
+        ch->substate = SubMprogEdit;
         ch->dest_buf = mprg;
         if (!mprg->comlist)
                 mprg->comlist = STRALLOC(empty_string);
@@ -7946,14 +7946,14 @@ CMDF do_rpedit(CharData * ch, char *argument)
         {
         default:
                 break;
-        case SUB_MPROG_EDIT:
+        case SubMprogEdit:
                 if (!ch->dest_buf)
                 {
                         send_to_char("Fatal error: report to Thoric.\n\r",
                                      ch);
                         bug("do_opedit: sub_oprog_edit: NULL ch->dest_buf",
                             0);
-                        ch->substate = SUB_NONE;
+                        ch->substate = SubNone;
                         return;
                 }
                 mprog = static_cast<MProgData*>(ch->dest_buf);

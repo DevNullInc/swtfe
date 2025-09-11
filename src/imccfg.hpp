@@ -75,7 +75,7 @@ social_messg* find_social(const std::string& name);
 
 using SOCIAL_DATA = social_messg;
 using CharData = char_data;
-using DescriptorData = descriptor_data;
+using DescriptorData = DescriptorData;
 
 extern const char* class_abbrevs[];
 
@@ -113,7 +113,7 @@ inline std::string CH_IMCRANK(auto) { return "User"; }
 
 enum class genders { SEX_NEUTRAL, SEX_MALE, SEX_FEMALE };
 
-constexpr int CON_PLAYING = 1;
+constexpr int ConPlaying = 1;
 inline char LOWER(char c) { return (c >= 'A' && c <= 'Z' ? c + 'a' - 'A' : c); }
 
 struct user_data {

@@ -1078,7 +1078,7 @@ CMDF do_roommate(CharData * ch, char *argument)
         {
         default:
                 break;
-        case SUB_ROOM_DESC:
+        case SubRoomDesc:
                 location = (RoomIndexData *) ch->dest_buf;
                 if (!location)
                 {
@@ -1641,9 +1641,9 @@ CMDF do_realitor(CharData * ch, char * argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to make your transactions.\n\r",
                          ch);
@@ -1651,7 +1651,7 @@ CMDF do_realitor(CharData * ch, char * argument)
 
 	}
 
-	ch->substate = SUB_NONE;
+	ch->substate = SubNone;
 	
 	for (plot_type = 0; plot_type < MAX_HOME_PLOT_TYPES; plot_type++) {
 		if (!str_cmp(argument, home_plot_types[plot_type].type))
@@ -1757,7 +1757,7 @@ void HOME_DATA::decorate_room(CharData * ch, char * argument)
 	{
 		default:
 			break;
-		case SUB_ROOM_DESC:
+		case SubRoomDesc:
 			RoomIndexData * location;
 			location = (RoomIndexData *) ch->dest_buf;
 			if (!location)
@@ -1796,8 +1796,8 @@ void HOME_DATA::decorate_room(CharData * ch, char * argument)
 		return;
 	}
 	else if (!str_cmp(arg, "desc")) {
-		ch->tempnum = SUB_NONE;
-		ch->substate = SUB_ROOM_DESC;
+		ch->tempnum = SubNone;
+		ch->substate = SubRoomDesc;
 		ch->dest_buf = ch->in_room;
 		start_editing(ch, ch->in_room->description);
 		return;
@@ -1984,10 +1984,10 @@ void HOME_DATA::add_room(CharData * ch, char * argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to make your transactions.\n\r",
                          ch);
@@ -1995,7 +1995,7 @@ void HOME_DATA::add_room(CharData * ch, char * argument)
 
 	}
 
-	ch->substate = SUB_NONE;
+	ch->substate = SubNone;
 
 	if ((dir = home_grid_dir(arg, &col,&row,&height)) == -1) {
 		send_to_char("Which direction is that?\n\r", ch);

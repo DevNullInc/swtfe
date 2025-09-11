@@ -40,7 +40,7 @@ void auto_link_character(DescriptorData *d, CharData *ch, ACCOUNT_DATA *account)
     ch->pcdata->account = account;
     
     // Skip password prompt for character
-    d->connected = CON_GET_NEW_SEX; // Move directly to gender selection
+    d->connected = ConGetNewSex; // Move directly to gender selection
     
     // Inform the player
     write_to_buffer(d, "Your character has been automatically linked to your account.\r\n", 0);
@@ -65,14 +65,14 @@ void streamlined_account_login(DescriptorData *d, char *argument)
         if (d->character && d->character->desc)
             write_to_buffer(d, "\xFF\xFB\x01", 3); // TELNET WILL SUPPRESS GO AHEAD (example)
         // If your codebase has a macro or function for echo off, use it here.
-        d->connected = CON_GET_OLD_PASSWORD;
+        d->connected = ConGetOldPassword;
         return;
     }
     
     // New account
     snprintf(buf, MaxStringLength, "Account '%s' doesn't exist. Create it? (Y/N) ", argument);
     write_to_buffer(d, buf, 0);
-    d->connected = CON_CONFIRM_NEW_NAME;
+    d->connected = ConConfirmNewName;
 }
 
 /*
@@ -99,7 +99,7 @@ void streamlined_character_selection(DescriptorData *d, ACCOUNT_DATA *account)
     if (count == 0) {
         write_to_buffer(d, "No characters found. Create a new one.\r\n", 0);
         // Move to character creation
-        d->connected = CON_GET_NAME;
+        d->connected = ConGetName;
     d->connected = CON_GET_CHAR_SELECTION;
 }
 

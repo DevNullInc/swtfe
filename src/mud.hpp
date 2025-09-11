@@ -536,27 +536,27 @@ struct WizEnt
  */
 typedef enum
 {
-        CON_GET_NAME, CON_GET_OLD_PASSWORD,
-        CON_CONFIRM_NEW_NAME, CON_GET_NEW_PASSWORD, CON_CONFIRM_NEW_PASSWORD,
-        CON_ACCOUNT_GET_EMAIL,
-        CON_GET_NEW_SEX, CON_READ_MOTD, CON_GET_NEW_RACE,
-        CON_GET_EMULATION, CON_GET_WANT_RIPANSI,
-        CON_TITLE, CON_PRESS_ENTER, CON_WAIT_1,
-        CON_WAIT_2, CON_WAIT_3, CON_ACCEPTED,
-        CON_GET_PKILL, CON_READ_IMOTD, CON_GET_NEW_EMAIL,
-        CON_GET_MSP, CON_GET_NEW_CLASS, CON_ROLL_STATS,
-        CON_SHOW_STAT_OPTIONS, CON_EDIT_STATS, CON_STATS_OK,
-        CON_COPYOVER_RECOVER, CON_FORKED, CON_IAFORKED,
-        CON_WIZINVIS, CON_EDIT_STAT_NUM, CON_MENU
+        ConGetName, ConGetOldPassword,
+        ConConfirmNewName, ConGetNewPassword, ConConfirmNewPassword,
+        ConAccountGetEmail,
+        ConGetNewSex, ConReadMotd, ConGetNewRace,
+        ConGetEmulation, ConGetWantRipAnsi,
+        ConTitle, ConPressEnter, ConWait1,
+        ConWait2, ConWait3, ConAccepted,
+        ConGetPkill, ConReadImotd, ConGetNewEmail,
+        ConGetMsp, ConGetNewClass, ConRollStats,
+        ConShowStatOptions, ConEditStats, ConStatsOk,
+        ConCopyoverRecover, ConForked, ConIaForked,
+        ConWizinvis, ConEditStatNum, ConMenu
 #ifdef ACCOUNT
-                , CON_NEW_ACCOUNT, CON_GET_ACCOUNT,
-        CON_GET_OLD_ACCOUNT_PASSWORD,
-        CON_GET_ALT, CON_GET_NEW_ACCOUNT_PASSWORD,
-        CON_CONFIRM_NEW_ACCOUNT_PASSWORD,
-        CON_LINK_ALT, CON_GET_LINK_PASSWORD, CON_CONFIRM_NEW_ACCOUNT_NAME,
-        CON_GET_ACC_OLDPASS, CON_GET_ACC_NEWPASS, CON_GET_ACC_CONFIRMPASS
+                , ConNewAccount, ConGetAccount,
+        ConGetOldAccountPassword,
+        ConGetAlt, ConGetNewAccountPassword,
+        ConConfirmNewAccountPassword,
+        ConLinkAlt, ConGetLinkPassword, ConConfirmNewAccountName,
+        ConGetAccOldPass, ConGetAccNewPass, ConGetAccConfirmPass
 #endif
-        , CON_PLAYING, CON_EDITING
+        , ConPlaying, ConEditing
 } connection_types;
 
 
@@ -567,25 +567,25 @@ typedef enum
  */
 typedef enum
 {
-        SUB_NONE, SUB_PAUSE, SUB_PERSONAL_DESC, SUB_OBJ_SHORT, SUB_OBJ_LONG,
-        SUB_OBJ_EXTRA, SUB_MOB_LONG, SUB_MOB_DESC, SUB_BAN_DESC,
-        SUB_ROOM_DESC, SUB_ROOM_EXTRA,
-        SUB_ROOM_EXIT_DESC, SUB_WRITING_NOTE, SUB_MPROG_EDIT, SUB_HELP_EDIT,
-        SUB_PERSONAL_BIO, SUB_REPEATCMD, SUB_RESTRICTED,
-        SUB_DEITYDESC, SUB_WRITING_EMAIL, SUB_ALIASMSG, SUB_ALIAS,
+        SubNone, SubPause, SubPersonalDesc, SubObjShort, SubObjLong,
+        SubObjExtra, SubMobLong, SubMobDesc, SubBanDesc,
+        SubRoomDesc, SubRoomExtra,
+        SubRoomExitDesc, SubWritingNote, SubMprogEdit, SubHelpEdit,
+        SubPersonalBio, SubRepeatCmd, SubRestricted,
+        SubDeityDesc, SubWritingEmail, SubAliasMsg, SubAlias,
 #ifdef RESTORE
-        SUB_RESTOREVMSG, SUB_RESTORERMSG, SUB_RESTORECMSG,
+        SubRestoreVMsg, SubRestorerMsg, SubRestoreCMsg,
 #endif
         /*
          * timer types ONLY below this point 
          */
-        SUB_TIMER_DO_ABORT = 128, SUB_TIMER_CANT_ABORT
-} char_substates;
+        SubTimerDoAbort = 128, SubTimerCantAbort
+} CharSubstates;
 
 /*
  * Descriptor (channel) structure.
  */
-struct descriptor_data
+struct DescriptorData
 {
         DescriptorData *next;
         DescriptorData *prev;
@@ -3389,8 +3389,8 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define IS_QUESTOR(ch)  (IS_SET((ch)->act, PLR_QUESTOR))
 #define IS_IMMORTAL(ch)		(get_trust((ch)) >= LevelImmortal)
 #define IS_HERO(ch)		(get_trust((ch)) >= LevelHero)
-#define IS_PLAYING(d)		((d)->connected == CON_PLAYING || \
-		(d)->connected == CON_FORKED || (d)->connected == CON_IAFORKED )
+#define IS_PLAYING(d)		((d)->connected == ConPlaying || \
+		(d)->connected == ConForked || (d)->connected == ConIaForked )
 #define IS_AFFECTED(ch, sn)	(IS_SET((ch)->affected_by, (sn)))
 #define HAS_BODYPART(ch, part)	((ch)->xflags == 0 || IS_SET((ch)->xflags, (part)))
 

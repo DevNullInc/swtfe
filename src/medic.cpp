@@ -98,15 +98,15 @@ CMDF do_autopsy(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         obj = get_obj_here(ch, arg);
         if (!obj
@@ -264,16 +264,16 @@ CMDF do_diagnose(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         checkmedpac = FALSE;
         for (obj = ch->last_carrying; obj; obj = obj->prev_content)
@@ -464,10 +464,10 @@ CMDF do_splint(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
@@ -698,16 +698,16 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                 mudstrlcpy(arg, (char *) ch->dest_buf, MIL);
                 DISPOSE(ch->dest_buf);
                 break;
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         level = IS_NPC(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makemedkit]);

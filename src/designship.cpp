@@ -382,17 +382,17 @@ CMDF do_designship(CharData* ch, const std::string& argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
 
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
         numrooms = atoi(arg1);
 
         if (numrooms > 25)
@@ -1573,18 +1573,18 @@ void fleet_make(CharData* ch, const std::string& argument)
                 DISPOSE(ch->dest_buf_2);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
 
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         /*
          * these values come from  cargo v2 
@@ -1852,18 +1852,18 @@ CMDF do_modifyship(CharData* ch, const std::string& argument)
                 DISPOSE(ch->dest_buf_3);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
                 DISPOSE(ch->dest_buf_3);
 
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work.\n\r",
                          ch);
                 return;
         }
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
 
         checktool = FALSE;
 
@@ -5583,17 +5583,17 @@ CMDF do_modifyexit(CharData * ch, char *argument)
                 DISPOSE(ch->dest_buf);
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 DISPOSE(ch->dest_buf);
                 DISPOSE(ch->dest_buf_2);
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RSuddenly stop your actions, and drop your toolkit onto the floor.\n\r",
                          ch);
                 return;
         }
 
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
         if (!str_cmp(arg2, "door"))
                 type = EX_ISDOOR;
         else if (!str_cmp(arg2, "hidden"))
@@ -5890,15 +5890,15 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                 }
 
         case 1:
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 if (!ch->dest_buf)
                         return;
                 break;
 
-        case SUB_TIMER_DO_ABORT:
+        case SubTimerDoAbort:
                 ch->dest_buf = NULL;
 
-                ch->substate = SUB_NONE;
+                ch->substate = SubNone;
                 send_to_char
                         ("&RYou are interupted and fail to finish your work, luckly you didn't damage the ship matirials.\n\r",
                          ch);
@@ -5915,7 +5915,7 @@ CMDF do_dismantle_ship(CharData * ch, char *argument)
                         break;
                 }
         }
-        ch->substate = SUB_NONE;
+        ch->substate = SubNone;
         ch->dest_buf = NULL;
 
 

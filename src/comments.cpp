@@ -121,7 +121,7 @@ CMDF do_comment(CharData * ch, char *argument)
          * Put in to prevent crashing when someone issues a comment command
          * from within the editor. -Narn 
          */
-        if (ch->desc->connected == CON_EDITING)
+        if (ch->desc->connected == ConEditing)
         {
                 send_to_char
                         ("You can't use the comment command from within the editor.\n\r",
@@ -133,7 +133,7 @@ CMDF do_comment(CharData * ch, char *argument)
         {
         default:
                 break;
-        case SUB_WRITING_NOTE:
+        case SubWritingNote:
                 if (!ch->pnote)
                 {
                         bug("do_comment: note got lost?", 0);
@@ -296,7 +296,7 @@ CMDF do_comment(CharData * ch, char *argument)
         if (!str_cmp(arg, "write"))
         {
                 note_attach(ch);
-                ch->substate = SUB_WRITING_NOTE;
+                ch->substate = SubWritingNote;
                 ch->dest_buf = ch->pnote;
                 start_editing(ch, ch->pnote->text);
                 return;

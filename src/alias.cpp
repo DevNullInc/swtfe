@@ -195,7 +195,7 @@ CMDF do_alias(CharData *ch, char *argument)
         default:
                 break;
 
-        case SUB_ALIASMSG:
+        case SubAliasMsg:
                 alias = static_cast<ALIAS_DATA*>(ch->dest_buf);
                 if (!alias)
                 {
@@ -266,11 +266,11 @@ CMDF do_alias(CharData *ch, char *argument)
                 send_to_char(ALIAS_CREATED_MSG, ch);
 
                 // Now move to editing
-                if (ch->substate == SUB_REPEATCMD)
-                        ch->tempnum = SUB_REPEATCMD;
+                if (ch->substate == SubRepeatCmd)
+                        ch->tempnum = SubRepeatCmd;
                 else
-                        ch->tempnum = SUB_NONE;
-                ch->substate = SUB_ALIASMSG;
+                        ch->tempnum = SubNone;
+                ch->substate = SubAliasMsg;
                 ch->dest_buf = alias;
                 start_editing(ch, alias->cmd);
                 return;
@@ -284,11 +284,11 @@ CMDF do_alias(CharData *ch, char *argument)
 
         if (!str_cmp(arg, "edit"))
         {
-                if (ch->substate == SUB_REPEATCMD)
-                        ch->tempnum = SUB_REPEATCMD;
+                if (ch->substate == SubRepeatCmd)
+                        ch->tempnum = SubRepeatCmd;
                 else
-                        ch->tempnum = SUB_NONE;
-                ch->substate = SUB_ALIASMSG;
+                        ch->tempnum = SubNone;
+                ch->substate = SubAliasMsg;
                 ch->dest_buf = alias;
                 start_editing(ch, alias->cmd);
                 return;
@@ -332,7 +332,7 @@ bool check_alias(CharData *ch, char *command, char *argument)
                 return FALSE;
                 
         // Prevent recursion
-        if (ch->substate == SUB_ALIAS)
+        if (ch->substate == SubAlias)
                 return FALSE;
                 
         if (alias->cmd[0] == '\0')
@@ -373,7 +373,7 @@ bool check_alias(CharData *ch, char *command, char *argument)
                 }
         }
 
-        ch->substate = SUB_ALIAS;
+        ch->substate = SubAlias;
         check_aliases(ch->desc);
         return TRUE;
 }
@@ -395,7 +395,7 @@ bool check_aliases(DescriptorData *d)
                 return FALSE;
         if (!ch->pcdata->account->first_alias)
                 return FALSE;
-        if (d->character->substate != SUB_ALIAS)
+        if (d->character->substate != SubAlias)
                 return FALSE;
 
         // Split on new line (memcopy it back)
@@ -407,7 +407,7 @@ bool check_aliases(DescriptorData *d)
         if (rem[0] == '\0')
         {
                 d->incomm[0] = '\0';
-                d->character->substate = SUB_NONE;
+                d->character->substate = SubNone;
                 return TRUE;
         }
         
