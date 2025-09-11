@@ -2017,7 +2017,7 @@ CMDF do_oldmstat(CharData * ch, char *argument)
         {
                 ch_printf(ch, "Act flags: %s\n\r",
                           flag_string(victim->act, act_flags));
-/*        ch_printf( ch, "VIP flags: %s\n\r", flag_string(victim->vip_flags, planet_flags) ); */
+/*        ch_printf( ch, "VIP flags: %s\n\r", flag_string(victim->vip_flags, PlanetFlags) ); */
         }
         else
         {

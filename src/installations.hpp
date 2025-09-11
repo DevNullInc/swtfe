@@ -41,7 +41,7 @@
  ****************************************************************************************/
 
 //typedef struct dock_data DOCK_DATA;
-//typedef struct installation_data INSTALLATION_DATA;
+//typedef struct InstallationData INSTALLATION_DATA;
 
 
 #pragma once
@@ -141,7 +141,7 @@ int planetary_installations(const std::shared_ptr<PlanetData>& planet, Installat
 
 
 struct InstallationTypeInfo {
-        std::string installation_name;
+        std::string InstallationName;
         int16_t shields = 0;
         int16_t ions = 0;
         int16_t turbo = 0;

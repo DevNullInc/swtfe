@@ -175,7 +175,7 @@ static char* make_mutable_argument(const char* src, char* dest, size_t destsz)
 
 /* planet constants for vip and wanted flags */
 
-const char *const planet_flags[] = {
+const char *const PlanetFlags[] = {
         "coruscant", "kashyyyk", "ryloth", "rodia", "nal hutta",
         "mon calamari", "honoghr", "gamorr", "tatooine", "adari",
 		"byss", "endor", "roche", "af'el", "trandosha", "chad", 
@@ -761,7 +761,7 @@ int get_vip_flag(char *flag)
         int       x;
 
         for (x = 0; x < 32; x++)
-                if (!str_cmp(flag, planet_flags[x]))
+                if (!str_cmp(flag, PlanetFlags[x]))
                         return x;
         return -1;
 }
@@ -771,7 +771,7 @@ int get_wanted_flag(char *flag)
         int       x;
 
         for (x = 0; x < 32; x++)
-                if (!str_cmp(flag, planet_flags[x]))
+                if (!str_cmp(flag, PlanetFlags[x]))
                         return x;
         return -1;
 }

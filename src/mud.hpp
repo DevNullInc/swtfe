@@ -1040,7 +1040,7 @@ typedef enum
 
 
 struct INSTALLATION_DATA;
-struct planet_data
+struct PlanetData
 {
         PlanetData *next;
         PlanetData *prev;
@@ -1076,7 +1076,7 @@ struct planet_data
         int defbattalions;
         int attbattalions;
         ClanData *attgovern;
-        int planet_type;
+        int PlanetType;
         int jail;
 };
 
@@ -1133,7 +1133,7 @@ struct ClanData
 		 */
 };
 
-struct ship_data
+struct ShipData
 {
         ShipData *next;
         ShipData *prev;
@@ -3622,7 +3622,7 @@ extern const char* const a_flags[];
 extern const char* const o_types[];
 extern const char* const a_types[];
 extern const char* const act_flags[];
-extern const char *const planet_flags[];
+extern const char *const PlanetFlags[];
 extern const char *const weapon_table[13];
 extern const char *const spice_table[];
 extern const char* const plr_flags[];
@@ -3635,7 +3635,7 @@ extern const char *const npc_race[];
 extern const char* const defense_flags[];
 extern const char* const attack_flags[];
 extern const char* const area_flags[];
-extern const char *const ship_flags[];
+extern const char *const ShipFlags[];
 extern const char *const cargo_names[CONTRABAND_MAX];
 extern const char *const hair_list[];
 extern const char *const eye_list[];

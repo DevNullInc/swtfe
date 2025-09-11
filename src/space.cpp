@@ -75,7 +75,7 @@ MissileData *last_missile;
 SpaceData *first_starsystem;
 SpaceData *last_starsystem;
 
-char     *const ship_flags[] = {
+char     *const ShipFlags[] = {
         "simulator", "cloak", "stealth", "interdictor", "republic", "empire",
         "hunter", "smuggler", "pirate", "police", "clan1",
         "clan2", "clan3", "clan4", "clan5", "troop", "taxi", "r17", "r18",
@@ -89,7 +89,7 @@ int get_shipflag(char *flag)
         int       x;
 
         for (x = 0; x < 32; x++)
-                if (!str_cmp(flag, ship_flags[x]))
+                if (!str_cmp(flag, ShipFlags[x]))
                         return x;
         return -1;
 }
@@ -3655,7 +3655,7 @@ CMDF do_showship(CharData * ch, char *argument)
         ch_printf(ch, "Cargo: %d/%d, Cargo Type: %s \n\r", ship->cargo,
                   ship->maxcargo, cargo_names[ship->cargotype]);
         ch_printf(ch, "Ship flags: %s\n\r",
-                  flag_string(ship->flags, ship_flags));
+                  flag_string(ship->flags, ShipFlags));
         ch_printf(ch, "Cloak: %d   Stealth: %d   Interdictor: %d\n\r",
                   ship->cloak, ship->stealth, ship->interdictor);
         ch_printf(ch, "battalions: %d/%d   Ion cannons: %d\n\r",

@@ -287,7 +287,7 @@ void save_planet(PlanetData * planet, bool copyover)
 
                 fprintf(fp, "Defbattalions   %d\n", planet->defbattalions);
                 fprintf(fp, "Attbattalions   %d\n", planet->attbattalions);
-                fprintf(fp, "Planet_Type   %d\n", planet->planet_type);
+                fprintf(fp, "Planet_Type   %d\n", planet->PlanetType);
                 fprintf(fp, "Ioncannons   %d\n", planet->ioncannons);
                 fprintf(fp, "Jail   %d\n", planet->jail);
                 fprintf(fp, "Turbolasers   %d\n", planet->turbolasers);
@@ -656,7 +656,7 @@ void fread_planet(PlanetData * planet, FILE * fp)
                             fread_number(fp));
                         KEY("Population", planet->population,
                             fread_number(fp));
-                        KEY("Planet_Type", planet->planet_type,
+                        KEY("Planet_Type", planet->PlanetType,
                             fread_number(fp));
                         break;
 
@@ -1696,7 +1696,7 @@ CMDF do_setplanet(CharData * ch, char *argument)
                 send_to_char("Usage: setplanet <planet> <field> [value]\n\r",
                              ch);
                 send_to_char("\n\rField being one of:\n\r", ch);
-                send_to_char(" base_value flags planet_type\n\r", ch);
+                send_to_char(" base_value flags PlanetType\n\r", ch);
                 send_to_char
                         (" name filename starsystem governed_by pop_support delete\n\r",
                          ch);
@@ -1799,9 +1799,9 @@ CMDF do_setplanet(CharData * ch, char *argument)
         {
                 planet->base_value = atoi(argument);
         }
-        else if (!strcmp(arg2, "planet_type"))
+        else if (!strcmp(arg2, "PlanetType"))
         {
-                planet->planet_type = atoi(argument);
+                planet->PlanetType = atoi(argument);
         }
         else if (!strcmp(arg2, "shields"))
         {
@@ -2374,7 +2374,7 @@ CMDF do_planets(CharData * ch, char *argument)
                                 pager_printf(ch, "%s, ", area->filename);
                         pager_printf(ch, "\n\r");
                         pager_printf(ch, "&BT&zype: &w%d",
-                                     planet->planet_type);
+                                     planet->PlanetType);
                         if (planet->attgovern)
                                 pager_printf(ch, "\n\r&BA&zttacker:&G %s",
                                              planet->attgovern->name);

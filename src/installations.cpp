@@ -58,7 +58,7 @@ void save_installations args((INSTALLATION_DATA * installation));
 
 #define  NULLSTR( str )  ( str == NULL || str[0] == '\0' )
 
-const struct installation_type installation_table[MAX_INSTALLATION] = {
+const struct InstallationType installation_table[MAX_INSTALLATION] = {
         /*
          * Installation Name   Shields     Ions     Turbo    Rooms    Name of main room 
          */
@@ -671,15 +671,15 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                              iInstall++)
                         {
                                 if (installation_table[iInstall].
-                                    installation_name
+                                    InstallationName
                                     && installation_table[iInstall].
-                                    installation_name[0] != '\0')
+                                    InstallationName[0] != '\0')
                                 {
                                         mudstrlcat(buf, "\t", MSL);
                                         mudstrlcat(buf,
                                                    installation_table
                                                    [iInstall].
-                                                   installation_name, MSL);
+                                                   InstallationName, MSL);
                                         mudstrlcat(buf, "\n\r", MSL);
                                 }
                         }
@@ -692,15 +692,15 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 {
                         if (!str_prefix
                             (arg1,
-                             installation_table[iInstall].installation_name))
+                             installation_table[iInstall].InstallationName))
                         {
                                 type = iInstall;
                                 break;
                         }
                 }
                 if (iInstall == MAX_INSTALLATION ||
-                    !installation_table[iInstall].installation_name ||
-                    installation_table[iInstall].installation_name[0] == '\0')
+                    !installation_table[iInstall].InstallationName ||
+                    installation_table[iInstall].InstallationName[0] == '\0')
                 {
                         send_to_char
                                 ("That is not an installation, your choices are:\n\r",
@@ -711,15 +711,15 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                              iInstall++)
                         {
                                 if (installation_table[iInstall].
-                                    installation_name
+                                    InstallationName
                                     && installation_table[iInstall].
-                                    installation_name[0] != '\0')
+                                    InstallationName[0] != '\0')
                                 {
                                         mudstrlcat(buf, "\t", MSL);
                                         mudstrlcat(buf,
                                                    installation_table
                                                    [iInstall].
-                                                   installation_name, MSL);
+                                                   InstallationName, MSL);
                                         mudstrlcat(buf, "\n\r", MSL);
                                 }
                         }
@@ -950,18 +950,18 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         for (iInstall = 0; iInstall < MAX_INSTALLATION; iInstall++)
         {
                 if (toupper(arg1[0]) ==
-                    toupper(installation_table[iInstall].installation_name[0])
+                    toupper(installation_table[iInstall].InstallationName[0])
                     && !str_prefix(arg1,
                                    installation_table[iInstall].
-                                   installation_name))
+                                   InstallationName))
                 {
                         type = iInstall;
                         break;
                 }
         }
         if (iInstall == MAX_INSTALLATION - 1 ||
-            !installation_table[iInstall].installation_name ||
-            installation_table[iInstall].installation_name[0] == '\0')
+            !installation_table[iInstall].InstallationName ||
+            installation_table[iInstall].InstallationName[0] == '\0')
         {
                 send_to_char
                         ("That is not an installation, your choices are:\n\r",
@@ -971,12 +971,12 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 for (iInstall = 0; iInstall < MAX_INSTALLATION - 1;
                      iInstall++)
                 {
-                        if (installation_table[iInstall].installation_name &&
+                        if (installation_table[iInstall].InstallationName &&
                             installation_table[iInstall].
-                            installation_name[0] != '\0')
+                            InstallationName[0] != '\0')
                                 ch_printf(ch, "\t%s\n\r",
                                           installation_table[iInstall].
-                                          installation_name);
+                                          InstallationName);
                 }
                 return;
         }
@@ -1078,7 +1078,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         }
 
         stralloc_printf(&room->name, "Entrance to a %s Facility",
-                        installation_table[type].installation_name);
+                        installation_table[type].InstallationName);
 
         if (!str_cmp(arg2, "n") || !str_cmp(arg2, "north") ||
             !str_cmp(arg2, "s") || !str_cmp(arg2, "south") ||
@@ -1189,7 +1189,7 @@ CMDF do_istat(CharData * ch, char *argument)
                                   installation->first_room,
                                   installation->last_room,
                                   installation_table[installation->type].
-                                  installation_name);
+                                  InstallationName);
                 }
                 ch_printf(ch,
                           "&BThere are a total of &R%d&B installations on this planet.",
@@ -1201,7 +1201,7 @@ CMDF do_istat(CharData * ch, char *argument)
         send_to_char("&B------------------------------------------------\n\r",
                      ch);
         ch_printf(ch, "&BI&znstallation &BT&zype:&w       %s\n\r",
-                  installation_table[installation->type].installation_name);
+                  installation_table[installation->type].InstallationName);
         ch_printf(ch, "&BI&znstallation &BF&zilename:&w   %s\n\r",
                   installation->filename);
         ch_printf(ch, "&BI&znstallation &BF&zirstroom:&w  %d\n\r",
@@ -2218,13 +2218,13 @@ CMDF do_sabotage(CharData * ch, char *argument)
                         snprintf(buf, MSL,
                                  "&P%s Security speaks over the organizations network, 'The clan installation on %s is being sabotaged by %s!'\n\r",
                                  installation_table[installation->type].
-                                 installation_name,
+                                 InstallationName,
                                  installation->planet->name, ch->name);
                         echo_to_clan(AT_PINK, buf, installation->clan);
                         snprintf(buf, MSL,
                                  "&P%s Security speaks over the installation intercom, 'This installation is being sabotaged by %s!'\n\r",
                                  installation_table[installation->type].
-                                 installation_name, ch->name);
+                                 InstallationName, ch->name);
                         echo_to_installation(AT_RED, buf, installation);
                 }
                 return;
@@ -2321,13 +2321,13 @@ CMDF do_sabotage(CharData * ch, char *argument)
                 snprintf(buf, MSL,
                          "&P%s Security speaks over the organizations network, 'The clan installation on %s is being sabotaged by %s!'\n\r",
                          installation_table[installation->type].
-                         installation_name, installation->planet->name,
+                         InstallationName, installation->planet->name,
                          ch->name);
                 echo_to_clan(AT_PINK, buf, installation->clan);
                 snprintf(buf, MSL,
                          "&P%s Security speaks over the installation intercom, 'This installation is being sabotaged by %s!'\n\r",
                          installation_table[installation->type].
-                         installation_name, ch->name);
+                         InstallationName, ch->name);
                 echo_to_installation(AT_RED, buf, installation);
 
                 return;
@@ -3115,7 +3115,7 @@ void fireplanet_update()
                         snprintf(buf, MSL,
                                  "&P%s Security speaks over the installation intercom, 'Explosives have been detected inside this faciltiy!'",
                                  installation_table[installation->type].
-                                 installation_name);
+                                 InstallationName);
                         echo_to_installation(AT_RED, buf, installation);
                 }
 
@@ -3124,7 +3124,7 @@ void fireplanet_update()
                         snprintf(buf, MSL,
                                  "&P%s Security speaks over the installation intercom, 'The timer has been identified as having approximately 15 seconds left!'",
                                  installation_table[installation->type].
-                                 installation_name);
+                                 InstallationName);
                         echo_to_installation(AT_RED, buf, installation);
                 }
 
@@ -3133,7 +3133,7 @@ void fireplanet_update()
                         snprintf(buf, MSL,
                                  "&P%s Security speaks over the installation intercom, 'Installation destruction imminent, explosion in 10 seconds!'",
                                  installation_table[installation->type].
-                                 installation_name);
+                                 InstallationName);
                         echo_to_installation(AT_RED, buf, installation);
                 }
 
@@ -3142,7 +3142,7 @@ void fireplanet_update()
                         snprintf(buf, MSL,
                                  "&P%s Security speaks over the installation intercom, 'Installation destruction imminent, explosion in 5 seconds! I'm leaving, now!'",
                                  installation_table[installation->type].
-                                 installation_name);
+                                 InstallationName);
                         echo_to_installation(AT_RED, buf, installation);
                 }
 
