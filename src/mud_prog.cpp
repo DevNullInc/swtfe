@@ -988,7 +988,7 @@ int mprog_do_ifcheck(char *ifcheck, CharData * mob, CharData * actor,
                 {
                         if (IS_NPC(chkchar) || !chkchar->pcdata->clan)
                                 return FALSE;
-                        return mprog_veval(chkchar->pcdata->clan->clan_type,
+                        return mprog_veval(chkchar->pcdata->clan->ClanType,
                                            opr, atoi(rval), mob);
                 }
                 if (!str_cmp(chck, "str"))

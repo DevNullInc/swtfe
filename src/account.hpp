@@ -63,8 +63,8 @@ constexpr const char* ACCOUNT_DIR = "../Account/";
 // Forward Declarations
 // =============================================================================
 
-struct account_data;
-using ACCOUNT_DATA = account_data;
+struct AccountData;
+using ACCOUNT_DATA = AccountData;
 struct CharData;
 using CharData = CharData;
 struct DescriptorData;
@@ -81,7 +81,7 @@ extern ACCOUNT_DATA *last_account;
 // Account Data Structure
 // =============================================================================
 
-struct account_data
+struct AccountData
 {
         ACCOUNT_DATA *prev{nullptr};
         ACCOUNT_DATA *next{nullptr};

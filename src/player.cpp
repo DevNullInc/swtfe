@@ -2273,7 +2273,7 @@ CMDF do_rpreward(CharData * ch, char *argument)
                 clan->enliston = 0;
                 clan->alignment = 0;
                 clan->roster = STRALLOC(ch->name);
-                clan->clan_type = CLAN_GUILD;
+                clan->ClanType = CLAN_GUILD;
                 clan->filename = str_dup(filename);
                 for (int i = 0; i <= 13; i++)
                 {

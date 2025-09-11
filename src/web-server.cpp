@@ -138,7 +138,7 @@ bool check_planet_net args((WebDescriptor * wdesc));
 bool check_race_net args((WebDescriptor * wdesc));
 char     *text2html(const char *ip);
 char     *parse_quotes(char *arg);
-extern char *clan_type(ClanData * clan);
+extern char *ClanType(ClanData * clan);
 long      get_taxes(PlanetData * planet);
 std::vector < std::string > explodestring(char *oldstring, char *delim);
 
@@ -1532,7 +1532,7 @@ void handle_web_clan_request(WebDescriptor * wdesc)
 
         for (clan = first_clan; clan; clan = clan->next)
         {
-                if (clan->clan_type == CLAN_SUBCLAN)
+                if (clan->ClanType == CLAN_SUBCLAN)
                         continue;
 
 
@@ -1543,7 +1543,7 @@ void handle_web_clan_request(WebDescriptor * wdesc)
                 snprintf(buf, MSL * 2, "%-37.37s", clan->name);
                 send_buf(wdesc->Fd, buf, 2);
                 send_buf(wdesc->Fd, "</a> ", 2);
-                snprintf(buf, MSL * 2, "&BT&zype&B: &W%s", clan_type(clan));
+                snprintf(buf, MSL * 2, "&BT&zype&B: &W%s", ClanType(clan));
                 send_buf(wdesc->Fd, buf, 2);
                 send_buf(wdesc->Fd, "<br>", 0);
                 snprintf(buf, MSL * 2, "  &BE&znlisting?&B: &W%-3s&B         ",

@@ -629,7 +629,7 @@ struct DescriptorData
         bool MxpDetected;  /* player using MXP flag */
         bool MspDetected;  /* player using MSP flag */
 #ifdef ACCOUNT
-        struct account_data *Account;
+        struct AccountData *Account;
 #endif
         int IFd;
         pid_t IPid;
@@ -1088,7 +1088,7 @@ struct planet_data
 /* Pretty sure if we are doing 0-13, this can be 13 */
 #define MAX_RANK 14
 
-struct clan_data
+struct ClanData
 {
         ClanData *next;    /* next clan in list            */
         ClanData *prev;    /* previous clan in list        */
@@ -1114,7 +1114,7 @@ struct clan_data
         int pdeaths;    /* Number of pkills against clan    */
         int mkills; /* Number of mkills on behalf of clan   */
         int mdeaths;    /* Number of clan deaths due to mobs    */
-        sh_int clan_type;   /* See clan type defines        */
+        sh_int ClanType;   /* See clan type defines        */
         sh_int members; /* Number of clan members       */
         int enlistroom; /* VNUM of the enlistment room */
         int board;  /* Vnum of clan board           */
@@ -2597,7 +2597,7 @@ struct pc_data
         sh_int statpoints;
         sh_int statedit;
 #ifdef ACCOUNT
-        struct account_data *Account;
+        struct AccountData *Account;
 #endif
         TimeInfoData birthday;
         sh_int age;

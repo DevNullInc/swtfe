@@ -3096,7 +3096,7 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
         char      invis_str[MaxInputLength];
         char      extra_title[MaxStringLength];
         char      race_text[MaxInputLength];
-        char      clan_name[MaxInputLength];
+        char      ClanName[MaxInputLength];
         DescriptorData *d;
         int       iLevelLower;
         int       iLevelUpper;
@@ -3174,9 +3174,9 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
 
                 /*****************************************
                  **	Showing Members Of Wch's Clan    	**
-                 **	Using "clan_name" in who list    	**
+                 **	Using "ClanName" in who list    	**
                  ******************************************/
-                clan_name[0] = '\0'; /* Reset this so it won't print on others */
+                ClanName[0] = '\0'; /* Reset this so it won't print on others */
                 if ( ch && !IS_NPC(ch) && wch->pcdata->clan && (ch->pcdata->clan || IS_IMMORTAL(ch)))
                 {
                         ClanData *pclan;
@@ -3197,14 +3197,14 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                         {
                                 if ( !str_cmp( wch->name, wch->pcdata->clan->leader ) )
                                 {
-                                        snprintf(clan_name, MSL, " &R(&BL&zeader,&B %c&z%s&R)&W",
+                                        snprintf(ClanName, MSL, " &R(&BL&zeader,&B %c&z%s&R)&W",
                                                         wch->pcdata->clan->name[0],
                                                         (wch->pcdata->clan->name+1)
                                                 );
                                 }
                                 else
                                 {
-                                        snprintf(clan_name, MSL, " &R(&B%c&z%s,&B %c&z%s&R)&W",
+                                        snprintf(ClanName, MSL, " &R(&B%c&z%s,&B %c&z%s&R)&W",
                                                         wch->pcdata->clan->rank[wch->pcdata->clanrank][0],
                                                         (wch->pcdata->clan->rank[wch->pcdata->clanrank]+1),
                                                         wch->pcdata->clan->name[0],
@@ -3305,7 +3305,7 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                 
                 /* Add titles and clan info (limited to 200 chars) */
                 len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.200s%.200s", 
-                         extra_title, clan_name);
+                         extra_title, ClanName);
                 
                 /* Add status flags (limited space) */
                 len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.50s%.50s%.50s&w",

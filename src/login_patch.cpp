@@ -25,7 +25,7 @@
 ACCOUNT_DATA *get_account(const char *name);
 
 // Store Account password temporarily for auto-linking
-char account_password[MaxStringLength];
+char AccountPassword[MaxStringLength];
 
 /*
  * Function to auto-link character to Account

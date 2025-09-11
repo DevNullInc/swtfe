@@ -206,7 +206,7 @@ void save_clan(ClanData * clan)
                 fprintf(fp, "PDeaths      %d\n", clan->pdeaths);
                 fprintf(fp, "MKills       %d\n", clan->mkills);
                 fprintf(fp, "MDeaths      %d\n", clan->mdeaths);
-                fprintf(fp, "Type         %d\n", clan->clan_type);
+                fprintf(fp, "Type         %d\n", clan->ClanType);
                 fprintf(fp, "Members      %d\n", clan->members);
                 fprintf(fp, "Enlist       %d\n", clan->enlistroom);
                 fprintf(fp, "Board        %d\n", clan->board);
@@ -488,7 +488,7 @@ void fread_clan(ClanData * clan, FILE * fp)
                         break;
 
                 case 'T':
-                        KEY("Type", clan->clan_type, static_cast<sh_int>(fread_number(fp)));
+                        KEY("Type", clan->ClanType, static_cast<sh_int>(fread_number(fp)));
                         break;
                 default:
                         /*
@@ -1091,7 +1091,7 @@ CMDF do_induct(CharData * ch, char *argument)
 
         if (victim->pcdata->clan)
         {
-                if (victim->pcdata->clan->clan_type == CLAN_CRIME)
+                if (victim->pcdata->clan->ClanType == CLAN_CRIME)
                 {
                         if (victim->pcdata->clan == clan)
                                 send_to_char
@@ -1103,7 +1103,7 @@ CMDF do_induct(CharData * ch, char *argument)
                                          ch);
                         return;
                 }
-                else if (victim->pcdata->clan->clan_type == CLAN_GUILD)
+                else if (victim->pcdata->clan->ClanType == CLAN_GUILD)
                 {
                         if (victim->pcdata->clan == clan)
                                 send_to_char
@@ -1319,7 +1319,7 @@ CMDF do_setclan(CharData * ch, char *argument)
                         send_to_char("Subclan is not a clan.\n\r", ch);
                         return;
                 }
-                if (subclan->clan_type == CLAN_SUBCLAN || subclan->mainclan)
+                if (subclan->ClanType == CLAN_SUBCLAN || subclan->mainclan)
                 {
                         send_to_char
                                 ("Subclan is already part of another organization.\n\r",
@@ -1333,7 +1333,7 @@ CMDF do_setclan(CharData * ch, char *argument)
                                  ch);
                         return;
                 }
-                subclan->clan_type = CLAN_SUBCLAN;
+                subclan->ClanType = CLAN_SUBCLAN;
                 subclan->mainclan = clan;
                 LINK(subclan, clan->first_subclan, clan->last_subclan,
                      next_subclan, prev_subclan);
@@ -1439,13 +1439,13 @@ CMDF do_setclan(CharData * ch, char *argument)
                         clan->mainclan = NULL;
                 }
                 if (!str_cmp(argument, "crime"))
-                        clan->clan_type = CLAN_CRIME;
+                        clan->ClanType = CLAN_CRIME;
                 else if (!str_cmp(argument, "crime family"))
-                        clan->clan_type = CLAN_CRIME;
+                        clan->ClanType = CLAN_CRIME;
                 else if (!str_cmp(argument, "guild"))
-                        clan->clan_type = CLAN_GUILD;
+                        clan->ClanType = CLAN_GUILD;
                 else
-                        clan->clan_type = 0;
+                        clan->ClanType = 0;
                 send_to_char("Done.\n\r", ch);
                 save_clan(clan);
                 return;
@@ -1991,8 +1991,8 @@ CMDF do_showclan(CharData * ch, char *argument)
         }
 
         ch_printf(ch, "%s      : %s\n\rFilename: %s\n\r",
-                  clan->clan_type == CLAN_CRIME ? "Crime Family " :
-                  clan->clan_type == CLAN_GUILD ? "Guild " : "Organization ",
+                  clan->ClanType == CLAN_CRIME ? "Crime Family " :
+                  clan->ClanType == CLAN_GUILD ? "Guild " : "Organization ",
                   clan->name, clan->filename);
         ch_printf(ch, "Description: %s\n\rLeader: %s\n\r",
                   clan->description, clan->leader);
@@ -2001,7 +2001,7 @@ CMDF do_showclan(CharData * ch, char *argument)
                   clan->number1, clan->number2, clan->pkills, clan->pdeaths);
         ch_printf(ch, "MKills: %6d    MDeaths: %6d\n\r", clan->mkills,
                   clan->mdeaths);
-        ch_printf(ch, "Type: %d\n\r", clan->clan_type);
+        ch_printf(ch, "Type: %d\n\r", clan->ClanType);
         ch_printf(ch, "Members: %3d\n\r", clan->members);
         ch_printf(ch, "Enlist Room: %ld\n\r", clan->enlistroom);
         ch_printf(ch, "Board: %5d   Jail: %5d\n\r", clan->board, clan->jail);
@@ -2146,11 +2146,11 @@ CMDF do_makeclan(CharData * ch, char *argument)
         planet->flags = 0;
 }
 
-char     *clan_type(ClanData * clan)
+char     *ClanType(ClanData * clan)
 {
         static char type[250];
 
-        switch (clan->clan_type)
+        switch (clan->ClanType)
         {
         case CLAN_PLAIN:
                 mudstrlcpy(type, "Government", 250);
@@ -2193,14 +2193,14 @@ CMDF do_clans(CharData * ch, char *argument)
                          ch);
                 for (clan = first_clan; clan; clan = clan->next)
                 {
-                        if (    /*clan->clan_type == CLAN_CRIME || 
-                                 * clan->clan_type == CLAN_GUILD ||  */
-                                   clan->clan_type == CLAN_SUBCLAN)
+                        if (    /*clan->ClanType == CLAN_CRIME || 
+                                 * clan->ClanType == CLAN_GUILD ||  */
+                                   clan->ClanType == CLAN_SUBCLAN)
                                 continue;
 
                         pager_printf(ch,
                                      "&BO&zrganization: &W%-37.37s &BT&zype&B: &W%s\n\r",
-                                     clan->name, clan_type(clan));
+                                     clan->name, ClanType(clan));
                         pager_printf(ch,
                                      "  &BE&znlisting?&B: &W%-3s&B           &BM&zembers&B: &W%-4d&B           &BM&zin. &BA&zlign&B: &W%-5d&B\n\r",
                                      clan->enliston ==
@@ -2237,7 +2237,7 @@ CMDF do_clans(CharData * ch, char *argument)
                  * for ( clan = first_clan; clan; clan = clan->next )
                  * {
                  * if ( !str_cmp ( clan->name, "none" ) ) continue;
-                 * if ( clan->clan_type != CLAN_CRIME && clan->clan_type != CLAN_GUILD ) continue;
+                 * if ( clan->ClanType != CLAN_CRIME && clan->ClanType != CLAN_GUILD ) continue;
                  * pager_printf( ch, "&BO&zrganization: &W%s\n\r", clan->name);
                  * pager_printf( ch, "  &BE&znlisting?: &W%-3s&B           &BM&zembers: &W%-4d&B           &BM&zin. &BA&zlign: &W%-5d&B\n\r",
                  * clan->enliston == 1 ? "Yes" : 
@@ -3077,7 +3077,7 @@ CMDF do_capture(CharData * ch, char *argument)
         else
                 clan = ch->pcdata->clan;
 
-        if (clan->clan_type == CLAN_CRIME)
+        if (clan->ClanType == CLAN_CRIME)
         {
                 send_to_char
                         ("Crime fimilies aren't in the business of controlling worlds.\n\r",
@@ -3085,7 +3085,7 @@ CMDF do_capture(CharData * ch, char *argument)
                 return;
         }
 
-        if (clan->clan_type == CLAN_GUILD)
+        if (clan->ClanType == CLAN_GUILD)
         {
                 send_to_char
                         ("Your organization serves a much greater purpose.\n\r",
