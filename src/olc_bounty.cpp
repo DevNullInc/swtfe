@@ -133,7 +133,7 @@ void OlcBountyData::load(FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -418,7 +418,7 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
         char arg3[MaxInputLength];
         int number = 0, count = 0, i = 0;
 
-        if (NULLSTR(argument))
+        if (NullStr(argument))
         {
                 send_to_char("Usage: mset <victim> bounty create\n\r", ch);
                 send_to_char
@@ -434,7 +434,7 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
         }
 
         argument = one_argument(argument, arg1);
-        if (NULLSTR(arg1))
+        if (NullStr(arg1))
         {
                 send_to_char("No arg 1", ch);
                 mset_bounty(ch, mob, "");
@@ -480,7 +480,7 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
 
         argument = one_argument(argument, arg2);
 
-        if (NULLSTR(arg2))
+        if (NullStr(arg2))
         {
                 send_to_char
                         ("Please specify the field that you want to edit.\n\r",
@@ -499,7 +499,7 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
         }
 
         argument = one_argument(argument, arg3);
-        if (NULLSTR(arg3))
+        if (NullStr(arg3))
         {
                 send_to_char
                         ("You must specify what you want the value to be.\n\r",
@@ -579,7 +579,7 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
                         send_to_char
                                 ("You must specify a string value for the amount.\n\rAllowed types are:\n\r",
                                  ch);
-                        for (i = 0; i < (NUMITEMS(olc_bounty_types) - 1); i++)
+                        for (i = 0; i < (NumItems(olc_bounty_types) - 1); i++)
                         {
                                 ch_printf(ch, "\t%s\n\r",
                                           olc_bounty_types[i]);
@@ -588,18 +588,18 @@ void mset_bounty(CharData * ch, CharData * mob, char *argument)
                         return;
                 }
 
-                for (i = 0; i < (NUMITEMS(olc_bounty_types) - 1); i++)
+                for (i = 0; i < (NumItems(olc_bounty_types) - 1); i++)
                 {
                         if (!str_cmp(arg3, olc_bounty_types[i]))
                                 break;
                 }
 
-                if (i == (NUMITEMS(olc_bounty_types) - 1))
+                if (i == (NumItems(olc_bounty_types) - 1))
                 {
                         send_to_char
                                 ("You must specify a string value for the amount.\n\rAllowed types are:\n\r",
                                  ch);
-                        for (i = 0; i < (NUMITEMS(olc_bounty_types) - 1); i++)
+                        for (i = 0; i < (NumItems(olc_bounty_types) - 1); i++)
                         {
                                 ch_printf(ch, "\t%s\n\r",
                                           olc_bounty_types[i]);

@@ -950,7 +950,7 @@ void fread_shuttle(ShuttleData * shuttle, FILE * fp)
 
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -1034,7 +1034,7 @@ void fread_stop(StopData * stop, FILE * fp)
 
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;

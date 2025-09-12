@@ -452,7 +452,7 @@ void fread_alias(AccountData *Account, FILE *fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;

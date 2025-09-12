@@ -166,7 +166,7 @@ CMDF do_autopsy(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(15000,
+                xpgain = UMin(15000,
                               (exp_level(ch->skill_level[MedicAbility] + 1) -
                                exp_level(ch->skill_level[MedicAbility])));
                 gain_exp(ch, xpgain, MedicAbility);
@@ -374,7 +374,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(victim->top_level * 100,
+                xpgain = UMin(victim->top_level * 100,
                               (exp_level(ch->skill_level[MedicAbility] + 1) -
                                exp_level(ch->skill_level[MedicAbility])));
                 gain_exp(ch, xpgain, MedicAbility);
@@ -601,7 +601,7 @@ CMDF do_first_aid(CharData * ch, char *argument)
                     ch, medpac->short_descr, victim, ToChar);
         }
 
-        victim->hit += URANGE(0, heal, victim->max_hit - victim->hit);
+        victim->hit += URange(0, heal, victim->max_hit - victim->hit);
 
         learn_from_success(ch, gsn_first_aid);
 }
@@ -739,7 +739,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ItemChemical)
                 {
-                        Strength = URANGE(10, obj->value[0], level * 5);
+                        Strength = URange(10, obj->value[0], level * 5);
                         weight = obj->weight;
                         separate_obj(obj);
                         obj_from_char(obj);
@@ -797,7 +797,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 50,
+                xpgain = UMin(obj->cost * 50,
                               (exp_level(ch->skill_level[MedicAbility] + 1) -
                                exp_level(ch->skill_level[MedicAbility])));
                 gain_exp(ch, xpgain, MedicAbility);

@@ -424,7 +424,7 @@ CMDF do_wizhelp(CharData * ch, char *argument)
                         for (checked = 0; checked <= 10; checked++) {
                                 if (!keyword[checked] || !argument[checked])
                                         break;
-                                if (LOWER(keyword[checked]) == LOWER(argument[checked]))
+                                if (Lower(keyword[checked]) == Lower(argument[checked]))
                                         matched++;
                         }
                         if ((matched > 1 && matched > (checked / 2)) || (matched > 0 && checked < 2)) {
@@ -490,7 +490,7 @@ CMDF do_restrict(CharData * ch, char *argument)
         else
                 level = static_cast<sh_int>(atoi(arg2));
 
-        level = UMAX(UMIN(get_trust(ch), level), 0);
+        level = UMax(UMin(get_trust(ch), level), 0);
 
         hash = arg[0] % 126;
         for (cmd = command_hash[hash]; cmd; cmd = cmd->next)
@@ -4872,7 +4872,7 @@ CMDF do_loadup(CharData * ch, char *argument)
                 return;
         }
 
-        name[0] = UPPER(name[0]);
+        name[0] = Upper(name[0]);
 
         snprintf(fname, MSL, "%s%c/%s", PlayerDir, tolower(name[0]),
                  capitalize(name));
@@ -4948,7 +4948,7 @@ CMDF do_fixchar(CharData * ch, char *argument)
     victim->mod_lck	= 0;
     victim->Damroll	= 0;
     victim->Hitroll	= 0;
-    victim->alignment	= URANGE( -1000, victim->alignment, 1000 );
+    victim->alignment	= URange( -1000, victim->alignment, 1000 );
     victim->SavingSpellStaff = 0; */
 
 
@@ -5540,7 +5540,7 @@ void close_area(AreaData * pArea)
                         /*
                          * if mob is in area, or part of area. 
                          */
-                        if (URANGE(pArea->low_m_vnum, ech->pIndexData->vnum,
+                        if (URange(pArea->low_m_vnum, ech->pIndexData->vnum,
                                    pArea->hi_m_vnum) == ech->pIndexData->vnum
                             || (ech->in_room && ech->in_room->area == pArea))
                                 extract_char(ech, TRUE);
@@ -5555,7 +5555,7 @@ void close_area(AreaData * pArea)
                 /*
                  * if obj is in area, or part of area. 
                  */
-                if (URANGE(pArea->low_o_vnum, eobj->pIndexData->vnum,
+                if (URange(pArea->low_o_vnum, eobj->pIndexData->vnum,
                            pArea->hi_o_vnum) == eobj->pIndexData->vnum ||
                     (eobj->in_room && eobj->in_room->area == pArea))
                         extract_obj(eobj);
@@ -6337,7 +6337,7 @@ CMDF do_cset(CharData * ch, char *argument)
                                 ("Usage: cset saveflag <flag> [flag]...\n\r",
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(save_flag),
+                                              (NumItems(save_flag),
                                                const_cast<char* const*>(save_flag)), 78), ch);
                         send_to_char("\n\r", ch);
                         return;
@@ -6998,7 +6998,7 @@ void add_social(SocialType * social)
          * make sure the name is all lowercase 
          */
         for (x = 0; social->name[x] != '\0'; x++)
-                social->name[x] = LOWER(social->name[x]);
+                social->name[x] = Lower(social->name[x]);
 
         if (social->name[0] < 'a' || social->name[0] > 'z')
                 hash = 0;
@@ -7376,7 +7376,7 @@ void add_command(CMDType * command)
          * make sure the name is all lowercase 
          */
         for (x = 0; command->name[x] != '\0'; x++)
-                command->name[x] = LOWER(command->name[x]);
+                command->name[x] = Lower(command->name[x]);
 
         hash = command->name[0] % 126;
 
@@ -8981,7 +8981,7 @@ CMDF do_doas(CharData * ch, char *argument)
                 return;
         argument = one_argument(argument, arg);
 
-        if (NULLSTR(argument) || NULLSTR(arg))
+        if (NullStr(argument) || NullStr(arg))
         {
                 send_to_char("&RSyntax:&c doas <victim> <command>", ch);
                 return;
@@ -9169,7 +9169,7 @@ CMDF do_watch(CharData * ch, char *argument)
 
                 start = atoi(arg2);
                 limit = (arg3[0] == '\0') ? MaxDisplayLines : atoi(arg3);
-                limit = UMIN(limit, MaxDisplayLines);
+                limit = UMin(limit, MaxDisplayLines);
 
                 sprintf(fname, "%s%s", WatchDir, strlower(ch->name));
                 if (!(fp = fopen(fname, "r")))
@@ -9545,7 +9545,7 @@ CMDF do_watch(CharData * ch, char *argument)
                         }
                 }
 
-                for (cmd = command_hash[LOWER(arg2[0]) % 126]; cmd;
+                for (cmd = command_hash[Lower(arg2[0]) % 126]; cmd;
                      cmd = cmd->next)
                 {
                         if (!strcmp(arg2, cmd->name))

@@ -62,7 +62,7 @@ int get_partflag args((char *flag));
 bool      shipimage_exist(char *name);
 #endif
 
-#define  NULLSTR( str )  ( str == NULL || str[0] == '\0' )
+#define  NullStr( str )  ( str == NULL || str[0] == '\0' )
 
 
 
@@ -99,7 +99,7 @@ void fread_language(LanguageData * language, FILE * fp)
         {
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -587,7 +587,7 @@ void fread_protoship(ProtoshipData * ship, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -1520,7 +1520,7 @@ void fread_illness(IllnessData * illness, FILE * fp)
         {
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -1704,7 +1704,7 @@ CMDF do_showillness(CharData * ch, char *argument)
 {
         IllnessData *illness;
 
-        if (NULLSTR(argument) || (illness = get_illness(argument)) == NULL)
+        if (NullStr(argument) || (illness = get_illness(argument)) == NULL)
         {
                 sh_int    count = 0;
 
@@ -1760,7 +1760,7 @@ CMDF do_setillness(CharData * ch, char *argument)
 
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
-        if (NULLSTR(argument) || NULLSTR(arg1) || NULLSTR(arg2)
+        if (NullStr(argument) || NullStr(arg1) || NullStr(arg2)
             || (illness = get_illness(arg1)) == NULL)
         {
                 sh_int    count = 0;

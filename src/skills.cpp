@@ -210,7 +210,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
         {
                 sn = (first + top) >> 1;
 
-                if (LOWER(command[0]) == LOWER(skill_table[sn]->name[0])
+                if (Lower(command[0]) == Lower(skill_table[sn]->name[0])
                     && !str_prefix(command, skill_table[sn]->name)
                     && (skill_table[sn]->skill_fun
                         || skill_table[sn]->spell_fun != spell_null)
@@ -587,7 +587,7 @@ CMDF do_slookup(CharData * ch, char *argument)
                 ch_printf(ch,
                           "Type: %s  Target: %s  Minpos: %d  Endurance: %d  Beats: %d\n\r",
                           skill_tname[skill->type],
-                          target_type[URANGE
+                          target_type[URange
                                       ((int) TarIgnore, skill->target,
                                        (int) TarObjInv)],
                           skill->minimum_position, skill->min_endurance,
@@ -987,33 +987,33 @@ CMDF do_sset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "minpos"))
                 {
                         skill->minimum_position =
-                                URANGE(PosDead, atoi(argument), PosDrag);
+                                URange(PosDead, atoi(argument), PosDrag);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
                 if (!str_cmp(arg2, "minlevel"))
                 {
                         skill->min_level =
-                                URANGE(1, atoi(argument), MaxLevel);
+                                URange(1, atoi(argument), MaxLevel);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
                 if (!str_cmp(arg2, "slot"))
                 {
-                        skill->slot = URANGE(0, atoi(argument), 30000);
+                        skill->slot = URange(0, atoi(argument), 30000);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
                 if (!str_cmp(arg2, "endurance"))
                 {
                         skill->min_endurance =
-                                URANGE(0, atoi(argument), 2000);
+                                URange(0, atoi(argument), 2000);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
                 if (!str_cmp(arg2, "beats"))
                 {
-                        skill->beats = URANGE(0, atoi(argument), 120);
+                        skill->beats = URange(0, atoi(argument), 120);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
@@ -1144,13 +1144,13 @@ CMDF do_sset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "level"))
                 {
                         skill->min_level =
-                                URANGE(1, atoi(argument), MaxLevel);
+                                URange(1, atoi(argument), MaxLevel);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
                 if (!str_cmp(arg2, "held"))
                 {
-                        skill->held = URANGE(0, atoi(argument), 1);
+                        skill->held = URange(0, atoi(argument), 1);
                         send_to_char("Ok.\n\r", ch);
                         return;
                 }
@@ -1482,7 +1482,7 @@ void learn_from_success(CharData * ch, int sn)
 
         adept = (ch->skill_level[skill_table[sn]->guild] -
                  skill_table[sn]->min_level) * 5 + 50;
-        adept = UMIN(adept, 100);
+        adept = UMin(adept, 100);
 
         if (ch->PCData->learned[sn] >= adept)
                 return;
@@ -1502,7 +1502,7 @@ void learn_from_success(CharData * ch, int sn)
                 else
                         learn = 1;
                 ch->PCData->learned[sn] =
-                        UMIN(adept, ch->PCData->learned[sn] + learn);
+                        UMin(adept, ch->PCData->learned[sn] + learn);
                 if (ch->PCData->learned[sn] == 100) /* fully learned! */
                 {
                         gain = 50 * sklvl;
@@ -1819,7 +1819,7 @@ CMDF do_dig(CharData * ch, char *argument)
                         }
                 }
                 add_timer(ch, TimerDoFun,
-                          UMIN(skill_table[gsn_dig]->beats / 10, 3), do_dig,
+                          UMin(skill_table[gsn_dig]->beats / 10, 3), do_dig,
                           1);
                 ch->dest_buf = str_dup(arg);
                 send_to_char("You begin digging...\n\r", ch);
@@ -1977,7 +1977,7 @@ CMDF do_search(CharData * ch, char *argument)
                         }
                 }
                 add_timer(ch, TimerDoFun,
-                          UMIN(skill_table[gsn_search]->beats / 10, 3),
+                          UMin(skill_table[gsn_search]->beats / 10, 3),
                           do_search, 1);
                 send_to_char("You begin your search...\n\r", ch);
                 ch->dest_buf = str_dup(arg);
@@ -2205,13 +2205,13 @@ CMDF do_steal(CharData * ch, char *argument)
                 learn_from_success(ch, gsn_steal);
                 if (IsNpc(victim))
                 {
-                        xp = UMIN(amount * 100,
+                        xp = UMin(amount * 100,
                                   (exp_level
                                    (ch->skill_level[PiracyAbility] + 1) -
                                    exp_level(ch->
                                              skill_level[PiracyAbility])) /
                                   25);
-                        xp = UMIN(xp, xp_compute(ch, victim));
+                        xp = UMin(xp, xp_compute(ch, victim));
                         gain_exp(ch, xp, PiracyAbility);
                         ch_printf(ch, "&WYou gain %ld piracy experience!\n\r",
                                   xp);
@@ -2278,10 +2278,10 @@ CMDF do_steal(CharData * ch, char *argument)
         learn_from_success(ch, gsn_steal);
         if (IsNpc(victim))
         {
-                xp = UMIN(obj->cost * 10 + 1000,
+                xp = UMin(obj->cost * 10 + 1000,
                           (exp_level(ch->skill_level[PiracyAbility] + 1) -
                            exp_level(ch->skill_level[PiracyAbility])) / 10);
-                xp = UMIN(xp, xp_compute(ch, victim));
+                xp = UMin(xp, xp_compute(ch, victim));
                 gain_exp(ch, xp, PiracyAbility);
                 ch_printf(ch, "&WYou gain %ld piracy experience!\n\r", xp);
         }
@@ -2464,7 +2464,7 @@ CMDF do_rescue(CharData * ch, char *argument)
         }
 
         ch->alignment = ch->alignment + 5;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
 
         percent = number_percent() - (get_curr_lck(ch) - 14)
                 - (get_curr_lck(victim) - 16);
@@ -2487,7 +2487,7 @@ CMDF do_rescue(CharData * ch, char *argument)
             ToNotvict);
 
         ch->alignment = ch->alignment + 50;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
 
         learn_from_success(ch, gsn_rescue);
         stop_fighting(fch, FALSE);
@@ -3166,7 +3166,7 @@ CMDF do_pick(CharData * ch, char *argument)
                 {
                         long      xpgain;
 
-                        xpgain = URANGE(500,
+                        xpgain = URange(500,
                                         (number_percent() *
                                          (ch->skill_level[PiracyAbility] *
                                           4)), 15000);
@@ -3232,7 +3232,7 @@ CMDF do_pick(CharData * ch, char *argument)
                 {
                         long      xpgain;
 
-                        xpgain = UMIN(20,
+                        xpgain = UMin(20,
                                       (exp_level
                                        (ch->skill_level[PiracyAbility] + 1) -
                                        exp_level(ch->
@@ -3306,7 +3306,7 @@ CMDF do_pick(CharData * ch, char *argument)
                         {
                                 long      xpgain;
 
-                                xpgain = UMIN(20,
+                                xpgain = UMin(20,
                                               (exp_level
                                                (ch->
                                                 skill_level[PiracyAbility] +
@@ -3580,7 +3580,7 @@ CMDF do_aid(CharData * ch, char *argument)
         }
 
         ch->alignment = ch->alignment + 20;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
 
         percent = number_percent() - (get_curr_lck(ch) - 13);
         WaitState(ch, skill_table[gsn_aid]->beats);
@@ -3592,7 +3592,7 @@ CMDF do_aid(CharData * ch, char *argument)
         }
 
         ch->alignment = ch->alignment + 20;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
 
         act(AtSkill, "You aid $N!", ch, NULL, victim, ToChar);
         act(AtSkill, "$n aids $N!", ch, NULL, victim, ToNotvict);
@@ -3744,7 +3744,7 @@ bool check_parry(CharData * ch, CharData * victim)
                 /*
                  * Tuan was here.  :)   *** so was Durga :p *** 
                  */
-                chances = UMIN(60, victim->skill_level[CombatAbility]);
+                chances = UMin(60, victim->skill_level[CombatAbility]);
         }
         else
         {
@@ -3759,7 +3759,7 @@ bool check_parry(CharData * ch, CharData * victim)
                 chances = (int) (victim->PCData->learned[gsn_parry]);
         }
 
-        chances = URANGE(10, chances, 90);
+        chances = URange(10, chances, 90);
 
         if (number_range(1, 100) > chances)
         {
@@ -3795,7 +3795,7 @@ bool check_dodge(CharData * ch, CharData * victim)
                 return FALSE;
 
         if (IsNpc(victim))
-                chances = UMIN(60, victim->top_level);
+                chances = UMin(60, victim->top_level);
         else
                 chances = (int) (victim->PCData->learned[gsn_dodge] / 2);
 
@@ -3974,7 +3974,7 @@ bool check_grip(CharData * ch, CharData * victim)
                 return FALSE;
 
         if (IsNpc(victim))
-                percent_chance = UMIN(60, 2 * victim->top_level);
+                percent_chance = UMin(60, 2 * victim->top_level);
         else
                 percent_chance =
                         (int) (victim->PCData->learned[gsn_grip] / 2);
@@ -4198,7 +4198,7 @@ CMDF do_hitall(CharData * ch, char *argument)
                 send_to_char("There's no one here!\n\r", ch);
                 return;
         }
-        ch->endurance = UMAX(0, ch->endurance - nvict * 3 + nhit);
+        ch->endurance = UMax(0, ch->endurance - nvict * 3 + nhit);
         if (nhit)
                 learn_from_success(ch, gsn_hitall);
         else

@@ -324,7 +324,7 @@ ShipData *load_ship(FILE * fp)
         {
                 word = feof(fp) ? "EndShip" : fread_word(fp);
                 fMatch = FALSE;
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -714,7 +714,7 @@ CharData *load_mobile(FILE * fp)
         {
                 word = feof(fp) ? "EndMobile" : fread_word(fp);
                 fMatch = FALSE;
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;

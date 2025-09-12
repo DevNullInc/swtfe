@@ -206,10 +206,10 @@ char* format_obj_to_char(ObjData* obj, CharData* ch, bool fShort)
  */
 const char* halucinated_object(int ms, bool fShort)
 {
-        int       sms = URANGE(1, (ms + 10) / 5, 20);
+        int       sms = URange(1, (ms + 10) / 5, 20);
 
         if (fShort)
-                switch (number_range(MinHallucinationRange - URANGE(1, sms / 2, 5), sms)) {
+                switch (number_range(MinHallucinationRange - URange(1, sms / 2, 5), sms)) {
                 case 1:
                         return "a sword";
                 case 2:
@@ -253,7 +253,7 @@ const char* halucinated_object(int ms, bool fShort)
                 default:
                         return "-error";
                 }
-        switch (number_range(MinHallucinationRange - URANGE(1, sms / 2, 5), sms)) {
+        switch (number_range(MinHallucinationRange - URange(1, sms / 2, 5), sms)) {
         case 1:
                 return "A nice looking sword catches your eye.";
         case 2:
@@ -355,7 +355,7 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
          * If not mentally stable...
          */
         if (abs(ms) > MentalStabilityThreshold) {
-                offcount = URANGE(-(count), (count * ms) / 100, count * 2);
+                offcount = URange(-(count), (count * ms) / 100, count * 2);
                 if (offcount < 0)
                         offcount += number_range(0, abs(offcount));
                 else if (offcount > 0)
@@ -671,7 +671,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
 
         if (can_see(ch,victim)) {
                 char * temp = get_char_desc(victim,ch);
-                temp[0] = UPPER(temp[0]);
+                temp[0] = Upper(temp[0]);
                 mudstrlcat(buf, temp ,MSL);
         }
         else if (IsImmortal(victim)) {
@@ -855,7 +855,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
         }
 
         mudstrlcat(buf, "\n\r", MSL);
-        buf[0] = UPPER(buf[0]);
+        buf[0] = Upper(buf[0]);
         send_to_char(buf, ch);
         show_visible_affects_to_char(victim, ch);
         return;
@@ -1736,7 +1736,7 @@ void show_condition(CharData * ch, CharData * victim)
                         mudstrlcat(buf, " is DYING.\n\r", MSL);
 
         }
-        buf[0] = UPPER(buf[0]);
+        buf[0] = Upper(buf[0]);
         send_to_char(buf, ch);
         return;
 }
@@ -2561,7 +2561,7 @@ sh_int str_similarity(const char *astr, const char *bstr)
                         break;
                 astr++;
 
-                if (LOWER((*astr)) == LOWER((*bstr)))
+                if (Lower((*astr)) == Lower((*bstr)))
                         matches++;
                 ++bstr;
 
@@ -2583,7 +2583,7 @@ sh_int str_prefix_level(const char *astr, const char *bstr)
 
         for (; *astr; astr++)
         {
-                if (LOWER(*astr) == LOWER(*bstr))
+                if (Lower(*astr) == Lower(*bstr))
                         matches++;
                 else
                         return matches;
@@ -2779,8 +2779,8 @@ void do_help(CharData* ch, char* argument)
                                         if (!oneword[checked]
                                             || !argument[checked])
                                                 break;
-                                        if (LOWER(oneword[checked]) ==
-                                            LOWER(argument[checked]))
+                                        if (Lower(oneword[checked]) ==
+                                            Lower(argument[checked]))
                                                 matched++;
                                 }
                                 if ((matched > 1 && matched > (checked / 2))
@@ -3047,9 +3047,9 @@ CMDF do_hlist(CharData * ch, char *argument)
         argument = one_argument(argument, arg);
         if (arg[0] != '\0')
         {
-                min = URANGE(minlimit, atoi(arg), maxlimit);
+                min = URange(minlimit, atoi(arg), maxlimit);
                 if (argument[0] != '\0')
-                        max = URANGE(min, atoi(argument), maxlimit);
+                        max = URange(min, atoi(argument), maxlimit);
                 else
                         max = maxlimit;
         }

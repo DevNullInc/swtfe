@@ -263,7 +263,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
 				/* history */
 				do_history(ch, command);
                 /* snprintf(buf, MSL, "%s what?\n\r", command);
-                buf[0] = UPPER(buf[0]);
+                buf[0] = Upper(buf[0]);
                 send_to_char(buf, ch); */  /* where'd this line go? */
                 return TRUE;
         }
@@ -600,7 +600,7 @@ ChannelData *fread_channel(FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -1216,7 +1216,7 @@ CMDF do_channels(CharData * ch, char *argument)
         for (channel = first_channel; channel; channel = channel->next)
                 if (victim->top_level >= channel->level)
                         ch_printf(ch, "&B%-c&z%-16s &z[&w%9s&z]&D\n\r",
-                                  UPPER(channel->name[0]), channel->name + 1,
+                                  Upper(channel->name[0]), channel->name + 1,
                                   (hasname
                                    (victim->PCData->listening,
                                     channel->name)) ? "Listening" : "");

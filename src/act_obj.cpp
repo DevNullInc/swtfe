@@ -137,7 +137,7 @@ sh_int get_obj_resistance(ObjData * obj)
         if (obj->item_type == ItemArmor || obj->item_type == ItemWeapon)
                 resist = static_cast<sh_int>(resist + obj->value[0]);
 
-        return static_cast<sh_int>(URANGE(MinResistance, resist, MaxResistance));
+        return static_cast<sh_int>(URange(MinResistance, resist, MaxResistance));
 }
 
 // ============================================================================
@@ -2333,7 +2333,7 @@ CMDF do_bury(CharData * ch, char *argument)
                 }
         }
 
-        if (obj->weight > (UMAX(MinBuryWeight, (can_carry_w(ch) / BuryWeightDivisor))) && !shovel)
+        if (obj->weight > (UMax(MinBuryWeight, (can_carry_w(ch) / BuryWeightDivisor))) && !shovel)
         {
                 send_to_char
                         ("You'd need a shovel to bury something that big.\n\r",
@@ -2341,9 +2341,9 @@ CMDF do_bury(CharData * ch, char *argument)
                 return;
         }
 
-        move = static_cast<sh_int>((obj->weight * BuryMoveMultiplier * (shovel ? ShovelMultiplier : NoShovelMultiplier)) / UMAX(1,
+        move = static_cast<sh_int>((obj->weight * BuryMoveMultiplier * (shovel ? ShovelMultiplier : NoShovelMultiplier)) / UMax(1,
                                                             can_carry_w(ch)));
-        move = static_cast<sh_int>(URANGE(MinBuryMove, move, MaxBuryMove));
+        move = static_cast<sh_int>(URange(MinBuryMove, move, MaxBuryMove));
         if (move > ch->endurance)
         {
                 send_to_char
@@ -2356,7 +2356,7 @@ CMDF do_bury(CharData * ch, char *argument)
         act(AtAction, "You solemnly bury $p...", ch, obj, NULL, ToChar);
         act(AtAction, "$n solemnly buries $p...", ch, obj, NULL, ToRoom);
         SetBit(obj->extra_flags, ItemBurried);
-        WaitState(ch, URANGE(MinBuryWait, move / BuryWaitDivisor, MaxBuryWait));
+        WaitState(ch, URange(MinBuryWait, move / BuryWaitDivisor, MaxBuryWait));
         return;
 }
 

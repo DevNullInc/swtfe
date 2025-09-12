@@ -2755,7 +2755,7 @@ CMDF do_languages(CharData * ch, char *argument)
                  */
                 prct = 5 + (get_curr_int(ch) / 6) + (get_curr_wis(ch) / 7);
                 ch->PCData->learned[sn] += static_cast<sh_int>(prct);
-                ch->PCData->learned[sn] = UMIN(ch->PCData->learned[sn], 99);
+                ch->PCData->learned[sn] = UMin(ch->PCData->learned[sn], 99);
                 if (ch->PCData->learned[sn] == prct)
                         act(AtPlain, "You begin lessons in $t.", ch,
                             language->name, NULL, ToChar);
@@ -2794,7 +2794,7 @@ CMDF do_languages(CharData * ch, char *argument)
                 if (victim->speaking == language)
                         ch_printf(ch, "&R%s", capitalize(language->name));
                 else
-                        ch_printf(ch, "&B%c&z%s", UPPER(language->name[0]),
+                        ch_printf(ch, "&B%c&z%s", Upper(language->name[0]),
                                   (language->name + 1));
                 send_to_char("\n\r", ch);
         }

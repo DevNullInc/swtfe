@@ -305,13 +305,13 @@ namespace Account
 
                 if ((victim = get_char_world(ch, argument)) != NULL)
                 {
-                        if (!victim->pcdata || !victim->pcdata->Account)
+                        if (!victim->PcData || !victim->PcData->Account)
                         {
                                 send_to_char("&BN&zo &Raccount&z associated with that character.",
                                              ch);
                                 return nullptr;
                         }
-                        Account = victim->pcdata->Account;
+                        Account = victim->PcData->Account;
                 }
                 else
                 {
@@ -505,10 +505,10 @@ namespace Account
                         return false;
 
                 acct->character[count] = strdup(chdata->name);
-                if (chdata->pcdata && chdata->pcdata->rp)
+                if (chdata->PcData && chdata->PcData->rp)
                 {
-                        acct->rppoints += chdata->pcdata->rp;
-                        chdata->pcdata->rp = 0;
+                        acct->rppoints += chdata->PcData->rp;
+                        chdata->PcData->rp = 0;
                 }
                 return true;
         }
@@ -563,9 +563,9 @@ namespace Account
                 AccountData *Account = NULL;
                 CharData *victim = get_char_world(ch, argument);
 
-                if (victim && !(victim->pcdata == nullptr))
+                if (victim && !(victim->PcData == nullptr))
                 {
-                        Account = victim->pcdata->Account;
+                        Account = victim->PcData->Account;
                         ch_printf(ch, "Account Name: %s\n\r", Account->name);
                         ch_printf(ch, "RP Points:    %d\n\r", Account->rppoints);
                         ch_printf(ch, "RP Current:   %d\n\r", Account->rpcurrent);
@@ -591,7 +591,7 @@ namespace Account
                 int count = 0;
                 bool loaded = false;
 
-                if (ch->pcdata == nullptr)
+                if (ch->PcData == nullptr)
                         return nullptr;
                 if (d->Account == NULL)
                         return nullptr;
@@ -612,7 +612,7 @@ namespace Account
                                 pager_printf(ch, "\t&G%s\n\r",
                                              d->Account->character[count]);
                         }
-                        if (ch->pcdata == nullptr || ch->in_room == nullptr)
+                        if (ch->PcData == nullptr || ch->in_room == nullptr)
                                 return nullptr;
                         if (ch->position == PosFighting)
                         {
@@ -657,7 +657,7 @@ namespace Account
                         }
 
                         save_char_obj(ch);
-                        Account::SaveAccount(ch->pcdata->Account);
+                        Account::SaveAccount(ch->PcData->Account);
                         save_home(ch);
 
                         snprintf(log_buf, MSL, "%s has quit.", ch->name);
@@ -677,7 +677,7 @@ namespace Account
                          */
                         if (loaded)
                         {
-                                d->Account = d->character->pcdata->Account;
+                                d->Account = d->character->PcData->Account;
                                 ch = d->character;
 
                                 if (!Account::check_reconnect(d, argument, true))
@@ -702,10 +702,10 @@ namespace Account
                                 }
                                 else
                                         log_string_plus(log_buf, LogComm, ch->top_level);
-                                if (ch->pcdata->area)
+                                if (ch->PcData->area)
                                         do_loadarea(ch, "");
 
-                                if (ch->pcdata->release_date > current_time)
+                                if (ch->PcData->release_date > current_time)
                                 {
                                         if (ch->in_room)
                                                 char_from_room(ch);

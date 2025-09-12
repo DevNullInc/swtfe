@@ -5666,7 +5666,7 @@ CMDF do_modifyexit(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(20000,
+                xpgain = UMin(20000,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->

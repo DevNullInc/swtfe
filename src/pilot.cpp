@@ -166,7 +166,7 @@ CMDF do_bomb(CharData * ch, char *argument)
 
         if (body->planet())
                 body->planet()->pop_support =
-                        URANGE(-100,
+                        URange(-100,
                                body->planet()->pop_support -
                                (ch->top_level / 50), 100);
 
@@ -197,7 +197,7 @@ CMDF do_bomb(CharData * ch, char *argument)
                         int       number = number_range(1, 5);
 
                         body->planet()->defbattalions =
-                                UMAX(0,
+                                UMax(0,
                                      body->planet()->defbattalions - number);
                         send_to_char
                                 ("The planetary barracks have been hit killing many soldiers.\n\r",

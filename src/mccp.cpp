@@ -110,7 +110,7 @@ bool process_compressed(DescriptorData * d)
         {
                 for (iStart = 0; iStart < len; iStart += nWrite)
                 {
-                        nBlock = UMIN(len - iStart, 4096);
+                        nBlock = UMin(len - iStart, 4096);
                         if ((nWrite =
                              write(d->descriptor,
                                    d->OutCompressBuf + iStart, nBlock)) < 0)

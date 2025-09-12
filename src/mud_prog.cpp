@@ -1169,7 +1169,7 @@ void mprog_translate(char ch, char *t, CharData * mob, CharData * actor,
                 {
                         one_argument(actor->name, t);
                         if (!IsNpc(actor))
-                                *t = UPPER(*t);
+                                *t = Upper(*t);
                 }
                 else
                         mudstrlcpy(t, "someone", MIL);
@@ -1200,7 +1200,7 @@ void mprog_translate(char ch, char *t, CharData * mob, CharData * actor,
                 {
                         one_argument(vict->name, t);
                         if (!IsNpc(vict))
-                                *t = UPPER(*t);
+                                *t = Upper(*t);
                 }
                 else
                         mudstrlcpy(t, "someone", MIL);
@@ -1233,7 +1233,7 @@ void mprog_translate(char ch, char *t, CharData * mob, CharData * actor,
                         one_argument(rndm->name, t);
                         if (!IsNpc(rndm))
                         {
-                                *t = UPPER(*t);
+                                *t = Upper(*t);
                         }
                 }
                 else
@@ -2207,9 +2207,9 @@ bool mprog_keyword_check(const char *argu, const char *argl)
         arglist = arg2;
 
         for (i = 0; i < strlen(arglist); i++)
-                arglist[i] = LOWER(arglist[i]);
+                arglist[i] = Lower(arglist[i]);
         for (i = 0; i < strlen(arg); i++)
-                arg[i] = LOWER(arg[i]);
+                arg[i] = Lower(arg[i]);
         if ((arglist[0] == 'p') && (arglist[1] == ' '))
         {
                 arglist += 2;
@@ -2264,11 +2264,11 @@ void mprog_wordlist_check(char *arg, CharData * mob, CharData * actor,
                         mudstrlcpy(temp1, mprg->arglist, MSL);
                         list = temp1;
                         for (i = 0; i < strlen(list); i++)
-                                list[i] = LOWER(list[i]);
+                                list[i] = Lower(list[i]);
                         mudstrlcpy(temp2, arg, MIL);
                         dupl = temp2;
                         for (i = 0; i < strlen(dupl); i++)
-                                dupl[i] = LOWER(dupl[i]);
+                                dupl[i] = Lower(dupl[i]);
                         if ((list[0] == 'p') && (list[1] == ' '))
                         {
                                 list += 2;
@@ -3108,11 +3108,11 @@ void oprog_wordlist_check(char *arg, CharData * mob, CharData * actor,
                         mudstrlcpy(temp1, mprg->arglist, MSL);
                         list = temp1;
                         for (i = 0; i < strlen(list); i++)
-                                list[i] = LOWER(list[i]);
+                                list[i] = Lower(list[i]);
                         mudstrlcpy(temp2, arg, MIL);
                         dupl = temp2;
                         for (i = 0; i < strlen(dupl); i++)
-                                dupl[i] = LOWER(dupl[i]);
+                                dupl[i] = Lower(dupl[i]);
                         if ((list[0] == 'p') && (list[1] == ' '))
                         {
                                 list += 2;
@@ -3380,11 +3380,11 @@ void rprog_wordlist_check(char *arg, CharData * mob, CharData * actor,
                         mudstrlcpy(temp1, mprg->arglist, MSL);
                         list = temp1;
                         for (i = 0; i < (int) strlen(list); i++)
-                                list[i] = LOWER(list[i]);
+                                list[i] = Lower(list[i]);
                         mudstrlcpy(temp2, arg, MIL);
                         dupl = temp2;
                         for (i = 0; i < (int) strlen(dupl); i++)
-                                dupl[i] = LOWER(dupl[i]);
+                                dupl[i] = Lower(dupl[i]);
                         if ((list[0] == 'p') && (list[1] == ' '))
                         {
                                 list += 2;

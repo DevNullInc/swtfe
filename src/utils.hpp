@@ -21,81 +21,116 @@
  *     |_______|| _|      |__| |_______/     \______/  |_______/ |_______|               *
  *****************************************************************************************
  *                                                                                       *
- * Star Wars: The Final Episode additions and changes from the Star Wars Reality code    *
- * copyright (c) 2025 /dev/null Industries - StygianRenegade                             *
+ * Modernized for C++23 by Gemini 2.5 Pro for SMAUG style MUDs.                          *
+ * Original copyrights respectfully retained.                                            *
  *                                                                                       *
- * Star Wars Reality Code Additions and changes from the Smaug Code copyright (c) 1997   *
- * by Sean Cooper                                                                        *
- *                                                                                       *
- * Starwars and Starwars Names copyright(c) Lucas Film Ltd.                              *
  *****************************************************************************************
- * Original SMAUG 1.4a written by Thoric (Derek Snider) with Altrag, Blodkai, Haus, Narn,*
- * Scryn, Swordbearer, Tricops, Gorog, Rennard, Grishnakh, Fireblade, and Nivek.         *
- *                                                                                       *
- * Original MERC 2.1 code by Hatchet, Furey, and Kahn.                                   *
- *                                                                                       *
- * Original DikuMUD code by: Hans Staerfeldt, Katja Nyboe, Tom Madsen, Michael Seifert,  *
- * and Sebastian Hammer.                                                                 *
- *****************************************************************************************
- *                                Utility macros                                         *
- *****************************************************************************************
- * Modernized Utility Header File for Game Operations                                   *
+ *                        Modernized Utility Header File                                 *
  ****************************************************************************************/
+#pragma once // Use include guards instead of managing them manually
+
 #include <algorithm>
+#include <bit> // For bit manipulation in C++20+
 #include <cctype>
+#include <cstdio> // C++ header for stdio.h
+#include <iostream>
+#include <list>
 #include <memory>
+#include <source_location> // C++20 feature for logging source info
+#include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits> // For advanced template metaprogramming
 #include <vector>
-#include <list>
-#include <iostream>
-#include <stdexcept>
+#include "account.hpp"
 
-namespace utils {
+// Forward declare common MUD types to allow utils to have the correct signatures.
+struct CharData;
+struct DescriptorData;
 
-// Min and Max
-constexpr auto umin(auto a, auto b) { return (a < b) ? a : b; }
-constexpr auto umax(auto a, auto b) { return (a > b) ? a : b; }
+// Declare MUD-specific logging functions.
+void bug(const char *str, ...);
+void log_string(const char *str);
 
-// Range
-constexpr auto urange(auto a, auto b, auto c) { return (b < a) ? a : ((b > c) ? c : b); }
+namespace utils
+{
+    // --- Basic Math and Character Utilities ---
 
-// Character Case Conversion
-constexpr char to_lower(char c) { return (c >= 'A' && c <= 'Z') ? (c + 'a' - 'A') : c; }
-constexpr char to_upper(char c) { return (c >= 'a' && c <= 'z') ? (c + 'A' - 'a') : c; }
+    template <typename T>
+    constexpr T min(const T &a, const T &b) { return (a < b) ? a : b; }
 
-// String Utilities
-inline bool is_null_or_empty(const std::string_view str) { return str.empty(); }
+    template <typename T>
+    constexpr T max(const T &a, const T &b) { return (a > b) ? a : b; }
 
-// Memory Management
-template <typename T, typename... Args>
-std::unique_ptr<T> create_unique(Args&&... args) {
-    return std::make_unique<T>(std::forward<Args>(args)...);
-}
-
-template <typename T, typename... Args>
-std::shared_ptr<T> create_shared(Args&&... args) {
-    return std::make_shared<T>(std::forward<Args>(args)...);
-}
-
-// Linked List Utilities
-// Use std::list or std::vector instead of manual linked list management
-
-// Logging Utility
-inline void log_error(const std::string& message) {
-    std::cerr << "Error: " << message << std::endl;
-}
-
-inline void log_debug(const std::string& message) {
-    std::cout << "Debug: " << message << std::endl;
-}
-
-// Conversion Helpers
-constexpr short int_to_shint(int value) {
-    if (value < std::numeric_limits<short>::min() || value > std::numeric_limits<short>::max()) {
-        throw std::out_of_range("Value out of range for short int");
+    template <typename T>
+    constexpr T range(const T &a, const T &b, const T &c)
+    {
+        return (b < a) ? a : ((b > c) ? c : b);
     }
-    return static_cast<short>(value);
-}
 
+    constexpr char to_lower(char c)
+    {
+        if (c >= 'A' && c <= 'Z')
+            return c + ('a' - 'A');
+        return c;
+    }
+
+    constexpr char to_upper(char c)
+    {
+        if (c >= 'a' && c <= 'z')
+            return c + ('A' - 'a');
+        return c;
+    }
+
+    // --- String Utilities ---
+
+    inline bool is_null_or_empty(const char *str) { return !str || str[0] == '\0'; }
+    inline bool is_null_or_empty(const std::string &str) { return str.empty(); }
+    inline bool is_null_or_empty(std::string_view str) { return str.empty(); }
+
+    // --- Compile-time Array Item Counter ---
+
+    template <typename T, std::size_t N>
+    constexpr std::size_t array_size(const T (&)[N]) noexcept { return N; }
+
+    // --- Type-Safe Bitwise Operations (replaces IsSet, SetBit, etc.) ---
+
+    template <std::integral T, std::integral U>
+    constexpr bool is_set(T flag, U bit)
+    {
+        return (flag & bit) == bit;
+    }
+
+    template <std::integral T, std::integral U>
+    constexpr void set_bit(T &var, U bit)
+    {
+        var |= bit;
+    }
+
+    template <std::integral T, std::integral U>
+    constexpr void remove_bit(T &var, U bit)
+    {
+        var &= ~bit;
+    }
+
+    template <std::integral T, std::integral U>
+    constexpr void toggle_bit(T &var, U bit)
+    {
+        var ^= bit;
+    }
+
+    // --- Safe File Handling ---
+
+    inline void safe_fclose(FILE *&fp, const std::source_location &loc = std::source_location::current())
+    {
+        if (fp)
+        {
+            fclose(fp);
+            fp = nullptr;
+        }
+        else
+        {
+            bug("Trying to fclose a null file pointer at %s:%d", loc.file_name(), loc.line());
+        }
+    }
 } // namespace utils

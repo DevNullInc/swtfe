@@ -994,7 +994,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                 gain_condition(ch, CondThirst, 1);
 
                 ch->PCData->drug_level[drug] =
-                        UMIN(ch->PCData->drug_level[drug] + obj->value[1],
+                        UMin(ch->PCData->drug_level[drug] + obj->value[1],
                              255);
                 if (ch->PCData->drug_level[drug] >= 255
                     || ch->PCData->drug_level[drug] >
@@ -1006,7 +1006,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                             "You feel sick. You may have taken too much.", ch,
                             NULL, NULL, ToChar);
                         ch->mental_state =
-                                URANGE(20, ch->mental_state + 5, 100);
+                                URange(20, ch->mental_state + 5, 100);
                         af.type = gsn_poison;
                         af.location = ApplyInt;
                         af.modifier = -5;
@@ -1028,7 +1028,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                                 af.location = ApplyAc;
                                 af.modifier = -10;
                                 af.duration =
-                                        URANGE(1,
+                                        URange(1,
                                                ch->PCData->drug_level[drug] -
                                                ch->PCData->addiction[drug],
                                                obj->value[1]);
@@ -1046,7 +1046,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                                 af.location = ApplyNone;
                                 af.modifier = 0;
                                 af.duration =
-                                        URANGE(1,
+                                        URange(1,
                                                ch->PCData->drug_level[drug] -
                                                ch->PCData->addiction[drug],
                                                obj->value[1]);
@@ -1061,7 +1061,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.location = ApplyDex;
                         af.modifier = 1;
                         af.duration =
-                                URANGE(1,
+                                URange(1,
                                        2 * (ch->PCData->drug_level[drug] -
                                             ch->PCData->addiction[drug]),
                                        2 * obj->value[1]);
@@ -1072,7 +1072,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.location = ApplyHitroll;
                         af.modifier = 1;
                         af.duration =
-                                URANGE(1,
+                                URange(1,
                                        2 * (ch->PCData->drug_level[drug] -
                                             ch->PCData->addiction[drug]),
                                        2 * obj->value[1]);
@@ -1087,7 +1087,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.location = ApplyHit;
                         af.modifier = 10;
                         af.duration =
-                                URANGE(1,
+                                URange(1,
                                        2 * (ch->PCData->drug_level[drug] -
                                             ch->PCData->addiction[drug]),
                                        2 * obj->value[1]);
@@ -1098,7 +1098,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.location = ApplyCon;
                         af.modifier = 1;
                         af.duration =
-                                URANGE(1,
+                                URange(1,
                                        2 * (ch->PCData->drug_level[drug] -
                                             ch->PCData->addiction[drug]),
                                        2 * obj->value[1]);
@@ -1727,7 +1727,7 @@ CMDF do_drink(CharData * ch, char *argument)
                             ch, obj, liq_table[liquid].liq_name, ToChar);
                 }
 
-                amount = 1; /* UMIN(amount, obj->value[1]); */
+                amount = 1; /* UMin(amount, obj->value[1]); */
                 /*
                  * what was this? concentrated drinks?  concentrated water
                  * * too I suppose... sheesh! 
@@ -1785,7 +1785,7 @@ CMDF do_drink(CharData * ch, char *argument)
                         act(AtPoison, "You sputter and gag.", ch, NULL, NULL,
                             ToChar);
                         ch->mental_state =
-                                URANGE(20, ch->mental_state + 5, 100);
+                                URange(20, ch->mental_state + 5, 100);
                         af.type = gsn_poison;
                         af.duration = 3 * obj->value[3];
                         af.location = ApplyNone;
@@ -1935,7 +1935,7 @@ CMDF do_eat(CharData * ch, char *argument)
                                 act(AtPoison, "You choke and gag.", ch, NULL,
                                     NULL, ToChar);
                                 ch->mental_state =
-                                        URANGE(20, ch->mental_state + 5, 100);
+                                        URange(20, ch->mental_state + 5, 100);
                         }
                         else
                         {
@@ -1944,7 +1944,7 @@ CMDF do_eat(CharData * ch, char *argument)
                                 act(AtPoison, "You gag on $p.", ch, obj,
                                     NULL, ToChar);
                                 ch->mental_state =
-                                        URANGE(15, ch->mental_state + 5, 100);
+                                        URange(15, ch->mental_state + 5, 100);
                         }
 
                         af.type = gsn_poison;
@@ -2986,7 +2986,7 @@ CMDF do_hail(CharData * ch, char *argument)
                         if (home_vnum >= area->low_r_vnum
                             && home_vnum <= area->hi_r_vnum)
                         {
-                                ch->gold -= UMAX(ch->top_level, 0);
+                                ch->gold -= UMax(ch->top_level, 0);
 
                                 act(AtAction,
                                     "$n hails a speederbike, and drives off to seek shelter.",
@@ -3046,7 +3046,7 @@ CMDF do_hail(CharData * ch, char *argument)
                 return;
         }
 
-        ch->gold -= UMAX(ch->top_level, 0);
+        ch->gold -= UMax(ch->top_level, 0);
 
         act(AtAction,
             "$n hails a speederbike, and drives off to seek shelter.", ch,

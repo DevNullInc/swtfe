@@ -360,7 +360,7 @@ CMDF do_makebeacon(CharData * ch, char *argument)
                 SkillType *skill = skill_table[gsn_makebeacon];
                 long      xpgain;
 
-                xpgain = UMIN((level * level * 2),  //This should equal anywhere from 20-40k exp,
+                xpgain = UMin((level * level * 2),  //This should equal anywhere from 20-40k exp,
                               // which should be about 1/3 of what they need for the next level
                               (exp_level
                                (ch->skill_level[skill->guild] + 1) -

@@ -83,7 +83,7 @@ inline std::string title_female(int chclass, int level);
 inline std::string title_male(int chclass, int level);
 
 inline auto first_descriptor() { return descriptor_list; }
-inline int URANGE(int a, int b, int c) { return (b < a ? a : (b > c ? c : b)); }
+inline int URange(int a, int b, int c) { return (b < a ? a : (b > c ? c : b)); }
 inline auto ChImcdata(auto ch) { return ch->player_specials->imcchardata; }
 inline auto ChImclevel(auto ch) { return GetLevel(ch); }
 inline std::string ChImcname(auto ch) { return GetName(ch); }
@@ -114,7 +114,7 @@ inline std::string ChImcrank(auto) { return "User"; }
 enum class genders { SexNeutral, SexMale, SexFemale };
 
 constexpr int ConPlaying = 1;
-inline char LOWER(char c) { return (c >= 'A' && c <= 'Z' ? c + 'a' - 'A' : c); }
+inline char Lower(char c) { return (c >= 'A' && c <= 'Z' ? c + 'a' - 'A' : c); }
 
 struct user_data {
         imcchar_data* imcchardata = nullptr;

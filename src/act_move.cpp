@@ -368,7 +368,7 @@ void decorate_room(RoomIndexData * room)
 
         room->name = STRALLOC(const_cast<char*>(sect_names[sector][0]));
         buf[0] = '\0';
-        nRand = number_range(1, UMIN(MaxRoomDescriptions, sent_total[sector]));
+        nRand = number_range(1, UMin(MaxRoomDescriptions, sent_total[sector]));
 
         for (iRand = 0; iRand < nRand; iRand++)
                 previous[iRand] = -1;
@@ -395,10 +395,10 @@ void decorate_room(RoomIndexData * room)
                         if (len > 5 && buf[len - 1] == '.')
                         {
                                 mudstrlcat(buf, "  ", MSL);
-                                buf2[0] = UPPER(buf2[0]);
+                                buf2[0] = Upper(buf2[0]);
                         }
                         else if (len == 0)
-                                buf2[0] = UPPER(buf2[0]);
+                                buf2[0] = Upper(buf2[0]);
                         mudstrlcat(buf, buf2, MSL);
                 }
         }
@@ -438,7 +438,7 @@ CMDF do_autodescription(CharData * ch, [[maybe_unused]] const char *argument)
 
 
         buf[0] = '\0';
-        nRand = number_range(1, UMIN(MaxRoomDescriptions, sent_total[sector]));
+        nRand = number_range(1, UMin(MaxRoomDescriptions, sent_total[sector]));
 
         for (iRand = 0; iRand < nRand; iRand++)
                 previous[iRand] = -1;
@@ -465,10 +465,10 @@ CMDF do_autodescription(CharData * ch, [[maybe_unused]] const char *argument)
                         if (len > 5 && buf[len - 1] == '.')
                         {
                                 mudstrlcat(buf, "  ", MSL);
-                                buf2[0] = UPPER(buf2[0]);
+                                buf2[0] = Upper(buf2[0]);
                         }
                         else if (len == 0)
-                                buf2[0] = UPPER(buf2[0]);
+                                buf2[0] = Upper(buf2[0]);
                         mudstrlcat(buf, buf2, MSL);
                 }
         }
@@ -674,7 +674,7 @@ RoomIndexData *generate_exit(RoomIndexData * in_room, ExitData ** pexit)
 
                 brvnum = r1;
                 backroom = in_room;
-                serial = (UMAX(r1, r2) << 16) | UMIN(r1, r2);
+                serial = (UMax(r1, r2) << 16) | UMin(r1, r2);
                 distance = orig_exit->distance - 1;
         }
         hash = static_cast<sh_int>(serial % 64);
@@ -1095,7 +1095,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                         if (!IsAffected(ch->mount, AffFlying)
                             && !IsAffected(ch->mount, AffFloating))
                                 endurance =
-                                        movement_loss[UMIN
+                                        movement_loss[UMin
                                                       (SectMax - 1,
                                                        in_room->
                                                        sector_type)] * 3;
@@ -1115,7 +1115,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                             && !IsAffected(ch, AffFloating))
                                 endurance =
                                         encumbrance(ch,
-                                                    movement_loss[UMIN
+                                                    movement_loss[UMin
                                                                   (SectMax -
                                                                    1,
                                                                    in_room->
@@ -2827,10 +2827,10 @@ CMDF do_struggle_binding(CharData * ch)
                                      get_curr_str(ch) / 2);
                 if (obj->value[0] == 100)
                         chance = 0;
-                chance = URANGE(1, chance - obj->value[1], 100);
-                obj->value[2] = URANGE(1, obj->value[2] - chance, 99);
+                chance = URange(1, chance - obj->value[1], 100);
+                obj->value[2] = URange(1, obj->value[2] - chance, 99);
                 ch->endurance = static_cast<sh_int>(
-                        URANGE(0, ch->endurance - number_range(150, 500),
+                        URange(0, ch->endurance - number_range(150, 500),
                                ch->max_endurance));
                 if (ch->endurance < 0)
                         ch->endurance = static_cast<sh_int>(0);  /* Added in to fix strange bug */
@@ -2972,7 +2972,7 @@ CMDF do_struggle(CharData * ch)
         }
         else
         {
-                chance = URANGE(0,
+                chance = URange(0,
                                 ((get_curr_str(ch) + get_curr_dex(ch)) +
                                  number_range(10, 40)), 100);
                 if (number_percent() > chance)
@@ -2987,7 +2987,7 @@ CMDF do_struggle(CharData * ch)
                             "$n struggles against $N's grip on $m, but $N holds strong.",
                             ch, NULL, holder, ToNotvict);
                         ch->endurance = static_cast<sh_int>(
-                                URANGE(0,
+                                URange(0,
                                        ch->endurance - number_range(120, 700),
                                        ch->max_endurance));
                         WaitState(ch, static_cast<sh_int>(number_range(5, 12)));
@@ -3133,7 +3133,7 @@ CMDF do_subdue(CharData * ch, [[maybe_unused]] const char *argument)
         else
         {
                 victim->endurance = static_cast<sh_int>(
-                        URANGE(0,
+                        URange(0,
                                victim->endurance - (strain_amount +
                                                     number_range(strain_amount
                                                                  / 5,

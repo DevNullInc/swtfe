@@ -279,7 +279,7 @@ void fread_roommate(RoommateData * roomie, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -324,7 +324,7 @@ void fread_home(HomeData * home, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -1210,7 +1210,7 @@ CMDF do_roommate(CharData * ch, char *argument)
                                 continue;
                         count++;
                         ch_printf(ch, "\t&B%d&z} &B%c&z%s\n\r", count,
-                                  UPPER(roomie->name[0]), roomie->name + 1);
+                                  Upper(roomie->name[0]), roomie->name + 1);
                 }
                 if (count == 0)
                 {
@@ -1443,7 +1443,7 @@ GridWrapper * home_grid_fread( FILE * fp)
 		word = feof(fp) ? "End" : fread_word(fp);
 		fMatch = FALSE;
 
-		switch (UPPER(word[0]))
+		switch (Upper(word[0]))
 		{
 			case '*':
 				fMatch = TRUE;
@@ -1736,7 +1736,7 @@ CMDF do_realitor(CharData * ch, char * argument)
 
 	send_to_char("The land is now yours, and has been rezoned!\n\r", ch);
 	learn_from_success(ch, gsn_realitor);
-	xp = UMIN(amount * 10,
+	xp = UMin(amount * 10,
 			(exp_level(ch->skill_level[OccupationAbility] + 1) -
 			 exp_level(ch->skill_level[OccupationAbility])));
 	gain_exp(ch, xp, OccupationAbility);
@@ -2116,7 +2116,7 @@ void HomeData::add_room(CharData * ch, char * argument)
 	char_from_room(ch);
     char_to_room(ch, newroom);
 	learn_from_success(ch, gsn_roomconstruction);
-	xp = UMIN(amount * 10,
+	xp = UMin(amount * 10,
 			(exp_level(ch->skill_level[EngineeringAbility] + 1) -
 			 exp_level(ch->skill_level[EngineeringAbility])));
 	gain_exp(ch, xp, EngineeringAbility);
@@ -2170,10 +2170,10 @@ void generate_description(RoomIndexData *room, int type)
         if (room->description)
                 STRFREE(room->description);
 
-        num_descs = NUMITEMS(home_types[type].room_desc);
+        num_descs = NumItems(home_types[type].room_desc);
 
         buf[0] = '\0';
-        nRand = number_range(1, UMIN(8, num_descs));//Hard Coded, don't want 25, want how many are there
+        nRand = number_range(1, UMin(8, num_descs));//Hard Coded, don't want 25, want how many are there
 
         for (iRand = 0; iRand < nRand; iRand++)
                 previous[iRand] = -1;
@@ -2200,10 +2200,10 @@ void generate_description(RoomIndexData *room, int type)
                         if (len > 5 && buf[len - 1] == '.')
                         {
                                 mudstrlcat(buf, "  ", MSL);
-                                buf2[0] = UPPER(buf2[0]);
+                                buf2[0] = Upper(buf2[0]);
                         }
                         else if (len == 0)
-                                buf2[0] = UPPER(buf2[0]);
+                                buf2[0] = Upper(buf2[0]);
                         mudstrlcat(buf, buf2, MSL);
                 }
         }

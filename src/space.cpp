@@ -184,32 +184,32 @@ void move_ships()
                 {
                         if (missile->mx < target->vx)
                                 missile->mx +=
-                                        UMIN(missile->Speed / 5,
+                                        UMin(missile->Speed / 5,
                                              (int) (target->vx -
                                                     missile->mx));
                         else if (missile->mx > target->vx)
                                 missile->mx -=
-                                        UMIN(missile->Speed / 5,
+                                        UMin(missile->Speed / 5,
                                              (int) (missile->mx -
                                                     target->vx));
                         if (missile->my < target->vy)
                                 missile->my +=
-                                        UMIN(missile->Speed / 5,
+                                        UMin(missile->Speed / 5,
                                              (int) (target->vy -
                                                     missile->my));
                         else if (missile->my > target->vy)
                                 missile->my -=
-                                        UMIN(missile->Speed / 5,
+                                        UMin(missile->Speed / 5,
                                              (int) (missile->my -
                                                     target->vy));
                         if (missile->mz < target->vz)
                                 missile->mz +=
-                                        UMIN(missile->Speed / 5,
+                                        UMin(missile->Speed / 5,
                                              (int) (target->vz -
                                                     missile->mz));
                         else if (missile->mz > target->vz)
                                 missile->mz -=
-                                        UMIN(missile->Speed / 5,
+                                        UMin(missile->Speed / 5,
                                              (int) (missile->mz -
                                                     target->vz));
 
@@ -490,7 +490,7 @@ void recharge_ships()
                                                                   (int) ship->
                                                                   vz) / 70);
                                                         percent_chance =
-                                                                URANGE(10,
+                                                                URange(10,
                                                                        percent_chance,
                                                                        90);
                                                         if (number_percent() >
@@ -737,16 +737,16 @@ void update_space()
                         ship->shipstate = ShipLaunch2;
 
 
-                ship->shield = UMAX(0, ship->shield - 1 - ship->ship_class);
+                ship->shield = UMax(0, ship->shield - 1 - ship->ship_class);
 
                 if (ship->autorecharge && ship->maxshield > ship->shield
                     && ship->energy > 100)
                 {
                         recharge =
-                                UMIN(ship->maxshield - ship->shield,
+                                UMin(ship->maxshield - ship->shield,
                                      10 + ship->ship_class * 10);
-                        recharge = UMIN(recharge, ship->energy / 2 - 100);
-                        recharge = UMAX(1, recharge);
+                        recharge = UMin(recharge, ship->energy / 2 - 100);
+                        recharge = UMax(1, recharge);
                         ship->shield += recharge;
                         ship->energy -= recharge;
                 }
@@ -875,7 +875,7 @@ void update_space()
                                         "Warning: Ship fuel low.");
                 }
 
-                ship->energy = URANGE(0, ship->energy, ship->maxenergy);
+                ship->energy = URange(0, ship->energy, ship->maxenergy);
         }
 
         /*
@@ -1038,7 +1038,7 @@ void update_space()
                                                         percent_chance +=
                                                                 (30);
                                                         percent_chance =
-                                                                URANGE(10,
+                                                                URange(10,
                                                                        percent_chance,
                                                                        90);
 
@@ -1292,7 +1292,7 @@ void fread_starsystem(SpaceData * starsystem, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -2122,7 +2122,7 @@ void fread_ship(ShipData * ship, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -2179,7 +2179,7 @@ void fread_ship(ShipData * ship, FILE * fp)
                                         ship->copilot = STRALLOC("");
                                 if (!ship->pilot)
                                         ship->pilot = STRALLOC("");
-                                ship->sensor = UMAX(50, ship->sensor);
+                                ship->sensor = UMax(50, ship->sensor);
                                 if (ship->shipstate != ShipDisabled)
                                         ship->shipstate = ShipDocked;
                                 if (ship->statet0 != LaserDamaged)
@@ -3228,7 +3228,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "manuever"))
         {
-                ship->manuever = URANGE(0, atoi(argument), 120);
+                ship->manuever = URange(0, atoi(argument), 120);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3236,7 +3236,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "lasers"))
         {
-                ship->lasers = URANGE(0, atoi(argument), 10);
+                ship->lasers = URange(0, atoi(argument), 10);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3281,7 +3281,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "class"))
         {
-                ship->ship_class = URANGE(0, atoi(argument), 9);
+                ship->ship_class = URange(0, atoi(argument), 9);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3289,8 +3289,8 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "missiles"))
         {
-                ship->maxmissiles = URANGE(0, atoi(argument), 255);
-                ship->missiles = URANGE(0, atoi(argument), 255);
+                ship->maxmissiles = URange(0, atoi(argument), 255);
+                ship->missiles = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3298,8 +3298,8 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "torpedos"))
         {
-                ship->maxtorpedos = URANGE(0, atoi(argument), 255);
-                ship->torpedos = URANGE(0, atoi(argument), 255);
+                ship->maxtorpedos = URange(0, atoi(argument), 255);
+                ship->torpedos = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3307,8 +3307,8 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "rockets"))
         {
-                ship->maxrockets = URANGE(0, atoi(argument), 255);
-                ship->rockets = URANGE(0, atoi(argument), 255);
+                ship->maxrockets = URange(0, atoi(argument), 255);
+                ship->rockets = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3316,7 +3316,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "Speed"))
         {
-                ship->realspeed = URANGE(0, atoi(argument), 150);
+                ship->realspeed = URange(0, atoi(argument), 150);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3324,7 +3324,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "tractorbeam"))
         {
-                ship->tractorbeam = URANGE(0, atoi(argument), 255);
+                ship->tractorbeam = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3332,7 +3332,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "hyperspeed"))
         {
-                ship->hyperspeed = URANGE(0, atoi(argument), 255);
+                ship->hyperspeed = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3340,7 +3340,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "shield"))
         {
-                ship->maxshield = URANGE(0, atoi(argument), 1000);
+                ship->maxshield = URange(0, atoi(argument), 1000);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3348,8 +3348,8 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "hull"))
         {
-                ship->hull = URANGE(1, atoi(argument), 20000);
-                ship->maxhull = URANGE(1, atoi(argument), 20000);
+                ship->hull = URange(1, atoi(argument), 20000);
+                ship->maxhull = URange(1, atoi(argument), 20000);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3357,8 +3357,8 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "energy"))
         {
-                ship->energy = URANGE(1, atoi(argument), 30000);
-                ship->maxenergy = URANGE(1, atoi(argument), 30000);
+                ship->energy = URange(1, atoi(argument), 30000);
+                ship->maxenergy = URange(1, atoi(argument), 30000);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3366,7 +3366,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "sensor"))
         {
-                ship->sensor = URANGE(0, atoi(argument), 255);
+                ship->sensor = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3374,7 +3374,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "astroarray"))
         {
-                ship->astro_array = URANGE(0, atoi(argument), 255);
+                ship->astro_array = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3382,7 +3382,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "comm"))
         {
-                ship->comm = URANGE(0, atoi(argument), 255);
+                ship->comm = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3390,7 +3390,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "cloak"))
         {
-                ship->cloak = URANGE(0, atoi(argument), 255);
+                ship->cloak = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3398,7 +3398,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "stealth"))
         {
-                ship->stealth = URANGE(0, atoi(argument), 255);
+                ship->stealth = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3406,7 +3406,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "interdictor"))
         {
-                ship->interdictor = URANGE(0, atoi(argument), 255);
+                ship->interdictor = URange(0, atoi(argument), 255);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3414,8 +3414,8 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "chaff"))
         {
-                ship->chaff = URANGE(0, atoi(argument), 25);
-                ship->maxchaff = URANGE(0, atoi(argument), 25);
+                ship->chaff = URange(0, atoi(argument), 25);
+                ship->maxchaff = URange(0, atoi(argument), 25);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3423,7 +3423,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "ions"))
         {
-                ship->ions = URANGE(0, atoi(argument), 6);
+                ship->ions = URange(0, atoi(argument), 6);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3431,7 +3431,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "battalions"))
         {
-                ship->battalions = URANGE(0, atoi(argument), 50);
+                ship->battalions = URange(0, atoi(argument), 50);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -3439,7 +3439,7 @@ CMDF do_setship(CharData * ch, char *argument)
 
         if (!str_cmp(arg2, "maxbattalions"))
         {
-                ship->maxbattalions = URANGE(0, atoi(argument), 50);
+                ship->maxbattalions = URange(0, atoi(argument), 50);
                 send_to_char("Done.\n\r", ch);
                 save_ship(ship);
                 return;
@@ -4241,12 +4241,12 @@ void damage_ship_ch(ShipData * ship, int min, int max, CharData * ch)
 
         xp = (exp_level(ch->skill_level[PilotingAbility] + 1) -
               exp_level(ch->skill_level[PilotingAbility])) / 25;
-        xp = UMIN(get_ship_value(ship) / 100, xp);
+        xp = UMin(get_ship_value(ship) / 100, xp);
         gain_exp(ch, xp, PilotingAbility);
 
         if (ship->shield > 0)
         {
-                shield_dmg = UMIN(ship->shield, damage_amount);
+                shield_dmg = UMin(ship->shield, damage_amount);
                 damage_amount -= shield_dmg;
                 ship->shield -= shield_dmg;
                 if (ship->shield == 0)
@@ -4310,7 +4310,7 @@ void damage_ship_ch(ShipData * ship, int min, int max, CharData * ch)
 
                 xp = (exp_level(ch->skill_level[PilotingAbility] + 1) -
                       exp_level(ch->skill_level[PilotingAbility]));
-                xp = UMIN(get_ship_value(ship), xp);
+                xp = UMin(get_ship_value(ship), xp);
                 gain_exp(ch, xp, PilotingAbility);
                 ch_printf(ch, "&WYou gain %ld piloting experience!\n\r", xp);
                 return;
@@ -4330,7 +4330,7 @@ void damage_ship(ShipData * ship, int min, int max)
 
         if (ship->shield > 0)
         {
-                shield_dmg = UMIN(ship->shield, damage_amount);
+                shield_dmg = UMin(ship->shield, damage_amount);
                 damage_amount -= shield_dmg;
                 ship->shield -= shield_dmg;
                 if (ship->shield == 0)
@@ -5698,11 +5698,11 @@ CMDF do_land(CharData * ch, char *argument)
                                  (ch->skill_level[PilotingAbility] + 1) -
                                  exp_level(ch->
                                            skill_level[PilotingAbility]));
-                        xp = UMIN(get_ship_value(ship), xp);
+                        xp = UMin(get_ship_value(ship), xp);
                         gain_exp(ch, xp, PilotingAbility);
                         ch_printf(ch,
                                   "&WYou gain %ld points of flight experience!\n\r",
-                                  UMIN(get_ship_value(ship), xp));
+                                  UMin(get_ship_value(ship), xp));
                 }
                 return;
         }
@@ -5942,7 +5942,7 @@ CMDF do_accelerate(CharData * ch, char *argument)
 
         ship->energy -= abs((change - abs(ship->currspeed)) / 10);
 
-        ship->currspeed = URANGE(0, change, ship->realspeed);
+        ship->currspeed = URange(0, change, ship->realspeed);
 
         if (ship->ship_class == FighterShip)
                 learn_from_success(ch, gsn_starfighters);
@@ -6877,9 +6877,9 @@ CMDF do_autorecharge(CharData * ch, char *argument)
         if (ship->autorecharge)
         {
                 recharge =
-                        URANGE(1, ship->maxshield - ship->shield,
+                        URange(1, ship->maxshield - ship->shield,
                                25 + ship->ship_class * 25);
-                recharge = UMIN(recharge, ship->energy * 5 + 100);
+                recharge = UMin(recharge, ship->energy * 5 + 100);
                 ship->shield += recharge;
                 ship->energy -= (recharge * 2 + recharge * ship->ship_class);
         }
@@ -7358,7 +7358,7 @@ CMDF do_status(CharData * ch, char *argument)
                           target->manuever);
                 ch_printf(ch,
                           "|| Sensor Range:\t&R[&Y%+7d&R]                                      &O||\n\r",
-                          URANGE(1500, ship->sensor * 50 + 500, 10000));
+                          URange(1500, ship->sensor * 50 + 500, 10000));
                 ch_printf(ch,
                           "|| Cargo Type:      &R[&Y%-11.11s&R]                                      &O||\n\r",
                           capitalize(cargo_names[ship->cargotype]));
@@ -7936,7 +7936,7 @@ CMDF do_fire(CharData * ch, char *argument)
                 percent_chance -= (abs((int) (target->vy - ship->vy)) / 70);
                 percent_chance -= (abs((int) (target->vz - ship->vz)) / 70);
                 percent_chance -= target->evasive / 10;
-                percent_chance = URANGE(10, percent_chance, 90);
+                percent_chance = URange(10, percent_chance, 90);
                 act(AtPlain, "$n presses the fire button.", ch,
                     NULL, argument, ToRoom);
                 if (number_percent() > percent_chance)
@@ -8056,7 +8056,7 @@ CMDF do_fire(CharData * ch, char *argument)
                 percent_chance -= (abs((int) (target->vy - ship->vy)) / 70);
                 percent_chance -= (abs((int) (target->vz - ship->vz)) / 70);
                 percent_chance -= target->evasive / 10;
-                percent_chance = URANGE(1, (percent_chance / 5), 90);
+                percent_chance = URange(1, (percent_chance / 5), 90);
                 act(AtPlain, "$n presses the fire button.", ch,
                     NULL, argument, ToRoom);
                 if (number_percent() > percent_chance)
@@ -8169,7 +8169,7 @@ CMDF do_fire(CharData * ch, char *argument)
 
                 percent_chance -= target->evasive / 10;
                 percent_chance += (30);
-                percent_chance = URANGE(20, percent_chance, 80);
+                percent_chance = URange(20, percent_chance, 80);
                 act(AtPlain, "$n presses the fire button.", ch,
                     NULL, argument, ToRoom);
                 if (number_percent() > percent_chance)
@@ -8268,7 +8268,7 @@ CMDF do_fire(CharData * ch, char *argument)
                 percent_chance -= (abs((int) (target->vy - ship->vy)) / 70);
                 percent_chance -= (abs((int) (target->vz - ship->vz)) / 70);
                 percent_chance -= target->evasive / 10;
-                percent_chance = URANGE(20, percent_chance, 80);
+                percent_chance = URange(20, percent_chance, 80);
                 act(AtPlain, "$n presses the fire button.", ch,
                     NULL, argument, ToRoom);
                 if (number_percent() > percent_chance)
@@ -8369,7 +8369,7 @@ CMDF do_fire(CharData * ch, char *argument)
                 percent_chance -= (abs((int) (target->vz - ship->vz)) / 100);
                 percent_chance -= target->evasive / 10;
                 percent_chance -= 30;
-                percent_chance = URANGE(20, percent_chance, 80);
+                percent_chance = URange(20, percent_chance, 80);
                 act(AtPlain, "$n presses the fire button.", ch,
                     NULL, argument, ToRoom);
                 if (number_percent() > percent_chance)
@@ -8453,7 +8453,7 @@ CMDF do_fire(CharData * ch, char *argument)
                 percent_chance -= (abs((int) (target->vy - ship->vy)) / 70);
                 percent_chance -= (abs((int) (target->vz - ship->vz)) / 70);
                 percent_chance -= target->evasive / 10;
-                percent_chance = URANGE(10, percent_chance, 90);
+                percent_chance = URange(10, percent_chance, 90);
                 act(AtPlain, "$n presses the fire button.", ch,
                     NULL, argument, ToRoom);
                 if (number_percent() > percent_chance)
@@ -8549,7 +8549,7 @@ CMDF do_fire(CharData * ch, char *argument)
                 percent_chance -= (abs((int) (target->vy - ship->vy)) / 70);
                 percent_chance -= (abs((int) (target->vz - ship->vz)) / 70);
                 percent_chance -= target->evasive / 10;
-                percent_chance = URANGE(10, percent_chance, 90);
+                percent_chance = URange(10, percent_chance, 90);
                 act(AtPlain, "$n presses the fire button.", ch,
                     NULL, argument, ToRoom);
                 if (number_percent() > percent_chance)
@@ -8871,8 +8871,8 @@ CMDF do_recharge(CharData * ch, char *argument)
         learn_from_success(ch, gsn_shipsystems);
 
         recharge =
-                UMIN(ship->maxshield - ship->shield, ship->energy * 5 + 100);
-        recharge = URANGE(1, recharge, 25 + ship->ship_class * 25);
+                UMin(ship->maxshield - ship->shield, ship->energy * 5 + 100);
+        recharge = URange(1, recharge, 25 + ship->ship_class * 25);
         ship->shield += recharge;
         ship->energy -= (recharge * 2 + recharge * ship->ship_class);
 }
@@ -8961,7 +8961,7 @@ CMDF do_repairship(CharData * ch, char *argument)
 
         if (!str_cmp(arg, "hull"))
         {
-                change = URANGE(0,
+                change = URange(0,
                                 number_range((int)
                                              (ch->PCData->
                                               learned[gsn_shipmaintenance] /
@@ -9224,7 +9224,7 @@ CMDF do_radar(CharData * ch, char *argument)
                 return;
         }
 
-        sensor = URANGE(1500, ship->sensor * 50 + 500, 10000);
+        sensor = URange(1500, ship->sensor * 50 + 500, 10000);
         act(AtPlain, "$n checks the radar.", ch, NULL, argument, ToRoom);
 
         set_char_color(AtLblue, ch);
@@ -10869,7 +10869,7 @@ CMDF do_juke(CharData * ch, char *argument)
                          ch);
                 xp = (exp_level(ch->skill_level[PilotingAbility] + 1) -
                       exp_level(ch->skill_level[PilotingAbility])) / 25;
-                xp = UMIN(get_ship_value(ship) / 100, xp);
+                xp = UMin(get_ship_value(ship) / 100, xp);
                 gain_exp(ch, xp, PilotingAbility);
                 ch_printf(ch, "&YYou gain %ld piloting experience!", xp);
                 ship->evasive = 25;
@@ -10983,7 +10983,7 @@ CMDF do_roll(CharData * ch, char *argument)
                          ch);
                 xp = (exp_level(ch->skill_level[PilotingAbility] + 1) -
                       exp_level(ch->skill_level[PilotingAbility])) / 25;
-                xp = UMIN(get_ship_value(ship) / 100, xp);
+                xp = UMin(get_ship_value(ship) / 100, xp);
                 gain_exp(ch, xp, PilotingAbility);
                 ch_printf(ch, "&YYou gain %ld piloting experience!", xp);
 
@@ -11095,7 +11095,7 @@ CMDF do_evade(CharData * ch, char *argument)
                          ch);
                 xp = (exp_level(ch->skill_level[PilotingAbility] + 1) -
                       exp_level(ch->skill_level[PilotingAbility])) / 25;
-                xp = UMIN(get_ship_value(ship) / 100, xp);
+                xp = UMin(get_ship_value(ship) / 100, xp);
                 gain_exp(ch, xp, PilotingAbility);
                 ch_printf(ch, "&YYou gain %ld piloting experience!", xp);
                 ship->evasive = 5;
@@ -11329,13 +11329,13 @@ void damage_ship_ch_ion(ShipData * ship, int min, int max, CharData * ch)
                 long      xp =
                         (exp_level(ch->skill_level[PilotingAbility] + 1) -
                          exp_level(ch->skill_level[PilotingAbility])) / 25;
-                xp = UMIN(get_ship_value(ship) / 100, xp);
+                xp = UMin(get_ship_value(ship) / 100, xp);
                 gain_exp(ch, xp, PilotingAbility);
         }
 
         if (ship->shield > 0)
         {
-                shield_dmg = UMIN(ship->shield, damage_amount);
+                shield_dmg = UMin(ship->shield, damage_amount);
                 damage_amount -= shield_dmg;
                 ship->shield -= shield_dmg;
                 if (ship->shield == 0)

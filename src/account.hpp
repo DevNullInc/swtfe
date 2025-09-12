@@ -42,11 +42,16 @@
 
 // Always include mud.hpp first for type definitions and macros
 #pragma once
-#include "mud.hpp"
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <array>
+#include "mud.hpp"
+
+// Fallback definition if mud.hpp does not define MaxCharacters
+#ifndef MaxCharacters
+constexpr int MaxCharacters = 10; 
+#endif
 
 // =============================================================================
 // Account System Constants

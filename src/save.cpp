@@ -775,7 +775,7 @@ void fwrite_char(CharData * ch, FILE * fp)
                                 paf->modifier, paf->location, paf->bitvector);
         }
 
-        track = URANGE(2,
+        track = URange(2,
                        ((ch->top_level + 3) * MaxKillTrack) / LevelAvatar,
                        MaxKillTrack);
         for (sn = 0; sn < track; sn++)
@@ -1272,7 +1272,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -2097,7 +2097,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                         ch->PCData->arousal = 0;
                                 ch->editor = NULL;
                                 killcnt =
-                                        URANGE(2,
+                                        URange(2,
                                                ((ch->top_level +
                                                  3) * MaxKillTrack) /
                                                LevelAvatar, MaxKillTrack);
@@ -2135,10 +2135,10 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                                                  (current_time -
                                                   lastplayed) / 60);
                                         ch->hit =
-                                                URANGE(1, ch->hit + hitgain,
+                                                URange(1, ch->hit + hitgain,
                                                        ch->max_hit);
                                         ch->endurance =
-                                                URANGE(1,
+                                                URange(1,
                                                        ch->endurance +
                                                        hitgain,
                                                        ch->max_endurance);
@@ -2210,7 +2210,7 @@ void fread_char(CharData * ch, FILE * fp, bool preload, bool copyover)
                         /*
                          * Let no character be trusted higher than one below maxlevel -- Narn 
                          */
-                        ch->trust = UMIN(ch->trust, MaxLevel - 1);
+                        ch->trust = UMin(ch->trust, MaxLevel - 1);
 
                         if (!str_cmp(word, "Title"))
                         {
@@ -2388,7 +2388,7 @@ void fread_obj(CharData * ch, FILE * fp, sh_int os_type)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
 

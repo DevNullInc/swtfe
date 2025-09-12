@@ -295,7 +295,7 @@ int get_exp_worth(CharData * ch)
                 experience += (int) (experience * 1.2);
         if (IsAffected(ch, AffShockshield))
                 experience += (int) (experience * 1.2);
-        experience = URANGE(MinExpWorth, experience, MaxExpWorth);
+        experience = URange(MinExpWorth, experience, MaxExpWorth);
 
         return experience;
 }
@@ -307,7 +307,7 @@ int exp_level(sh_int level)
 {
         int       lvl;
 
-        lvl = UMAX(0, level - 1);
+        lvl = UMax(0, level - 1);
 
         return (lvl * lvl * 500);
 }
@@ -416,8 +416,8 @@ sh_int get_curr_str(CharData * ch)
 
         max = 20 + ch->race->attr_modifier(AttrStrength) + ch->bonus_str +
                 get_implant_affect(ch, ImplantStrength) + ch->mod_str;
-        max = UMIN(max, 40);
-        return URANGE(3,
+        max = UMin(max, 40);
+        return URange(3,
                         ch->perm_str + ch->mod_str + ch->bonus_str +
                         get_implant_affect(ch, ImplantStrength), max);
 }
@@ -433,9 +433,9 @@ sh_int get_curr_int(CharData * ch)
 
         max = 20 + ch->race->attr_modifier(AttrIntelligence) +
                 ch->bonus_int + get_implant_affect(ch, ImplantIntelligence) + ch->mod_int;
-        max = UMIN(max, 40);
+        max = UMin(max, 40);
 
-        return URANGE(3,
+        return URange(3,
                         ch->perm_int + ch->mod_int + ch->bonus_int +
                         get_implant_affect(ch, ImplantIntelligence), max);
 }
@@ -451,9 +451,9 @@ sh_int get_curr_wis(CharData * ch)
 
         max = 20 + ch->race->attr_modifier(AttrWisdom) + ch->bonus_wis +
                 get_implant_affect(ch, ImplantWisdom + ch->mod_wis);
-        max = UMIN(max, 40);
+        max = UMin(max, 40);
 
-        return URANGE(3,
+        return URange(3,
                         ch->perm_wis + ch->mod_wis + ch->bonus_wis +
                         get_implant_affect(ch, ImplantWisdom), max);
 }
@@ -469,9 +469,9 @@ sh_int get_curr_dex(CharData * ch)
 
         max = 20 + ch->race->attr_modifier(AttrDexterity) + ch->bonus_dex +
                 get_implant_affect(ch, ImplantDexterity) + ch->mod_dex;
-        max = UMIN(max, 40);
+        max = UMin(max, 40);
 
-        return URANGE(3,
+        return URange(3,
                         ch->perm_dex + ch->mod_dex + ch->bonus_dex +
                         get_implant_affect(ch, ImplantDexterity), max);
 }
@@ -487,9 +487,9 @@ sh_int get_curr_con(CharData * ch)
 
         max = 20 + ch->race->attr_modifier(AttrConstitution) +
                 ch->bonus_con + get_implant_affect(ch, ImplantConstitution) + ch->mod_con;
-        max = UMIN(max, 40);
+        max = UMin(max, 40);
 
-        return URANGE(3,
+        return URange(3,
                         ch->perm_con + ch->mod_con + ch->bonus_con +
                         get_implant_affect(ch, ImplantConstitution), max);
 }
@@ -503,9 +503,9 @@ sh_int get_curr_cha(CharData * ch)
 
         max = 20 + ch->race->attr_modifier(AttrCharisma) + ch->bonus_cha +
                 get_implant_affect(ch, ImplantCharisma) + ch->mod_cha;
-        max = UMIN(max, 40);
+        max = UMin(max, 40);
 
-        return URANGE(3,
+        return URange(3,
                         ch->perm_cha + ch->mod_cha + ch->bonus_cha +
                         get_implant_affect(ch, ImplantCharisma), max);
 }
@@ -519,9 +519,9 @@ sh_int get_curr_lck(CharData * ch)
 
         max = 20 + ch->race->attr_modifier(AttrLuck) + ch->bonus_lck +
                 ch->mod_lck;
-        max = UMIN(max, 40);
+        max = UMin(max, 40);
 
-        return URANGE(3, ch->perm_lck + ch->mod_lck + ch->bonus_lck, max);
+        return URange(3, ch->perm_lck + ch->mod_lck + ch->bonus_lck, max);
 }
 
 sh_int get_curr_frc(CharData * ch)
@@ -530,9 +530,9 @@ sh_int get_curr_frc(CharData * ch)
 
         max = 20 + ch->race->attr_modifier(AttrForce) + ch->bonus_frc +
                 ch->mod_frc;
-        max = UMIN(max, 40);
+        max = UMin(max, 40);
 
-        return URANGE(0, ch->perm_frc + ch->mod_frc + ch->bonus_frc, max);
+        return URange(0, ch->perm_frc + ch->mod_frc + ch->bonus_frc, max);
 }
 
 
@@ -562,7 +562,7 @@ int can_carry_n(CharData * ch)
                 ++penalty;
         if (get_eq_char(ch, WearShield))
                 ++penalty;
-        return URANGE(5,
+        return URange(5,
                         (ch->top_level + 15) / 5 + get_curr_dex(ch) - 13 -
                         penalty, 20);
 }
@@ -798,7 +798,7 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
                         ch->sex = (ch->sex + Mod) % 3;
                         if (ch->sex < 0)
                                 ch->sex += 2;
-                        ch->sex = URANGE(0, ch->sex, 2);
+                        ch->sex = URange(0, ch->sex, 2);
                         break;
                 case ApplyLevel:
                         break;
@@ -868,7 +868,7 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
                 case ApplyFull:
                         if (!IsNpc(ch))
                                 ch->PCData->condition[CondFull] =
-                                        URANGE(0,
+                                        URange(0,
                                                         ch->PCData->condition[CondFull] + Mod,
                                                         48);
                         break;
@@ -876,7 +876,7 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
                 case ApplyThirst:
                         if (!IsNpc(ch))
                                 ch->PCData->condition[CondThirst] =
-                                        URANGE(0,
+                                        URange(0,
                                                         ch->PCData->condition[CondThirst] +
                                                         Mod, 48);
                         break;
@@ -884,17 +884,17 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
                 case ApplyDrunk:
                         if (!IsNpc(ch))
                                 ch->PCData->condition[CondDrunk] =
-                                        URANGE(0,
+                                        URange(0,
                                                         ch->PCData->condition[CondDrunk] +
                                                         Mod, 48);
                         break;
 
                 case ApplyMentalstate:
-                        ch->mental_state = URANGE(-100, ch->mental_state + Mod, 100);
+                        ch->mental_state = URange(-100, ch->mental_state + Mod, 100);
                         break;
                 case ApplyEmotion:
                         ch->emotional_state =
-                                URANGE(-100, ch->emotional_state + Mod, 100);
+                                URange(-100, ch->emotional_state + Mod, 100);
                         break;
 
                 case ApplyStripsn:
@@ -933,124 +933,124 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
                 case ApplyTrack:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_track] > 0)
                                 ch->PCData->learned[gsn_track] =
-                                        UMAX(1, ch->PCData->learned[gsn_track] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_track] + Mod);
                         break;
                 case ApplyHide:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_hide] > 0)
                                 ch->PCData->learned[gsn_hide] =
-                                        UMAX(1, ch->PCData->learned[gsn_hide] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_hide] + Mod);
                         break;
                 case ApplySecretive:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_slight] > 0)
                                 ch->PCData->learned[gsn_slight] =
-                                        UMAX(1,
+                                        UMax(1,
                                                         ch->PCData->learned[gsn_slight] + Mod);
                         break;
                 case ApplySteal:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_steal] > 0)
                                 ch->PCData->learned[gsn_steal] =
-                                        UMAX(1, ch->PCData->learned[gsn_steal] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_steal] + Mod);
                         break;
                 case ApplySneak:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_sneak] > 0)
                                 ch->PCData->learned[gsn_sneak] =
-                                        UMAX(1, ch->PCData->learned[gsn_sneak] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_sneak] + Mod);
                         break;
                 case ApplyPick:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_pick_lock] > 0)
                                 ch->PCData->learned[gsn_pick_lock] =
-                                        UMAX(1,
+                                        UMax(1,
                                                         ch->PCData->learned[gsn_pick_lock] +
                                                         Mod);
                         break;
                 case ApplyBackstab:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_backstab] > 0)
                                 ch->PCData->learned[gsn_backstab] =
-                                        UMAX(1,
+                                        UMax(1,
                                                         ch->PCData->learned[gsn_backstab] + Mod);
                         break;
                 case ApplyDetrap:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_detrap] > 0)
                                 ch->PCData->learned[gsn_detrap] =
-                                        UMAX(1,
+                                        UMax(1,
                                                         ch->PCData->learned[gsn_detrap] + Mod);
                         break;
                 case ApplyDodge:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_dodge] > 0)
                                 ch->PCData->learned[gsn_dodge] =
-                                        UMAX(1, ch->PCData->learned[gsn_dodge] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_dodge] + Mod);
                         break;
                 case ApplyPeek:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_peek] > 0)
                                 ch->PCData->learned[gsn_peek] =
-                                        UMAX(1, ch->PCData->learned[gsn_peek] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_peek] + Mod);
                         break;
                 case ApplyScan:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_scan] > 0)
                                 ch->PCData->learned[gsn_scan] =
-                                        UMAX(1, ch->PCData->learned[gsn_scan] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_scan] + Mod);
                         break;
                 case ApplyGouge:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_gouge] > 0)
                                 ch->PCData->learned[gsn_gouge] =
-                                        UMAX(1, ch->PCData->learned[gsn_gouge] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_gouge] + Mod);
                         break;
                 case ApplySearch:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_search] > 0)
                                 ch->PCData->learned[gsn_search] =
-                                        UMAX(1,
+                                        UMax(1,
                                                         ch->PCData->learned[gsn_search] + Mod);
                         break;
                 case ApplyDig:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_dig] > 0)
                                 ch->PCData->learned[gsn_dig] =
-                                        UMAX(1, ch->PCData->learned[gsn_dig] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_dig] + Mod);
                         break;
                 case ApplyMount:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_mount] > 0)
                                 ch->PCData->learned[gsn_mount] =
-                                        UMAX(1, ch->PCData->learned[gsn_mount] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_mount] + Mod);
                         break;
                 case ApplyDisarm:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_disarm] > 0)
                                 ch->PCData->learned[gsn_disarm] =
-                                        UMAX(1,
+                                        UMax(1,
                                                         ch->PCData->learned[gsn_disarm] + Mod);
                         break;
                 case ApplyKick:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_kick] > 0)
                                 ch->PCData->learned[gsn_kick] =
-                                        UMAX(1, ch->PCData->learned[gsn_kick] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_kick] + Mod);
                         break;
                 case ApplyParry:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_parry] > 0)
                                 ch->PCData->learned[gsn_parry] =
-                                        UMAX(1, ch->PCData->learned[gsn_parry] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_parry] + Mod);
                         break;
                 case ApplyBash:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_bash] > 0)
                                 ch->PCData->learned[gsn_bash] =
-                                        UMAX(1, ch->PCData->learned[gsn_bash] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_bash] + Mod);
                         break;
                 case ApplyStun:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_stun] > 0)
                                 ch->PCData->learned[gsn_stun] =
-                                        UMAX(1, ch->PCData->learned[gsn_stun] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_stun] + Mod);
                         break;
                 case ApplyPunch:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_punch] > 0)
                                 ch->PCData->learned[gsn_punch] =
-                                        UMAX(1, ch->PCData->learned[gsn_punch] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_punch] + Mod);
                         break;
                 case ApplyClimb:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_climb] > 0)
                                 ch->PCData->learned[gsn_climb] =
-                                        UMAX(1, ch->PCData->learned[gsn_climb] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_climb] + Mod);
                         break;
                 case ApplyGrip:
                         if (!IsNpc(ch) && ch->PCData->learned[gsn_grip] > 0)
                                 ch->PCData->learned[gsn_grip] =
-                                        UMAX(1, ch->PCData->learned[gsn_grip] + Mod);
+                                        UMax(1, ch->PCData->learned[gsn_grip] + Mod);
                         break;
         }
 
@@ -1181,11 +1181,11 @@ void affect_join(CharData * ch, AffectData * paf)
                 if (paf_old->type == paf->type)
                 {
                         paf->duration =
-                                UMIN(1000000,
+                                UMin(1000000,
                                                 paf->duration + paf_old->duration);
                         if (paf->modifier)
                                 paf->modifier =
-                                        UMIN(5000,
+                                        UMin(5000,
                                                         paf->modifier +
                                                         paf_old->modifier);
                         else
@@ -2588,13 +2588,13 @@ bool ms_find_obj(CharData * ch)
          * we're going to be nice and let nothing weird happen unless
          * you're a tad messed up
          */
-        drunk = UMAX(1, drunk);
+        drunk = UMax(1, drunk);
         if (abs(ms) + (drunk / 3) < 30)
                 return FALSE;
         if ((number_percent() + (ms < 0 ? 15 : 5)) > abs(ms) / 2 + drunk / 4)
                 return FALSE;
         if (ms > 15)    /* range 1 to 20 */
-                switch (number_range(UMAX(1, (ms / 5 - 15)), (ms + 4) / 5))
+                switch (number_range(UMax(1, (ms / 5 - 15)), (ms + 4) / 5))
                 {
                         default:
                         case 1:
@@ -2660,7 +2660,7 @@ bool ms_find_obj(CharData * ch)
                 }
         else
         {
-                int       sub = URANGE(1, abs(ms) / 2 + drunk, 60);
+                int       sub = URange(1, abs(ms) / 2 + drunk, 60);
 
                 switch (number_range(1, sub / 10))
                 {
@@ -3778,9 +3778,9 @@ void fix_char(CharData * ch)
         ch->affected_by = 0;
         SetBit(ch->affected_by, ch->race->affected());
         ch->mental_state = 0;
-        ch->hit = UMAX(1, ch->hit);
-        ch->endurance = UMAX(1, ch->endurance);
-        ch->endurance = UMAX(1, ch->endurance);
+        ch->hit = UMax(1, ch->hit);
+        ch->endurance = UMax(1, ch->endurance);
+        ch->endurance = UMax(1, ch->endurance);
         ch->Armor = 100;
         ch->mod_str = 0;
         ch->mod_dex = 0;
@@ -3791,7 +3791,7 @@ void fix_char(CharData * ch)
         ch->mod_lck = 0;
         ch->Damroll = 0;
         ch->Hitroll = 0;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         ch->SavingBreath = 0;
         ch->SavingWand = 0;
         ch->SavingParaPetri = 0;
@@ -4232,7 +4232,7 @@ ObjData *clone_object(ObjData * obj)
         ++obj->pIndexData->count;
         ++numobjsloaded;
         ++physicalobjects;
-        cur_obj_serial = UMAX((cur_obj_serial + 1) & (BV30 - 1), 1);
+        cur_obj_serial = UMax((cur_obj_serial + 1) & (BV30 - 1), 1);
         LINK(clone, first_object, last_object, next, prev);
         return clone;
 }
@@ -4420,15 +4420,15 @@ bool empty_obj(ObjData * obj, ObjData * destobj, RoomIndexData * destroom)
  */
 void better_mental_state(CharData * ch, int Mod)
 {
-        int       c = URANGE(0, abs(Mod), 20);
+        int       c = URange(0, abs(Mod), 20);
         int       con = get_curr_con(ch);
 
         c += number_percent() < con ? 1 : 0;
 
         if (ch->mental_state < 0)
-                ch->mental_state = URANGE(-100, ch->mental_state + c, 0);
+                ch->mental_state = URange(-100, ch->mental_state + c, 0);
         else if (ch->mental_state > 0)
-                ch->mental_state = URANGE(0, ch->mental_state - c, 100);
+                ch->mental_state = URange(0, ch->mental_state - c, 100);
 }
 
 /*
@@ -4436,7 +4436,7 @@ void better_mental_state(CharData * ch, int Mod)
  */
 void worsen_mental_state(CharData * ch, int Mod)
 {
-        int       c = URANGE(0, abs(Mod), 20);
+        int       c = URange(0, abs(Mod), 20);
         int       con = get_curr_con(ch);
 
 
@@ -4445,9 +4445,9 @@ void worsen_mental_state(CharData * ch, int Mod)
                 return;
 
         if (ch->mental_state < 0)
-                ch->mental_state = URANGE(-100, ch->mental_state - c, 100);
+                ch->mental_state = URange(-100, ch->mental_state - c, 100);
         else if (ch->mental_state > 0)
-                ch->mental_state = URANGE(-100, ch->mental_state + c, 100);
+                ch->mental_state = URange(-100, ch->mental_state + c, 100);
         else
                 ch->mental_state -= c;
 }
@@ -4515,14 +4515,14 @@ void economize_mobgold(CharData * mob)
         /*
          * make sure it isn't way too much 
          */
-        mob->gold = UMIN(mob->gold, mob->top_level * mob->top_level * 400);
+        mob->gold = UMin(mob->gold, mob->top_level * mob->top_level * 400);
         if (!mob->in_room)
                 return;
         tarea = mob->in_room->area;
 
         gold = ((tarea->high_economy >
                                 0) ? 1 : 0) * 1000000000 + tarea->low_economy;
-        mob->gold = URANGE(0, mob->gold, gold / 10);
+        mob->gold = URange(0, mob->gold, gold / 10);
         if (mob->gold)
                 lower_economy(tarea, mob->gold);
 }
@@ -4544,7 +4544,7 @@ void add_kill(CharData * ch, CharData * mob)
                 return;
 
         vnum = mob->pIndexData->vnum;
-        track = URANGE(2,
+        track = URange(2,
                         ((ch->skill_level[CombatAbility] +
                           3) * MaxKillTrack) / LevelAvatar, MaxKillTrack);
         for (x = 0; x < track; x++)
@@ -4580,7 +4580,7 @@ int times_killed(CharData * ch, CharData * mob)
                 return 0;
 
         vnum = mob->pIndexData->vnum;
-        track = URANGE(2,
+        track = URange(2,
                         ((ch->skill_level[CombatAbility] +
                           3) * MaxKillTrack) / LevelAvatar, MaxKillTrack);
         for (x = 0; x < track; x++)

@@ -977,7 +977,7 @@ void note(CharData * ch, char *arg_passed, BoardData * board)
                         return;
                 }
 
-                arg_passed[0] = UPPER(arg_passed[0]);
+                arg_passed[0] = Upper(arg_passed[0]);
 
                 snprintf(fname, MSL, "%s%c/%s", PlayerDir,
                          tolower(arg_passed[0]), capitalize(arg_passed));
@@ -1358,7 +1358,7 @@ BoardData *read_board(char * /* boardfile */, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;

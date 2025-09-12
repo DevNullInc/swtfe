@@ -751,7 +751,7 @@ CMDF do_immscore(CharData * ch, char *argument)
                                         send_to_pager("&B||", ch);
                                 set_pager_color(AtScore, ch);
                                 pager_printf(ch, "  &B%c&z%-9.9s ",
-                                             UPPER(skill->name[0]),
+                                             Upper(skill->name[0]),
                                              (skill->name + 1));
                                 if (ch->top_level >= 20)
                                 {
@@ -1353,7 +1353,7 @@ CMDF do_affected(CharData * ch, char *argument)
                                         send_to_pager("&B||", ch);
                                 set_pager_color(AtScore, ch);
                                 pager_printf(ch, "  &B%c&z%-9.9s ",
-                                             UPPER(skill->name[0]),
+                                             Upper(skill->name[0]),
                                              (skill->name + 1));
                                 if (ch->top_level >= 20)
                                 {
@@ -2116,7 +2116,7 @@ void set_name(CharData * ch, char *name)
 /*	name = smash_color(name); */
 
         name = trim(name);
-        name[0] = UPPER(name[0]);
+        name[0] = Upper(name[0]);
         if (ch->PCData->full_name)
                 STRFREE(ch->PCData->full_name);
         ch->PCData->full_name = STRALLOC(name);

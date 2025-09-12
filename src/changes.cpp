@@ -165,9 +165,9 @@ void write_webchanges(void)
         {
                 if (changes_table[i].immchange == 1)
                         continue;
-                if (NULLSTR(changes_table[i].coder)
-                    || NULLSTR(changes_table[i].change)
-                    || NULLSTR(changes_table[i].date))
+                if (NullStr(changes_table[i].coder)
+                    || NullStr(changes_table[i].change)
+                    || NullStr(changes_table[i].date))
                         continue;
                 snprintf(buf2, MSL,
                          "&z[&w%3d&z]&B|&z[&w%-12s&z]&B|&z[&W%-6s&z]&B|&w%-55s",
@@ -248,7 +248,7 @@ void delete_change(int iChange)
 {
         int       i, j;
         // Rebuild the table without the removed entry. Keep C allocation semantics.
-        ChangeData *new_table = static_cast<ChangeData*>(calloc(static_cast<size_t>(UMAX(maxChanges,0)), sizeof(ChangeData)));
+        ChangeData *new_table = static_cast<ChangeData*>(calloc(static_cast<size_t>(UMax(maxChanges,0)), sizeof(ChangeData)));
         if (!new_table)
                 return; // allocation failed; leave original intact
 
@@ -369,7 +369,7 @@ CMDF do_chedit(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (!ch->desc || NULLSTR(argument))
+        if (!ch->desc || NullStr(argument))
         {
                 send_to_char("&RSyntax: &Gchedit &C<&cload&C/&csave&C>&w\n\r"
                              "        &Gchedit &C<&cchange #&C> &C<&cdelete&C>&w\n\r"
@@ -411,7 +411,7 @@ CMDF do_chedit(CharData * ch, char *argument)
         change--;
 
         argument = one_argument(argument, arg1);
-        if (NULLSTR(arg1))
+        if (NullStr(arg1))
         {
                 send_to_char("do what?\n\r", ch);
                 char empty_arg[] = ""; // avoid passing string literal to char * parameter
@@ -477,9 +477,9 @@ CMDF do_news(CharData * ch, char *argument)
         {
                 if (!IsImmortal(ch) && changes_table[i].immchange == 1)
                         continue;
-                if (NULLSTR(changes_table[i].coder)
-                    || NULLSTR(changes_table[i].change)
-                    || NULLSTR(changes_table[i].date))
+                if (NullStr(changes_table[i].coder)
+                    || NullStr(changes_table[i].change)
+                    || NullStr(changes_table[i].date))
                         continue;
                 if (!str_cmp(test, changes_table[i].date))
                         today++;
@@ -514,9 +514,9 @@ CMDF do_news(CharData * ch, char *argument)
                         immchanges++;
                         continue;
                 }
-                if (NULLSTR(changes_table[i].coder)
-                    || NULLSTR(changes_table[i].change)
-                    || NULLSTR(changes_table[i].date))
+                if (NullStr(changes_table[i].coder)
+                    || NullStr(changes_table[i].change)
+                    || NullStr(changes_table[i].date))
                         continue;
                 if (i < start)
                         continue;

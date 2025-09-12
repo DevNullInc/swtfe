@@ -55,6 +55,18 @@
 #include <cstring>
 #include <stdint.h>
 #include <format>
+#include <memory>
+#include <array>
+#include <utility>
+#include <cstddef>
+#include <type_traits>
+#include <functional>
+#include <bitset>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <set>
+#include "utils.hpp"
 
 /* Make sure cpp_compat.h exists and is properly included */
 #include "cpp_compat.hpp"
@@ -339,7 +351,6 @@ constexpr int MaxShip = 1000;
 constexpr int MaxBounty = 255;
 constexpr int MaxGov = 255;
 constexpr int MaxIgnore = 1000;
-constexpr int MaxCharacters = 10;
 constexpr int MaxHerb = 20;
 
 constexpr int LevelHero = MaxLevel - 5;
@@ -968,11 +979,11 @@ typedef enum
 } clan_types;
 
 #define HasClanPerm(ch, clan, permission) \
-		( (ch) && (ch)->pcdata && (clan) && (ch)->pcdata->bestowments && \
+		( (ch) && (ch)->PcData && (clan) && (ch)->PcData->bestowments && \
 		 ( !str_cmp((ch)->name, (clan)->leader) || \
 		   !str_cmp((ch)->name, (clan)->number1) || \
 		   !str_cmp((ch)->name, (clan)->number2) ||  \
-		   is_name((permission), (ch)->pcdata->bestowments)  \
+		   is_name((permission), (ch)->PcData->bestowments)  \
 		 ) \
 		)
 
@@ -2189,7 +2200,7 @@ constexpr int PcflagMarried              = 17;
 constexpr int PcflagNewbguide            = 18;
 constexpr int PcflagAutodraw             = 19;
 
-/* Bits for ch->pcdata->godflags */
+/* Bits for ch->PcData->godflags */
 constexpr int ImmAdmin                  = 0;
 constexpr int ImmBuilder                = 1;
 constexpr int ImmHighbuilder            = 2;
@@ -2219,14 +2230,16 @@ typedef enum
         TimerApplied, TimerPkilled
 } timer_types;
 
+#include <functional>
+
 struct timer_data
 {
-        Timer    *prev;
-        Timer    *next;
-        DoFun   *do_fun;
-        int value;
-        sh_int type;
-        sh_int count;
+        Timer* prev; // Raw pointer for previous node
+        std::unique_ptr<Timer> next;
+        std::function<void(CharData*, char*)> do_fun;
+        std::int32_t value;
+        std::int16_t type;
+        std::int16_t count;
 };
 
 
@@ -2418,13 +2431,13 @@ struct CharData
         ObjData *first_carrying;
         ObjData *last_carrying;
         RoomIndexData *in_room;
-        RoomIndexData *was_in_room;
-        RoomIndexData *was_sentinel;
-        RoomIndexData *plr_home;
-        PcData  *pcdata;
-        DoFun   *last_cmd;
-        DoFun   *prev_cmd; /* mapping */
-        void     *dest_buf;
+        std::unique_ptr<RoomIndexData> was_in_room;
+        std::unique_ptr<RoomIndexData> was_sentinel;
+        std::unique_ptr<RoomIndexData> plr_home;
+        std::unique_ptr<PcData>  PcData;
+        std::unique_ptr<DoFun>   last_cmd;
+        std::unique_ptr<DoFun>   prev_cmd; /* mapping */
+        std::unique_ptr<char[]>     dest_buf;
         void     *dest_buf_2;
         void     *dest_buf_3;
         void     *spare_ptr;
@@ -3429,12 +3442,12 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
  * Character macros.
  */
 
-#define IsNpc(ch)              (IsSet((ch)->pIndexData->act, ActIsNpc) || (ch)->pcdata == NULL)
+#define IsNpc(ch)              (IsSet((ch)->pIndexData->act, ActIsNpc) || (ch)->PcData == NULL)
 #define IsQuestor(ch)          (IsSet((ch)->pIndexData->act, PlrQuestor))
 #define IsImmortal(ch)         (get_trust((ch)) >= LevelImmortal)
 #define IsHero(ch)             (get_trust((ch)) >= LevelHero)
 #define IsPlaying(d)           ((d)->connected == ConPlaying || \
-                                                           (d)->connected == ConForked || (d)->connected == ConIaforked )
+                                                           (d)->connected == ConForked || (d)->connected == ConIaForked )
 #define IsAffected(ch, sn)     (IsSet((ch)->affected_by, (sn)))
 #define HasBodyPart(ch, part)  ((ch)->xflags == 0 || IsSet((ch)->xflags, (part)))
 
@@ -3442,7 +3455,7 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define IsEvil(ch)             ((ch)->alignment <= -350)
 #define IsNeutral(ch)          (!IsGood(ch) && !IsEvil(ch))
 
-#define IsAwake(ch)            ((ch)->position > POS_SLEEPING || IsAffected( (ch), AFF_CHARM ))
+#define IsAwake(ch)            ((ch)->position > PosSleeping || IsAffected( (ch), AffCharm ))
 #define GetAc(ch)              ( (ch)->armor + ( IsAwake(ch) ? dex_app[get_curr_dex(ch)].defensive : 0 ) \
                                                            - ( !str_cmp((ch)->race->name(), "defel") ? (ch)->skill_level[COMBAT_ABILITY]*2+5 : (ch)->skill_level[COMBAT_ABILITY]/2 ) )
 #define GetHitroll(ch)         ((ch)->hitroll \
@@ -3467,13 +3480,13 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
                                                            (room)->room_flags, \
                                                            ROOM_SPACECRAFT) )
 #define IsDrunk(ch, drunk)     (number_percent() < \
-                                                           ( (ch)->pcdata->condition[COND_DRUNK] \
+                                                           ( (ch)->PcData->condition[COND_DRUNK] \
                                                            * 2 / (drunk) ) )
 
 #define IsClanned(ch)          (!IsNpc((ch)) \
-                                                           && (ch)->pcdata->clan )
+                                                           && (ch)->PcData->clan )
 
-#define WaitState(ch, npulse)  ((ch)->wait = UMAX((ch)->wait, (IsImmortal(ch) ? 0 :(npulse))))
+#define WaitState(ch, npulse)  ((ch)->wait = UMax((ch)->wait, (IsImmortal(ch) ? 0 :(npulse))))
 
 
 #define Exit(ch, door)         ( get_exit( (ch)->in_room, door ) )
@@ -3498,13 +3511,13 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define ImmAdmin                   ImmAdmin
 #define ImmCoder                   ImmCoder
 #define ImmQuest                   ImmQuest
-#define IsImmBuilder(ch)           ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmBuilder | ImmHighBuilder | DefImmFlags ) )
-#define IsImmHighEnforcer(ch)      ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmHighEnforcer | DefImmFlags ) )
-#define IsImmEnforcer(ch)          ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmEnforcer | DefImmFlags ) )
-#define IsImmAdmin(ch)             ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmAdmin | DefImmFlags ) )
-#define IsImmHighBuilder(ch)       ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmHighBuilder | DefImmFlags ) )
-#define IsImmCoder(ch)             ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmCoder | DefImmFlags ) )
-#define IsImmQuest(ch)             ( !IsNpc((ch)) && (ch)->pcdata->godflags & ( ImmQuest | DefImmFlags ) )
+#define IsImmBuilder(ch)           ( !IsNpc((ch)) && (ch)->PcData->godflags & ( ImmBuilder | ImmHighBuilder | DefImmFlags ) )
+#define IsImmHighEnforcer(ch)      ( !IsNpc((ch)) && (ch)->PcData->godflags & ( ImmHighEnforcer | DefImmFlags ) )
+#define IsImmEnforcer(ch)          ( !IsNpc((ch)) && (ch)->PcData->godflags & ( ImmEnforcer | DefImmFlags ) )
+#define IsImmAdmin(ch)             ( !IsNpc((ch)) && (ch)->PcData->godflags & ( ImmAdmin | DefImmFlags ) )
+#define IsImmHighBuilder(ch)       ( !IsNpc((ch)) && (ch)->PcData->godflags & ( ImmHighBuilder | DefImmFlags ) )
+#define IsImmCoder(ch)             ( !IsNpc((ch)) && (ch)->PcData->godflags & ( ImmCoder | DefImmFlags ) )
+#define IsImmQuest(ch)             ( !IsNpc((ch)) && (ch)->PcData->godflags & ( ImmQuest | DefImmFlags ) )
 
 #define SpellFlag(skill, flag)     ( IsSet((skill)->flags, (flag)) )
 #define SpellDamage(skill)         ( ((skill)->flags     ) & 7 )
@@ -3517,8 +3530,8 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define SetSpow(skill, val)        ( (skill)->flags =  ((skill)->flags & SPOW_MASK) + (((val) & 3) << 9) )
 
 /* Retired and guest imms. */
-#define IsRetired(ch)              ((ch)->pcdata && IsSet((ch)->pcdata->flags,PcFlagRetired))
-#define IsGuest(ch)                ((ch)->pcdata && IsSet((ch)->pcdata->flags,PcFlagGuest))
+#define IsRetired(ch)              ((ch)->PcData && IsSet((ch)->PcData->flags,PcFlagRetired))
+#define IsGuest(ch)                ((ch)->PcData && IsSet((ch)->PcData->flags,PcFlagGuest))
 
 /* RIS by gsn lookups. -- Altrag. */
 #define IsFire(dt)                 ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdFire )
@@ -3529,12 +3542,12 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
 #define IsDrain(dt)                ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdDrain )
 #define IsPoison(dt)               ( IsValidSn(dt) && SpellDamage(skill_table[(dt)]) == SdPoison )
 
-#define NotAuthed(ch)              (!IsNpc(ch) && (ch)->pcdata->AuthState <= 3  \
-                                   && IsSet((ch)->pcdata->flags, PcflagUnauthed) )
+#define NotAuthed(ch)              (!IsNpc(ch) && (ch)->PcData->AuthState <= 3  \
+                                   && IsSet((ch)->PcData->flags, PcflagUnauthed) )
 
 #define IsWaitingForAuth(ch)       (!IsNpc(ch) && (ch)->desc \
-                                   && (ch)->pcdata->AuthState == 1 \
-                                   && IsSet((ch)->pcdata->flags, PcflagUnauthed) )
+                                   && (ch)->PcData->AuthState == 1 \
+                                   && IsSet((ch)->PcData->flags, PcflagUnauthed) )
 
 #define KEY( literal, field, value )					\
 				if ( !str_cmp( word, literal ) )	    \
@@ -3560,7 +3573,7 @@ char     *show_ext_flag_string args((int len, const char *const flagarray[]));
  */
 #define Pers(ch, looker)          ( can_see( (looker), (ch) ) ? \
                                   ( IsNpc(ch) ? (ch)->short_descr \
-                                  : (ch)->pcdata->full_name ) : (IsImmortal(ch) ? "An Immortal" : "someone") )
+                                  : (ch)->PcData->full_name ) : (IsImmortal(ch) ? "An Immortal" : "someone") )
 
 
 

@@ -100,7 +100,7 @@ int advatoi(char *s)
                 number = (number * 10) + (*s++ - '0');
         }
 
-        switch (UPPER(s[0]))
+        switch (Upper(s[0]))
         {
         case 'K':
                 // Security: Check for multiplication overflow

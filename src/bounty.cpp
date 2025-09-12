@@ -229,7 +229,7 @@ void fread_bounty(FILE * fp, int version [[maybe_unused]])
         {
                 word = feof(fp) ? "End" : fread_word(fp);
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fread_to_eol(fp);
@@ -496,7 +496,7 @@ CMDF do_addbounty(CharData * ch, char *argument)
                 char      fname[1024];
                 struct stat fst;
 
-                arg[0] = UPPER(arg[0]);
+                arg[0] = Upper(arg[0]);
                 sprintf(fname, "%s%c/%s", PlayerDir, tolower(arg[0]),
                         capitalize(arg));
 
@@ -612,7 +612,7 @@ void claim_disintigration(CharData * ch, CharData * victim)
                 if (IsSet(victim->act, PlrKiller) && !IsNpc(ch))
                 {
                         experience =
-                                URANGE(1, xp_compute(ch, victim),
+                                URange(1, xp_compute(ch, victim),
                                        (exp_level
                                         (ch->skill_level[HuntingAbility] +
                                          1) -
@@ -646,7 +646,7 @@ void claim_disintigration(CharData * ch, CharData * victim)
         ch->gold += bounty->amount;
 
         experience =
-                URANGE(1, bounty->amount + xp_compute(ch, victim),
+                URange(1, bounty->amount + xp_compute(ch, victim),
                        (exp_level(ch->skill_level[HuntingAbility] + 1) -
                         exp_level(ch->skill_level[HuntingAbility])));
         gain_exp(ch, static_cast<int>(experience), HuntingAbility);
@@ -701,7 +701,7 @@ void add_wanted(CharData * ch, PlanetData * planet)
         }
         else
         {
-                wanted->amount = UMAX(wanted->amount + 10, 100);
+                wanted->amount = UMax(wanted->amount + 10, 100);
         }
         /*
          * if we hit a certain amount. add_bounty_police (which just does add_bounty and sets a flag?) 
@@ -850,7 +850,7 @@ void fread_wanted(CharData * ch, FILE * fp)
         {
                 word = feof(fp) ? "End" : fread_word(fp);
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fread_to_eol(fp);
@@ -1105,7 +1105,7 @@ CMDF do_rembounty(CharData * ch, char *argument)
                 return;
         }
 
-//  argument[0] = UPPER(argument[0]);
+//  argument[0] = Upper(argument[0]);
         bounty = get_disintigration(argument);
         if (bounty)
         {

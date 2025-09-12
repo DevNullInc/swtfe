@@ -1374,11 +1374,11 @@ CMDF do_instazone(CharData * ch, char *argument)
 int generate_itemlevel(AreaData * pArea, ObjIndexData * pObjIndex)
 {
         int       olevel;
-        int       min = UMAX(pArea->low_soft_range, 1);
-        int       max = UMIN(pArea->hi_soft_range, min + 15);
+        int       min = UMax(pArea->low_soft_range, 1);
+        int       max = UMin(pArea->hi_soft_range, min + 15);
 
         if (pObjIndex->level > 0)
-                olevel = UMIN(pObjIndex->level, MaxLevel);
+                olevel = UMin(pObjIndex->level, MaxLevel);
         else
                 switch (pObjIndex->item_type)
                 {
@@ -1479,7 +1479,7 @@ void reset_area(AreaData * pArea)
                                 SetBit(mob->affected_by, AffInfrared);
                         char_to_room(mob, pRoomIndex);
                         economize_mobgold(mob);
-                        level = URANGE(0, mob->top_level - 2, LevelAvatar);
+                        level = URange(0, mob->top_level - 2, LevelAvatar);
                         if (IsSet(mob->act, ActCitizen) && pArea->planet)
                                 pArea->planet->population++;
                         if ((installation =
@@ -1510,7 +1510,7 @@ void reset_area(AreaData * pArea)
                         else
                                 obj = create_object(pObjIndex,
                                                     number_fuzzy(level));
-                        obj->level = URANGE(0, obj->level, LevelAvatar);
+                        obj->level = URange(0, obj->level, LevelAvatar);
                         obj = obj_to_char(obj, mob);
                         if (pReset->command == 'E')
                         {
@@ -1547,7 +1547,7 @@ void reset_area(AreaData * pArea)
                         obj = create_object(pObjIndex,
                                             number_fuzzy(generate_itemlevel
                                                          (pArea, pObjIndex)));
-                        obj->level = UMIN(obj->level, LevelAvatar);
+                        obj->level = UMin(obj->level, LevelAvatar);
                         obj->cost = 0;
                         obj_to_room(obj, pRoomIndex);
                         lastobj = obj;
@@ -1599,11 +1599,11 @@ void reset_area(AreaData * pArea)
                                         continue;
                         }
                         obj = create_object(pObjIndex,
-                                            number_fuzzy(UMAX
+                                            number_fuzzy(UMax
                                                          (generate_itemlevel
                                                           (pArea, pObjIndex),
                                                           to_obj->level)));
-                        obj->level = UMIN(obj->level, LevelAvatar);
+                        obj->level = UMin(obj->level, LevelAvatar);
                         obj_to_obj(obj, to_obj);
                         break;
 
@@ -1884,7 +1884,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                         snprintf(pbuf, MSL, "%s (%d) -> %s (%s) [%d]", oname,
                                  pReset->arg1, mname,
                                  (pReset->command ==
-                                  'G' ? "carry" : wear_locs[URANGE(0,pReset->arg3,MaxWear)]),
+                                  'G' ? "carry" : wear_locs[URange(0,pReset->arg3,MaxWear)]),
                                  pReset->arg2);
                         if (mob && mob->pShop)
                                 mudstrlcat(buf, " (shop)\n\r", 256);
@@ -2025,7 +2025,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                                         BitResetDoorMask)
                                                         >>
                                                         BitResetDoorThreshold;
-                                                door = URANGE(0, door,
+                                                door = URange(0, door,
                                                               MaxDir + 1);
                                                 snprintf(pbuf, MSL,
                                                          "Exit %s%s (%d), Room %s (%d)",
@@ -2124,7 +2124,7 @@ void list_resets(CharData * ch, AreaData * pArea, RoomIndexData * pRoom,
                                 char     *ef_name;
 
                                 pReset->arg2 =
-                                        URANGE(0, pReset->arg2, MaxDir + 1);
+                                        URange(0, pReset->arg2, MaxDir + 1);
                                 if (!(room = get_room_index(pReset->arg1)))
                                         rname = "Room: *BAD VNUM*";
                                 else
@@ -2243,7 +2243,7 @@ ResetData *add_reset(AreaData * tarea, char letter, int extra, int arg1,
                 return NULL;
         }
 
-        letter = UPPER(letter);
+        letter = Upper(letter);
         pReset = make_reset(letter, extra, arg1, arg2, arg3);
         switch (letter)
         {
@@ -2283,7 +2283,7 @@ ResetData *place_reset(AreaData * tarea, char letter, int extra, int arg1,
                 return NULL;
         }
 
-        letter = UPPER(letter);
+        letter = Upper(letter);
         pReset = make_reset(letter, extra, arg1, arg2, arg3);
         if (letter == 'M')
                 tarea->last_mob_reset = pReset;

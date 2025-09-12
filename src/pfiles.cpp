@@ -112,7 +112,7 @@ void fread_timedata(FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -265,7 +265,7 @@ void fread_pfile(FILE * fp, time_t tdiff, char *fname, bool count)
 
                 if (word[0] == '\0' || !strcmp(word, "End"))
                         break;
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;

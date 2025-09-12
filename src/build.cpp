@@ -628,7 +628,7 @@ bool can_medit(CharData * ch, MobIndexData * mob)
 
 int get_bodypart(char *flag)
 {
-        for (size_t x = 0; x < NUMITEMS(body_parts); ++x)
+        for (size_t x = 0; x < NumItems(body_parts); ++x)
         {
                 if (!str_cmp(flag, body_parts[x]))
                         return static_cast<int>(x);
@@ -638,7 +638,7 @@ int get_bodypart(char *flag)
 
 int get_otype(char *type)
 {
-        for (size_t x = 0; x < NUMITEMS(o_types); ++x)
+        for (size_t x = 0; x < NumItems(o_types); ++x)
         {
                 if (!str_cmp(type, o_types[x]))
                         return static_cast<int>(x);
@@ -648,7 +648,7 @@ int get_otype(char *type)
 
 int get_aflag(char *flag)
 {
-        for (size_t x = 0; x < NUMITEMS(a_flags); ++x)
+        for (size_t x = 0; x < NumItems(a_flags); ++x)
         {
                 if (!str_cmp(flag, a_flags[x]))
                         return static_cast<int>(x);
@@ -668,7 +668,7 @@ int get_trapflag(char *flag)
 
 int get_atype(char *type)
 {
-        for (size_t x = 0; x < NUMITEMS(a_types); ++x)
+        for (size_t x = 0; x < NumItems(a_types); ++x)
         {
                 if (!str_cmp(type, a_types[x]))
                         return static_cast<int>(x);
@@ -797,7 +797,7 @@ int get_plrflag(char *flag)
 
 int get_risflag(char *flag)
 {
-        for (size_t x = 0; x < NUMITEMS(ris_flags); ++x)
+        for (size_t x = 0; x < NumItems(ris_flags); ++x)
         {
                 if (!str_cmp(flag, ris_flags[x]))
                         return static_cast<int>(x);
@@ -817,7 +817,7 @@ int get_trigflag(char *flag)
 
 int get_partflag(char *flag)
 {
-        for (size_t x = 0; x < NUMITEMS(part_flags); ++x)
+        for (size_t x = 0; x < NumItems(part_flags); ++x)
         {
                 if (!str_cmp(flag, part_flags[x]))
                         return static_cast<int>(x);
@@ -1667,7 +1667,7 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                victim->Hitroll = to_shint(URANGE(0, value, 85));
+                victim->Hitroll = to_shint(URange(0, value, 85));
                 if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->Hitroll = victim->Hitroll;
                 return;
@@ -1677,7 +1677,7 @@ CMDF do_mset(CharData * ch, char *argument)
         {
                 if (!can_mmodify(ch, victim))
                         return;
-                victim->Damroll = to_shint(URANGE(0, value, 65));
+                victim->Damroll = to_shint(URange(0, value, 65));
                 if (IsNpc(victim) && IsSet(victim->act, ActPrototype))
                         victim->pIndexData->Damroll = victim->Damroll;
                 return;
@@ -2322,18 +2322,18 @@ CMDF do_mset(CharData * ch, char *argument)
                                  ch);
                         if (IsNpc(victim))
                                 send_to_char(wordwrap(show_ext_flag_string
-                                                      (NUMITEMS(act_flags),
+                                                      (NumItems(act_flags),
                                                        act_flags), 78), ch);
                         else
                         {
                                 char      localbuf[MSL];
                                 mudstrlcpy(localbuf,
-                                           show_ext_flag_string(NUMITEMS(plr_flags),
+                                           show_ext_flag_string(NumItems(plr_flags),
                                                                 plr_flags),
                                            MSL);
                                 mudstrlcat(localbuf, ", ", MSL);
                                 mudstrlcat(localbuf,
-                                           show_ext_flag_string(NUMITEMS(pc_flags),
+                                           show_ext_flag_string(NumItems(pc_flags),
                                                                 pc_flags),
                                            MSL);
                                 send_to_char(wordwrap(localbuf, 78), ch);
@@ -2484,7 +2484,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ("Usage: mset <victim> affected <flag> [flag]...\n\r",
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(a_flags), a_flags),
+                                              (NumItems(a_flags), a_flags),
                                               78), ch);
                         send_to_char("\n\r", ch);
                         return;
@@ -2639,7 +2639,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ("You can only modify a mobile's resistancies.\n\r",
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(ris_flags),
+                                              (NumItems(ris_flags),
                                                ris_flags), 78), ch);
                         send_to_char("\n\r", ch);
                         return;
@@ -2684,7 +2684,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ("Usage: mset <victim> immune <flag> [flag]...\n\r",
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(ris_flags),
+                                              (NumItems(ris_flags),
                                                ris_flags), 78), ch);
                         send_to_char("\n\r", ch);
 
@@ -2721,7 +2721,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ("Usage: mset <victim> susceptible <flag> [flag]...\n\r",
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(ris_flags),
+                                              (NumItems(ris_flags),
                                                ris_flags), 78), ch);
                         send_to_char("\n\r", ch);
 
@@ -2751,7 +2751,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ("Usage: mset <victim> part <flag> [flag]...\n\r",
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(part_flags),
+                                              (NumItems(part_flags),
                                                part_flags), 78), ch);
                         send_to_char("\n\r", ch);
 
@@ -2788,7 +2788,7 @@ CMDF do_mset(CharData * ch, char *argument)
                                 ("Usage: mset <victim> attack <flag> [flag]...\n\r",
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(attack_flags),
+                                              (NumItems(attack_flags),
                                                attack_flags), 78), ch);
                         send_to_char("\n\r", ch);
 
@@ -3457,7 +3457,7 @@ CMDF do_oset(CharData * ch, char *argument)
                                      ch);
                         send_to_char("Possible Types:\n\r", ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(o_types), o_types),
+                                              (NumItems(o_types), o_types),
                                               78), ch);
                         send_to_char("\n\r", ch);
                         return;
@@ -3484,7 +3484,7 @@ CMDF do_oset(CharData * ch, char *argument)
                                 ("Usage: oset <object> flags <flag> [flag]...\n\r",
                                  ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(o_flags), o_flags),
+                                              (NumItems(o_flags), o_flags),
                                               78), ch);
                         send_to_char("\n\r", ch);
 
@@ -3520,7 +3520,7 @@ CMDF do_oset(CharData * ch, char *argument)
                                  ch);
                         send_to_char("Possible locations:\n\r", ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(w_flags), w_flags),
+                                              (NumItems(w_flags), w_flags),
                                               78), ch);
                         send_to_char("\n\r", ch);
 
@@ -3702,7 +3702,7 @@ CMDF do_oset(CharData * ch, char *argument)
                                  ch);
                         send_to_char("Affect Fields:\n\r", ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(a_flags), a_flags),
+                                              (NumItems(a_flags), a_flags),
                                               78), ch);
                         send_to_char("\n\r", ch);
 
@@ -3992,14 +3992,14 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "weapontype"))
                 {
                         value = -1;
-                        for (size_t x = 0; x < NUMITEMS(weapon_table); ++x)
+                        for (size_t x = 0; x < NumItems(weapon_table); ++x)
                                 if (!str_cmp(arg3, weapon_table[x]))
                                         value = static_cast<int>(x);
                         if (value < 0)
                         {
                                 send_to_char("Unknown weapon type.\n\r", ch);
                                 send_to_char("\n\rChoices:\n\r", ch);
-                                send_to_char(wordwrap(build_joined_table(NUMITEMS(weapon_table), weapon_table), 78), ch);
+                                send_to_char(wordwrap(build_joined_table(NumItems(weapon_table), weapon_table), 78), ch);
                                 send_to_char("\n\r", ch);
 
                                 return;
@@ -4042,14 +4042,14 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "spicetype"))
                 {
                         value = -1;
-                        for (size_t x = 0; x < NUMITEMS(spice_table); ++x)
+                        for (size_t x = 0; x < NumItems(spice_table); ++x)
                                 if (!str_cmp(arg3, spice_table[x]))
                                         value = static_cast<int>(x);
                         if (value < 0)
                         {
                                 send_to_char("Unknown spice type.\n\r", ch);
                                 send_to_char("\n\rChoices:\n\r", ch);
-                                send_to_char(wordwrap(build_joined_table(NUMITEMS(spice_table), spice_table), 78), ch);
+                                send_to_char(wordwrap(build_joined_table(NumItems(spice_table), spice_table), 78), ch);
                                 send_to_char("\n\r", ch);
 
                                 return;
@@ -4062,7 +4062,7 @@ CMDF do_oset(CharData * ch, char *argument)
                 if (!str_cmp(arg2, "gemtype"))
                 {
                         value = -1;
-                        for (size_t x = 0; x < NUMITEMS(crystal_table); ++x)
+                        for (size_t x = 0; x < NumItems(crystal_table); ++x)
                                 if (!str_cmp(arg3, crystal_table[x]))
                                         value = static_cast<int>(x);
                         if (value < 0)
@@ -4070,7 +4070,7 @@ CMDF do_oset(CharData * ch, char *argument)
                                 send_to_char("Unknown gem type.\n\r", ch);
                                 send_to_char("\n\rChoices:\n\r", ch);
                                 send_to_char(wordwrap(show_ext_flag_string
-                                                      (NUMITEMS
+                                                      (NumItems
                                                        (crystal_table),
                                                        crystal_table), 78),
                                              ch);
@@ -4356,7 +4356,7 @@ char *sprint_reset(CharData *ch, ResetData *pReset, sh_int num, bool rlist)
                 mudstrlcpy(roomname, roomsr, MSL);
                 append("%2d) %s (%d) -> %s (%d) [%d]\n\r", num, mobname, pReset->arg1, roomname, pReset->arg3, pReset->arg2);
                 break; }
-        case 'E': if (!mob) mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL); if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) %s (%d) -> %s (%s) [%d]\n\r", num, objname, pReset->arg1, mobname, wear_locs[URANGE(0,pReset->arg3,MaxWear)], pReset->arg2); break;
+        case 'E': if (!mob) mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL); if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) %s (%d) -> %s (%s) [%d]\n\r", num, objname, pReset->arg1, mobname, wear_locs[URange(0,pReset->arg3,MaxWear)], pReset->arg2); break;
         case 'H': if (pReset->arg1 > 0 && (obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else if (!obj) mudstrlcpy(objname, "Object: *NULL obj*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) Hide %s (%d)\n\r", num, objname, obj ? obj->vnum : pReset->arg1); break;
         case 'G': if (!mob) mudstrlcpy(mobname, "* ERROR: NO MOBILE! *", MSL); if ((obj = get_obj_index(pReset->arg1)) == NULL) mudstrlcpy(objname, "Object: *BAD VNUM*", MSL); else mudstrlcpy(objname, obj->name, MSL); append("%2d) %s (%d) -> %s (carry) [%d]\n\r", num, objname, pReset->arg1, mobname, pReset->arg2); break;
         case 'O': {
@@ -4516,7 +4516,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                         send_to_char("Invalid tunnel value. Please enter a number (0-1000).\n\r", ch);
                         return;
                 }
-                location->tunnel = to_shint(URANGE(0, tunnel_value, 1000));
+                location->tunnel = to_shint(URange(0, tunnel_value, 1000));
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -4590,7 +4590,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                                  ch);
                         send_to_char("\n\rPossible Flags: \n\r", ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(r_flags), r_flags),
+                                              (NumItems(r_flags), r_flags),
                                               78), ch);
                         send_to_char("\n\r", ch);
                         return;
@@ -4735,7 +4735,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                                  ch);
                         send_to_char("\n\rExit flags:\n\r", ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(ex_flags), ex_flags),
+                                              (NumItems(ex_flags), ex_flags),
                                               78), ch);
                         send_to_char("\n\r", ch);
                         return;
@@ -4797,7 +4797,7 @@ CMDF do_redit(CharData * ch, const char *argument)
                                  ch);
                         send_to_char("\n\rExit flags:\n\r", ch);
                         send_to_char(wordwrap(show_ext_flag_string
-                                              (NUMITEMS(ex_flags), ex_flags),
+                                              (NumItems(ex_flags), ex_flags),
                                               78), ch);
                         send_to_char("\n\r", ch);
                         return;
@@ -6036,7 +6036,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                 case 't':
                 case 'T':
                         fprintf(fpout, "%c %d %d %d %d\n",
-                                UPPER(treset->command), treset->extra,
+                                Upper(treset->command), treset->extra,
                                 treset->arg1, treset->arg2, treset->arg3);
                         break;
                 case 'g':
@@ -6044,7 +6044,7 @@ void fold_area(AreaData * tarea, char *filename, bool install, bool dolog)
                 case 'r':
                 case 'R':
                         fprintf(fpout, "%c %d %d %d\n",
-                                UPPER(treset->command), treset->extra,
+                                Upper(treset->command), treset->extra,
                                 treset->arg1, treset->arg2);
                         break;
                 }
@@ -6585,7 +6585,7 @@ ResetData *parse_reset(AreaData * tarea, char *argument, CharData * ch)
                         send_to_char("Reset: PUT: no such container\n\r", ch);
                         return NULL;
                 }
-                extra = UMAX(val3, 0);
+                extra = UMax(val3, 0);
                 work = one_argument(work, arg4);
                 val3 = (is_number(arg4) ? atoi(arg4) : 0);
                 if (val3 < 0)

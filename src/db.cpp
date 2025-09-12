@@ -1406,8 +1406,8 @@ void load_mobiles(AreaData * tarea, FILE * fp)
                 }
                 pMobIndex->speaking = get_language(fread_string_noalloc(fp));
 
-                pMobIndex->long_descr[0] = UPPER(pMobIndex->long_descr[0]);
-                pMobIndex->description[0] = UPPER(pMobIndex->description[0]);
+                pMobIndex->long_descr[0] = Upper(pMobIndex->long_descr[0]);
+                pMobIndex->description[0] = Upper(pMobIndex->description[0]);
 
                 pMobIndex->act = fread_number(fp) | ActIsNpc;
                 pMobIndex->affected_by = fread_number(fp);
@@ -1651,7 +1651,7 @@ void load_objects(AreaData * tarea, FILE * fp)
                 pObjIndex->description = fread_string(fp);
                 pObjIndex->action_desc = fread_string(fp);
 
-                pObjIndex->description[0] = UPPER(pObjIndex->description[0]);
+                pObjIndex->description[0] = Upper(pObjIndex->description[0]);
 
                 ln = fread_line(fp);
                 x1 = x2 = x3 = x4 = 0;
@@ -1671,7 +1671,7 @@ void load_objects(AreaData * tarea, FILE * fp)
                 pObjIndex->value[4] = x5;
                 pObjIndex->value[5] = x6;
                 pObjIndex->weight = IntToShint(fread_number(fp));
-                pObjIndex->weight = UMAX(1, pObjIndex->weight);
+                pObjIndex->weight = UMax(1, pObjIndex->weight);
                 pObjIndex->cost = fread_number(fp);
                 pObjIndex->rent = fread_number(fp); /* unused */
 
@@ -2178,10 +2178,10 @@ void load_shops([[maybe_unused]] AreaData * tarea, FILE * fp)
                 pShop->profit_buy = IntToShint(fread_number(fp));
                 pShop->profit_sell = IntToShint(fread_number(fp));
                 pShop->profit_buy =
-                        URANGE(pShop->profit_sell + 5, pShop->profit_buy,
+                        URange(pShop->profit_sell + 5, pShop->profit_buy,
                                1000);
                 pShop->profit_sell =
-                        URANGE(0, pShop->profit_sell, pShop->profit_buy - 5);
+                        URange(0, pShop->profit_sell, pShop->profit_buy - 5);
                 pShop->open_hour = IntToShint(fread_number(fp));
                 pShop->close_hour = IntToShint(fread_number(fp));
                 fread_to_eol(fp);
@@ -2760,7 +2760,7 @@ ObjData *create_object(ObjIndexData * pObjIndex, int level)
         obj->level = IntToShint(level);
         obj->wear_loc = -1;
         obj->count = 1;
-        cur_obj_serial = UMAX((cur_obj_serial + 1) & (BV30 - 1), 1);
+        cur_obj_serial = UMax((cur_obj_serial + 1) & (BV30 - 1), 1);
 
         obj->armed_by = STRALLOC("");
         obj->name = QUICKLINK(pObjIndex->name);
@@ -3996,7 +3996,7 @@ int number_fuzzy(int number)
                 break;
         }
 
-        return UMAX(1, number);
+        return UMax(1, number);
 }
 
 
@@ -4208,7 +4208,7 @@ bool str_cmp(const char *astr, const char *bstr)
 
         for (; *astr || *bstr; astr++, bstr++)
         {
-                if (LOWER(*astr) != LOWER(*bstr))
+                if (Lower(*astr) != Lower(*bstr))
                         return TRUE;
         }
 
@@ -4238,7 +4238,7 @@ bool str_prefix(const char *astr, const char *bstr)
 
         for (; *astr; astr++, bstr++)
         {
-                if (LOWER(*astr) != LOWER(*bstr))
+                if (Lower(*astr) != Lower(*bstr))
                         return TRUE;
         }
 
@@ -4259,14 +4259,14 @@ bool str_infix(const char *astr, const char *bstr)
         size_t    ichar;
         char      c0;
 
-        if ((c0 = LOWER(astr[0])) == '\0')
+        if ((c0 = Lower(astr[0])) == '\0')
                 return FALSE;
 
         sstr1 = strlen(astr);
         sstr2 = strlen(bstr);
 
         for (ichar = 0; ichar <= sstr2 - sstr1; ichar++)
-                if (c0 == LOWER(bstr[ichar])
+                if (c0 == Lower(bstr[ichar])
                     && !str_prefix(astr, bstr + ichar))
                         return FALSE;
 
@@ -4304,9 +4304,9 @@ const char *capitalize(const char *str)
         int       i;
 
         for (i = 0; str[i] != '\0'; i++)
-                strcap[i] = LOWER(str[i]);
+                strcap[i] = Lower(str[i]);
         strcap[i] = '\0';
-        strcap[0] = UPPER(strcap[0]);
+        strcap[0] = Upper(strcap[0]);
         return strcap;
 }
 
@@ -4320,7 +4320,7 @@ char     *strlower(const char *str)
         int       i;
 
         for (i = 0; str[i] != '\0'; i++)
-                strlow[i] = LOWER(str[i]);
+                strlow[i] = Lower(str[i]);
         strlow[i] = '\0';
         return strlow;
 }
@@ -4334,7 +4334,7 @@ char     *strupper(const char *str)
         int       i;
 
         for (i = 0; str[i] != '\0'; i++)
-                strup[i] = UPPER(str[i]);
+                strup[i] = Upper(str[i]);
         strup[i] = '\0';
         return strup;
 }
@@ -6079,8 +6079,8 @@ ObjIndexData *make_object(int vnum, int cvnum, char *name)
                 snprintf(buf, MSL, "%s is here.", aoran(name));
                 pObjIndex->description = STRALLOC(buf);
                 pObjIndex->action_desc = STRALLOC("");
-                pObjIndex->short_descr[0] = LOWER(pObjIndex->short_descr[0]);
-                pObjIndex->description[0] = UPPER(pObjIndex->description[0]);
+                pObjIndex->short_descr[0] = Lower(pObjIndex->short_descr[0]);
+                pObjIndex->description[0] = Upper(pObjIndex->description[0]);
                 pObjIndex->item_type = ItemTrash;
                 pObjIndex->extra_flags = ItemPrototype;
                 pObjIndex->wear_flags = 0;
@@ -6172,9 +6172,9 @@ MobIndexData *make_mobile(int vnum, int cvnum, char *name)
                          name);
                 pMobIndex->long_descr = STRALLOC(buf);
                 pMobIndex->description = STRALLOC("");
-                pMobIndex->short_descr[0] = LOWER(pMobIndex->short_descr[0]);
-                pMobIndex->long_descr[0] = UPPER(pMobIndex->long_descr[0]);
-                pMobIndex->description[0] = UPPER(pMobIndex->description[0]);
+                pMobIndex->short_descr[0] = Lower(pMobIndex->short_descr[0]);
+                pMobIndex->long_descr[0] = Upper(pMobIndex->long_descr[0]);
+                pMobIndex->description[0] = Upper(pMobIndex->description[0]);
                 pMobIndex->act = ActIsNpc | ActPrototype;
                 pMobIndex->affected_by = 0;
                 pMobIndex->pShop = NULL;
@@ -6901,7 +6901,7 @@ void fread_sysdata(SystemData * sys, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;

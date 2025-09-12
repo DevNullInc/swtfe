@@ -284,7 +284,7 @@ CMDF do_craftpike(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 200,
+                xpgain = UMin(obj->cost * 200,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -522,7 +522,7 @@ CMDF do_craftknife(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 200,
+                xpgain = UMin(obj->cost * 200,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -617,7 +617,7 @@ CMDF do_fixship(CharData * ch, char *argument)
 
         if (!str_cmp(arg, "hull"))
         {
-                change = URANGE(0,
+                change = URange(0,
                                 number_range((int)
                                              (ch->PCData->
                                               learned[gsn_systemmaintenance] /

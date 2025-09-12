@@ -280,7 +280,7 @@ int max_level(CharData * ch, int ability)
                 level += ch->perm_dex + ch->perm_int + ch->perm_lck;
         }
         level += ch->race->class_modifier(ability);
-        level = URANGE(1, level, 150);
+        level = URange(1, level, 150);
         if (ability == ForceAbility)
         {
                 level = ch->perm_frc * 5;
@@ -293,7 +293,7 @@ void advance_level(CharData * ch, int ability)
 
         if (ch->top_level < ch->skill_level[ability] && ch->top_level < 100)
         {
-                ch->top_level = URANGE(1, ch->skill_level[ability], 100);
+                ch->top_level = URange(1, ch->skill_level[ability], 100);
         }
 
         if (!IsNpc(ch))
@@ -320,7 +320,7 @@ void gain_exp_new(CharData * ch, int gain, int ability, bool outtext)
                 return;
         }
 
-        ch->experience[ability] = UMAX(0, ch->experience[ability] + gain);
+        ch->experience[ability] = UMax(0, ch->experience[ability] + gain);
 
         if (NotAuthed(ch)
             && ch->experience[ability] >=
@@ -527,7 +527,7 @@ int hit_gain(CharData * ch)
                         return 0;
                 }
 
-                gain = UMIN(5, ch->top_level);
+                gain = UMin(5, ch->top_level);
 
                 switch (ch->position)
                 {
@@ -581,7 +581,7 @@ int hit_gain(CharData * ch)
         if (ch->race && !str_cmp(ch->race->name(), "trandoshan"))
                 gain *= 4;
 
-        return UMIN(gain, ch->max_hit - ch->hit);
+        return UMin(gain, ch->max_hit - ch->hit);
 }
 
 
@@ -605,7 +605,7 @@ int mana_gain(CharData * ch)
                 if (ch->skill_level[ForceAbility] <= 1)
                         return (0);
 
-                gain = UMIN(5, ch->skill_level[ForceAbility] / 2);
+                gain = UMin(5, ch->skill_level[ForceAbility] / 2);
 
                 if (ch->position < PosSleeping)
                         return 0;
@@ -630,7 +630,7 @@ int mana_gain(CharData * ch)
         if (IsAffected(ch, AffPoison))
                 gain /= 4;
 
-        return UMIN(gain, ch->max_endurance - ch->endurance);
+        return UMin(gain, ch->max_endurance - ch->endurance);
 }
 
 int move_gain(CharData * ch)
@@ -650,7 +650,7 @@ int move_gain(CharData * ch)
                                  ch);
                         return 0;
                 }
-                gain = UMAX(15, 2 * ch->top_level);
+                gain = UMax(15, 2 * ch->top_level);
                 switch (ch->position)
                 {
                 case PosDead:
@@ -704,7 +704,7 @@ int move_gain(CharData * ch)
             && IsSet(ch->bodyparts, BodyRLeg))
                 gain -= 10;
 
-        return UMIN(gain, ch->max_endurance - ch->endurance);
+        return UMin(gain, ch->max_endurance - ch->endurance);
 }
 
 void gain_addiction(CharData * ch)
@@ -840,7 +840,7 @@ void gain_condition(CharData * ch, int iCond, int value)
 			(iCond == CondFull || iCond == CondThirst) &&
 			get_implant_affect(ch,ImplantHunger))
 				return;
-        ch->PCData->condition[iCond] = URANGE(0, condition + value, 48);
+        ch->PCData->condition[iCond] = URange(0, condition + value, 48);
 
         if (ch->PCData->condition[iCond] == 0)
         {
@@ -1553,12 +1553,12 @@ void weather_update(void)
                 diff = weather_info.mmhg > 1015 ? -2 : 2;
 
         weather_info.change += diff * dice(1, 4) + dice(2, 6) - dice(2, 6);
-        weather_info.change = UMAX(weather_info.change, -12);
-        weather_info.change = UMIN(weather_info.change, 12);
+        weather_info.change = UMax(weather_info.change, -12);
+        weather_info.change = UMin(weather_info.change, 12);
 
         weather_info.mmhg += weather_info.change;
-        weather_info.mmhg = UMAX(weather_info.mmhg, 960);
-        weather_info.mmhg = UMIN(weather_info.mmhg, 1040);
+        weather_info.mmhg = UMax(weather_info.mmhg, 960);
+        weather_info.mmhg = UMin(weather_info.mmhg, 1040);
 
         AtTemp = AtGrey;
         switch (weather_info.sky)
@@ -2175,7 +2175,7 @@ void char_update(void)
                                 act(AtPoison, "You shiver and suffer.", ch,
                                     NULL, NULL, ToChar);
                                 ch->mental_state =
-                                        URANGE(20, ch->mental_state + 4, 100);
+                                        URange(20, ch->mental_state + 4, 100);
                                 damage(ch, ch, 6, gsn_poison);
                         }
                         else if (ch->position == PosIncap)
@@ -2379,7 +2379,7 @@ void char_update(void)
                                         }
                                         if (!IsImmortal(ch))
                                                 ch->position = PosResting;
-                                        ch->hit = UMAX(1, ch->hit);
+                                        ch->hit = UMax(1, ch->hit);
                                         save_char_obj(ch);
                                         if (room)
                                                 SetBit(room->RoomFlags,
@@ -2499,7 +2499,7 @@ void obj_update(void)
                     || obj->item_type == ItemCorpseNpc
                     || obj->item_type == ItemDroidCorpse)
                 {
-                        sh_int    timerfrac = UMAX(1, obj->timer - 1);
+                        sh_int    timerfrac = UMax(1, obj->timer - 1);
 
                         if (obj->item_type == ItemCorpsePc)
                                 timerfrac = (int) (obj->timer / 8 + 1);
@@ -2518,13 +2518,13 @@ void obj_update(void)
                                 obj->value[2] = timerfrac;
                                 if (obj->item_type == ItemDroidCorpse)
                                         snprintf(buf, MSL,
-                                                 d_corpse_descs[UMIN
+                                                 d_corpse_descs[UMin
                                                                 (timerfrac -
                                                                  1, 4)],
                                                  bufptr);
                                 else
                                         snprintf(buf, MSL,
-                                                 corpse_descs[UMIN
+                                                 corpse_descs[UMin
                                                               (timerfrac - 1,
                                                                4)],
                                                  capitalize(bufptr));
@@ -2742,9 +2742,9 @@ void char_check(void)
                                                                    ch->
                                                                    max_hit /
                                                                    30);
-                                                dam = UMAX(1, dam);
+                                                dam = UMax(1, dam);
                                                 if (ch->hit <= 0)
-                                                        dam = UMIN(10, dam);
+                                                        dam = UMin(10, dam);
                                                 if (number_bits(3) == 0)
                                                         send_to_char
                                                                 ("You cough and choke as you try to breathe water!\n\r",
@@ -2782,9 +2782,9 @@ void char_check(void)
                                                                  50,
                                                                  ch->max_hit /
                                                                  30);
-                                                        dam = UMAX(1, dam);
+                                                        dam = UMax(1, dam);
                                                         if (ch->hit <= 0)
-                                                                dam = UMIN(10,
+                                                                dam = UMin(10,
                                                                            dam);
                                                         if (number_bits(3) ==
                                                             0)
@@ -3025,7 +3025,7 @@ void halucinations(CharData * ch)
         {
                 char     *t;
 
-                switch (number_range(1, UMIN(20, (ch->mental_state + 5) / 5)))
+                switch (number_range(1, UMin(20, (ch->mental_state + 5) / 5)))
                 {
                 default:
                 case 1:
@@ -3361,7 +3361,7 @@ void reboot_check(time_t reset)
                 "SYSTEM: Reboot in 10 minutes.",
         };
         static const int times[] = { 10, 30, 60, 120, 180, 240, 300, 600 };
-        static const int timesize = UMIN(sizeof(times) / sizeof(*times),
+        static const int timesize = UMin(sizeof(times) / sizeof(*times),
                                          sizeof(tmsg) / sizeof(*tmsg));
         char      buf[MaxStringLength];
         static int trun;

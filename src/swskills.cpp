@@ -215,7 +215,7 @@ CMDF do_makeblade(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ItemBattery && checkbatt == FALSE)
                 {
-                        charge = UMAX(5, obj->value[0]);
+                        charge = UMax(5, obj->value[0]);
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
@@ -284,7 +284,7 @@ CMDF do_makeblade(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 200,
+                xpgain = UMin(obj->cost * 200,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -539,7 +539,7 @@ CMDF do_makefurniture(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 25,
+                xpgain = UMin(obj->cost * 25,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -730,7 +730,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ItemBattery && checkbatt == FALSE)
                 {
-                        charge = UMAX(5, obj->value[0]);
+                        charge = UMax(5, obj->value[0]);
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
@@ -825,7 +825,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 200,
+                xpgain = UMin(obj->cost * 200,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -1102,7 +1102,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("Hitroll");
-        paf->modifier = URANGE(0, 1 + scope, level / 30);
+        paf->modifier = URange(0, 1 + scope, level / 30);
         paf->bitvector = 0;
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
@@ -1111,7 +1111,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
         paf2->type = -1;
         paf2->duration = -1;
         paf2->location = get_atype("Damroll");
-        paf2->modifier = URANGE(0, power, level / 30);
+        paf2->modifier = URange(0, power, level / 30);
         paf2->bitvector = 0;
         paf2->next = NULL;
         LINK(paf2, obj->first_affect, obj->last_affect, next, prev);
@@ -1135,7 +1135,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 50,
+                xpgain = UMin(obj->cost * 50,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -1473,7 +1473,7 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
         paf->type = -1;
         paf->duration = -1;
         paf->location = get_atype("Hitroll");
-        paf->modifier = URANGE(0, gems, level / 30);
+        paf->modifier = URange(0, gems, level / 30);
         paf->bitvector = 0;
         paf->next = NULL;
         LINK(paf, obj->first_affect, obj->last_affect, next, prev);
@@ -1506,13 +1506,13 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 50,
+                xpgain = UMin(obj->cost * 50,
                               (exp_level(ch->skill_level[ForceAbility] + 1) -
                                exp_level(ch->skill_level[ForceAbility])));
                 /*
                  * stop minimum, 19800500 is most you can have ever 
                  */
-                xpgain = URANGE(0, xpgain, 19800500);
+                xpgain = URange(0, xpgain, 19800500);
                 gain_exp(ch, xpgain, ForceAbility);
                 ch_printf(ch, "You gain %d Force experience.", xpgain);
         }
@@ -1615,7 +1615,7 @@ CMDF do_makespice(CharData * ch, char *argument)
         }
         separate_obj(obj);
 
-        obj->value[1] = URANGE(10, obj->value[1], (IsNpc(ch) ? ch->top_level
+        obj->value[1] = URange(10, obj->value[1], (IsNpc(ch) ? ch->top_level
                                                    : (int) (ch->PCData->
                                                             learned
                                                             [gsn_spice_refining]))
@@ -1640,7 +1640,7 @@ CMDF do_makespice(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 50,
+                xpgain = UMin(obj->cost * 50,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -1820,7 +1820,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ItemChemical)
                 {
-                        Strength = URANGE(10, obj->value[0], level * 5);
+                        Strength = URange(10, obj->value[0], level * 5);
                         weight = obj->weight;
                         separate_obj(obj);
                         obj_from_char(obj);
@@ -1881,7 +1881,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 50,
+                xpgain = UMin(obj->cost * 50,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -2061,7 +2061,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ItemChemical)
                 {
-                        Strength = URANGE(10, obj->value[0], level * 5);
+                        Strength = URange(10, obj->value[0], level * 5);
                         weight = obj->weight;
                         separate_obj(obj);
                         obj_from_char(obj);
@@ -2122,7 +2122,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 50,
+                xpgain = UMin(obj->cost * 50,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -2353,7 +2353,7 @@ CMDF do_makelight(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 100,
+                xpgain = UMin(obj->cost * 100,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -2616,7 +2616,7 @@ CMDF do_makejewelry(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 100,
+                xpgain = UMin(obj->cost * 100,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -2830,7 +2830,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 100,
+                xpgain = UMin(obj->cost * 100,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -3071,7 +3071,7 @@ CMDF do_makecomlink(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 100,
+                xpgain = UMin(obj->cost * 100,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -3231,7 +3231,7 @@ CMDF do_makeshield(CharData * ch, char *argument)
 
                 if (obj->item_type == ItemBattery && checkbatt == FALSE)
                 {
-                        charge = UMIN(obj->value[1], 10);
+                        charge = UMin(obj->value[1], 10);
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
@@ -3316,7 +3316,7 @@ CMDF do_makeshield(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 50,
+                xpgain = UMin(obj->cost * 50,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -3561,7 +3561,7 @@ CMDF do_makecontainer(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 100,
+                xpgain = UMin(obj->cost * 100,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -3810,7 +3810,7 @@ CMDF do_gemcutting(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 100,
+                xpgain = UMin(obj->cost * 100,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -3905,7 +3905,7 @@ CMDF do_reinforcements(CharData * ch, char *argument)
         send_to_char("&GYour reinforcements are on the way.\n\r", ch);
         credits = ch->skill_level[LeadershipAbility] * 50;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
-        ch->gold -= UMIN(credits, ch->gold);
+        ch->gold -= UMin(credits, ch->gold);
 
         learn_from_success(ch, gsn_reinforcements);
 
@@ -4011,7 +4011,7 @@ CMDF do_postguard(CharData * ch, char *argument)
 
         credits = ch->skill_level[LeadershipAbility] * 30;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
-        ch->gold -= UMIN(credits, ch->gold);
+        ch->gold -= UMin(credits, ch->gold);
 
         learn_from_success(ch, gsn_postguard);
 
@@ -4120,7 +4120,7 @@ CMDF do_add_patrol(CharData * ch, char *argument)
 
         credits = ch->skill_level[LeadershipAbility] * 30;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
-        ch->gold -= UMIN(credits, ch->gold);
+        ch->gold -= UMin(credits, ch->gold);
 
         learn_from_success(ch, gsn_add_patrol);
 
@@ -4703,7 +4703,7 @@ CMDF do_torture(CharData * ch, char *argument)
         }
 
         ch->alignment = ch->alignment -= 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
 
         WaitState(ch, skill_table[gsn_torture]->beats);
 
@@ -4738,7 +4738,7 @@ CMDF do_torture(CharData * ch, char *argument)
                     NULL, victim, ToNotvict);
 
                 dam = dice(ch->skill_level[LeadershipAbility] / 10, 4);
-                dam = URANGE(0, victim->max_hit - 10, dam);
+                dam = URange(0, victim->max_hit - 10, dam);
                 victim->hit -= dam;
                 victim->max_hit -= dam;
 
@@ -4869,7 +4869,7 @@ CMDF do_mine(CharData * ch, char *argument)
                 return;
         }
 
-        if (obj->weight > (UMAX(5, (can_carry_w(ch) / 10))) && !shovel)
+        if (obj->weight > (UMax(5, (can_carry_w(ch) / 10))) && !shovel)
         {
                 send_to_char
                         ("You'd need a shovel to bury something that big.\n\r",
@@ -4877,9 +4877,9 @@ CMDF do_mine(CharData * ch, char *argument)
                 return;
         }
 
-        move = (obj->weight * 50 * (shovel ? 1 : 5)) / UMAX(1,
+        move = (obj->weight * 50 * (shovel ? 1 : 5)) / UMax(1,
                                                             can_carry_w(ch));
-        move = URANGE(2, move, 1000);
+        move = URange(2, move, 1000);
         if (move > ch->endurance)
         {
                 send_to_char
@@ -4890,7 +4890,7 @@ CMDF do_mine(CharData * ch, char *argument)
         ch->endurance -= move;
 
         SetBit(obj->extra_flags, ItemBurried);
-        WaitState(ch, URANGE(10, move / 2, 100));
+        WaitState(ch, URange(10, move / 2, 100));
 
         STRFREE(obj->armed_by);
         obj->armed_by = STRALLOC(ch->name);
@@ -5578,7 +5578,7 @@ CMDF do_hijack(CharData * ch, char *argument)
                         learn_from_success(ch, gsn_midships);
                 if (ship->ship_class == CapitalShip)
                         learn_from_success(ch, gsn_capitalships);
-                xpgain = UMIN(200,
+                xpgain = UMin(200,
                               (exp_level(ch->skill_level[PiracyAbility] + 1)
                                - exp_level(ch->skill_level[PiracyAbility])));
                 gain_exp(ch, xpgain, PiracyAbility);
@@ -5698,7 +5698,7 @@ CMDF do_special_forces(CharData * ch, char *argument)
         send_to_char("&GYour forces are on the way.\n\r", ch);
         credits = ch->skill_level[LeadershipAbility] * 50;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
-        ch->gold -= UMIN(credits, ch->gold);
+        ch->gold -= UMin(credits, ch->gold);
 
         learn_from_success(ch, gsn_special_forces);
 
@@ -5804,7 +5804,7 @@ CMDF do_elite_guard(CharData * ch, char *argument)
 
         credits = ch->skill_level[LeadershipAbility] * 30;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
-        ch->gold -= UMIN(credits, ch->gold);
+        ch->gold -= UMin(credits, ch->gold);
 
         learn_from_success(ch, gsn_elite_guard);
 
@@ -6350,12 +6350,12 @@ CMDF do_bribe(CharData * ch, char *argument)
 
         if (clan == planet->governed_by)
         {
-                planet->pop_support += URANGE((int) 0.1, amount / 1000, 2);
+                planet->pop_support += URange((int) 0.1, amount / 1000, 2);
                 send_to_char
                         ("Popular support for your organization increases slightly.\n\r",
                          ch);
 
-                amount = UMIN(amount,
+                amount = UMin(amount,
                               (exp_level
                                (ch->skill_level[DiplomacyAbility] + 1) -
                                exp_level(ch->
@@ -6791,7 +6791,7 @@ CMDF do_research(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN((ch->PCData->learned[gsn_gather_intelligence]) *
+                xpgain = UMin((ch->PCData->learned[gsn_gather_intelligence]) *
                               200,
                               (exp_level
                                (ch->skill_level[LeadershipAbility] + 1) -
@@ -7033,7 +7033,7 @@ CMDF do_makeknife(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 200,
+                xpgain = UMin(obj->cost * 200,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -7284,7 +7284,7 @@ CMDF do_makepike(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 200,
+                xpgain = UMin(obj->cost * 200,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -7456,7 +7456,7 @@ CMDF do_itemrepair(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(number_percent() * 600,
+                xpgain = UMin(number_percent() * 600,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -8345,7 +8345,7 @@ CMDF do_makebinding(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 25,
+                xpgain = UMin(obj->cost * 25,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->

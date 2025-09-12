@@ -160,7 +160,7 @@ CMDF do_cook(CharData * ch, char *argument)
                 gain_condition(ch, CondFull, amount);
         }
         learn_from_success(ch, gsn_cook);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -292,7 +292,7 @@ CMDF do_beg(CharData * ch, char *argument)
         act(AtAction, "$n begs you for money!\n\r", ch, NULL, victim,
             ToVict);
 
-        amount = UMIN(victim->gold, number_range(1, 10));
+        amount = UMin(victim->gold, number_range(1, 10));
         if (amount <= 0)
         {
                 do_look(victim, ch->name);
@@ -306,7 +306,7 @@ CMDF do_beg(CharData * ch, char *argument)
         ch_printf(ch, "%s gives you %d credits.\n\r", victim->short_descr,
                   amount);
         learn_from_success(ch, gsn_beg);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -429,7 +429,7 @@ CMDF do_dishwasher(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You make some money for washing the dishes!\n\r", ch);
         learn_from_success(ch, gsn_dishwasher);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -546,7 +546,7 @@ CMDF do_busser(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You make some money for bussing the tables!\n\r", ch);
         learn_from_success(ch, gsn_busser);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -663,7 +663,7 @@ CMDF do_waiter(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You make some money for waiting the tables!\n\r", ch);
         learn_from_success(ch, gsn_waiter);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -786,7 +786,7 @@ CMDF do_chef(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You are paid well for your fabulous meal!\n\r", ch);
         learn_from_success(ch, gsn_chef);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -903,7 +903,7 @@ CMDF do_streetcleaner(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for cleaning the street!\n\r", ch);
         learn_from_success(ch, gsn_streetcleaner);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1025,7 +1025,7 @@ CMDF do_bartender(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for mixing peoples drinks!\n\r", ch);
         learn_from_success(ch, gsn_bartender);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1142,7 +1142,7 @@ CMDF do_interiorcleaner(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for cleaning the room!\n\r", ch);
         learn_from_success(ch, gsn_interiorcleaner);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1259,7 +1259,7 @@ CMDF do_hotelcleaner(CharData * ch, char *argument)
         send_to_char("You get some money for cleaning the hotel room!\n\r",
                      ch);
         learn_from_success(ch, gsn_hotelcleaner);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1374,7 +1374,7 @@ CMDF do_secretary(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being a secretary!\n\r", ch);
         learn_from_success(ch, gsn_secretary);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1488,7 +1488,7 @@ CMDF do_clerk(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being a clerk!\n\r", ch);
         learn_from_success(ch, gsn_clerk);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1605,7 +1605,7 @@ CMDF do_commmarketer(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being selling an item!\n\r", ch);
         learn_from_success(ch, gsn_commmarketer);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1722,7 +1722,7 @@ CMDF do_marketer(CharData * ch, char *argument)
         send_to_char("You get some money for marketing your product!\n\r",
                      ch);
         learn_from_success(ch, gsn_marketer);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1828,7 +1828,7 @@ CMDF do_solicitor(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for selling your product!\n\r", ch);
         learn_from_success(ch, gsn_solicitor);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -1946,7 +1946,7 @@ CMDF do_advertiser(CharData * ch, char *argument)
         send_to_char("You get some money for advertising your product!\n\r",
                      ch);
         learn_from_success(ch, gsn_advertiser);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -2060,7 +2060,7 @@ CMDF do_banker(CharData * ch, char *argument)
         send_to_char("You get some money for making the transactions!\n\r",
                      ch);
         learn_from_success(ch, gsn_banker);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -2177,7 +2177,7 @@ CMDF do_accountant(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being an accountant!\n\r", ch);
         learn_from_success(ch, gsn_accountant);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -2293,7 +2293,7 @@ CMDF do_investor(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being an investor!\n\r", ch);
         learn_from_success(ch, gsn_investor);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -2408,7 +2408,7 @@ CMDF do_broker(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being a broker!\n\r", ch);
         learn_from_success(ch, gsn_broker);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -2525,7 +2525,7 @@ CMDF do_boardmember(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being a board member!\n\r", ch);
         learn_from_success(ch, gsn_boardmember);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -2641,7 +2641,7 @@ CMDF do_ceo(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being a ceo!\n\r", ch);
         learn_from_success(ch, gsn_ceo);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);
@@ -2756,7 +2756,7 @@ CMDF do_yourmom(CharData * ch, char *argument)
         ch->gold += amount;
         send_to_char("You get some money for being a secretary!\n\r", ch);
         learn_from_success(ch, gsn_secretary);
-        xp = UMIN(amount * 10,
+        xp = UMin(amount * 10,
                   (exp_level(ch->skill_level[OccupationAbility] + 1) -
                    exp_level(ch->skill_level[OccupationAbility])));
         gain_exp(ch, xp, OccupationAbility);

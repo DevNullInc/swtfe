@@ -260,7 +260,7 @@ void interpret(CharData * ch, char *argument)
                  * Check for council powers and/or bestowments
                  */
                 trust = get_trust(ch);
-                for (cmd = command_hash[LOWER(command[0]) % 126]; cmd;
+                for (cmd = command_hash[Lower(command[0]) % 126]; cmd;
                      cmd = cmd->next)
                         if (!str_prefix(command, cmd->name)
                             && (check_command(ch, cmd)
@@ -485,7 +485,7 @@ void interpret(CharData * ch, char *argument)
          * Update the record of how many times this command has been used (haus)
          */
         update_userec(&time_used, &cmd->userec);
-        tmptime = UMIN(time_used.tv_sec, 19) * 1000000 + time_used.tv_usec;
+        tmptime = UMin(time_used.tv_sec, 19) * 1000000 + time_used.tv_usec;
 
         /*
          * laggy command notice: command took longer than 1.5 seconds 
@@ -528,7 +528,7 @@ CMDType  *find_command(char *command)
         CMDType  *cmd;
         int       hash;
 
-        hash = LOWER(command[0]) % 126;
+        hash = Lower(command[0]) % 126;
 
         for (cmd = command_hash[hash]; cmd; cmd = cmd->next)
                 if (!str_prefix(command, cmd->name))

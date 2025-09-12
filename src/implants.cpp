@@ -294,7 +294,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                 }
                 if (obj->item_type == ItemBattery && checkbatt == FALSE)
                 {
-                        charge = UMAX(5, obj->value[0]);
+                        charge = UMax(5, obj->value[0]);
                         separate_obj(obj);
                         obj_from_char(obj);
                         extract_obj(obj);
@@ -335,7 +335,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
          * Quality of the Implant 
          */
         obj->value[0] =
-                URANGE(0,
+                URange(0,
                        get_curr_int(ch) +
                        ch->PCData->learned[gsn_makeimplant] / 5 +
                        ch->skill_level[MedicAbility], 100);
@@ -359,7 +359,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(obj->cost * 2,
+                xpgain = UMin(obj->cost * 2,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -655,7 +655,7 @@ CMDF do_implant(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(victim->top_level * 100,
+                xpgain = UMin(victim->top_level * 100,
                               (exp_level
                                (ch->skill_level[MedicAbility] + 1) -
                                exp_level(ch->skill_level[MedicAbility])));

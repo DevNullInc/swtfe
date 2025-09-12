@@ -555,7 +555,7 @@ SPECF spec_customs_smut(CharData * ch)
                                         obj = obj_to_char(obj, ch);
                                         SetBit(obj->extra_flags,
                                                 ItemContraband);
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -575,7 +575,7 @@ SPECF spec_customs_smut(CharData * ch)
                                          && !IsSet(obj->extra_flags,
                                                     ItemContraband))
                                 {
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -604,7 +604,7 @@ SPECF spec_customs_smut(CharData * ch)
                                 else if (!IsSet
                                          (obj->extra_flags, ItemContraband))
                                 {
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -636,7 +636,7 @@ SPECF spec_customs_smut(CharData * ch)
                                             && !IsSet(content->extra_flags,
                                                        ItemContraband))
                                         {
-                                                ch_exp = UMIN(content->cost *
+                                                ch_exp = UMin(content->cost *
                                                               10,
                                                               (exp_level
                                                                (victim->
@@ -728,7 +728,7 @@ SPECF spec_customs_weapons(CharData * ch)
                                         obj = obj_to_char(obj, ch);
                                         SetBit(obj->extra_flags,
                                                 ItemContraband);
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -750,7 +750,7 @@ SPECF spec_customs_weapons(CharData * ch)
                                                     ItemContraband))
                                 {
                                         separate_obj(obj);
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -780,7 +780,7 @@ SPECF spec_customs_weapons(CharData * ch)
                                          (obj->extra_flags, ItemContraband))
                                 {
                                         separate_obj(obj);
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -816,7 +816,7 @@ SPECF spec_customs_weapons(CharData * ch)
                                                        ItemContraband))
                                         {
                                                 separate_obj(content);
-                                                ch_exp = UMIN(content->cost *
+                                                ch_exp = UMin(content->cost *
                                                               10,
                                                               (exp_level
                                                                (victim->
@@ -904,7 +904,7 @@ SPECF spec_customs_alcohol(CharData * ch)
                                                 obj = obj_to_char(obj, ch);
                                                 SetBit(obj->extra_flags,
                                                         ItemContraband);
-                                                ch_exp = UMIN(obj->cost * 10,
+                                                ch_exp = UMin(obj->cost * 10,
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
@@ -925,7 +925,7 @@ SPECF spec_customs_alcohol(CharData * ch)
                                                  && !IsSet(obj->extra_flags,
                                                             ItemContraband))
                                         {
-                                                ch_exp = UMIN(obj->cost * 10,
+                                                ch_exp = UMin(obj->cost * 10,
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
@@ -958,7 +958,7 @@ SPECF spec_customs_alcohol(CharData * ch)
                                                  (obj->extra_flags,
                                                   ItemContraband))
                                         {
-                                                ch_exp = UMIN(obj->cost * 10,
+                                                ch_exp = UMin(obj->cost * 10,
                                                               (exp_level
                                                                (victim->
                                                                 skill_level
@@ -1002,7 +1002,7 @@ SPECF spec_customs_alcohol(CharData * ch)
                                                     liq_affect[CondDrunk] <=
                                                     0)
                                                         continue;
-                                                ch_exp = UMIN(content->cost *
+                                                ch_exp = UMin(content->cost *
                                                               10,
                                                               (exp_level
                                                                (victim->
@@ -1079,7 +1079,7 @@ SPECF spec_customs_spice(CharData * ch)
                                         obj = obj_to_char(obj, ch);
                                         SetBit(obj->extra_flags,
                                                 ItemContraband);
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -1099,7 +1099,7 @@ SPECF spec_customs_spice(CharData * ch)
                                          && !IsSet(obj->extra_flags,
                                                     ItemContraband))
                                 {
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -1127,7 +1127,7 @@ SPECF spec_customs_spice(CharData * ch)
                                 else if (!IsSet
                                          (obj->extra_flags, ItemContraband))
                                 {
-                                        ch_exp = UMIN(obj->cost * 10,
+                                        ch_exp = UMin(obj->cost * 10,
                                                       (exp_level
                                                        (victim->
                                                         skill_level
@@ -1159,7 +1159,7 @@ SPECF spec_customs_spice(CharData * ch)
                                             && !IsSet(content->extra_flags,
                                                        ItemContraband))
                                         {
-                                                ch_exp = UMIN(content->cost *
+                                                ch_exp = UMin(content->cost *
                                                               10,
                                                               (exp_level
                                                                (victim->
@@ -1672,7 +1672,7 @@ SPECF spec_thief(CharData * ch)
                         maxgold = ch->top_level * ch->top_level * 1000;
                         gold = victim->gold
                                 * number_range(1,
-                                               URANGE(2, ch->top_level / 4,
+                                               URange(2, ch->top_level / 4,
                                                       10)) / 100;
                         ch->gold += 9 * gold / 10;
                         victim->gold -= gold;
@@ -1918,7 +1918,7 @@ SPECF spec_customs(CharData * ch)
                                         act(AtAction,"$n takes $p from you.", ch, obj,victim, ToVict);
                                         obj = obj_to_char(obj, ch);
                                         SetBit(obj->extra_flags,ItemContraband);
-                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
+                                        ch_exp = UMin(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
                                         ch_printf(victim,"You lose %ld experience.\n\r ",ch_exp);
                                         gain_exp(victim, 0 - ch_exp,SmugglingAbility);
                                         ch->mob_clan = mob_clan;
@@ -1927,7 +1927,7 @@ SPECF spec_customs(CharData * ch)
                                 else if (can_see(ch, victim)&& !IsSet(obj->extra_flags,ItemContraband))
                                 {
                                         separate_obj(obj);
-                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
+                                        ch_exp = UMin(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
                                         ch_printf(victim,"You receive %ld experience for smuggling %d.\n\r ",ch_exp, obj->short_descr);
                                         gain_exp(victim, ch_exp,SmugglingAbility);
 
@@ -1940,7 +1940,7 @@ SPECF spec_customs(CharData * ch)
                                 else if (!IsSet(obj->extra_flags, ItemContraband))
                                 {
                                         separate_obj(obj);
-                                        ch_exp = UMIN(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
+                                        ch_exp = UMin(obj->cost * 10,(exp_level(victim->skill_level[SmugglingAbility] +1) -exp_level(victim->skill_level[SmugglingAbility])));
                                         ch_printf(victim,"You receive %ld experience for smuggling %s.\n\r ",ch_exp, obj->short_descr);
                                         gain_exp(victim, ch_exp,SmugglingAbility);
 
@@ -1958,7 +1958,7 @@ SPECF spec_customs(CharData * ch)
                                         if (obj_is_contraband(content) && !IsSet(content->extra_flags, ItemContraband))
                                         {
                                                 separate_obj(content);
-                                                ch_exp = UMIN(content->cost *10,(exp_level(victim->skill_level[SmugglingAbility] + 1) -
+                                                ch_exp = UMin(content->cost *10,(exp_level(victim->skill_level[SmugglingAbility] + 1) -
                                                                exp_level(victim->skill_level[SmugglingAbility])));
                                                 ch_printf(victim,
                                                           "You receive %ld experience for smuggling %s.\n\r ",

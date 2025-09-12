@@ -56,7 +56,7 @@ bool load_installation_file args((char *installationfile));
 void write_installation_list args((void));
 void save_installations args((InstallationData * installation));
 
-#define  NULLSTR( str )  ( str == NULL || str[0] == '\0' )
+#define  NullStr( str )  ( str == NULL || str[0] == '\0' )
 
 const struct InstallationType installation_table[MaxInstallation] = {
         /*
@@ -162,7 +162,7 @@ void fread_installations(InstallationData * installation, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -660,7 +660,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         switch (ch->substate)
         {
         default:
-                if (NULLSTR(arg1) || NULLSTR(arg2))
+                if (NullStr(arg1) || NullStr(arg2))
                 {
                         send_to_char
                                 ("&RUsage: &Gmakeinstallation &C<&ctype&C> <&cdirection&C>&w\r\n",
@@ -1132,7 +1132,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 /*
                  * Another XP BUG HERE 
                  */
-                xpgain = UMIN(installation_table[type].rooms * 1000,
+                xpgain = UMin(installation_table[type].rooms * 1000,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -1365,7 +1365,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
          */
         credits = ch->skill_level[LeadershipAbility] * 30;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
-        ch->PCData->clan->funds -= UMIN(credits, ch->PCData->clan->funds);
+        ch->PCData->clan->funds -= UMin(credits, ch->PCData->clan->funds);
 
         learn_from_success(ch, gsn_addpersonel);
 
@@ -1633,7 +1633,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(20000,
+                xpgain = UMin(20000,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -1975,7 +1975,7 @@ CMDF do_makekey(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(20000,
+                xpgain = UMin(20000,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
                                exp_level(ch->
@@ -2342,7 +2342,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMIN(installation_table[installation->type].rooms *
+                xpgain = UMin(installation_table[installation->type].rooms *
                               200,
                               (exp_level
                                (ch->skill_level[EngineeringAbility] + 1) -
@@ -2933,7 +2933,7 @@ void fireplanet_update()
                                                         body->
                                                         distance(ship)) / 70;
                                                 hit -= ship->evasive / 10;
-                                                hit = URANGE(10, hit, 90);
+                                                hit = URange(10, hit, 90);
                                                 percentage = number_percent();
                                                 if (percentage > hit)
                                                 {
@@ -3021,7 +3021,7 @@ void fireplanet_update()
                                                         body->
                                                         distance(ship)) / 70;
                                                 hit -= ship->evasive / 10;
-                                                hit = URANGE(10, hit, 90);
+                                                hit = URange(10, hit, 90);
                                                 percentage = number_percent();
                                                 if (percentage > hit)
                                                 {

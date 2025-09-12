@@ -341,7 +341,7 @@ void fread_clan(ClanData * clan, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -521,7 +521,7 @@ void fread_planet(PlanetData * planet, FILE * fp)
                 word = feof(fp) ? "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;
@@ -2802,7 +2802,7 @@ CMDF do_resign(CharData * ch, char *argument)
         echo_to_all(AtMagic, buf, EchoTarAll);
 
         lose_exp =
-                UMAX(ch->experience[DiplomacyAbility] -
+                UMax(ch->experience[DiplomacyAbility] -
                      exp_level(ch->skill_level[DiplomacyAbility]), 0);
         ch_printf(ch, "You lose %ld diplomacy experience.\n\r", lose_exp);
         ch->experience[DiplomacyAbility] -= lose_exp;
@@ -3459,7 +3459,7 @@ long get_taxes(PlanetData * planet)
 
         gain = planet->base_value;
         gain += planet->base_value * planet->pop_support;
-        gain += UMAX(0, planet->pop_support / 10 * planet->population);
+        gain += UMax(0, planet->pop_support / 10 * planet->population);
         if (gain < 0)
                 return 0;
         else
@@ -3622,7 +3622,7 @@ CMDF do_recruit(CharData * ch, char *argument)
                              ch);
         if (ship)
                 send_to_char("You recruit your battalions!", ch);
-        xp = UMIN(cost,
+        xp = UMin(cost,
                   exp_level(ch->skill_level[LeadershipAbility] + 1) * 100);
         gain_exp(ch, xp, LeadershipAbility);
         ch_printf(ch, "&WYou gain %ld leadership experience!\n\r", xp);

@@ -814,13 +814,13 @@ void accept_new(int ctrl)
         newdesc = 0;
         for (d = first_descriptor; d; d = d->next)
         {
-                maxdesc = UMAX(maxdesc, d->descriptor);
+                maxdesc = UMax(maxdesc, d->descriptor);
                 FdSet(d->descriptor, &in_set);
                 FdSet(d->descriptor, &out_set);
                 FdSet(d->descriptor, &exc_set);
                 if (d->IFd != -1 && d->IPid != -1)
                 {
-                        maxdesc = UMAX(maxdesc, d->IFd);
+                        maxdesc = UMax(maxdesc, d->IFd);
                         FdSet(d->IFd, &in_set);
                 }
                 if (d == last_descriptor)
@@ -1435,7 +1435,7 @@ void close_socket(DescriptorData * dclose, bool Force)
         {
                 snprintf(log_buf, MSL, "Closing link to %s.", ch->name);
                 log_string_plus(log_buf, LogComm,
-                                UMAX(sysdata.log_level, ch->top_level));
+                                UMax(sysdata.log_level, ch->top_level));
                 if (dclose->connected == ConPlaying
                     || dclose->connected == ConEditing)
                 {
@@ -2057,7 +2057,7 @@ bool write_to_descriptor(int desc, char *txt, int length)
                                 for (iStart = 0; iStart < len;
                                      iStart += nWrite)
                                 {
-                                        nBlock = UMIN(len - iStart, 4096);
+                                        nBlock = UMin(len - iStart, 4096);
                                         ssize_t write_result = 
                                              write(d->descriptor,
                                                    d->OutCompressBuf +
@@ -2091,7 +2091,7 @@ bool write_to_descriptor(int desc, char *txt, int length)
 
         for (iStart = 0; iStart < length; iStart += nWrite)
         {
-                nBlock = UMIN(length - iStart, 4096);
+                nBlock = UMin(length - iStart, 4096);
                 ssize_t write_result = write(desc, txt + static_cast<size_t>(iStart), static_cast<size_t>(nBlock));
                 if ((nWrite = static_cast<int>(write_result)) < 0)
                 {
@@ -2120,7 +2120,7 @@ bool write_to_descriptor(int desc, char *txt, int length)
 
         for (iStart = 0; iStart < length; iStart += nWrite)
         {
-                nBlock = UMIN(length - iStart, 4096);
+                nBlock = UMin(length - iStart, 4096);
                 ssize_t send_result = send(desc, txt + static_cast<size_t>(iStart), static_cast<size_t>(nBlock), 0);
                 nWrite = static_cast<int>(send_result);
 
@@ -2205,7 +2205,7 @@ void nanny(DescriptorData * d, char *argument)
                         return;
                 }
 
-                argument[0] = UPPER(argument[0]);
+                argument[0] = Upper(argument[0]);
 
                 if (!str_cmp(argument, "New"))
                 {
@@ -2686,7 +2686,7 @@ void nanny(DescriptorData * d, char *argument)
                         name = d->Account->character[count];
                 }
 
-                name[0] = UPPER(name[0]);
+                name[0] = Upper(name[0]);
 
                 if (check_playing(d, name, FALSE) == BERR)
                 {
@@ -2973,7 +2973,7 @@ case ConGetName:
                 return;
         }
 
-                argument[0] = UPPER(argument[0]);
+                argument[0] = Upper(argument[0]);
                 if (!check_parse_name(argument))
                 {
                         send_to_desc_color
@@ -3596,7 +3596,7 @@ case ConGetName:
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                 UMAX((1 - ch->perm_str),
+                                 UMax((1 - ch->perm_str),
                                       (3 - ch->perm_str -
                                        ch->race->
                                        attr_modifier(AttrStrength))),
@@ -3607,7 +3607,7 @@ case ConGetName:
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                 UMAX((1 - ch->perm_wis),
+                                 UMax((1 - ch->perm_wis),
                                       (3 - ch->perm_wis -
                                        ch->race->attr_modifier(AttrWisdom))),
                                  (20 - ch->perm_wis));
@@ -3617,7 +3617,7 @@ case ConGetName:
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                 UMAX((1 - ch->perm_int),
+                                 UMax((1 - ch->perm_int),
                                       (3 - ch->perm_int -
                                        ch->race->
                                        attr_modifier(AttrIntelligence))),
@@ -3628,7 +3628,7 @@ case ConGetName:
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                 UMAX((1 - ch->perm_dex),
+                                 UMax((1 - ch->perm_dex),
                                       (3 - ch->perm_dex -
                                        ch->race->
                                        attr_modifier(AttrDexterity))),
@@ -3639,7 +3639,7 @@ case ConGetName:
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                 UMAX((1 - ch->perm_con),
+                                 UMax((1 - ch->perm_con),
                                       (3 - ch->perm_con -
                                        ch->race->
                                        attr_modifier(AttrConstitution))),
@@ -3650,7 +3650,7 @@ case ConGetName:
                 {
                         snprintf(buf, MSL,
                                  "&BC&zurrent range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                 UMAX((1 - ch->perm_cha),
+                                 UMax((1 - ch->perm_cha),
                                       (3 - ch->perm_cha -
                                        ch->race->
                                        attr_modifier(AttrCharisma))),
@@ -3688,7 +3688,7 @@ case ConGetName:
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                         UMAX((1 - ch->perm_str),
+                                         UMax((1 - ch->perm_str),
                                               (3 - ch->perm_str -
                                                ch->race->
                                                attr_modifier(AttrStrength))),
@@ -3708,7 +3708,7 @@ case ConGetName:
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                         UMAX((1 - ch->perm_wis),
+                                         UMax((1 - ch->perm_wis),
                                               (3 - ch->perm_wis -
                                                ch->race->
                                                attr_modifier(AttrWisdom))),
@@ -3729,7 +3729,7 @@ case ConGetName:
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                         UMAX((1 - ch->perm_int),
+                                         UMax((1 - ch->perm_int),
                                               (3 - ch->perm_int -
                                                ch->race->
                                                attr_modifier
@@ -3750,7 +3750,7 @@ case ConGetName:
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                         UMAX((1 - ch->perm_dex),
+                                         UMax((1 - ch->perm_dex),
                                               (3 - ch->perm_dex -
                                                ch->race->
                                                attr_modifier
@@ -3771,7 +3771,7 @@ case ConGetName:
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                         UMAX((1 - ch->perm_con),
+                                         UMax((1 - ch->perm_con),
                                               (3 - ch->perm_con -
                                                ch->race->
                                                attr_modifier
@@ -3792,7 +3792,7 @@ case ConGetName:
                         {
                                 snprintf(buf, MSL,
                                          "&BT&zhat is not a Valid amount. Current range is &B[&w%02d&B] &z- &B[&W%02d&B]&z:\n\r",
-                                         UMAX((1 - ch->perm_cha),
+                                         UMax((1 - ch->perm_cha),
                                               (3 - ch->perm_cha -
                                                ch->race->
                                                attr_modifier(AttrCharisma))),
@@ -4115,7 +4115,7 @@ case ConGetName:
                         ch->affected_by = ch->race->affected();
                         ch->perm_lck += ch->race->attr_modifier(AttrLuck);
                         ch->perm_frc =
-                                URANGE(0,
+                                URange(0,
                                        ch->perm_frc +
                                        ch->race->attr_modifier(AttrForce),
                                        20);
@@ -4449,7 +4449,7 @@ bool check_parse_name(char *name)
                 {
                         if (!isalpha(*pc))
                                 return FALSE;
-                        if (LOWER(*pc) != 'i' && LOWER(*pc) != 'l')
+                        if (Lower(*pc) != 'i' && Lower(*pc) != 'l')
                                 fIll = FALSE;
                 }
 
@@ -4528,7 +4528,7 @@ bool check_reconnect(DescriptorData * d, char *name, bool fConn)
                                 snprintf(log_buf, MSL, "%s@%s reconnected.",
                                          ch->name, d->host);
                                 log_string_plus(log_buf, LogComm,
-                                                UMAX(sysdata.log_level,
+                                                UMax(sysdata.log_level,
                                                      ch->top_level));
 #ifdef ACCOUNT
                                 ch->PCData->Account = d->Account;
@@ -4663,7 +4663,7 @@ sh_int check_playing(DescriptorData * d, char *name, bool kick)
                                  "%s@%s reconnected, kicking off old link.",
                                  ch->name, d->host);
                         log_string_plus(log_buf, LogComm,
-                                        UMAX(sysdata.log_level,
+                                        UMax(sysdata.log_level,
                                              ch->top_level));
                         d->connected = static_cast<sh_int>(cstate);
                         return TRUE;
@@ -4859,7 +4859,7 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                                         i = "it";
                                 }
                                 else
-                                        i = he_she[URANGE(0, ch->sex, 2)];
+                                        i = he_she[URange(0, ch->sex, 2)];
                                 break;
                         case 'E':
                                 if (vch->sex > 2 || vch->sex < 0)
@@ -4868,7 +4868,7 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                                         i = "it";
                                 }
                                 else
-                                        i = he_she[URANGE(0, vch->sex, 2)];
+                                        i = he_she[URange(0, vch->sex, 2)];
                                 break;
                         case 'm':
                                 if (ch->sex > 2 || ch->sex < 0)
@@ -4877,7 +4877,7 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                                         i = "it";
                                 }
                                 else
-                                        i = him_her[URANGE(0, ch->sex, 2)];
+                                        i = him_her[URange(0, ch->sex, 2)];
                                 break;
                         case 'M':
                                 if (vch->sex > 2 || vch->sex < 0)
@@ -4886,7 +4886,7 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                                         i = "it";
                                 }
                                 else
-                                        i = him_her[URANGE(0, vch->sex, 2)];
+                                        i = him_her[URange(0, vch->sex, 2)];
                                 break;
                         case 's':
                                 if (ch->sex > 2 || ch->sex < 0)
@@ -4895,7 +4895,7 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                                         i = "its";
                                 }
                                 else
-                                        i = his_her[URANGE(0, ch->sex, 2)];
+                                        i = his_her[URange(0, ch->sex, 2)];
                                 break;
                         case 'S':
                                 if (vch->sex > 2 || vch->sex < 0)
@@ -4904,14 +4904,14 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                                         i = "its";
                                 }
                                 else
-                                        i = his_her[URANGE(0, vch->sex, 2)];
+                                        i = his_her[URange(0, vch->sex, 2)];
                                 break;
                         case 'q':
                                 i = (to == ch) ? "" : "s";
                                 break;
                         case 'Q':
                                 i = (to == ch) ? "your" :
-                                        his_her[URANGE(0, ch->sex, 2)];
+                                        his_her[URange(0, ch->sex, 2)];
                                 break;
                         case 'p':
                                 i = (!to || can_see_obj(to, obj1)
@@ -4937,7 +4937,7 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
                         ++point, ++i;
         }
         mudstrlcpy(point, "\n\r", MSL);
-        buf[0] = UPPER(buf[0]);
+        buf[0] = Upper(buf[0]);
         return buf;
 }
 
@@ -5089,7 +5089,7 @@ CMDF do_name(CharData * ch, char *argument)
                 return;
         }
 
-        argument[0] = UPPER(argument[0]);
+        argument[0] = Upper(argument[0]);
 
         if (!check_parse_name(argument))
         {
@@ -5567,8 +5567,8 @@ bool pager_output(DescriptorData * d)
         if (!d || !d->PagePoint || d->PageCmd == -1)
                 return TRUE;
         ch = d->original ? d->original : d->character;
-        pclines = UMAX(ch->PCData->pagerlen, 5) - 1;
-        switch (LOWER(d->PageCmd))
+        pclines = UMax(ch->PCData->pagerlen, 5) - 1;
+        switch (Lower(d->PageCmd))
         {
         default:
                 lines = 0;

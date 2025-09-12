@@ -1322,7 +1322,7 @@ CMDF do_mpgain(CharData * ch, char *argument)
         }
 
         experience =
-                URANGE(1, experience,
+                URange(1, experience,
                        (exp_level(victim->skill_level[ability] + 1) -
                         exp_level(victim->skill_level[ability])));
 

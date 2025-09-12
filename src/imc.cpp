@@ -577,7 +577,7 @@ bool imcstr_prefix(const char *astr, const char *bstr)
 
         for (; *astr; astr++, bstr++)
         {
-                if (LOWER(*astr) != LOWER(*bstr))
+                if (Lower(*astr) != Lower(*bstr))
                         return FALSE;
         }
         return TRUE;
@@ -8338,55 +8338,55 @@ char     *imc_act_string(const char *format, CharData * ch, CharData * vic)
                         case 'e':
                                 i = should_upper ?
                                         imccapitalize(he_she
-                                                      [URANGE
+                                                      [URange
                                                        (0, ChImcsex(ch),
                                                         2)]) :
-                                        he_she[URANGE(0, ChImcsex(ch), 2)];
+                                        he_she[URange(0, ChImcsex(ch), 2)];
                                 break;
 
                         case 'E':
                                 i = should_upper ?
                                         imccapitalize(he_she
-                                                      [URANGE
+                                                      [URange
                                                        (0, ChImcsex(vic),
                                                         2)]) :
-                                        he_she[URANGE(0, ChImcsex(vic), 2)];
+                                        he_she[URange(0, ChImcsex(vic), 2)];
                                 break;
 
                         case 'm':
                                 i = should_upper ?
                                         imccapitalize(him_her
-                                                      [URANGE
+                                                      [URange
                                                        (0, ChImcsex(ch),
                                                         2)]) :
-                                        him_her[URANGE(0, ChImcsex(ch), 2)];
+                                        him_her[URange(0, ChImcsex(ch), 2)];
                                 break;
 
                         case 'M':
                                 i = should_upper ?
                                         imccapitalize(him_her
-                                                      [URANGE
+                                                      [URange
                                                        (0, ChImcsex(vic),
                                                         2)]) :
-                                        him_her[URANGE(0, ChImcsex(vic), 2)];
+                                        him_her[URange(0, ChImcsex(vic), 2)];
                                 break;
 
                         case 's':
                                 i = should_upper ?
                                         imccapitalize(his_her
-                                                      [URANGE
+                                                      [URange
                                                        (0, ChImcsex(ch),
                                                         2)]) :
-                                        his_her[URANGE(0, ChImcsex(ch), 2)];
+                                        his_her[URange(0, ChImcsex(ch), 2)];
                                 break;
 
                         case 'S':
                                 i = should_upper ?
                                         imccapitalize(his_her
-                                                      [URANGE
+                                                      [URange
                                                        (0, ChImcsex(vic),
                                                         2)]) :
-                                        his_her[URANGE(0, ChImcsex(vic), 2)];
+                                        his_her[URange(0, ChImcsex(vic), 2)];
                                 break;
 
                         case 'k':
@@ -8407,7 +8407,7 @@ char     *imc_act_string(const char *format, CharData * ch, CharData * vic)
         point++;
         *point = '\0';
 
-        buf[0] = UPPER(buf[0]);
+        buf[0] = Upper(buf[0]);
         return buf;
 }
 

@@ -303,8 +303,8 @@ bool check_vnums(CharData * ch, AreaData * tarea, RenumberArea * r_area)
          * this function assumes all the lows are allways gonna be
          * lower or equal to all the highs .. 
          */
-        high = UMAX(r_area->hi_room, UMAX(r_area->hi_obj, r_area->hi_mob));
-        low = UMIN(r_area->low_room, UMIN(r_area->low_obj, r_area->low_mob));
+        high = UMax(r_area->hi_room, UMax(r_area->hi_obj, r_area->hi_mob));
+        low = UMin(r_area->low_room, UMin(r_area->low_obj, r_area->low_mob));
 
         /*
          * in do_check_vnums they use first_bsort, first_asort but.. i dunno.. 
@@ -453,9 +453,9 @@ void renumber_area(CharData * ch, AreaData * area, RenumberArea * r_area,
         int       iHash;
         int       low, high;
 
-        high = UMAX(area->hi_r_vnum, UMIN(area->hi_o_vnum, area->hi_m_vnum));
-        low = UMIN(area->low_r_vnum,
-                   UMIN(area->low_o_vnum, area->low_m_vnum));
+        high = UMax(area->hi_r_vnum, UMin(area->hi_o_vnum, area->hi_m_vnum));
+        low = UMin(area->low_r_vnum,
+                   UMin(area->low_o_vnum, area->low_m_vnum));
 
         pager_printf(ch, "(Room) Renumbering...\n\r");
 

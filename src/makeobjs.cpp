@@ -237,7 +237,7 @@ void make_blood(CharData * ch)
 
         obj = create_object(get_obj_index(ObjVnumBlood), 0);
         obj->timer = number_range(2, 4);
-        obj->value[1] = number_range(3, UMIN(5, ch->top_level));
+        obj->value[1] = number_range(3, UMin(5, ch->top_level));
         obj_to_room(obj, ch->in_room);
 }
 

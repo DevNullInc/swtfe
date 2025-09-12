@@ -216,12 +216,12 @@ int get_cost(CharData * ch, CharData * keeper, ObjData * obj, bool fBuy)
         if (fBuy)
         {
                 cost = (int) (cost *
-                              (80 + UMIN(ch->top_level, LevelAvatar))) / 100;
+                              (80 + UMin(ch->top_level, LevelAvatar))) / 100;
 
                 profitmod = 13 - get_curr_cha(ch) + (richcustomer ? 15 : 0)
-                        + ((URANGE(5, ch->top_level, LevelAvatar) - 20) / 2);
+                        + ((URange(5, ch->top_level, LevelAvatar) - 20) / 2);
                 cost = (int) (obj->cost
-                              * UMAX((pShop->profit_sell + 1),
+                              * UMax((pShop->profit_sell + 1),
                                      pShop->profit_buy + profitmod)) / 100;
         }
         else
@@ -236,7 +236,7 @@ int get_cost(CharData * ch, CharData * keeper, ObjData * obj, bool fBuy)
                         if (obj->item_type == pShop->buy_type[itype])
                         {
                                 cost = (int) (obj->cost
-                                              * UMIN((pShop->profit_buy - 1),
+                                              * UMin((pShop->profit_buy - 1),
                                                      pShop->profit_sell +
                                                      profitmod)) / 100;
                                 break;
@@ -252,7 +252,7 @@ int get_cost(CharData * ch, CharData * keeper, ObjData * obj, bool fBuy)
                         }
                 }
 
-                cost = UMIN(cost, 2500);
+                cost = UMin(cost, 2500);
 
         }
 
@@ -811,7 +811,7 @@ CMDF do_sell(CharData * ch, char *argument)
         {
                 long      ch_exp;
 
-                ch_exp = UMIN(obj->cost * 10,
+                ch_exp = UMin(obj->cost * 10,
                               (exp_level
                                (ch->skill_level[SmugglingAbility] + 1) -
                                exp_level(ch->

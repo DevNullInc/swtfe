@@ -422,7 +422,7 @@ CharData *fread_vendor(FILE * fp)
         {
                 word = feof(fp) ? "END" : fread_word(fp);
                 fMatch = FALSE;
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;

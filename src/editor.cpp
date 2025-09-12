@@ -321,7 +321,7 @@ void edit_buffer(CharData * ch, char *argument)
                                         {
                                                 int       str_len =
                                                         strlen(buf);
-                                                lineln = UMAX(0,
+                                                lineln = UMax(0,
                                                               (79 - str_len));
                                                 buf[lineln] = '\0';
                                                 break;

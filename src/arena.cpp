@@ -543,7 +543,7 @@ CMDF do_bet(CharData * ch, char *argument)
         }
 
         amount = atoi(argument);
-        amount = UMAX(0, amount);
+        amount = UMax(0, amount);
 
         if (amount == 0)
         {

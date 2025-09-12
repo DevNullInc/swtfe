@@ -222,7 +222,7 @@ void load_banlist(void)
         {
                 word = feof(fp) ? "END" : fread_word(fp);
                 fMatch = FALSE;
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case 'C':
                         if (!str_cmp(word, "CLASS"))
@@ -1424,7 +1424,7 @@ bool check_total_bans(DescriptorData * d)
         int       i;
 
         for (i = 0; i < static_cast<int>(strlen(d->host)); i++)
-                new_host[i] = LOWER(d->host[i]);
+                new_host[i] = Lower(d->host[i]);
         new_host[i] = '\0';
 
         for (pban = first_ban; pban; pban = pban->next)
@@ -1506,7 +1506,7 @@ bool check_bans(CharData * ch, int type)
         case BanSite:
                 pban = first_ban;
                 for (i = 0; i < static_cast<int>(strlen(ch->desc->host)); i++)
-                        new_host[i] = LOWER(ch->desc->host[i]);
+                        new_host[i] = Lower(ch->desc->host[i]);
                 new_host[i] = '\0';
                 break;
         default:

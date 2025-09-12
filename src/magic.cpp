@@ -103,7 +103,7 @@ int ch_slookup(CharData * ch, const char *name)
                 if (!skill_table[sn]->name)
                         break;
                 if (ch->PCData->learned[sn] > 0
-                    && LOWER(name[0]) == LOWER(skill_table[sn]->name[0])
+                    && Lower(name[0]) == Lower(skill_table[sn]->name[0])
                     && !str_prefix(name, skill_table[sn]->name))
                         return sn;
         }
@@ -147,8 +147,8 @@ int skill_lookup(const char *name)
                                                 if (!skill_table[sn]
                                                     || !skill_table[sn]->name)
                                                         return -1;
-                                                if (LOWER(name[0]) ==
-                                                    LOWER(skill_table[sn]->
+                                                if (Lower(name[0]) ==
+                                                    Lower(skill_table[sn]->
                                                           name[0])
                                                     && !str_prefix(name,
                                                                    skill_table
@@ -186,7 +186,7 @@ int bsearch_skill(const char *name, int first, int top)
         {
                 sn = (first + top) >> 1;
 
-                if (LOWER(name[0]) == LOWER(skill_table[sn]->name[0])
+                if (Lower(name[0]) == Lower(skill_table[sn]->name[0])
                     && !str_prefix(name, skill_table[sn]->name))
                         return sn;
                 if (first >= top)
@@ -236,7 +236,7 @@ int ch_bsearch_skill(CharData * ch, const char *name, int first, int top)
         {
                 sn = (first + top) >> 1;
 
-                if (LOWER(name[0]) == LOWER(skill_table[sn]->name[0])
+                if (Lower(name[0]) == Lower(skill_table[sn]->name[0])
                     && !str_prefix(name, skill_table[sn]->name)
                     && ch->PCData->learned[sn] > 0)
                         return sn;
@@ -688,7 +688,7 @@ bool saves_poison_death(int level, CharData * victim)
 
         save = 50 + (victim->top_level - level -
                      victim->SavingPoisonDeath) * 2;
-        save = URANGE(5, save, 95);
+        save = URange(5, save, 95);
         return chance(victim, save);
 }
 
@@ -700,7 +700,7 @@ bool saves_wands(int level, CharData * victim)
                 return TRUE;
 
         save = 50 + (victim->top_level - level - victim->SavingWand) * 2;
-        save = URANGE(5, save, 95);
+        save = URange(5, save, 95);
         return chance(victim, save);
 }
 
@@ -710,7 +710,7 @@ bool saves_para_petri(int level, CharData * victim)
 
         save = 50 + (victim->top_level - level -
                      victim->SavingParaPetri) * 2;
-        save = URANGE(5, save, 95);
+        save = URange(5, save, 95);
         return chance(victim, save);
 }
 
@@ -719,7 +719,7 @@ bool saves_breath(int level, CharData * victim)
         int       save;
 
         save = 50 + (victim->top_level - level - victim->SavingBreath) * 2;
-        save = URANGE(5, save, 95);
+        save = URange(5, save, 95);
         return chance(victim, save);
 }
 
@@ -734,7 +734,7 @@ bool saves_spell_staff(int level, CharData * victim)
                 level -= 5;
         save = 50 + (victim->top_level - level -
                      victim->SavingSpellStaff) * 2;
-        save = URANGE(5, save, 95);
+        save = URange(5, save, 95);
         return chance(victim, save);
 }
 
@@ -824,7 +824,7 @@ bool process_spell_components(CharData * ch, int sn)
                 }
                 value = atoi(check);
                 obj = NULL;
-                switch (UPPER(arg[0]))
+                switch (Upper(arg[0]))
                 {
                 case 'T':
                         for (obj = ch->first_carrying; obj;
@@ -1332,7 +1332,7 @@ CMDF do_cast(CharData * ch, char *argument)
                 /*
                  * multi-participant spells         -Thoric 
                  */
-                add_timer(ch, TimerDoFun, UMIN(skill->beats / 10, 3),
+                add_timer(ch, TimerDoFun, UMin(skill->beats / 10, 3),
                           do_cast, 1);
                 act(AtMagic,
                     "You begin to feel the Force in yourself and those around you...",
@@ -1630,7 +1630,7 @@ CMDF do_cast(CharData * ch, char *argument)
 
                 force_exp = skill->min_level * skill->min_level * 10;
                 force_exp =
-                        URANGE(0, force_exp,
+                        URange(0, force_exp,
                                (exp_level(ch->skill_level[ForceAbility] + 1)
                                 -
                                 exp_level(ch->skill_level[ForceAbility])) /
@@ -1846,7 +1846,7 @@ SPELLF spell_acid_blast(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
 
         sith_penalty(ch);
 
@@ -1900,7 +1900,7 @@ SPELLF spell_cause_light(int sn, int level, CharData * ch, void *vo)
 {
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 50;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         return damage(ch, (CharData *) vo, dice(1, 8) + level / 3, sn);
@@ -1912,7 +1912,7 @@ SPELLF spell_cause_critical(int sn, int level, CharData * ch, void *vo)
 {
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 70;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         return damage(ch, (CharData *) vo, dice(3, 8) + level, sn);
@@ -1924,7 +1924,7 @@ SPELLF spell_cause_serious(int sn, int level, CharData * ch, void *vo)
 {
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 90;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         return damage(ch, (CharData *) vo, dice(level, 2), sn);
@@ -2046,7 +2046,7 @@ SPELLF spell_cure_blindness(int sn, int level, CharData * ch, void *vo)
                         ("The noble Jedi use their powers to help others!\n\r",
                          ch);
                 ch->alignment = ch->alignment + 25;
-                ch->alignment = URANGE(-1000, ch->alignment, 1000);
+                ch->alignment = URange(-1000, ch->alignment, 1000);
                 jedi_bonus(ch);
         }
 
@@ -2080,7 +2080,7 @@ SPELLF spell_cure_poison(int sn, int level, CharData * ch, void *vo)
                                 ("The nobel Jedi use their powers to help others!\n\r",
                                  ch);
                         ch->alignment = ch->alignment + 25;
-                        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+                        ch->alignment = URange(-1000, ch->alignment, 1000);
                         jedi_bonus(ch);
                 }
 
@@ -2091,7 +2091,7 @@ SPELLF spell_cure_poison(int sn, int level, CharData * ch, void *vo)
                 send_to_char("A warm feeling runs through your body.\n\r",
                              victim);
                 victim->mental_state =
-                        URANGE(-100, victim->mental_state, -10);
+                        URange(-100, victim->mental_state, -10);
                 send_to_char("Ok.\n\r", ch);
                 return rNONE;
         }
@@ -2131,7 +2131,7 @@ SPELLF spell_curse(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 50;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -2285,7 +2285,7 @@ SPELLF spell_earthquake(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -2410,7 +2410,7 @@ SPELLF spell_energy_drain(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 200;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -2456,13 +2456,13 @@ SPELLF spell_fireball(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
-        level = UMIN(level,
+        level = UMin(level,
                      (int) sizeof(dam_each) / (int) sizeof(dam_each[0]) - 1);
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
         if (saves_spell_staff(level, victim))
                 dam /= 2;
@@ -2478,7 +2478,7 @@ SPELLF spell_flamestrike(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         dam = dice(6, 8);
@@ -2501,14 +2501,14 @@ SPELLF spell_harm(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
-        dam = UMAX(20, victim->hit - dice(1, 4));
+        dam = UMax(20, victim->hit - dice(1, 4));
         if (saves_spell_staff(level, victim))
-                dam = UMIN(50, dam / 4);
-        dam = UMIN(100, dam);
+                dam = UMin(50, dam / 4);
+        dam = UMin(100, dam);
         return damage(ch, victim, dam, sn);
 }
 
@@ -2893,12 +2893,12 @@ SPELLF spell_lightning_bolt(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
-        level = UMIN(level,
+        level = UMin(level,
                      (int) sizeof(dam_each) / (int) sizeof(dam_each[0]) - 1);
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
         if (saves_spell_staff(level, victim))
                 dam /= 2;
@@ -2963,7 +2963,7 @@ SPELLF spell_locate_object(int sn, int level, CharData * ch, void *vo)
                                  ? "somewhere" : in_obj->in_room->name);
                 }
 
-                buf[0] = UPPER(buf[0]);
+                buf[0] = Upper(buf[0]);
                 set_char_color(AtMagic, ch);
                 send_to_char(buf, ch);
         }
@@ -2995,12 +2995,12 @@ SPELLF spell_magic_missile(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
-        level = UMIN(level,
+        level = UMin(level,
                      (int) sizeof(dam_each) / (int) sizeof(dam_each[0]) - 1);
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
         /*
          * What's this?  You can't save vs. magic missile!      -Thoric
@@ -3052,7 +3052,7 @@ SPELLF spell_poison(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         percent_chance = ris_save(victim, level, RisPoison);
@@ -3069,7 +3069,7 @@ SPELLF spell_poison(int sn, int level, CharData * ch, void *vo)
         affect_join(victim, &af);
         set_char_color(AtMagic, victim);
         send_to_char("You feel very sick.\n\r", victim);
-        victim->mental_state = URANGE(20, victim->mental_state
+        victim->mental_state = URange(20, victim->mental_state
                                       + (first ? 5 : 0), 100);
         if (ch != victim)
                 send_to_char("Ok.\n\r", ch);
@@ -3155,13 +3155,13 @@ SPELLF spell_shocking_grasp(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
-        level = UMIN(level,
+        level = UMin(level,
                      (int) sizeof(dam_each) / (int) sizeof(dam_each[0]) - 1);
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
         if (saves_spell_staff(level, victim))
                 dam /= 2;
@@ -3272,7 +3272,7 @@ SPELLF spell_ventriloquate(int sn, int level, CharData * ch, void *vo)
         snprintf(buf1, MSL, "%s says '%s'.\n\r", speaker, target_name);
         snprintf(buf2, MSL, "Someone makes %s say '%s'.\n\r", speaker,
                  target_name);
-        buf1[0] = UPPER(buf1[0]);
+        buf1[0] = Upper(buf1[0]);
 
         for (vch = ch->in_room->first_person; vch; vch = vch->next_in_room)
         {
@@ -3379,7 +3379,7 @@ SPELLF spell_acid_breath(int sn, int level, CharData * ch, void *vo)
                 }
         }
 
-        hpch = UMAX(10, ch->hit);
+        hpch = UMax(10, ch->hit);
         dam = number_range(hpch / 16 + 1, hpch / 8);
         if (saves_breath(level, victim))
                 dam /= 2;
@@ -3455,7 +3455,7 @@ SPELLF spell_fire_breath(int sn, int level, CharData * ch, void *vo)
                 }
         }
 
-        hpch = UMAX(10, ch->hit);
+        hpch = UMax(10, ch->hit);
         dam = number_range(hpch / 16 + 1, hpch / 8);
         if (saves_breath(level, victim))
                 dam /= 2;
@@ -3512,7 +3512,7 @@ SPELLF spell_frost_breath(int sn, int level, CharData * ch, void *vo)
                 }
         }
 
-        hpch = UMAX(10, ch->hit);
+        hpch = UMax(10, ch->hit);
         dam = number_range(hpch / 16 + 1, hpch / 8);
         if (saves_breath(level, victim))
                 dam /= 2;
@@ -3526,7 +3526,7 @@ SPELLF spell_lightning_breath(int sn, int level, CharData * ch, void *vo)
         int       dam;
         int       hpch;
 
-        hpch = UMAX(10, ch->hit);
+        hpch = UMax(10, ch->hit);
         dam = number_range(hpch / 16 + 1, hpch / 8);
         if (saves_breath(level, victim))
                 dam /= 2;
@@ -3828,7 +3828,7 @@ SPELLF spell_possess(int sn, int level, CharData * ch, void *vo)
                 ("You feel the hatred grow within you as you twist your victims mind!\n\r",
                  ch);
         ch->alignment = ch->alignment - 50;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -4160,7 +4160,7 @@ SPELLF spell_spiral_blast(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         for (vch = ch->in_room->first_person; vch; vch = vch_next)
@@ -4177,7 +4177,7 @@ SPELLF spell_spiral_blast(int sn, int level, CharData * ch, void *vo)
                         act(AtMagic, "Swirling colours radiate from you,"
                             " encompassing $N", ch, ch, vch, ToChar);
 
-                        hpch = UMAX(10, ch->hit);
+                        hpch = UMax(10, ch->hit);
                         dam = number_range(hpch / 14 + 1, hpch / 7);
                         if (saves_breath(level, vch))
                                 dam /= 2;
@@ -4210,12 +4210,12 @@ SPELLF spell_scorching_surge(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
-        level = UMIN(level / 2,
+        level = UMin(level / 2,
                      (int) sizeof(dam_each) / (int) sizeof(dam_each[0]) - 1);
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = number_range(dam_each[level], dam_each[level] * 10);
         if (saves_spell_staff(level, victim))
                 dam /= 2;
@@ -4277,7 +4277,7 @@ SPELLF spell_attack(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         if (saved && !SpellFlag(skill, SfSaveHalfDamage))
@@ -4286,7 +4286,7 @@ SPELLF spell_attack(int sn, int level, CharData * ch, void *vo)
                 return rSPELL_FAILED;
         }
         if (skill->dice)
-                dam = UMAX(0, dice_parse(ch, level, skill->dice));
+                dam = UMax(0, dice_parse(ch, level, skill->dice));
         else
                 dam = dice(1, level);
         if (saved)
@@ -4315,7 +4315,7 @@ SPELLF spell_area_attack(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         if (IsSet(ch->in_room->RoomFlags, RoomSafe))
@@ -4422,7 +4422,7 @@ ch_ret spell_affectchar(int sn, int level, CharData * ch, void *vo)
                                 ("You feel the hatred grow within you!\n\r",
                                  ch);
                         ch->alignment = ch->alignment - 100;
-                        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+                        ch->alignment = URange(-1000, ch->alignment, 1000);
                         sith_penalty(ch);
 
                         percent_chance = ris_save(victim, level, RisPoison);
@@ -4440,7 +4440,7 @@ ch_ret spell_affectchar(int sn, int level, CharData * ch, void *vo)
                                 continue;
                         }
                         victim->mental_state =
-                                URANGE(30, victim->mental_state + 2, 100);
+                                URange(30, victim->mental_state + 2, 100);
                         break;
                 case AffBlind:
                         af.type = gsn_blindness;
@@ -4492,7 +4492,7 @@ ch_ret spell_affectchar(int sn, int level, CharData * ch, void *vo)
                                                  ch);
                                         ch->alignment = ch->alignment + 20;
                                         ch->alignment =
-                                                URANGE(-1000, ch->alignment,
+                                                URange(-1000, ch->alignment,
                                                        1000);
                                         jedi_bonus(ch);
                                 }
@@ -4502,7 +4502,7 @@ ch_ret spell_affectchar(int sn, int level, CharData * ch, void *vo)
                                         return rSPELL_FAILED;
                                 }
                                 victim->hit =
-                                        URANGE(0, victim->hit + af.modifier,
+                                        URange(0, victim->hit + af.modifier,
                                                victim->max_hit);
                                 update_pos(victim);
                                 break;
@@ -4520,12 +4520,12 @@ ch_ret spell_affectchar(int sn, int level, CharData * ch, void *vo)
                                                  ch);
                                         ch->alignment = ch->alignment + 25;
                                         ch->alignment =
-                                                URANGE(-1000, ch->alignment,
+                                                URange(-1000, ch->alignment,
                                                        1000);
                                         jedi_bonus(ch);
                                 }
                                 victim->endurance =
-                                        URANGE(0,
+                                        URange(0,
                                                victim->endurance +
                                                af.modifier,
                                                victim->max_endurance);
@@ -4545,12 +4545,12 @@ ch_ret spell_affectchar(int sn, int level, CharData * ch, void *vo)
                                                  ch);
                                         ch->alignment = ch->alignment + 25;
                                         ch->alignment =
-                                                URANGE(-1000, ch->alignment,
+                                                URange(-1000, ch->alignment,
                                                        1000);
                                         jedi_bonus(ch);
                                 }
                                 victim->endurance =
-                                        URANGE(0,
+                                        URange(0,
                                                victim->endurance +
                                                af.modifier,
                                                victim->max_endurance);
@@ -4773,7 +4773,7 @@ SPELLF spell_obj_inv(int sn, int level, CharData * ch, void *vo)
                                 return rSPELL_FAILED;
                         }
 
-                        water = UMIN((skill->
+                        water = UMin((skill->
                                       dice ? dice_parse(ch, level,
                                                         skill->
                                                         dice) : level) *
@@ -5047,7 +5047,7 @@ SPELLF spell_create_mob(int sn, int level, CharData * ch, void *vo)
                 return rNONE;
         }
         mob->top_level =
-                UMIN(lvl,
+                UMin(lvl,
                      skill->dice ? dice_parse(ch, level,
                                               skill->dice) : mob->top_level);
         mob->Armor = interpolate(mob->top_level, 100, -100);
@@ -5150,7 +5150,7 @@ SPELLF spell_smaug(int sn, int level, CharData * ch, void *vo)
                                 {
                                         affect_strip(victim, gsn_poison);
                                         victim->mental_state =
-                                                URANGE(-100,
+                                                URange(-100,
                                                        victim->mental_state,
                                                        -10);
                                         successful_casting(skill, ch, victim,
@@ -5196,17 +5196,17 @@ SPELLF spell_ethereal_fist(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
-        level = UMIN(35, level);
+        level = UMax(0, level);
+        level = UMin(35, level);
         dam = level * number_range(1, 6) - 31;
-        dam = UMAX(0, dam);
+        dam = UMax(0, dam);
 
         if (saves_spell_staff(level, victim))
                 dam = 0;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5224,12 +5224,12 @@ SPELLF spell_spectral_furor(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
-        level = UMAX(0, level);
-        level = UMIN(16, level);
+        level = UMax(0, level);
+        level = UMin(16, level);
         dam = level * number_range(1, 7) + 7;
         if (saves_spell_staff(level, victim))
                 dam /= 2;
@@ -5243,12 +5243,12 @@ SPELLF spell_hand_of_chaos(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = level * number_range(1, 7) + 9;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5266,13 +5266,13 @@ SPELLF spell_disruption(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
-        level = UMIN(14, level);
+        level = UMax(0, level);
+        level = UMin(14, level);
         dam = level * number_range(1, 6) + 8;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         if (saves_spell_staff(level, victim))
@@ -5288,13 +5288,13 @@ SPELLF spell_sonic_resonance(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
-        level = UMIN(23, level);
+        level = UMax(0, level);
+        level = UMin(23, level);
         dam = level * number_range(1, 8);
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5320,11 +5320,11 @@ SPELLF spell_mind_wrack(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = number_range(0, 0);
         if (saves_spell_staff(level, victim))
                 dam /= 2;
@@ -5345,11 +5345,11 @@ SPELLF spell_mind_wrench(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = number_range(0, 0);
         if (saves_spell_staff(level, victim))
                 dam /= 2;
@@ -5369,7 +5369,7 @@ SPELLF spell_revive(int sn, int level, CharData * ch, void *vo)
         /*
          * set mentalstate to mentalstate/2 
          */
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = number_range(0, 0);
         if (saves_spell_staff(level, victim))
                 dam /= 2;
@@ -5387,13 +5387,13 @@ SPELLF spell_sulfurous_spray(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
-        level = UMIN(19, level);
+        level = UMax(0, level);
+        level = UMin(19, level);
         dam = 2 * level * number_range(1, 7) + 11;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5410,14 +5410,14 @@ SPELLF spell_caustic_fount(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
-        level = UMIN(42, level);
+        level = UMax(0, level);
+        level = UMin(42, level);
         dam = 2 * level * number_range(1, 6) - 31;
-        dam = UMAX(0, dam);
+        dam = UMax(0, dam);
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5434,7 +5434,7 @@ SPELLF spell_acetum_primus(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = 2 * level * number_range(1, 4) + 7;
 
         if (saves_spell_staff(level, victim))
@@ -5454,13 +5454,13 @@ SPELLF spell_galvanic_whip(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
-        level = UMIN(10, level);
+        level = UMax(0, level);
+        level = UMin(10, level);
         dam = level * number_range(1, 6) + 5;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5477,12 +5477,12 @@ SPELLF spell_magnetic_thrust(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = (level * number_range(1, 6)) + 16;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5499,13 +5499,13 @@ SPELLF spell_quantum_spike(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam, l;
 
-        level = UMAX(0, level);
-        l = UMAX(1, level - 90);
+        level = UMax(0, level);
+        l = UMax(1, level - 90);
         dam = l * number_range(1, 40) + 145;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5527,13 +5527,13 @@ SPELLF spell_black_hand(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
-        level = UMIN(5, level);
+        level = UMax(0, level);
+        level = UMin(5, level);
         dam = level * number_range(1, 6) + 3;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5550,12 +5550,12 @@ SPELLF spell_black_fist(int sn, int level, CharData * ch, void *vo)
         CharData *victim = (CharData *) vo;
         int       dam;
 
-        level = UMAX(0, level);
+        level = UMax(0, level);
         dam = level * number_range(1, 9) + 4;
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
 
@@ -5576,7 +5576,7 @@ SPELLF spell_black_lightning(int sn, int level, CharData * ch, void *vo)
 
         send_to_char("You feel the hatred grow within you!\n\r", ch);
         ch->alignment = ch->alignment - 100;
-        ch->alignment = URANGE(-1000, ch->alignment, 1000);
+        ch->alignment = URange(-1000, ch->alignment, 1000);
         sith_penalty(ch);
 
         act(AtBlue,
@@ -5635,7 +5635,7 @@ SPELLF spell_force_healing(int sn, int level, CharData * ch, void *vo)
         if (victim != ch)
         {
                 ch->alignment = ch->alignment + 50;
-                ch->alignment = URANGE(-1000, ch->alignment, 1000);
+                ch->alignment = URange(-1000, ch->alignment, 1000);
                 jedi_bonus(ch);
         }
 
@@ -5726,7 +5726,7 @@ CMDF do_meditate(CharData * ch, char *argument)
          * Mana Increase 
          */
         boost = (ch->perm_frc * chance) / 10;
-        ch->endurance = URANGE(0, ch->endurance + boost, ch->max_endurance);
+        ch->endurance = URange(0, ch->endurance + boost, ch->max_endurance);
 
         /*
          * Force Experience --- Only up to level 10 
@@ -5734,7 +5734,7 @@ CMDF do_meditate(CharData * ch, char *argument)
         if (ch->skill_level[ForceAbility] <= 10)
         {
                 xp = chance;
-                xp = URANGE(0, xp,
+                xp = URange(0, xp,
                             (exp_level(ch->skill_level[ForceAbility] + 1) -
                              exp_level(ch->skill_level[ForceAbility])) / 35);
                 ch_printf(ch, "You gain %d Force experience.\n\r", xp);

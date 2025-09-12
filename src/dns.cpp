@@ -132,7 +132,7 @@ void fread_dns(DnsData * cache, FILE * fp)
                 word = feof(fp) ? (char *) "End" : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case '*':
                         fMatch = TRUE;

@@ -222,7 +222,7 @@ void load_baccount(char *name)
                 word = feof(fp) ? const_cast<char*>("End") : fread_word(fp);
                 fMatch = FALSE;
 
-                switch (UPPER(word[0]))
+                switch (Upper(word[0]))
                 {
                 case 'A':
                         KEY("Amounthi", Account->amounthi, fread_number(fp));

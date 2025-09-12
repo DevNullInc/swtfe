@@ -702,14 +702,14 @@ ch_ret multi_hit(CharData * ch, CharData * victim, int dt)
                     && !IsAffected(ch, AffFloating))
                         endurance =
                                 encumbrance(ch,
-                                            movement_loss[UMIN
+                                            movement_loss[UMin
                                                           (SectMax - 1,
                                                            ch->in_room->
                                                            sector_type)]);
                 else
                         endurance = encumbrance(ch, 1);
                 if (ch->endurance)
-                        ch->endurance = UMAX(0, ch->endurance - endurance);
+                        ch->endurance = UMax(0, ch->endurance - endurance);
         }
 
         return retcode;
@@ -794,7 +794,7 @@ sh_int off_shld_lvl(CharData * ch, CharData * victim)
 
         if (!IsNpc(ch))    /* players get much less effect */
         {
-                lvl = UMAX(1, (ch->skill_level[ForceAbility]));
+                lvl = UMax(1, (ch->skill_level[ForceAbility]));
                 if (number_percent() +
                     (victim->skill_level[CombatAbility] - lvl) < 35)
                         return lvl;
@@ -1010,21 +1010,21 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
                 dam *= 2;
         if (dt == gsn_backstab)
                 dam *= (2 +
-                        URANGE(2,
+                        URange(2,
                                ch->skill_level[HuntingAbility] -
                                (victim->skill_level[CombatAbility] / 4),
                                30) / 16);
 
         if (dt == gsn_circle)
                 dam *= (2 +
-                        URANGE(2,
+                        URange(2,
                                ch->skill_level[HuntingAbility] -
                                (victim->skill_level[CombatAbility] / 4),
                                30) / 32);
 
         if (dt == gsn_jab)
                 dam *= (2 +
-                        URANGE(2,
+                        URange(2,
                                ch->skill_level[HuntingAbility] -
                                (victim->skill_level[CombatAbility] / 4),
                                30) / 16);
@@ -1054,7 +1054,7 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
                 int       res, imm, sus, Mod;
 
                 if (plusris)
-                        plusris = RisPlus1 << UMIN(plusris, 7);
+                        plusris = RisPlus1 << UMin(plusris, 7);
 
                 /*
                  * initialize values to handle a zero plusris 
@@ -1166,7 +1166,7 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
                                 percent_chance -= sysdata.stun_plr_vs_plr;
                         else
                                 percent_chance -= sysdata.stun_regular;
-                        percent_chance = URANGE(5, percent_chance, 95);
+                        percent_chance = URange(5, percent_chance, 95);
                         if (!fail && number_percent() < percent_chance)
                         {
                                 WaitState(victim, PulseViolence);
@@ -1785,7 +1785,7 @@ ch_ret damage(CharData * ch, CharData * victim, int dam, int dt)
                 af.bitvector = AffPoison;
                 affect_join(victim, &af);
                 victim->mental_state =
-                        URANGE(20, victim->mental_state + 2, 100);
+                        URange(20, victim->mental_state + 2, 100);
         }
 
         if (!npcvict
@@ -1949,7 +1949,7 @@ ch_ret damage(CharData * ch, CharData * victim, int dam, int dt)
                         long      lose_exp;
 
                         lose_exp =
-                                UMAX((victim->experience[CombatAbility] -
+                                UMax((victim->experience[CombatAbility] -
                                       exp_level(victim->
                                                 skill_level[CombatAbility])),
                                      0);
@@ -2466,7 +2466,7 @@ void raw_kill(CharData * ch, CharData * victim)
         {
                 victim->in_room->area->planet->population--;
                 victim->in_room->area->planet->population =
-                        UMAX(victim->in_room->area->planet->population, 0);
+                        UMax(victim->in_room->area->planet->population, 0);
                 victim->in_room->area->planet->pop_support -=
                         (1 +
                          1 / (victim->in_room->area->planet->population + 1));
@@ -2698,12 +2698,12 @@ void raw_kill(CharData * ch, CharData * victim)
     victim->Damroll	= 0;
     victim->Hitroll	= 0;
     victim->mental_state = -10;
-    victim->alignment	= URANGE( -1000, victim->alignment, 1000 );
+    victim->alignment	= URange( -1000, victim->alignment, 1000 );
     victim->SavingSpellStaff = 0;
     victim->position	= PosResting;
-    victim->hit		= UMAX( 1, victim->hit  );
-    victim->endurance	= UMAX( 1, victim->endurance );
-    victim->endurance	= UMAX( 1, victim->endurance );
+    victim->hit		= UMax( 1, victim->hit  );
+    victim->endurance	= UMax( 1, victim->endurance );
+    victim->endurance	= UMax( 1, victim->endurance );
     
     victim->PCData->condition[CondFull]   = 12;
     victim->PCData->condition[CondThirst] = 12;
@@ -2796,7 +2796,7 @@ void group_gain(CharData * ch, CharData * victim)
 
                 if (lch == gch && members > 1)
                 {
-                        xp = URANGE(members, xp * members,
+                        xp = URange(members, xp * members,
                                     (exp_level
                                      (gch->skill_level[LeadershipAbility] +
                                       1) -
@@ -2851,10 +2851,10 @@ int align_compute(CharData * gch, CharData * victim)
     align = gch->alignment - victim->alignment;
 
     if ( align >  500 )
-	newalign  = UMIN( gch->alignment + (align-500)/4,  1000 );
+	newalign  = UMin( gch->alignment + (align-500)/4,  1000 );
     else
     if ( align < -500 )
-	newalign  = UMAX( gch->alignment + (align+500)/4, -1000 );
+	newalign  = UMax( gch->alignment + (align+500)/4, -1000 );
     else
 	newalign  = gch->alignment - (int) (gch->alignment / 4);
     
@@ -2862,7 +2862,7 @@ int align_compute(CharData * gch, CharData * victim)
 
 make it simple instead */
 
-        return URANGE(-1000,
+        return URange(-1000,
                       (int) (gch->alignment - victim->alignment / 5), 1000);
 
 }
@@ -2878,7 +2878,7 @@ int xp_compute(CharData * gch, CharData * victim)
         int       xp;
 
         xp = (get_exp_worth(victim)
-              * URANGE(1,
+              * URange(1,
                        (victim->skill_level[CombatAbility] -
                         gch->skill_level[CombatAbility]) + 10, 20)) / 10;
         align = gch->alignment - victim->alignment;
@@ -2914,7 +2914,7 @@ int xp_compute(CharData * gch, CharData * victim)
          * new xp cap for swreality 
          */
 
-        return URANGE(1, xp,
+        return URange(1, xp,
                       (exp_level(gch->skill_level[CombatAbility] + 1) -
                        exp_level(gch->skill_level[CombatAbility])) / 5);
 }
