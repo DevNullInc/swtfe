@@ -64,10 +64,25 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "valarray": "cpp"
     },
     "chat.tools.autoApprove": true,
     "chat.agent.enabled": true,
     "chat.agent.maxRequests": 300,
-    "chat.experimental.features": true
+    "chat.experimental.features": true,
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+    "C_Cpp.default.cppStandard": "c++23",
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": true,
+        "strings": true
+    },
+    "github.copilot.enable": {
+        "enabled": true
+    },
+    "github.copilot.codeSuggestions": true,
+    "github.copilot.inlineSuggest.enable": true
 }

@@ -1,64 +1,63 @@
 {
-    "configurations": [
-        {
-            "name": "Linux",
-            "includePath": [
-                "${workspaceFolder}/src",
-                "/usr/include",
-                "/usr/include/x86_64-linux-gnu",
-                "/usr/include/c++/13"
-            ],
-            "defines": [
-                "MCCP",
-                "MXP", 
-                "ACCOUNT",
-                "OLC_HOMES",
-                "RESTORE", 
-                "OLC_SHUTTLE",
-                "WEB",
-                "IMC",
-                "IMCSMAUG",
-                "_GNU_SOURCE"
-            ],
-            "compilerPath": "/usr/bin/g++",
-            "cStandard": "c17",
-            "cppStandard": "c++23",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.makefile-tools",
-            "compilerArgs": [
-                "-std=c++23",
-                "-m64",
-                "-g3",
-                "-Wall",
-                "-Wextra", 
-                "-Wpedantic",
-                "-Wshadow",
-                "-Wpointer-arith",
-                "-Wcast-qual",
-                "-Wcast-align", 
-                "-Wformat-security",
-                "-Wconversion",
-                "-Wsign-conversion",
-                "-Wold-style-cast",
-                "-Woverloaded-virtual",
-                "-Wnon-virtual-dtor",
-                "-Wdeprecated",
-                "-Wdeprecated-declarations",
-                "-Werror",
-                "-MMD",
-                "-MP"
-            ],
-            "browse": {
-                "path": [
-                    "${workspaceFolder}/src",
-                    "${workspaceFolder}/src/**",
-                    "/usr/include",
-                    "/usr/include/c++/13"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
-            }
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/src",
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu",
+        "/usr/include/c++/13"
+      ],
+      "defines": [
+        "MCCP",
+        "MXP",
+        "ACCOUNT",
+        "OLC_HOMES",
+        "RESTORE",
+        "OLC_SHUTTLE",
+        "WEB",
+        "IMC",
+        "IMCSMAUG",
+        "_GNU_SOURCE"
+      ],
+      "compilerPath": "/usr/bin/g++",
+      "cStandard": "c17",
+      "cppStandard": "c++23",
+      "intelliSenseMode": "linux-gcc-x64",
+      "compileCommands": "${workspaceFolder}/compile_commands.json",
+      "compilerArgs": [
+        "-std=c++23",
+        "-m64",
+        "-g3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wshadow",
+        "-Wpointer-arith",
+        "-Wcast-qual",
+        "-Wcast-align",
+        "-Wformat-security",
+        "-Wconversion",
+        "-Wsign-conversion",
+        "-Wold-style-cast",
+        "-Woverloaded-virtual",
+        "-Wnon-virtual-dtor",
+        "-Wdeprecated",
+        "-Wdeprecated-declarations",
+        "-Werror",
+        "-MMD",
+        "-MP"
+      ],
+      "browse": {
+        "path": [
+          "${workspaceFolder}/src",
+          "/usr/include",
+          "/usr/include/c++/13"
+        ],
+        "limitSymbolsToIncludedHeaders": false,
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+      }
+    }
+  ],
+  "version": 4
 }
