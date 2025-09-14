@@ -3080,21 +3080,21 @@ void free_char(CharData * ch)
                 free_note(ch->pnote);
 
 
-        if (ch->PCData)
+        if (ch->pcdata)
         {
                 for (pos = 0;
-                     (pos < MaxIgnore && ch->PCData->ignore[pos] != NULL);
+                     (pos < MaxIgnore && ch->pcdata->ignore[pos] != NULL);
                      pos++)
                 {
-                        STRFREE(ch->PCData->ignore[pos]);
+                        STRFREE(ch->pcdata->ignore[pos]);
                 }
-                if (!(ch->PCData->birthday.year > -1)
-                    || !(ch->PCData->birthday.day > -1)
-                    || !(ch->PCData->birthday.month > -1)
-                    || !(ch->PCData->birthday.hour > -1))
-                        ch->PCData->birthday = time_info;   /* Added for player birthdays - Gavin 2004-01-06 */
+                if (!(ch->pcdata->birthday.year > -1)
+                    || !(ch->pcdata->birthday.day > -1)
+                    || !(ch->pcdata->birthday.month > -1)
+                    || !(ch->pcdata->birthday.hour > -1))
+                        ch->pcdata->birthday = time_info;   /* Added for player birthdays - Gavin 2004-01-06 */
 
-                for (wanted = ch->PCData->first_wanted; wanted;
+                for (wanted = ch->pcdata->first_wanted; wanted;
                      wanted = wanted_next)
                 {
                         wanted_next = wanted->next;
@@ -3105,54 +3105,54 @@ void free_char(CharData * ch)
                  * All of these have been changed to STRALLOC/fread_string except for pwd
                  * because we can keep track through memory hash, and its a good idea anyways - Greven 
                  */
-                if (ch->PCData->pwd)
-                        DISPOSE(ch->PCData->pwd);   /* no hash */
-                if (ch->PCData->spouse)
-                        STRFREE(ch->PCData->spouse);
-                if (ch->PCData->bamfin)
-                        STRFREE(ch->PCData->bamfin);
-                if (ch->PCData->bamfout)
-                        STRFREE(ch->PCData->bamfout);
-                if (ch->PCData->rank)
-                        STRFREE(ch->PCData->rank);
-                if (ch->PCData->email)
-                        STRFREE(ch->PCData->email);
-                if (ch->PCData->realname)
-                        STRFREE(ch->PCData->realname);
-                if (ch->PCData->icq)
-                        STRFREE(ch->PCData->icq);
-                if (ch->PCData->msn)
-                        STRFREE(ch->PCData->msn);
-                if (ch->PCData->aolim)
-                        STRFREE(ch->PCData->aolim);
-                if (ch->PCData->yahoo)
-                        STRFREE(ch->PCData->yahoo);
-                if (ch->PCData->title)
-                        STRFREE(ch->PCData->title);
-                if (ch->PCData->bio)
-                        STRFREE(ch->PCData->bio);
-                if (ch->PCData->bestowments)
-                        STRFREE(ch->PCData->bestowments);
-                if (ch->PCData->homepage)
-                        STRFREE(ch->PCData->homepage);
-                if (ch->PCData->authed_by)
-                        STRFREE(ch->PCData->authed_by);
-                if (ch->PCData->prompt)
-                        STRFREE(ch->PCData->prompt);
-                if (ch->PCData->fprompt)
-                        STRFREE(ch->PCData->fprompt);
-                if (ch->PCData->subprompt)
-                        STRFREE(ch->PCData->subprompt);
-                if (ch->PCData->helled_by)
-                        STRFREE(ch->PCData->helled_by);
-                if (ch->PCData->full_name)
-                        STRFREE(ch->PCData->full_name);
-                if (ch->PCData->listening)
-                        STRFREE(ch->PCData->listening);
+                if (ch->pcdata->pwd)
+                        DISPOSE(ch->pcdata->pwd);   /* no hash */
+                if (ch->pcdata->spouse)
+                        STRFREE(ch->pcdata->spouse);
+                if (ch->pcdata->bamfin)
+                        STRFREE(ch->pcdata->bamfin);
+                if (ch->pcdata->bamfout)
+                        STRFREE(ch->pcdata->bamfout);
+                if (ch->pcdata->rank)
+                        STRFREE(ch->pcdata->rank);
+                if (ch->pcdata->email)
+                        STRFREE(ch->pcdata->email);
+                if (ch->pcdata->realname)
+                        STRFREE(ch->pcdata->realname);
+                if (ch->pcdata->icq)
+                        STRFREE(ch->pcdata->icq);
+                if (ch->pcdata->msn)
+                        STRFREE(ch->pcdata->msn);
+                if (ch->pcdata->aolim)
+                        STRFREE(ch->pcdata->aolim);
+                if (ch->pcdata->yahoo)
+                        STRFREE(ch->pcdata->yahoo);
+                if (ch->pcdata->title)
+                        STRFREE(ch->pcdata->title);
+                if (ch->pcdata->bio)
+                        STRFREE(ch->pcdata->bio);
+                if (ch->pcdata->bestowments)
+                        STRFREE(ch->pcdata->bestowments);
+                if (ch->pcdata->homepage)
+                        STRFREE(ch->pcdata->homepage);
+                if (ch->pcdata->authed_by)
+                        STRFREE(ch->pcdata->authed_by);
+                if (ch->pcdata->prompt)
+                        STRFREE(ch->pcdata->prompt);
+                if (ch->pcdata->fprompt)
+                        STRFREE(ch->pcdata->fprompt);
+                if (ch->pcdata->subprompt)
+                        STRFREE(ch->pcdata->subprompt);
+                if (ch->pcdata->helled_by)
+                        STRFREE(ch->pcdata->helled_by);
+                if (ch->pcdata->full_name)
+                        STRFREE(ch->pcdata->full_name);
+                if (ch->pcdata->listening)
+                        STRFREE(ch->pcdata->listening);
 #ifdef IMC
                 imc_freechardata(ch);
 #endif
-                DISPOSE(ch->PCData);
+                DISPOSE(ch->pcdata);
         }
 
         for (mpact = ch->mpact; mpact; mpact = mpact_next)
@@ -3161,10 +3161,10 @@ void free_char(CharData * ch)
                 DISPOSE(mpact->buf);
                 DISPOSE(mpact);
         }
-        if (ch->PCData && ch->PCData->Account
-            && ch->PCData->Account->comments)
+        if (ch->pcdata && ch->pcdata->Account
+            && ch->pcdata->Account->comments)
         {
-                for (comments = ch->PCData->Account->comments; comments;
+                for (comments = ch->pcdata->Account->comments; comments;
                      comments = comments_next)
                 {
                         comments_next = comments->next;

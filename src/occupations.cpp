@@ -93,7 +93,7 @@ CMDF do_cook(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_cook]);
+                        : (int) (ch->pcdata->learned[gsn_cook]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -133,7 +133,7 @@ CMDF do_cook(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_beg])
+        if (percent > ch->pcdata->learned[gsn_beg])
         {
                 send_to_char
                         ("You tried to cook a delicious meal, but you burn it!\n\r",
@@ -155,7 +155,7 @@ CMDF do_cook(CharData * ch, char *argument)
         {
                 int       amount, condition;
 
-                condition = ch->PCData->condition[CondFull];
+                condition = ch->pcdata->condition[CondFull];
                 amount = 48 - condition;
                 gain_condition(ch, CondFull, amount);
         }
@@ -256,7 +256,7 @@ CMDF do_beg(CharData * ch, char *argument)
                 number_percent() - ch->skill_level[OccupationAbility] +
                 victim->top_level;
 
-        if (percent > ch->PCData->learned[gsn_beg])
+        if (percent > ch->pcdata->learned[gsn_beg])
         {
                 /*
                  * 
@@ -369,7 +369,7 @@ CMDF do_dishwasher(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_dishwasher]);
+                        : (int) (ch->pcdata->learned[gsn_dishwasher]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -410,7 +410,7 @@ CMDF do_dishwasher(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_dishwasher])
+        if (percent > ch->pcdata->learned[gsn_dishwasher])
         {
                 send_to_char
                         ("You tried to wash dishes, but you broke a plate!\n\r",
@@ -486,7 +486,7 @@ CMDF do_busser(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_busser]);
+                        : (int) (ch->pcdata->learned[gsn_busser]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -527,7 +527,7 @@ CMDF do_busser(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_busser])
+        if (percent > ch->pcdata->learned[gsn_busser])
         {
                 send_to_char
                         ("You tried to bus tables, but you broke a plate!\n\r",
@@ -603,7 +603,7 @@ CMDF do_waiter(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_waiter]);
+                        : (int) (ch->pcdata->learned[gsn_waiter]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -644,7 +644,7 @@ CMDF do_waiter(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_waiter])
+        if (percent > ch->pcdata->learned[gsn_waiter])
         {
                 send_to_char
                         ("You tried to take orders, but messed one up!\n\r",
@@ -720,7 +720,7 @@ CMDF do_chef(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_chef]);
+                        : (int) (ch->pcdata->learned[gsn_chef]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -762,7 +762,7 @@ CMDF do_chef(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_chef])
+        if (percent > ch->pcdata->learned[gsn_chef])
         {
                 send_to_char
                         ("You tried to prepare an extravagent meal, but it came out plain!\n\r",
@@ -779,7 +779,7 @@ CMDF do_chef(CharData * ch, char *argument)
         {
                 int       amount, condition;
 
-                condition = ch->PCData->condition[CondFull];
+                condition = ch->pcdata->condition[CondFull];
                 amount = 48 - condition;
                 gain_condition(ch, CondFull, amount);
         }
@@ -843,7 +843,7 @@ CMDF do_streetcleaner(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_streetcleaner]);
+                        : (int) (ch->pcdata->learned[gsn_streetcleaner]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -885,7 +885,7 @@ CMDF do_streetcleaner(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_streetcleaner])
+        if (percent > ch->pcdata->learned[gsn_streetcleaner])
         {
                 send_to_char
                         ("You tried to clean the street, but it is still dirty!\n\r",
@@ -960,7 +960,7 @@ CMDF do_bartender(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_bartender]);
+                        : (int) (ch->pcdata->learned[gsn_bartender]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1001,7 +1001,7 @@ CMDF do_bartender(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_bartender])
+        if (percent > ch->pcdata->learned[gsn_bartender])
         {
                 send_to_char
                         ("You tried to mix drinks, but they were horrible!\n\r",
@@ -1018,7 +1018,7 @@ CMDF do_bartender(CharData * ch, char *argument)
         {
                 int       amount, condition;
 
-                condition = ch->PCData->condition[CondThirst];
+                condition = ch->pcdata->condition[CondThirst];
                 amount = 48 - condition;
                 gain_condition(ch, CondThirst, amount);
         }
@@ -1081,7 +1081,7 @@ CMDF do_interiorcleaner(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_interiorcleaner]);
+                        : (int) (ch->pcdata->learned[gsn_interiorcleaner]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1124,7 +1124,7 @@ CMDF do_interiorcleaner(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_interiorcleaner])
+        if (percent > ch->pcdata->learned[gsn_interiorcleaner])
         {
                 send_to_char
                         ("You tried to clean the room, but it is still dirty!\n\r",
@@ -1198,7 +1198,7 @@ CMDF do_hotelcleaner(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_hotelcleaner]);
+                        : (int) (ch->pcdata->learned[gsn_hotelcleaner]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1240,7 +1240,7 @@ CMDF do_hotelcleaner(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_hotelcleaner])
+        if (percent > ch->pcdata->learned[gsn_hotelcleaner])
         {
                 send_to_char
                         ("You tried to clean the hotel room, but it is still dirty!\n\r",
@@ -1316,7 +1316,7 @@ CMDF do_secretary(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_secretary]);
+                        : (int) (ch->pcdata->learned[gsn_secretary]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1358,7 +1358,7 @@ CMDF do_secretary(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_secretary])
+        if (percent > ch->pcdata->learned[gsn_secretary])
         {
                 send_to_char("You tried to be a secretary, but failed\n\r",
                              ch);
@@ -1432,7 +1432,7 @@ CMDF do_clerk(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_clerk]);
+                        : (int) (ch->pcdata->learned[gsn_clerk]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1473,7 +1473,7 @@ CMDF do_clerk(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_clerk])
+        if (percent > ch->pcdata->learned[gsn_clerk])
         {
                 send_to_char("You tried to be a clerk, but failed\n\r", ch);
                 act(AtAction, "$n tried to be a clerk, but failed\n\r", ch,
@@ -1545,7 +1545,7 @@ CMDF do_commmarketer(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_commmarketer]);
+                        : (int) (ch->pcdata->learned[gsn_commmarketer]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1587,7 +1587,7 @@ CMDF do_commmarketer(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_commmarketer])
+        if (percent > ch->pcdata->learned[gsn_commmarketer])
         {
                 send_to_char
                         ("You tried to sell things over the commnet, but nobody bought.\n\r",
@@ -1662,7 +1662,7 @@ CMDF do_marketer(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_marketer]);
+                        : (int) (ch->pcdata->learned[gsn_marketer]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1703,7 +1703,7 @@ CMDF do_marketer(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_marketer])
+        if (percent > ch->pcdata->learned[gsn_marketer])
         {
                 send_to_char
                         ("You couldn't think of how to market your product.\n\r",
@@ -1770,7 +1770,7 @@ CMDF do_solicitor(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_solicitor]);
+                        : (int) (ch->pcdata->learned[gsn_solicitor]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1811,7 +1811,7 @@ CMDF do_solicitor(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_solicitor])
+        if (percent > ch->pcdata->learned[gsn_solicitor])
         {
                 send_to_char
                         ("You tried to sell your product, but failed.\n\r",
@@ -1885,7 +1885,7 @@ CMDF do_advertiser(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_advertiser]);
+                        : (int) (ch->pcdata->learned[gsn_advertiser]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1927,7 +1927,7 @@ CMDF do_advertiser(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_advertiser])
+        if (percent > ch->pcdata->learned[gsn_advertiser])
         {
                 send_to_char
                         ("You couldn't think of a way to advertise your product.\n\r",
@@ -2003,7 +2003,7 @@ CMDF do_banker(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_banker]);
+                        : (int) (ch->pcdata->learned[gsn_banker]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2044,7 +2044,7 @@ CMDF do_banker(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_banker])
+        if (percent > ch->pcdata->learned[gsn_banker])
         {
                 send_to_char("You tried to make transactions, but made a mistake!\n\r",ch);
                 act(AtAction,"$n tried to make transactions, but made a mistake!\n\r",ch, NULL, ch, ToRoom);
@@ -2117,7 +2117,7 @@ CMDF do_accountant(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_accountant]);
+                        : (int) (ch->pcdata->learned[gsn_accountant]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2159,7 +2159,7 @@ CMDF do_accountant(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_accountant])
+        if (percent > ch->pcdata->learned[gsn_accountant])
         {
                 send_to_char
                         ("You tried to find a tax loophole, but failed.\n\r",
@@ -2234,7 +2234,7 @@ CMDF do_investor(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_investor]);
+                        : (int) (ch->pcdata->learned[gsn_investor]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2275,7 +2275,7 @@ CMDF do_investor(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_investor])
+        if (percent > ch->pcdata->learned[gsn_investor])
         {
                 send_to_char
                         ("You tried to play the stockmarket, but failed.\n\r",
@@ -2350,7 +2350,7 @@ CMDF do_broker(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_broker]);
+                        : (int) (ch->pcdata->learned[gsn_broker]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2390,7 +2390,7 @@ CMDF do_broker(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_broker])
+        if (percent > ch->pcdata->learned[gsn_broker])
         {
                 send_to_char
                         ("You tried to sell stocks and funds, but failed.\n\r",
@@ -2465,7 +2465,7 @@ CMDF do_boardmember(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_boardmember]);
+                        : (int) (ch->pcdata->learned[gsn_boardmember]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2507,7 +2507,7 @@ CMDF do_boardmember(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_boardmember])
+        if (percent > ch->pcdata->learned[gsn_boardmember])
         {
                 send_to_char
                         ("You tried join the meeting, but were shunned.\n\r",
@@ -2582,7 +2582,7 @@ CMDF do_ceo(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_ceo]);
+                        : (int) (ch->pcdata->learned[gsn_ceo]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2623,7 +2623,7 @@ CMDF do_ceo(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_ceo])
+        if (percent > ch->pcdata->learned[gsn_ceo])
         {
                 send_to_char
                         ("You tried to conduct the meeting, but was out politiced.\n\r",
@@ -2698,7 +2698,7 @@ CMDF do_yourmom(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_secretary]);
+                        : (int) (ch->pcdata->learned[gsn_secretary]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2740,7 +2740,7 @@ CMDF do_yourmom(CharData * ch, char *argument)
 
         percent = number_percent() - ch->skill_level[OccupationAbility];
 
-        if (percent > ch->PCData->learned[gsn_secretary])
+        if (percent > ch->pcdata->learned[gsn_secretary])
         {
                 send_to_char("You tried to be a secretary, but failed\n\r",
                              ch);

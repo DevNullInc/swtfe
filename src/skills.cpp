@@ -214,7 +214,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                     && !str_prefix(command, skill_table[sn]->name)
                     && (skill_table[sn]->skill_fun
                         || skill_table[sn]->spell_fun != spell_null)
-                    && (IsNpc(ch) || (ch->PCData->learned[sn] > 0)))
+                    && (IsNpc(ch) || (ch->pcdata->learned[sn] > 0)))
                         break;
                 if (first >= top)
                         return FALSE;
@@ -361,7 +361,7 @@ bool check_skill(CharData * ch, char *command, char *argument)
                         if ((percentage =
                              (number_percent() +
                               skill_table[sn]->difficulty * 5)) >
-                            (IsNpc(ch) ? 75 : ch->PCData->learned[sn]))
+                            (IsNpc(ch) ? 75 : ch->pcdata->learned[sn]))
                         {
                                 failed_casting(skill_table[sn], ch,
                                                (CharData *) vo, obj);
@@ -1339,8 +1339,8 @@ CMDF do_sset(CharData * ch, char *argument)
                                 {
                                         if (IsNpc(victim))
                                                 continue;
-                                        victim->PCData->learned[x] =
-                                                victim->PCData->learned[x +
+                                        victim->pcdata->learned[x] =
+                                                victim->pcdata->learned[x +
                                                                         1];
                                 }
                         }
@@ -1448,11 +1448,11 @@ CMDF do_sset(CharData * ch, char *argument)
                         if (skill_table[sn]->name
                             && (victim->skill_level[skill_table[sn]->guild] >=
                                 skill_table[sn]->min_level || value == 0))
-                                victim->PCData->learned[sn] = value;
+                                victim->pcdata->learned[sn] = value;
                 }
         }
         else
-                victim->PCData->learned[sn] = value;
+                victim->pcdata->learned[sn] = value;
 
         return;
 }
@@ -1462,7 +1462,7 @@ void learn_from_success(CharData * ch, int sn)
 {
         int       adept, gain, sklvl, learn, percent, percent_chance;
 
-        if (IsNpc(ch) || ch->PCData->learned[sn] == 0)
+        if (IsNpc(ch) || ch->pcdata->learned[sn] == 0)
                 return;
 
         if (sn < 0)
@@ -1484,15 +1484,15 @@ void learn_from_success(CharData * ch, int sn)
                  skill_table[sn]->min_level) * 5 + 50;
         adept = UMin(adept, 100);
 
-        if (ch->PCData->learned[sn] >= adept)
+        if (ch->pcdata->learned[sn] >= adept)
                 return;
 
         if (sklvl == 0 || sklvl > ch->skill_level[skill_table[sn]->guild])
                 sklvl = ch->skill_level[skill_table[sn]->guild];
-        if (ch->PCData->learned[sn] < 100)
+        if (ch->pcdata->learned[sn] < 100)
         {
                 percent_chance =
-                        ch->PCData->learned[sn] +
+                        ch->pcdata->learned[sn] +
                         (5 * skill_table[sn]->difficulty);
                 percent = number_percent();
                 if (percent >= percent_chance)
@@ -1501,9 +1501,9 @@ void learn_from_success(CharData * ch, int sn)
                         return;
                 else
                         learn = 1;
-                ch->PCData->learned[sn] =
-                        UMin(adept, ch->PCData->learned[sn] + learn);
-                if (ch->PCData->learned[sn] == 100) /* fully learned! */
+                ch->pcdata->learned[sn] =
+                        UMin(adept, ch->pcdata->learned[sn] + learn);
+                if (ch->pcdata->learned[sn] == 100) /* fully learned! */
                 {
                         gain = 50 * sklvl;
                         set_char_color(AtWhite, ch);
@@ -1550,7 +1550,7 @@ CMDF do_gouge(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IsNpc(ch) && !ch->PCData->learned[gsn_gouge])
+        if (!IsNpc(ch) && !ch->pcdata->learned[gsn_gouge])
         {
                 send_to_char("You do not yet know of this skill.\n\r", ch);
                 return;
@@ -1571,7 +1571,7 @@ CMDF do_gouge(CharData * ch, char *argument)
 
         percent = number_percent() - (get_curr_lck(ch) - 13);
 
-        if (IsNpc(ch) || percent < ch->PCData->learned[gsn_gouge])
+        if (IsNpc(ch) || percent < ch->pcdata->learned[gsn_gouge])
         {
                 dam = number_range(1, ch->skill_level[CombatAbility]);
                 global_retcode = damage(ch, victim, dam, gsn_gouge);
@@ -1638,7 +1638,7 @@ CMDF do_detrap(CharData * ch, char *argument)
                         return;
                 }
                 argument = one_argument(argument, arg);
-                if (!IsNpc(ch) && !ch->PCData->learned[gsn_detrap])
+                if (!IsNpc(ch) && !ch->pcdata->learned[gsn_detrap])
                 {
                         send_to_char("You do not yet know of this skill.\n\r",
                                      ch);
@@ -1737,7 +1737,7 @@ CMDF do_detrap(CharData * ch, char *argument)
                 - (get_curr_lck(ch) - 16);
 
         separate_obj(obj);
-        if (!IsNpc(ch) || percent > ch->PCData->learned[gsn_detrap])
+        if (!IsNpc(ch) || percent > ch->pcdata->learned[gsn_detrap])
         {
                 send_to_char("Ooops!\n\r", ch);
                 spring_trap(ch, trap);
@@ -1874,7 +1874,7 @@ CMDF do_dig(CharData * ch, char *argument)
                          * 4 times harder to dig open a passage without a shovel 
                          */
                         if ((number_percent() * (shovel ? 1 : 4)) <
-                            (IsNpc(ch) ? 80 : ch->PCData->learned[gsn_dig]))
+                            (IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_dig]))
                         {
                                 RemoveBit(pexit->exit_info, ExClosed);
                                 send_to_char("You dig open a passageway!\n\r",
@@ -1902,7 +1902,7 @@ CMDF do_dig(CharData * ch, char *argument)
                  */
                 if (IsObjStat(obj, ItemBurried)
                     && (number_percent() * (shovel ? 1 : 2)) <
-                    (IsNpc(ch) ? 80 : ch->PCData->learned[gsn_dig]))
+                    (IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_dig]))
                 {
                         found = TRUE;
                         break;
@@ -2041,7 +2041,7 @@ CMDF do_search(CharData * ch, char *argument)
                     && IsSet(pexit->exit_info, ExSecret)
                     && IsSet(pexit->exit_info, EX_xSEARCHABLE)
                     && percent <
-                    (IsNpc(ch) ? 80 : ch->PCData->learned[gsn_search]))
+                    (IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_search]))
                 {
                         act(AtSkill, "Your search reveals the $d!", ch, NULL,
                             pexit->keyword, ToChar);
@@ -2056,7 +2056,7 @@ CMDF do_search(CharData * ch, char *argument)
                 for (obj = startobj; obj; obj = obj->next_content)
                 {
                         if (IsObjStat(obj, ItemHidden)
-                            && percent < ch->PCData->learned[gsn_search])
+                            && percent < ch->pcdata->learned[gsn_search])
                         {
                                 found = TRUE;
                                 break;
@@ -2141,7 +2141,7 @@ CMDF do_steal(CharData * ch, char *argument)
                 - (get_curr_lck(ch) - 15) + (get_curr_lck(victim) - 13);
 
         if (victim->position == PosFighting
-            || percent > (IsNpc(ch) ? 90 : ch->PCData->learned[gsn_steal]))
+            || percent > (IsNpc(ch) ? 90 : ch->pcdata->learned[gsn_steal]))
         {
                 /*
                  * Failure.
@@ -2346,7 +2346,7 @@ CMDF do_backstab(CharData * ch, char *argument)
 		obj = get_eq_char(ch, WearDualWield);
                 if ((!obj || (obj->item_type != ItemWeapon &&
                                                 obj->value[3] !=WeaponKnife)) &&
-                                !IsNpc(ch) && IsSet(ch->PCData->flags, PcflagAutodraw))
+                                !IsNpc(ch) && IsSet(ch->pcdata->flags, PcflagAutodraw))
                 {
                         ObjData *holster1 = get_eq_char(ch, WearHolsterL),
                                  *holster2 = get_eq_char(ch, WearHolsterR);
@@ -2395,7 +2395,7 @@ CMDF do_backstab(CharData * ch, char *argument)
 
 	WaitState(ch, skill_table[gsn_backstab]->beats);
 	if (!IsAwake(victim)
-			|| IsNpc(ch) || percent < ch->PCData->learned[gsn_backstab])
+			|| IsNpc(ch) || percent < ch->pcdata->learned[gsn_backstab])
 	{
 		learn_from_success(ch, gsn_backstab);
 		global_retcode = multi_hit(ch, victim, gsn_backstab);
@@ -2470,7 +2470,7 @@ CMDF do_rescue(CharData * ch, char *argument)
                 - (get_curr_lck(victim) - 16);
 
         WaitState(ch, skill_table[gsn_rescue]->beats);
-        if (!IsNpc(ch) && percent > ch->PCData->learned[gsn_rescue])
+        if (!IsNpc(ch) && percent > ch->pcdata->learned[gsn_rescue])
         {
                 send_to_char("You fail the rescue.\n\r", ch);
                 act(AtSkill, "$n tries to rescue you!", ch, NULL, victim,
@@ -2525,7 +2525,7 @@ CMDF do_kick(CharData * ch, char *argument)
         }
 
         WaitState(ch, skill_table[gsn_kick]->beats);
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_kick])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_kick])
         {
                 learn_from_success(ch, gsn_kick);
                 global_retcode =
@@ -2555,7 +2555,7 @@ CMDF do_punch(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_punch] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_punch] <= 0)
         {
                 send_to_char
                         ("Your mind races as you realize you have no idea how to do that.\n\r",
@@ -2570,7 +2570,7 @@ CMDF do_punch(CharData * ch, char *argument)
         }
 
         WaitState(ch, skill_table[gsn_punch]->beats);
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_punch])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_punch])
         {
                 learn_from_success(ch, gsn_punch);
                 global_retcode =
@@ -2606,7 +2606,7 @@ CMDF do_bite(CharData * ch, char *argument)
                 send_to_char("You aren't fighting anyone.\n\r", ch);
                 return;
         }
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_bite])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_bite])
         {
                 learn_from_success(ch, gsn_bite);
                 global_retcode =
@@ -2642,7 +2642,7 @@ CMDF do_claw(CharData * ch, char *argument)
                 send_to_char("You aren't fighting anyone.\n\r", ch);
                 return;
         }
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_claw])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_claw])
         {
                 learn_from_success(ch, gsn_claw);
                 global_retcode =
@@ -2678,7 +2678,7 @@ CMDF do_sting(CharData * ch, char *argument)
                 send_to_char("You aren't fighting anyone.\n\r", ch);
                 return;
         }
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_sting])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_sting])
         {
                 learn_from_success(ch, gsn_sting);
                 global_retcode =
@@ -2714,7 +2714,7 @@ CMDF do_tail(CharData * ch, char *argument)
                 send_to_char("You aren't fighting anyone.\n\r", ch);
                 return;
         }
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_tail])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_tail])
         {
                 learn_from_success(ch, gsn_tail);
                 global_retcode =
@@ -2746,7 +2746,7 @@ CMDF do_bash(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_bash] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_bash] <= 0)
         {
                 send_to_char
                         ("Your mind races as you realize you have no idea how to do that.\n\r",
@@ -2770,7 +2770,7 @@ CMDF do_bash(CharData * ch, char *argument)
         WaitState(ch, skill_table[gsn_bash]->beats);
         if (IsNpc(ch)
             || (number_percent() + percent_chance) <
-            ch->PCData->learned[gsn_bash])
+            ch->pcdata->learned[gsn_bash])
         {
                 learn_from_success(ch, gsn_bash);
                 /*
@@ -2811,7 +2811,7 @@ CMDF do_stun(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_stun] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_stun] <= 0)
         {
                 send_to_char
                         ("Your mind races as you realize you have no idea how to do that.\n\r",
@@ -2855,7 +2855,7 @@ CMDF do_stun(CharData * ch, char *argument)
         if (!fail
             && (IsNpc(ch)
                 || (number_percent() + percent_chance) <
-                ch->PCData->learned[gsn_stun]))
+                ch->pcdata->learned[gsn_stun]))
         {
                 learn_from_success(ch, gsn_stun);
                 /*
@@ -2970,7 +2970,7 @@ CMDF do_disarm(CharData * ch, char *argument)
                 return;
         }
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_disarm] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_disarm] <= 0)
         {
                 send_to_char("You don't know how to disarm opponents.\n\r",
                              ch);
@@ -3003,7 +3003,7 @@ CMDF do_disarm(CharData * ch, char *argument)
                 (get_curr_lck(victim) - 15);
         if (!can_see_obj(ch, obj))
                 percent += 10;
-        if (IsNpc(ch) || percent < ch->PCData->learned[gsn_disarm] * 2 / 3)
+        if (IsNpc(ch) || percent < ch->pcdata->learned[gsn_disarm] * 2 / 3)
                 disarm(ch, victim);
         else
         {
@@ -3151,7 +3151,7 @@ CMDF do_pick(CharData * ch, char *argument)
                 }
 
                 if (!IsNpc(ch)
-                    && number_percent() > ch->PCData->learned[gsn_pick_lock])
+                    && number_percent() > ch->pcdata->learned[gsn_pick_lock])
                 {
                         send_to_char("You failed.\n\r", ch);
                         learn_from_failure(ch, gsn_pick_lock);
@@ -3217,7 +3217,7 @@ CMDF do_pick(CharData * ch, char *argument)
                 }
 
                 if (!IsNpc(ch)
-                    && number_percent() > ch->PCData->learned[gsn_pick_lock])
+                    && number_percent() > ch->pcdata->learned[gsn_pick_lock])
                 {
                         send_to_char("You failed.\n\r", ch);
                         learn_from_failure(ch, gsn_pick_lock);
@@ -3251,7 +3251,7 @@ CMDF do_pick(CharData * ch, char *argument)
         {
                 char      buf[MaxStringLength];
 
-                if (IsNpc(ch) || ch->PCData->learned[gsn_pickshiplock] == 0)
+                if (IsNpc(ch) || ch->pcdata->learned[gsn_pickshiplock] == 0)
                 {
                         send_to_char("Huh?\n\r", ch);
                         return;
@@ -3274,11 +3274,11 @@ CMDF do_pick(CharData * ch, char *argument)
 
                 WaitState(ch, 10);
 
-                if (IsNpc(ch) || !ch->PCData
+                if (IsNpc(ch) || !ch->pcdata
                     || (number_percent() >
-                        ch->PCData->learned[gsn_pickshiplock]
+                        ch->pcdata->learned[gsn_pickshiplock]
                         && (number_percent() / 2) >
-                        ch->PCData->learned[gsn_jimmyshiplock]))
+                        ch->pcdata->learned[gsn_jimmyshiplock]))
                 {
                         send_to_char("You failed.\n\r", ch);
                         snprintf(buf, MSL,
@@ -3352,7 +3352,7 @@ CMDF do_sneak(CharData * ch, char *argument)
         send_to_char("You attempt to move silently.\n\r", ch);
         affect_strip(ch, gsn_sneak);
 
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_sneak])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_sneak])
         {
                 af.type = gsn_sneak;
                 af.duration =
@@ -3392,7 +3392,7 @@ CMDF do_hide(CharData * ch, char *argument)
         if (IsAffected(ch, AffHide))
                 RemoveBit(ch->affected_by, AffHide);
 
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_hide])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_hide])
         {
                 SetBit(ch->affected_by, AffHide);
                 learn_from_success(ch, gsn_hide);
@@ -3423,7 +3423,7 @@ CMDF do_slight(CharData * ch, char *argument)
         if (IsSet(ch->act, PlrSecretive))
                 RemoveBit(ch->act, PlrSecretive);
 
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_slight])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_slight])
         {
                 SetBit(ch->act, PlrSecretive);
                 learn_from_success(ch, gsn_slight);
@@ -3469,7 +3469,7 @@ CMDF do_recall(CharData * ch, char *argument)
         {
                 AreaData *pArea;
 
-                if (!ch->PCData || !(pArea = ch->PCData->area))
+                if (!ch->pcdata || !(pArea = ch->pcdata->area))
                 {
                         send_to_char("Only builders can recall.\n\r", ch);
                         return;
@@ -3584,7 +3584,7 @@ CMDF do_aid(CharData * ch, char *argument)
 
         percent = number_percent() - (get_curr_lck(ch) - 13);
         WaitState(ch, skill_table[gsn_aid]->beats);
-        if (!IsNpc(ch) && percent > ch->PCData->learned[gsn_aid])
+        if (!IsNpc(ch) && percent > ch->pcdata->learned[gsn_aid])
         {
                 send_to_char("You fail.\n\r", ch);
                 learn_from_failure(ch, gsn_aid);
@@ -3610,7 +3610,7 @@ CMDF do_mount(CharData * ch, char *argument)
 {
         CharData *victim;
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_mount] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_mount] <= 0)
         {
                 send_to_char("I don't think that would be a good idea...\n\r",
                              ch);
@@ -3654,7 +3654,7 @@ CMDF do_mount(CharData * ch, char *argument)
         }
 
         WaitState(ch, skill_table[gsn_mount]->beats);
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_mount])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_mount])
         {
                 SetBit(victim->act, ActMounted);
                 ch->mount = victim;
@@ -3692,7 +3692,7 @@ CMDF do_dismount(CharData * ch, char *argument)
         }
 
         WaitState(ch, skill_table[gsn_mount]->beats);
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_mount])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_mount])
         {
                 act(AtSkill, "You dismount $N.", ch, NULL, victim, ToChar);
                 act(AtSkill, "$n skillfully dismounts $N.", ch, NULL, victim,
@@ -3756,7 +3756,7 @@ bool check_parry(CharData * ch, CharData * victim)
                             || (wield->value[3] != WeaponLightsaber))
                                 return FALSE;
                 }
-                chances = (int) (victim->PCData->learned[gsn_parry]);
+                chances = (int) (victim->pcdata->learned[gsn_parry]);
         }
 
         chances = URange(10, chances, 90);
@@ -3766,12 +3766,12 @@ bool check_parry(CharData * ch, CharData * victim)
                 learn_from_failure(victim, gsn_parry);
                 return FALSE;
         }
-        if (!IsNpc(victim) && !IsSet(victim->PCData->flags, PcflagGag))
+        if (!IsNpc(victim) && !IsSet(victim->pcdata->flags, PcflagGag))
                  /*SB*/ act(AtPlain,
                             "&p&PYou parry &O&Y$n's &W&Pattack.&R&W", ch,
                             NULL, victim, ToVict);
 
-        if (!IsNpc(ch) && !IsSet(ch->PCData->flags, PcflagGag))  /* SB */
+        if (!IsNpc(ch) && !IsSet(ch->pcdata->flags, PcflagGag))  /* SB */
                 act(AtPlain, "&Y$N &W&Pparries your attack.&R&W", ch, NULL,
                     victim, ToChar);
 
@@ -3797,7 +3797,7 @@ bool check_dodge(CharData * ch, CharData * victim)
         if (IsNpc(victim))
                 chances = UMin(60, victim->top_level);
         else
-                chances = (int) (victim->PCData->learned[gsn_dodge] / 2);
+                chances = (int) (victim->pcdata->learned[gsn_dodge] / 2);
 
         if (number_range(1, 100) > chances)
         {
@@ -3805,11 +3805,11 @@ bool check_dodge(CharData * ch, CharData * victim)
                 return FALSE;
         }
 
-        if (!IsNpc(victim) && !IsSet(victim->PCData->flags, PcflagGag))
+        if (!IsNpc(victim) && !IsSet(victim->pcdata->flags, PcflagGag))
                 act(AtPlain, "&cYou dodge &Y$n's&c attack.&R&W", ch, NULL,
                     victim, ToVict);
 
-        if (!IsNpc(ch) && !IsSet(ch->PCData->flags, PcflagGag))
+        if (!IsNpc(ch) && !IsSet(ch->pcdata->flags, PcflagGag))
                 act(AtPlain, "&Y$N&c dodges your attack.&R&W", ch, NULL,
                     victim, ToChar);
 
@@ -3825,7 +3825,7 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         int       percent;
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_poison_weapon] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_poison_weapon] <= 0)
         {
                 send_to_char("What do you think you are, a thief?\n\r", ch);
                 return;
@@ -3893,7 +3893,7 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
         /*
          * And does the thief have steady enough hands? 
          */
-        if (!IsNpc(ch) && (ch->PCData->condition[CondDrunk] > 0))
+        if (!IsNpc(ch) && (ch->pcdata->condition[CondDrunk] > 0))
         {
                 send_to_char
                         ("Your hands aren't steady enough to properly mix the poison.\n\r",
@@ -3909,7 +3909,7 @@ CMDF do_poison_weapon(CharData * ch, char *argument)
          */
         separate_obj(pobj);
         separate_obj(wobj);
-        if (!IsNpc(ch) && percent > ch->PCData->learned[gsn_poison_weapon])
+        if (!IsNpc(ch) && percent > ch->pcdata->learned[gsn_poison_weapon])
         {
                 set_char_color(AtRed, ch);
                 send_to_char
@@ -3977,7 +3977,7 @@ bool check_grip(CharData * ch, CharData * victim)
                 percent_chance = UMin(60, 2 * victim->top_level);
         else
                 percent_chance =
-                        (int) (victim->PCData->learned[gsn_grip] / 2);
+                        (int) (victim->pcdata->learned[gsn_grip] / 2);
 
         /*
          * Consider Luck as a factor 
@@ -4085,7 +4085,7 @@ CMDF do_circle(CharData * ch, char *argument)
         WaitState(ch, skill_table[gsn_circle]->beats);
         if (percent <
             (IsNpc(ch) ? (ch->skill_level[HuntingAbility] * 1.5) : ch->
-             PCData->learned[gsn_circle]))
+             pcdata->learned[gsn_circle]))
         {
                 learn_from_success(ch, gsn_circle);
                 global_retcode = multi_hit(ch, victim, gsn_circle);
@@ -4119,7 +4119,7 @@ CMDF do_berserk(CharData * ch, char *argument)
                 return;
         }
 
-        percent = IsNpc(ch) ? 80 : ch->PCData->learned[gsn_berserk];
+        percent = IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_berserk];
         WaitState(ch, skill_table[gsn_berserk]->beats);
         if (!chance(ch, percent))
         {
@@ -4170,7 +4170,7 @@ CMDF do_hitall(CharData * ch, char *argument)
                 send_to_char("There's no one here!\n\r", ch);
                 return;
         }
-        percent = IsNpc(ch) ? 80 : ch->PCData->learned[gsn_hitall];
+        percent = IsNpc(ch) ? 80 : ch->pcdata->learned[gsn_hitall];
         for (vch = ch->in_room->first_person; vch; vch = vch_next)
         {
                 vch_next = vch->next_in_room;
@@ -4239,7 +4239,7 @@ CMDF do_scan(CharData * ch, char *argument)
         act(AtGrey, "Scanning $t...", ch, dir_name[dir], NULL, ToChar);
         act(AtGrey, "$n scans $t.", ch, dir_name[dir], NULL, ToRoom);
 
-        if (IsNpc(ch) || (number_percent() > ch->PCData->learned[gsn_scan]))
+        if (IsNpc(ch) || (number_percent() > ch->pcdata->learned[gsn_scan]))
         {
                 act(AtGrey, "You stop scanning $t as your vision blurs.", ch,
                     dir_name[dir], NULL, ToChar);

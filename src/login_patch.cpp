@@ -37,7 +37,7 @@ void auto_link_character(DescriptorData *d, CharData *ch, AccountData *Account)
         return;
     
     // Link character to Account
-    ch->PCData->Account = Account;
+    ch->pcdata->Account = Account;
     
     // Skip password prompt for character
     d->connected = ConGetNewSex; // Move directly to gender selection

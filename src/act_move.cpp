@@ -235,8 +235,8 @@ const char *const room_sents[SectMax][25] = {
 int wherehome(CharData * ch)
 {
 
-        if (ch->PCData && ch->PCData->recall != 0)
-                return ch->PCData->recall;
+        if (ch->pcdata && ch->pcdata->recall != 0)
+                return ch->pcdata->recall;
 
         if (ch->plr_home)
                 return ch->plr_home->vnum;
@@ -981,7 +981,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                         {
                                 if ((!IsNpc(ch)
                                      && number_percent() >
-                                     ch->PCData->learned[gsn_climb]) || drunk
+                                     ch->pcdata->learned[gsn_climb]) || drunk
                                     || ch->mental_state < -90)
                                 {
                                         send_to_char
@@ -1000,7 +1000,7 @@ ch_ret move_char(CharData * ch, ExitData * pexit, int fall, bool running)
                                         {
                                                 if (!IsNpc(ch)
                                                     /*
-                                                     * !IsSet( ch->PCData->cyber, CyberLegs ) 
+                                                     * !IsSet( ch->pcdata->cyber, CyberLegs ) 
                                                      */
                                                         )
                                                 {
@@ -2036,7 +2036,7 @@ CMDF do_bashdoor(CharData * ch, [[maybe_unused]] const char *argument)
         ExitData *pexit;
         char      arg[MaxInputLength];
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_bashdoor] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_bashdoor] <= 0)
         {
                 send_to_char
                         ("You're not enough of a warrior to bash doors!\n\r",
@@ -2080,7 +2080,7 @@ CMDF do_bashdoor(CharData * ch, [[maybe_unused]] const char *argument)
                         keyword = pexit->keyword;
                 if (!IsNpc(ch))
                         percent_chance =
-                                ch->PCData->learned[gsn_bashdoor] / 2;
+                                ch->pcdata->learned[gsn_bashdoor] / 2;
                 else
                         percent_chance = 90;
 

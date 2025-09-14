@@ -62,13 +62,13 @@ CMDF do_propose(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (IsSet(ch->PCData->flags, PcflagMarried))
+        if (IsSet(ch->pcdata->flags, PcflagMarried))
         {
                 send_to_char("But you are already married!\n\r", ch);
                 return;
         }
 
-        if (ch->PCData->spouse && ch->PCData->spouse[0] != '\0')
+        if (ch->pcdata->spouse && ch->pcdata->spouse[0] != '\0')
         {
                 send_to_char("But you are already engaged!\n\r", ch);
                 return;
@@ -93,9 +93,9 @@ CMDF do_propose(CharData * ch, char *argument)
                 return;
         }
 
-        if (victim->PCData->spouse && victim->PCData->spouse[0] != '\0')
+        if (victim->pcdata->spouse && victim->pcdata->spouse[0] != '\0')
         {
-                if (IsSet(victim->PCData->flags, PcflagMarried))
+                if (IsSet(victim->pcdata->flags, PcflagMarried))
                         send_to_char("But they are already married!\n\r", ch);
                 else
                         send_to_char("But they are already engaged!\n\r", ch);
@@ -124,8 +124,8 @@ CMDF do_propose(CharData * ch, char *argument)
                 return;
         }
 
-        ch->PCData->propose = victim;
-        victim->PCData->propose = ch;
+        ch->pcdata->propose = victim;
+        victim->pcdata->propose = ch;
         act(AtWhite, "You propose marriage to $M.", ch, NULL, victim,
             ToChar);
         act(AtWhite, "$n gets down on one knee and proposes to $N.", ch,
@@ -144,13 +144,13 @@ CMDF do_accept(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if ((victim = ch->PCData->propose) == NULL)
+        if ((victim = ch->pcdata->propose) == NULL)
         {
                 send_to_char("Nobody proposed to you.", ch);
                 return;
         }
 
-        if (victim->PCData->propose != ch)
+        if (victim->pcdata->propose != ch)
         {
                 send_to_char
                         ("They seemed to have proposed to someone else in the mean time.",
@@ -164,28 +164,28 @@ CMDF do_accept(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsSet(ch->PCData->flags, PcflagMarried))
+        if (IsSet(ch->pcdata->flags, PcflagMarried))
         {
                 send_to_char("You are already married!\n\r", ch);
                 return;
         }
 
-        if (IsSet(victim->PCData->flags, PcflagMarried))
+        if (IsSet(victim->pcdata->flags, PcflagMarried))
         {
                 send_to_char("They are already married!\n\r", ch);
                 return;
         }
 
-        victim->PCData->propose = NULL;
-        ch->PCData->propose = NULL;
-        RemoveBit(ch->PCData->flags, PcflagMarried);
-        RemoveBit(victim->PCData->flags, PcflagMarried);
-        if (victim->PCData->spouse)
-                STRFREE(victim->PCData->spouse);
-        if (ch->PCData->spouse)
-                STRFREE(ch->PCData->spouse);
-        victim->PCData->spouse = STRALLOC(ch->name);
-        ch->PCData->spouse = STRALLOC(victim->name);
+        victim->pcdata->propose = NULL;
+        ch->pcdata->propose = NULL;
+        RemoveBit(ch->pcdata->flags, PcflagMarried);
+        RemoveBit(victim->pcdata->flags, PcflagMarried);
+        if (victim->pcdata->spouse)
+                STRFREE(victim->pcdata->spouse);
+        if (ch->pcdata->spouse)
+                STRFREE(ch->pcdata->spouse);
+        victim->pcdata->spouse = STRALLOC(ch->name);
+        ch->pcdata->spouse = STRALLOC(victim->name);
         act(AtWhite, "You accept $S offer of marriage.", ch, NULL, victim,
             ToChar);
         act(AtWhite, "$n accepts $N's offer of marriage.", ch, NULL, victim,
@@ -209,13 +209,13 @@ CMDF do_refuse(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if ((victim = ch->PCData->propose) == NULL)
+        if ((victim = ch->pcdata->propose) == NULL)
         {
                 send_to_char("Nobody proposed to you.", ch);
                 return;
         }
 
-        if (victim->PCData->propose != ch)
+        if (victim->pcdata->propose != ch)
         {
                 send_to_char
                         ("They seemed to have proposed to someone else in the mean time.",
@@ -229,20 +229,20 @@ CMDF do_refuse(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsSet(ch->PCData->flags, PcflagMarried))
+        if (IsSet(ch->pcdata->flags, PcflagMarried))
         {
                 send_to_char("You are already married!\n\r", ch);
                 return;
         }
 
-        if (IsSet(victim->PCData->flags, PcflagMarried))
+        if (IsSet(victim->pcdata->flags, PcflagMarried))
         {
                 send_to_char("They are already married!\n\r", ch);
                 return;
         }
 
-        victim->PCData->propose = NULL;
-        ch->PCData->propose = NULL;
+        victim->pcdata->propose = NULL;
+        ch->pcdata->propose = NULL;
 
         act(AtWhite, "$N refused $n's offer of engagement!", ch, NULL,
             victim, ToNotvict);
@@ -286,18 +286,18 @@ CMDF do_marry(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsSet(victim1->PCData->flags, PcflagMarried) ||
-            IsSet(victim2->PCData->flags, PcflagMarried))
+        if (IsSet(victim1->pcdata->flags, PcflagMarried) ||
+            IsSet(victim2->pcdata->flags, PcflagMarried))
         {
                 send_to_char("They are already married!\n\r", ch);
                 return;
         }
 
-        if (!str_cmp(victim1->name, victim2->PCData->spouse) &&
-            !str_cmp(victim2->name, victim1->PCData->spouse))
+        if (!str_cmp(victim1->name, victim2->pcdata->spouse) &&
+            !str_cmp(victim2->name, victim1->pcdata->spouse))
         {
-                SetBit(victim1->PCData->flags, PcflagMarried);
-                SetBit(victim2->PCData->flags, PcflagMarried);
+                SetBit(victim1->pcdata->flags, PcflagMarried);
+                SetBit(victim2->pcdata->flags, PcflagMarried);
                 save_char_obj(victim1);
                 save_char_obj(victim2);
                 act(AtWhite, "You are now married to $N! Congrats!", victim1,
@@ -349,23 +349,23 @@ CMDF do_divorce(CharData * ch, char *argument)
         }
 
 
-        if (!str_cmp(victim1->name, victim2->PCData->spouse) &&
-            !str_cmp(victim2->name, victim1->PCData->spouse))
+        if (!str_cmp(victim1->name, victim2->pcdata->spouse) &&
+            !str_cmp(victim2->name, victim1->pcdata->spouse))
         {
-                if (!IsSet(victim1->PCData->flags, PcflagMarried) ||
-                    !IsSet(victim2->PCData->flags, PcflagMarried))
+                if (!IsSet(victim1->pcdata->flags, PcflagMarried) ||
+                    !IsSet(victim2->pcdata->flags, PcflagMarried))
                 {
                         send_to_char("They are not married!\n\r", ch);
                         return;
                 }
 
-                RemoveBit(victim1->PCData->flags, PcflagMarried);
-                RemoveBit(victim2->PCData->flags, PcflagMarried);
-                STRFREE(victim1->PCData->spouse);
-                STRFREE(victim2->PCData->spouse);
+                RemoveBit(victim1->pcdata->flags, PcflagMarried);
+                RemoveBit(victim2->pcdata->flags, PcflagMarried);
+                STRFREE(victim1->pcdata->spouse);
+                STRFREE(victim2->pcdata->spouse);
 
-                victim1->PCData->spouse = STRALLOC("");
-                victim2->PCData->spouse = STRALLOC("");
+                victim1->pcdata->spouse = STRALLOC("");
+                victim2->pcdata->spouse = STRALLOC("");
 
                 save_char_obj(victim1);
                 save_char_obj(victim2);

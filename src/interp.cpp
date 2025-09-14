@@ -264,10 +264,10 @@ void interpret(CharData * ch, char *argument)
                      cmd = cmd->next)
                         if (!str_prefix(command, cmd->name)
                             && (check_command(ch, cmd)
-                                || (!IsNpc(ch) && ch->PCData->bestowments
-                                    && ch->PCData->bestowments[0] != '\0'
+                                || (!IsNpc(ch) && ch->pcdata->bestowments
+                                    && ch->pcdata->bestowments[0] != '\0'
                                     && is_name(cmd->name,
-                                               ch->PCData->bestowments))))
+                                               ch->pcdata->bestowments))))
                         {
                                 found = TRUE;
                                 break;
@@ -301,7 +301,7 @@ void interpret(CharData * ch, char *argument)
         {
                 if (found && IsSet(cmd->flags, CmdWatch))
                         write_watch_files(ch, cmd, logline);
-                else if (IsSet(ch->PCData->flags, PcflagWatch))
+                else if (IsSet(ch->pcdata->flags, PcflagWatch))
                         write_watch_files(ch, NULL, logline);
         }
 
@@ -896,16 +896,16 @@ bool check_command(CharData * ch, CMDType * command)
         if (command->level < (MaxLevel - 4))
                 return TRUE;
 
-        if (!ch || IsNpc(ch) || !ch->PCData || !ch->PCData->godflags)
+        if (!ch || IsNpc(ch) || !ch->pcdata || !ch->pcdata->godflags)
                 return FALSE;
 
-        if (command->perm_flags == 0 || IsSet(ch->PCData->godflags, ImmAll)
-            || IsSet(ch->PCData->godflags, ImmOwner)
+        if (command->perm_flags == 0 || IsSet(ch->pcdata->godflags, ImmAll)
+            || IsSet(ch->pcdata->godflags, ImmOwner)
             || IsSet(command->perm_flags, CommandAll))
                 return TRUE;
 
         for (i = 0; i < 32; i++)
-                if (IsSet(ch->PCData->godflags, 1 << i)
+                if (IsSet(ch->pcdata->godflags, 1 << i)
                     && IsSet(command->perm_flags, 1 << i))
                         return TRUE;
 
@@ -979,10 +979,10 @@ void write_watch_files(CharData * ch, CMDType * cmd, char *logline)
                                      || (pw->player_site
                                          && !str_prefix(pw->player_site,
                                                         ch->desc->host))
-                                     || (ch->PCData && ch->PCData->Account
+                                     || (ch->pcdata && ch->pcdata->Account
                                          && pw->player_account
                                          && !str_cmp(pw->player_account,
-                                                     ch->PCData->Account->
+                                                     ch->pcdata->Account->
                                                      name))))
                                 {
                                         sprintf(fname, "%s%s", WatchDir,
@@ -1016,10 +1016,10 @@ void write_watch_files(CharData * ch, CMDType * cmd, char *logline)
                              || (pw->player_site
                                  && !str_prefix(pw->player_site,
                                                 ch->desc->host))
-                             || (ch->PCData && ch->PCData->Account
+                             || (ch->pcdata && ch->pcdata->Account
                                  && pw->player_account
                                  && !str_cmp(pw->player_account,
-                                             ch->PCData->Account->name)))
+                                             ch->pcdata->Account->name)))
                             && get_trust(ch) < pw->imm_level && ch->desc)
                         {
                                 sprintf(fname, "%s%s", WatchDir,

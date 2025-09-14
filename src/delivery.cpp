@@ -277,7 +277,7 @@ CMDF do_deliver(CharData * ch, char *argument)
                         {
                                 send_to_char("You retrive your delivery.\n\r",
                                              ch);
-                                RemoveBit(ch->PCData->flags, PcflagGotmail);
+                                RemoveBit(ch->pcdata->flags, PcflagGotmail);
                         }
                         else if (errno != ENOENT)
                                 bug("Delivery unable to delete mailbox.\n\r",
@@ -621,6 +621,6 @@ CMDF do_deliver(CharData * ch, char *argument)
         act(AtMagic,
             "$n has sent you $p in the mail, and it is awaiting your pickup at the nearest post office.",
             ch, obj, victim, ToVict);
-        SetBit(victim->PCData->flags, PcflagGotmail);
+        SetBit(victim->pcdata->flags, PcflagGotmail);
         return;
 }

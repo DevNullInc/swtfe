@@ -1282,7 +1282,7 @@ bool could_dual(CharData * ch)
         if (IsSet(ch->bodyparts, BodyLHand)
             || IsSet(ch->bodyparts, BodyRHand))
                 return FALSE;
-        if (ch->PCData->learned[gsn_dual_wield])
+        if (ch->pcdata->learned[gsn_dual_wield])
                 return TRUE;
 
         return FALSE;

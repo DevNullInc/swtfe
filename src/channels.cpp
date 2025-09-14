@@ -125,9 +125,9 @@ char     *act_string(const char *format, CharData * to, CharData * ch,
 
 bool player_is_listening(CharData * ch, ChannelData * channel)
 {
-	if (IsNpc(ch) || !ch->PCData || !channel)
+	if (IsNpc(ch) || !ch->pcdata || !channel)
 		return FALSE;
-	if (!hasname(ch->PCData->listening, channel->name)) 
+	if (!hasname(ch->pcdata->listening, channel->name)) 
 		return FALSE;
         if (ch->top_level < channel->level)
                 return FALSE;
@@ -206,16 +206,16 @@ bool check_channel(CharData * ch, char *command, char *argument)
 
         if (channel->range == ChannelClan)
         {
-                if (!ch->PCData->clan)
+                if (!ch->pcdata->clan)
                 {
                         send_to_char("You are not in a clan!\n\r", ch);
                         return TRUE;
                 }
 
-                if (ch->PCData->clan->mainclan)
-                        clan = ch->PCData->clan->mainclan;
+                if (ch->pcdata->clan->mainclan)
+                        clan = ch->pcdata->clan->mainclan;
                 else
-                        clan = ch->PCData->clan;
+                        clan = ch->pcdata->clan;
         }
 
         if (channel->range == ChannelSystem)
@@ -393,7 +393,7 @@ bool check_channel(CharData * ch, char *command, char *argument)
                 vch = d->character;
 
                 if (IsPlaying(d) && vch != ch
-                    && hasname(och->PCData->listening, channel->name))
+                    && hasname(och->pcdata->listening, channel->name))
                 {
                         /*
                          * Ignoring Publicly 
@@ -425,10 +425,10 @@ bool check_channel(CharData * ch, char *command, char *argument)
                         }
                         if (channel->range == ChannelClan)
                         {
-                                if (!vch->PCData->clan)
+                                if (!vch->pcdata->clan)
                                         continue;
-                                if (vch->PCData->clan != clan
-                                    && vch->PCData->clan->mainclan != clan)
+                                if (vch->pcdata->clan != clan
+                                    && vch->pcdata->clan->mainclan != clan)
                                         continue;
                         }
                         if (channel->range == ChannelSystem)
@@ -1064,7 +1064,7 @@ CMDF do_listen(CharData * ch, char *argument)
                 send_to_char
                         ("You are listening to the following local mud channels:\n\r\n\r",
                          ch);
-                ch_printf(ch, "%s\n\r", ch->PCData->listening);
+                ch_printf(ch, "%s\n\r", ch->pcdata->listening);
                 return;
         }
 
@@ -1074,8 +1074,8 @@ CMDF do_listen(CharData * ch, char *argument)
                      channel = channel->next)
                 {
                         if (ch->top_level >= channel->level
-                            && !hasname(ch->PCData->listening, channel->name))
-                                addname(&ch->PCData->listening,
+                            && !hasname(ch->pcdata->listening, channel->name))
+                                addname(&ch->pcdata->listening,
                                         channel->name);
                 }
                 send_to_char
@@ -1089,8 +1089,8 @@ CMDF do_listen(CharData * ch, char *argument)
                 for (channel = first_channel; channel;
                      channel = channel->next)
                 {
-                        if (hasname(ch->PCData->listening, channel->name))
-                                removename(&ch->PCData->listening,
+                        if (hasname(ch->pcdata->listening, channel->name))
+                                removename(&ch->pcdata->listening,
                                            channel->name);
                 }
                 send_to_char
@@ -1099,9 +1099,9 @@ CMDF do_listen(CharData * ch, char *argument)
                 return;
         }
 
-        if (hasname(ch->PCData->listening, argument))
+        if (hasname(ch->pcdata->listening, argument))
         {
-                removename(&ch->PCData->listening, argument);
+                removename(&ch->pcdata->listening, argument);
                 ch_printf(ch, "You no longer listen to %s\n\r", argument);
         }
         else
@@ -1159,7 +1159,7 @@ CMDF do_listen(CharData * ch, char *argument)
                                      ch);
                         return;
                 }
-                addname(&ch->PCData->listening, channel->name);
+                addname(&ch->pcdata->listening, channel->name);
                 ch_printf(ch, "You now listen to %s\n\r", channel->name);
         }
         return;
@@ -1179,8 +1179,8 @@ CMDF do_channels(CharData * ch, char *argument)
                 }
 
                 if (argument[0] == '-') {
-                        if (hasname(ch->PCData->listening, argument))
-                                removename(&ch->PCData->listening, argument);
+                        if (hasname(ch->pcdata->listening, argument))
+                                removename(&ch->pcdata->listening, argument);
                         ch_printf(ch, "You no longer listen to %s\n\r", channel->name);
                 }
                 else {
@@ -1190,8 +1190,8 @@ CMDF do_channels(CharData * ch, char *argument)
                                                 ch);
                                 return;
                         }
-                        if (!hasname(ch->PCData->listening, argument))
-                                addname(&ch->PCData->listening, channel->name);
+                        if (!hasname(ch->pcdata->listening, argument))
+                                addname(&ch->pcdata->listening, channel->name);
                         ch_printf(ch, "You now listen to %s\n\r", channel->name);
                 }
                 return;
@@ -1218,7 +1218,7 @@ CMDF do_channels(CharData * ch, char *argument)
                         ch_printf(ch, "&B%-c&z%-16s &z[&w%9s&z]&D\n\r",
                                   Upper(channel->name[0]), channel->name + 1,
                                   (hasname
-                                   (victim->PCData->listening,
+                                   (victim->pcdata->listening,
                                     channel->name)) ? "Listening" : "");
         ch_printf(ch, "&BT&zells             &z[&w%9s&z]&D\n\r",
                   !IsSet(victim->deaf, ChannelTells) ? "Listening" : "");

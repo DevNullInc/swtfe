@@ -1318,9 +1318,9 @@ void hotboot(bool debug, bool save)
                         /*
                          * One of two places this gets changed 
                          */
-                        och->PCData->hotboot = TRUE;
+                        och->pcdata->hotboot = TRUE;
                         save_char_obj(och);
-                        save_account(och->PCData->Account);
+                        save_account(och->pcdata->Account);
                         save_home(och);
 #ifdef MCCP
                         compressEnd(d);
@@ -1521,10 +1521,10 @@ void hotboot_recover()
                         load_home(d->character);
                         d->connected = ConPlaying;
 #ifdef ACCOUNT
-                        d->Account = d->character->PCData->Account;
+                        d->Account = d->character->pcdata->Account;
 #endif
 
-                        if (d->character->PCData->area)
+                        if (d->character->pcdata->area)
                                 do_loadarea(d->character, "");
                 }
         }

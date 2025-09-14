@@ -241,7 +241,7 @@ CMDF do_track(CharData * ch, char *argument)
         char      buf[MaxStringLength];
         int       dir, maxdist;
 
-        if (!IsNpc(ch) && !ch->PCData->learned[gsn_track])
+        if (!IsNpc(ch) && !ch->pcdata->learned[gsn_track])
         {
                 send_to_char("You do not know of this skill yet.\n\r", ch);
                 return;
@@ -267,7 +267,7 @@ CMDF do_track(CharData * ch, char *argument)
         maxdist = 100 + ch->top_level * 30;
 
         if (!IsNpc(ch))
-                maxdist = (maxdist * ch->PCData->learned[gsn_track]) / 100;
+                maxdist = (maxdist * ch->pcdata->learned[gsn_track]) / 100;
 
         dir = find_first_step(ch->in_room, vict->in_room, maxdist);
         switch (dir)

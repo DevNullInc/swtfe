@@ -602,11 +602,11 @@ CMDF do_authorize(CharData * ch, char *argument)
         if (arg2[0] == '\0' || !str_cmp(arg2, "accept")
             || !str_cmp(arg2, "yes"))
         {
-                victim->PCData->AuthState = AuthStateAccepted;
-                RemoveBit(victim->PCData->flags, PcflagUnauthed);
-                if (victim->PCData->authed_by)
-                        STRFREE(victim->PCData->authed_by);
-                victim->PCData->authed_by = QUICKLINK(ch->name);
+                victim->pcdata->AuthState = AuthStateAccepted;
+                RemoveBit(victim->pcdata->flags, PcflagUnauthed);
+                if (victim->pcdata->authed_by)
+                        STRFREE(victim->pcdata->authed_by);
+                victim->pcdata->authed_by = QUICKLINK(ch->name);
                 snprintf(buf, MSL, "%s authorized %s", ch->name,
                          victim->name);
                 log_string_plus(buf, LogComm, ch->top_level);
@@ -643,7 +643,7 @@ CMDF do_authorize(CharData * ch, char *argument)
                           victim->name);
                 ch_printf(ch, "You requested %s change names.\n\r",
                           victim->name);
-                victim->PCData->AuthState = AuthStateDenied;
+                victim->pcdata->AuthState = AuthStateDenied;
                 return;
         }
 
@@ -663,8 +663,8 @@ CMDF do_bamfin(CharData * ch, char *argument)
         if (!IsNpc(ch))
         {
                 smash_tilde(argument);
-                STRFREE(ch->PCData->bamfin);
-                ch->PCData->bamfin = STRALLOC(argument);
+                STRFREE(ch->pcdata->bamfin);
+                ch->pcdata->bamfin = STRALLOC(argument);
                 send_to_char(OkResponse, ch);
         }
         return;
@@ -677,8 +677,8 @@ CMDF do_bamfout(CharData * ch, char *argument)
         if (!IsNpc(ch))
         {
                 smash_tilde(argument);
-                STRFREE(ch->PCData->bamfout);
-                ch->PCData->bamfout = STRALLOC(argument);
+                STRFREE(ch->pcdata->bamfout);
+                ch->pcdata->bamfout = STRALLOC(argument);
                 send_to_char(OkResponse, ch);
         }
         return;
@@ -696,11 +696,11 @@ CMDF do_rank(CharData * ch, char *argument)
         }
 
         smash_tilde(argument);
-        STRFREE(ch->PCData->rank);
+        STRFREE(ch->pcdata->rank);
         if (!str_cmp(argument, "none"))
-                ch->PCData->rank = STRALLOC(const_cast<char*>(""));
+                ch->pcdata->rank = STRALLOC(const_cast<char*>(""));
         else
-                ch->PCData->rank = STRALLOC(argument);
+                ch->pcdata->rank = STRALLOC(argument);
         send_to_char(OkResponse, ch);
 
         return;
@@ -951,7 +951,7 @@ CMDF do_retire(CharData * ch, char *argument)
 
         if (IsRetired(victim))
         {
-                RemoveBit(victim->PCData->flags, PcflagRetired);
+                RemoveBit(victim->pcdata->flags, PcflagRetired);
                 ch_printf(ch, "%s returns from retirement.\n\r",
                           victim->name);
                 ch_printf(victim, "%s brings you back from retirement.\n\r",
@@ -959,7 +959,7 @@ CMDF do_retire(CharData * ch, char *argument)
         }
         else
         {
-                SetBit(victim->PCData->flags, PcflagRetired);
+                SetBit(victim->pcdata->flags, PcflagRetired);
                 ch_printf(ch, "%s is now a retired immortal.\n\r",
                           victim->name);
                 ch_printf(victim,
@@ -1231,8 +1231,8 @@ void echo_to_clan(sh_int AtColor, char *argument, ClanData * clan)
                  * miss out on important info like upcoming reboots. --Narn 
                  */
                 if ((IsPlaying(d) || d->connected == ConEditing)
-                    && (d->character->PCData->clan
-                        && d->character->PCData->clan == clan))
+                    && (d->character->pcdata->clan
+                        && d->character->pcdata->clan == clan))
                 {
                         set_char_color(AtColor, d->character);
                         send_to_char(argument, d->character);
@@ -1635,7 +1635,7 @@ CMDF do_rstat(CharData * ch, char *argument)
         {
                 AreaData *pArea;
 
-                if (!ch->PCData || !(pArea = ch->PCData->area))
+                if (!ch->pcdata || !(pArea = ch->pcdata->area))
                 {
                         send_to_char
                                 ("You must have an assigned area to goto.\n\r",
@@ -1922,8 +1922,8 @@ CMDF do_oldmstat(CharData * ch, char *argument)
         {
                 ch_printf(ch, "Name: %s     Organization: %s\n\r",
                           victim->name,
-                          (!victim->PCData->clan) ? "(none)"
-                          : victim->PCData->clan->name);
+                          (!victim->pcdata->clan) ? "(none)"
+                          : victim->pcdata->clan->name);
         }
 
 
@@ -1932,12 +1932,12 @@ CMDF do_oldmstat(CharData * ch, char *argument)
                           "User: %s   Descriptor: %d   Trust: %d   AuthedBy: %s\n\r",
                           victim->desc->host, victim->desc->descriptor,
                           victim->trust,
-                          victim->PCData->authed_by[0] !=
-                          '\0' ? victim->PCData->authed_by : "(unknown)");
-        if (!IsNpc(victim) && victim->PCData->release_date != 0)
+                          victim->pcdata->authed_by[0] !=
+                          '\0' ? victim->pcdata->authed_by : "(unknown)");
+        if (!IsNpc(victim) && victim->pcdata->release_date != 0)
                 ch_printf(ch, "Helled until %24.24s by %s.\n\r",
-                          ctime(&victim->PCData->release_date),
-                          victim->PCData->helled_by);
+                          ctime(&victim->pcdata->release_date),
+                          victim->pcdata->helled_by);
 
         ch_printf(ch,
                   "Vnum: %d   Sex: %s   Room: %d   Count: %d  Killed: %d\n\r",
@@ -1947,7 +1947,7 @@ CMDF do_oldmstat(CharData * ch, char *argument)
                   victim->in_room == NULL ? 0 : victim->in_room->vnum,
                   IsNpc(victim) ? victim->pIndexData->count : 1,
                   IsNpc(victim) ? victim->pIndexData->killed : victim->
-                  PCData->mdeaths + victim->PCData->pdeaths);
+                  pcdata->mdeaths + victim->pcdata->pdeaths);
         ch_printf(ch,
                   "Str: %d  Int: %d  Wis: %d  Dex: %d  Con: %d  Cha: %d  Lck: %d  Frc: %d\n\r",
                   get_curr_str(victim), get_curr_int(victim),
@@ -1984,11 +1984,11 @@ CMDF do_oldmstat(CharData * ch, char *argument)
         if (!IsNpc(victim))
                 ch_printf(ch,
                           "Thirst: %d   Full: %d   Drunk: %d     Glory: %d/%d\n\r",
-                          victim->PCData->condition[CondThirst],
-                          victim->PCData->condition[CondFull],
-                          victim->PCData->condition[CondDrunk],
-                          victim->PCData->quest_curr,
-                          victim->PCData->quest_accum);
+                          victim->pcdata->condition[CondThirst],
+                          victim->pcdata->condition[CondFull],
+                          victim->pcdata->condition[CondDrunk],
+                          victim->pcdata->quest_curr,
+                          victim->pcdata->quest_accum);
         else
                 ch_printf(ch,
                           "Hit dice: %dd%d+%d.  Damage dice: %dd%d+%d.\n\r",
@@ -2024,18 +2024,18 @@ CMDF do_oldmstat(CharData * ch, char *argument)
                 ch_printf(ch, "Player flags: %s\n\r",
                           flag_string(victim->act, plr_flags));
                 ch_printf(ch, "Pcflags: %s\n\r",
-                          flag_string(victim->PCData->flags, pc_flags));
+                          flag_string(victim->pcdata->flags, pc_flags));
                 ch_printf(ch, "God flags: %s\n\r",
-                          flag_string(victim->PCData->godflags, const_cast<char* const*>(god_flags)));
+                          flag_string(victim->pcdata->godflags, const_cast<char* const*>(god_flags)));
                 /*
                  * Wanted information 
                  */
-                if (victim->PCData->first_wanted)
+                if (victim->pcdata->first_wanted)
                 {
                         WantedData *wanted = NULL;
 
                         send_to_char("Wanted: &Y", ch);
-                        for (wanted = victim->PCData->first_wanted; wanted;
+                        for (wanted = victim->pcdata->first_wanted; wanted;
                              wanted = wanted->next)
                         {
                                 if (wanted->government == NULL ||
@@ -2052,10 +2052,10 @@ CMDF do_oldmstat(CharData * ch, char *argument)
         ch_printf(ch, "Affected by: %s\n\r",
                   affect_bit_name(victim->affected_by));
         ch_printf(ch, "Speaking: %s\n\r", victim->speaking->name);
-        if (victim->PCData && victim->PCData->bestowments
-            && victim->PCData->bestowments[0] != '\0')
+        if (victim->pcdata && victim->pcdata->bestowments
+            && victim->pcdata->bestowments[0] != '\0')
                 ch_printf(ch, "Bestowments: %s\n\r",
-                          victim->PCData->bestowments);
+                          victim->pcdata->bestowments);
         ch_printf(ch, "Short description: %s\n\rLong  description: %s",
                   victim->short_descr,
                   victim->long_descr[0] !=
@@ -2783,7 +2783,7 @@ CMDF do_snoop(CharData * ch, char *argument)
          * makes the snooper think that the victim is already being snooped
          */
         if ((get_trust(ch) != MaxLevel && get_trust(victim) >= get_trust(ch))
-            || (victim->PCData && victim->PCData->min_snoop >= get_trust(ch)))
+            || (victim->pcdata && victim->pcdata->min_snoop >= get_trust(ch)))
         {
                 send_to_char("Busy already.\n\r", ch);
                 return;
@@ -2955,7 +2955,7 @@ CMDF do_minvoke(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!ch->PCData || !(pArea = ch->PCData->area))
+                if (!ch->pcdata || !(pArea = ch->pcdata->area))
                 {
                         send_to_char
                                 ("You must have an assigned area to invoke this mobile.\n\r",
@@ -3059,7 +3059,7 @@ CMDF do_oinvoke(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!ch->PCData || !(pArea = ch->PCData->area))
+                if (!ch->pcdata || !(pArea = ch->pcdata->area))
                 {
                         send_to_char
                                 ("You must have an assigned area to invoke this object.\n\r",
@@ -3314,7 +3314,7 @@ CMDF do_balzhur(CharData * ch, char *argument)
         victim->max_hit = 500;
         victim->max_endurance = 1000;
         for (sn = 0; sn < top_sn; sn++)
-                victim->PCData->learned[sn] = 0;
+                victim->pcdata->learned[sn] = 0;
         victim->hit = victim->max_hit;
         victim->endurance = victim->max_endurance;
 
@@ -3665,13 +3665,13 @@ CMDF do_immortalize(CharData * ch, char *argument)
                 if (skill_table[sn]->name
                     && (victim->skill_level[skill_table[sn]->guild] >=
                         skill_table[sn]->min_level))
-                        victim->PCData->learned[sn] = 100;
+                        victim->pcdata->learned[sn] = 100;
         }
         for (channel = first_channel; channel; channel = channel->next)
         {
                 if (victim->top_level >= channel->level
-                    && !hasname(victim->PCData->listening, channel->name))
-                        addname(&victim->PCData->listening, channel->name);
+                    && !hasname(victim->pcdata->listening, channel->name))
+                        addname(&victim->pcdata->listening, channel->name);
         }
 
         victim->trust = 0;
@@ -3746,7 +3746,7 @@ CMDF do_restore(CharData * ch, char *argument)
                 CharData *vch;
                 CharData *vch_next;
 
-                if (!ch->PCData)
+                if (!ch->pcdata)
                         return;
 
                 if (get_trust(ch) < LevelSubImplem)
@@ -3773,7 +3773,7 @@ CMDF do_restore(CharData * ch, char *argument)
                         }
                 }
                 last_restore_all_time = current_time;
-                ch->PCData->restore_time = current_time;
+                ch->pcdata->restore_time = current_time;
                 save_char_obj(ch);
                 send_to_char("Ok.\n\r", ch);
                 for (vch = first_char; vch; vch = vch_next)
@@ -3784,7 +3784,7 @@ CMDF do_restore(CharData * ch, char *argument)
                         {
                                 vch->hit = vch->max_hit;
                                 vch->endurance = vch->max_endurance;
-                                vch->PCData->condition[CondBloodthirst] =
+                                vch->pcdata->condition[CondBloodthirst] =
                                         (10 + vch->top_level);
                                 update_pos(vch);
                                 act(AtImmort, "$n has restored you.", ch,
@@ -3814,8 +3814,8 @@ CMDF do_restore(CharData * ch, char *argument)
 
                 victim->hit = victim->max_hit;
                 victim->endurance = victim->max_endurance;
-                if (victim->PCData)
-                        victim->PCData->condition[CondBloodthirst] =
+                if (victim->pcdata)
+                        victim->pcdata->condition[CondBloodthirst] =
                                 (10 + victim->top_level);
                 update_pos(victim);
                 if (ch != victim)
@@ -3843,16 +3843,16 @@ CMDF do_restoretime(CharData * ch, [[maybe_unused]] const char *argument)
                           hour, minute);
         }
 
-        if (!ch->PCData)
+        if (!ch->pcdata)
                 return;
 
-        if (!ch->PCData->restore_time)
+        if (!ch->pcdata->restore_time)
         {
                 send_to_char("You have never done a restore all.\n\r", ch);
                 return;
         }
 
-        time_passed = current_time - ch->PCData->restore_time;
+        time_passed = current_time - ch->pcdata->restore_time;
         hour = static_cast<int>(time_passed / 3600);
         minute = static_cast<int>((time_passed - (hour * 3600)) / 60);
         ch_printf(ch,
@@ -4153,15 +4153,15 @@ CMDF do_notitle(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsSet(victim->PCData->flags, PcflagNotitle))
+        if (IsSet(victim->pcdata->flags, PcflagNotitle))
         {
-                RemoveBit(victim->PCData->flags, PcflagNotitle);
+                RemoveBit(victim->pcdata->flags, PcflagNotitle);
                 send_to_char("You can set your own title again.\n\r", victim);
                 send_to_char("NOTITLE removed.\n\r", ch);
         }
         else
         {
-                SetBit(victim->PCData->flags, PcflagNotitle);
+                SetBit(victim->pcdata->flags, PcflagNotitle);
                 snprintf(buf, MSL, "%s", victim->name);
                 set_title(victim, buf);
                 send_to_char("You can't set your own title!\n\r", victim);
@@ -4498,7 +4498,7 @@ CMDF do_invis(CharData * ch, char *argument)
 
                 if (!IsNpc(ch))
                 {
-                        ch->PCData->wizinvis = level;
+                        ch->pcdata->wizinvis = level;
                         ch_printf(ch, "Wizinvis level set to %d.\n\r", level);
                 }
 
@@ -4512,8 +4512,8 @@ CMDF do_invis(CharData * ch, char *argument)
 
         if (!IsNpc(ch))
         {
-                if (ch->PCData->wizinvis < 2)
-                        ch->PCData->wizinvis = ch->top_level;
+                if (ch->pcdata->wizinvis < 2)
+                        ch->pcdata->wizinvis = ch->top_level;
         }
 
         if (IsNpc(ch))
@@ -4641,14 +4641,14 @@ CMDF do_rassign(CharData * ch, char *argument)
         }
         if (r_lo == 0)
                 r_hi = 0;
-        victim->PCData->r_range_lo = r_lo;
-        victim->PCData->r_range_hi = r_hi;
+        victim->pcdata->r_range_lo = r_lo;
+        victim->pcdata->r_range_hi = r_hi;
         assign_area(victim);
         send_to_char("Done.\n\r", ch);
         ch_printf(victim, "%s has assigned you the room range %d - %d.\n\r",
                   ch->name, r_lo, r_hi);
         assign_area(victim);    /* Put back by Thoric on 02/07/96 */
-        if (!victim->PCData->area)
+        if (!victim->pcdata->area)
         {
                 bug("rassign: assign_area failed", 0);
                 return;
@@ -4656,13 +4656,13 @@ CMDF do_rassign(CharData * ch, char *argument)
 
         if (r_lo == 0)  /* Scryn 8/12/95 */
         {
-                RemoveBit(victim->PCData->area->status, AreaLoaded);
-                SetBit(victim->PCData->area->status, AreaDeleted);
+                RemoveBit(victim->pcdata->area->status, AreaLoaded);
+                SetBit(victim->pcdata->area->status, AreaDeleted);
         }
         else
         {
-                SetBit(victim->PCData->area->status, AreaLoaded);
-                RemoveBit(victim->PCData->area->status, AreaDeleted);
+                SetBit(victim->pcdata->area->status, AreaLoaded);
+                RemoveBit(victim->pcdata->area->status, AreaDeleted);
         }
         return;
 }
@@ -4705,19 +4705,19 @@ CMDF do_vassign(CharData * ch, char *argument)
         }
         if (r_lo == 0)
                 r_hi = 0;
-        victim->PCData->r_range_lo = r_lo;
-        victim->PCData->r_range_hi = r_hi;
-        victim->PCData->o_range_lo = r_lo;
-        victim->PCData->o_range_hi = r_hi;
-        victim->PCData->m_range_lo = r_lo;
-        victim->PCData->m_range_hi = r_hi;
+        victim->pcdata->r_range_lo = r_lo;
+        victim->pcdata->r_range_hi = r_hi;
+        victim->pcdata->o_range_lo = r_lo;
+        victim->pcdata->o_range_hi = r_hi;
+        victim->pcdata->m_range_lo = r_lo;
+        victim->pcdata->m_range_hi = r_hi;
 
         assign_area(victim);
         send_to_char("Done.\n\r", ch);
         ch_printf(victim, "%s has assigned you the vnum range %d - %d.\n\r",
                   ch->name, r_lo, r_hi);
         assign_area(victim);    /* Put back by Thoric on 02/07/96 */
-        if (!victim->PCData->area)
+        if (!victim->pcdata->area)
         {
                 bug("rassign: assign_area failed", 0);
                 return;
@@ -4725,13 +4725,13 @@ CMDF do_vassign(CharData * ch, char *argument)
 
         if (r_lo == 0)  /* Scryn 8/12/95 */
         {
-                RemoveBit(victim->PCData->area->status, AreaLoaded);
-                SetBit(victim->PCData->area->status, AreaDeleted);
+                RemoveBit(victim->pcdata->area->status, AreaLoaded);
+                SetBit(victim->pcdata->area->status, AreaDeleted);
         }
         else
         {
-                SetBit(victim->PCData->area->status, AreaLoaded);
-                RemoveBit(victim->PCData->area->status, AreaDeleted);
+                SetBit(victim->pcdata->area->status, AreaLoaded);
+                RemoveBit(victim->pcdata->area->status, AreaDeleted);
         }
         return;
 }
@@ -4772,8 +4772,8 @@ CMDF do_oassign(CharData * ch, char *argument)
                 send_to_char("Unacceptable object range.\n\r", ch);
                 return;
         }
-        victim->PCData->o_range_lo = o_lo;
-        victim->PCData->o_range_hi = o_hi;
+        victim->pcdata->o_range_lo = o_lo;
+        victim->pcdata->o_range_hi = o_hi;
         assign_area(victim);
         send_to_char("Done.\n\r", ch);
         ch_printf(victim,
@@ -4818,8 +4818,8 @@ CMDF do_massign(CharData * ch, char *argument)
                 send_to_char("Unacceptable monster range.\n\r", ch);
                 return;
         }
-        victim->PCData->m_range_lo = m_lo;
-        victim->PCData->m_range_hi = m_hi;
+        victim->pcdata->m_range_lo = m_lo;
+        victim->pcdata->m_range_hi = m_hi;
         assign_area(victim);
         send_to_char("Done.\n\r", ch);
         ch_printf(victim,
@@ -5121,21 +5121,21 @@ CMDF do_bestowarea(CharData * ch, char *argument)
                 return;
         }
 
-        if (!victim->PCData->bestowments)
-                victim->PCData->bestowments = STRALLOC(const_cast<char*>(""));
+        if (!victim->pcdata->bestowments)
+                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
 
         if (!*argument || !str_cmp(argument, "list"))
         {
-                extract_area_names(victim->PCData->bestowments, buf);
+                extract_area_names(victim->pcdata->bestowments, buf);
                 ch_printf(ch, "Bestowed areas: %s\n\r", buf);
                 return;
         }
 
         if (!str_cmp(argument, "none"))
         {
-                remove_area_names(victim->PCData->bestowments, buf);
-                STRFREE(victim->PCData->bestowments);
-                victim->PCData->bestowments = STRALLOC(buf);
+                remove_area_names(victim->pcdata->bestowments, buf);
+                STRFREE(victim->pcdata->bestowments);
+                victim->pcdata->bestowments = STRALLOC(buf);
                 send_to_char("Done.\n\r", ch);
                 return;
         }
@@ -5150,9 +5150,9 @@ CMDF do_bestowarea(CharData * ch, char *argument)
                 return;
         }
 
-        snprintf(buf, MSL, "%s %s", victim->PCData->bestowments, argument);
-        STRFREE(victim->PCData->bestowments);
-        victim->PCData->bestowments = STRALLOC(buf);
+        snprintf(buf, MSL, "%s %s", victim->pcdata->bestowments, argument);
+        STRFREE(victim->pcdata->bestowments);
+        victim->pcdata->bestowments = STRALLOC(buf);
         ch_printf(victim, "%s has bestowed on you the area: %s\n\r",
                   ch->name, argument);
         send_to_char("Done.\n\r", ch);
@@ -5191,20 +5191,20 @@ CMDF do_bestow(CharData * ch, char *argument)
                 return;
         }
 
-        if (!victim->PCData->bestowments)
-                victim->PCData->bestowments = STRALLOC(const_cast<char*>(""));
+        if (!victim->pcdata->bestowments)
+                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
 
         if (argument[0] == '\0' || !str_cmp(argument, "show list"))
         {
                 ch_printf(ch, "Current bestowed commands on %s: %s.\n\r",
-                          victim->name, victim->PCData->bestowments);
+                          victim->name, victim->pcdata->bestowments);
                 return;
         }
 
         if (!str_cmp(argument, "none"))
         {
-                STRFREE(victim->PCData->bestowments);
-                victim->PCData->bestowments = STRALLOC(const_cast<char*>(""));
+                STRFREE(victim->pcdata->bestowments);
+                victim->pcdata->bestowments = STRALLOC(const_cast<char*>(""));
                 ch_printf(ch, "Bestowments removed from %s.\n\r",
                           victim->name);
                 ch_printf(victim,
@@ -5235,7 +5235,7 @@ CMDF do_bestow(CharData * ch, char *argument)
                         continue;
                 }
 
-                cmd_buf = victim->PCData->bestowments;
+                cmd_buf = victim->pcdata->bestowments;
                 cmd_buf = one_argument(cmd_buf, cmd_tmp);
                 while (cmd_tmp[0] != '\0')
                 {
@@ -5272,13 +5272,13 @@ CMDF do_bestow(CharData * ch, char *argument)
 
         /* Use two-stage buffer building to avoid truncation */
         buf[0] = '\0';
-        strncat(buf, victim->PCData->bestowments, MSL-1);
+        strncat(buf, victim->pcdata->bestowments, MSL-1);
         strncat(buf, " ", MSL-strlen(buf)-1);
         strncat(buf, arg_buf, MSL-strlen(buf)-1);
         buf[MSL-1] = '\0'; /* Ensure null termination */
-        STRFREE(victim->PCData->bestowments);
+        STRFREE(victim->pcdata->bestowments);
         smash_tilde(buf);
-        victim->PCData->bestowments = STRALLOC(buf);
+        victim->pcdata->bestowments = STRALLOC(buf);
         set_char_color(AtImmort, victim);
         ch_printf(victim, "%s has bestowed on you the command(s): %s\n\r",
                   ch->name, arg_buf);
@@ -6704,12 +6704,12 @@ CMDF do_hell(CharData * ch, char *argument)
                              ch);
                 return;
         }
-        if (victim->PCData->release_date != 0)
+        if (victim->pcdata->release_date != 0)
         {
                 ch_printf(ch,
                           "They are already in hell until %24.24s, by %s.\n\r",
-                          ctime(&victim->PCData->release_date),
-                          victim->PCData->helled_by);
+                          ctime(&victim->pcdata->release_date),
+                          victim->pcdata->helled_by);
                 return;
         }
         argument = one_argument(argument, arg);
@@ -6745,10 +6745,10 @@ CMDF do_hell(CharData * ch, char *argument)
                 tms->tm_hour += amt_of_time;
         else
                 tms->tm_mday += amt_of_time;
-        victim->PCData->release_date = mktime(tms);
-        victim->PCData->helled_by = STRALLOC(ch->name);
+        victim->pcdata->release_date = mktime(tms);
+        victim->pcdata->helled_by = STRALLOC(ch->name);
         ch_printf(ch, "%s will be released from hell at %24.24s.\n\r",
-                  victim->name, ctime(&victim->PCData->release_date));
+                  victim->name, ctime(&victim->pcdata->release_date));
         act(AtMagic, "$n disappears in a cloud of hellish light.", victim,
             NULL, ch, ToNotvict);
         char_from_room(victim);
@@ -6799,20 +6799,20 @@ CMDF do_unhell(CharData * ch, char *argument)
         do_look(victim, "auto");
         send_to_char("They have been released.\n\r", ch);
 
-        if (victim->PCData->helled_by)
+        if (victim->pcdata->helled_by)
         {
-                if (str_cmp(ch->name, victim->PCData->helled_by))
+                if (str_cmp(ch->name, victim->pcdata->helled_by))
                         ch_printf(ch,
                                   "(You should probably write a note to %s, explaining the early release.)\n\r",
-                                  victim->PCData->helled_by);
-                STRFREE(victim->PCData->helled_by);
-                victim->PCData->helled_by = NULL;
+                                  victim->pcdata->helled_by);
+                STRFREE(victim->pcdata->helled_by);
+                victim->pcdata->helled_by = NULL;
         }
 
         MOBtrigger = FALSE;
         act(AtMagic, "$n appears in a cloud of godly light.", victim, NULL,
             ch, ToNotvict);
-        victim->PCData->release_date = 0;
+        victim->pcdata->release_date = 0;
         save_char_obj(victim);
         return;
 }
@@ -6900,8 +6900,8 @@ CMDF do_sober(CharData * ch, char *argument)
                 return;
         }
 
-        if (victim->PCData)
-                victim->PCData->condition[CondDrunk] = 0;
+        if (victim->pcdata)
+                victim->pcdata->condition[CondDrunk] = 0;
         send_to_char("Ok.\n\r", ch);
         send_to_char("You feel sober again.\n\r", victim);
         return;
@@ -7819,12 +7819,12 @@ CMDF do_feed(CharData * ch, char *argument)
         }
 
 
-        condition = victim->PCData->condition[CondFull];
+        condition = victim->pcdata->condition[CondFull];
         amount = 48 - condition;
 
         gain_condition(victim, CondFull, amount);
 
-        condition = victim->PCData->condition[CondThirst];
+        condition = victim->pcdata->condition[CondThirst];
         amount = 48 - condition;
 
         gain_condition(victim, CondThirst, amount);
@@ -7852,27 +7852,27 @@ CMDF do_reward(CharData * ch, char *argument)
 			increase = atoi(argument);
 
         victim = get_char_world(ch, name);
-        if (!victim || !victim->PCData)
+        if (!victim || !victim->pcdata)
         {
                 send_to_char("They're not here.\n\r", ch);
                 return;
         }
 
-        /*if (victim->PCData->Account == ch->PCData->Account)
+        /*if (victim->pcdata->Account == ch->pcdata->Account)
         {
                 send_to_char("You cannot reward yourself!\n\r", ch);
                 return;
         }
 	*/
 #ifdef ACCOUNT
-        if (victim->PCData->Account)
+        if (victim->pcdata->Account)
         {
-                victim->PCData->Account->rppoints += increase;
-                victim->PCData->Account->rpcurrent += increase;
+                victim->pcdata->Account->rppoints += increase;
+                victim->pcdata->Account->rpcurrent += increase;
         }
         else
 #endif
-                victim->PCData->rp += increase;
+                victim->pcdata->rp += increase;
 
         if (str_cmp(argument, "silent"))
                 send_to_char
@@ -7880,8 +7880,8 @@ CMDF do_reward(CharData * ch, char *argument)
                          victim);
         snprintf(buf, MSL,"[AUTO COMMENT] I gave %s a reward of %d points\n\r",victim->name, increase);
 #ifdef ACCOUNT
-		comment_add_comment(ch,victim->PCData->Account, const_cast<char*>("Been rewarded for role-playing"), buf);
-        save_account(victim->PCData->Account);
+		comment_add_comment(ch,victim->pcdata->Account, const_cast<char*>("Been rewarded for role-playing"), buf);
+        save_account(victim->pcdata->Account);
 #endif
         send_to_char("Done.\n\r", ch);
 
@@ -7899,7 +7899,7 @@ CMDF do_punish(CharData * ch, char *argument)
                 return;
         }
         victim = get_char_world(ch, name);
-        if (!victim || !victim->PCData)
+        if (!victim || !victim->pcdata)
         {
                 send_to_char("They're not here.\n\r", ch);
                 return;
@@ -7907,21 +7907,21 @@ CMDF do_punish(CharData * ch, char *argument)
 
 
 #ifndef ACCOUNT
-        victim->PCData->rp--;
+        victim->pcdata->rp--;
 #else
-        if (victim->PCData->Account)
+        if (victim->pcdata->Account)
         {
-                victim->PCData->Account->rppoints--;
-                victim->PCData->Account->rpcurrent--;
+                victim->pcdata->Account->rppoints--;
+                victim->pcdata->Account->rpcurrent--;
         }
         else
-                victim->PCData->rp--;
+                victim->pcdata->rp--;
 #endif
         send_to_char
                 ("You've been punished by the gods for your poor role-playing skill!\n\r",
                  victim);
 #ifdef ACCOUNT
-        save_account(victim->PCData->Account);
+        save_account(victim->pcdata->Account);
 #endif
         send_to_char("Done.\n\r", ch);
 }
@@ -8202,7 +8202,7 @@ CMDF do_numsize(CharData * ch, char *argument)
 		ch_printf(ch, "Size of unsigned char:      %d\n\r", sizeof(unsigned char));
         ch_printf(ch, "Size of CharData:          %d\n\r", sizeof(CharData));
         ch_printf(ch, "Size of InstallationData:  %d\n\r", sizeof(InstallationData));
-        ch_printf(ch, "Size of PCData:            %d\n\r", sizeof(PCData));
+        ch_printf(ch, "Size of pcdata:            %d\n\r", sizeof(pcdata));
         ch_printf(ch, "Size of GodData:           %d\n\r", sizeof(GodData));
 }
 
@@ -8292,7 +8292,7 @@ CMDF do_pcrename(CharData * ch, char *argument)
         /*
          * Remember to change the names of the areas 
          */
-        if (victim->PCData->area)
+        if (victim->pcdata->area)
         {
                 char      filename[MaxStringLength];
                 char      newfilename[MaxStringLength];
@@ -8390,9 +8390,9 @@ CMDF do_pcrename(CharData * ch, char *argument)
          * Lets do clans now 
          */
         {
-                if (victim->PCData->clan)
+                if (victim->pcdata->clan)
                 {
-                        ClanData *clan = victim->PCData->clan;
+                        ClanData *clan = victim->pcdata->clan;
 
                         if (!str_cmp(victim->name, clan->leader))
                         {
@@ -8497,20 +8497,20 @@ CMDF do_pcrename(CharData * ch, char *argument)
         }
 
 #ifdef ACCOUNT
-        if (victim->PCData->Account)
+        if (victim->pcdata->Account)
         {
-                if (!del_from_account(victim->PCData->Account, victim))
+                if (!del_from_account(victim->pcdata->Account, victim))
                 {
                         bug("Failed to remove character from Account during rename", 0);
                 }
-                save_account(victim->PCData->Account);
+                save_account(victim->pcdata->Account);
         }
 #endif
 
         STRFREE(victim->name);
         victim->name = StrallocCapitalize(arg2);
-        STRFREE(victim->PCData->full_name);
-        victim->PCData->full_name = StrallocCapitalize(arg2);
+        STRFREE(victim->pcdata->full_name);
+        victim->pcdata->full_name = StrallocCapitalize(arg2);
         remove(backname);
         /*
          * Time to save to Force the affects to take place 
@@ -8519,13 +8519,13 @@ CMDF do_pcrename(CharData * ch, char *argument)
         save_finger(victim);
         save_home(victim);
 #ifdef ACCOUNT
-        if (victim->PCData->Account)
+        if (victim->pcdata->Account)
         {
-                if (!add_to_account(victim->PCData->Account, victim))
+                if (!add_to_account(victim->pcdata->Account, victim))
                 {
                         bug("Failed to add character to Account during rename", 0);
                 }
-                save_account(victim->PCData->Account);
+                save_account(victim->pcdata->Account);
         }
 #endif
         /*
@@ -8714,8 +8714,8 @@ CMDF do_listships(CharData * ch, char *argument)
                                           "&R[&WCo-Pilot&R]&B%-35s     %s.\n\r",
                                           ship->name, ship->starsystem->name);
                 }
-                else if (victim->PCData->clan
-                         && !str_cmp(ship->owner, victim->PCData->clan->name))
+                else if (victim->pcdata->clan
+                         && !str_cmp(ship->owner, victim->pcdata->clan->name))
                 {
                         if (ship->in_room)
                                 ch_printf(ch,
@@ -8964,7 +8964,7 @@ CMDF do_setrecall(CharData * ch, char *argument)
         else
                 vnum = atoi(argument);
 
-        ch->PCData->recall = vnum;
+        ch->pcdata->recall = vnum;
         ch_printf(ch, "&GRecall vnum set to %d.\n\r", vnum);
 }
 
@@ -9380,7 +9380,7 @@ CMDF do_watch(CharData * ch, char *argument)
                 strlcat(buf, arg2, MaxInputLength);
                 if ((vic = get_char_world(ch, buf)))    /* if vic is in game now */
                         if ((!IsNpc(vic)) && !str_cmp(arg2, vic->name))
-                                SetBit(vic->PCData->flags, PcflagWatch);
+                                SetBit(vic->pcdata->flags, PcflagWatch);
 
                 if (first_watch)    /* ins new watch if app */
                         for (pw = first_watch; pw; pw = pw->next)
@@ -9439,14 +9439,14 @@ CMDF do_watch(CharData * ch, char *argument)
                         vic = d->character;
                         if (!vic)
                                 continue;
-                        if (!vic->PCData)
+                        if (!vic->pcdata)
                                 continue;
-                        if (!vic->PCData->Account)
+                        if (!vic->pcdata->Account)
                                 continue;
                         if (!str_cmp
-                            (vic->PCData->Account->name,
+                            (vic->pcdata->Account->name,
                              pinsert->player_account))
-                                SetBit(vic->PCData->flags, PcflagWatch);
+                                SetBit(vic->pcdata->flags, PcflagWatch);
                 }
 
                 if (first_watch)    /* ins new watch if app */
@@ -9501,7 +9501,7 @@ CMDF do_watch(CharData * ch, char *argument)
                             && !str_prefix(pinsert->player_site,
                                            vic->desc->host)
                             && get_trust(vic) < pinsert->imm_level)
-                                SetBit(vic->PCData->flags, PcflagWatch);
+                                SetBit(vic->pcdata->flags, PcflagWatch);
 
                 if (first_watch)    /* ins new watch if app */
                         for (pw = first_watch; pw; pw = pw->next)
@@ -9707,7 +9707,7 @@ CMDF do_makebuilder(CharData * ch, char *argument)
                         extract_obj(victim->first_carrying);
         }
 
-        SetBit(victim->PCData->godflags, ImmBuilder);
+        SetBit(victim->pcdata->godflags, ImmBuilder);
         send_to_char("Character made into a builder now.", ch);
         snprintf(buf, MSL, "%s was made into a builder", victim->name);
         log_string_plus(buf, LogBuild, victim->top_level);
@@ -9798,19 +9798,19 @@ CMDF do_qpreward(CharData * ch, char *argument)
 			return;
 		}
         victim = get_char_world(ch, name);
-        if (!victim || !victim->PCData)
+        if (!victim || !victim->pcdata)
         {
                 send_to_char("They're not here.\n\r", ch);
                 return;
         }
 
 
-        victim->PCData->quest_curr += static_cast<sh_int>(increase);
+        victim->pcdata->quest_curr += static_cast<sh_int>(increase);
 
         send_to_char("You've been rewarded by the gods for your role-playing skill!\n\r", victim);
         snprintf(buf, MSL,"[AUTO COMMENT] I gave %s a reward of %d quest points\n\r",victim->name, increase);
-		comment_add_comment(ch,victim->PCData->Account, const_cast<char*>("Been rewarded"), buf);
-        save_account(victim->PCData->Account);
+		comment_add_comment(ch,victim->pcdata->Account, const_cast<char*>("Been rewarded"), buf);
+        save_account(victim->pcdata->Account);
         send_to_char("Done.\n\r", ch);
 
 }
@@ -9829,7 +9829,7 @@ CMDF do_stripaffects(CharData * ch, char *argument)
         }
 
         victim = get_char_world(ch, name);
-        if (!victim || !victim->PCData)
+        if (!victim || !victim->pcdata)
         {
                 send_to_char("They're not here.\n\r", ch);
                 return;

@@ -1330,7 +1330,7 @@ void send_to_pager_color(const char *txt, CharData * ch)
                 DescriptorData *d = ch->desc;
 
                 ch = d->original ? d->original : d->character;
-                if (IsNpc(ch) || !IsSet(ch->PCData->flags, PcflagPageron))
+                if (IsNpc(ch) || !IsSet(ch->pcdata->flags, PcflagPageron))
                 {
                         send_to_char_color(txt, d->character);
                         return;

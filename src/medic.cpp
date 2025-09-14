@@ -71,7 +71,7 @@ CMDF do_autopsy(CharData * ch, char *argument)
                         send_to_char("This only works on corpses!\n\r", ch);
                         return;
                 }
-                chance = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+                chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                              learned
                                                              [gsn_autopsy]);
 
@@ -116,7 +116,7 @@ CMDF do_autopsy(CharData * ch, char *argument)
                 send_to_char("This only works on corpses!\n\r", ch);
                 return;
         }
-        chance = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                      learned[gsn_autopsy]);
         act(AtImmort, "$n has finished $s work on the corpse.", ch, NULL,
             NULL, ToRoom);
@@ -238,7 +238,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_diagnose]);
+                        : (int) (ch->pcdata->learned[gsn_diagnose]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -305,7 +305,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_diagnose]);
+                : (int) (ch->pcdata->learned[gsn_diagnose]);
         if (number_percent() > percentage * 2 || (!checkmedpac))
         {
                 send_to_char("&RYou finish your notes on the patient.\n\r",
@@ -328,7 +328,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
 
         /*
          * We already check to see if its an NPC above. - Gavin
-         * if (!victim->PCData)
+         * if (!victim->pcdata)
          * return;
          */
 
@@ -336,7 +336,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
                 ("&b[&B|&b================================================================\n\r",
                  ch);
         ch_printf(ch, "&b[&B|&cMedical Report for&C:&z %-68s\n\r",
-                  victim->PCData->title);
+                  victim->pcdata->title);
         send_to_char
                 ("&b[&B|&b================================================================\n\r",
                  ch);
@@ -346,7 +346,7 @@ CMDF do_diagnose(CharData * ch, char *argument)
         ch_printf(ch, "&b[&B|&cCurrent ENDURANCE&C:&z %d\n\r",
                   victim->endurance);
         ch_printf(ch, "&b[&B|&cDisease&C:&z %s\n\r",
-                  capitalize(illness_list[victim->PCData->illness]));
+                  capitalize(illness_list[victim->pcdata->illness]));
         ch_printf(ch, "&b[&B|&cStrength&C:&z %d of a maximum %d\n\r",
                   get_curr_str(victim),
                   (victim->race->attr_modifier(AttrStrength) + 20));
@@ -429,7 +429,7 @@ CMDF do_splint(CharData * ch, char *argument)
                         ch_printf(ch, "Splint who's what?!?\n\r");
                         return;
                 }
-                chance = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+                chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                              learned
                                                              [gsn_splint]);
                 if (number_percent() < chance)
@@ -483,7 +483,7 @@ CMDF do_splint(CharData * ch, char *argument)
                 send_to_char("How do you expect to splint yourself?\n\r", ch);
                 return;
         }
-        chance = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                      learned[gsn_splint]);
 
         if (number_percent() > chance * 2)
@@ -566,7 +566,7 @@ CMDF do_first_aid(CharData * ch, char *argument)
 
         heal = number_range(1, 150);
 
-        if (heal > ch->PCData->learned[gsn_first_aid] * 2)
+        if (heal > ch->pcdata->learned[gsn_first_aid] * 2)
         {
                 ch_printf(ch, "You fail in your attempt at first aid.\n\r");
                 learn_from_failure(ch, gsn_first_aid);
@@ -674,7 +674,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                         return;
                 }
 
-                chance = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+                chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                              learned
                                                              [gsn_makemedkit]);
                 if (number_percent() < chance)
@@ -709,7 +709,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makemedkit]);
         vnum = ObjVnumMedkit;
 
@@ -748,7 +748,7 @@ CMDF do_makemedkit(CharData * ch, char *argument)
                 }
         }
 
-        chance = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        chance = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                      learned[gsn_makemedkit]);
 
         if (number_percent() > chance * 2 || (!checktool) || (!checkdrink)

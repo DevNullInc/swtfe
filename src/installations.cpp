@@ -609,7 +609,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if ((clan = ch->PCData->clan) == NULL || !ch->in_room->area->planet
+        if ((clan = ch->pcdata->clan) == NULL || !ch->in_room->area->planet
             || ch->in_room->area->planet->governed_by != clan)
         {
                 send_to_char("You do not belong to this planet's government.",
@@ -643,8 +643,8 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         }
 
 
-        if ((ch->PCData && ch->PCData->bestowments &&
-             is_name("installations", ch->PCData->bestowments)) ||
+        if ((ch->pcdata && ch->pcdata->bestowments &&
+             is_name("installations", ch->pcdata->bestowments)) ||
             !str_cmp(ch->name, clan->leader) ||
             !str_cmp(ch->name, clan->number1) ||
             !str_cmp(ch->name, clan->number2))
@@ -844,7 +844,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makebase]);
+                        : (int) (ch->pcdata->learned[gsn_makebase]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -924,7 +924,7 @@ CMDF do_makeinstallation(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makebase]);
+                : (int) (ch->pcdata->learned[gsn_makebase]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkbatt)
             || (!checksuper) || (!checkcir))
@@ -1240,10 +1240,10 @@ CMDF do_addpersonel(CharData * ch, char *argument)
         int       percentage, credits;
         InstallationData *installation;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
-        if (ch->PCData->clan == NULL)
+        if (ch->pcdata->clan == NULL)
         {
                 send_to_char("You are not in a clan.", ch);
                 return;
@@ -1262,11 +1262,11 @@ CMDF do_addpersonel(CharData * ch, char *argument)
                         return;
                 }
 
-                if ((ch->PCData->bestowments
-                     && is_name("installations", ch->PCData->bestowments))
-                    || !str_cmp(ch->name, ch->PCData->clan->leader)
-                    || !str_cmp(ch->name, ch->PCData->clan->number1)
-                    || str_cmp(ch->name, ch->PCData->clan->number2));
+                if ((ch->pcdata->bestowments
+                     && is_name("installations", ch->pcdata->bestowments))
+                    || !str_cmp(ch->name, ch->pcdata->clan->leader)
+                    || !str_cmp(ch->name, ch->pcdata->clan->number1)
+                    || str_cmp(ch->name, ch->pcdata->clan->number2));
                 else
                 {
                         send_to_char
@@ -1285,7 +1285,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
                 if ((installation =
                      installation_from_room(ch->in_room->vnum)) != NULL)
                 {
-                        if (installation->clan != ch->PCData->clan)
+                        if (installation->clan != ch->pcdata->clan)
                         {
                                 send_to_char
                                         ("&RYou can not place personel in another clans installation.\n\r",
@@ -1311,7 +1311,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
 					send_to_char("Options are:\n\r\tentranceguard\n\r\tguard\n\r\tcustoms\n\r\tdoctor\n\r", ch);
 					return;
 				}
-                if (ch->PCData->clan->funds <
+                if (ch->pcdata->clan->funds <
                     ch->skill_level[LeadershipAbility] * 30)
                 {
                         ch_printf(ch, "&RYou dont have enough credits.\n\r",
@@ -1319,7 +1319,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = (int) (ch->PCData->learned[gsn_addpersonel]);
+                percentage = (int) (ch->pcdata->learned[gsn_addpersonel]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1365,7 +1365,7 @@ CMDF do_addpersonel(CharData * ch, char *argument)
          */
         credits = ch->skill_level[LeadershipAbility] * 30;
         ch_printf(ch, "It cost you %d credits.\n\r", credits);
-        ch->PCData->clan->funds -= UMin(credits, ch->PCData->clan->funds);
+        ch->pcdata->clan->funds -= UMin(credits, ch->pcdata->clan->funds);
 
         learn_from_success(ch, gsn_addpersonel);
 
@@ -1489,7 +1489,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_lockdoor]);
+                        : (int) (ch->pcdata->learned[gsn_lockdoor]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1526,7 +1526,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_lockdoor]);
         vnum = 10438;
 
@@ -1555,7 +1555,7 @@ CMDF do_lockdoor(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_lockdoor]);
+                : (int) (ch->pcdata->learned[gsn_lockdoor]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura))
         {
@@ -1796,7 +1796,7 @@ CMDF do_makekey(CharData * ch, char *argument)
                         }
                 }
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makekey]);
+                        : (int) (ch->pcdata->learned[gsn_makekey]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1840,7 +1840,7 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makekey]);
         vnum = 10438;
 
@@ -1873,13 +1873,13 @@ CMDF do_makekey(CharData * ch, char *argument)
 
         if (!str_cmp(arg, "lock"))
                 percentage =
-                        IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                             learned
                                                             [gsn_makekey] /
                                                             4);
         else
                 percentage =
-                        IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                             learned
                                                             [gsn_makekey]);
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura))
@@ -2183,7 +2183,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_sabotage]);
+                        : (int) (ch->pcdata->learned[gsn_sabotage]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2302,7 +2302,7 @@ CMDF do_sabotage(CharData * ch, char *argument)
         }
 
         percentage =
-                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_sabotage]);
 
         if (number_percent() > percentage / 2 || (!checkchem) || (!checksuper)
@@ -2380,8 +2380,8 @@ void addroominstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
-            || ch->PCData->clan != installation->clan)
+        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
+            || ch->pcdata->clan != installation->clan)
         {
                 send_to_char
                         ("You must be in this installations clan to do that.\r\n",
@@ -2389,11 +2389,11 @@ void addroominstallation(CharData * ch, char *argument)
                 return;
         }
 
-        if ((ch->PCData && ch->PCData->bestowments
-             && is_name("installations", ch->PCData->bestowments))
-            || !str_cmp(ch->name, ch->PCData->clan->leader)
-            || !str_cmp(ch->name, ch->PCData->clan->number1)
-            || !str_cmp(ch->name, ch->PCData->clan->number2))
+        if ((ch->pcdata && ch->pcdata->bestowments
+             && is_name("installations", ch->pcdata->bestowments))
+            || !str_cmp(ch->name, ch->pcdata->clan->leader)
+            || !str_cmp(ch->name, ch->pcdata->clan->number1)
+            || !str_cmp(ch->name, ch->pcdata->clan->number2))
                 ;
         else
         {

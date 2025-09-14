@@ -202,12 +202,12 @@ CMDF do_renumber(CharData * ch, char *argument)
         }
         if (ch->top_level == LevelSavior)
         {
-                if (area->low_r_vnum < ch->PCData->r_range_lo
-                    || area->hi_r_vnum > ch->PCData->r_range_hi
-                    || area->low_m_vnum < ch->PCData->m_range_lo
-                    || area->hi_m_vnum > ch->PCData->m_range_hi
-                    || area->low_o_vnum < ch->PCData->o_range_lo
-                    || area->hi_o_vnum > ch->PCData->o_range_hi)
+                if (area->low_r_vnum < ch->pcdata->r_range_lo
+                    || area->hi_r_vnum > ch->pcdata->r_range_hi
+                    || area->low_m_vnum < ch->pcdata->m_range_lo
+                    || area->hi_m_vnum > ch->pcdata->m_range_hi
+                    || area->low_o_vnum < ch->pcdata->o_range_lo
+                    || area->hi_o_vnum > ch->pcdata->o_range_hi)
                 {
                         ch_printf(ch,
                                   "You can't renumber that area ('%s').\n\r",
@@ -226,12 +226,12 @@ CMDF do_renumber(CharData * ch, char *argument)
          */
         if (ch->top_level == LevelSavior)
         {
-                if (r_area->low_room < ch->PCData->r_range_lo
-                    || r_area->hi_room > ch->PCData->r_range_hi
-                    || r_area->low_obj < ch->PCData->o_range_lo
-                    || r_area->hi_obj > ch->PCData->o_range_hi
-                    || r_area->low_mob < ch->PCData->m_range_lo
-                    || r_area->hi_mob > ch->PCData->m_range_hi)
+                if (r_area->low_room < ch->pcdata->r_range_lo
+                    || r_area->hi_room > ch->pcdata->r_range_hi
+                    || r_area->low_obj < ch->pcdata->o_range_lo
+                    || r_area->hi_obj > ch->pcdata->o_range_hi
+                    || r_area->low_mob < ch->pcdata->m_range_lo
+                    || r_area->hi_mob > ch->pcdata->m_range_hi)
                 {
                         ch_printf(ch,
                                   "The renumbered area would be outside your assigned vnum range.\n\r");

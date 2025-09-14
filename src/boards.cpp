@@ -100,11 +100,11 @@ bool can_read(CharData * ch, BoardData * board)
          */
         if (board->read_group[0] != '\0')
         {
-                if (ch->PCData->clan
-                    && !str_cmp(ch->PCData->clan->name, board->read_group))
+                if (ch->pcdata->clan
+                    && !str_cmp(ch->pcdata->clan->name, board->read_group))
                         return TRUE;
-                if (ch->PCData->clan && ch->PCData->clan->mainclan
-                    && !str_cmp(ch->PCData->clan->mainclan->name,
+                if (ch->pcdata->clan && ch->pcdata->clan->mainclan
+                    && !str_cmp(ch->pcdata->clan->mainclan->name,
                                 board->read_group))
                         return TRUE;
 
@@ -130,11 +130,11 @@ bool can_post(CharData * ch, BoardData * board)
          */
         if (board->post_group[0] != '\0')
         {
-                if (ch->PCData->clan
-                    && !str_cmp(ch->PCData->clan->name, board->post_group))
+                if (ch->pcdata->clan
+                    && !str_cmp(ch->pcdata->clan->name, board->post_group))
                         return TRUE;
-                if (ch->PCData->clan && ch->PCData->clan->mainclan
-                    && !str_cmp(ch->PCData->clan->mainclan->name,
+                if (ch->pcdata->clan && ch->pcdata->clan->mainclan
+                    && !str_cmp(ch->pcdata->clan->mainclan->name,
                                 board->post_group))
                         return TRUE;
         }

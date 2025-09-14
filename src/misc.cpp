@@ -65,7 +65,7 @@ CMDF do_buyhome(CharData * ch, char *argument)
         if (!ch->in_room)
                 return;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         if (ch->plr_home != NULL)
@@ -149,7 +149,7 @@ CMDF do_sellhome(CharData * ch, char *argument)
         if (!ch->in_room)
                 return;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         if (ch->plr_home == NULL)
@@ -245,43 +245,43 @@ CMDF do_clone(CharData * ch, char *argument)
         ch->gold = 5000;
         played = ch->played;
         ch->played = ch->played / 2;
-        bank = ch->PCData->bank;
-        ch->PCData->bank = 0;
+        bank = ch->pcdata->bank;
+        ch->pcdata->bank = 0;
         home = ch->plr_home;
         ch->plr_home = NULL;
         bodyparts = ch->bodyparts;
         ch->bodyparts = 0;
         for (i = 0; i < MaxImplantTypes; i++)
         {
-                implants[i] = ch->PCData->implants[i];
-                ch->PCData->implants[i] = -1;
+                implants[i] = ch->pcdata->implants[i];
+                ch->pcdata->implants[i] = -1;
         }
-        if (ch->PCData->clan)
+        if (ch->pcdata->clan)
         {
-                clan = ch->PCData->clan;
-                ch->PCData->clan = NULL;
-                mudstrlcpy(bestowments, ch->PCData->bestowments, MSL);
-                STRFREE(ch->PCData->bestowments);
-                ch->PCData->bestowments = STRALLOC("");
+                clan = ch->pcdata->clan;
+                ch->pcdata->clan = NULL;
+                mudstrlcpy(bestowments, ch->pcdata->bestowments, MSL);
+                STRFREE(ch->pcdata->bestowments);
+                ch->pcdata->bestowments = STRALLOC("");
         }
 
         save_clone(ch);
 
         if (clan)
         {
-                ch->PCData->clan = clan;
-                STRFREE(ch->PCData->bestowments);
-                ch->PCData->bestowments = STRALLOC(bestowments);
+                ch->pcdata->clan = clan;
+                STRFREE(ch->pcdata->bestowments);
+                ch->pcdata->bestowments = STRALLOC(bestowments);
         }
         for (i = 0; i < MaxImplantTypes; i++)
         {
-                ch->PCData->implants[i] = implants[i];
+                ch->pcdata->implants[i] = implants[i];
         }
         ch->bodyparts = bodyparts;
         ch->plr_home = home;
         ch->played = played;
         ch->gold = credits;
-        ch->PCData->bank = bank;
+        ch->pcdata->bank = bank;
         ch->act = flags;
         char_from_room(ch);
         char_to_room(ch, get_room_index(10002));
@@ -330,13 +330,13 @@ CMDF do_arm(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 ch_printf(ch, "You have no idea how to do that.\n\r");
                 return;
         }
 
-        if (ch->PCData->learned[gsn_grenades] <= 0)
+        if (ch->pcdata->learned[gsn_grenades] <= 0)
         {
                 ch_printf(ch, "You have no idea how to do that.\n\r");
                 return;
@@ -993,12 +993,12 @@ CMDF do_takedrug(CharData * ch, char *argument)
 
                 gain_condition(ch, CondThirst, 1);
 
-                ch->PCData->drug_level[drug] =
-                        UMin(ch->PCData->drug_level[drug] + obj->value[1],
+                ch->pcdata->drug_level[drug] =
+                        UMin(ch->pcdata->drug_level[drug] + obj->value[1],
                              255);
-                if (ch->PCData->drug_level[drug] >= 255
-                    || ch->PCData->drug_level[drug] >
-                    (ch->PCData->addiction[drug] + 100))
+                if (ch->pcdata->drug_level[drug] >= 255
+                    || ch->pcdata->drug_level[drug] >
+                    (ch->pcdata->addiction[drug] + 100))
                 {
                         act(AtPoison, "$n sputters and gags.", ch, NULL,
                             NULL, ToRoom);
@@ -1010,7 +1010,7 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.type = gsn_poison;
                         af.location = ApplyInt;
                         af.modifier = -5;
-                        af.duration = ch->PCData->drug_level[drug];
+                        af.duration = ch->pcdata->drug_level[drug];
                         af.bitvector = AffPoison;
                         affect_to_char(ch, &af);
                         ch->hit = 1;
@@ -1029,8 +1029,8 @@ CMDF do_takedrug(CharData * ch, char *argument)
                                 af.modifier = -10;
                                 af.duration =
                                         URange(1,
-                                               ch->PCData->drug_level[drug] -
-                                               ch->PCData->addiction[drug],
+                                               ch->pcdata->drug_level[drug] -
+                                               ch->pcdata->addiction[drug],
                                                obj->value[1]);
                                 af.bitvector = AffTruesight;
                                 affect_to_char(ch, &af);
@@ -1047,8 +1047,8 @@ CMDF do_takedrug(CharData * ch, char *argument)
                                 af.modifier = 0;
                                 af.duration =
                                         URange(1,
-                                               ch->PCData->drug_level[drug] -
-                                               ch->PCData->addiction[drug],
+                                               ch->pcdata->drug_level[drug] -
+                                               ch->pcdata->addiction[drug],
                                                obj->value[1]);
                                 af.bitvector = AffSanctuary;
                                 affect_to_char(ch, &af);
@@ -1062,8 +1062,8 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.modifier = 1;
                         af.duration =
                                 URange(1,
-                                       2 * (ch->PCData->drug_level[drug] -
-                                            ch->PCData->addiction[drug]),
+                                       2 * (ch->pcdata->drug_level[drug] -
+                                            ch->pcdata->addiction[drug]),
                                        2 * obj->value[1]);
                         af.bitvector = AffNone;
                         affect_to_char(ch, &af);
@@ -1073,8 +1073,8 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.modifier = 1;
                         af.duration =
                                 URange(1,
-                                       2 * (ch->PCData->drug_level[drug] -
-                                            ch->PCData->addiction[drug]),
+                                       2 * (ch->pcdata->drug_level[drug] -
+                                            ch->pcdata->addiction[drug]),
                                        2 * obj->value[1]);
                         af.bitvector = AffNone;
                         affect_to_char(ch, &af);
@@ -1088,8 +1088,8 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.modifier = 10;
                         af.duration =
                                 URange(1,
-                                       2 * (ch->PCData->drug_level[drug] -
-                                            ch->PCData->addiction[drug]),
+                                       2 * (ch->pcdata->drug_level[drug] -
+                                            ch->pcdata->addiction[drug]),
                                        2 * obj->value[1]);
                         af.bitvector = AffNone;
                         affect_to_char(ch, &af);
@@ -1099,8 +1099,8 @@ CMDF do_takedrug(CharData * ch, char *argument)
                         af.modifier = 1;
                         af.duration =
                                 URange(1,
-                                       2 * (ch->PCData->drug_level[drug] -
-                                            ch->PCData->addiction[drug]),
+                                       2 * (ch->pcdata->drug_level[drug] -
+                                            ch->pcdata->addiction[drug]),
                                        2 * obj->value[1]);
                         af.bitvector = AffNone;
                         affect_to_char(ch, &af);
@@ -1656,7 +1656,7 @@ CMDF do_drink(CharData * ch, char *argument)
         if (obj->count > 1 && obj->item_type != ItemFountain)
                 separate_obj(obj);
 
-        if (!IsNpc(ch) && ch->PCData->condition[CondDrunk] > 40)
+        if (!IsNpc(ch) && ch->pcdata->condition[CondDrunk] > 40)
         {
                 send_to_char("You fail to reach your mouth.  *Hic*\n\r", ch);
                 return;
@@ -1703,7 +1703,7 @@ CMDF do_drink(CharData * ch, char *argument)
                 }
 
                 if (!IsNpc(ch))
-                        ch->PCData->condition[CondThirst] = 40;
+                        ch->pcdata->condition[CondThirst] = 40;
                 break;
 
         case ItemDrinkCon:
@@ -1745,30 +1745,30 @@ CMDF do_drink(CharData * ch, char *argument)
 
                 if (!IsNpc(ch))
                 {
-                        if (ch->PCData->condition[CondDrunk] > 24)
+                        if (ch->pcdata->condition[CondDrunk] > 24)
                                 send_to_char("You feel quite sloshed.\n\r",
                                              ch);
-                        else if (ch->PCData->condition[CondDrunk] > 18)
+                        else if (ch->pcdata->condition[CondDrunk] > 18)
                                 send_to_char("You feel very drunk.\n\r", ch);
-                        else if (ch->PCData->condition[CondDrunk] > 12)
+                        else if (ch->pcdata->condition[CondDrunk] > 12)
                                 send_to_char("You feel drunk.\n\r", ch);
-                        else if (ch->PCData->condition[CondDrunk] > 8)
+                        else if (ch->pcdata->condition[CondDrunk] > 8)
                                 send_to_char("You feel a little drunk.\n\r",
                                              ch);
-                        else if (ch->PCData->condition[CondDrunk] > 5)
+                        else if (ch->pcdata->condition[CondDrunk] > 5)
                                 send_to_char("You feel light headed.\n\r",
                                              ch);
 
-                        if (ch->PCData->condition[CondFull] > 40)
+                        if (ch->pcdata->condition[CondFull] > 40)
                                 send_to_char("You are full.\n\r", ch);
 
-                        if (ch->PCData->condition[CondThirst] > 40)
+                        if (ch->pcdata->condition[CondThirst] > 40)
                                 send_to_char("You feel bloated.\n\r", ch);
-                        else if (ch->PCData->condition[CondThirst] > 36)
+                        else if (ch->pcdata->condition[CondThirst] > 36)
                                 send_to_char
                                         ("Your stomach is sloshing around.\n\r",
                                          ch);
-                        else if (ch->PCData->condition[CondThirst] > 30)
+                        else if (ch->pcdata->condition[CondThirst] > 30)
                                 send_to_char("You do not feel thirsty.\n\r",
                                              ch);
                 }
@@ -1843,7 +1843,7 @@ CMDF do_eat(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsNpc(ch) || ch->PCData->condition[CondFull] > 5)
+        if (IsNpc(ch) || ch->pcdata->condition[CondFull] > 5)
                 if (ms_find_obj(ch))
                         return;
 
@@ -1864,7 +1864,7 @@ CMDF do_eat(CharData * ch, char *argument)
                         return;
                 }
 
-                if (!IsNpc(ch) && ch->PCData->condition[CondFull] > 40)
+                if (!IsNpc(ch) && ch->pcdata->condition[CondFull] > 40)
                 {
                         send_to_char("You are too full to eat more.\n\r", ch);
                         return;
@@ -1909,14 +1909,14 @@ CMDF do_eat(CharData * ch, char *argument)
                 {
                         int       condition;
 
-                        condition = ch->PCData->condition[CondFull];
+                        condition = ch->pcdata->condition[CondFull];
                         gain_condition(ch, CondFull,
                                        (obj->value[0] * foodcond) / 10);
                         if (condition <= 1
-                            && ch->PCData->condition[CondFull] > 1)
+                            && ch->pcdata->condition[CondFull] > 1)
                                 send_to_char("You are no longer hungry.\n\r",
                                              ch);
-                        else if (ch->PCData->condition[CondFull] > 40)
+                        else if (ch->pcdata->condition[CondFull] > 40)
                                 send_to_char("You are full.\n\r", ch);
                 }
 
@@ -1966,13 +1966,13 @@ CMDF do_eat(CharData * ch, char *argument)
                 {
                         int       condition;
 
-                        condition = ch->PCData->condition[CondFull];
+                        condition = ch->pcdata->condition[CondFull];
                         gain_condition(ch, CondFull, obj->value[4]);
                         if (condition <= 1
-                            && ch->PCData->condition[CondFull] > 1)
+                            && ch->pcdata->condition[CondFull] > 1)
                                 send_to_char("You are no longer hungry.\n\r",
                                              ch);
-                        else if (ch->PCData->condition[CondFull] > 40)
+                        else if (ch->pcdata->condition[CondFull] > 40)
                                 send_to_char("You are full.\n\r", ch);
                 }
                 retcode =
@@ -2048,8 +2048,8 @@ CMDF do_quaff(CharData * ch, char *argument)
          * Fullness checking                    -Thoric
          */
         if (!IsNpc(ch)
-            && (ch->PCData->condition[CondFull] >= 48
-                || ch->PCData->condition[CondThirst] >= 48))
+            && (ch->pcdata->condition[CondFull] >= 48
+                || ch->pcdata->condition[CondThirst] >= 48))
         {
                 send_to_char("Your stomach cannot contain any more.\n\r", ch);
                 return;
@@ -3227,8 +3227,8 @@ CMDF do_train(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        ch->PCData->Account->rpcurrent -= 3;
-        save_account(ch->PCData->Account);
+        ch->pcdata->Account->rpcurrent -= 3;
+        save_account(ch->pcdata->Account);
 
         if (!str_cmp(arg, "str") || !str_cmp(arg, "Strength"))
         {
@@ -3291,7 +3291,7 @@ CMDF do_suicide(CharData * ch, char *argument)
 {
         char      logbuf[MaxStringLength];
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 send_to_char("Yeah right!\n\r", ch);
                 return;
@@ -3305,7 +3305,7 @@ CMDF do_suicide(CharData * ch, char *argument)
                 return;
         }
 
-        if (!verify_password(argument, ch->PCData->pwd))
+        if (!verify_password(argument, ch->pcdata->pwd))
         {
                 send_to_char("Sorry wrong password.\n\r", ch);
                 snprintf(logbuf, MSL,
@@ -3349,7 +3349,7 @@ CMDF do_bank(CharData * ch, char *argument)
         argument = one_argument(argument, arg1);
         argument = one_argument(argument, arg2);
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         if (!ch->in_room || !IsSet(ch->in_room->RoomFlags, RoomBank))
@@ -3390,7 +3390,7 @@ CMDF do_bank(CharData * ch, char *argument)
                 }
 
                 ch->gold -= amount;
-                ch->PCData->bank += amount;
+                ch->pcdata->bank += amount;
 
                 ch_printf(ch,
                           "You deposit %ld credits into your Account.\n\r",
@@ -3408,7 +3408,7 @@ CMDF do_bank(CharData * ch, char *argument)
                         return;
                 }
 
-                if (ch->PCData->bank < amount)
+                if (ch->pcdata->bank < amount)
                 {
                         send_to_char
                                 ("You don't have that many credits in your Account.\n\r",
@@ -3417,7 +3417,7 @@ CMDF do_bank(CharData * ch, char *argument)
                 }
 
                 ch->gold += amount;
-                ch->PCData->bank -= amount;
+                ch->pcdata->bank -= amount;
 
                 ch_printf(ch,
                           "You withdraw %ld credits from your Account.\n\r",
@@ -3428,7 +3428,7 @@ CMDF do_bank(CharData * ch, char *argument)
         else if (!str_prefix(arg1, "balance"))
         {
                 ch_printf(ch, "You have %ld credits in your Account.\n\r",
-                          ch->PCData->bank);
+                          ch->pcdata->bank);
                 return;
         }
         else
@@ -3459,7 +3459,7 @@ CMDF do_invest( CharData *ch, char *argument )
     
     argument = one_argument( argument , arg1 );
     
-    if ( IsNpc(ch) || !ch->PCData )
+    if ( IsNpc(ch) || !ch->pcdata )
        return;
     
     if (!ch->in_room || !IsSet(ch->in_room->RoomFlags, RoomBank) )
@@ -3745,20 +3745,20 @@ CMDF do_sendmail(CharData * ch, char *argument)
                 return;
 
         case SubNone:
-                if (ch->PCData->sendmail)
-                        STRFREE(ch->PCData->sendmail);
-                ch->PCData->sendmail = STRALLOC("");
+                if (ch->pcdata->sendmail)
+                        STRFREE(ch->pcdata->sendmail);
+                ch->pcdata->sendmail = STRALLOC("");
                 ch->substate = SubWritingEmail;
                 ch->dest_buf = str_dup(passargument);
-                start_editing(ch, ch->PCData->sendmail);
+                start_editing(ch, ch->pcdata->sendmail);
                 return;
 
         case SubWritingEmail:
-                STRFREE(ch->PCData->sendmail);
+                STRFREE(ch->pcdata->sendmail);
                 if (ch->dest_buf)
                         DISPOSE(ch->dest_buf);
-                ch->PCData->sendmail = copy_buffer(ch);
-                send_email(argument, arg1, ch->PCData->sendmail, ch);
+                ch->pcdata->sendmail = copy_buffer(ch);
+                send_email(argument, arg1, ch->pcdata->sendmail, ch);
                 bug("-------------%s is sending an email to %s-------------\n\r", ch->name, arg1);
                 stop_editing(ch);
                 return;

@@ -1097,7 +1097,7 @@ CMDF do_reset(CharData * ch, char *argument)
         if (ch->substate == SubRepeatCmd)
         {
                 pArea = (AreaData *) ch->dest_buf;
-                if (pArea && pArea != ch->PCData->area
+                if (pArea && pArea != ch->pcdata->area
                     && pArea != ch->in_room->area)
                 {
                         AreaData *tmp;
@@ -1146,16 +1146,16 @@ CMDF do_reset(CharData * ch, char *argument)
                                 break;
                         }
                 if (!pArea)
-                        pArea = !IsNpc(ch) ? ch->PCData->
+                        pArea = !IsNpc(ch) ? ch->pcdata->
                                 area : ((ch->desc && ch->desc->original) ?
-                                        ch->desc->original->PCData->
+                                        ch->desc->original->pcdata->
                                         area : NULL);
                 ;
                 if (!pArea)
                         pArea = ch->in_room->area;
         }
         else
-                pArea = ch->PCData->area;
+                pArea = ch->pcdata->area;
         if (!pArea)
         {
                 send_to_char("You do not have an assigned area.\n\r", ch);
@@ -1307,8 +1307,8 @@ CMDF do_instaroom(CharData * ch, char *argument)
         bool      dodoors;
         char      arg[MaxInputLength];
 
-        if (IsNpc(ch) || get_trust(ch) < LevelSavior || !ch->PCData ||
-            !ch->PCData->area)
+        if (IsNpc(ch) || get_trust(ch) < LevelSavior || !ch->pcdata ||
+            !ch->pcdata->area)
         {
                 send_to_char
                         ("You don't have an assigned area to create resets for.\n\r",
@@ -1320,7 +1320,7 @@ CMDF do_instaroom(CharData * ch, char *argument)
                 dodoors = FALSE;
         else
                 dodoors = TRUE;
-        pArea = ch->PCData->area;
+        pArea = ch->pcdata->area;
         if (!(pRoom = find_room(ch, arg, NULL)))
         {
                 send_to_char("Room doesn't exist.\n\r", ch);
@@ -1346,8 +1346,8 @@ CMDF do_instazone(CharData * ch, char *argument)
         RoomIndexData *pRoom;
         bool      dodoors;
 
-        if (IsNpc(ch) || get_trust(ch) < LevelSavior || !ch->PCData ||
-            !ch->PCData->area)
+        if (IsNpc(ch) || get_trust(ch) < LevelSavior || !ch->pcdata ||
+            !ch->pcdata->area)
         {
                 send_to_char
                         ("You don't have an assigned area to create resets for.\n\r",
@@ -1358,7 +1358,7 @@ CMDF do_instazone(CharData * ch, char *argument)
                 dodoors = FALSE;
         else
                 dodoors = TRUE;
-        pArea = ch->PCData->area;
+        pArea = ch->pcdata->area;
         if (pArea->first_reset)
                 wipe_resets(pArea, NULL);
         for (vnum = pArea->low_r_vnum; vnum <= pArea->hi_r_vnum; vnum++)

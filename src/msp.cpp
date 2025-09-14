@@ -74,8 +74,8 @@ CMDF do_testsound(CharData * ch, char *argument)
 void reset_sound(CharData * ch)
 {
 #ifdef ACCOUNT
-        if (ch->PCData->Account
-            && !IsSet(ch->PCData->Account->flags, AccountSound))
+        if (ch->pcdata->Account
+            && !IsSet(ch->pcdata->Account->flags, AccountSound))
                 return;
 #endif
         if (!IsSet(ch->act, PlrSound))
@@ -86,8 +86,8 @@ void reset_sound(CharData * ch)
 void reset_music(CharData * ch)
 {
 #ifdef ACCOUNT
-        if (ch->PCData->Account
-            && !IsSet(ch->PCData->Account->flags, AccountSound))
+        if (ch->pcdata->Account
+            && !IsSet(ch->pcdata->Account->flags, AccountSound))
                 return;
 #endif
         if (!IsSet(ch->act, PlrSound))
@@ -132,8 +132,8 @@ void sound_to_char(CharData * ch, char *sound)
         if (IsNpc(ch))
                 return;
 #ifdef ACCOUNT
-        if (ch->PCData->Account
-            && !IsSet(ch->PCData->Account->flags, AccountSound))
+        if (ch->pcdata->Account
+            && !IsSet(ch->pcdata->Account->flags, AccountSound))
                 return;
 #endif
         if (!IsSet(ch->act, PlrSound))
@@ -154,9 +154,9 @@ CMDF do_sound(CharData * ch, char *argument)
                 bool      sound = FALSE;
 
 #ifdef ACCOUNT
-                if (ch->PCData->Account)
+                if (ch->pcdata->Account)
                 {
-                        if (IsSet(ch->PCData->Account->flags, AccountSound))
+                        if (IsSet(ch->pcdata->Account->flags, AccountSound))
                                 sound = TRUE;
                 }
                 else
@@ -171,8 +171,8 @@ CMDF do_sound(CharData * ch, char *argument)
         if (!str_cmp(argument, "on"))
         {
 #ifdef ACCOUNT
-                if (ch->PCData->Account)
-                        SetBit(ch->PCData->Account->flags, AccountSound);
+                if (ch->pcdata->Account)
+                        SetBit(ch->pcdata->Account->flags, AccountSound);
                 else
 #endif
                         SetBit(ch->act, PlrSound);
@@ -184,8 +184,8 @@ CMDF do_sound(CharData * ch, char *argument)
         else if (!str_cmp(argument, "off"))
         {
 #ifdef ACCOUNT
-                if (ch->PCData->Account)
-                        RemoveBit(ch->PCData->Account->flags, AccountSound);
+                if (ch->pcdata->Account)
+                        RemoveBit(ch->pcdata->Account->flags, AccountSound);
 #endif
                 RemoveBit(ch->act, PlrSound);
                 send_to_char("Okay... SOUND support is now off\n\r", ch);
@@ -204,8 +204,8 @@ CMDF do_sound(CharData * ch, char *argument)
         else if (!str_cmp(argument, "toggle"))
         {
 #ifdef ACCOUNT
-                if (ch->PCData->Account)
-                        ToggleBit(ch->PCData->Account->flags, AccountSound);
+                if (ch->pcdata->Account)
+                        ToggleBit(ch->pcdata->Account->flags, AccountSound);
                 else
 #endif
                         ToggleBit(ch->act, PlrSound);

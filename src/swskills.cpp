@@ -146,7 +146,7 @@ CMDF do_makeblade(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makeblade]);
+                        : (int) (ch->pcdata->learned[gsn_makeblade]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -183,7 +183,7 @@ CMDF do_makeblade(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeblade]);
         vnum = 10422;
 
@@ -224,7 +224,7 @@ CMDF do_makeblade(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makeblade]);
+                : (int) (ch->pcdata->learned[gsn_makeblade]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura)
             || (!checkbatt) || (!checkoven))
@@ -380,7 +380,7 @@ CMDF do_makefurniture(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makefurniture]);
+                        : (int) (ch->pcdata->learned[gsn_makefurniture]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -421,7 +421,7 @@ CMDF do_makefurniture(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
                                                     [gsn_makefurniture]);
         vnum = 10433;
@@ -475,7 +475,7 @@ CMDF do_makefurniture(CharData * ch, char *argument)
         obj = NULL;
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makefurniture]);
+                : (int) (ch->pcdata->learned[gsn_makefurniture]);
 
         if (number_percent() > percentage * 2 || (!checkfab) || (!checksew)
             || (!checkdura) || (!checktool))
@@ -658,7 +658,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makebowcaster]);
+                        : (int) (ch->pcdata->learned[gsn_makebowcaster]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -695,7 +695,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
                                                     [gsn_makebowcaster]);
         vnum = 10419;
@@ -755,7 +755,7 @@ CMDF do_makebowcaster(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makebowcaster]);
+                : (int) (ch->pcdata->learned[gsn_makebowcaster]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura)
             || (!checkbatt) || (!checkoven) || (!checkcond) || (!checkcirc))
@@ -942,7 +942,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makeblaster]);
+                        : (int) (ch->pcdata->learned[gsn_makeblaster]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -979,7 +979,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeblaster]);
         vnum = 10420;
 
@@ -1063,7 +1063,7 @@ CMDF do_makeblaster(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makeblaster]);
+                : (int) (ch->pcdata->learned[gsn_makeblaster]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura)
             || (!checkbatt) || (!checkoven) || (!checkcond) || (!checkcirc))
@@ -1160,7 +1160,7 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
         AffectData *paf;
         AffectData *paf2;
 
-        if (ch->PCData->learned[gsn_lightsaber_crafting] < 1)
+        if (ch->pcdata->learned[gsn_lightsaber_crafting] < 1)
         {
                 send_to_char("Huh?\n\r", ch);
                 return;
@@ -1292,7 +1292,7 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->
+                        : (int) (ch->pcdata->
                                  learned[gsn_lightsaber_crafting]);
                 if (number_percent() < percentage)
                 {
@@ -1330,7 +1330,7 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
                                                     [gsn_lightsaber_crafting]);
         vnum = 10421;
@@ -1428,7 +1428,7 @@ CMDF do_makelightsaber(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_lightsaber_crafting]);
+                : (int) (ch->pcdata->learned[gsn_lightsaber_crafting]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura)
             || (!checkbatt) || (!checkoven) || (!checkmirr) || (!checklens)
@@ -1565,7 +1565,7 @@ CMDF do_makespice(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_spice_refining]);
+                        : (int) (ch->pcdata->learned[gsn_spice_refining]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1616,7 +1616,7 @@ CMDF do_makespice(CharData * ch, char *argument)
         separate_obj(obj);
 
         obj->value[1] = URange(10, obj->value[1], (IsNpc(ch) ? ch->top_level
-                                                   : (int) (ch->PCData->
+                                                   : (int) (ch->pcdata->
                                                             learned
                                                             [gsn_spice_refining]))
                                + 10);
@@ -1744,7 +1744,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makegrenade]);
+                        : (int) (ch->pcdata->learned[gsn_makegrenade]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -1781,7 +1781,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makegrenade]);
         vnum = 10425;
 
@@ -1837,7 +1837,7 @@ CMDF do_makegrenade(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makegrenade]);
+                : (int) (ch->pcdata->learned[gsn_makegrenade]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdrink)
             || (!checkbatt) || (!checkchem) || (!checkcirc))
@@ -1984,7 +1984,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makelandmine]);
+                        : (int) (ch->pcdata->learned[gsn_makelandmine]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2021,7 +2021,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
                                                     [gsn_makelandmine]);
         vnum = 10427;
@@ -2078,7 +2078,7 @@ CMDF do_makelandmine(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makelandmine]);
+                : (int) (ch->pcdata->learned[gsn_makelandmine]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdrink)
             || (!checkbatt) || (!checkchem) || (!checkcirc))
@@ -2220,7 +2220,7 @@ CMDF do_makelight(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makelight]);
+                        : (int) (ch->pcdata->learned[gsn_makelight]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2257,7 +2257,7 @@ CMDF do_makelight(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makelight]);
         vnum = 10428;
 
@@ -2311,7 +2311,7 @@ CMDF do_makelight(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makelight]);
+                : (int) (ch->pcdata->learned[gsn_makelight]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checklens)
             || (!checkbatt) || (!checkchem) || (!checkcirc))
@@ -2490,7 +2490,7 @@ CMDF do_makejewelry(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makejewelry]);
+                        : (int) (ch->pcdata->learned[gsn_makejewelry]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2531,7 +2531,7 @@ CMDF do_makejewelry(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makejewelry]);
 
         checkmetal = FALSE;
@@ -2563,7 +2563,7 @@ CMDF do_makejewelry(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makejewelry]);
+                : (int) (ch->pcdata->learned[gsn_makejewelry]);
 
         if (number_percent() > percentage * 2 || (!checkoven) || (!checktool)
             || (!checkmetal))
@@ -2718,7 +2718,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makearmor]);
+                        : (int) (ch->pcdata->learned[gsn_makearmor]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -2759,7 +2759,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makearmor]);
 
         checksew = FALSE;
@@ -2779,7 +2779,7 @@ CMDF do_makearmor(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makearmor]);
+                : (int) (ch->pcdata->learned[gsn_makearmor]);
 
         if (number_percent() > percentage * 2 || (!checkfab) || (!checksew))
         {
@@ -2935,7 +2935,7 @@ CMDF do_makecomlink(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makecomlink]);
+                        : (int) (ch->pcdata->learned[gsn_makecomlink]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -3023,7 +3023,7 @@ CMDF do_makecomlink(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makecomlink]);
+                : (int) (ch->pcdata->learned[gsn_makecomlink]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkcirc)
             || (!checkbatt) || (!checkgem))
@@ -3168,7 +3168,7 @@ CMDF do_makeshield(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makeshield]);
+                        : (int) (ch->pcdata->learned[gsn_makeshield]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -3205,7 +3205,7 @@ CMDF do_makeshield(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeshield]);
         vnum = 10429;
 
@@ -3263,7 +3263,7 @@ CMDF do_makeshield(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makeshield]);
+                : (int) (ch->pcdata->learned[gsn_makeshield]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkbatt)
             || (!checkgems) || (!checkcond) || (!checkcirc))
@@ -3432,7 +3432,7 @@ CMDF do_makecontainer(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makecontainer]);
+                        : (int) (ch->pcdata->learned[gsn_makecontainer]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -3474,11 +3474,11 @@ CMDF do_makecontainer(CharData * ch, char *argument)
         ch->substate = SubNone;
 
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned
                                                     [gsn_makecontainer]);
 
-        if (ch->PCData->learned[gsn_makecontainer] == 100)
+        if (ch->pcdata->learned[gsn_makecontainer] == 100)
                 capacity = level * 2;
         else
                 capacity = level;
@@ -3500,7 +3500,7 @@ CMDF do_makecontainer(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makecontainer]);
+                : (int) (ch->pcdata->learned[gsn_makecontainer]);
 
         if (number_percent() > percentage * 2 || (!checkfab) || (!checksew))
         {
@@ -3640,7 +3640,7 @@ CMDF do_gemcutting(CharData * ch, char *argument)
 
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_gemcutting]);
+                        : (int) (ch->pcdata->learned[gsn_gemcutting]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -3674,7 +3674,7 @@ CMDF do_gemcutting(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_gemcutting]);
         vnum = 10432;
 
@@ -3711,7 +3711,7 @@ CMDF do_gemcutting(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_gemcutting]);
+                : (int) (ch->pcdata->learned[gsn_gemcutting]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkgems))
         {
@@ -3826,7 +3826,7 @@ CMDF do_reinforcements(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         int       percentage, credits;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         mudstrlcpy(arg, argument, MIL);
@@ -3843,7 +3843,7 @@ CMDF do_reinforcements(CharData * ch, char *argument)
                 }
                 /*
                  * players can now do this
-                 * if ( !ch->PCData->clan )
+                 * if ( !ch->pcdata->clan )
                  * {
                  * send_to_char( "&RYou need to be a member of an organization before you can call for reinforcements.\n\r", ch );
                  * return;
@@ -3865,7 +3865,7 @@ CMDF do_reinforcements(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = (int) (ch->PCData->learned[gsn_reinforcements]);
+                percentage = (int) (ch->pcdata->learned[gsn_reinforcements]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -3911,9 +3911,9 @@ CMDF do_reinforcements(CharData * ch, char *argument)
 
 
 /* removed   
-    if ( nifty_is_name( "empire" , ch->PCData->clan->name ) )
+    if ( nifty_is_name( "empire" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumStormtrooper;
-    else if ( nifty_is_name( "republic" , ch->PCData->clan->name ) )
+    else if ( nifty_is_name( "republic" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumNrTrooper;
     else
        ch->backup_mob = MobVnumMercinary;
@@ -3934,7 +3934,7 @@ CMDF do_postguard(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         int       percentage, credits;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         mudstrlcpy(arg, argument, MIL);
@@ -3950,7 +3950,7 @@ CMDF do_postguard(CharData * ch, char *argument)
                 }
                 /*
                  * removed as players can now have guards.
-                 * if ( !ch->PCData->clan )
+                 * if ( !ch->pcdata->clan )
                  * {
                  * send_to_char( "&RYou need to be a member of an organization before you can call for a guard.\n\r", ch );
                  * return;
@@ -3971,7 +3971,7 @@ CMDF do_postguard(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = (int) (ch->PCData->learned[gsn_postguard]);
+                percentage = (int) (ch->pcdata->learned[gsn_postguard]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -4018,9 +4018,9 @@ CMDF do_postguard(CharData * ch, char *argument)
 
 /* no longer use this
     
-    if ( nifty_is_name( "empire" , ch->PCData->clan->name ) )
+    if ( nifty_is_name( "empire" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumImpGuard;
-    else if ( nifty_is_name( "republic" , ch->PCData->clan->name ) )
+    else if ( nifty_is_name( "republic" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumNrGuard;
     else
        ch->backup_mob = MobVnumBouncer;
@@ -4041,7 +4041,7 @@ CMDF do_add_patrol(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         int       percentage, credits;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         mudstrlcpy(arg, argument, MIL);
@@ -4058,7 +4058,7 @@ CMDF do_add_patrol(CharData * ch, char *argument)
                 }
                 /*
                  * removed as players can now have guards.
-                 * if ( !ch->PCData->clan )
+                 * if ( !ch->pcdata->clan )
                  * {
                  * send_to_char( "&RYou need to be a member of an organization before you can call for a guard.\n\r", ch );
                  * return;
@@ -4079,7 +4079,7 @@ CMDF do_add_patrol(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = (int) (ch->PCData->learned[gsn_add_patrol]);
+                percentage = (int) (ch->pcdata->learned[gsn_add_patrol]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -4127,9 +4127,9 @@ CMDF do_add_patrol(CharData * ch, char *argument)
 
 /* no longer use this
     
-    if ( nifty_is_name( "empire" , ch->PCData->clan->name ) )
+    if ( nifty_is_name( "empire" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumImpGuard;
-    else if ( nifty_is_name( "republic" , ch->PCData->clan->name ) )
+    else if ( nifty_is_name( "republic" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumNrGuard;
     else
        ch->backup_mob = MobVnumBouncer;
@@ -4249,7 +4249,7 @@ void add_reinforcements(CharData * ch)
 
                 mob = create_mobile(pMobIndex);
                 char_to_room(mob, ch->in_room);
-                if (ch->PCData && ch->PCData->clan)
+                if (ch->pcdata && ch->pcdata->clan)
                 {
 
                         if (mob->name)
@@ -4257,10 +4257,10 @@ void add_reinforcements(CharData * ch)
                         mob->name = STRALLOC("Elite guard");;
                         stralloc_printf(&mob->long_descr,
                                         "(%s) Elite Guard\n",
-                                        ch->PCData->clan->name);
+                                        ch->pcdata->clan->name);
                         if (mob->mob_clan)
                                 STRFREE(mob->mob_clan);
-                        mob->mob_clan = STRALLOC(ch->PCData->clan->name);
+                        mob->mob_clan = STRALLOC(ch->pcdata->clan->name);
                         mob->spec_fun = spec_lookup("spec_clan_guard");
                         if (mob->spec_funname)
                                 STRFREE(mob->spec_funname);
@@ -4322,7 +4322,7 @@ void add_reinforcements(CharData * ch)
                 stralloc_printf(&mob->long_descr, "%s", "Installation Guard");
                 if (mob->mob_clan)
                         STRFREE(mob->mob_clan);
-                mob->mob_clan = STRALLOC(ch->PCData->clan->name);
+                mob->mob_clan = STRALLOC(ch->pcdata->clan->name);
                 mob->spec_fun = spec_lookup("spec_installation_guard");
                 if (mob->spec_funname)
                         STRFREE(mob->spec_funname);
@@ -4371,7 +4371,7 @@ void add_reinforcements(CharData * ch)
                 stralloc_printf(&mob->long_descr, "%s", "Installation Entrance Guard");
                 if (mob->mob_clan)
                         STRFREE(mob->mob_clan);
-                mob->mob_clan = STRALLOC(ch->PCData->clan->name);
+                mob->mob_clan = STRALLOC(ch->pcdata->clan->name);
                 mob->spec_fun =
                         spec_lookup("spec_installation_entrance_guard");
                 if (mob->spec_funname)
@@ -4422,7 +4422,7 @@ void add_reinforcements(CharData * ch)
                 stralloc_printf(&mob->long_descr, "%s", "Installation Customs Officer");
                 if (mob->mob_clan)
                         STRFREE(mob->mob_clan);
-                mob->mob_clan = STRALLOC(ch->PCData->clan->name);
+                mob->mob_clan = STRALLOC(ch->pcdata->clan->name);
                 mob->spec_fun = spec_lookup("spec_customs_weapons");
                 if (mob->spec_funname)
                         STRFREE(mob->spec_funname);
@@ -4472,7 +4472,7 @@ void add_reinforcements(CharData * ch)
                                 "Installation Doctor");
                 if (mob->mob_clan)
                         STRFREE(mob->mob_clan);
-                mob->mob_clan = STRALLOC(ch->PCData->clan->name);
+                mob->mob_clan = STRALLOC(ch->pcdata->clan->name);
                 mob->spec_fun = spec_lookup("spec_installation_doctor");
                 if (mob->spec_funname)
                         STRFREE(mob->spec_funname);
@@ -4520,17 +4520,17 @@ void add_reinforcements(CharData * ch)
 
                 mob = create_mobile(pMobIndex);
                 char_to_room(mob, ch->in_room);
-                if (ch->PCData && ch->PCData->clan)
+                if (ch->pcdata && ch->pcdata->clan)
                 {
 
 
                         STRFREE(mob->name);
                         mob->name = STRALLOC("guard");
                         stralloc_printf(&mob->long_descr, "(%s) Guard\n",
-                                        ch->PCData->clan->name);
+                                        ch->pcdata->clan->name);
                         if (mob->mob_clan)
                                 STRFREE(mob->mob_clan);
-                        mob->mob_clan = STRALLOC(ch->PCData->clan->name);
+                        mob->mob_clan = STRALLOC(ch->pcdata->clan->name);
                         mob->spec_fun = spec_lookup("spec_clan_guard");
                         if (mob->spec_funname)
                                 STRFREE(mob->spec_funname);
@@ -4579,17 +4579,17 @@ void add_reinforcements(CharData * ch)
 
                 mob = create_mobile(pMobIndex);
                 char_to_room(mob, ch->in_room);
-                if (ch->PCData && ch->PCData->clan)
+                if (ch->pcdata && ch->pcdata->clan)
                 {
 
 
                         STRFREE(mob->name);
                         mob->name = STRALLOC("patrol");
                         stralloc_printf(&mob->long_descr, "(%s) Patrol\n",
-                                        ch->PCData->clan->name);
+                                        ch->pcdata->clan->name);
                         if (mob->mob_clan)
                                 STRFREE(mob->mob_clan);
-                        mob->mob_clan = STRALLOC(ch->PCData->clan->name);
+                        mob->mob_clan = STRALLOC(ch->pcdata->clan->name);
                         mob->spec_fun = spec_lookup("spec_clan_patrol");
                         if (mob->spec_funname)
                                 STRFREE(mob->spec_funname);
@@ -4645,7 +4645,7 @@ CMDF do_torture(CharData * ch, char *argument)
         int       percentage, dam;
         bool      fail;
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_torture] <= 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_torture] <= 0)
         {
                 send_to_char
                         ("Your mind races as you realize you have no idea how to do that.\n\r",
@@ -4723,7 +4723,7 @@ CMDF do_torture(CharData * ch, char *argument)
         if (!fail
             && (IsNpc(ch)
                 || (number_percent() + percentage) <
-                ch->PCData->learned[gsn_torture]))
+                ch->pcdata->learned[gsn_torture]))
         {
                 learn_from_success(ch, gsn_torture);
                 WaitState(ch, 2 * PulseViolence);
@@ -4769,7 +4769,7 @@ CMDF do_disguise(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (IsSet(ch->PCData->flags, PcflagNotitle))
+        if (IsSet(ch->pcdata->flags, PcflagNotitle))
         {
                 send_to_char("You try but the Force resists you.\n\r", ch);
                 return;
@@ -4781,7 +4781,7 @@ CMDF do_disguise(CharData * ch, char *argument)
                 return;
         }
 
-        percentage = (int) (ch->PCData->learned[gsn_disguise]);
+        percentage = (int) (ch->pcdata->learned[gsn_disguise]);
 
         if (number_percent() > percentage)
         {
@@ -4808,7 +4808,7 @@ CMDF do_mine(CharData * ch, char *argument)
         bool      shovel;
         sh_int    move;
 
-        if (ch->PCData->learned[gsn_mine] <= 0)
+        if (ch->pcdata->learned[gsn_mine] <= 0)
         {
                 ch_printf(ch, "You have no idea how to do that.\n\r");
                 return;
@@ -5052,7 +5052,7 @@ CMDF do_snipe(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? 100
-                : (int) (ch->PCData->learned[gsn_snipe]);
+                : (int) (ch->pcdata->learned[gsn_snipe]);
 
         switch (dir)
         {
@@ -5120,10 +5120,10 @@ CMDF do_snipe(CharData * ch, char *argument)
                 WaitState(ch, 1 * PulseViolence);
         else
         {
-                if (number_percent() < ch->PCData->learned[gsn_third_attack])
+                if (number_percent() < ch->pcdata->learned[gsn_third_attack])
                         WaitState(ch, 1 * PulsePerSecond);
                 else if (number_percent() <
-                         ch->PCData->learned[gsn_second_attack])
+                         ch->pcdata->learned[gsn_second_attack])
                         WaitState(ch, 2 * PulsePerSecond);
                 else
                         WaitState(ch, 3 * PulsePerSecond);
@@ -5406,7 +5406,7 @@ CMDF do_throw(CharData * ch, char *argument)
 
                 WaitState(ch, skill_table[gsn_throw]->beats);
                 if (IsNpc(ch)
-                    || number_percent() < ch->PCData->learned[gsn_throw])
+                    || number_percent() < ch->pcdata->learned[gsn_throw])
                 {
                         learn_from_success(ch, gsn_throw);
                         global_retcode =
@@ -5527,7 +5527,7 @@ CMDF do_hijack(CharData * ch, char *argument)
 
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_hijack]);
+                : (int) (ch->pcdata->learned[gsn_hijack]);
         if (number_percent() > percentage)
         {
                 send_to_char
@@ -5539,13 +5539,13 @@ CMDF do_hijack(CharData * ch, char *argument)
 
         if (ship->ship_class == FighterShip)
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_starfighters]);
+                        : (int) (ch->pcdata->learned[gsn_starfighters]);
         if (ship->ship_class == MidsizeShip)
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_midships]);
+                        : (int) (ch->pcdata->learned[gsn_midships]);
         if (ship->ship_class == CapitalShip)
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_capitalships]);
+                        : (int) (ch->pcdata->learned[gsn_capitalships]);
         if (number_percent() < percentage)
         {
 
@@ -5619,7 +5619,7 @@ CMDF do_special_forces(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         int       percentage, credits;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         mudstrlcpy(arg, argument, MIL);
@@ -5636,7 +5636,7 @@ CMDF do_special_forces(CharData * ch, char *argument)
                 }
                 /*
                  * players can now do this
-                 * if ( !ch->PCData->clan )
+                 * if ( !ch->pcdata->clan )
                  * {
                  * send_to_char( "&RYou need to be a member of an organization before you can call for reinforcements.\n\r", ch );
                  * return;
@@ -5658,7 +5658,7 @@ CMDF do_special_forces(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = (int) (ch->PCData->learned[gsn_special_forces]);
+                percentage = (int) (ch->pcdata->learned[gsn_special_forces]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -5704,9 +5704,9 @@ CMDF do_special_forces(CharData * ch, char *argument)
 
 
 /* removed   
-    if ( nifty_is_name( "empire" , ch->PCData->clan->name ) )
+    if ( nifty_is_name( "empire" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumStormtrooper;
-    else if ( nifty_is_name( "republic" , ch->PCData->clan->name ) )
+    else if ( nifty_is_name( "republic" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumNrTrooper;
     else
        ch->backup_mob = MobVnumMercinary;
@@ -5727,7 +5727,7 @@ CMDF do_elite_guard(CharData * ch, char *argument)
         char      arg[MaxInputLength];
         int       percentage, credits;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
         mudstrlcpy(arg, argument, MIL);
@@ -5743,7 +5743,7 @@ CMDF do_elite_guard(CharData * ch, char *argument)
                 }
                 /*
                  * removed as players can now have guards.
-                 * if ( !ch->PCData->clan )
+                 * if ( !ch->pcdata->clan )
                  * {
                  * send_to_char( "&RYou need to be a member of an organization before you can call for a guard.\n\r", ch );
                  * return;
@@ -5764,7 +5764,7 @@ CMDF do_elite_guard(CharData * ch, char *argument)
                         return;
                 }
 
-                percentage = (int) (ch->PCData->learned[gsn_elite_guard]);
+                percentage = (int) (ch->pcdata->learned[gsn_elite_guard]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -5811,9 +5811,9 @@ CMDF do_elite_guard(CharData * ch, char *argument)
 
 /* no longer use this
     
-    if ( nifty_is_name( "empire" , ch->PCData->clan->name ) )
+    if ( nifty_is_name( "empire" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumImpGuard;
-    else if ( nifty_is_name( "republic" , ch->PCData->clan->name ) )
+    else if ( nifty_is_name( "republic" , ch->pcdata->clan->name ) )
        ch->backup_mob = MobVnumNrGuard;
     else
        ch->backup_mob = MobVnumBouncer;
@@ -5839,7 +5839,7 @@ CMDF do_jail(CharData * ch, char *argument)
         if (IsNpc(ch))
                 return;
 
-        if (!ch->PCData || (clan = ch->PCData->clan) == NULL)
+        if (!ch->pcdata || (clan = ch->pcdata->clan) == NULL)
         {
                 send_to_char
                         ("Only members of organizations can jail their enemies.\n\r",
@@ -5958,7 +5958,7 @@ CMDF do_smalltalk(CharData * ch, char *argument)
         ClanData *clan = NULL;
         int       percent;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
         }
@@ -6032,7 +6032,7 @@ CMDF do_smalltalk(CharData * ch, char *argument)
         percent = number_percent();
 
         if (percent - ch->skill_level[DiplomacyAbility] + victim->top_level >
-            ch->PCData->learned[gsn_smalltalk])
+            ch->pcdata->learned[gsn_smalltalk])
         {
                 /*
                  * Failure.
@@ -6060,12 +6060,12 @@ CMDF do_smalltalk(CharData * ch, char *argument)
         act(AtAction, "$n chats briefly with $N.\n\r", ch, NULL, victim,
             ToNotvict);
 
-        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
             || !ch->in_room->area || !ch->in_room->area->planet)
                 return;
 
-        if ((clan = ch->PCData->clan->mainclan) == NULL)
-                clan = ch->PCData->clan;
+        if ((clan = ch->pcdata->clan->mainclan) == NULL)
+                clan = ch->pcdata->clan;
 
         planet = ch->in_room->area->planet;
 
@@ -6096,7 +6096,7 @@ CMDF do_propeganda(CharData * ch, char *argument)
         ClanData *clan;
         int       percent;
 
-        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
             || !ch->in_room->area || !ch->in_room->area->planet)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
@@ -6167,8 +6167,8 @@ CMDF do_propeganda(CharData * ch, char *argument)
                 return;
         }
 
-        if ((clan = ch->PCData->clan->mainclan) == NULL)
-                clan = ch->PCData->clan;
+        if ((clan = ch->pcdata->clan->mainclan) == NULL)
+                clan = ch->pcdata->clan;
 
         planet = ch->in_room->area->planet;
 
@@ -6176,7 +6176,7 @@ CMDF do_propeganda(CharData * ch, char *argument)
                  planet->governed_by ? planet->governed_by->
                  name : "their current leaders");
         ch_printf(ch, "You speak to them about the benefits of the %s%s.\n\r",
-                  ch->PCData->clan->name,
+                  ch->pcdata->clan->name,
                   planet->governed_by == clan ? "" : buf);
         act(AtAction, "$n speaks about his organization.\n\r", ch, NULL,
             victim, ToVict);
@@ -6188,7 +6188,7 @@ CMDF do_propeganda(CharData * ch, char *argument)
         percent = number_percent();
 
         if (percent - get_curr_cha(ch) + victim->top_level / 2 >
-            ch->PCData->learned[gsn_propeganda])
+            ch->pcdata->learned[gsn_propeganda])
         {
 
 /*                if (planet->governed_by != clan)
@@ -6235,7 +6235,7 @@ CMDF do_bribe(CharData * ch, char *argument)
         ClanData *clan;
         int       percent, amount;
 
-        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
             || !ch->in_room->area || !ch->in_room->area->planet)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
@@ -6325,7 +6325,7 @@ CMDF do_bribe(CharData * ch, char *argument)
         victim->gold += amount;
 
         ch_printf(ch, "You give them a small gift on behalf of %s.\n\r",
-                  ch->PCData->clan->name);
+                  ch->pcdata->clan->name);
         act(AtAction, "$n offers you a small bribe.\n\r", ch, NULL, victim,
             ToVict);
         act(AtAction, "$n gives $N some money.\n\r", ch, NULL, victim,
@@ -6339,11 +6339,11 @@ CMDF do_bribe(CharData * ch, char *argument)
 
         percent = number_percent();
         if (percent - amount + victim->top_level >
-            ch->PCData->learned[gsn_bribe])
+            ch->pcdata->learned[gsn_bribe])
                 return;
 
-        if ((clan = ch->PCData->clan->mainclan) == NULL)
-                clan = ch->PCData->clan;
+        if ((clan = ch->pcdata->clan->mainclan) == NULL)
+                clan = ch->pcdata->clan;
 
         planet = ch->in_room->area->planet;
 
@@ -6434,7 +6434,7 @@ CMDF do_seduce(CharData * ch, char *argument)
                 return;
         }
 
-        level = !IsNpc(ch) ? (int) ch->PCData->learned[gsn_seduce] : ch->
+        level = !IsNpc(ch) ? (int) ch->pcdata->learned[gsn_seduce] : ch->
                 top_level;
         percentage = ris_save(victim, level, RisCharm);
 
@@ -6498,7 +6498,7 @@ CMDF do_mass_propeganda(CharData * ch, char *argument)
 
         argument = NULL;
 
-        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
             || !ch->in_room->area || !ch->in_room->area->planet)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
@@ -6531,8 +6531,8 @@ CMDF do_mass_propeganda(CharData * ch, char *argument)
         }
 
 
-        if ((clan = ch->PCData->clan->mainclan) == NULL)
-                clan = ch->PCData->clan;
+        if ((clan = ch->pcdata->clan->mainclan) == NULL)
+                clan = ch->pcdata->clan;
 
         planet = ch->in_room->area->planet;
 
@@ -6541,14 +6541,14 @@ CMDF do_mass_propeganda(CharData * ch, char *argument)
                  name : "their current leaders");
         ch_printf(ch,
                   "You speak to the people about the benefits of the %s%s.\n\r",
-                  ch->PCData->clan->name,
+                  ch->pcdata->clan->name,
                   planet->governed_by == clan ? "" : buf);
         act(AtAction, "$n speaks about their organization.\n\r", ch, NULL,
             NULL, ToRoom);
 
         WaitState(ch, skill_table[gsn_masspropeganda]->beats);
 
-        if (number_percent() < ch->PCData->learned[gsn_masspropeganda])
+        if (number_percent() < ch->pcdata->learned[gsn_masspropeganda])
         {
                 for (rch = ch->in_room->first_person; rch;
                      rch = rch->next_in_room)
@@ -6624,7 +6624,7 @@ CMDF do_changesex(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_changesex]);
+                : (int) (ch->pcdata->learned[gsn_changesex]);
 
 
         if (number_percent() > percentage)
@@ -6703,7 +6703,7 @@ CMDF do_research(CharData * ch, char *argument)
         WaitState(ch, skill_table[gsn_gather_intelligence]->beats);
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_gather_intelligence]);
+                : (int) (ch->pcdata->learned[gsn_gather_intelligence]);
 
         if (number_percent() > percentage)
         {
@@ -6726,23 +6726,23 @@ CMDF do_research(CharData * ch, char *argument)
         send_to_char
                 ("&b[&B|&b================================================================\n\r",
                  ch);
-        if (victim->PCData->clan)
+        if (victim->pcdata->clan)
                 ch_printf(ch,
                           "&b[&B|&cName&C:&z %-23s&B| &cClan&C:&z %-27s\n\r",
-                          victim->name, victim->PCData->clan->name);
+                          victim->name, victim->pcdata->clan->name);
         else
                 ch_printf(ch, "&b[&B|&cName&C:&z %-23s&B\n\r", victim->name);
         ch_printf(ch, "&b[&B|&cSex&C:&z %-24s&B| &cAge&C:&z %-28d\n\r",
                   victim->sex == SexMale ? "Male" : victim->sex ==
                   SexFemale ? "Female" : "Neuter", get_age(victim));
         ch_printf(ch, "&b[&B|&cRace&C:&z %-23s&B| &cSpouse&C:&z %-22s\n\r",
-                  victim->race->name(), victim->PCData->spouse);
+                  victim->race->name(), victim->pcdata->spouse);
         send_to_char
                 ("&b[&B|&b================================================================\n\r",
                  ch);
         ch_printf(ch,
                   "&b[&B|&cBank Amount&C:&z %-16s&B|&cAccount number range 1&C: &z??? - ???\n\r",
-                  num_punct(victim->PCData->bank));
+                  num_punct(victim->pcdata->bank));
         ch_printf(ch,
                   "&b[&B|&cCredits Held&C:&z %-15s&B|&b====================&B|&c2&C: &z??? - ???\n\r",
                   num_punct(victim->gold));
@@ -6791,7 +6791,7 @@ CMDF do_research(CharData * ch, char *argument)
         {
                 long      xpgain;
 
-                xpgain = UMin((ch->PCData->learned[gsn_gather_intelligence]) *
+                xpgain = UMin((ch->pcdata->learned[gsn_gather_intelligence]) *
                               200,
                               (exp_level
                                (ch->skill_level[LeadershipAbility] + 1) -
@@ -6888,7 +6888,7 @@ CMDF do_makeknife(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makeknife]);
+                        : (int) (ch->pcdata->learned[gsn_makeknife]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -6925,7 +6925,7 @@ CMDF do_makeknife(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeknife]);
         vnum = 10434;
 
@@ -6965,7 +6965,7 @@ CMDF do_makeknife(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makeknife]);
+                : (int) (ch->pcdata->learned[gsn_makeknife]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checksteel)
             || (!checkplast) || (!checkoven))
@@ -7129,7 +7129,7 @@ CMDF do_makepike(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makepike]);
+                        : (int) (ch->pcdata->learned[gsn_makepike]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -7166,7 +7166,7 @@ CMDF do_makepike(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makepike]);
         vnum = 10435;
 
@@ -7216,7 +7216,7 @@ CMDF do_makepike(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makepike]);
+                : (int) (ch->pcdata->learned[gsn_makepike]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checksteel)
             || (!checkplast) || (!checkoven))
@@ -7414,7 +7414,7 @@ CMDF do_itemrepair(CharData * ch, char *argument)
         ch->substate = SubNone;
 
         percentage =
-                IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+                IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_repair]);
 
         if (number_percent() > percentage * 2)
@@ -7476,10 +7476,10 @@ CMDF do_causedissension(CharData * ch, char *argument)
         int       percent;
 
         argument = NULL;
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return;
 
-        if (!ch->PCData->clan)
+        if (!ch->pcdata->clan)
         {
                 send_to_char("You do not belong to a clan.\n\r", ch);
                 return;
@@ -7491,8 +7491,8 @@ CMDF do_causedissension(CharData * ch, char *argument)
                 return;
         }
 
-        if ((clan = ch->PCData->clan->mainclan) == NULL)
-                clan = ch->PCData->clan;
+        if ((clan = ch->pcdata->clan->mainclan) == NULL)
+                clan = ch->pcdata->clan;
 
         planet = ch->in_room->area->planet;
         if (!planet || !planet->governed_by)
@@ -7555,7 +7555,7 @@ CMDF do_causedissension(CharData * ch, char *argument)
                 }
 
                 percent =
-                        IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+                        IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                             learned
                                                             [gsn_causedissension]);
 
@@ -7595,7 +7595,7 @@ CMDF do_causedissension(CharData * ch, char *argument)
         percent = number_percent();
 
         if (percent - get_curr_cha(ch) >
-            ch->PCData->learned[gsn_causedissension])
+            ch->pcdata->learned[gsn_causedissension])
         {
                 send_to_char
                         ("The troops yell at you, and you flee for your life.",
@@ -7629,7 +7629,7 @@ CMDF do_causedessertion(CharData * ch, char *argument)
         {
         default:
 
-                if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+                if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
                     || !ch->in_room->area || !ch->in_room->area->planet)
                 {
                         send_to_char("What would be the point of that.\n\r",
@@ -7637,8 +7637,8 @@ CMDF do_causedessertion(CharData * ch, char *argument)
                         return;
                 }
 
-                if ((clan = ch->PCData->clan->mainclan) == NULL)
-                        clan = ch->PCData->clan;
+                if ((clan = ch->pcdata->clan->mainclan) == NULL)
+                        clan = ch->pcdata->clan;
 
                 planet = ch->in_room->area->planet;
 
@@ -7688,7 +7688,7 @@ CMDF do_causedessertion(CharData * ch, char *argument)
                         return;
                 }
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_causedesertion]);
+                        : (int) (ch->pcdata->learned[gsn_causedesertion]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -7719,8 +7719,8 @@ CMDF do_causedessertion(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        if ((clan = ch->PCData->clan->mainclan) == NULL)
-                clan = ch->PCData->clan;
+        if ((clan = ch->pcdata->clan->mainclan) == NULL)
+                clan = ch->pcdata->clan;
 
         planet = ch->in_room->area->planet;
 
@@ -7732,7 +7732,7 @@ CMDF do_causedessertion(CharData * ch, char *argument)
         percentage = number_percent();
 
         if (percentage - get_curr_cha(ch) + 20 >
-            ch->PCData->learned[gsn_causedesertion])
+            ch->pcdata->learned[gsn_causedesertion])
         {
                 send_to_char
                         ("The troops yell at you, and you flee for your life.",
@@ -7768,7 +7768,7 @@ CMDF do_boostmorale(CharData * ch, char *argument)
         ClanData *clan;
         int       percent;
 
-        if (IsNpc(ch) || !ch->PCData || !ch->PCData->clan
+        if (IsNpc(ch) || !ch->pcdata || !ch->pcdata->clan
             || !ch->in_room->area || !ch->in_room->area->planet)
         {
                 send_to_char("What would be the point of that.\n\r", ch);
@@ -7776,7 +7776,7 @@ CMDF do_boostmorale(CharData * ch, char *argument)
         }
 
 
-        if (ch->in_room->area->planet->governed_by != ch->PCData->clan)
+        if (ch->in_room->area->planet->governed_by != ch->pcdata->clan)
         {
                 send_to_char
                         ("Why would you do that on another clans planets?",
@@ -7848,14 +7848,14 @@ CMDF do_boostmorale(CharData * ch, char *argument)
                 return;
         }
 
-        if ((clan = ch->PCData->clan->mainclan) == NULL)
-                clan = ch->PCData->clan;
+        if ((clan = ch->pcdata->clan->mainclan) == NULL)
+                clan = ch->pcdata->clan;
 
         planet = ch->in_room->area->planet;
 
         ch_printf(ch,
                   "You speak to them about the benifits of the %s, and their family and friends.\n\r",
-                  ch->PCData->clan->name,
+                  ch->pcdata->clan->name,
                   planet->governed_by == clan ? "" : buf);
         act(AtAction, "$n speaks about $s organization.\n\r", ch, NULL,
             victim, ToVict);
@@ -7866,7 +7866,7 @@ CMDF do_boostmorale(CharData * ch, char *argument)
         percent = number_percent();
 
         if (percent - get_curr_cha(ch) + victim->top_level / 2 >
-            ch->PCData->learned[gsn_boostmorale])
+            ch->pcdata->learned[gsn_boostmorale])
         {
                 send_to_char
                         ("You mumble your words too much, and they walk away",
@@ -8048,7 +8048,7 @@ CMDF do_throwsaber(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? 100
-                : (int) (ch->PCData->learned[gsn_throwsaber]);
+                : (int) (ch->pcdata->learned[gsn_throwsaber]);
 
         switch (dir)
         {
@@ -8119,10 +8119,10 @@ CMDF do_throwsaber(CharData * ch, char *argument)
                 WaitState(ch, 1 * PulseViolence);
         else
         {
-                if (number_percent() < ch->PCData->learned[gsn_third_attack])
+                if (number_percent() < ch->pcdata->learned[gsn_third_attack])
                         WaitState(ch, 1 * PulsePerSecond);
                 else if (number_percent() <
-                         ch->PCData->learned[gsn_second_attack])
+                         ch->pcdata->learned[gsn_second_attack])
                         WaitState(ch, 2 * PulsePerSecond);
                 else
                         WaitState(ch, 3 * PulsePerSecond);
@@ -8209,7 +8209,7 @@ CMDF do_makebinding(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makebinding]);
+                        : (int) (ch->pcdata->learned[gsn_makebinding]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -8244,7 +8244,7 @@ CMDF do_makebinding(CharData * ch, char *argument)
 
         ch->substate = SubNone;
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makebinding]);
         vnum = 10440;
 
@@ -8293,7 +8293,7 @@ CMDF do_makebinding(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makebinding]);
+                : (int) (ch->pcdata->learned[gsn_makebinding]);
 
         if (number_percent() > percentage * 2 || (!checkcirc)
             || (!checkdura) || (!checktool))

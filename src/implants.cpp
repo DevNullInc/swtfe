@@ -63,11 +63,11 @@ char     *const implant_affect_names[] = {
 
 int get_implant_affect(CharData * ch, int implant)
 {
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
                 return 0;
-        else if (ch->PCData->implants[implant] >= 1
-                 && ch->PCData->implants[implant] <= 3)
-                return ch->PCData->implants[implant] - 1;
+        else if (ch->pcdata->implants[implant] >= 1
+                 && ch->pcdata->implants[implant] <= 3)
+                return ch->pcdata->implants[implant] - 1;
         else
                 return 0;
 }
@@ -203,7 +203,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
                         return;
                 }
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_makeimplant]);
+                        : (int) (ch->pcdata->learned[gsn_makeimplant]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -245,7 +245,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
         else
                 type = get_type_number(arg);
 
-        level = IsNpc(ch) ? ch->top_level : (int) (ch->PCData->
+        level = IsNpc(ch) ? ch->top_level : (int) (ch->pcdata->
                                                     learned[gsn_makeimplant]);
 
         if ((pObjIndex = get_obj_index(ObjVnumImplant)) == NULL)
@@ -303,7 +303,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_makeimplant]);
+                : (int) (ch->pcdata->learned[gsn_makeimplant]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkdura)
             || (!checkbatt) || (!checkoven) || (!checkcirc) || (!checkchem))
@@ -337,7 +337,7 @@ CMDF do_makeimplant(CharData * ch, char *argument)
         obj->value[0] =
                 URange(0,
                        get_curr_int(ch) +
-                       ch->PCData->learned[gsn_makeimplant] / 5 +
+                       ch->pcdata->learned[gsn_makeimplant] / 5 +
                        ch->skill_level[MedicAbility], 100);
         /*
          * type of implant 
@@ -438,8 +438,8 @@ CMDF do_implant(CharData * ch, char *argument)
                 }
                 if (!npc)
                 {
-                        if (victim->PCData->implants[obj->value[1]] >= 0
-                            && victim->PCData->implants[obj->value[1]] <= 3)
+                        if (victim->pcdata->implants[obj->value[1]] >= 0
+                            && victim->pcdata->implants[obj->value[1]] <= 3)
                         {
                                 send_to_char
                                         ("They already have tha sort of implant.",
@@ -493,7 +493,7 @@ CMDF do_implant(CharData * ch, char *argument)
                 }
 
                 percentage = IsNpc(ch) ? ch->top_level
-                        : (int) (ch->PCData->learned[gsn_implant]);
+                        : (int) (ch->pcdata->learned[gsn_implant]);
                 if (number_percent() < percentage)
                 {
                         send_to_char
@@ -607,7 +607,7 @@ CMDF do_implant(CharData * ch, char *argument)
         }
 
         percentage = IsNpc(ch) ? ch->top_level
-                : (int) (ch->PCData->learned[gsn_implant]);
+                : (int) (ch->pcdata->learned[gsn_implant]);
 
         if (number_percent() > percentage * 2 || (!checktool) || (!checkneed)
             || (!checkimpl))
@@ -639,7 +639,7 @@ CMDF do_implant(CharData * ch, char *argument)
 
         if (!npc)
         {
-                victim->PCData->implants[type] = quality;
+                victim->pcdata->implants[type] = quality;
         }
         send_to_char
                 ("&GYou finish your surgery on the victim, and sew them up.\n\r",

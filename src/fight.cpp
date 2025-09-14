@@ -335,7 +335,7 @@ void violence_update(void)
                             || (!IsNpc(ch) &&
                                 skill_table[sn] && skill_table[sn]->guild ==
                                 EngineeringAbility
-                                && IsSet(ch->PCData->flags,
+                                && IsSet(ch->pcdata->flags,
                                           PcflagFastengineer)))
                         {
                                 if (timer->type == TimerDoFun)
@@ -591,7 +591,7 @@ ch_ret multi_hit(CharData * ch, CharData * victim, int dt)
                 }
 
         }
-        if (!IsNpc(ch) && IsSet(ch->PCData->flags, PcflagAutodraw))
+        if (!IsNpc(ch) && IsSet(ch->pcdata->flags, PcflagAutodraw))
         {
                 ObjData *holster1 = get_eq_char(ch, WearHolsterL),
                          *holster2 = get_eq_char(ch, WearHolsterR);
@@ -616,7 +616,7 @@ ch_ret multi_hit(CharData * ch, CharData * victim, int dt)
          * -- Altrag 
          */
         percent_chance =
-                IsNpc(ch) ? 100 : (ch->PCData->learned[gsn_berserk] * 5 / 2);
+                IsNpc(ch) ? 100 : (ch->pcdata->learned[gsn_berserk] * 5 / 2);
         if (IsAffected(ch, AffBerserk) && number_percent() < percent_chance)
                 if ((retcode = one_hit(ch, victim, dt)) != rNONE ||
                     who_fighting(ch) != victim)
@@ -626,10 +626,10 @@ ch_ret multi_hit(CharData * ch, CharData * victim, int dt)
         {
                 dual_bonus =
                         IsNpc(ch) ? (ch->skill_level[CombatAbility] /
-                                      10) : (ch->PCData->
+                                      10) : (ch->pcdata->
                                              learned[gsn_dual_wield] / 10);
                 percent_chance =
-                        IsNpc(ch) ? ch->top_level : ch->PCData->
+                        IsNpc(ch) ? ch->top_level : ch->pcdata->
                         learned[gsn_dual_wield];
                 if (number_percent() < percent_chance)
                 {
@@ -663,7 +663,7 @@ ch_ret multi_hit(CharData * ch, CharData * victim, int dt)
         }
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) ((ch->PCData->learned[gsn_second_attack] +
+                : (int) ((ch->pcdata->learned[gsn_second_attack] +
                           dual_bonus) / 1.5);
         if (number_percent() < percent_chance)
         {
@@ -676,7 +676,7 @@ ch_ret multi_hit(CharData * ch, CharData * victim, int dt)
                 learn_from_failure(ch, gsn_second_attack);
 
         percent_chance = IsNpc(ch) ? ch->top_level
-                : (int) ((ch->PCData->learned[gsn_third_attack] +
+                : (int) ((ch->pcdata->learned[gsn_third_attack] +
                           (dual_bonus * 1.5)) / 2);
         if (number_percent() < percent_chance)
         {
@@ -759,7 +759,7 @@ int weapon_prof_bonus_check(CharData * ch, ObjData * wield, int *gsn_ptr)
 
                 }
                 if (*gsn_ptr != -1)
-                        Bonus = (int) (ch->PCData->learned[*gsn_ptr]);
+                        Bonus = (int) (ch->pcdata->learned[*gsn_ptr]);
 
         }
         if (IsNpc(ch) && wield)
@@ -998,9 +998,9 @@ ch_ret one_hit(CharData * ch, CharData * victim, int dt)
                 dam *= (1 + prof_bonus / 100);
 
 
-        if (!IsNpc(ch) && ch->PCData->learned[gsn_enhanced_damage] > 0)
+        if (!IsNpc(ch) && ch->pcdata->learned[gsn_enhanced_damage] > 0)
         {
-                dam += (int) (dam * ch->PCData->learned[gsn_enhanced_damage] /
+                dam += (int) (dam * ch->pcdata->learned[gsn_enhanced_damage] /
                               120);
                 learn_from_success(ch, gsn_enhanced_damage);
         }
@@ -2189,9 +2189,9 @@ void check_killer(CharData * ch, CharData * victim)
                                         add_wanted(ch, planet);
                                 }
                         }
-                        if (ch->PCData->clan)
-                                ch->PCData->clan->mkills++;
-                        ch->PCData->mkills++;
+                        if (ch->pcdata->clan)
+                                ch->pcdata->clan->mkills++;
+                        ch->pcdata->mkills++;
                         ch->in_room->area->mkills++;
                 }
                 return;
@@ -2199,12 +2199,12 @@ void check_killer(CharData * ch, CharData * victim)
 
         if (!IsNpc(ch) && !IsNpc(victim))
         {
-                if (ch->PCData->clan)
-                        ch->PCData->clan->pkills++;
-                ch->PCData->pkills++;
+                if (ch->pcdata->clan)
+                        ch->pcdata->clan->pkills++;
+                ch->pcdata->pkills++;
                 update_pos(victim);
-                if (victim->PCData->clan)
-                        victim->PCData->clan->pdeaths++;
+                if (victim->pcdata->clan)
+                        victim->pcdata->clan->pdeaths++;
         }
 
 
@@ -2382,7 +2382,7 @@ void stop_fighting(CharData * ch, bool fBoth)
         free_fight(ch);
         update_pos(ch);
 
-        if (!IsNpc(ch) && IsSet(ch->PCData->flags, PcflagAutodraw))
+        if (!IsNpc(ch) && IsSet(ch->pcdata->flags, PcflagAutodraw))
         {
                 ObjData *holster1 = get_eq_char(ch, WearHolsterL),
                          *holster2 = get_eq_char(ch, WearHolsterR);
@@ -2570,57 +2570,57 @@ void raw_kill(CharData * ch, CharData * victim)
                 fold_area(room->area, room->area->filename, FALSE, TRUE);
         }
 
-        if (victim->PCData && victim->PCData->clan)
+        if (victim->pcdata && victim->pcdata->clan)
         {
-                if (!str_cmp(victim->name, victim->PCData->clan->leader))
+                if (!str_cmp(victim->name, victim->pcdata->clan->leader))
                 {
-                        STRFREE(victim->PCData->clan->leader);
-                        if (victim->PCData->clan->number1)
+                        STRFREE(victim->pcdata->clan->leader);
+                        if (victim->pcdata->clan->number1)
                         {
-                                victim->PCData->clan->leader =
-                                        STRALLOC(victim->PCData->clan->
+                                victim->pcdata->clan->leader =
+                                        STRALLOC(victim->pcdata->clan->
                                                  number1);
-                                STRFREE(victim->PCData->clan->number1);
-                                victim->PCData->clan->number1 = STRALLOC("");
+                                STRFREE(victim->pcdata->clan->number1);
+                                victim->pcdata->clan->number1 = STRALLOC("");
                         }
-                        else if (victim->PCData->clan->number2)
+                        else if (victim->pcdata->clan->number2)
                         {
-                                victim->PCData->clan->leader =
-                                        STRALLOC(victim->PCData->clan->
+                                victim->pcdata->clan->leader =
+                                        STRALLOC(victim->pcdata->clan->
                                                  number2);
-                                STRFREE(victim->PCData->clan->number2);
-                                victim->PCData->clan->number2 = STRALLOC("");
+                                STRFREE(victim->pcdata->clan->number2);
+                                victim->pcdata->clan->number2 = STRALLOC("");
                         }
                         else
-                                victim->PCData->clan->leader = STRALLOC("");
+                                victim->pcdata->clan->leader = STRALLOC("");
                 }
 
-                if (!str_cmp(victim->name, victim->PCData->clan->number1))
+                if (!str_cmp(victim->name, victim->pcdata->clan->number1))
                 {
-                        STRFREE(victim->PCData->clan->number1);
-                        if (victim->PCData->clan->number2)
+                        STRFREE(victim->pcdata->clan->number1);
+                        if (victim->pcdata->clan->number2)
                         {
-                                victim->PCData->clan->number1 =
-                                        STRALLOC(victim->PCData->clan->
+                                victim->pcdata->clan->number1 =
+                                        STRALLOC(victim->pcdata->clan->
                                                  number2);
-                                STRFREE(victim->PCData->clan->number2);
-                                victim->PCData->clan->number2 = STRALLOC("");
+                                STRFREE(victim->pcdata->clan->number2);
+                                victim->pcdata->clan->number2 = STRALLOC("");
                         }
                         else
-                                victim->PCData->clan->number1 = STRALLOC("");
+                                victim->pcdata->clan->number1 = STRALLOC("");
                 }
 
-                if (!str_cmp(victim->name, victim->PCData->clan->number2))
+                if (!str_cmp(victim->name, victim->pcdata->clan->number2))
                 {
-                        STRFREE(victim->PCData->clan->number2);
-                        victim->PCData->clan->number1 = STRALLOC("");
+                        STRFREE(victim->pcdata->clan->number2);
+                        victim->pcdata->clan->number1 = STRALLOC("");
                 }
 
-                victim->PCData->clan->members--;
-                if (victim->PCData->clan->roster)
+                victim->pcdata->clan->members--;
+                if (victim->pcdata->clan->roster)
                         if (hasname
-                            (victim->PCData->clan->roster, victim->name))
-                                removename(&victim->PCData->clan->roster,
+                            (victim->pcdata->clan->roster, victim->name))
+                                removename(&victim->pcdata->clan->roster,
                                            victim->name);
         }
 
@@ -2631,9 +2631,9 @@ void raw_kill(CharData * ch, CharData * victim)
 #ifdef ACCOUNT
         if (rename(buf, buf2) != 0)
         {
-                if (victim && victim->PCData && victim->PCData->Account)
+                if (victim && victim->pcdata && victim->pcdata->Account)
                 {
-                        if (!del_from_account(victim->PCData->Account, victim))
+                        if (!del_from_account(victim->pcdata->Account, victim))
                         {
                                 bug("Failed to remove character from Account on death", 0);
                         }
@@ -2705,8 +2705,8 @@ void raw_kill(CharData * ch, CharData * victim)
     victim->endurance	= UMax( 1, victim->endurance );
     victim->endurance	= UMax( 1, victim->endurance );
     
-    victim->PCData->condition[CondFull]   = 12;
-    victim->PCData->condition[CondThirst] = 12;
+    victim->pcdata->condition[CondFull]   = 12;
+    victim->pcdata->condition[CondThirst] = 12;
     
     if ( IsSet( sysdata.save_flags, SvDeath ) )
 	save_char_obj( victim );
@@ -2776,9 +2776,9 @@ void group_gain(CharData * ch, CharData * victim)
 
                 gch->alignment = align_compute(gch, victim);
 
-                if (!IsNpc(gch) && IsNpc(victim) && gch->PCData
-                    && gch->PCData->clan
-                    && !str_cmp(gch->PCData->clan->name, victim->mob_clan))
+                if (!IsNpc(gch) && IsNpc(victim) && gch->pcdata
+                    && gch->pcdata->clan
+                    && !str_cmp(gch->pcdata->clan->name, victim->mob_clan))
                 {
                         xp = 0;
                         snprintf(buf, MSL,
@@ -3052,11 +3052,11 @@ void dam_message(CharData * ch, CharData * victim, int dam, int dt)
         punct = (dampc <= 30) ? '.' : '!';
 
         if (dam == 0 && (!IsNpc(ch) &&
-                         (IsSet(ch->PCData->flags, PcflagGag))))
+                         (IsSet(ch->pcdata->flags, PcflagGag))))
                 gcflag = TRUE;
 
         if (dam == 0 && (!IsNpc(victim) &&
-                         (IsSet(victim->PCData->flags, PcflagGag))))
+                         (IsSet(victim->pcdata->flags, PcflagGag))))
                 gvflag = TRUE;
 
         if (dt >= 0 && dt < top_sn)
@@ -3605,7 +3605,7 @@ CMDF do_trip(CharData * ch, char *argument)
         }
 
         WaitState(ch, skill_table[gsn_trip]->beats);
-        if (IsNpc(ch) || number_percent() < ch->PCData->learned[gsn_trip])
+        if (IsNpc(ch) || number_percent() < ch->pcdata->learned[gsn_trip])
         {
                 act(AtHit, "You pull $N's legs from underneath $M.", ch,
                     NULL, victim, ToChar);

@@ -259,7 +259,7 @@ bool is_wizvis(CharData * ch, CharData * victim)
 {
         if (!IsNpc(victim)
                         && IsSet(victim->act, PlrWizinvis)
-                        && get_trust(ch) < victim->PCData->wizinvis)
+                        && get_trust(ch) < victim->pcdata->wizinvis)
                 return FALSE;
 
         return TRUE;
@@ -403,7 +403,7 @@ sh_int get_age(CharData * ch)
 {
         if (IsNpc(ch))
                 return 17 + (ch->played + (current_time - ch->logon)) / 14400;
-        return ch->PCData->age + get_age_timeinfo(&ch->PCData->birthday);
+        return ch->pcdata->age + get_age_timeinfo(&ch->pcdata->birthday);
 }
 
 
@@ -867,25 +867,25 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
 
                 case ApplyFull:
                         if (!IsNpc(ch))
-                                ch->PCData->condition[CondFull] =
+                                ch->pcdata->condition[CondFull] =
                                         URange(0,
-                                                        ch->PCData->condition[CondFull] + Mod,
+                                                        ch->pcdata->condition[CondFull] + Mod,
                                                         48);
                         break;
 
                 case ApplyThirst:
                         if (!IsNpc(ch))
-                                ch->PCData->condition[CondThirst] =
+                                ch->pcdata->condition[CondThirst] =
                                         URange(0,
-                                                        ch->PCData->condition[CondThirst] +
+                                                        ch->pcdata->condition[CondThirst] +
                                                         Mod, 48);
                         break;
 
                 case ApplyDrunk:
                         if (!IsNpc(ch))
-                                ch->PCData->condition[CondDrunk] =
+                                ch->pcdata->condition[CondDrunk] =
                                         URange(0,
-                                                        ch->PCData->condition[CondDrunk] +
+                                                        ch->pcdata->condition[CondDrunk] +
                                                         Mod, 48);
                         break;
 
@@ -931,126 +931,126 @@ void affect_modify(CharData * ch, AffectData * paf, bool fAdd)
                 case ApplyPalm:   /* not implemented yet */
                         break;
                 case ApplyTrack:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_track] > 0)
-                                ch->PCData->learned[gsn_track] =
-                                        UMax(1, ch->PCData->learned[gsn_track] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_track] > 0)
+                                ch->pcdata->learned[gsn_track] =
+                                        UMax(1, ch->pcdata->learned[gsn_track] + Mod);
                         break;
                 case ApplyHide:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_hide] > 0)
-                                ch->PCData->learned[gsn_hide] =
-                                        UMax(1, ch->PCData->learned[gsn_hide] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_hide] > 0)
+                                ch->pcdata->learned[gsn_hide] =
+                                        UMax(1, ch->pcdata->learned[gsn_hide] + Mod);
                         break;
                 case ApplySecretive:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_slight] > 0)
-                                ch->PCData->learned[gsn_slight] =
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_slight] > 0)
+                                ch->pcdata->learned[gsn_slight] =
                                         UMax(1,
-                                                        ch->PCData->learned[gsn_slight] + Mod);
+                                                        ch->pcdata->learned[gsn_slight] + Mod);
                         break;
                 case ApplySteal:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_steal] > 0)
-                                ch->PCData->learned[gsn_steal] =
-                                        UMax(1, ch->PCData->learned[gsn_steal] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_steal] > 0)
+                                ch->pcdata->learned[gsn_steal] =
+                                        UMax(1, ch->pcdata->learned[gsn_steal] + Mod);
                         break;
                 case ApplySneak:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_sneak] > 0)
-                                ch->PCData->learned[gsn_sneak] =
-                                        UMax(1, ch->PCData->learned[gsn_sneak] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_sneak] > 0)
+                                ch->pcdata->learned[gsn_sneak] =
+                                        UMax(1, ch->pcdata->learned[gsn_sneak] + Mod);
                         break;
                 case ApplyPick:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_pick_lock] > 0)
-                                ch->PCData->learned[gsn_pick_lock] =
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_pick_lock] > 0)
+                                ch->pcdata->learned[gsn_pick_lock] =
                                         UMax(1,
-                                                        ch->PCData->learned[gsn_pick_lock] +
+                                                        ch->pcdata->learned[gsn_pick_lock] +
                                                         Mod);
                         break;
                 case ApplyBackstab:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_backstab] > 0)
-                                ch->PCData->learned[gsn_backstab] =
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_backstab] > 0)
+                                ch->pcdata->learned[gsn_backstab] =
                                         UMax(1,
-                                                        ch->PCData->learned[gsn_backstab] + Mod);
+                                                        ch->pcdata->learned[gsn_backstab] + Mod);
                         break;
                 case ApplyDetrap:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_detrap] > 0)
-                                ch->PCData->learned[gsn_detrap] =
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_detrap] > 0)
+                                ch->pcdata->learned[gsn_detrap] =
                                         UMax(1,
-                                                        ch->PCData->learned[gsn_detrap] + Mod);
+                                                        ch->pcdata->learned[gsn_detrap] + Mod);
                         break;
                 case ApplyDodge:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_dodge] > 0)
-                                ch->PCData->learned[gsn_dodge] =
-                                        UMax(1, ch->PCData->learned[gsn_dodge] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_dodge] > 0)
+                                ch->pcdata->learned[gsn_dodge] =
+                                        UMax(1, ch->pcdata->learned[gsn_dodge] + Mod);
                         break;
                 case ApplyPeek:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_peek] > 0)
-                                ch->PCData->learned[gsn_peek] =
-                                        UMax(1, ch->PCData->learned[gsn_peek] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_peek] > 0)
+                                ch->pcdata->learned[gsn_peek] =
+                                        UMax(1, ch->pcdata->learned[gsn_peek] + Mod);
                         break;
                 case ApplyScan:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_scan] > 0)
-                                ch->PCData->learned[gsn_scan] =
-                                        UMax(1, ch->PCData->learned[gsn_scan] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_scan] > 0)
+                                ch->pcdata->learned[gsn_scan] =
+                                        UMax(1, ch->pcdata->learned[gsn_scan] + Mod);
                         break;
                 case ApplyGouge:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_gouge] > 0)
-                                ch->PCData->learned[gsn_gouge] =
-                                        UMax(1, ch->PCData->learned[gsn_gouge] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_gouge] > 0)
+                                ch->pcdata->learned[gsn_gouge] =
+                                        UMax(1, ch->pcdata->learned[gsn_gouge] + Mod);
                         break;
                 case ApplySearch:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_search] > 0)
-                                ch->PCData->learned[gsn_search] =
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_search] > 0)
+                                ch->pcdata->learned[gsn_search] =
                                         UMax(1,
-                                                        ch->PCData->learned[gsn_search] + Mod);
+                                                        ch->pcdata->learned[gsn_search] + Mod);
                         break;
                 case ApplyDig:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_dig] > 0)
-                                ch->PCData->learned[gsn_dig] =
-                                        UMax(1, ch->PCData->learned[gsn_dig] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_dig] > 0)
+                                ch->pcdata->learned[gsn_dig] =
+                                        UMax(1, ch->pcdata->learned[gsn_dig] + Mod);
                         break;
                 case ApplyMount:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_mount] > 0)
-                                ch->PCData->learned[gsn_mount] =
-                                        UMax(1, ch->PCData->learned[gsn_mount] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_mount] > 0)
+                                ch->pcdata->learned[gsn_mount] =
+                                        UMax(1, ch->pcdata->learned[gsn_mount] + Mod);
                         break;
                 case ApplyDisarm:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_disarm] > 0)
-                                ch->PCData->learned[gsn_disarm] =
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_disarm] > 0)
+                                ch->pcdata->learned[gsn_disarm] =
                                         UMax(1,
-                                                        ch->PCData->learned[gsn_disarm] + Mod);
+                                                        ch->pcdata->learned[gsn_disarm] + Mod);
                         break;
                 case ApplyKick:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_kick] > 0)
-                                ch->PCData->learned[gsn_kick] =
-                                        UMax(1, ch->PCData->learned[gsn_kick] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_kick] > 0)
+                                ch->pcdata->learned[gsn_kick] =
+                                        UMax(1, ch->pcdata->learned[gsn_kick] + Mod);
                         break;
                 case ApplyParry:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_parry] > 0)
-                                ch->PCData->learned[gsn_parry] =
-                                        UMax(1, ch->PCData->learned[gsn_parry] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_parry] > 0)
+                                ch->pcdata->learned[gsn_parry] =
+                                        UMax(1, ch->pcdata->learned[gsn_parry] + Mod);
                         break;
                 case ApplyBash:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_bash] > 0)
-                                ch->PCData->learned[gsn_bash] =
-                                        UMax(1, ch->PCData->learned[gsn_bash] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_bash] > 0)
+                                ch->pcdata->learned[gsn_bash] =
+                                        UMax(1, ch->pcdata->learned[gsn_bash] + Mod);
                         break;
                 case ApplyStun:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_stun] > 0)
-                                ch->PCData->learned[gsn_stun] =
-                                        UMax(1, ch->PCData->learned[gsn_stun] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_stun] > 0)
+                                ch->pcdata->learned[gsn_stun] =
+                                        UMax(1, ch->pcdata->learned[gsn_stun] + Mod);
                         break;
                 case ApplyPunch:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_punch] > 0)
-                                ch->PCData->learned[gsn_punch] =
-                                        UMax(1, ch->PCData->learned[gsn_punch] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_punch] > 0)
+                                ch->pcdata->learned[gsn_punch] =
+                                        UMax(1, ch->pcdata->learned[gsn_punch] + Mod);
                         break;
                 case ApplyClimb:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_climb] > 0)
-                                ch->PCData->learned[gsn_climb] =
-                                        UMax(1, ch->PCData->learned[gsn_climb] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_climb] > 0)
+                                ch->pcdata->learned[gsn_climb] =
+                                        UMax(1, ch->pcdata->learned[gsn_climb] + Mod);
                         break;
                 case ApplyGrip:
-                        if (!IsNpc(ch) && ch->PCData->learned[gsn_grip] > 0)
-                                ch->PCData->learned[gsn_grip] =
-                                        UMax(1, ch->PCData->learned[gsn_grip] + Mod);
+                        if (!IsNpc(ch) && ch->pcdata->learned[gsn_grip] > 0)
+                                ch->pcdata->learned[gsn_grip] =
+                                        UMax(1, ch->pcdata->learned[gsn_grip] + Mod);
                         break;
         }
 
@@ -2026,10 +2026,10 @@ void extract_char(CharData * ch, bool fPull)
         }
 
 #ifdef ACCOUNT
-        if (!IsNpc(ch) && ch->PCData && ch->PCData->Account)
+        if (!IsNpc(ch) && ch->pcdata && ch->pcdata->Account)
         {
-                free_account(ch->PCData->Account);
-                ch->PCData->Account = NULL;
+                free_account(ch->pcdata->Account);
+                ch->pcdata->Account = NULL;
                 if (ch->desc && ch->desc->Account)
                         ch->desc->Account = NULL;
         }
@@ -2581,7 +2581,7 @@ ObjData *get_obj_world(CharData * ch, char *argument)
 bool ms_find_obj(CharData * ch)
 {
         int       ms = ch->mental_state;
-        int       drunk = IsNpc(ch) ? 0 : ch->PCData->condition[CondDrunk];
+        int       drunk = IsNpc(ch) ? 0 : ch->pcdata->condition[CondDrunk];
         char     *t;
 
         /*
@@ -2875,7 +2875,7 @@ bool can_see_ooc(CharData * ch, CharData * victim)
 
         if (!IsNpc(victim)
                         && IsSet(victim->act, PlrWizinvis)
-                        && get_trust(ch) < victim->PCData->wizinvis)
+                        && get_trust(ch) < victim->pcdata->wizinvis)
                 return FALSE;
 
         if (!IsImmortal(ch) && !IsNpc(victim) && !victim->desc
@@ -2914,7 +2914,7 @@ bool can_see(CharData * ch, CharData * victim)
 
         if (!IsNpc(victim)
                         && IsSet(victim->act, PlrWizinvis)
-                        && get_trust(ch) < victim->PCData->wizinvis)
+                        && get_trust(ch) < victim->pcdata->wizinvis)
                 return FALSE;
 
         if (victim->position == PosFighting
@@ -4162,7 +4162,7 @@ bool chance(CharData * ch, sh_int percent)
            maximum penalty will only be half that of the other clan types.
 
            if ( IsClanned( ch ) )
-           clan_factor = 1 + abs( ch->alignment - ch->PCData->clan->alignment ) / 1000; 
+           clan_factor = 1 + abs( ch->alignment - ch->pcdata->clan->alignment ) / 1000; 
            else
            clan_factor = 1;
            */
@@ -4548,20 +4548,20 @@ void add_kill(CharData * ch, CharData * mob)
                         ((ch->skill_level[CombatAbility] +
                           3) * MaxKillTrack) / LevelAvatar, MaxKillTrack);
         for (x = 0; x < track; x++)
-                if (ch->PCData->killed[x].vnum == vnum)
+                if (ch->pcdata->killed[x].vnum == vnum)
                 {
-                        if (ch->PCData->killed[x].count < 50)
-                                ++ch->PCData->killed[x].count;
+                        if (ch->pcdata->killed[x].count < 50)
+                                ++ch->pcdata->killed[x].count;
                         return;
                 }
-                else if (ch->PCData->killed[x].vnum == 0)
+                else if (ch->pcdata->killed[x].vnum == 0)
                         break;
-        memmove((char *) ch->PCData->killed + sizeof(KilledData),
-                        ch->PCData->killed, (track - 1) * sizeof(KilledData));
-        ch->PCData->killed[0].vnum = vnum;
-        ch->PCData->killed[0].count = 1;
+        memmove((char *) ch->pcdata->killed + sizeof(KilledData),
+                        ch->pcdata->killed, (track - 1) * sizeof(KilledData));
+        ch->pcdata->killed[0].vnum = vnum;
+        ch->pcdata->killed[0].count = 1;
         if (track < MaxKillTrack)
-                ch->PCData->killed[track].vnum = 0;
+                ch->pcdata->killed[track].vnum = 0;
 }
 
 /*
@@ -4584,9 +4584,9 @@ int times_killed(CharData * ch, CharData * mob)
                         ((ch->skill_level[CombatAbility] +
                           3) * MaxKillTrack) / LevelAvatar, MaxKillTrack);
         for (x = 0; x < track; x++)
-                if (ch->PCData->killed[x].vnum == vnum)
-                        return ch->PCData->killed[x].count;
-                else if (ch->PCData->killed[x].vnum == 0)
+                if (ch->pcdata->killed[x].vnum == vnum)
+                        return ch->pcdata->killed[x].count;
+                else if (ch->pcdata->killed[x].vnum == 0)
                         break;
         return 0;
 }
@@ -4757,25 +4757,25 @@ void birth_date(CharData * ch)
         if (IsNpc(ch))
                 return;
 
-        if (!ch->PCData->birthday.year
-                        && !ch->PCData->birthday.day && !ch->PCData->birthday.month)
+        if (!ch->pcdata->birthday.year
+                        && !ch->pcdata->birthday.day && !ch->pcdata->birthday.month)
         {
                 bug("%s doesn't have a Birthday", ch->name);
                 return;
         }
 
-        years = ((time_info.year - ch->PCData->birthday.year) +
-                        ch->PCData->age);
-        months = 12 + (time_info.month - ch->PCData->birthday.month);
+        years = ((time_info.year - ch->pcdata->birthday.year) +
+                        ch->pcdata->age);
+        months = 12 + (time_info.month - ch->pcdata->birthday.month);
         months %= 12;
-        days = 30 + (time_info.day - ch->PCData->birthday.day);
+        days = 30 + (time_info.day - ch->pcdata->birthday.day);
         days %= 30;
 
-        if (time_info.day < ch->PCData->birthday.day)
+        if (time_info.day < ch->pcdata->birthday.day)
                 months--;
         if (months < 0)
                 months += 12;
-        if (time_info.month < ch->PCData->birthday.month)
+        if (time_info.month < ch->pcdata->birthday.month)
                 years--;
 
         pager_printf(ch,

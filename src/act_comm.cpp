@@ -108,7 +108,7 @@ bool has_comlink(CharData* ch)
         return TRUE;
 
 #ifdef CYBER
-    if (ch->PCData->cyber & CyberComm)
+    if (ch->pcdata->cyber & CyberComm)
         return TRUE;
 #endif
 
@@ -133,7 +133,7 @@ int get_comfreq(CharData* ch)
     if (!has_comlink(ch))
         return DefaultComchan;
     
-    return ch->PCData->comchan ? ch->PCData->comchan : DefaultComchan;
+    return ch->pcdata->comchan ? ch->pcdata->comchan : DefaultComchan;
 }
 
 /*
@@ -170,7 +170,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 return;
         }
 
-        if (ch->PCData->realage != 1)
+        if (ch->pcdata->realage != 1)
         {
                 send_to_char
                         ("You must set your legal status before you can use this command",
@@ -271,7 +271,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 act(AtSocial, buf, ch, NULL, victim, ToRoom);
                 snprintf(buf, MaxInputLength, "%s", social->char_no_arg);
                 act(AtSocial, buf, ch, NULL, victim, ToChar);
-                ch->PCData->arousal += static_cast<sh_int>(social->arousal * .25);
+                ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
                 return;
         }
         victim = get_char_room(ch, arg);
@@ -288,13 +288,13 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 return;
         }
 
-        if (IsSet(victim->act, PlrAfk) || victim->PCData->realage != 1)
+        if (IsSet(victim->act, PlrAfk) || victim->pcdata->realage != 1)
         {
                 send_to_char("&BY&zou cannot do that to that person!", ch);
                 return;
         }
 
-        if (social->minarousal > victim->PCData->arousal)
+        if (social->minarousal > victim->pcdata->arousal)
         {
                 send_to_char("&BT&zhat person is not aroused enough!", ch);
                 return;
@@ -318,7 +318,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 act(AtSocial, buf, ch, NULL, victim, ToRoom);
                 snprintf(buf, MaxInputLength, "%s", social->char_auto);
                 act(AtSocial, buf, ch, NULL, victim, ToChar);
-                ch->PCData->arousal += static_cast<sh_int>(social->arousal * ArousalMultiplier);
+                ch->pcdata->arousal += static_cast<sh_int>(social->arousal * ArousalMultiplier);
                 /*
                  * FIXME - 
                  * * Gavin - Uh... all 3 of these victim->sex lines had ; at the end.
@@ -326,21 +326,21 @@ CMDF do_xsocial(CharData* ch, char* argument)
                  * * which if thats the case, could be alot easier to write another way.
                  */
                 if (victim->sex == SexNeutral) {
-                        if (victim->PCData->arousal >=
+                        if (victim->pcdata->arousal >=
                             (ArousalBase +
                              (2 * (get_curr_con(victim)) +
                               (RandomPercent * number_percent())))) {
                         }
                 }
                 if (victim->sex == SexMale) {
-                        if (victim->PCData->arousal >=
+                        if (victim->pcdata->arousal >=
                             (ArousalBase +
                              (3 * (get_curr_con(victim)) +
                               (RandomPercent * number_percent())))) {
                         }
                 }
                 if (victim->sex == SexFemale) {
-                        if (victim->PCData->arousal >=
+                        if (victim->pcdata->arousal >=
                             (ArousalBase +
                              (1 * (get_curr_con(victim)) +
                               (RandomPercent * number_percent())))) {
@@ -356,11 +356,11 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 act(AtSocial, buf, ch, NULL, victim, ToChar);
                 snprintf(buf, MaxInputLength, "%s", social->vict_found);
                 act(AtSocial, buf, ch, NULL, victim, ToVict);
-                victim->PCData->arousal += social->arousal;
-                ch->PCData->arousal += static_cast<sh_int>(social->arousal * .25);
+                victim->pcdata->arousal += social->arousal;
+                ch->pcdata->arousal += static_cast<sh_int>(social->arousal * .25);
                 if (victim->sex == SexNeutral)
                 {
-                        if (victim->PCData->arousal >=
+                        if (victim->pcdata->arousal >=
                             (70 +
                              (2 * (get_curr_con(victim)) +
                               (0.1 * number_percent()))))
@@ -369,7 +369,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 }
                 if (victim->sex == SexMale)
                 {
-                        if (victim->PCData->arousal >=
+                        if (victim->pcdata->arousal >=
                             (70 +
                              (3 * (get_curr_con(victim)) +
                               (0.1 * number_percent()))))
@@ -378,7 +378,7 @@ CMDF do_xsocial(CharData* ch, char* argument)
                 }
                 if (victim->sex == SexFemale)
                 {
-                        if (victim->PCData->arousal >=
+                        if (victim->pcdata->arousal >=
                             (70 +
                              (1 * (get_curr_con(victim)) +
                               (0.1 * number_percent()))))
@@ -460,7 +460,7 @@ CMDF do_beep(CharData* ch, char* argument)
                 return;
         }
 
-        if (IsSet(victim->PCData->flags, PcflagWorking) && !IsImmortal(ch))
+        if (IsSet(victim->pcdata->flags, PcflagWorking) && !IsImmortal(ch))
         {
                 send_to_char
                         ("That person is working right now. Don't bother them.\n\r",
@@ -591,13 +591,13 @@ char     *drunk_speech(const char *argument, CharData * ch)
         char     *txt;
         char     *txt1;
 
-        if (IsNpc(ch) || !ch->PCData)
+        if (IsNpc(ch) || !ch->pcdata)
         {
                 mudstrlcpy(buf, argument, MIL * 2);
                 return buf;
         }
 
-        drunk = ch->PCData->condition[CondDrunk];
+        drunk = ch->pcdata->condition[CondDrunk];
         /*
          * Speak funny if you have a broken jaw - Gavin 
          */
@@ -1048,7 +1048,7 @@ CMDF do_tell(CharData* ch, char* argument)
         }
 
 
-        if (IsSet(victim->PCData->flags, PcflagWorking)
+        if (IsSet(victim->pcdata->flags, PcflagWorking)
             && get_trust(ch) <= get_trust(victim))
         {
                 send_to_char
@@ -1185,7 +1185,7 @@ CMDF do_reply(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsSet(victim->PCData->flags, PcflagWorking))
+        if (IsSet(victim->pcdata->flags, PcflagWorking))
         {
                 send_to_char
                         ("That person is working right now. Don't bother them.\n\r",
@@ -1332,7 +1332,7 @@ CMDF do_otell(CharData * ch, char *argument)
                 send_to_char("That player is afk.\n\r", ch);
                 return;
         }
-        if (IsSet(victim->PCData->flags, PcflagWorking))
+        if (IsSet(victim->pcdata->flags, PcflagWorking))
         {
                 send_to_char
                         ("That person is working right now. Don't bother them.\n\r",
@@ -1451,7 +1451,7 @@ CMDF do_oreply(CharData * ch, char *argument)
                 return;
         }
 
-        if (IsSet(victim->PCData->flags, PcflagWorking))
+        if (IsSet(victim->pcdata->flags, PcflagWorking))
         {
                 send_to_char
                         ("That person is working right now. Don't bother them!\n\r",
@@ -1808,10 +1808,10 @@ CMDF do_quit(CharData* ch, [[maybe_unused]] const char* argument)
          * After extract_char the ch is no longer Valid!
          */
 #ifdef ACCOUNT
-        if (!IsNpc(ch) && ch->PCData && ch->PCData->Account)
+        if (!IsNpc(ch) && ch->pcdata && ch->pcdata->Account)
         {
-                free_account(ch->PCData->Account);
-                ch->PCData->Account = NULL;
+                free_account(ch->pcdata->Account);
+                ch->pcdata->Account = NULL;
                 if (ch->desc && ch->desc->Account)
                         ch->desc->Account = NULL;
         }
@@ -1881,15 +1881,15 @@ CMDF do_save(CharData * ch, const char *argument)
                          ch);
                 return;
         }
-        if (IsImmortal(ch) && ch->PCData && ch->PCData->area
-            && IsSet(ch->PCData->area->status, AreaLoaded))
-                fold_area(ch->PCData->area, ch->PCData->area->filename, FALSE,
+        if (IsImmortal(ch) && ch->pcdata && ch->pcdata->area
+            && IsSet(ch->pcdata->area->status, AreaLoaded))
+                fold_area(ch->pcdata->area, ch->pcdata->area->filename, FALSE,
                           FALSE);
         save_char_obj(ch);
         save_home(ch);
 #ifdef ACCOUNT
-        if (ch->PCData && ch->PCData->Account)
-                save_account(ch->PCData->Account);
+        if (ch->pcdata && ch->pcdata->Account)
+                save_account(ch->pcdata->Account);
 #endif
         saving_char = NULL;
         save_finger(ch);
@@ -1918,8 +1918,8 @@ void auto_save(CharData * ch)
         }
         save_char_obj(ch);
 #ifdef ACCOUNT
-        if (ch->PCData && ch->PCData->Account)
-                save_account(ch->PCData->Account);
+        if (ch->pcdata && ch->pcdata->Account)
+                save_account(ch->pcdata->Account);
 #endif
         save_home(ch);
         saving_char = NULL;
@@ -2541,8 +2541,8 @@ bool knows_language(CharData* ch, LanguageData* lang, CharData* cch)
                  */
                 if (IsNpc(ch) || IsNpc(cch))
                         return TRUE;
-                if (ch->PCData->clan == cch->PCData->clan &&
-                    ch->PCData->clan != NULL)
+                if (ch->pcdata->clan == cch->pcdata->clan &&
+                    ch->pcdata->clan != NULL)
                         return TRUE;
         }
         if (!IsNpc(ch))
@@ -2559,7 +2559,7 @@ bool knows_language(CharData* ch, LanguageData* lang, CharData* cch)
                         return TRUE;
 
                 if ((sn = static_cast<sh_int>(skill_lookup(lang->name))) != -1
-                    && ch->PCData->learned[sn] >= MinLanguageSkill)
+                    && ch->pcdata->learned[sn] >= MinLanguageSkill)
                         return TRUE;
         }
         return FALSE;
@@ -2579,7 +2579,7 @@ bool can_learn_lang(CharData * ch, LanguageData * lang)
                         bug("Can_learn_lang: Valid language without sn: %s",
                             lang->name);
                 }
-                if (ch->PCData->learned[sn] >= MaxLanguageSkill)
+                if (ch->pcdata->learned[sn] >= MaxLanguageSkill)
                         return FALSE;
         }
 
@@ -2646,7 +2646,7 @@ CMDF do_speak(CharData* ch, char* argument)
                         if (knows_language(ch, language, ch))
                         {
                                 if (!str_cmp(language->name, "clan") &&
-                                    (IsNpc(ch) || !ch->PCData->clan))
+                                    (IsNpc(ch) || !ch->pcdata->clan))
                                         continue;
                                 ch->speaking = language;
                                 set_char_color(AtSay, ch);
@@ -2702,7 +2702,7 @@ CMDF do_languages(CharData * ch, char *argument)
                         if (str_prefix(arg2, lang2->name) &&
                             (sn2 = skill_lookup(lang2->name)) != -1)
                         {
-                                if (ch->PCData->learned[sn2] >= 1)
+                                if (ch->pcdata->learned[sn2] >= 1)
                                         numlang++;
                         }
                 }
@@ -2725,7 +2725,7 @@ CMDF do_languages(CharData * ch, char *argument)
                         return;
                 }
                 if (ch->race->language() == language ||
-                    ch->PCData->learned[sn] >= MaxLanguageSkill)
+                    ch->pcdata->learned[sn] >= MaxLanguageSkill)
                 {
                         act(AtPlain, "You are already fluent in $t.", ch,
                             language->name, NULL, ToChar);
@@ -2754,19 +2754,19 @@ CMDF do_languages(CharData * ch, char *argument)
                  * Max 12% (5 + 4 + 3) at 24+ int and 21+ wis. -- Altrag 
                  */
                 prct = 5 + (get_curr_int(ch) / 6) + (get_curr_wis(ch) / 7);
-                ch->PCData->learned[sn] += static_cast<sh_int>(prct);
-                ch->PCData->learned[sn] = UMin(ch->PCData->learned[sn], 99);
-                if (ch->PCData->learned[sn] == prct)
+                ch->pcdata->learned[sn] += static_cast<sh_int>(prct);
+                ch->pcdata->learned[sn] = UMin(ch->pcdata->learned[sn], 99);
+                if (ch->pcdata->learned[sn] == prct)
                         act(AtPlain, "You begin lessons in $t.", ch,
                             language->name, NULL, ToChar);
-                else if (ch->PCData->learned[sn] < 60)
+                else if (ch->pcdata->learned[sn] < 60)
                         act(AtPlain, "You continue lessons in $t.", ch,
                             language->name, NULL, ToChar);
-                else if (ch->PCData->learned[sn] < 60 + prct)
+                else if (ch->pcdata->learned[sn] < 60 + prct)
                         act(AtPlain,
                             "You feel you can start communicating in $t.", ch,
                             language->name, NULL, ToChar);
-                else if (ch->PCData->learned[sn] < 99)
+                else if (ch->pcdata->learned[sn] < 99)
                         act(AtPlain, "You become more fluent in $t.", ch,
                             language->name, NULL, ToChar);
                 else
@@ -2790,7 +2790,7 @@ CMDF do_languages(CharData * ch, char *argument)
                         send_to_char("&B(&w  0&B) ", ch);
                 else
                         ch_printf(ch, "&B(&w%3d&B) ",
-                                  victim->PCData->learned[sn]);
+                                  victim->pcdata->learned[sn]);
                 if (victim->speaking == language)
                         ch_printf(ch, "&R%s", capitalize(language->name));
                 else
@@ -2818,10 +2818,10 @@ bool is_ignoring(CharData * ch, CharData * victim)
         for (pos = 0; pos < MaxIgnore; pos++)
         {
                 if (!IsNpc(rch))
-                        if (rch->PCData->ignore[pos] == NULL)
+                        if (rch->pcdata->ignore[pos] == NULL)
                                 break;
 
-                if (!str_cmp(rch->PCData->ignore[pos], victim->name))
+                if (!str_cmp(rch->pcdata->ignore[pos], victim->name))
                         return TRUE;
         }
 
@@ -2851,10 +2851,10 @@ CMDF do_ignore(CharData * ch, char *argument)
         {
                 for (pos = 0; pos < MaxIgnore; pos++)
                 {
-                        if (rch->PCData->ignore[pos] == NULL)
+                        if (rch->pcdata->ignore[pos] == NULL)
                                 break;
                         ch_printf(ch, "&C[&c%d&C] &G%s&w\n\r", pos,
-                                  rch->PCData->ignore[pos]);
+                                  rch->pcdata->ignore[pos]);
                 }
                 return;
         }
@@ -2882,13 +2882,13 @@ CMDF do_ignore(CharData * ch, char *argument)
 
         for (pos = 0; pos < MaxIgnore; pos++)
         {
-                if (rch->PCData->ignore[pos] == NULL)
+                if (rch->pcdata->ignore[pos] == NULL)
                         break;
 
-                if (!str_cmp(argument, rch->PCData->ignore[pos]))
+                if (!str_cmp(argument, rch->pcdata->ignore[pos]))
                 {
-                        STRFREE(rch->PCData->ignore[pos]);
-                        rch->PCData->ignore[pos] = NULL;
+                        STRFREE(rch->pcdata->ignore[pos]);
+                        rch->pcdata->ignore[pos] = NULL;
                         ch_printf(ch, "You stop ignoring %s.\n\r",
                                   victim->name);
                         return;
@@ -2901,7 +2901,7 @@ CMDF do_ignore(CharData * ch, char *argument)
                 return;
         }
 
-        rch->PCData->ignore[pos] = STRALLOC(argument);
+        rch->pcdata->ignore[pos] = STRALLOC(argument);
         ch_printf(ch, "You now ignore %s.\n\r", victim->name);
         return;
 
@@ -2926,7 +2926,7 @@ CMDF do_tune(CharData * ch, char *argument)
         if (argument[0] == '\0')
         {
                 ch_printf(ch, "&BYour comlink display reads&G&W %d &B.\n\r",
-                          ch->PCData->comchan);
+                          ch->pcdata->comchan);
                 return;
         }
 
@@ -2952,7 +2952,7 @@ CMDF do_tune(CharData * ch, char *argument)
         act(AtSocial, "&B$n fiddles with a comlink for a second.", ch, NULL,
             NULL, ToRoom);
 
-        ch->PCData->comchan = station;
+        ch->pcdata->comchan = station;
         return;
 }
 
@@ -2990,7 +2990,7 @@ CMDF do_talk(CharData * ch, char *argument)
                 return;
         }
 
-        station = ch->PCData->comchan;
+        station = ch->pcdata->comchan;
 
         if (station <= 0)
         {
@@ -3023,8 +3023,8 @@ CMDF do_talk(CharData * ch, char *argument)
                         if (IsSet(vch->in_room->RoomFlags, RoomSilence))
                                 continue;
 
-                        if (vch->PCData && vch->PCData->comchan != station
-                            && vch->PCData->comchan != 101)
+                        if (vch->pcdata && vch->pcdata->comchan != station
+                            && vch->pcdata->comchan != 101)
                                 continue;
 
                         if (!knows_language(vch, ch->speaking, ch) &&

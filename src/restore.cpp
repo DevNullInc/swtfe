@@ -305,7 +305,7 @@ CMDF do_restore(CharData * ch, char *argument)
                 CharData *vch;
                 CharData *vch_next;
 
-                if (!ch->PCData)
+                if (!ch->pcdata)
                         return;
 
                 if (get_trust(ch) < LevelNeophyte)
@@ -332,7 +332,7 @@ CMDF do_restore(CharData * ch, char *argument)
                         }
                 }
                 last_restore_all_time = current_time;
-                ch->PCData->restore_time = current_time;
+                ch->pcdata->restore_time = current_time;
                 save_char_obj(ch);
                 send_to_char("Beginning 'restore all' ...\n\r", ch);
                 for (vch = first_char; vch; vch = vch_next)

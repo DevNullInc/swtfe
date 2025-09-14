@@ -547,10 +547,10 @@ int hit_gain(CharData * ch)
                         break;
                 }
 
-                if (ch->PCData->condition[CondFull] == 0)
+                if (ch->pcdata->condition[CondFull] == 0)
                         gain /= 2;
 
-                if (ch->PCData->condition[CondThirst] == 0)
+                if (ch->pcdata->condition[CondThirst] == 0)
                         gain /= 2;
 
         }
@@ -619,10 +619,10 @@ int mana_gain(CharData * ch)
                         break;
                 }
 
-                if (ch->PCData->condition[CondFull] == 0)
+                if (ch->pcdata->condition[CondFull] == 0)
                         gain /= 2;
 
-                if (ch->PCData->condition[CondThirst] == 0)
+                if (ch->pcdata->condition[CondThirst] == 0)
                         gain /= 2;
 
         }
@@ -668,9 +668,9 @@ int move_gain(CharData * ch)
                         gain += get_curr_dex(ch);
                         break;
                 }
-                if (ch->PCData->condition[CondFull] == 0)
+                if (ch->pcdata->condition[CondFull] == 0)
                         gain /= 2;
-                if (ch->PCData->condition[CondThirst] == 0)
+                if (ch->pcdata->condition[CondThirst] == 0)
                         gain /= 2;
         }
         if (IsSet(ch->bodyparts, BodyRLeg))
@@ -716,14 +716,14 @@ void gain_addiction(CharData * ch)
         for (drug = 0; drug <= 9; drug++)
         {
 
-                if (ch->PCData->addiction[drug] <
-                    ch->PCData->drug_level[drug])
-                        ch->PCData->addiction[drug]++;
+                if (ch->pcdata->addiction[drug] <
+                    ch->pcdata->drug_level[drug])
+                        ch->pcdata->addiction[drug]++;
 
-                if (ch->PCData->addiction[drug] >
-                    ch->PCData->drug_level[drug] + 150)
+                if (ch->pcdata->addiction[drug] >
+                    ch->pcdata->drug_level[drug] + 150)
                 {
-                        switch (ch->PCData->addiction[drug])
+                        switch (ch->pcdata->addiction[drug])
                         {
                         default:
                         case SpiceGlitterstim:
@@ -733,7 +733,7 @@ void gain_addiction(CharData * ch)
                                         af.location = ApplyAc;
                                         af.modifier = 10;
                                         af.duration =
-                                                ch->PCData->addiction[drug];
+                                                ch->pcdata->addiction[drug];
                                         af.bitvector = AffBlind;
                                         affect_to_char(ch, &af);
                                 }
@@ -744,7 +744,7 @@ void gain_addiction(CharData * ch)
                                         af.location = ApplyDamroll;
                                         af.modifier = -10;
                                         af.duration =
-                                                ch->PCData->addiction[drug];
+                                                ch->pcdata->addiction[drug];
                                         af.bitvector = AffWeaken;
                                         affect_to_char(ch, &af);
                                 }
@@ -755,7 +755,7 @@ void gain_addiction(CharData * ch)
                                         af.location = ApplyDex;
                                         af.modifier = -5;
                                         af.duration =
-                                                ch->PCData->addiction[drug];
+                                                ch->pcdata->addiction[drug];
                                         af.bitvector = AffWeaken;
                                         affect_to_char(ch, &af);
                                 }
@@ -766,15 +766,15 @@ void gain_addiction(CharData * ch)
                                         af.location = ApplyCon;
                                         af.modifier = -5;
                                         af.duration =
-                                                ch->PCData->addiction[drug];
+                                                ch->pcdata->addiction[drug];
                                         af.bitvector = AffWeaken;
                                         affect_to_char(ch, &af);
                                 }
                         }
                 }
 
-                if (ch->PCData->addiction[drug] >
-                    ch->PCData->drug_level[drug] + 200)
+                if (ch->pcdata->addiction[drug] >
+                    ch->pcdata->drug_level[drug] + 200)
                 {
                         ch_printf(ch,
                                   "You feel like you are going to die. You NEED %s\n\r.",
@@ -782,44 +782,44 @@ void gain_addiction(CharData * ch)
                         worsen_mental_state(ch, 2);
                         retcode = damage(ch, ch, 5, TypeUndefined);
                 }
-                else if (ch->PCData->addiction[drug] >
-                         ch->PCData->drug_level[drug] + 100)
+                else if (ch->pcdata->addiction[drug] >
+                         ch->pcdata->drug_level[drug] + 100)
                 {
                         ch_printf(ch, "You need some %s.\n\r",
                                   spice_table[drug]);
                         worsen_mental_state(ch, 2);
                 }
-                else if (ch->PCData->addiction[drug] >
-                         ch->PCData->drug_level[drug] + 50)
+                else if (ch->pcdata->addiction[drug] >
+                         ch->pcdata->drug_level[drug] + 50)
                 {
                         ch_printf(ch, "You really crave some %s.\n\r",
                                   spice_table[drug]);
                         worsen_mental_state(ch, 1);
                 }
-                else if (ch->PCData->addiction[drug] >
-                         ch->PCData->drug_level[drug] + 25)
+                else if (ch->pcdata->addiction[drug] >
+                         ch->pcdata->drug_level[drug] + 25)
                 {
                         ch_printf(ch,
                                   "Some more %s would feel quite nice.\n\r",
                                   spice_table[drug]);
                 }
-                else if (ch->PCData->addiction[drug] <
-                         ch->PCData->drug_level[drug] - 50)
+                else if (ch->pcdata->addiction[drug] <
+                         ch->pcdata->drug_level[drug] - 50)
                 {
                         act(AtPoison, "$n bends over and vomits.\n\r", ch,
                             NULL, NULL, ToRoom);
                         act(AtPoison, "You vomit.\n\r", ch, NULL, NULL,
                             ToChar);
-                        ch->PCData->drug_level[drug] -= 10;
+                        ch->pcdata->drug_level[drug] -= 10;
                 }
 
-                if (ch->PCData->drug_level[drug] > 1)
-                        ch->PCData->drug_level[drug] -= 2;
-                else if (ch->PCData->drug_level[drug] > 0)
-                        ch->PCData->drug_level[drug] -= 1;
-                else if (ch->PCData->addiction[drug] > 0
-                         && ch->PCData->drug_level[drug] <= 0)
-                        ch->PCData->addiction[drug]--;
+                if (ch->pcdata->drug_level[drug] > 1)
+                        ch->pcdata->drug_level[drug] -= 2;
+                else if (ch->pcdata->drug_level[drug] > 0)
+                        ch->pcdata->drug_level[drug] -= 1;
+                else if (ch->pcdata->addiction[drug] > 0
+                         && ch->pcdata->drug_level[drug] <= 0)
+                        ch->pcdata->addiction[drug]--;
         }
 
 }
@@ -831,18 +831,18 @@ void gain_condition(CharData * ch, int iCond, int value)
 
         if (value == 0 || IsNpc(ch) || get_trust(ch) >= LevelImmortal ||
             NotAuthed(ch) || !str_cmp("droid", ch->race->name())
-            || IsSet(ch->PCData->flags, PcflagNohunger))
+            || IsSet(ch->pcdata->flags, PcflagNohunger))
                 return;
 
-        condition = ch->PCData->condition[iCond];
+        condition = ch->pcdata->condition[iCond];
 		/* For decreasing checks */
 		if (value <= 0 && 
 			(iCond == CondFull || iCond == CondThirst) &&
 			get_implant_affect(ch,ImplantHunger))
 				return;
-        ch->PCData->condition[iCond] = URange(0, condition + value, 48);
+        ch->pcdata->condition[iCond] = URange(0, condition + value, 48);
 
-        if (ch->PCData->condition[iCond] == 0)
+        if (ch->pcdata->condition[iCond] == 0)
         {
                 switch (iCond)
                 {
@@ -890,7 +890,7 @@ void gain_condition(CharData * ch, int iCond, int value)
         if (retcode != rNONE)
                 return;
 
-        if (ch->PCData->condition[iCond] == 1)
+        if (ch->pcdata->condition[iCond] == 1)
         {
                 switch (iCond)
                 {
@@ -931,7 +931,7 @@ void gain_condition(CharData * ch, int iCond, int value)
                         break;
                 }
         }
-        if (ch->PCData->condition[iCond] == 2)
+        if (ch->pcdata->condition[iCond] == 2)
         {
                 switch (iCond)
                 {
@@ -954,7 +954,7 @@ void gain_condition(CharData * ch, int iCond, int value)
                 }
         }
 
-        if (ch->PCData->condition[iCond] == 3)
+        if (ch->pcdata->condition[iCond] == 3)
         {
                 switch (iCond)
                 {
@@ -1284,14 +1284,14 @@ void update_salaries(void)
                  */
                 if (IsNpc(ch))
                         continue;   /* Not likely, but just in case */
-                if (ch->PCData && ch->PCData->clan)
+                if (ch->pcdata && ch->pcdata->clan)
                 {
-                        clan = ch->PCData->clan;
-                        amount = clan->salary[ch->PCData->clanrank];
+                        clan = ch->pcdata->clan;
+                        amount = clan->salary[ch->pcdata->clanrank];
                         if (amount <= 0)
                                 continue;
                         ch->gold += amount;
-                        ch->PCData->clan->funds -= amount;
+                        ch->pcdata->clan->funds -= amount;
                         act(AtAction,
                             "Someone quickly appears and hands $n a package.",
                             ch, NULL, NULL, ToRoom);
@@ -1672,44 +1672,44 @@ void char_update(void)
                 /*
                  * erflink Erflink ERFLINK did you add the player fields for it? If so, I dunno where they are, gotta look.
                  */
-                if (ch->PCData)
+                if (ch->pcdata)
                 {
 /*
      value = number_range( 1,10000 );
-     if ( ( value >= 1 ) && ( value <= 3 ) && ( ch->PCData->illness < 15 ) )
-        ch->PCData->illness = 15;
-     if ( ( value >= 4 ) && ( value <= 7 ) && ( ch->PCData->illness < 14 ) )
-        ch->PCData->illness = 14;
-     if ( ( value >= 8 ) && ( value <= 20 ) && ( ch->PCData->illness < 13 ) )
-        ch->PCData->illness = 13;
-     if ( ( value >= 21 ) && ( value <= 31 ) && ( ch->PCData->illness < 12 ) )
-        ch->PCData->illness = 12;
-     if ( ( value >= 32 ) && ( value <= 42 ) && ( ch->PCData->illness < 11 ) )
-        ch->PCData->illness = 11;
-     if ( ( value >= 43 ) && ( value <= 53 ) && ( ch->PCData->illness < 10 ) )
-        ch->PCData->illness = 10;
-     if ( ( value >= 54 ) && ( value <= 64 ) && ( ch->PCData->illness < 9 ) )
-        ch->PCData->illness = 9;
-     if ( ( value >= 65 ) && ( value <= 75 ) && ( ch->PCData->illness < 8 ) )
-        ch->PCData->illness = 8;
-     if ( ( value >= 76 ) && ( value <= 80 ) && ( ch->PCData->illness < 7 ) )
-        ch->PCData->illness = 7;
-     if ( ( value >= 81 ) && ( value <= 99 ) && ( ch->PCData->illness < 6 ) )
-        ch->PCData->illness = 6;
-     if ( ( value >= 100 ) && ( value <= 119 ) && ( ch->PCData->illness < 5 ) )
-        ch->PCData->illness = 5;
-     if ( ( value >= 120 ) && ( value <= 149 ) && ( ch->PCData->illness < 4 ) )
-        ch->PCData->illness = 4;
-     if ( ( value >= 150 ) && ( value <= 189 ) && ( ch->PCData->illness < 3 ) )
-        ch->PCData->illness = 3;
-     if ( ( value >= 190 ) && ( value <= 239 ) && ( ch->PCData->illness < 2 ) )
-        ch->PCData->illness = 2;
-     if ( ( value >= 240 ) && ( value <= 300 ) && ( ch->PCData->illness < 1 ) )
-        ch->PCData->illness = 1;
+     if ( ( value >= 1 ) && ( value <= 3 ) && ( ch->pcdata->illness < 15 ) )
+        ch->pcdata->illness = 15;
+     if ( ( value >= 4 ) && ( value <= 7 ) && ( ch->pcdata->illness < 14 ) )
+        ch->pcdata->illness = 14;
+     if ( ( value >= 8 ) && ( value <= 20 ) && ( ch->pcdata->illness < 13 ) )
+        ch->pcdata->illness = 13;
+     if ( ( value >= 21 ) && ( value <= 31 ) && ( ch->pcdata->illness < 12 ) )
+        ch->pcdata->illness = 12;
+     if ( ( value >= 32 ) && ( value <= 42 ) && ( ch->pcdata->illness < 11 ) )
+        ch->pcdata->illness = 11;
+     if ( ( value >= 43 ) && ( value <= 53 ) && ( ch->pcdata->illness < 10 ) )
+        ch->pcdata->illness = 10;
+     if ( ( value >= 54 ) && ( value <= 64 ) && ( ch->pcdata->illness < 9 ) )
+        ch->pcdata->illness = 9;
+     if ( ( value >= 65 ) && ( value <= 75 ) && ( ch->pcdata->illness < 8 ) )
+        ch->pcdata->illness = 8;
+     if ( ( value >= 76 ) && ( value <= 80 ) && ( ch->pcdata->illness < 7 ) )
+        ch->pcdata->illness = 7;
+     if ( ( value >= 81 ) && ( value <= 99 ) && ( ch->pcdata->illness < 6 ) )
+        ch->pcdata->illness = 6;
+     if ( ( value >= 100 ) && ( value <= 119 ) && ( ch->pcdata->illness < 5 ) )
+        ch->pcdata->illness = 5;
+     if ( ( value >= 120 ) && ( value <= 149 ) && ( ch->pcdata->illness < 4 ) )
+        ch->pcdata->illness = 4;
+     if ( ( value >= 150 ) && ( value <= 189 ) && ( ch->pcdata->illness < 3 ) )
+        ch->pcdata->illness = 3;
+     if ( ( value >= 190 ) && ( value <= 239 ) && ( ch->pcdata->illness < 2 ) )
+        ch->pcdata->illness = 2;
+     if ( ( value >= 240 ) && ( value <= 300 ) && ( ch->pcdata->illness < 1 ) )
+        ch->pcdata->illness = 1;
 */
-                        if (ch->PCData->illness > 0)
+                        if (ch->pcdata->illness > 0)
                         {
-                                switch (ch->PCData->illness)
+                                switch (ch->pcdata->illness)
                                 {
                                 case 1:
                                         ch->endurance -= 140;
@@ -2056,7 +2056,7 @@ void char_update(void)
                 if (ch->position == PosStunned)
                         update_pos(ch);
 
-                if (ch->PCData)
+                if (ch->pcdata)
                         gain_addiction(ch);
 
 
@@ -2082,12 +2082,12 @@ void char_update(void)
 
                         if (str_cmp("droid", ch->race->name()))
                         {
-                                if (ch->PCData->condition[CondDrunk] > 8)
+                                if (ch->pcdata->condition[CondDrunk] > 8)
                                         worsen_mental_state(ch,
-                                                            ch->PCData->
+                                                            ch->pcdata->
                                                             condition
                                                             [CondDrunk] / 8);
-                                if (ch->PCData->condition[CondFull] > 1)
+                                if (ch->pcdata->condition[CondFull] > 1)
                                 {
                                         switch (ch->position)
                                         {
@@ -2111,7 +2111,7 @@ void char_update(void)
                                                 break;
                                         }
                                 }
-                                if (ch->PCData->condition[CondThirst] > 1)
+                                if (ch->pcdata->condition[CondThirst] > 1)
                                 {
                                         switch (ch->position)
                                         {
@@ -2357,9 +2357,9 @@ void char_update(void)
                                         RoomIndexData *room = ch->in_room;
 
                                         if (NotAuthed(ch)
-                                            && ch->PCData->Account)
+                                            && ch->pcdata->Account)
                                         {
-                                                if (!del_from_account(ch->PCData->Account, ch))
+                                                if (!del_from_account(ch->pcdata->Account, ch))
                                                 {
                                                         bug("Failed to remove unauthed character from Account", 0);
                                                 }
@@ -2985,13 +2985,13 @@ void drunk_randoms(CharData * ch)
         sh_int    drunk;
         sh_int    position;
 
-        if (IsNpc(ch) || ch->PCData->condition[CondDrunk] <= 0)
+        if (IsNpc(ch) || ch->pcdata->condition[CondDrunk] <= 0)
                 return;
 
         if (number_percent() < 30)
                 return;
 
-        drunk = ch->PCData->condition[CondDrunk];
+        drunk = ch->pcdata->condition[CondDrunk];
         position = ch->position;
         ch->position = PosStanding;
 
@@ -3662,15 +3662,15 @@ void battalion_update(void)
                                      ch = ch->next_in_area)
                                 {
                                         aclan = NULL;
-                                        if (ch->PCData->clan)
+                                        if (ch->pcdata->clan)
                                         {
-                                                if (ch->PCData->clan->
+                                                if (ch->pcdata->clan->
                                                     mainclan)
-                                                        aclan = ch->PCData->
+                                                        aclan = ch->pcdata->
                                                                 clan->
                                                                 mainclan;
                                                 else
-                                                        aclan = ch->PCData->
+                                                        aclan = ch->pcdata->
                                                                 clan;
                                         }
 

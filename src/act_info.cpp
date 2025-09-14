@@ -346,8 +346,8 @@ void show_list_to_char(ObjData* list, CharData* ch, bool fShort, bool fShowNothi
         ms = (ch->mental_state ? ch->mental_state : 1)
                 *
                 (IsNpc(ch) ? 1
-                 : (ch->PCData->
-                    condition[CondDrunk] ? (ch->PCData->
+                 : (ch->pcdata->
+                    condition[CondDrunk] ? (ch->pcdata->
                                              condition[CondDrunk] /
                                              12) : 1));
 
@@ -632,7 +632,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
         {
                 if (!IsNpc(victim))
                         snprintf(buf1, MSL, "(Invis %d) ",
-                                 victim->PCData->wizinvis);
+                                 victim->pcdata->wizinvis);
                 else
                         snprintf(buf1, MSL, "(Mobinvis %d) ",
                                  victim->mobinvis);
@@ -923,13 +923,13 @@ void show_char_to_char_1(CharData * victim, CharData * ch)
         if (IsNpc(ch) || victim == ch)
                 return;
 
-        if (number_percent() < ch->PCData->learned[gsn_peek])
+        if (number_percent() < ch->pcdata->learned[gsn_peek])
         {
                 send_to_char("\n\r&BY&zou peek at the inventory:\n\r", ch);
                 show_list_to_char(victim->first_carrying, ch, TRUE, TRUE);
                 learn_from_success(ch, gsn_peek);
         }
-        else if (ch->PCData->learned[gsn_peek])
+        else if (ch->pcdata->learned[gsn_peek])
                 learn_from_failure(ch, gsn_peek);
         return;
 }
@@ -1115,7 +1115,7 @@ CMDF do_look(CharData* ch, const char* argument)
                                                              ch);
                                         send_to_char("&B}}", ch);
                                 }
-                                if (IsSet(ch->PCData->flags, PcflagRoom))
+                                if (IsSet(ch->pcdata->flags, PcflagRoom))
                                 {
                                         send_to_char("[&z", ch);
                                         send_to_char(ext_flag_string
@@ -1483,7 +1483,7 @@ CMDF do_look(CharData* ch, const char* argument)
                                 if (!IsNpc(ch))
                                 {
                                         int       percent =
-                                                ch->PCData->
+                                                ch->pcdata->
                                                 learned[skill_lookup("scry")];
                                         if (!percent)
                                                 percent = 99;
@@ -1889,19 +1889,19 @@ CMDF do_viewskills(CharData * ch, char *argument)
                             || skill_table[sn]->guild >= MaxAbility)
                                 continue;
 
-                        if (victim->PCData->learned[sn] <= 0
+                        if (victim->pcdata->learned[sn] <= 0
                             && victim->skill_level[skill_table[sn]->guild] <
                             skill_table[sn]->min_level)
                                 continue;
 
-                        if (victim->PCData->learned[sn] == 0
+                        if (victim->pcdata->learned[sn] == 0
                             && SpellFlag(skill_table[sn], SfSecretskill))
                                 continue;
 
                         ++cnt;
                         pager_printf(ch, "&z%18.18s &W%3.3d%%  ",
                                      skill_table[sn]->name,
-                                     victim->PCData->learned[sn]);
+                                     victim->pcdata->learned[sn]);
                         if (++col % 3 == 0)
                                 send_to_pager("\n\r", ch);
                 }
@@ -3177,38 +3177,38 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                  **	Using "ClanName" in who list    	**
                  ******************************************/
                 ClanName[0] = '\0'; /* Reset this so it won't print on others */
-                if ( ch && !IsNpc(ch) && wch->PCData->clan && (ch->PCData->clan || IsImmortal(ch)))
+                if ( ch && !IsNpc(ch) && wch->pcdata->clan && (ch->pcdata->clan || IsImmortal(ch)))
                 {
                         ClanData *pclan;
                         ClanData *zclan;
 
-                        if ( wch->PCData->clan ) 
+                        if ( wch->pcdata->clan ) 
                         {
-                                pclan = wch->PCData->clan;
+                                pclan = wch->pcdata->clan;
                                 if (pclan->mainclan) pclan = pclan->mainclan;
                         }
 
-                        if ( ch->PCData->clan ) { 
-                                zclan = ch->PCData->clan;
+                        if ( ch->pcdata->clan ) { 
+                                zclan = ch->pcdata->clan;
                                 if (zclan->mainclan) zclan = zclan->mainclan;
                         }
 
                         if ( IsImmortal(ch) || (pclan && zclan && pclan == zclan) )  
                         {
-                                if ( !str_cmp( wch->name, wch->PCData->clan->leader ) )
+                                if ( !str_cmp( wch->name, wch->pcdata->clan->leader ) )
                                 {
                                         snprintf(ClanName, MSL, " &R(&BL&zeader,&B %c&z%s&R)&W",
-                                                        wch->PCData->clan->name[0],
-                                                        (wch->PCData->clan->name+1)
+                                                        wch->pcdata->clan->name[0],
+                                                        (wch->pcdata->clan->name+1)
                                                 );
                                 }
                                 else
                                 {
                                         snprintf(ClanName, MSL, " &R(&B%c&z%s,&B %c&z%s&R)&W",
-                                                        wch->PCData->clan->rank[wch->PCData->clanrank][0],
-                                                        (wch->PCData->clan->rank[wch->PCData->clanrank]+1),
-                                                        wch->PCData->clan->name[0],
-                                                        (wch->PCData->clan->name+1)
+                                                        wch->pcdata->clan->rank[wch->pcdata->clanrank][0],
+                                                        (wch->pcdata->clan->rank[wch->pcdata->clanrank]+1),
+                                                        wch->pcdata->clan->name[0],
+                                                        (wch->pcdata->clan->name+1)
                                                 );
                                 } 
 
@@ -3243,33 +3243,33 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                         break;
                 }
 
-                if (!ch && wch->PCData->homepage
-                    && wch->PCData->homepage[0] != '\0')
+                if (!ch && wch->pcdata->homepage
+                    && wch->pcdata->homepage[0] != '\0')
                 {
                         if (get_trust(ch) > get_trust(wch)
                             && !nifty_is_name(wch->name,
-                                              smash_color(wch->PCData->
+                                              smash_color(wch->pcdata->
                                                           title)))
                                 snprintf(extra_title, MSL,
                                          "<a href=\"%s\" target=_blank>%s [%s]</a>",
-                                         wch->PCData->homepage,
-                                         wch->PCData->title, wch->name);
+                                         wch->pcdata->homepage,
+                                         wch->pcdata->title, wch->name);
                         else
                                 snprintf(extra_title, MSL,
                                          "<a href=\"%s\" target=_blank>%s</a>",
-                                         wch->PCData->homepage,
-                                         wch->PCData->title);
+                                         wch->pcdata->homepage,
+                                         wch->pcdata->title);
                 }
                 else
                 {
                         if (get_trust(ch) > get_trust(wch)
                             && !nifty_is_name(wch->name,
-                                              smash_color(wch->PCData->
+                                              smash_color(wch->pcdata->
                                                           title)))
                                 snprintf(extra_title, MSL, "%s [%s]",
-                                         wch->PCData->title, wch->name);
+                                         wch->pcdata->title, wch->name);
                         else
-                                mudstrlcpy(extra_title, wch->PCData->title,
+                                mudstrlcpy(extra_title, wch->pcdata->title,
                                            MSL);
                 }
 
@@ -3278,15 +3278,15 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                         race = "Retired";
                 else if (IsGuest(wch))
                         race = "Guest";
-                else if (IsSet(wch->PCData->flags, PcflagNewbguide))
+                else if (IsSet(wch->pcdata->flags, PcflagNewbguide))
                         race = "&b[&zNewbie Guide&b]&D";
-                else if (wch->PCData->rank && wch->PCData->rank[0] != '\0')
-                        race = wch->PCData->rank;
+                else if (wch->pcdata->rank && wch->pcdata->rank[0] != '\0')
+                        race = wch->pcdata->rank;
 
 
                 if (IsSet(wch->act, PlrWizinvis))
                         snprintf(invis_str, 10, "(%d) ",
-                                 wch->PCData->wizinvis);
+                                 wch->pcdata->wizinvis);
                 else
                         invis_str[0] = '\0';
 
@@ -3309,7 +3309,7 @@ CMDF do_who(CharData* ch, [[maybe_unused]] const char* argument)
                 
                 /* Add status flags (limited space) */
                 len += snprintf(safe_buf + len, static_cast<size_t>(MaxStringLength - len), "%.50s%.50s%.50s&w",
-                         IsSet(wch->PCData->flags, PcflagWorking) ? "&Y [&RWORKING&Y]&W" : "&W",
+                         IsSet(wch->pcdata->flags, PcflagWorking) ? "&Y [&RWORKING&Y]&W" : "&W",
                          IsSet(wch->act, PlrSilence) ? "&Y [&BS&zilenced&Y]&W" : "&W",
                          wch->desc->connected == ConEditing ? "&Y [&cWRITING&Y]" : 
                          (wch->desc->connected == ConIaForked || 
@@ -3848,17 +3848,17 @@ CMDF do_practice(CharData* ch, char* argument)
                             && skill_table[sn]->guild != classtype)
                                 continue;
 
-                        if (ch->PCData->learned[sn] <= 0
+                        if (ch->pcdata->learned[sn] <= 0
                             && ch->skill_level[skill_table[sn]->guild] <
                             skill_table[sn]->min_level)
                                 continue;
 
-                        if (ch->PCData->learned[sn] == 0
+                        if (ch->pcdata->learned[sn] == 0
                             && SpellFlag(skill_table[sn], SfSecretskill))
                                 continue;
 
                         ++cnt;
-                        if (ch->PCData->learned[sn] >= 100)
+                        if (ch->pcdata->learned[sn] >= 100)
                         {
                                 if (IsMxp(ch))
                                 {
@@ -3870,14 +3870,14 @@ CMDF do_practice(CharData* ch, char* argument)
                                                      " &W%3.3d%%  ",
                                                      skill_table[sn]->name,
                                                      skill_table[sn]->name,
-                                                     ch->PCData->learned[sn]);
+                                                     ch->pcdata->learned[sn]);
                                 }
                                 else
                                 {
                                         pager_printf(ch,
                                                      "&w%18.18s &W%3.3d%%  ",
                                                      skill_table[sn]->name,
-                                                     ch->PCData->learned[sn]);
+                                                     ch->pcdata->learned[sn]);
                                 }
                         }
                         else
@@ -3892,14 +3892,14 @@ CMDF do_practice(CharData* ch, char* argument)
                                                      " &W%3.3d%%  ",
                                                      skill_table[sn]->name,
                                                      skill_table[sn]->name,
-                                                     ch->PCData->learned[sn]);
+                                                     ch->pcdata->learned[sn]);
                                 }
                                 else
                                 {
                                         pager_printf(ch,
                                                      "&z%18.18s &W%3.3d%%  ",
                                                      skill_table[sn]->name,
-                                                     ch->PCData->learned[sn]);
+                                                     ch->pcdata->learned[sn]);
                                 }
                         }
                         if (++col % 3 == 0)
@@ -4021,7 +4021,7 @@ CMDF do_practice(CharData* ch, char* argument)
                         return;
                 }
 
-                if (ch->PCData->learned[sn] >= adept)
+                if (ch->pcdata->learned[sn] >= adept)
                 {
                         snprintf(buf, MSL,
                                  "$n tells you, 'I've taught you everything I can about %s.'",
@@ -4034,15 +4034,15 @@ CMDF do_practice(CharData* ch, char* argument)
                 else
                 {
                         ch->gold -= skill_table[sn]->min_level * 10;
-                        ch->PCData->learned[sn] +=
+                        ch->pcdata->learned[sn] +=
                                 IntApp[get_curr_int(ch)].learn;
                         act(AtAction, "You practice $T.", ch, NULL,
                             skill_table[sn]->name, ToChar);
                         act(AtAction, "$n practices $T.", ch, NULL,
                             skill_table[sn]->name, ToRoom);
-                        if (ch->PCData->learned[sn] >= adept)
+                        if (ch->pcdata->learned[sn] >= adept)
                         {
-                                ch->PCData->learned[sn] = static_cast<sh_int>(adept);
+                                ch->pcdata->learned[sn] = static_cast<sh_int>(adept);
                                 act(AtTell,
                                     "$n tells you. 'You'll have to practice it on your own now...'",
                                     mob, NULL, ch, ToVict);
@@ -4140,7 +4140,7 @@ CMDF do_teach(CharData * ch, char *argument)
                                 }
                         }
 
-                        if (ch->PCData->learned[sn] < 100)
+                        if (ch->pcdata->learned[sn] < 100)
                         {
                                 act(AtTell,
                                     "You must perfect that yourself before teaching others.",
@@ -4168,7 +4168,7 @@ CMDF do_teach(CharData * ch, char *argument)
 
                         adept = 20;
 
-                        if (victim->PCData->learned[sn] >= adept)
+                        if (victim->pcdata->learned[sn] >= adept)
                         {
                                 act(AtTell,
                                     "$n must practice that on their own.",
@@ -4177,7 +4177,7 @@ CMDF do_teach(CharData * ch, char *argument)
                         }
 /*                else if (!str_cmp(ch->race->name(), "verpine"))
                 {
-                        victim->PCData->learned[sn] += 99;
+                        victim->pcdata->learned[sn] += 99;
                         snprintf(buf, MSL, "You teach %s $T.", victim->name);
                         act(AtAction, buf,
                             ch, NULL, skill_table[sn]->name, ToChar);
@@ -4187,7 +4187,7 @@ CMDF do_teach(CharData * ch, char *argument)
                 }*/
                         else
                         {
-                                victim->PCData->learned[sn] +=
+                                victim->pcdata->learned[sn] +=
                                         IntApp[get_curr_int(ch)].learn;
                                 snprintf(buf, MSL, "You teach %s $T.",
                                          victim->name);
@@ -4299,7 +4299,7 @@ CMDF do_password(CharData* ch, char* argument)
                 return;
         }
 
-        if (!verify_password(arg1, ch->PCData->pwd))
+        if (!verify_password(arg1, ch->pcdata->pwd))
         {
                 WaitState(ch, 40);
                 send_to_char("Wrong password.  Wait 10 seconds.\n\r", ch);
@@ -4337,8 +4337,8 @@ CMDF do_password(CharData* ch, char* argument)
         // Generate a strong Argon2 hash
         std::string new_hash = hash_password(arg2);
 
-        DISPOSE(ch->PCData->pwd);
-        ch->PCData->pwd = str_dup(new_hash.c_str());
+        DISPOSE(ch->pcdata->pwd);
+        ch->pcdata->pwd = str_dup(new_hash.c_str());
         if (IsSet(sysdata.save_flags, SvPasschg))
                 save_char_obj(ch);
         send_to_char("Ok.\n\r", ch);
@@ -4537,7 +4537,7 @@ CMDF do_config(CharData * ch, char *argument)
                              "[-flee     ] You fight back if you get attacked.\n\r",
                              ch);
 
-                send_to_char(IsSet(ch->PCData->flags, PcflagNorecall)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagNorecall)
                              ?
                              "[+NORECALL ] You fight to the death, link-dead or not.\n\r"
                              :
@@ -4565,13 +4565,13 @@ CMDF do_config(CharData * ch, char *argument)
                              "[-autocred ] You don't automatically split credits from kills in groups.\n\r",
                              ch);
 
-                send_to_char(IsSet(ch->PCData->flags, PcflagGag)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagGag)
                              ?
                              "[+GAG      ] You see only necessary battle text.\n\r"
                              : "[-gag      ] You see full battle text.\n\r",
                              ch);
 
-                send_to_char(IsSet(ch->PCData->flags, PcflagPageron)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagPageron)
                              ? "[+PAGER    ] Long output is page-paused.\n\r"
                              :
                              "[-pager    ] Long output scrolls to the end.\n\r",
@@ -4596,7 +4596,7 @@ CMDF do_config(CharData * ch, char *argument)
                              "[-combine  ] You see object lists in single format.\n\r",
                              ch);
 
-                send_to_char(IsSet(ch->PCData->flags, PcflagNointro)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagNointro)
                              ?
                              "[+NOINTRO  ] You don't see the ascii intro screen on login.\n\r"
                              :
@@ -4622,8 +4622,8 @@ CMDF do_config(CharData * ch, char *argument)
                              "[-ansi     ] You don't receive receive ANSI colors.\n\r",
                              ch);
 #ifdef ACCOUNT
-                if (ch->PCData->Account)
-                        send_to_char(IsSet(ch->PCData->flags, AccountSound)
+                if (ch->pcdata->Account)
+                        send_to_char(IsSet(ch->pcdata->flags, AccountSound)
                                      ?
                                      "[+SOUND    ] You have MSP support.\n\r"
                                      :
@@ -4643,14 +4643,14 @@ CMDF do_config(CharData * ch, char *argument)
                              "[-shovedrag] You'd rather not be shoved or dragged around.\n\r",
                              ch);
 
-                send_to_char(IsSet(ch->PCData->flags, PcflagNosummon)
+                send_to_char(IsSet(ch->pcdata->flags, PcflagNosummon)
                              ?
                              "[+NOSUMMON ] You do not allow other players to summon you.\n\r"
                              :
                              "[-nosummon ] You allow other players to summon you.\n\r",
                              ch);
                 
-				send_to_char(IsSet(ch->PCData->flags, PcflagAutodraw)
+				send_to_char(IsSet(ch->pcdata->flags, PcflagAutodraw)
                              ?
                              "[+AUTODRAW ] You autodraw your holsters and put them back away after a fight.\n\r"
                              :
@@ -4665,7 +4665,7 @@ CMDF do_config(CharData * ch, char *argument)
                                      "[-vnum     ] You do not see the VNUM of a room.\n\r",
                                      ch);
 
-                        send_to_char(IsSet(ch->PCData->flags, PcflagRoom)
+                        send_to_char(IsSet(ch->pcdata->flags, PcflagRoom)
                                      ?
                                      "[+ROOMFLAGS] You will see room flags.\n\r"
                                      :
@@ -4788,9 +4788,9 @@ CMDF do_config(CharData * ch, char *argument)
                         }
 
                         if (fSet)
-                                SetBit(ch->PCData->flags, bit);
+                                SetBit(ch->pcdata->flags, bit);
                         else
-                                RemoveBit(ch->PCData->flags, bit);
+                                RemoveBit(ch->pcdata->flags, bit);
 
                         send_to_char("Ok.\n\r", ch);
                         return;
@@ -4917,7 +4917,7 @@ CMDF do_slist(CharData * ch, char *argument)
                                 if (skill_table[sn]->guild != ability)
                                         continue;
 
-                                if (ch->PCData->learned[sn] == 0
+                                if (ch->pcdata->learned[sn] == 0
                                     && SpellFlag(skill_table[sn],
                                                   SfSecretskill))
                                         continue;
@@ -5013,11 +5013,11 @@ CMDF do_whois(CharData * ch, char *argument)
                   victim->name, victim->top_level);
         ch_printf(ch, "&B| &BA&zge:&w %-21d &B| %s &w%-16s &B|\n\r",
                   get_age(victim),
-                  victim->PCData->spouse[0] !=
-                  '\0' ? (IsSet(victim->PCData->flags, PcflagMarried) ?
+                  victim->pcdata->spouse[0] !=
+                  '\0' ? (IsSet(victim->pcdata->flags, PcflagMarried) ?
                           "&BS&zpouse:" : "&BF&ziance:") : "       ",
-                  victim->PCData->spouse[0] !=
-                  '\0' ? victim->PCData->spouse : "");
+                  victim->pcdata->spouse[0] !=
+                  '\0' ? victim->pcdata->spouse : "");
         ch_printf(ch, "&B| &BS&zex:&w %-21s &B| &BR&zace: &w%-18s &B|\n\r",
                   victim->sex == SexMale ? "male" : victim->sex ==
                   SexFemale ? "female" : "neutral", victim->race->name());
@@ -5025,22 +5025,22 @@ CMDF do_whois(CharData * ch, char *argument)
                 ch_printf(ch,
                           "&B| &BI&zn Room:&w %-17d &B|                          &B|\n\r",
                           victim->in_room->vnum);
-        if (victim->PCData->clan)
+        if (victim->pcdata->clan)
         {
                 ch_printf(ch, "&B| &BC&zlan:&w %-47s &B|\n\r",
-                          victim->PCData->clan->name);
+                          victim->pcdata->clan->name);
         }
         send_to_char
                 ("&B---------------------------------------------------------&B\n\r",
                  ch);
 
-        if (victim->PCData->bio && victim->PCData->bio[0] != '\0')
+        if (victim->pcdata->bio && victim->pcdata->bio[0] != '\0')
         {
                 ch_printf(ch, "&z%s's personal bio:\n\r", victim->name);
                 send_to_char
                         ("&B---------------------------------------------------------&B\n\r",
                          ch);
-                ch_printf(ch, "&w%s\n\r", victim->PCData->bio);
+                ch_printf(ch, "&w%s\n\r", victim->pcdata->bio);
                 send_to_char
                         ("&B---------------------------------------------------------&B\n\r",
                          ch);
@@ -5052,37 +5052,37 @@ CMDF do_whois(CharData * ch, char *argument)
                         ("&B---------------------------------------------------------&B\n\r",
                          ch);
 
-                if (victim->PCData->authed_by
-                    && victim->PCData->authed_by[0] != '\0')
+                if (victim->pcdata->authed_by
+                    && victim->pcdata->authed_by[0] != '\0')
                         ch_printf(ch, "&z%s was authorized by %s.\n\r",
-                                  victim->name, victim->PCData->authed_by);
+                                  victim->name, victim->pcdata->authed_by);
 
                 ch_printf(ch,
                           "&z%s has killed &w%d &zmobiles, and been killed by a mobile &w%d &ztimes.\n\r",
-                          victim->name, victim->PCData->mkills,
-                          victim->PCData->mdeaths);
-                if (victim->PCData->pkills || victim->PCData->pdeaths)
+                          victim->name, victim->pcdata->mkills,
+                          victim->pcdata->mdeaths);
+                if (victim->pcdata->pkills || victim->pcdata->pdeaths)
                         ch_printf(ch,
                                   "&z%s has killed &w%d &zplayers, and been killed by a player &w%d &ztimes.\n\r",
-                                  victim->name, victim->PCData->pkills,
-                                  victim->PCData->pdeaths);
-                if (victim->PCData->illegal_pk)
+                                  victim->name, victim->pcdata->pkills,
+                                  victim->pcdata->pdeaths);
+                if (victim->pcdata->illegal_pk)
                         ch_printf(ch,
                                   "&z%s has committed &w%d &zillegal player kills.\n\r",
-                                  victim->name, victim->PCData->illegal_pk);
+                                  victim->name, victim->pcdata->illegal_pk);
 
                 ch_printf(ch, "&z%s is &w%s&zhelled at the moment.\n\r",
                           victim->name,
-                          (victim->PCData->release_date == 0) ? "not " : "");
+                          (victim->pcdata->release_date == 0) ? "not " : "");
 
-                if (victim->PCData->release_date != 0)
+                if (victim->pcdata->release_date != 0)
                         ch_printf(ch,
                                   "&z%s was helled by &w%s&z, and will be released on &w%24.24s.\n\r",
                                   victim->sex ==
                                   SexMale ? "He" : victim->sex ==
                                   SexFemale ? "She" : "It",
-                                  victim->PCData->helled_by,
-                                  ctime(&victim->PCData->release_date));
+                                  victim->pcdata->helled_by,
+                                  ctime(&victim->pcdata->release_date));
 
                 if (get_trust(victim) < get_trust(ch))
                 {
@@ -5118,10 +5118,10 @@ CMDF do_whois(CharData * ch, char *argument)
                         }
                 }
                 if (get_trust(ch) >= LevelGod
-                    && get_trust(ch) >= get_trust(victim) && victim->PCData)
+                    && get_trust(ch) >= get_trust(victim) && victim->pcdata)
                 {
                         ch_printf(ch, "&zEmail: &w%s\n\r",
-                                  victim->PCData->email ? victim->PCData->email : "None");
+                                  victim->pcdata->email ? victim->pcdata->email : "None");
                 }
                 if (victim->desc)
                 {
@@ -5150,7 +5150,7 @@ CMDF do_pager(CharData * ch, char *argument)
         argument = one_argument(argument, arg);
         if (!*arg)
         {
-                if (IsSet(ch->PCData->flags, PcflagPageron))
+                if (IsSet(ch->pcdata->flags, PcflagPageron))
                         do_config(ch, const_cast<char*>("-pager"));
                 else
                         do_config(ch, const_cast<char*>("+pager"));
@@ -5161,11 +5161,11 @@ CMDF do_pager(CharData * ch, char *argument)
                 send_to_char("Set page pausing to how many lines?\n\r", ch);
                 return;
         }
-        ch->PCData->pagerlen = static_cast<sh_int>(atoi(arg));
-        if (ch->PCData->pagerlen < PagerMinLines)
-                ch->PCData->pagerlen = 5;
+        ch->pcdata->pagerlen = static_cast<sh_int>(atoi(arg));
+        if (ch->pcdata->pagerlen < PagerMinLines)
+                ch->pcdata->pagerlen = 5;
         ch_printf(ch, "Page pausing set to %d lines.\n\r",
-                  ch->PCData->pagerlen);
+                  ch->pcdata->pagerlen);
         return;
 }
 
